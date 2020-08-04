@@ -1,0 +1,45 @@
+# CompilerName=gcc
+# Mode=optim
+ninja_required_version = 1.3
+
+# Basic folders
+root = .
+builddir = $root/build/glnxa64
+matlabdir = /home/peter/apps/MATLAB/R2020a
+startdir = /home/peter/iai/opencn-soo/agency/usr/matlab/common
+
+# Toolchain information
+cc = gcc
+cxx = /usr/bin/g++
+linker = gcc
+linkerxx = /usr/bin/g++
+
+cflags =  -fexceptions -fPIC -fno-omit-frame-pointer -pthread -D_GNU_SOURCE -DMATLAB_MEX_FILE  -O2 -fwrapv -DNDEBUG -fvisibility=hidden -std=c99 -I "$root" -I "$startdir" -I "/home/peter/iai/opencn-soo/agency/usr" -I "$startdir/src" -I "/home/peter/iai/opencn-soo/agency/usr/rs274ngc" -I "/home/peter/iai/opencn-soo/agency/usr/common/include" -I "$root/interface" -I "$matlabdir/extern/include" -I "." -DMODEL=bspline_create_mex -DMW_NEEDS_VERSION_H -c 
+
+cxxflags =  -fexceptions -fPIC -fno-omit-frame-pointer -pthread -std=c++11 -D_GNU_SOURCE -DMATLAB_MEX_FILE  -O2 -fwrapv -DNDEBUG -fvisibility=hidden -std=c++11 -I "$root" -I "$startdir" -I "/home/peter/iai/opencn-soo/agency/usr" -I "$startdir/src" -I "/home/peter/iai/opencn-soo/agency/usr/rs274ngc" -I "/home/peter/iai/opencn-soo/agency/usr/common/include" -I "$root/interface" -I "$matlabdir/extern/include" -I "." -DMODEL=bspline_create_mex -DMW_NEEDS_VERSION_H -c 
+
+ldflags =  -pthread -Wl,--no-undefined  -shared -Wl,--as-needed -Wl,-rpath-link,$matlabdir/bin/glnxa64 -L"$matlabdir/bin/glnxa64" -Wl,-rpath-link,$matlabdir/extern/bin/glnxa64 -L"$matlabdir/extern/bin/glnxa64" -lMatlabDataArray -lmx -lmex -lmat -lm -lstdc++  -o bspline_create_mex.mexa64 -lemlrt -lcovrt -lut -lmwmathutil -lgsl -lgslcblas -lm
+
+# Build Rules
+rule cc
+    command = $cc $cflags $in -o $out
+
+rule cxx
+    command = $cxx $cxxflags $in -o $out
+
+rule link
+    command = $linker $in $ldflags
+
+rule linkxx
+    command = $linkerxx $in $ldflags
+
+# Build
+build $builddir/c_spline.o : cc $startdir/src/c_spline.c
+build $builddir/rt_nonfinite.o : cxx $root/rt_nonfinite.cpp
+build $builddir/bspline_create.o : cxx $root/bspline_create.cpp
+build $builddir/_coder_bspline_create_mex.o : cxx $root/interface/_coder_bspline_create_mex.cpp
+build $builddir/_coder_bspline_create_info.o : cxx $root/interface/_coder_bspline_create_info.cpp
+build $builddir/cpp_mexapi_version.o : cxx $matlabdir/extern/version/cpp_mexapi_version.cpp
+
+# Link
+build $root/bspline_create_mex.mexa64 : linkxx $builddir/c_spline.o $builddir/rt_nonfinite.o $builddir/bspline_create.o $builddir/_coder_bspline_create_mex.o $builddir/_coder_bspline_create_info.o $builddir/cpp_mexapi_version.o 

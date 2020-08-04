@@ -1,0 +1,37 @@
+% function TestZeroStart
+clear; clc;
+cfg = FeedoptDefaultConfig;
+% cfg.NHorz = 5;
+cfg.LSplit = 30;
+N = 1;
+<<<<<<< HEAD
+gcode = ConstrHelixStruct([0,0,0]', [1,1,1 + (N-1)*4]', [0,0,1]', (N-1)*pi+pi/2, 4, 150, ZSpdMode.ZZ);
+[CurvStruct1, CurvStruct2] = CutZeroStart(ctx, gcode, cfg);
+
+cfg.v_0 = CurvStruct1.v_0;
+cfg.at_0 = CurvStruct1.at_0;
+=======
+gcode1 = ConstrHelixStruct([0,0,0]', [1,1,1 + (N-1)*4]', [0,0,1]', (N-1)*pi+pi/2, 4, 15, ZSpdMode.ZN);
+gcode2 = ConstrLineStruct([1,1,1 + (N-1)*4]', [1,2,1 + (N-1)*4]', 15, ZSpdMode.NN);
+% [CurvStruct1, CurvStruct2] = CutZeroStart(gcode, cfg);
+% 
+% cfg.v_0 = CurvStruct1.v_0;
+% cfg.at_0 = CurvStruct1.at_0;
+>>>>>>> 59-rs274-mex
+ctx = InitFeedoptPlan(cfg);
+
+ctx.q_gcode.push(gcode1);
+ctx.q_gcode.push(gcode2);
+ctx.op = Fopt.Smooth;
+% ctx.q_opt.push(CurvStruct1);
+ctx = FeedoptPlanRun(ctx);
+
+PlotResampled(ctx, 1e-4);
+
+<<<<<<< HEAD
+% PlotCurvStructs(ctx, [CurvStruct1, CurvStruct2])
+end
+=======
+% PlotCurvStructs([CurvStruct1, CurvStruct2])
+% end
+>>>>>>> 59-rs274-mex

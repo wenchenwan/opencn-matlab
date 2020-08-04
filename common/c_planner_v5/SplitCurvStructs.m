@@ -1,0 +1,13 @@
+function ctx = SplitCurvStructs(ctx)
+
+if ctx.q_smooth.isempty()
+    return;
+end
+
+N = ctx.q_smooth.size;
+
+for k = 1:N
+    ctx = SplitCurvStruct(ctx, ctx.q_smooth.get(k));
+end
+
+end

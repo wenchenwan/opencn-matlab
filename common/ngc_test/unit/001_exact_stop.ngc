@@ -1,0 +1,9 @@
+(M61 Q1)
+G91     ; incremental mode
+G61.1   ; exact stop
+F100
+G1 X0 Y0 Z0
+G1 X1 Y0 Z0
+G1 X0 Y1 Z0
+G1 X0 Y0 Z1
+M2

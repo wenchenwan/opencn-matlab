@@ -1,0 +1,8 @@
+G17 ; XY plane
+G91     ; incremental mode
+F10000
+G00 X0 Y0 Z0
+G01 X0.1 F10000
+G03 X0.1 Y0.1 I0 J0.1 F1000
+G01 Y0.1 F10000
+M2

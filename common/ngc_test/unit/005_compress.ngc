@@ -1,0 +1,12 @@
+G91     ; incremental mode
+G1 X0 F3000
+G1 X0.01
+G1 X0.01
+G1 X0.01
+G1 X0.01
+G1 X0.01
+G1 X0.01
+G1 X0.01
+G1 X0.01
+G1 X0.01
+M2      ; program end
