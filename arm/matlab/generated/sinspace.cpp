@@ -5,12 +5,13 @@
 // File: sinspace.cpp
 //
 // MATLAB Coder version            : 5.0
-// C/C++ source code generated on  : 11-Aug-2020 14:46:10
+// C/C++ source code generated on  : 02-Sep-2020 16:12:34
 //
 
 // Include Files
 #include "sinspace.h"
 #include "cpp_simplex.hpp"
+#include "crl.h"
 #include "functions.h"
 #include "src/c_spline.h"
 #include <cfloat>
@@ -1243,7 +1244,7 @@ namespace ocn
 
         i2 = R1_tmp.size(0);
         for (int b_k = 0; b_k < i2; b_k++) {
-            R1_tmp[b_k] = std::sqrt(R1_tmp[b_k]);
+            R1_tmp[b_k] = __ocn_sqrt(R1_tmp[b_k]);
         }
 
         b_loop_ub = r3D.size(1);
@@ -1668,7 +1669,7 @@ namespace ocn
 
             i51 = R1_tmp.size(0);
             for (int e_k = 0; e_k < i51; e_k++) {
-                R1_tmp[e_k] = std::sqrt(R1_tmp[e_k]);
+                R1_tmp[e_k] = __ocn_sqrt(R1_tmp[e_k]);
             }
 
             kb_loop_ub = r3D.size(1);
@@ -2686,16 +2687,16 @@ namespace ocn
             double o_a;
             double d_b;
             double d4;
-            int i106;
+            int i105;
             int wc_loop_ub;
             int xc_loop_ub;
             double d5;
+            int i114;
             int i115;
-            int i116;
             double p_a;
             int yc_loop_ub;
             double d6;
-            int i118;
+            int i117;
             double c;
             int ad_loop_ub;
             double q_a;
@@ -2705,8 +2706,8 @@ namespace ocn
             double u_a;
             double v_a;
             double d7;
+            int i119;
             int i120;
-            int i121;
             int bd_loop_ub;
             int cd_loop_ub;
             double w_a;
@@ -2716,7 +2717,7 @@ namespace ocn
             double bb_a;
             double cb_a;
             double d10;
-            int i124;
+            int i123;
             int dd_loop_ub;
             int ed_loop_ub;
             int fd_loop_ub;
@@ -2822,75 +2823,75 @@ namespace ocn
             b_bsxfun(b_r2Dn, BasisVal, r1);
             hc_loop_ub = r1Dn.size(1);
             b_r1Dn.set_size(r1Dn.size(1));
-            for (int i77 = 0; i77 < hc_loop_ub; i77++) {
-                b_r1Dn[i77] = r1Dn[3 * i77 + 1];
+            for (int i76 = 0; i76 < hc_loop_ub; i76++) {
+                b_r1Dn[i76] = r1Dn[3 * i76 + 1];
             }
 
             b_bsxfun(b_r1Dn, BasisValD, r2);
             R2.set_size(r1.size(0), r1.size(1));
             ic_loop_ub = r1.size(1);
-            for (int i78 = 0; i78 < ic_loop_ub; i78++) {
+            for (int i77 = 0; i77 < ic_loop_ub; i77++) {
                 int kc_loop_ub;
                 kc_loop_ub = r1.size(0);
-                for (int i79 = 0; i79 < kc_loop_ub; i79++) {
-                    R2[i79 + R2.size(0) * i78] = r1[i79 + r1.size(0) * i78] + 0.5 * r2[i79 + r2.size
-                        (0) * i78];
+                for (int i78 = 0; i78 < kc_loop_ub; i78++) {
+                    R2[i78 + R2.size(0) * i77] = r1[i78 + r1.size(0) * i77] + 0.5 * r2[i78 + r2.size
+                        (0) * i77];
                 }
             }
 
             jc_loop_ub = r2Dn.size(1);
             b_r2Dn.set_size(r2Dn.size(1));
-            for (int i80 = 0; i80 < jc_loop_ub; i80++) {
-                b_r2Dn[i80] = r2Dn[3 * i80 + 2];
+            for (int i79 = 0; i79 < jc_loop_ub; i79++) {
+                b_r2Dn[i79] = r2Dn[3 * i79 + 2];
             }
 
             b_bsxfun(b_r2Dn, BasisVal, r1);
             lc_loop_ub = r1Dn.size(1);
             b_r1Dn.set_size(r1Dn.size(1));
-            for (int i81 = 0; i81 < lc_loop_ub; i81++) {
-                b_r1Dn[i81] = r1Dn[3 * i81 + 2];
+            for (int i80 = 0; i80 < lc_loop_ub; i80++) {
+                b_r1Dn[i80] = r1Dn[3 * i80 + 2];
             }
 
             b_bsxfun(b_r1Dn, BasisValD, r2);
             R3.set_size(r1.size(0), r1.size(1));
             mc_loop_ub = r1.size(1);
-            for (int i82 = 0; i82 < mc_loop_ub; i82++) {
+            for (int i81 = 0; i81 < mc_loop_ub; i81++) {
                 int nc_loop_ub;
                 nc_loop_ub = r1.size(0);
-                for (int i83 = 0; i83 < nc_loop_ub; i83++) {
-                    R3[i83 + R3.size(0) * i82] = r1[i83 + r1.size(0) * i82] + 0.5 * r2[i83 + r2.size
-                        (0) * i82];
+                for (int i82 = 0; i82 < nc_loop_ub; i82++) {
+                    R3[i82 + R3.size(0) * i81] = r1[i82 + r1.size(0) * i81] + 0.5 * r2[i82 + r2.size
+                        (0) * i81];
                 }
             }
 
             //
             varargin_3.set_size(R1.size(0), R1.size(1));
             oc_loop_ub = R1.size(1);
-            for (int i84 = 0; i84 < oc_loop_ub; i84++) {
+            for (int i83 = 0; i83 < oc_loop_ub; i83++) {
                 int pc_loop_ub;
                 pc_loop_ub = R1.size(0);
-                for (int i85 = 0; i85 < pc_loop_ub; i85++) {
-                    varargin_3[i85 + varargin_3.size(0) * i84] = -R1[i85 + R1.size(0) * i84];
+                for (int i84 = 0; i84 < pc_loop_ub; i84++) {
+                    varargin_3[i84 + varargin_3.size(0) * i83] = -R1[i84 + R1.size(0) * i83];
                 }
             }
 
             varargin_5.set_size(R2.size(0), R2.size(1));
             qc_loop_ub = R2.size(1);
-            for (int i86 = 0; i86 < qc_loop_ub; i86++) {
+            for (int i85 = 0; i85 < qc_loop_ub; i85++) {
                 int rc_loop_ub;
                 rc_loop_ub = R2.size(0);
-                for (int i87 = 0; i87 < rc_loop_ub; i87++) {
-                    varargin_5[i87 + varargin_5.size(0) * i86] = -R2[i87 + R2.size(0) * i86];
+                for (int i86 = 0; i86 < rc_loop_ub; i86++) {
+                    varargin_5[i86 + varargin_5.size(0) * i85] = -R2[i86 + R2.size(0) * i85];
                 }
             }
 
             varargin_7.set_size(R3.size(0), R3.size(1));
             sc_loop_ub = R3.size(1);
-            for (int i88 = 0; i88 < sc_loop_ub; i88++) {
+            for (int i87 = 0; i87 < sc_loop_ub; i87++) {
                 int tc_loop_ub;
                 tc_loop_ub = R3.size(0);
-                for (int i89 = 0; i89 < tc_loop_ub; i89++) {
-                    varargin_7[i89 + varargin_7.size(0) * i88] = -R3[i89 + R3.size(0) * i88];
+                for (int i88 = 0; i88 < tc_loop_ub; i88++) {
+                    varargin_7[i88 + varargin_7.size(0) * i87] = -R3[i88 + R3.size(0) * i87];
                 }
             }
 
@@ -2998,8 +2999,8 @@ namespace ocn
                 int uc_loop_ub;
                 uc_loop_ub = static_cast<int>(c_b - n_a);
                 y.set_size(1, (uc_loop_ub + 1));
-                for (int i90 = 0; i90 <= uc_loop_ub; i90++) {
-                    y[i90] = n_a + static_cast<double>(i90);
+                for (int i89 = 0; i89 <= uc_loop_ub; i89++) {
+                    y[i89] = n_a + static_cast<double>(i89);
                 }
             }
 
@@ -3011,65 +3012,65 @@ namespace ocn
                 int vc_loop_ub;
                 vc_loop_ub = static_cast<int>(d_b - o_a);
                 b_y.set_size(1, (vc_loop_ub + 1));
-                for (int i91 = 0; i91 <= vc_loop_ub; i91++) {
-                    b_y[i91] = o_a + static_cast<double>(i91);
+                for (int i90 = 0; i90 <= vc_loop_ub; i90++) {
+                    b_y[i90] = o_a + static_cast<double>(i90);
                 }
             }
 
             b_BasisVal.set_size(((((((i_input_sizes_idx_0 + j_input_sizes_idx_0) +
                 k_input_sizes_idx_0) + l_input_sizes_idx_0) + m_input_sizes_idx_0) +
                                   n_input_sizes_idx_0) + o_input_sizes_idx_0), b_result);
+            for (int i91 = 0; i91 < b_result; i91++) {
+                for (int i93 = 0; i93 < i_input_sizes_idx_0; i93++) {
+                    b_BasisVal[i93 + b_BasisVal.size(0) * i91] = BasisVal[i93 + i_input_sizes_idx_0 *
+                        i91];
+                }
+            }
+
             for (int i92 = 0; i92 < b_result; i92++) {
-                for (int i94 = 0; i94 < i_input_sizes_idx_0; i94++) {
-                    b_BasisVal[i94 + b_BasisVal.size(0) * i92] = BasisVal[i94 + i_input_sizes_idx_0 *
-                        i92];
+                for (int i95 = 0; i95 < j_input_sizes_idx_0; i95++) {
+                    b_BasisVal[(i95 + i_input_sizes_idx_0) + b_BasisVal.size(0) * i92] = R1[i95 +
+                        j_input_sizes_idx_0 * i92];
                 }
             }
 
-            for (int i93 = 0; i93 < b_result; i93++) {
-                for (int i96 = 0; i96 < j_input_sizes_idx_0; i96++) {
-                    b_BasisVal[(i96 + i_input_sizes_idx_0) + b_BasisVal.size(0) * i93] = R1[i96 +
-                        j_input_sizes_idx_0 * i93];
+            for (int i94 = 0; i94 < b_result; i94++) {
+                for (int i97 = 0; i97 < k_input_sizes_idx_0; i97++) {
+                    b_BasisVal[((i97 + i_input_sizes_idx_0) + j_input_sizes_idx_0) + b_BasisVal.size
+                        (0) * i94] = varargin_3[i97 + k_input_sizes_idx_0 * i94];
                 }
             }
 
-            for (int i95 = 0; i95 < b_result; i95++) {
-                for (int i98 = 0; i98 < k_input_sizes_idx_0; i98++) {
-                    b_BasisVal[((i98 + i_input_sizes_idx_0) + j_input_sizes_idx_0) + b_BasisVal.size
-                        (0) * i95] = varargin_3[i98 + k_input_sizes_idx_0 * i95];
+            for (int i96 = 0; i96 < b_result; i96++) {
+                for (int i99 = 0; i99 < l_input_sizes_idx_0; i99++) {
+                    b_BasisVal[(((i99 + i_input_sizes_idx_0) + j_input_sizes_idx_0) +
+                                k_input_sizes_idx_0) + b_BasisVal.size(0) * i96] = R2[i99 +
+                        l_input_sizes_idx_0 * i96];
                 }
             }
 
-            for (int i97 = 0; i97 < b_result; i97++) {
-                for (int i100 = 0; i100 < l_input_sizes_idx_0; i100++) {
-                    b_BasisVal[(((i100 + i_input_sizes_idx_0) + j_input_sizes_idx_0) +
-                                k_input_sizes_idx_0) + b_BasisVal.size(0) * i97] = R2[i100 +
-                        l_input_sizes_idx_0 * i97];
-                }
-            }
-
-            for (int i99 = 0; i99 < b_result; i99++) {
-                for (int i102 = 0; i102 < m_input_sizes_idx_0; i102++) {
-                    b_BasisVal[((((i102 + i_input_sizes_idx_0) + j_input_sizes_idx_0) +
+            for (int i98 = 0; i98 < b_result; i98++) {
+                for (int i101 = 0; i101 < m_input_sizes_idx_0; i101++) {
+                    b_BasisVal[((((i101 + i_input_sizes_idx_0) + j_input_sizes_idx_0) +
                                  k_input_sizes_idx_0) + l_input_sizes_idx_0) + b_BasisVal.size(0) *
-                        i99] = varargin_5[i102 + m_input_sizes_idx_0 * i99];
+                        i98] = varargin_5[i101 + m_input_sizes_idx_0 * i98];
                 }
             }
 
-            for (int i101 = 0; i101 < b_result; i101++) {
-                for (int i104 = 0; i104 < n_input_sizes_idx_0; i104++) {
-                    b_BasisVal[(((((i104 + i_input_sizes_idx_0) + j_input_sizes_idx_0) +
+            for (int i100 = 0; i100 < b_result; i100++) {
+                for (int i103 = 0; i103 < n_input_sizes_idx_0; i103++) {
+                    b_BasisVal[(((((i103 + i_input_sizes_idx_0) + j_input_sizes_idx_0) +
                                   k_input_sizes_idx_0) + l_input_sizes_idx_0) + m_input_sizes_idx_0)
-                        + b_BasisVal.size(0) * i101] = R3[i104 + n_input_sizes_idx_0 * i101];
+                        + b_BasisVal.size(0) * i100] = R3[i103 + n_input_sizes_idx_0 * i100];
                 }
             }
 
-            for (int i103 = 0; i103 < b_result; i103++) {
-                for (int i105 = 0; i105 < o_input_sizes_idx_0; i105++) {
-                    b_BasisVal[((((((i105 + i_input_sizes_idx_0) + j_input_sizes_idx_0) +
+            for (int i102 = 0; i102 < b_result; i102++) {
+                for (int i104 = 0; i104 < o_input_sizes_idx_0; i104++) {
+                    b_BasisVal[((((((i104 + i_input_sizes_idx_0) + j_input_sizes_idx_0) +
                                    k_input_sizes_idx_0) + l_input_sizes_idx_0) + m_input_sizes_idx_0)
-                                + n_input_sizes_idx_0) + b_BasisVal.size(0) * i103] =
-                        varargin_7[i105 + o_input_sizes_idx_0 * i103];
+                                + n_input_sizes_idx_0) + b_BasisVal.size(0) * i102] =
+                        varargin_7[i104 + o_input_sizes_idx_0 * i102];
                 }
             }
 
@@ -3078,81 +3079,81 @@ namespace ocn
             //
             d4 = a_tmp * static_cast<double>(BasisVal.size(0)) + 1.0;
             if (d4 > b_tmp * static_cast<double>(BasisVal.size(0))) {
-                i106 = 0;
+                i105 = 0;
             } else {
-                i106 = static_cast<int>(d4) - 1;
+                i105 = static_cast<int>(d4) - 1;
             }
 
             r3.set_size(r1Dn_sqnorm.size(1));
             wc_loop_ub = r1Dn_sqnorm.size(1);
-            for (int i107 = 0; i107 < wc_loop_ub; i107++) {
-                r3[i107] = r1Dn_sqnorm[i107];
+            for (int i106 = 0; i106 < wc_loop_ub; i106++) {
+                r3[i106] = r1Dn_sqnorm[i106];
             }
 
             unnamed_idx_1 = r3.size(0);
             xc_loop_ub = r3.size(0);
-            for (int i108 = 0; i108 < xc_loop_ub; i108++) {
-                b[i106 + i108] = b_x / r3[i108];
+            for (int i107 = 0; i107 < xc_loop_ub; i107++) {
+                b[i105 + i107] = b_x / r3[i107];
             }
 
-            for (int i109 = 0; i109 < ob_loop_ub; i109++) {
-                b[(i106 + i109) + unnamed_idx_1] = bC2[i109];
+            for (int i108 = 0; i108 < ob_loop_ub; i108++) {
+                b[(i105 + i108) + unnamed_idx_1] = bC2[i108];
             }
 
-            for (int i110 = 0; i110 < pb_loop_ub; i110++) {
-                b[((i106 + i110) + unnamed_idx_1) + b_unnamed_idx_1] = bC2[i110];
+            for (int i109 = 0; i109 < pb_loop_ub; i109++) {
+                b[((i105 + i109) + unnamed_idx_1) + b_unnamed_idx_1] = bC2[i109];
             }
 
-            for (int i111 = 0; i111 < rb_loop_ub; i111++) {
-                b[(((i106 + i111) + unnamed_idx_1) + b_unnamed_idx_1) + c_unnamed_idx_1] = bC3[i111];
+            for (int i110 = 0; i110 < rb_loop_ub; i110++) {
+                b[(((i105 + i110) + unnamed_idx_1) + b_unnamed_idx_1) + c_unnamed_idx_1] = bC3[i110];
             }
 
-            for (int i112 = 0; i112 < sb_loop_ub; i112++) {
-                b[((((i106 + i112) + unnamed_idx_1) + b_unnamed_idx_1) + c_unnamed_idx_1) +
-                    d_unnamed_idx_1] = bC3[i112];
+            for (int i111 = 0; i111 < sb_loop_ub; i111++) {
+                b[((((i105 + i111) + unnamed_idx_1) + b_unnamed_idx_1) + c_unnamed_idx_1) +
+                    d_unnamed_idx_1] = bC3[i111];
             }
 
-            for (int i113 = 0; i113 < tb_loop_ub; i113++) {
-                b[(((((i106 + i113) + unnamed_idx_1) + b_unnamed_idx_1) + c_unnamed_idx_1) +
-                    d_unnamed_idx_1) + e_unnamed_idx_1] = bC4[i113];
+            for (int i112 = 0; i112 < tb_loop_ub; i112++) {
+                b[(((((i105 + i112) + unnamed_idx_1) + b_unnamed_idx_1) + c_unnamed_idx_1) +
+                    d_unnamed_idx_1) + e_unnamed_idx_1] = bC4[i112];
             }
 
-            for (int i114 = 0; i114 < ub_loop_ub; i114++) {
-                b[((((((i106 + i114) + unnamed_idx_1) + b_unnamed_idx_1) + c_unnamed_idx_1) +
-                    d_unnamed_idx_1) + e_unnamed_idx_1) + f_unnamed_idx_1] = bC4[i114];
+            for (int i113 = 0; i113 < ub_loop_ub; i113++) {
+                b[((((((i105 + i113) + unnamed_idx_1) + b_unnamed_idx_1) + c_unnamed_idx_1) +
+                    d_unnamed_idx_1) + e_unnamed_idx_1) + f_unnamed_idx_1] = bC4[i113];
             }
 
             //
             d5 = ((static_cast<double>(b_k) + 1.0) - 1.0) * static_cast<double>(BasisVal.size(1)) +
                 1.0;
             if (d5 > (static_cast<double>(b_k) + 1.0) * static_cast<double>(BasisVal.size(1))) {
-                i115 = 1;
+                i114 = 1;
             } else {
-                i115 = static_cast<int>(d5);
+                i114 = static_cast<int>(d5);
             }
 
-            i116 = static_cast<int>(static_cast<unsigned int>(b_k + 1) << 1);
+            i115 = static_cast<int>(static_cast<unsigned int>(b_k + 1) << 1);
             p_a = std::pow((t_1[0] * r1D[3 * (r1D.size(1) - 1)] + t_1[1] * r1D[3 * (r1D.size(1) - 1)
                             + 1]) + t_1[2] * r1D[3 * (r1D.size(1) - 1) + 2], 2.0);
             yc_loop_ub = BasisVal.size(1);
-            for (int i117 = 0; i117 < yc_loop_ub; i117++) {
-                Aeq[i116 + Aeq.size(0) * ((i115 + i117) - 1)] = p_a * BasisVal[(BasisVal.size(0) +
-                    BasisVal.size(0) * i117) - 1];
+            for (int i116 = 0; i116 < yc_loop_ub; i116++) {
+                Aeq[i115 + Aeq.size(0) * ((i114 + i116) - 1)] = p_a * BasisVal[(BasisVal.size(0) +
+                    BasisVal.size(0) * i116) - 1];
             }
 
             d6 = (static_cast<double>(b_k) + 1.0) * static_cast<double>(BasisVal.size(1)) + 1.0;
             if (d6 > ((static_cast<double>(b_k) + 1.0) + 1.0) * static_cast<double>(BasisVal.size(1)))
             {
-                i118 = 1;
+                i117 = 1;
             } else {
-                i118 = static_cast<int>(d6);
+                i117 = static_cast<int>(d6);
             }
 
             c = std::pow((t_1[0] * r1Dn[0] + t_1[1] * r1Dn[1]) + t_1[2] * r1Dn[2], 2.0);
             ad_loop_ub = BasisVal.size(1);
-            for (int i119 = 0; i119 < ad_loop_ub; i119++) {
-                Aeq[i116 + Aeq.size(0) * ((i118 + i119) - 1)] = -c * BasisVal[BasisVal.size(0) *
-                    i119];
+            for (int i118 = 0; i118 < ad_loop_ub; i118++) {
+                Aeq[i115 + Aeq.size(0) * ((i117 + i118) - 1)] = -c * BasisVal[BasisVal.size(0) *
+                    i118];
             }
 
             q_a = r2D[3 * (r2D.size(1) - 1)];
@@ -3164,28 +3165,28 @@ namespace ocn
             d7 = ((static_cast<double>(b_k) + 1.0) - 1.0) * static_cast<double>(BasisVal.size(1)) +
                 1.0;
             if (d7 > (static_cast<double>(b_k) + 1.0) * static_cast<double>(BasisVal.size(1))) {
-                i120 = 1;
+                i119 = 1;
             } else {
-                i120 = static_cast<int>(d7);
+                i119 = static_cast<int>(d7);
             }
 
-            i121 = i116 + 1;
+            i120 = i115 + 1;
             bd_loop_ub = BasisVal.size(1);
             g_a.set_size(3, BasisVal.size(1));
-            for (int i122 = 0; i122 < bd_loop_ub; i122++) {
+            for (int i121 = 0; i121 < bd_loop_ub; i121++) {
                 double d8;
                 double d9;
-                d8 = BasisVal[(BasisVal.size(0) + BasisVal.size(0) * i122) - 1];
-                d9 = BasisValD[(BasisValD.size(0) + BasisValD.size(0) * i122) - 1];
-                g_a[3 * i122] = q_a * d8 + r_a * d9;
-                g_a[3 * i122 + 1] = s_a * d8 + t_a * d9;
-                g_a[3 * i122 + 2] = u_a * d8 + v_a * d9;
+                d8 = BasisVal[(BasisVal.size(0) + BasisVal.size(0) * i121) - 1];
+                d9 = BasisValD[(BasisValD.size(0) + BasisValD.size(0) * i121) - 1];
+                g_a[3 * i121] = q_a * d8 + r_a * d9;
+                g_a[3 * i121 + 1] = s_a * d8 + t_a * d9;
+                g_a[3 * i121 + 2] = u_a * d8 + v_a * d9;
             }
 
             mtimes(t_1, g_a, r4);
             cd_loop_ub = r4.size(1);
-            for (int i123 = 0; i123 < cd_loop_ub; i123++) {
-                Aeq[i121 + Aeq.size(0) * ((i120 + i123) - 1)] = r4[i123];
+            for (int i122 = 0; i122 < cd_loop_ub; i122++) {
+                Aeq[i120 + Aeq.size(0) * ((i119 + i122) - 1)] = r4[i122];
             }
 
             //
@@ -3198,62 +3199,62 @@ namespace ocn
             d10 = (static_cast<double>(b_k) + 1.0) * static_cast<double>(BasisVal.size(1)) + 1.0;
             if (d10 > ((static_cast<double>(b_k) + 1.0) + 1.0) * static_cast<double>(BasisVal.size(1)))
             {
-                i124 = 1;
+                i123 = 1;
             } else {
-                i124 = static_cast<int>(d10);
+                i123 = static_cast<int>(d10);
             }
 
             dd_loop_ub = BasisVal.size(1);
             reshapes[0].f1.set_size(1, BasisVal.size(1));
             reshapes[1].f1.set_size(1, BasisVal.size(1));
             reshapes[2].f1.set_size(1, BasisVal.size(1));
-            for (int i125 = 0; i125 < dd_loop_ub; i125++) {
+            for (int i124 = 0; i124 < dd_loop_ub; i124++) {
                 double d11;
                 double d12;
-                d11 = BasisVal[BasisVal.size(0) * i125];
-                d12 = BasisValD[BasisValD.size(0) * i125];
-                reshapes[0].f1[i125] = w_a * d11 + x_a * d12;
-                reshapes[1].f1[i125] = y_a * d11 + ab_a * d12;
-                reshapes[2].f1[i125] = bb_a * d11 + cb_a * d12;
+                d11 = BasisVal[BasisVal.size(0) * i124];
+                d12 = BasisValD[BasisValD.size(0) * i124];
+                reshapes[0].f1[i124] = w_a * d11 + x_a * d12;
+                reshapes[1].f1[i124] = y_a * d11 + ab_a * d12;
+                reshapes[2].f1[i124] = bb_a * d11 + cb_a * d12;
             }
 
             ed_loop_ub = reshapes[0].f1.size(1);
             b_reshapes.set_size(3, reshapes[0].f1.size(1));
-            for (int i126 = 0; i126 < ed_loop_ub; i126++) {
-                b_reshapes[3 * i126] = reshapes[0].f1[i126];
+            for (int i125 = 0; i125 < ed_loop_ub; i125++) {
+                b_reshapes[3 * i125] = reshapes[0].f1[i125];
             }
 
             fd_loop_ub = reshapes[1].f1.size(1);
-            for (int i127 = 0; i127 < fd_loop_ub; i127++) {
-                b_reshapes[3 * i127 + 1] = reshapes[1].f1[i127];
+            for (int i126 = 0; i126 < fd_loop_ub; i126++) {
+                b_reshapes[3 * i126 + 1] = reshapes[1].f1[i126];
             }
 
             gd_loop_ub = reshapes[2].f1.size(1);
-            for (int i128 = 0; i128 < gd_loop_ub; i128++) {
-                b_reshapes[3 * i128 + 2] = reshapes[2].f1[i128];
+            for (int i127 = 0; i127 < gd_loop_ub; i127++) {
+                b_reshapes[3 * i127 + 2] = reshapes[2].f1[i127];
             }
 
             mtimes(t_1, b_reshapes, r4);
             hd_loop_ub = r4.size(1);
-            for (int i129 = 0; i129 < hd_loop_ub; i129++) {
-                Aeq[i121 + Aeq.size(0) * ((i124 + i129) - 1)] = -r4[i129];
+            for (int i128 = 0; i128 < hd_loop_ub; i128++) {
+                Aeq[i120 + Aeq.size(0) * ((i123 + i128) - 1)] = -r4[i128];
             }
 
             //
             r1D.set_size(3, r1Dn.size(1));
             id_loop_ub = r1Dn.size(1);
-            for (int i130 = 0; i130 < id_loop_ub; i130++) {
-                r1D[3 * i130] = r1Dn[3 * i130];
-                r1D[3 * i130 + 1] = r1Dn[3 * i130 + 1];
-                r1D[3 * i130 + 2] = r1Dn[3 * i130 + 2];
+            for (int i129 = 0; i129 < id_loop_ub; i129++) {
+                r1D[3 * i129] = r1Dn[3 * i129];
+                r1D[3 * i129 + 1] = r1Dn[3 * i129 + 1];
+                r1D[3 * i129 + 2] = r1Dn[3 * i129 + 2];
             }
 
             jd_loop_ub = r2Dn.size(1);
             r2D.set_size(3, r2Dn.size(1));
-            for (int i131 = 0; i131 < jd_loop_ub; i131++) {
-                r2D[3 * i131] = r2Dn[3 * i131];
-                r2D[3 * i131 + 1] = r2Dn[3 * i131 + 1];
-                r2D[3 * i131 + 2] = r2Dn[3 * i131 + 2];
+            for (int i130 = 0; i130 < jd_loop_ub; i130++) {
+                r2D[3 * i130] = r2Dn[3 * i130];
+                r2D[3 * i130 + 1] = r2Dn[3 * i130 + 1];
+                r2D[3 * i130 + 2] = r2Dn[3 * i130 + 2];
             }
         }
 
@@ -3311,12 +3312,12 @@ namespace ocn
             Aeq[unnamed_idx_1 + Aeq.size(0) * (i64 + i74)] = r4[i74];
         }
 
-        int i76;
+        int b_beq;
 
         //
-        i76 = beq.size(0) - 1;
+        b_beq = beq.size(0) - 1;
         beq[beq.size(0) - 2] = std::pow(v_1, 2.0) / r1Dn_sqnorm[r1Dn_sqnorm.size(1) - 1];
-        beq[i76] = at_1;
+        beq[b_beq] = at_1;
     }
 
     //
@@ -3435,7 +3436,7 @@ namespace ocn
         int c_N;
         coder::array<double, 2U> u;
         int c_loop_ub;
-        double d;
+        double b_u;
         int d_loop_ub;
         int e_loop_ub;
         coder::array<double, 2U> breakpoints;
@@ -3582,11 +3583,11 @@ namespace ocn
             }
         }
 
-        d = u[u.size(1) - 1];
+        b_u = u[u.size(1) - 1];
         u.set_size(1, u.size(1));
         d_loop_ub = u.size(1);
         for (int i6 = 0; i6 < d_loop_ub; i6++) {
-            u[i6] = u[i6] / d;
+            u[i6] = u[i6] / b_u;
         }
 
         //  normalize knots to interval [0...1]
@@ -3674,19 +3675,19 @@ namespace ocn
             }
 
             for (int g_k = 0; g_k < i14; g_k++) {
-                double d1;
+                double d;
                 double xk;
-                d1 = u[g_k];
-                xk = d1;
+                d = u[g_k];
+                xk = d;
 
                 //  void c_bspline_eval(uint64_t *handle, const double *c, double x, double X[3]);
-                if (d1 < 0.0) {
-                    printf("ERROR: C_BSPLINE_EVAL: X < 0 (%f)\n", d1);
+                if (d < 0.0) {
+                    printf("ERROR: C_BSPLINE_EVAL: X < 0 (%f)\n", d);
                     fflush(stdout);
                     xk = 0.0;
                 } else {
-                    if (d1 > 1.0) {
-                        printf("ERROR: C_BSPLINE_EVAL: X > 1 (%f)\n", d1);
+                    if (d > 1.0) {
+                        printf("ERROR: C_BSPLINE_EVAL: X > 1 (%f)\n", d);
                         fflush(stdout);
                         xk = 1.0;
                     }
@@ -3842,15 +3843,15 @@ namespace ocn
         //  computes the local Frenet frame (t, n, b) of a curve in R^3
         //  [t, n, b, kappa] = CalcFrenet(rD1, rD2)
         //  where rD1 is the first derivative and rD2 the second one
-        n_tmp = std::sqrt((std::pow(rD1[0], 2.0) + std::pow(rD1[1], 2.0)) + std::pow(rD1[2], 2.0));
+        n_tmp = __ocn_sqrt((std::pow(rD1[0], 2.0) + std::pow(rD1[1], 2.0)) + std::pow(rD1[2], 2.0));
 
         //  tangential unit vector
         //
         t[0] = rD1[0] / n_tmp;
         t[1] = rD1[1] / n_tmp;
         t[2] = rD1[2] / n_tmp;
-        if (std::abs(std::abs((t[0] * rD2[0] + t[1] * rD2[1]) + t[2] * rD2[2]) - std::sqrt((std::pow
-                (rD2[0], 2.0) + std::pow(rD2[1], 2.0)) + std::pow(rD2[2], 2.0))) >
+        if (std::abs(std::abs((t[0] * rD2[0] + t[1] * rD2[1]) + t[2] * rD2[2]) - __ocn_sqrt((std::
+                pow(rD2[0], 2.0) + std::pow(rD2[1], 2.0)) + std::pow(rD2[2], 2.0))) >
                 2.2204460492503131E-16) {
             double b_idx_0_tmp;
             double b_idx_1_tmp;
@@ -3864,8 +3865,8 @@ namespace ocn
             b_idx_0_tmp = rD1[1] * rD2[2] - rD1[2] * rD2[1];
             b_idx_1_tmp = rD1[2] * rD2[0] - rD1[0] * rD2[2];
             b_idx_2_tmp = rD1[0] * rD2[1] - rD1[1] * rD2[0];
-            b_n_tmp = std::sqrt((std::pow(b_idx_0_tmp, 2.0) + std::pow(b_idx_1_tmp, 2.0)) + std::pow
-                                (b_idx_2_tmp, 2.0));
+            b_n_tmp = __ocn_sqrt((std::pow(b_idx_0_tmp, 2.0) + std::pow(b_idx_1_tmp, 2.0)) + std::
+                                 pow(b_idx_2_tmp, 2.0));
             b_idx_0 = b_idx_0_tmp / b_n_tmp;
             b_idx_1 = b_idx_1_tmp / b_n_tmp;
             b_idx_2 = b_idx_2_tmp / b_n_tmp;
@@ -3949,9 +3950,9 @@ namespace ocn
                          Curv_pitch, Curv_CoeffP5, Curv_sp_index, Curv_a_param, Curv_b_param,
                          unusedU0, r1D, r2D);
         b_b = std::pow(d1uk, 2.0);
-        *v_0 = std::sqrt((std::pow(r1D[0] * d1uk, 2.0) + std::pow(r1D[1] * d1uk, 2.0)) + std::pow
-                         (r1D[2] * d1uk, 2.0));
-        n = std::sqrt((std::pow(r1D[0], 2.0) + std::pow(r1D[1], 2.0)) + std::pow(r1D[2], 2.0));
+        *v_0 = __ocn_sqrt((std::pow(r1D[0] * d1uk, 2.0) + std::pow(r1D[1] * d1uk, 2.0)) + std::pow
+                          (r1D[2] * d1uk, 2.0));
+        n = __ocn_sqrt((std::pow(r1D[0], 2.0) + std::pow(r1D[1], 2.0)) + std::pow(r1D[2], 2.0));
         scale = 3.3121686421112381E-170;
         absxk = std::abs((r2D[0] * b_b + r1D[0] * b) * (r1D[0] / n));
         if (absxk > 3.3121686421112381E-170) {
@@ -3982,7 +3983,7 @@ namespace ocn
             *at_0 += b_t * b_t;
         }
 
-        *at_0 = scale * std::sqrt(*at_0);
+        *at_0 = scale * __ocn_sqrt(*at_0);
     }
 
     //
@@ -6007,9 +6008,9 @@ namespace ocn
                          b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->pitch,
                          b_CurvStruct->CoeffP5, b_CurvStruct->sp_index, b_CurvStruct->a_param,
                          b_CurvStruct->b_param, unusedU1, r1D1);
-        u_tilda_0 = b_CurvStruct->a_param * (d0 / std::sqrt((std::pow(r1D0[0], 2.0) + std::pow(r1D0
-            [1], 2.0)) + std::pow(r1D0[2], 2.0))) + b_CurvStruct->b_param;
-        b_CurvStruct->a_param = (b_CurvStruct->a_param * (1.0 - d1 / std::sqrt((std::pow(r1D1[0],
+        u_tilda_0 = b_CurvStruct->a_param * (d0 / __ocn_sqrt((std::pow(r1D0[0], 2.0) + std::pow
+            (r1D0[1], 2.0)) + std::pow(r1D0[2], 2.0))) + b_CurvStruct->b_param;
+        b_CurvStruct->a_param = (b_CurvStruct->a_param * (1.0 - d1 / __ocn_sqrt((std::pow(r1D1[0],
             2.0) + std::pow(r1D1[1], 2.0)) + std::pow(r1D1[2], 2.0))) + b_CurvStruct->b_param) -
             u_tilda_0;
         b_CurvStruct->b_param = u_tilda_0;
@@ -6507,7 +6508,7 @@ namespace ocn
         sum(c_z1, c_x);
         i26 = c_x.size(1);
         for (int p_k = 0; p_k < i26; p_k++) {
-            c_x[p_k] = std::sqrt(c_x[p_k]);
+            c_x[p_k] = __ocn_sqrt(c_x[p_k]);
         }
 
         d_x.set_size(1, c_x.size(1));
@@ -6961,7 +6962,7 @@ namespace ocn
         sum(c_z1, c_x);
         i22 = c_x.size(1);
         for (int p_k = 0; p_k < i22; p_k++) {
-            c_x[p_k] = std::sqrt(c_x[p_k]);
+            c_x[p_k] = __ocn_sqrt(c_x[p_k]);
         }
 
         norm_vt.set_size(c_x.size(1));
@@ -7440,8 +7441,8 @@ namespace ocn
             r3D[3 * i3 + 2] = 0.0;
         }
 
-        if (std::sqrt((std::pow(EcrP0P1_idx_0, 2.0) + std::pow(EcrP0P1_idx_1, 2.0)) + std::pow
-                      (EcrP0P1_idx_2, 2.0)) <= 2.2204460492503131E-16) {
+        if (__ocn_sqrt((std::pow(EcrP0P1_idx_0, 2.0) + std::pow(EcrP0P1_idx_1, 2.0)) + std::pow
+                       (EcrP0P1_idx_2, 2.0)) <= 2.2204460492503131E-16) {
             for (int i4 = 0; i4 < 16; i4++) {
                 message[i4] = cv1[i4];
             }
@@ -8496,7 +8497,8 @@ namespace ocn
                                  CurvStructs0[0].pitch, CurvStructs0[0].CoeffP5, CurvStructs0[0].
                                  sp_index, CurvStructs0[0].a_param, CurvStructs0[0].b_param,
                                  unusedU1, r1D);
-                n = std::sqrt((std::pow(r1D[0], 2.0) + std::pow(r1D[1], 2.0)) + std::pow(r1D[2], 2.0));
+                n = __ocn_sqrt((std::pow(r1D[0], 2.0) + std::pow(r1D[1], 2.0)) + std::pow(r1D[2],
+                                2.0));
 
                 //  unit tangential vector
                 ctx->at_0 = ((r2D[0] * q_val + 0.5 * b_b_idx_0) * (r1D[0] / n) + (r2D[1] * q_val +
@@ -8504,7 +8506,7 @@ namespace ocn
                     * (r1D[2] / n);
 
                 //  tangential acceleration at the end of first piece in horizon
-                ctx->v_0 = std::sqrt((z1_idx_0 + z1_idx_1) + std::pow(d, 2.0)) * std::sqrt(q_val);
+                ctx->v_0 = __ocn_sqrt((z1_idx_0 + z1_idx_1) + std::pow(d, 2.0)) * __ocn_sqrt(q_val);
 
                 //  Coeff = Coeff3(:, 1);
                 //  Coeff = zeros(FeedoptLimits.MaxNCoeff, FeedoptLimits.MaxNHorz);
@@ -9529,8 +9531,8 @@ namespace ocn
                             unusedU0, r1D, unusedU1, unusedU2);
             }
 
-            L = std::sqrt((std::pow(Curv_a_param * r1D[0], 2.0) + std::pow(Curv_a_param * r1D[1],
-                            2.0)) + std::pow(Curv_a_param * r1D[2], 2.0));
+            L = __ocn_sqrt((std::pow(Curv_a_param * r1D[0], 2.0) + std::pow(Curv_a_param * r1D[1],
+                             2.0)) + std::pow(Curv_a_param * r1D[2], 2.0));
         } else if (Curv_Type == CurveType_Spline) {
             L = SplineLengthApprox(ctx_q_splines, Curv_sp_index, Curv_b_param, Curv_a_param +
                                    Curv_b_param);
@@ -9596,7 +9598,7 @@ namespace ocn
             }
 
             for (int c_k = 0; c_k < 9; c_k++) {
-                x[c_k] = std::sqrt(y[c_k]) * b_y1[c_k];
+                x[c_k] = __ocn_sqrt(y[c_k]) * b_y1[c_k];
             }
 
             c_y = x[0];
@@ -9739,7 +9741,7 @@ namespace ocn
             b_bspline_eval(Bl_handle, CurOptStruct_Coeff, &b_qk, &b_dk, &unusedU3);
             *qk = b_qk;
             *dk = b_dk;
-            *ukp1 = (u + b_dk * std::pow(dt, 2.0) / 4.0) + std::sqrt(b_qk) * dt;
+            *ukp1 = (u + b_dk * std::pow(dt, 2.0) / 4.0) + __ocn_sqrt(b_qk) * dt;
         } else {
             if (CurOptStruct_zspdmode == ZSpdMode_NZ) {
                 double b_t;
@@ -10113,7 +10115,7 @@ namespace ocn
 
         i19 = b_x.size(1);
         for (int f_k = 0; f_k < i19; f_k++) {
-            b_x[f_k] = std::sqrt(b_x[f_k]);
+            b_x[f_k] = __ocn_sqrt(b_x[f_k]);
         }
 
         diff(u, r);
@@ -10449,7 +10451,7 @@ namespace ocn
                 d += t * t;
             }
 
-            d = scale * std::sqrt(d);
+            d = scale * __ocn_sqrt(d);
             if (d < 2.2204460492503131E-16) {
                 value = true;
             } else {
@@ -10486,7 +10488,7 @@ namespace ocn
                     d1 += b_t * b_t;
                 }
 
-                d1 = b_scale * std::sqrt(d1);
+                d1 = b_scale * __ocn_sqrt(d1);
                 if (d1 < 2.2204460492503131E-16) {
                     value = true;
                 } else {
@@ -11128,7 +11130,7 @@ namespace ocn
         sum(c_z1, c_x);
         i26 = c_x.size(1);
         for (int p_k = 0; p_k < i26; p_k++) {
-            c_x[p_k] = std::sqrt(c_x[p_k]);
+            c_x[p_k] = __ocn_sqrt(c_x[p_k]);
         }
 
         d_x.set_size(1, c_x.size(1));
@@ -11580,7 +11582,7 @@ namespace ocn
         sum(c_z1, c_x);
         i22 = c_x.size(1);
         for (int p_k = 0; p_k < i22; p_k++) {
-            c_x[p_k] = std::sqrt(c_x[p_k]);
+            c_x[p_k] = __ocn_sqrt(c_x[p_k]);
         }
 
         norm_vt.set_size(c_x.size(1));
@@ -11941,8 +11943,8 @@ namespace ocn
         EcrP0P1_idx_0 = CurvStruct_evec[1] * P0P1_idx_2 - CurvStruct_evec[2] * P0P1_idx_1;
         EcrP0P1_idx_1 = CurvStruct_evec[2] * P0P1_idx_0 - CurvStruct_evec[0] * P0P1_idx_2;
         EcrP0P1_idx_2 = CurvStruct_evec[0] * P0P1_idx_1 - CurvStruct_evec[1] * P0P1_idx_0;
-        if (std::sqrt((std::pow(EcrP0P1_idx_0, 2.0) + std::pow(EcrP0P1_idx_1, 2.0)) + std::pow
-                      (EcrP0P1_idx_2, 2.0)) <= 2.2204460492503131E-16) {
+        if (__ocn_sqrt((std::pow(EcrP0P1_idx_0, 2.0) + std::pow(EcrP0P1_idx_1, 2.0)) + std::pow
+                       (EcrP0P1_idx_2, 2.0)) <= 2.2204460492503131E-16) {
             for (int i = 0; i < 16; i++) {
                 message[i] = cv1[i];
             }
@@ -12631,7 +12633,7 @@ namespace ocn
 
         i19 = b_x.size(1);
         for (int f_k = 0; f_k < i19; f_k++) {
-            b_x[f_k] = std::sqrt(b_x[f_k]);
+            b_x[f_k] = __ocn_sqrt(b_x[f_k]);
         }
 
         diff(u, r);
@@ -13041,7 +13043,7 @@ namespace ocn
             y += t * t;
         }
 
-        return scale * std::sqrt(y);
+        return scale * __ocn_sqrt(y);
     }
 
     //
@@ -13429,8 +13431,8 @@ namespace ocn
             r3D[i][2] = 0.0;
         }
 
-        if (std::sqrt((std::pow(EcrP0P1_idx_0, 2.0) + std::pow(EcrP0P1_idx_1, 2.0)) + std::pow
-                      (EcrP0P1_idx_2, 2.0)) <= 2.2204460492503131E-16) {
+        if (__ocn_sqrt((std::pow(EcrP0P1_idx_0, 2.0) + std::pow(EcrP0P1_idx_1, 2.0)) + std::pow
+                       (EcrP0P1_idx_2, 2.0)) <= 2.2204460492503131E-16) {
             for (int i1 = 0; i1 < 16; i1++) {
                 message[i1] = cv1[i1];
             }
@@ -16533,7 +16535,7 @@ namespace ocn
                             vn2[b_j - 1] = 0.0;
                         }
                     } else {
-                        vn1[b_j - 1] = d1 * std::sqrt(temp1);
+                        vn1[b_j - 1] = d1 * __ocn_sqrt(temp1);
                     }
                 }
             }
@@ -16554,10 +16556,10 @@ namespace ocn
         b = std::abs(u1);
         if (a < b) {
             a /= b;
-            y = b * std::sqrt(a * a + 1.0);
+            y = b * __ocn_sqrt(a * a + 1.0);
         } else if (a > b) {
             b /= a;
-            y = a * std::sqrt(b * b + 1.0);
+            y = a * __ocn_sqrt(b * b + 1.0);
         } else {
             y = a * 1.4142135623730951;
         }
@@ -16811,7 +16813,7 @@ namespace ocn
                     }
                 }
 
-                y = scale * std::sqrt(y);
+                y = scale * __ocn_sqrt(y);
             }
         }
 
@@ -16936,7 +16938,7 @@ namespace ocn
                 d += t * t;
             }
 
-            d = scale * std::sqrt(d);
+            d = scale * __ocn_sqrt(d);
             if (d < 2.2204460492503131E-16) {
                 value = true;
             } else {
@@ -16973,7 +16975,7 @@ namespace ocn
                     d1 += b_t * b_t;
                 }
 
-                d1 = b_scale * std::sqrt(d1);
+                d1 = b_scale * __ocn_sqrt(d1);
                 if (d1 < 2.2204460492503131E-16) {
                     value = true;
                 } else {
@@ -18000,11 +18002,11 @@ namespace ocn
         CurvStruct first;
         CurvStruct last;
         double b_y;
-        coder::array<double, 2U> b_ctx;
-        queue_coder c_ctx;
+        coder::array<double, 2U> c_ctx;
+        queue_coder d_ctx;
         CurvStruct NextCurv;
         coder::array<double, 2U> Coeff;
-        queue_coder d_ctx;
+        queue_coder e_ctx;
         double dv2[3];
         double at_0;
         double dv3[3];
@@ -18016,8 +18018,8 @@ namespace ocn
         coder::array<double, 2U> r5;
         int b_unusedU0;
         bool b_success;
-        queue_coder f_ctx;
         queue_coder g_ctx;
+        queue_coder h_ctx;
         double b_at_0;
         if (!isInitialized_sinspace) {
             sinspace_initialize();
@@ -18191,8 +18193,8 @@ namespace ocn
                         b_y += b_t * b_t;
                     }
 
-                    y = scale * std::sqrt(y);
-                    b_y = b_scale * std::sqrt(b_y);
+                    y = scale * __ocn_sqrt(y);
+                    b_y = b_scale * __ocn_sqrt(b_y);
                     d = 180.0 - ctx->cfg.CuspThreshold;
                     b_cosd(&d);
                     if (((r0D1[0] * r1D1[0] + r0D1[1] * r1D1[1]) + r0D1[2] * r1D1[2]) / (y * b_y) <
@@ -18309,8 +18311,8 @@ namespace ocn
                             if (first.zspdmode == ZSpdMode_ZN) {
                                 *opt_struct = first;
                                 b_optimized = true;
-                                c_ctx = ctx->q_splines;
-                                CalcZeroStartConstraints(&c_ctx, first.Type, first.P0, first.P1,
+                                d_ctx = ctx->q_splines;
+                                CalcZeroStartConstraints(&d_ctx, first.Type, first.P0, first.P1,
                                     first.evec, first.theta, first.pitch, first.CoeffP5,
                                     first.sp_index, first.UseConstJerk, first.ConstJerk,
                                     first.a_param, first.b_param, 1.0, &ctx->v_0, &ctx->at_0);
@@ -18324,7 +18326,7 @@ namespace ocn
                                 bool exitg1;
                                 int Retry;
                                 bool success;
-                                int f_loop_ub;
+                                int e_loop_ub;
                                 k1temp = (ctx->k0 + ctx->cfg.NHorz) - 1;
                                 if (static_cast<double>(k1temp) > ctx->q_split.size()) {
                                     ctx->reached_end = true;
@@ -18354,8 +18356,8 @@ namespace ocn
                                         //  and tangent acceleration constraints to the ones
                                         //  specified by the segment, and pretend this is the
                                         //  end of all segments
-                                        d_ctx = ctx->q_splines;
-                                        CalcZeroStartConstraints(&d_ctx, NextCurv.Type, NextCurv.P0,
+                                        e_ctx = ctx->q_splines;
+                                        CalcZeroStartConstraints(&e_ctx, NextCurv.Type, NextCurv.P0,
                                             NextCurv.P1, NextCurv.evec, NextCurv.theta,
                                             NextCurv.pitch, NextCurv.CoeffP5, NextCurv.sp_index,
                                             NextCurv.UseConstJerk, NextCurv.ConstJerk,
@@ -18411,12 +18413,12 @@ namespace ocn
                                 success = false;
                                 Coeff.set_size(0, 0);
                                 while ((Retry < 100) && (!success)) {
-                                    int h_loop_ub;
-                                    int j_loop_ub;
-                                    int l_loop_ub;
+                                    int g_loop_ub;
+                                    int i_loop_ub;
+                                    int k_loop_ub;
+                                    int m_loop_ub;
                                     int n_loop_ub;
-                                    int o_loop_ub;
-                                    int e_ctx;
+                                    int f_ctx;
                                     dv2[0] = ctx->cfg.amax[0];
                                     dv3[0] = ctx->cfg.jmax[0];
                                     dv2[1] = ctx->cfg.amax[1];
@@ -18424,58 +18426,58 @@ namespace ocn
                                     dv2[2] = ctx->cfg.amax[2];
                                     dv3[2] = ctx->cfg.jmax[2];
                                     r1.set_size(ctx->BasisVal.size(0), ctx->BasisVal.size(1));
-                                    h_loop_ub = ctx->BasisVal.size(1);
-                                    for (int i14 = 0; i14 < h_loop_ub; i14++) {
-                                        int i_loop_ub;
-                                        i_loop_ub = ctx->BasisVal.size(0);
-                                        for (int i15 = 0; i15 < i_loop_ub; i15++) {
+                                    g_loop_ub = ctx->BasisVal.size(1);
+                                    for (int i14 = 0; i14 < g_loop_ub; i14++) {
+                                        int h_loop_ub;
+                                        h_loop_ub = ctx->BasisVal.size(0);
+                                        for (int i15 = 0; i15 < h_loop_ub; i15++) {
                                             r1[i15 + r1.size(0) * i14] = ctx->BasisVal[i15 +
                                                 ctx->BasisVal.size(0) * i14];
                                         }
                                     }
 
                                     r2.set_size(ctx->BasisValD.size(0), ctx->BasisValD.size(1));
-                                    j_loop_ub = ctx->BasisValD.size(1);
-                                    for (int i16 = 0; i16 < j_loop_ub; i16++) {
-                                        int k_loop_ub;
-                                        k_loop_ub = ctx->BasisValD.size(0);
-                                        for (int i17 = 0; i17 < k_loop_ub; i17++) {
+                                    i_loop_ub = ctx->BasisValD.size(1);
+                                    for (int i16 = 0; i16 < i_loop_ub; i16++) {
+                                        int j_loop_ub;
+                                        j_loop_ub = ctx->BasisValD.size(0);
+                                        for (int i17 = 0; i17 < j_loop_ub; i17++) {
                                             r2[i17 + r2.size(0) * i16] = ctx->BasisValD[i17 +
                                                 ctx->BasisValD.size(0) * i16];
                                         }
                                     }
 
                                     r3.set_size(ctx->BasisValDD.size(0), ctx->BasisValDD.size(1));
-                                    l_loop_ub = ctx->BasisValDD.size(1);
-                                    for (int i18 = 0; i18 < l_loop_ub; i18++) {
-                                        int m_loop_ub;
-                                        m_loop_ub = ctx->BasisValDD.size(0);
-                                        for (int i19 = 0; i19 < m_loop_ub; i19++) {
+                                    k_loop_ub = ctx->BasisValDD.size(1);
+                                    for (int i18 = 0; i18 < k_loop_ub; i18++) {
+                                        int l_loop_ub;
+                                        l_loop_ub = ctx->BasisValDD.size(0);
+                                        for (int i19 = 0; i19 < l_loop_ub; i19++) {
                                             r3[i19 + r3.size(0) * i18] = ctx->BasisValDD[i19 +
                                                 ctx->BasisValDD.size(0) * i18];
                                         }
                                     }
 
                                     r4.set_size(ctx->BasisIntegr.size(0));
-                                    n_loop_ub = ctx->BasisIntegr.size(0);
-                                    for (int i20 = 0; i20 < n_loop_ub; i20++) {
+                                    m_loop_ub = ctx->BasisIntegr.size(0);
+                                    for (int i20 = 0; i20 < m_loop_ub; i20++) {
                                         r4[i20] = ctx->BasisIntegr[i20];
                                     }
 
                                     r5.set_size(1, ctx->u_vec.size(1));
-                                    o_loop_ub = ctx->u_vec.size(1);
-                                    for (int i21 = 0; i21 < o_loop_ub; i21++) {
+                                    n_loop_ub = ctx->u_vec.size(1);
+                                    for (int i21 = 0; i21 < n_loop_ub; i21++) {
                                         r5[i21] = ctx->u_vec[i21];
                                     }
 
                                     if (ctx->cfg.NHorz > static_cast<int>(nopt)) {
-                                        e_ctx = static_cast<int>(nopt);
+                                        f_ctx = static_cast<int>(nopt);
                                     } else {
-                                        e_ctx = ctx->cfg.NHorz;
+                                        f_ctx = ctx->cfg.NHorz;
                                     }
 
                                     FeedratePlanning_v4(ctx, OptSegment, dv2, dv3, r1, r2, r3, r4,
-                                                        ctx->Bl.handle, r5, e_ctx, Coeff,
+                                                        ctx->Bl.handle, r5, f_ctx, Coeff,
                                                         &b_unusedU0, &b_success);
                                     success = b_success;
                                     if ((!b_success) && ctx->zero_start) {
@@ -18483,8 +18485,8 @@ namespace ocn
                                                - 1);
                                         fflush(stdout);
                                         ctx->q_split.get((ctx->k0 - 1), (&r));
-                                        f_ctx = ctx->q_splines;
-                                        CalcZeroStartConstraints(&f_ctx, r.Type, r.P0, r.P1, r.evec,
+                                        g_ctx = ctx->q_splines;
+                                        CalcZeroStartConstraints(&g_ctx, r.Type, r.P0, r.P1, r.evec,
                                             r.theta, r.pitch, r.CoeffP5, r.sp_index, r.UseConstJerk,
                                             r.ConstJerk, r.a_param, r.b_param, std::pow(0.5,
                                             static_cast<double>(Retry)), &ctx->v_0, &ctx->at_0);
@@ -18494,8 +18496,8 @@ namespace ocn
                                         printf("ZeroEnd at k = %d failed, halving jerk\n", kend);
                                         fflush(stdout);
                                         ctx->q_split.get(kend, (&r));
-                                        g_ctx = ctx->q_splines;
-                                        CalcZeroStartConstraints(&g_ctx, r.Type, r.P0, r.P1, r.evec,
+                                        h_ctx = ctx->q_splines;
+                                        CalcZeroStartConstraints(&h_ctx, r.Type, r.P0, r.P1, r.evec,
                                             r.theta, r.pitch, r.CoeffP5, r.sp_index, r.UseConstJerk,
                                             r.ConstJerk, r.a_param, r.b_param, std::pow(0.5,
                                             static_cast<double>(Retry)), &ctx->v_1, &b_at_0);
@@ -18508,11 +18510,11 @@ namespace ocn
                                 ctx->zero_start = false;
                                 ctx->zero_end = false;
                                 ctx->Coeff.set_size(Coeff.size(0), Coeff.size(1));
-                                f_loop_ub = Coeff.size(1);
-                                for (int i11 = 0; i11 < f_loop_ub; i11++) {
-                                    int g_loop_ub;
-                                    g_loop_ub = Coeff.size(0);
-                                    for (int i13 = 0; i13 < g_loop_ub; i13++) {
+                                e_loop_ub = Coeff.size(1);
+                                for (int i11 = 0; i11 < e_loop_ub; i11++) {
+                                    int f_loop_ub;
+                                    f_loop_ub = Coeff.size(0);
+                                    for (int i13 = 0; i13 < f_loop_ub; i13++) {
                                         ctx->Coeff[i13 + ctx->Coeff.size(0) * i11] = Coeff[i13 +
                                             Coeff.size(0) * i11];
                                     }
@@ -18546,9 +18548,9 @@ namespace ocn
                         } else {
                             int i4;
                             int i6;
+                            int b_ctx;
                             int b_loop_ub;
                             int c_loop_ub;
-                            int d_loop_ub;
 
                             //  If we have reached the end of the optimizing segment, we
                             //  can just copy out the coefficients for the whole horizon
@@ -18560,23 +18562,23 @@ namespace ocn
                                 i6 = ctx->Coeff.size(1);
                             }
 
-                            b_loop_ub = ctx->Coeff.size(0) - 1;
-                            c_loop_ub = i6 - i4;
-                            b_ctx.set_size((b_loop_ub + 1), c_loop_ub);
-                            for (int i7 = 0; i7 < c_loop_ub; i7++) {
-                                for (int i8 = 0; i8 <= b_loop_ub; i8++) {
-                                    b_ctx[i8 + b_ctx.size(0) * i7] = ctx->Coeff[i8 + ctx->Coeff.size
+                            b_ctx = ctx->Coeff.size(0) - 1;
+                            b_loop_ub = i6 - i4;
+                            c_ctx.set_size((b_ctx + 1), b_loop_ub);
+                            for (int i7 = 0; i7 < b_loop_ub; i7++) {
+                                for (int i8 = 0; i8 <= b_ctx; i8++) {
+                                    c_ctx[i8 + c_ctx.size(0) * i7] = ctx->Coeff[i8 + ctx->Coeff.size
                                         (0) * (i4 + i7)];
                                 }
                             }
 
-                            d_loop_ub = b_ctx.size(1);
-                            for (int i9 = 0; i9 < d_loop_ub; i9++) {
-                                int e_loop_ub;
-                                e_loop_ub = b_ctx.size(0);
-                                for (int i10 = 0; i10 < e_loop_ub; i10++) {
-                                    ctx->Coeff[i10 + ctx->Coeff.size(0) * i9] = b_ctx[i10 +
-                                        b_ctx.size(0) * i9];
+                            c_loop_ub = c_ctx.size(1);
+                            for (int i9 = 0; i9 < c_loop_ub; i9++) {
+                                int d_loop_ub;
+                                d_loop_ub = c_ctx.size(0);
+                                for (int i10 = 0; i10 < d_loop_ub; i10++) {
+                                    ctx->Coeff[i10 + ctx->Coeff.size(0) * i9] = c_ctx[i10 +
+                                        c_ctx.size(0) * i9];
                                 }
                             }
 
@@ -19118,8 +19120,8 @@ namespace ocn
             double dt_begin;
             Resample(Curv->zspdmode, Curv->UseConstJerk, Curv->ConstJerk, Curv->Coeff, Bl->handle,
                      1.0, state->dt, &unusedU1, &x, &unusedU2);
-            x = std::sqrt(x);
-            Trest = 2.0 * (1.0 - state->u) / (x + std::sqrt(qk));
+            x = __ocn_sqrt(x);
+            Trest = 2.0 * (1.0 - state->u) / (x + __ocn_sqrt(qk));
             if (Trest > state->dt) {
                 dt_begin = 0.0;
             } else {

@@ -1,6 +1,6 @@
 clear; clc;
 
-generate_for_arm = false;
+generate_for_arm = true;
 
 cfg = coder.config('lib', 'ecoder', true);
 cfg.IndentSize = 4;
@@ -26,6 +26,7 @@ if ~generate_for_arm
 else
     cfg.HardwareImplementation.TargetHWDeviceType = 'ARM Compatible->ARM Cortex';
     cfg.HardwareImplementation.ProdHWDeviceType = 'ARM Compatible->ARM Cortex';
+    cfg.CodeReplacementLibrary = 'rpi4';
     output_root = '../arm/matlab/generated';
 end
 
