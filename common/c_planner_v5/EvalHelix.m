@@ -1,4 +1,6 @@
 function [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec)
+coder.inline('never')
+coder.ceval('ZoneScopedN', coder.opaque('const char*', '"EvalHelix"'));
 %
 P0      = CurvStruct.P0;
 P1      = CurvStruct.P1;

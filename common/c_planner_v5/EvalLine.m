@@ -1,4 +1,6 @@
 function [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec)
+coder.inline('never')
+coder.ceval('ZoneScopedN', coder.opaque('const char*', '"EvalLine"'));
 %
 % parametrization of a straight line between P0 and P1
 P0  = CurvStruct.P0;

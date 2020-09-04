@@ -1,6 +1,8 @@
 function [r0D, r1D, r2D, r3D] = EvalBSplineNoCtx(CurvSpline, uvec)
-
+coder.inline('never')
 if coder.target('rtw') || coder.target('mex')
+    coder.cinclude('common/tracy/Tracy.hpp');
+    coder.ceval('ZoneScopedN', coder.opaque('const char*', '"EvalBSpline"'));
     Spline=CurvSpline;
     sp = Spline.sp;
     Bl = sp.Bl;
