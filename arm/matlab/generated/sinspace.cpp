@@ -5,11 +5,12 @@
 // File: sinspace.cpp
 //
 // MATLAB Coder version            : 5.0
-// C/C++ source code generated on  : 02-Sep-2020 16:12:34
+// C/C++ source code generated on  : 04-Sep-2020 14:20:08
 //
 
 // Include Files
 #include "sinspace.h"
+#include "common/tracy/Tracy.hpp"
 #include "cpp_simplex.hpp"
 #include "crl.h"
 #include "functions.h"
@@ -45,6 +46,11 @@ namespace ocn
         int maxnz;
     };
 
+    struct cell_wrap_3
+    {
+        coder::array<double, 2U> f1;
+    };
+
     struct emxArray_char_T_1x10
     {
         char data[10];
@@ -54,11 +60,6 @@ namespace ocn
     struct cell_wrap_9
     {
         emxArray_char_T_1x10 f1;
-    };
-
-    struct cell_wrap_3
-    {
-        coder::array<double, 2U> f1;
     };
 
     struct emxArray_char_T_1x9
@@ -149,6 +150,10 @@ namespace ocn
         ctx_cfg_ZeroStartVelLimit, bool ctx_cfg_DebugCutZero, const CurvStruct *b_CurvStruct, double
         k0, CurvStruct *CurvStruct1, CurvStruct *CurvStruct2);
     static void Double2MultiWord(double u1, unsigned int y[], int n);
+    static void EvalBSplineNoCtx(const coder::array<double, 2U> &CurvSpline_sp_CoeffX, const coder::
+        array<double, 2U> &CurvSpline_sp_CoeffY, const coder::array<double, 2U>
+        &CurvSpline_sp_CoeffZ, const uint64m_T CurvSpline_sp_Bl_handle, double uvec, double r0D[3],
+        double r1D[3], double r2D[3], double r3D[3]);
     static double EvalCostIntegral(double alpha0, double beta0, double alpha1, double beta1, const
         double in5[3], const double in6[3], const double in7[3], double kappa0, const double in9[3],
         const double in10[3], const double in11[3], double kappa1);
@@ -157,6 +162,10 @@ namespace ocn
                           const coder::array<double, 2U> &u_vec, coder::array<double, 2U> &r0D,
                           coder::array<double, 2U> &r1D, coder::array<double, 2U> &r2D, coder::array<
                           double, 2U> &r3D);
+    static void EvalLine(const double CurvStruct_P0[3], const double CurvStruct_P1[3], const coder::
+                         array<double, 2U> &u_vec, coder::array<double, 2U> &r0D, coder::array<
+                         double, 2U> &r1D, coder::array<double, 2U> &r2D, coder::array<double, 2U>
+                         &r3D);
     static void EvalTransP5(const double CurvStruct_CoeffP5[6][3], const coder::array<double, 2U>
                             &u_vec, coder::array<double, 2U> &r_0D, coder::array<double, 2U> &r_1D,
                             coder::array<double, 2U> &r_2D, coder::array<double, 2U> &r_3D);
@@ -213,6 +222,8 @@ namespace ocn
                             double CurvStruct_evec[3], double CurvStruct_theta, double
                             CurvStruct_pitch, double u_vec, double r0D[3], double r1D[3], double
                             r2D[3], double r3D[3]);
+    static void b_EvalLine(const double CurvStruct_P0[3], const double CurvStruct_P1[3], double
+                           u_vec, double r0D[3], double r1D[3]);
     static void b_EvalTransP5(const double CurvStruct_CoeffP5[6][3], double u_vec, double r_0D[3],
         double r_1D[3], double r_2D[3], double r_3D[3]);
     static void b_PrintCurvStruct(const queue_coder *ctx_q_splines, CurveType S_Type, ZSpdMode
@@ -251,6 +262,10 @@ namespace ocn
                             double CurvStruct_evec[3], double CurvStruct_theta, double
                             CurvStruct_pitch, const double u_vec[10], double r0D[10][3], double r1D
                             [10][3], double r2D[10][3], double r3D[10][3]);
+    static void c_EvalLine(const double CurvStruct_P0[3], const double CurvStruct_P1[3], const
+                           double u_vec[10], double r0D[10][3], double r1D[10][3]);
+    static void c_EvalTransP5(const double CurvStruct_CoeffP5[6][3], const double u_vec[10], double
+        r_0D[10][3], double r_1D[10][3], double r_2D[10][3], double r_3D[10][3]);
     static void c_bspline_eval_vec(const uint64m_T Bl_handle, const coder::array<double, 2U> &coeffs,
         const coder::array<double, 2U> &u, coder::array<double, 2U> &x, coder::array<double, 2U> &xd);
     static void c_bsxfun(const coder::array<double, 2U> &a, const coder::array<double, 1U> &b, coder::
@@ -377,50 +392,11 @@ namespace ocn
     }
 
     //
-    // Arguments    : unsigned int b_index
-    //                CurvStruct *value
-    // Return Type  : void
-    //
-    void queue_coder::get(unsigned int b_index, CurvStruct *value) const
-    {
-        *value = this->value_type;
-
-        // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
-        c_queue_get(this->ptr, b_index, value);
-    }
-
-    //
     // Arguments    : const uint64m_T b_index
     //                CurvStruct *value
     // Return Type  : void
     //
     void queue_coder::get(const uint64m_T b_index, CurvStruct *value) const
-    {
-        *value = this->value_type;
-
-        // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
-        c_queue_get(this->ptr, MultiWord2uLong((unsigned int *)&b_index.chunks[0U]), value);
-    }
-
-    //
-    // Arguments    : double b_index
-    //                CurvStruct *value
-    // Return Type  : void
-    //
-    void queue_coder::get(double b_index, CurvStruct *value) const
-    {
-        *value = this->value_type;
-
-        // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
-        c_queue_get(this->ptr, static_cast<unsigned int>(std::round(b_index)), value);
-    }
-
-    //
-    // Arguments    : const int64m_T b_index
-    //                CurvStruct *value
-    // Return Type  : void
-    //
-    void queue_coder::get(const int64m_T b_index, CurvStruct *value) const
     {
         *value = this->value_type;
 
@@ -442,6 +418,45 @@ namespace ocn
     }
 
     //
+    // Arguments    : const int64m_T b_index
+    //                CurvStruct *value
+    // Return Type  : void
+    //
+    void queue_coder::get(const int64m_T b_index, CurvStruct *value) const
+    {
+        *value = this->value_type;
+
+        // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
+        c_queue_get(this->ptr, MultiWord2uLong((unsigned int *)&b_index.chunks[0U]), value);
+    }
+
+    //
+    // Arguments    : double b_index
+    //                CurvStruct *value
+    // Return Type  : void
+    //
+    void queue_coder::get(double b_index, CurvStruct *value) const
+    {
+        *value = this->value_type;
+
+        // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
+        c_queue_get(this->ptr, static_cast<unsigned int>(std::round(b_index)), value);
+    }
+
+    //
+    // Arguments    : unsigned int b_index
+    //                CurvStruct *value
+    // Return Type  : void
+    //
+    void queue_coder::get(unsigned int b_index, CurvStruct *value) const
+    {
+        *value = this->value_type;
+
+        // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
+        c_queue_get(this->ptr, b_index, value);
+    }
+
+    //
     // Arguments    : double b_dt
     // Return Type  : void
     //
@@ -450,18 +465,6 @@ namespace ocn
         this->set_u();
         this->set_go_next();
         this->set_dt(b_dt);
-    }
-
-    //
-    // Arguments    : void
-    // Return Type  : void
-    //
-    void rtString::init()
-    {
-        this->Value.size[0] = 1;
-        this->Value.size[1] = 2;
-        this->Value.data[0] = 'N';
-        this->Value.data[1] = 'N';
     }
 
     //
@@ -542,6 +545,27 @@ namespace ocn
 
     //
     // Arguments    : void
+    // Return Type  : void
+    //
+    void rtString::init()
+    {
+        this->Value.size[0] = 1;
+        this->Value.size[1] = 2;
+        this->Value.data[0] = 'N';
+        this->Value.data[1] = 'N';
+    }
+
+    //
+    // Arguments    : void
+    // Return Type  : bool
+    //
+    bool queue_coder::isempty() const
+    {
+        return this->size() == 0U;
+    }
+
+    //
+    // Arguments    : void
     // Return Type  : bool
     //
     bool coder_internal_sparse::isempty() const
@@ -554,15 +578,6 @@ namespace ocn
         }
 
         return p;
-    }
-
-    //
-    // Arguments    : void
-    // Return Type  : bool
-    //
-    bool queue_coder::isempty() const
-    {
-        return this->size() == 0U;
     }
 
     //
@@ -926,6 +941,86 @@ namespace ocn
     }
 
     //
+    // Arguments    : const coder_internal_sparse *varargin_2
+    //                coder_internal_sparse *c
+    // Return Type  : void
+    //
+    void coder_internal_sparse::vertcat(const coder_internal_sparse *varargin_2,
+        coder_internal_sparse *c) const
+    {
+        int cnfixeddim;
+        bool isAcceptableEmpty_tmp_tmp;
+        bool b_isAcceptableEmpty_tmp_tmp;
+        bool allEmpty;
+        int cnnz;
+        int cnvardim;
+        int nzCount;
+        int i;
+        cnfixeddim = this->n;
+        isAcceptableEmpty_tmp_tmp = this->isempty();
+        b_isAcceptableEmpty_tmp_tmp = varargin_2->isempty();
+        allEmpty = (isAcceptableEmpty_tmp_tmp && b_isAcceptableEmpty_tmp_tmp);
+        if ((!b_isAcceptableEmpty_tmp_tmp) && isAcceptableEmpty_tmp_tmp) {
+            cnfixeddim = varargin_2->n;
+        }
+
+        cnnz = 0;
+        cnvardim = 0;
+        if (allEmpty || (!isAcceptableEmpty_tmp_tmp)) {
+            cnnz = this->nnzInt();
+            cnvardim = this->m;
+        }
+
+        if (allEmpty || (!b_isAcceptableEmpty_tmp_tmp)) {
+            cnnz += varargin_2->nnzInt();
+            cnvardim += varargin_2->m;
+        }
+
+        coder_internal_sparse::spallocLike((cnvardim), (cnfixeddim), (cnnz), (c));
+        nzCount = -1;
+        i = c->n;
+        for (int ccol = 0; ccol < i; ccol++) {
+            int crowoffs;
+            int cidx;
+            int kpstart;
+            int kpend;
+            crowoffs = 0;
+            if (!isAcceptableEmpty_tmp_tmp) {
+                int kpend_tmp;
+                cidx = nzCount;
+                kpstart = this->colidx[ccol];
+                kpend_tmp = this->colidx[ccol + 1];
+                kpend = kpend_tmp - 1;
+                for (int kp = kpstart; kp <= kpend; kp++) {
+                    cidx++;
+                    c->rowidx[cidx] = this->rowidx[kp - 1];
+                    c->d[cidx] = this->d[kp - 1];
+                }
+
+                nzCount = (nzCount + kpend_tmp) - this->colidx[ccol];
+                crowoffs = this->m;
+            }
+
+            if (!b_isAcceptableEmpty_tmp_tmp) {
+                int b_kpend_tmp;
+                cidx = nzCount;
+                kpstart = varargin_2->colidx[ccol];
+                b_kpend_tmp = varargin_2->colidx[ccol + 1];
+                kpend = b_kpend_tmp - 1;
+                for (int b_kp = kpstart; b_kp <= kpend; b_kp++) {
+                    cidx++;
+                    c->rowidx[cidx] = varargin_2->rowidx[b_kp - 1] + crowoffs;
+                    c->d[cidx] = varargin_2->d[b_kp - 1];
+                }
+
+                nzCount = (nzCount + b_kpend_tmp) - varargin_2->colidx[ccol];
+            }
+
+            c->colidx[ccol + 1] = nzCount + 2;
+        }
+    }
+
+    //
     // Arguments    : const coder::array<double, 2U> &varargin_2
     //                coder_internal_sparse *c
     // Return Type  : void
@@ -1013,86 +1108,6 @@ namespace ocn
                 }
 
                 nzCount = cidx;
-            }
-
-            c->colidx[ccol + 1] = nzCount + 2;
-        }
-    }
-
-    //
-    // Arguments    : const coder_internal_sparse *varargin_2
-    //                coder_internal_sparse *c
-    // Return Type  : void
-    //
-    void coder_internal_sparse::vertcat(const coder_internal_sparse *varargin_2,
-        coder_internal_sparse *c) const
-    {
-        int cnfixeddim;
-        bool isAcceptableEmpty_tmp_tmp;
-        bool b_isAcceptableEmpty_tmp_tmp;
-        bool allEmpty;
-        int cnnz;
-        int cnvardim;
-        int nzCount;
-        int i;
-        cnfixeddim = this->n;
-        isAcceptableEmpty_tmp_tmp = this->isempty();
-        b_isAcceptableEmpty_tmp_tmp = varargin_2->isempty();
-        allEmpty = (isAcceptableEmpty_tmp_tmp && b_isAcceptableEmpty_tmp_tmp);
-        if ((!b_isAcceptableEmpty_tmp_tmp) && isAcceptableEmpty_tmp_tmp) {
-            cnfixeddim = varargin_2->n;
-        }
-
-        cnnz = 0;
-        cnvardim = 0;
-        if (allEmpty || (!isAcceptableEmpty_tmp_tmp)) {
-            cnnz = this->nnzInt();
-            cnvardim = this->m;
-        }
-
-        if (allEmpty || (!b_isAcceptableEmpty_tmp_tmp)) {
-            cnnz += varargin_2->nnzInt();
-            cnvardim += varargin_2->m;
-        }
-
-        coder_internal_sparse::spallocLike((cnvardim), (cnfixeddim), (cnnz), (c));
-        nzCount = -1;
-        i = c->n;
-        for (int ccol = 0; ccol < i; ccol++) {
-            int crowoffs;
-            int cidx;
-            int kpstart;
-            int kpend;
-            crowoffs = 0;
-            if (!isAcceptableEmpty_tmp_tmp) {
-                int kpend_tmp;
-                cidx = nzCount;
-                kpstart = this->colidx[ccol];
-                kpend_tmp = this->colidx[ccol + 1];
-                kpend = kpend_tmp - 1;
-                for (int kp = kpstart; kp <= kpend; kp++) {
-                    cidx++;
-                    c->rowidx[cidx] = this->rowidx[kp - 1];
-                    c->d[cidx] = this->d[kp - 1];
-                }
-
-                nzCount = (nzCount + kpend_tmp) - this->colidx[ccol];
-                crowoffs = this->m;
-            }
-
-            if (!b_isAcceptableEmpty_tmp_tmp) {
-                int b_kpend_tmp;
-                cidx = nzCount;
-                kpstart = varargin_2->colidx[ccol];
-                b_kpend_tmp = varargin_2->colidx[ccol + 1];
-                kpend = b_kpend_tmp - 1;
-                for (int b_kp = kpstart; b_kp <= kpend; b_kp++) {
-                    cidx++;
-                    c->rowidx[cidx] = varargin_2->rowidx[b_kp - 1] + crowoffs;
-                    c->d[cidx] = varargin_2->d[b_kp - 1];
-                }
-
-                nzCount = (nzCount + b_kpend_tmp) - varargin_2->colidx[ccol];
             }
 
             c->colidx[ccol + 1] = nzCount + 2;
@@ -7218,6 +7233,56 @@ namespace ocn
     }
 
     //
+    // Arguments    : const coder::array<double, 2U> &CurvSpline_sp_CoeffX
+    //                const coder::array<double, 2U> &CurvSpline_sp_CoeffY
+    //                const coder::array<double, 2U> &CurvSpline_sp_CoeffZ
+    //                const uint64m_T CurvSpline_sp_Bl_handle
+    //                double uvec
+    //                double r0D[3]
+    //                double r1D[3]
+    //                double r2D[3]
+    //                double r3D[3]
+    // Return Type  : void
+    //
+    static void EvalBSplineNoCtx(const coder::array<double, 2U> &CurvSpline_sp_CoeffX, const coder::
+        array<double, 2U> &CurvSpline_sp_CoeffY, const coder::array<double, 2U>
+        &CurvSpline_sp_CoeffZ, const uint64m_T CurvSpline_sp_Bl_handle, double uvec, double r0D[3],
+        double r1D[3], double r2D[3], double r3D[3])
+    {
+        double r0Dx;
+        double r1Dx;
+        double r2Dx;
+        double r3Dx;
+        double r0Dy;
+        double r1Dy;
+        double r2Dy;
+        double r3Dy;
+        double r0Dz;
+        double r1Dz;
+        double r2Dz;
+        double r3Dz;
+        ZoneScopedN("EvalBSpline");
+        b_bspline_eval_vec(CurvSpline_sp_Bl_handle, CurvSpline_sp_CoeffX, uvec, &r0Dx, &r1Dx, &r2Dx,
+                           &r3Dx);
+        b_bspline_eval_vec(CurvSpline_sp_Bl_handle, CurvSpline_sp_CoeffY, uvec, &r0Dy, &r1Dy, &r2Dy,
+                           &r3Dy);
+        b_bspline_eval_vec(CurvSpline_sp_Bl_handle, CurvSpline_sp_CoeffZ, uvec, &r0Dz, &r1Dz, &r2Dz,
+                           &r3Dz);
+        r0D[0] = r0Dx;
+        r0D[1] = r0Dy;
+        r0D[2] = r0Dz;
+        r1D[0] = r1Dx;
+        r1D[1] = r1Dy;
+        r1D[2] = r1Dz;
+        r2D[0] = r2Dx;
+        r2D[1] = r2Dy;
+        r2D[2] = r2Dz;
+        r3D[0] = r3Dx;
+        r3D[1] = r3Dy;
+        r3D[2] = r3Dz;
+    }
+
+    //
     // EVALCOSTINTEGRAL
     //     I = EVALCOSTINTEGRAL(ALPHA0,BETA0,ALPHA1,BETA1,IN5,IN6,IN7,KAPPA0,IN9,IN10,IN11,KAPPA1)
     // Arguments    : double alpha0
@@ -7401,7 +7466,9 @@ namespace ocn
         coder::array<double, 2U> b;
         coder::array<double, 2U> b_b;
         coder::array<double, 2U> c_b;
+        ZoneScopedN("EvalHelix");
 
+        //
         //
         P0P1_idx_0 = CurvStruct_P1[0] - CurvStruct_P0[0];
         P0P1_idx_1 = CurvStruct_P1[1] - CurvStruct_P0[1];
@@ -7687,6 +7754,89 @@ namespace ocn
     }
 
     //
+    // Arguments    : const double CurvStruct_P0[3]
+    //                const double CurvStruct_P1[3]
+    //                const coder::array<double, 2U> &u_vec
+    //                coder::array<double, 2U> &r0D
+    //                coder::array<double, 2U> &r1D
+    //                coder::array<double, 2U> &r2D
+    //                coder::array<double, 2U> &r3D
+    // Return Type  : void
+    //
+    static void EvalLine(const double CurvStruct_P0[3], const double CurvStruct_P1[3], const coder::
+                         array<double, 2U> &u_vec, coder::array<double, 2U> &r0D, coder::array<
+                         double, 2U> &r1D, coder::array<double, 2U> &r2D, coder::array<double, 2U>
+                         &r3D)
+    {
+        int loop_ub;
+        int b_loop_ub;
+        int c_loop_ub;
+        double a_idx_0;
+        double a_idx_1;
+        double a_idx_2;
+        int d_loop_ub;
+        int e_loop_ub;
+        ZoneScopedN("EvalLine");
+
+        //
+        //  parametrization of a straight line between P0 and P1
+        //
+        r0D.set_size(3, u_vec.size(1));
+        loop_ub = u_vec.size(1);
+        for (int i = 0; i < loop_ub; i++) {
+            double d;
+            d = u_vec[i];
+            r0D[3 * i] = CurvStruct_P1[0] * d + CurvStruct_P0[0] * (1.0 - d);
+        }
+
+        b_loop_ub = u_vec.size(1);
+        for (int i1 = 0; i1 < b_loop_ub; i1++) {
+            double d1;
+            d1 = u_vec[i1];
+            r0D[3 * i1 + 1] = CurvStruct_P1[1] * d1 + CurvStruct_P0[1] * (1.0 - d1);
+        }
+
+        c_loop_ub = u_vec.size(1);
+        for (int i2 = 0; i2 < c_loop_ub; i2++) {
+            double d2;
+            d2 = u_vec[i2];
+            r0D[3 * i2 + 2] = CurvStruct_P1[2] * d2 + CurvStruct_P0[2] * (1.0 - d2);
+        }
+
+        //
+        a_idx_0 = CurvStruct_P1[0] - CurvStruct_P0[0];
+        a_idx_1 = CurvStruct_P1[1] - CurvStruct_P0[1];
+        a_idx_2 = CurvStruct_P1[2] - CurvStruct_P0[2];
+        r1D.set_size(3, u_vec.size(1));
+        if (u_vec.size(1) != 0) {
+            int i3;
+            i3 = u_vec.size(1) - 1;
+            for (int t = 0; t <= i3; t++) {
+                r1D[3 * t] = a_idx_0;
+                r1D[3 * t + 1] = a_idx_1;
+                r1D[3 * t + 2] = a_idx_2;
+            }
+        }
+
+        //
+        r2D.set_size(3, u_vec.size(1));
+        d_loop_ub = u_vec.size(1);
+        for (int i4 = 0; i4 < d_loop_ub; i4++) {
+            r2D[3 * i4] = 0.0;
+            r2D[3 * i4 + 1] = 0.0;
+            r2D[3 * i4 + 2] = 0.0;
+        }
+
+        r3D.set_size(3, u_vec.size(1));
+        e_loop_ub = u_vec.size(1);
+        for (int i5 = 0; i5 < e_loop_ub; i5++) {
+            r3D[3 * i5] = 0.0;
+            r3D[3 * i5 + 1] = 0.0;
+            r3D[3 * i5 + 2] = 0.0;
+        }
+    }
+
+    //
     // Arguments    : const double CurvStruct_CoeffP5[6][3]
     //                const coder::array<double, 2U> &u_vec
     //                coder::array<double, 2U> &r_0D
@@ -7704,7 +7854,9 @@ namespace ocn
         double p5_3D[3][3];
         coder::array<double, 2U> r;
         coder::array<double, 2U> b;
+        ZoneScopedN("EvalTransP5");
 
+        //
         // MYPOLYDER Differentiate polynomial.
         //
         // u  = u(:).';
@@ -8370,15 +8522,7 @@ namespace ocn
                 switch (CurvStructs0[0].Type) {
                   case CurveType_Line:
                     //  line (G01)
-                    //
-                    //  parametrization of a straight line between P0 and P1
-                    //
-                    //
-                    r1D[0] = CurvStructs0[0].P1[0] - CurvStructs0[0].P0[0];
-                    r1D[1] = CurvStructs0[0].P1[1] - CurvStructs0[0].P0[1];
-                    r1D[2] = CurvStructs0[0].P1[2] - CurvStructs0[0].P0[2];
-
-                    //
+                    b_EvalLine(CurvStructs0[0].P0, CurvStructs0[0].P1, u_vec_tilda, unusedU0, r1D);
                     break;
 
                   case CurveType_Helix:
@@ -9516,15 +9660,7 @@ namespace ocn
             //
             if (Curv_Type == CurveType_Line) {
                 //  line (G01)
-                //
-                //  parametrization of a straight line between P0 and P1
-                //
-                //
-                r1D[0] = Curv_P1[0] - Curv_P0[0];
-                r1D[1] = Curv_P1[1] - Curv_P0[1];
-                r1D[2] = Curv_P1[2] - Curv_P0[2];
-
-                //
+                b_EvalLine(Curv_P0, Curv_P1, Curv_b_param, unusedU0, r1D);
             } else {
                 //  arc of circle / helix (G02, G03)
                 b_EvalHelix(Curv_P0, Curv_P1, Curv_evec, Curv_theta, Curv_pitch, Curv_b_param,
@@ -11825,18 +11961,7 @@ namespace ocn
         switch (CurvStruct_Type) {
           case CurveType_Line:
             //  line (G01)
-            //
-            //  parametrization of a straight line between P0 and P1
-            //
-            r0D[0] = CurvStruct_P1[0] * CurvStruct_b_param + CurvStruct_P0[0] * (1.0 -
-                CurvStruct_b_param);
-            r0D[1] = CurvStruct_P1[1] * CurvStruct_b_param + CurvStruct_P0[1] * (1.0 -
-                CurvStruct_b_param);
-            r0D[2] = CurvStruct_P1[2] * CurvStruct_b_param + CurvStruct_P0[2] * (1.0 -
-                CurvStruct_b_param);
-
-            //
-            //
+            b_EvalLine(CurvStruct_P0, CurvStruct_P1, CurvStruct_b_param, r0D, r1D);
             break;
 
           case CurveType_Helix:
@@ -11923,7 +12048,9 @@ namespace ocn
         double EcrP0P1_idx_1;
         double EcrP0P1_idx_2;
         char message[16];
+        ZoneScopedN("EvalHelix");
 
+        //
         //
         P0P1_idx_0 = CurvStruct_P1[0] - CurvStruct_P0[0];
         r0D[0] = 0.0;
@@ -12047,6 +12174,34 @@ namespace ocn
     }
 
     //
+    // Arguments    : const double CurvStruct_P0[3]
+    //                const double CurvStruct_P1[3]
+    //                double u_vec
+    //                double r0D[3]
+    //                double r1D[3]
+    // Return Type  : void
+    //
+    static void b_EvalLine(const double CurvStruct_P0[3], const double CurvStruct_P1[3], double
+                           u_vec, double r0D[3], double r1D[3])
+    {
+        ZoneScopedN("EvalLine");
+
+        //
+        //  parametrization of a straight line between P0 and P1
+        //
+        r0D[0] = CurvStruct_P1[0] * u_vec + CurvStruct_P0[0] * (1.0 - u_vec);
+        r0D[1] = CurvStruct_P1[1] * u_vec + CurvStruct_P0[1] * (1.0 - u_vec);
+        r0D[2] = CurvStruct_P1[2] * u_vec + CurvStruct_P0[2] * (1.0 - u_vec);
+
+        //
+        r1D[0] = CurvStruct_P1[0] - CurvStruct_P0[0];
+        r1D[1] = CurvStruct_P1[1] - CurvStruct_P0[1];
+        r1D[2] = CurvStruct_P1[2] - CurvStruct_P0[2];
+
+        //
+    }
+
+    //
     // Arguments    : const double CurvStruct_CoeffP5[6][3]
     //                double u_vec
     //                double r_0D[3]
@@ -12073,7 +12228,9 @@ namespace ocn
         double d9;
         double d10;
         double d11;
+        ZoneScopedN("EvalTransP5");
 
+        //
         // MYPOLYDER Differentiate polynomial.
         //
         // u  = u(:).';
@@ -13313,15 +13470,7 @@ namespace ocn
         switch (CurvStruct_Type) {
           case CurveType_Line:
             //  line (G01)
-            //
-            //  parametrization of a straight line between P0 and P1
-            //
-            r0D[0] = CurvStruct_P1[0] * u_vec_tilda + CurvStruct_P0[0] * (1.0 - u_vec_tilda);
-            r0D[1] = CurvStruct_P1[1] * u_vec_tilda + CurvStruct_P0[1] * (1.0 - u_vec_tilda);
-            r0D[2] = CurvStruct_P1[2] * u_vec_tilda + CurvStruct_P0[2] * (1.0 - u_vec_tilda);
-
-            //
-            //
+            b_EvalLine(CurvStruct_P0, CurvStruct_P1, u_vec_tilda, r0D, r1D);
             break;
 
           case CurveType_Helix:
@@ -13408,7 +13557,9 @@ namespace ocn
         double EcrP0P1_idx_1;
         double EcrP0P1_idx_2;
         char message[16];
+        ZoneScopedN("EvalHelix");
 
+        //
         //
         P0P1_idx_0 = CurvStruct_P1[0] - CurvStruct_P0[0];
         P0P1_idx_1 = CurvStruct_P1[1] - CurvStruct_P0[1];
@@ -13536,6 +13687,190 @@ namespace ocn
                 r1D[k][2] = (-CurvStruct_theta * d12 + CurvStruct_theta * d17) + c_a * d3;
                 r2D[k][2] = -a_tmp * d11 - a_tmp * d18;
                 r3D[k][2] = b_a_tmp * d12 - b_a_tmp * d17;
+            }
+        }
+    }
+
+    //
+    // Arguments    : const double CurvStruct_P0[3]
+    //                const double CurvStruct_P1[3]
+    //                const double u_vec[10]
+    //                double r0D[10][3]
+    //                double r1D[10][3]
+    // Return Type  : void
+    //
+    static void c_EvalLine(const double CurvStruct_P0[3], const double CurvStruct_P1[3], const
+                           double u_vec[10], double r0D[10][3], double r1D[10][3])
+    {
+        double a_idx_0;
+        double a_idx_1;
+        double a_idx_2;
+        ZoneScopedN("EvalLine");
+
+        //
+        //  parametrization of a straight line between P0 and P1
+        //
+        //
+        a_idx_0 = CurvStruct_P1[0] - CurvStruct_P0[0];
+        a_idx_1 = CurvStruct_P1[1] - CurvStruct_P0[1];
+        a_idx_2 = CurvStruct_P1[2] - CurvStruct_P0[2];
+        for (int t = 0; t < 10; t++) {
+            r0D[t][0] = CurvStruct_P1[0] * u_vec[t] + CurvStruct_P0[0] * (1.0 - u_vec[t]);
+            r0D[t][1] = CurvStruct_P1[1] * u_vec[t] + CurvStruct_P0[1] * (1.0 - u_vec[t]);
+            r0D[t][2] = CurvStruct_P1[2] * u_vec[t] + CurvStruct_P0[2] * (1.0 - u_vec[t]);
+            r1D[t][0] = a_idx_0;
+            r1D[t][1] = a_idx_1;
+            r1D[t][2] = a_idx_2;
+        }
+
+        //
+    }
+
+    //
+    // Arguments    : const double CurvStruct_CoeffP5[6][3]
+    //                const double u_vec[10]
+    //                double r_0D[10][3]
+    //                double r_1D[10][3]
+    //                double r_2D[10][3]
+    //                double r_3D[10][3]
+    // Return Type  : void
+    //
+    static void c_EvalTransP5(const double CurvStruct_CoeffP5[6][3], const double u_vec[10], double
+        r_0D[10][3], double r_1D[10][3], double r_2D[10][3], double r_3D[10][3])
+    {
+        double p5_1D[5][3];
+        double p5_2D[4][3];
+        double p5_3D[3][3];
+        ZoneScopedN("EvalTransP5");
+
+        //
+        // MYPOLYDER Differentiate polynomial.
+        //
+        // u  = u(:).';
+        for (int k = 0; k < 5; k++) {
+            int p5_1D_tmp;
+            p5_1D_tmp = 5 - k;
+            p5_1D[k][0] = CurvStruct_CoeffP5[k][0] * static_cast<double>(p5_1D_tmp);
+            p5_1D[k][1] = CurvStruct_CoeffP5[k][1] * static_cast<double>(p5_1D_tmp);
+            p5_1D[k][2] = CurvStruct_CoeffP5[k][2] * static_cast<double>(p5_1D_tmp);
+        }
+
+        // MYPOLYDER Differentiate polynomial.
+        //
+        // u  = u(:).';
+        for (int b_k = 0; b_k < 4; b_k++) {
+            int p5_2D_tmp;
+            p5_2D_tmp = 4 - b_k;
+            p5_2D[b_k][0] = p5_1D[b_k][0] * static_cast<double>(p5_2D_tmp);
+            p5_2D[b_k][1] = p5_1D[b_k][1] * static_cast<double>(p5_2D_tmp);
+            p5_2D[b_k][2] = p5_1D[b_k][2] * static_cast<double>(p5_2D_tmp);
+        }
+
+        // MYPOLYDER Differentiate polynomial.
+        //
+        // u  = u(:).';
+        for (int c_k = 0; c_k < 3; c_k++) {
+            int p5_3D_tmp;
+            p5_3D_tmp = 3 - c_k;
+            p5_3D[c_k][0] = p5_2D[c_k][0] * static_cast<double>(p5_3D_tmp);
+            p5_3D[c_k][1] = p5_2D[c_k][1] * static_cast<double>(p5_3D_tmp);
+            p5_3D[c_k][2] = p5_2D[c_k][2] * static_cast<double>(p5_3D_tmp);
+        }
+
+        //
+        // POLYVAL Evaluate array of polynomials with same degree.
+        //
+        //
+        //  Use Horner's method for general case where X is an array.
+        for (int t = 0; t < 10; t++) {
+            r_0D[t][0] = CurvStruct_CoeffP5[0][0];
+            r_0D[t][1] = CurvStruct_CoeffP5[0][1];
+            r_0D[t][2] = CurvStruct_CoeffP5[0][2];
+        }
+
+        for (int i = 0; i < 5; i++) {
+            double d;
+            double d1;
+            double d2;
+            d = CurvStruct_CoeffP5[i + 1][0];
+            d1 = CurvStruct_CoeffP5[i + 1][1];
+            d2 = CurvStruct_CoeffP5[i + 1][2];
+            for (int d_k = 0; d_k < 10; d_k++) {
+                r_0D[d_k][0] = u_vec[d_k] * r_0D[d_k][0] + d;
+                r_0D[d_k][1] = u_vec[d_k] * r_0D[d_k][1] + d1;
+                r_0D[d_k][2] = u_vec[d_k] * r_0D[d_k][2] + d2;
+            }
+        }
+
+        // POLYVAL Evaluate array of polynomials with same degree.
+        //
+        //
+        //  Use Horner's method for general case where X is an array.
+        for (int b_t = 0; b_t < 10; b_t++) {
+            r_1D[b_t][0] = p5_1D[0][0];
+            r_1D[b_t][1] = p5_1D[0][1];
+            r_1D[b_t][2] = p5_1D[0][2];
+        }
+
+        for (int b_i = 0; b_i < 4; b_i++) {
+            double d3;
+            double d4;
+            double d5;
+            d3 = p5_1D[b_i + 1][0];
+            d4 = p5_1D[b_i + 1][1];
+            d5 = p5_1D[b_i + 1][2];
+            for (int e_k = 0; e_k < 10; e_k++) {
+                r_1D[e_k][0] = u_vec[e_k] * r_1D[e_k][0] + d3;
+                r_1D[e_k][1] = u_vec[e_k] * r_1D[e_k][1] + d4;
+                r_1D[e_k][2] = u_vec[e_k] * r_1D[e_k][2] + d5;
+            }
+        }
+
+        // POLYVAL Evaluate array of polynomials with same degree.
+        //
+        //
+        //  Use Horner's method for general case where X is an array.
+        for (int c_t = 0; c_t < 10; c_t++) {
+            r_2D[c_t][0] = p5_2D[0][0];
+            r_2D[c_t][1] = p5_2D[0][1];
+            r_2D[c_t][2] = p5_2D[0][2];
+        }
+
+        for (int c_i = 0; c_i < 3; c_i++) {
+            double d6;
+            double d7;
+            double d8;
+            d6 = p5_2D[c_i + 1][0];
+            d7 = p5_2D[c_i + 1][1];
+            d8 = p5_2D[c_i + 1][2];
+            for (int f_k = 0; f_k < 10; f_k++) {
+                r_2D[f_k][0] = u_vec[f_k] * r_2D[f_k][0] + d6;
+                r_2D[f_k][1] = u_vec[f_k] * r_2D[f_k][1] + d7;
+                r_2D[f_k][2] = u_vec[f_k] * r_2D[f_k][2] + d8;
+            }
+        }
+
+        // POLYVAL Evaluate array of polynomials with same degree.
+        //
+        //
+        //  Use Horner's method for general case where X is an array.
+        for (int d_t = 0; d_t < 10; d_t++) {
+            r_3D[d_t][0] = p5_3D[0][0];
+            r_3D[d_t][1] = p5_3D[0][1];
+            r_3D[d_t][2] = p5_3D[0][2];
+        }
+
+        for (int d_i = 0; d_i < 2; d_i++) {
+            double d9;
+            double d10;
+            double d11;
+            d9 = p5_3D[d_i + 1][0];
+            d10 = p5_3D[d_i + 1][1];
+            d11 = p5_3D[d_i + 1][2];
+            for (int g_k = 0; g_k < 10; g_k++) {
+                r_3D[g_k][0] = u_vec[g_k] * r_3D[g_k][0] + d9;
+                r_3D[g_k][1] = u_vec[g_k] * r_3D[g_k][1] + d10;
+                r_3D[g_k][2] = u_vec[g_k] * r_3D[g_k][2] + d11;
             }
         }
     }
@@ -13976,19 +14311,7 @@ namespace ocn
         switch (CurvStruct_Type) {
           case CurveType_Line:
             //  line (G01)
-            //
-            //  parametrization of a straight line between P0 and P1
-            //
-            r0D[0] = CurvStruct_P1[0] * u_vec_tilda + CurvStruct_P0[0] * (1.0 - u_vec_tilda);
-            r0D[1] = CurvStruct_P1[1] * u_vec_tilda + CurvStruct_P0[1] * (1.0 - u_vec_tilda);
-            r0D[2] = CurvStruct_P1[2] * u_vec_tilda + CurvStruct_P0[2] * (1.0 - u_vec_tilda);
-
-            //
-            r1D[0] = CurvStruct_P1[0] - CurvStruct_P0[0];
-            r1D[1] = CurvStruct_P1[1] - CurvStruct_P0[1];
-            r1D[2] = CurvStruct_P1[2] - CurvStruct_P0[2];
-
-            //
+            b_EvalLine(CurvStruct_P0, CurvStruct_P1, u_vec_tilda, r0D, r1D);
             break;
 
           case CurveType_Helix:
@@ -14243,19 +14566,7 @@ namespace ocn
         switch (CurvStruct_Type) {
           case CurveType_Line:
             //  line (G01)
-            //
-            //  parametrization of a straight line between P0 and P1
-            //
-            r0D[0] = CurvStruct_P1[0] * u_vec_tilda + CurvStruct_P0[0] * (1.0 - u_vec_tilda);
-            r0D[1] = CurvStruct_P1[1] * u_vec_tilda + CurvStruct_P0[1] * (1.0 - u_vec_tilda);
-            r0D[2] = CurvStruct_P1[2] * u_vec_tilda + CurvStruct_P0[2] * (1.0 - u_vec_tilda);
-
-            //
-            r1D[0] = CurvStruct_P1[0] - CurvStruct_P0[0];
-            r1D[1] = CurvStruct_P1[1] - CurvStruct_P0[1];
-            r1D[2] = CurvStruct_P1[2] - CurvStruct_P0[2];
-
-            //
+            b_EvalLine(CurvStruct_P0, CurvStruct_P1, u_vec_tilda, r0D, r1D);
             break;
 
           case CurveType_Helix:
@@ -14478,22 +14789,7 @@ namespace ocn
         switch (CurvStruct_Type) {
           case CurveType_Line:
             //  line (G01)
-            //
-            //  parametrization of a straight line between P0 and P1
-            //
-            r0D[0] = CurvStruct_P1[0] * CurvStruct_b_param + CurvStruct_P0[0] * (1.0 -
-                CurvStruct_b_param);
-            r0D[1] = CurvStruct_P1[1] * CurvStruct_b_param + CurvStruct_P0[1] * (1.0 -
-                CurvStruct_b_param);
-            r0D[2] = CurvStruct_P1[2] * CurvStruct_b_param + CurvStruct_P0[2] * (1.0 -
-                CurvStruct_b_param);
-
-            //
-            r1D[0] = CurvStruct_P1[0] - CurvStruct_P0[0];
-            r1D[1] = CurvStruct_P1[1] - CurvStruct_P0[1];
-            r1D[2] = CurvStruct_P1[2] - CurvStruct_P0[2];
-
-            //
+            b_EvalLine(CurvStruct_P0, CurvStruct_P1, CurvStruct_b_param, r0D, r1D);
             break;
 
           case CurveType_Helix:
@@ -14620,22 +14916,7 @@ namespace ocn
         switch (CurvStruct_Type) {
           case CurveType_Line:
             //  line (G01)
-            //
-            //  parametrization of a straight line between P0 and P1
-            //
-            r0D[0] = CurvStruct_P1[0] * CurvStruct_b_param + CurvStruct_P0[0] * (1.0 -
-                CurvStruct_b_param);
-            r0D[1] = CurvStruct_P1[1] * CurvStruct_b_param + CurvStruct_P0[1] * (1.0 -
-                CurvStruct_b_param);
-            r0D[2] = CurvStruct_P1[2] * CurvStruct_b_param + CurvStruct_P0[2] * (1.0 -
-                CurvStruct_b_param);
-
-            //
-            r1D[0] = CurvStruct_P1[0] - CurvStruct_P0[0];
-            r1D[1] = CurvStruct_P1[1] - CurvStruct_P0[1];
-            r1D[2] = CurvStruct_P1[2] - CurvStruct_P0[2];
-
-            //
+            b_EvalLine(CurvStruct_P0, CurvStruct_P1, CurvStruct_b_param, r0D, r1D);
             break;
 
           case CurveType_Helix:
@@ -14758,10 +15039,10 @@ namespace ocn
         int i_loop_ub;
         coder::array<double, 2U> Spline_sp_CoeffY;
         double c;
-        int m_loop_ub;
+        int k_loop_ub;
         coder::array<double, 2U> Spline_sp_CoeffZ;
         double b_c;
-        int p_loop_ub;
+        int m_loop_ub;
         coder::array<double, 2U> r0Dx;
         coder::array<double, 2U> r1Dx;
         coder::array<double, 2U> r2Dx;
@@ -14876,74 +15157,8 @@ namespace ocn
 
         switch (CurvStruct_Type) {
           case CurveType_Line:
-            {
-                int j_loop_ub;
-                int l_loop_ub;
-                int n_loop_ub;
-                double a_idx_0;
-                double a_idx_1;
-                double a_idx_2;
-                int s_loop_ub;
-                int u_loop_ub;
-
-                //  line (G01)
-                //
-                //  parametrization of a straight line between P0 and P1
-                //
-                r0D.set_size(3, u_vec_tilda.size(1));
-                j_loop_ub = u_vec_tilda.size(1);
-                for (int i10 = 0; i10 < j_loop_ub; i10++) {
-                    double d;
-                    d = u_vec_tilda[i10];
-                    r0D[3 * i10] = CurvStruct_P1[0] * d + CurvStruct_P0[0] * (1.0 - d);
-                }
-
-                l_loop_ub = u_vec_tilda.size(1);
-                for (int i12 = 0; i12 < l_loop_ub; i12++) {
-                    double d1;
-                    d1 = u_vec_tilda[i12];
-                    r0D[3 * i12 + 1] = CurvStruct_P1[1] * d1 + CurvStruct_P0[1] * (1.0 - d1);
-                }
-
-                n_loop_ub = u_vec_tilda.size(1);
-                for (int i14 = 0; i14 < n_loop_ub; i14++) {
-                    double d2;
-                    d2 = u_vec_tilda[i14];
-                    r0D[3 * i14 + 2] = CurvStruct_P1[2] * d2 + CurvStruct_P0[2] * (1.0 - d2);
-                }
-
-                //
-                a_idx_0 = CurvStruct_P1[0] - CurvStruct_P0[0];
-                a_idx_1 = CurvStruct_P1[1] - CurvStruct_P0[1];
-                a_idx_2 = CurvStruct_P1[2] - CurvStruct_P0[2];
-                r1D.set_size(3, u_vec_tilda.size(1));
-                if (u_vec_tilda.size(1) != 0) {
-                    int i18;
-                    i18 = u_vec_tilda.size(1) - 1;
-                    for (int t = 0; t <= i18; t++) {
-                        r1D[3 * t] = a_idx_0;
-                        r1D[3 * t + 1] = a_idx_1;
-                        r1D[3 * t + 2] = a_idx_2;
-                    }
-                }
-
-                //
-                r2D.set_size(3, u_vec_tilda.size(1));
-                s_loop_ub = u_vec_tilda.size(1);
-                for (int i20 = 0; i20 < s_loop_ub; i20++) {
-                    r2D[3 * i20] = 0.0;
-                    r2D[3 * i20 + 1] = 0.0;
-                    r2D[3 * i20 + 2] = 0.0;
-                }
-
-                r3D.set_size(3, u_vec_tilda.size(1));
-                u_loop_ub = u_vec_tilda.size(1);
-                for (int i22 = 0; i22 < u_loop_ub; i22++) {
-                    r3D[3 * i22] = 0.0;
-                    r3D[3 * i22 + 1] = 0.0;
-                    r3D[3 * i22 + 2] = 0.0;
-                }
-            }
+            //  line (G01)
+            EvalLine(CurvStruct_P0, CurvStruct_P1, u_vec_tilda, r0D, r1D, r2D, r3D);
             break;
 
           case CurveType_Helix:
@@ -14960,20 +15175,20 @@ namespace ocn
           case CurveType_Spline:
             {
                 int h_loop_ub;
-                int k_loop_ub;
+                int j_loop_ub;
+                int l_loop_ub;
+                int n_loop_ub;
                 int o_loop_ub;
+                int p_loop_ub;
                 int q_loop_ub;
                 int r_loop_ub;
+                int s_loop_ub;
                 int t_loop_ub;
+                int u_loop_ub;
                 int v_loop_ub;
                 int w_loop_ub;
                 int x_loop_ub;
                 int y_loop_ub;
-                int ab_loop_ub;
-                int bb_loop_ub;
-                int cb_loop_ub;
-                int db_loop_ub;
-                int eb_loop_ub;
 
                 //  BSpline
                 ctx_q_splines->get(CurvStruct_sp_index, (&expl_temp));
@@ -14984,15 +15199,15 @@ namespace ocn
                 }
 
                 Spline_sp_CoeffY.set_size(1, expl_temp.sp.CoeffY.size(1));
-                k_loop_ub = expl_temp.sp.CoeffY.size(1);
-                for (int i11 = 0; i11 < k_loop_ub; i11++) {
-                    Spline_sp_CoeffY[i11] = expl_temp.sp.CoeffY[i11];
+                j_loop_ub = expl_temp.sp.CoeffY.size(1);
+                for (int i10 = 0; i10 < j_loop_ub; i10++) {
+                    Spline_sp_CoeffY[i10] = expl_temp.sp.CoeffY[i10];
                 }
 
                 Spline_sp_CoeffZ.set_size(1, expl_temp.sp.CoeffZ.size(1));
-                o_loop_ub = expl_temp.sp.CoeffZ.size(1);
-                for (int i15 = 0; i15 < o_loop_ub; i15++) {
-                    Spline_sp_CoeffZ[i15] = expl_temp.sp.CoeffZ[i15];
+                l_loop_ub = expl_temp.sp.CoeffZ.size(1);
+                for (int i12 = 0; i12 < l_loop_ub; i12++) {
+                    Spline_sp_CoeffZ[i12] = expl_temp.sp.CoeffZ[i12];
                 }
 
                 bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffX, u_vec_tilda, r0Dx, r1Dx,
@@ -15002,67 +15217,67 @@ namespace ocn
                 bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffZ, u_vec_tilda, r0Dz, r1Dz,
                                  r2Dz, r3Dz);
                 r0D.set_size(3, r0Dx.size(1));
-                q_loop_ub = r0Dx.size(1);
-                for (int i17 = 0; i17 < q_loop_ub; i17++) {
-                    r0D[3 * i17] = r0Dx[i17];
+                n_loop_ub = r0Dx.size(1);
+                for (int i14 = 0; i14 < n_loop_ub; i14++) {
+                    r0D[3 * i14] = r0Dx[i14];
                 }
 
-                r_loop_ub = r0Dy.size(1);
-                for (int i19 = 0; i19 < r_loop_ub; i19++) {
-                    r0D[3 * i19 + 1] = r0Dy[i19];
+                o_loop_ub = r0Dy.size(1);
+                for (int i15 = 0; i15 < o_loop_ub; i15++) {
+                    r0D[3 * i15 + 1] = r0Dy[i15];
                 }
 
-                t_loop_ub = r0Dz.size(1);
-                for (int i21 = 0; i21 < t_loop_ub; i21++) {
-                    r0D[3 * i21 + 2] = r0Dz[i21];
+                p_loop_ub = r0Dz.size(1);
+                for (int i16 = 0; i16 < p_loop_ub; i16++) {
+                    r0D[3 * i16 + 2] = r0Dz[i16];
                 }
 
                 r1D.set_size(3, r1Dx.size(1));
-                v_loop_ub = r1Dx.size(1);
-                for (int i23 = 0; i23 < v_loop_ub; i23++) {
-                    r1D[3 * i23] = r1Dx[i23];
+                q_loop_ub = r1Dx.size(1);
+                for (int i17 = 0; i17 < q_loop_ub; i17++) {
+                    r1D[3 * i17] = r1Dx[i17];
                 }
 
-                w_loop_ub = r1Dy.size(1);
-                for (int i24 = 0; i24 < w_loop_ub; i24++) {
-                    r1D[3 * i24 + 1] = r1Dy[i24];
+                r_loop_ub = r1Dy.size(1);
+                for (int i18 = 0; i18 < r_loop_ub; i18++) {
+                    r1D[3 * i18 + 1] = r1Dy[i18];
                 }
 
-                x_loop_ub = r1Dz.size(1);
-                for (int i25 = 0; i25 < x_loop_ub; i25++) {
-                    r1D[3 * i25 + 2] = r1Dz[i25];
+                s_loop_ub = r1Dz.size(1);
+                for (int i19 = 0; i19 < s_loop_ub; i19++) {
+                    r1D[3 * i19 + 2] = r1Dz[i19];
                 }
 
                 r2D.set_size(3, r2Dx.size(1));
-                y_loop_ub = r2Dx.size(1);
-                for (int i26 = 0; i26 < y_loop_ub; i26++) {
-                    r2D[3 * i26] = r2Dx[i26];
+                t_loop_ub = r2Dx.size(1);
+                for (int i20 = 0; i20 < t_loop_ub; i20++) {
+                    r2D[3 * i20] = r2Dx[i20];
                 }
 
-                ab_loop_ub = r2Dy.size(1);
-                for (int i27 = 0; i27 < ab_loop_ub; i27++) {
-                    r2D[3 * i27 + 1] = r2Dy[i27];
+                u_loop_ub = r2Dy.size(1);
+                for (int i21 = 0; i21 < u_loop_ub; i21++) {
+                    r2D[3 * i21 + 1] = r2Dy[i21];
                 }
 
-                bb_loop_ub = r2Dz.size(1);
-                for (int i28 = 0; i28 < bb_loop_ub; i28++) {
-                    r2D[3 * i28 + 2] = r2Dz[i28];
+                v_loop_ub = r2Dz.size(1);
+                for (int i22 = 0; i22 < v_loop_ub; i22++) {
+                    r2D[3 * i22 + 2] = r2Dz[i22];
                 }
 
                 r3D.set_size(3, r3Dx.size(1));
-                cb_loop_ub = r3Dx.size(1);
-                for (int i29 = 0; i29 < cb_loop_ub; i29++) {
-                    r3D[3 * i29] = r3Dx[i29];
+                w_loop_ub = r3Dx.size(1);
+                for (int i23 = 0; i23 < w_loop_ub; i23++) {
+                    r3D[3 * i23] = r3Dx[i23];
                 }
 
-                db_loop_ub = r3Dy.size(1);
-                for (int i30 = 0; i30 < db_loop_ub; i30++) {
-                    r3D[3 * i30 + 1] = r3Dy[i30];
+                x_loop_ub = r3Dy.size(1);
+                for (int i24 = 0; i24 < x_loop_ub; i24++) {
+                    r3D[3 * i24 + 1] = r3Dy[i24];
                 }
 
-                eb_loop_ub = r3Dz.size(1);
-                for (int i31 = 0; i31 < eb_loop_ub; i31++) {
-                    r3D[3 * i31 + 2] = r3Dz[i31];
+                y_loop_ub = r3Dz.size(1);
+                for (int i25 = 0; i25 < y_loop_ub; i25++) {
+                    r3D[3 * i25 + 2] = r3Dz[i25];
                 }
             }
             break;
@@ -15086,20 +15301,20 @@ namespace ocn
 
         c = std::pow(CurvStruct_a_param, 2.0);
         r2D.set_size(3, r2D.size(1));
-        m_loop_ub = r2D.size(1);
-        for (int i13 = 0; i13 < m_loop_ub; i13++) {
-            r2D[3 * i13] = c * r2D[3 * i13];
-            r2D[3 * i13 + 1] = c * r2D[3 * i13 + 1];
-            r2D[3 * i13 + 2] = c * r2D[3 * i13 + 2];
+        k_loop_ub = r2D.size(1);
+        for (int i11 = 0; i11 < k_loop_ub; i11++) {
+            r2D[3 * i11] = c * r2D[3 * i11];
+            r2D[3 * i11 + 1] = c * r2D[3 * i11 + 1];
+            r2D[3 * i11 + 2] = c * r2D[3 * i11 + 2];
         }
 
         b_c = std::pow(CurvStruct_a_param, 3.0);
         r3D.set_size(3, r3D.size(1));
-        p_loop_ub = r3D.size(1);
-        for (int i16 = 0; i16 < p_loop_ub; i16++) {
-            r3D[3 * i16] = b_c * r3D[3 * i16];
-            r3D[3 * i16 + 1] = b_c * r3D[3 * i16 + 1];
-            r3D[3 * i16 + 2] = b_c * r3D[3 * i16 + 2];
+        m_loop_ub = r3D.size(1);
+        for (int i13 = 0; i13 < m_loop_ub; i13++) {
+            r3D[3 * i13] = b_c * r3D[3 * i13];
+            r3D[3 * i13 + 1] = b_c * r3D[3 * i13 + 1];
+            r3D[3 * i13 + 2] = b_c * r3D[3 * i13 + 2];
         }
     }
 
@@ -15135,9 +15350,7 @@ namespace ocn
         double c;
         double b_c;
         coder::array<double, 2U> Spline_sp_CoeffY;
-        double p5_1D[5][3];
         coder::array<double, 2U> Spline_sp_CoeffZ;
-        double p5_2D[4][3];
         double r0Dx[10];
         double r1Dx[10];
         double r2Dx[10];
@@ -15150,7 +15363,6 @@ namespace ocn
         double r1Dz[10];
         double r2Dz[10];
         double r3Dz[10];
-        double p5_3D[3][3];
 
         //
         //
@@ -15173,33 +15385,8 @@ namespace ocn
 
         switch (CurvStruct_Type) {
           case CurveType_Line:
-            {
-                double a_idx_0;
-                double a_idx_1;
-                double a_idx_2;
-
-                //  line (G01)
-                //
-                //  parametrization of a straight line between P0 and P1
-                //
-                //
-                a_idx_0 = CurvStruct_P1[0] - CurvStruct_P0[0];
-                a_idx_1 = CurvStruct_P1[1] - CurvStruct_P0[1];
-                a_idx_2 = CurvStruct_P1[2] - CurvStruct_P0[2];
-                for (int t = 0; t < 10; t++) {
-                    r0D[t][0] = CurvStruct_P1[0] * u_vec_tilda[t] + CurvStruct_P0[0] * (1.0 -
-                        u_vec_tilda[t]);
-                    r0D[t][1] = CurvStruct_P1[1] * u_vec_tilda[t] + CurvStruct_P0[1] * (1.0 -
-                        u_vec_tilda[t]);
-                    r0D[t][2] = CurvStruct_P1[2] * u_vec_tilda[t] + CurvStruct_P0[2] * (1.0 -
-                        u_vec_tilda[t]);
-                    r1D[t][0] = a_idx_0;
-                    r1D[t][1] = a_idx_1;
-                    r1D[t][2] = a_idx_2;
-                }
-
-                //
-            }
+            //  line (G01)
+            c_EvalLine(CurvStruct_P0, CurvStruct_P1, u_vec_tilda, r0D, r1D);
             break;
 
           case CurveType_Helix:
@@ -15209,139 +15396,8 @@ namespace ocn
             break;
 
           case CurveType_TransP5:
-            {
-                //  polynomial transition
-                //
-                // MYPOLYDER Differentiate polynomial.
-                //
-                // u  = u(:).';
-                for (int k = 0; k < 5; k++) {
-                    int p5_1D_tmp;
-                    p5_1D_tmp = 5 - k;
-                    p5_1D[k][0] = CurvStruct_CoeffP5[k][0] * static_cast<double>(p5_1D_tmp);
-                    p5_1D[k][1] = CurvStruct_CoeffP5[k][1] * static_cast<double>(p5_1D_tmp);
-                    p5_1D[k][2] = CurvStruct_CoeffP5[k][2] * static_cast<double>(p5_1D_tmp);
-                }
-
-                // MYPOLYDER Differentiate polynomial.
-                //
-                // u  = u(:).';
-                for (int b_k = 0; b_k < 4; b_k++) {
-                    int p5_2D_tmp;
-                    p5_2D_tmp = 4 - b_k;
-                    p5_2D[b_k][0] = p5_1D[b_k][0] * static_cast<double>(p5_2D_tmp);
-                    p5_2D[b_k][1] = p5_1D[b_k][1] * static_cast<double>(p5_2D_tmp);
-                    p5_2D[b_k][2] = p5_1D[b_k][2] * static_cast<double>(p5_2D_tmp);
-                }
-
-                // MYPOLYDER Differentiate polynomial.
-                //
-                // u  = u(:).';
-                for (int c_k = 0; c_k < 3; c_k++) {
-                    int p5_3D_tmp;
-                    p5_3D_tmp = 3 - c_k;
-                    p5_3D[c_k][0] = p5_2D[c_k][0] * static_cast<double>(p5_3D_tmp);
-                    p5_3D[c_k][1] = p5_2D[c_k][1] * static_cast<double>(p5_3D_tmp);
-                    p5_3D[c_k][2] = p5_2D[c_k][2] * static_cast<double>(p5_3D_tmp);
-                }
-
-                //
-                // POLYVAL Evaluate array of polynomials with same degree.
-                //
-                //
-                //  Use Horner's method for general case where X is an array.
-                for (int b_t = 0; b_t < 10; b_t++) {
-                    r0D[b_t][0] = CurvStruct_CoeffP5[0][0];
-                    r0D[b_t][1] = CurvStruct_CoeffP5[0][1];
-                    r0D[b_t][2] = CurvStruct_CoeffP5[0][2];
-                }
-
-                for (int b_i = 0; b_i < 5; b_i++) {
-                    double d;
-                    double d1;
-                    double d2;
-                    d = CurvStruct_CoeffP5[b_i + 1][0];
-                    d1 = CurvStruct_CoeffP5[b_i + 1][1];
-                    d2 = CurvStruct_CoeffP5[b_i + 1][2];
-                    for (int d_k = 0; d_k < 10; d_k++) {
-                        r0D[d_k][0] = u_vec_tilda[d_k] * r0D[d_k][0] + d;
-                        r0D[d_k][1] = u_vec_tilda[d_k] * r0D[d_k][1] + d1;
-                        r0D[d_k][2] = u_vec_tilda[d_k] * r0D[d_k][2] + d2;
-                    }
-                }
-
-                // POLYVAL Evaluate array of polynomials with same degree.
-                //
-                //
-                //  Use Horner's method for general case where X is an array.
-                for (int c_t = 0; c_t < 10; c_t++) {
-                    r1D[c_t][0] = p5_1D[0][0];
-                    r1D[c_t][1] = p5_1D[0][1];
-                    r1D[c_t][2] = p5_1D[0][2];
-                }
-
-                for (int c_i = 0; c_i < 4; c_i++) {
-                    double d3;
-                    double d4;
-                    double d5;
-                    d3 = p5_1D[c_i + 1][0];
-                    d4 = p5_1D[c_i + 1][1];
-                    d5 = p5_1D[c_i + 1][2];
-                    for (int e_k = 0; e_k < 10; e_k++) {
-                        r1D[e_k][0] = u_vec_tilda[e_k] * r1D[e_k][0] + d3;
-                        r1D[e_k][1] = u_vec_tilda[e_k] * r1D[e_k][1] + d4;
-                        r1D[e_k][2] = u_vec_tilda[e_k] * r1D[e_k][2] + d5;
-                    }
-                }
-
-                // POLYVAL Evaluate array of polynomials with same degree.
-                //
-                //
-                //  Use Horner's method for general case where X is an array.
-                for (int d_t = 0; d_t < 10; d_t++) {
-                    r2D[d_t][0] = p5_2D[0][0];
-                    r2D[d_t][1] = p5_2D[0][1];
-                    r2D[d_t][2] = p5_2D[0][2];
-                }
-
-                for (int d_i = 0; d_i < 3; d_i++) {
-                    double d6;
-                    double d7;
-                    double d8;
-                    d6 = p5_2D[d_i + 1][0];
-                    d7 = p5_2D[d_i + 1][1];
-                    d8 = p5_2D[d_i + 1][2];
-                    for (int f_k = 0; f_k < 10; f_k++) {
-                        r2D[f_k][0] = u_vec_tilda[f_k] * r2D[f_k][0] + d6;
-                        r2D[f_k][1] = u_vec_tilda[f_k] * r2D[f_k][1] + d7;
-                        r2D[f_k][2] = u_vec_tilda[f_k] * r2D[f_k][2] + d8;
-                    }
-                }
-
-                // POLYVAL Evaluate array of polynomials with same degree.
-                //
-                //
-                //  Use Horner's method for general case where X is an array.
-                for (int e_t = 0; e_t < 10; e_t++) {
-                    r3D[e_t][0] = p5_3D[0][0];
-                    r3D[e_t][1] = p5_3D[0][1];
-                    r3D[e_t][2] = p5_3D[0][2];
-                }
-
-                for (int e_i = 0; e_i < 2; e_i++) {
-                    double d9;
-                    double d10;
-                    double d11;
-                    d9 = p5_3D[e_i + 1][0];
-                    d10 = p5_3D[e_i + 1][1];
-                    d11 = p5_3D[e_i + 1][2];
-                    for (int g_k = 0; g_k < 10; g_k++) {
-                        r3D[g_k][0] = u_vec_tilda[g_k] * r3D[g_k][0] + d9;
-                        r3D[g_k][1] = u_vec_tilda[g_k] * r3D[g_k][1] + d10;
-                        r3D[g_k][2] = u_vec_tilda[g_k] * r3D[g_k][2] + d11;
-                    }
-                }
-            }
+            //  polynomial transition
+            c_EvalTransP5(CurvStruct_CoeffP5, u_vec_tilda, r0D, r1D, r2D, r3D);
             break;
 
           case CurveType_Spline:
@@ -15463,7 +15519,7 @@ namespace ocn
         int h_loop_ub;
         coder::array<double, 2U> Spline_sp_CoeffY;
         double c;
-        int l_loop_ub;
+        int j_loop_ub;
         coder::array<double, 2U> Spline_sp_CoeffZ;
         coder::array<double, 2U> r0Dx;
         coder::array<double, 2U> r1Dx;
@@ -15571,65 +15627,8 @@ namespace ocn
 
         switch (CurvStruct_Type) {
           case CurveType_Line:
-            {
-                int i_loop_ub;
-                int k_loop_ub;
-                int m_loop_ub;
-                double a_idx_0;
-                double a_idx_1;
-                double a_idx_2;
-                int q_loop_ub;
-
-                //  line (G01)
-                //
-                //  parametrization of a straight line between P0 and P1
-                //
-                r0D.set_size(3, u_vec_tilda.size(1));
-                i_loop_ub = u_vec_tilda.size(1);
-                for (int i9 = 0; i9 < i_loop_ub; i9++) {
-                    double d;
-                    d = u_vec_tilda[i9];
-                    r0D[3 * i9] = CurvStruct_P1[0] * d + CurvStruct_P0[0] * (1.0 - d);
-                }
-
-                k_loop_ub = u_vec_tilda.size(1);
-                for (int i11 = 0; i11 < k_loop_ub; i11++) {
-                    double d1;
-                    d1 = u_vec_tilda[i11];
-                    r0D[3 * i11 + 1] = CurvStruct_P1[1] * d1 + CurvStruct_P0[1] * (1.0 - d1);
-                }
-
-                m_loop_ub = u_vec_tilda.size(1);
-                for (int i13 = 0; i13 < m_loop_ub; i13++) {
-                    double d2;
-                    d2 = u_vec_tilda[i13];
-                    r0D[3 * i13 + 2] = CurvStruct_P1[2] * d2 + CurvStruct_P0[2] * (1.0 - d2);
-                }
-
-                //
-                a_idx_0 = CurvStruct_P1[0] - CurvStruct_P0[0];
-                a_idx_1 = CurvStruct_P1[1] - CurvStruct_P0[1];
-                a_idx_2 = CurvStruct_P1[2] - CurvStruct_P0[2];
-                r1D.set_size(3, u_vec_tilda.size(1));
-                if (u_vec_tilda.size(1) != 0) {
-                    int i16;
-                    i16 = u_vec_tilda.size(1) - 1;
-                    for (int t = 0; t <= i16; t++) {
-                        r1D[3 * t] = a_idx_0;
-                        r1D[3 * t + 1] = a_idx_1;
-                        r1D[3 * t + 2] = a_idx_2;
-                    }
-                }
-
-                //
-                r2D.set_size(3, u_vec_tilda.size(1));
-                q_loop_ub = u_vec_tilda.size(1);
-                for (int i18 = 0; i18 < q_loop_ub; i18++) {
-                    r2D[3 * i18] = 0.0;
-                    r2D[3 * i18 + 1] = 0.0;
-                    r2D[3 * i18 + 2] = 0.0;
-                }
-            }
+            //  line (G01)
+            EvalLine(CurvStruct_P0, CurvStruct_P1, u_vec_tilda, r0D, r1D, r2D, r3D);
             break;
 
           case CurveType_Helix:
@@ -15646,17 +15645,17 @@ namespace ocn
           case CurveType_Spline:
             {
                 int g_loop_ub;
-                int j_loop_ub;
+                int i_loop_ub;
+                int k_loop_ub;
+                int l_loop_ub;
+                int m_loop_ub;
                 int n_loop_ub;
                 int o_loop_ub;
                 int p_loop_ub;
+                int q_loop_ub;
                 int r_loop_ub;
                 int s_loop_ub;
                 int t_loop_ub;
-                int u_loop_ub;
-                int v_loop_ub;
-                int w_loop_ub;
-                int x_loop_ub;
 
                 //  BSpline
                 ctx_q_splines->get(CurvStruct_sp_index, (&expl_temp));
@@ -15667,15 +15666,15 @@ namespace ocn
                 }
 
                 Spline_sp_CoeffY.set_size(1, expl_temp.sp.CoeffY.size(1));
-                j_loop_ub = expl_temp.sp.CoeffY.size(1);
-                for (int i10 = 0; i10 < j_loop_ub; i10++) {
-                    Spline_sp_CoeffY[i10] = expl_temp.sp.CoeffY[i10];
+                i_loop_ub = expl_temp.sp.CoeffY.size(1);
+                for (int i9 = 0; i9 < i_loop_ub; i9++) {
+                    Spline_sp_CoeffY[i9] = expl_temp.sp.CoeffY[i9];
                 }
 
                 Spline_sp_CoeffZ.set_size(1, expl_temp.sp.CoeffZ.size(1));
-                n_loop_ub = expl_temp.sp.CoeffZ.size(1);
-                for (int i14 = 0; i14 < n_loop_ub; i14++) {
-                    Spline_sp_CoeffZ[i14] = expl_temp.sp.CoeffZ[i14];
+                k_loop_ub = expl_temp.sp.CoeffZ.size(1);
+                for (int i11 = 0; i11 < k_loop_ub; i11++) {
+                    Spline_sp_CoeffZ[i11] = expl_temp.sp.CoeffZ[i11];
                 }
 
                 bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffX, u_vec_tilda, r0Dx, r1Dx,
@@ -15685,51 +15684,51 @@ namespace ocn
                 bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffZ, u_vec_tilda, r0Dz, r1Dz,
                                  r2Dz, r3Dz);
                 r0D.set_size(3, r0Dx.size(1));
-                o_loop_ub = r0Dx.size(1);
-                for (int i15 = 0; i15 < o_loop_ub; i15++) {
-                    r0D[3 * i15] = r0Dx[i15];
+                l_loop_ub = r0Dx.size(1);
+                for (int i12 = 0; i12 < l_loop_ub; i12++) {
+                    r0D[3 * i12] = r0Dx[i12];
                 }
 
-                p_loop_ub = r0Dy.size(1);
-                for (int i17 = 0; i17 < p_loop_ub; i17++) {
-                    r0D[3 * i17 + 1] = r0Dy[i17];
+                m_loop_ub = r0Dy.size(1);
+                for (int i13 = 0; i13 < m_loop_ub; i13++) {
+                    r0D[3 * i13 + 1] = r0Dy[i13];
                 }
 
-                r_loop_ub = r0Dz.size(1);
-                for (int i19 = 0; i19 < r_loop_ub; i19++) {
-                    r0D[3 * i19 + 2] = r0Dz[i19];
+                n_loop_ub = r0Dz.size(1);
+                for (int i14 = 0; i14 < n_loop_ub; i14++) {
+                    r0D[3 * i14 + 2] = r0Dz[i14];
                 }
 
                 r1D.set_size(3, r1Dx.size(1));
-                s_loop_ub = r1Dx.size(1);
-                for (int i20 = 0; i20 < s_loop_ub; i20++) {
-                    r1D[3 * i20] = r1Dx[i20];
+                o_loop_ub = r1Dx.size(1);
+                for (int i15 = 0; i15 < o_loop_ub; i15++) {
+                    r1D[3 * i15] = r1Dx[i15];
                 }
 
-                t_loop_ub = r1Dy.size(1);
-                for (int i21 = 0; i21 < t_loop_ub; i21++) {
-                    r1D[3 * i21 + 1] = r1Dy[i21];
+                p_loop_ub = r1Dy.size(1);
+                for (int i16 = 0; i16 < p_loop_ub; i16++) {
+                    r1D[3 * i16 + 1] = r1Dy[i16];
                 }
 
-                u_loop_ub = r1Dz.size(1);
-                for (int i22 = 0; i22 < u_loop_ub; i22++) {
-                    r1D[3 * i22 + 2] = r1Dz[i22];
+                q_loop_ub = r1Dz.size(1);
+                for (int i17 = 0; i17 < q_loop_ub; i17++) {
+                    r1D[3 * i17 + 2] = r1Dz[i17];
                 }
 
                 r2D.set_size(3, r2Dx.size(1));
-                v_loop_ub = r2Dx.size(1);
-                for (int i23 = 0; i23 < v_loop_ub; i23++) {
-                    r2D[3 * i23] = r2Dx[i23];
+                r_loop_ub = r2Dx.size(1);
+                for (int i18 = 0; i18 < r_loop_ub; i18++) {
+                    r2D[3 * i18] = r2Dx[i18];
                 }
 
-                w_loop_ub = r2Dy.size(1);
-                for (int i24 = 0; i24 < w_loop_ub; i24++) {
-                    r2D[3 * i24 + 1] = r2Dy[i24];
+                s_loop_ub = r2Dy.size(1);
+                for (int i19 = 0; i19 < s_loop_ub; i19++) {
+                    r2D[3 * i19 + 1] = r2Dy[i19];
                 }
 
-                x_loop_ub = r2Dz.size(1);
-                for (int i25 = 0; i25 < x_loop_ub; i25++) {
-                    r2D[3 * i25 + 2] = r2Dz[i25];
+                t_loop_ub = r2Dz.size(1);
+                for (int i20 = 0; i20 < t_loop_ub; i20++) {
+                    r2D[3 * i20 + 2] = r2Dz[i20];
                 }
             }
             break;
@@ -15753,11 +15752,11 @@ namespace ocn
 
         c = std::pow(CurvStruct_a_param, 2.0);
         r2D.set_size(3, r2D.size(1));
-        l_loop_ub = r2D.size(1);
-        for (int i12 = 0; i12 < l_loop_ub; i12++) {
-            r2D[3 * i12] = c * r2D[3 * i12];
-            r2D[3 * i12 + 1] = c * r2D[3 * i12 + 1];
-            r2D[3 * i12 + 2] = c * r2D[3 * i12 + 2];
+        j_loop_ub = r2D.size(1);
+        for (int i10 = 0; i10 < j_loop_ub; i10++) {
+            r2D[3 * i10] = c * r2D[3 * i10];
+            r2D[3 * i10 + 1] = c * r2D[3 * i10 + 1];
+            r2D[3 * i10 + 2] = c * r2D[3 * i10 + 2];
         }
     }
 
@@ -17463,10 +17462,10 @@ namespace ocn
         int i_loop_ub;
         coder::array<double, 2U> Spline_sp_CoeffY;
         double c;
-        int m_loop_ub;
+        int k_loop_ub;
         coder::array<double, 2U> Spline_sp_CoeffZ;
         double b_c;
-        int p_loop_ub;
+        int m_loop_ub;
         coder::array<double, 2U> r0Dx;
         coder::array<double, 2U> r1Dx;
         coder::array<double, 2U> r2Dx;
@@ -17585,74 +17584,8 @@ namespace ocn
 
         switch (b_CurvStruct->Type) {
           case CurveType_Line:
-            {
-                int j_loop_ub;
-                int l_loop_ub;
-                int n_loop_ub;
-                double a_idx_0;
-                double a_idx_1;
-                double a_idx_2;
-                int s_loop_ub;
-                int u_loop_ub;
-
-                //  line (G01)
-                //
-                //  parametrization of a straight line between P0 and P1
-                //
-                r0D.set_size(3, u_vec_tilda.size(1));
-                j_loop_ub = u_vec_tilda.size(1);
-                for (int i10 = 0; i10 < j_loop_ub; i10++) {
-                    double d;
-                    d = u_vec_tilda[i10];
-                    r0D[3 * i10] = b_CurvStruct->P1[0] * d + b_CurvStruct->P0[0] * (1.0 - d);
-                }
-
-                l_loop_ub = u_vec_tilda.size(1);
-                for (int i12 = 0; i12 < l_loop_ub; i12++) {
-                    double d1;
-                    d1 = u_vec_tilda[i12];
-                    r0D[3 * i12 + 1] = b_CurvStruct->P1[1] * d1 + b_CurvStruct->P0[1] * (1.0 - d1);
-                }
-
-                n_loop_ub = u_vec_tilda.size(1);
-                for (int i14 = 0; i14 < n_loop_ub; i14++) {
-                    double d2;
-                    d2 = u_vec_tilda[i14];
-                    r0D[3 * i14 + 2] = b_CurvStruct->P1[2] * d2 + b_CurvStruct->P0[2] * (1.0 - d2);
-                }
-
-                //
-                a_idx_0 = b_CurvStruct->P1[0] - b_CurvStruct->P0[0];
-                a_idx_1 = b_CurvStruct->P1[1] - b_CurvStruct->P0[1];
-                a_idx_2 = b_CurvStruct->P1[2] - b_CurvStruct->P0[2];
-                r1D.set_size(3, u_vec_tilda.size(1));
-                if (u_vec_tilda.size(1) != 0) {
-                    int i18;
-                    i18 = u_vec_tilda.size(1) - 1;
-                    for (int t = 0; t <= i18; t++) {
-                        r1D[3 * t] = a_idx_0;
-                        r1D[3 * t + 1] = a_idx_1;
-                        r1D[3 * t + 2] = a_idx_2;
-                    }
-                }
-
-                //
-                r2D.set_size(3, u_vec_tilda.size(1));
-                s_loop_ub = u_vec_tilda.size(1);
-                for (int i20 = 0; i20 < s_loop_ub; i20++) {
-                    r2D[3 * i20] = 0.0;
-                    r2D[3 * i20 + 1] = 0.0;
-                    r2D[3 * i20 + 2] = 0.0;
-                }
-
-                r3D.set_size(3, u_vec_tilda.size(1));
-                u_loop_ub = u_vec_tilda.size(1);
-                for (int i22 = 0; i22 < u_loop_ub; i22++) {
-                    r3D[3 * i22] = 0.0;
-                    r3D[3 * i22 + 1] = 0.0;
-                    r3D[3 * i22 + 2] = 0.0;
-                }
-            }
+            //  line (G01)
+            EvalLine(b_CurvStruct->P0, b_CurvStruct->P1, u_vec_tilda, r0D, r1D, r2D, r3D);
             break;
 
           case CurveType_Helix:
@@ -17669,20 +17602,20 @@ namespace ocn
           case CurveType_Spline:
             {
                 int h_loop_ub;
-                int k_loop_ub;
+                int j_loop_ub;
+                int l_loop_ub;
+                int n_loop_ub;
                 int o_loop_ub;
+                int p_loop_ub;
                 int q_loop_ub;
                 int r_loop_ub;
+                int s_loop_ub;
                 int t_loop_ub;
+                int u_loop_ub;
                 int v_loop_ub;
                 int w_loop_ub;
                 int x_loop_ub;
                 int y_loop_ub;
-                int ab_loop_ub;
-                int bb_loop_ub;
-                int cb_loop_ub;
-                int db_loop_ub;
-                int eb_loop_ub;
 
                 //  BSpline
                 ctx->q_splines.get(b_CurvStruct->sp_index, (&expl_temp));
@@ -17693,15 +17626,15 @@ namespace ocn
                 }
 
                 Spline_sp_CoeffY.set_size(1, expl_temp.sp.CoeffY.size(1));
-                k_loop_ub = expl_temp.sp.CoeffY.size(1);
-                for (int i11 = 0; i11 < k_loop_ub; i11++) {
-                    Spline_sp_CoeffY[i11] = expl_temp.sp.CoeffY[i11];
+                j_loop_ub = expl_temp.sp.CoeffY.size(1);
+                for (int i10 = 0; i10 < j_loop_ub; i10++) {
+                    Spline_sp_CoeffY[i10] = expl_temp.sp.CoeffY[i10];
                 }
 
                 Spline_sp_CoeffZ.set_size(1, expl_temp.sp.CoeffZ.size(1));
-                o_loop_ub = expl_temp.sp.CoeffZ.size(1);
-                for (int i15 = 0; i15 < o_loop_ub; i15++) {
-                    Spline_sp_CoeffZ[i15] = expl_temp.sp.CoeffZ[i15];
+                l_loop_ub = expl_temp.sp.CoeffZ.size(1);
+                for (int i12 = 0; i12 < l_loop_ub; i12++) {
+                    Spline_sp_CoeffZ[i12] = expl_temp.sp.CoeffZ[i12];
                 }
 
                 bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffX, u_vec_tilda, r0Dx, r1Dx,
@@ -17711,67 +17644,67 @@ namespace ocn
                 bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffZ, u_vec_tilda, r0Dz, r1Dz,
                                  r2Dz, r3Dz);
                 r0D.set_size(3, r0Dx.size(1));
-                q_loop_ub = r0Dx.size(1);
-                for (int i17 = 0; i17 < q_loop_ub; i17++) {
-                    r0D[3 * i17] = r0Dx[i17];
+                n_loop_ub = r0Dx.size(1);
+                for (int i14 = 0; i14 < n_loop_ub; i14++) {
+                    r0D[3 * i14] = r0Dx[i14];
                 }
 
-                r_loop_ub = r0Dy.size(1);
-                for (int i19 = 0; i19 < r_loop_ub; i19++) {
-                    r0D[3 * i19 + 1] = r0Dy[i19];
+                o_loop_ub = r0Dy.size(1);
+                for (int i15 = 0; i15 < o_loop_ub; i15++) {
+                    r0D[3 * i15 + 1] = r0Dy[i15];
                 }
 
-                t_loop_ub = r0Dz.size(1);
-                for (int i21 = 0; i21 < t_loop_ub; i21++) {
-                    r0D[3 * i21 + 2] = r0Dz[i21];
+                p_loop_ub = r0Dz.size(1);
+                for (int i16 = 0; i16 < p_loop_ub; i16++) {
+                    r0D[3 * i16 + 2] = r0Dz[i16];
                 }
 
                 r1D.set_size(3, r1Dx.size(1));
-                v_loop_ub = r1Dx.size(1);
-                for (int i23 = 0; i23 < v_loop_ub; i23++) {
-                    r1D[3 * i23] = r1Dx[i23];
+                q_loop_ub = r1Dx.size(1);
+                for (int i17 = 0; i17 < q_loop_ub; i17++) {
+                    r1D[3 * i17] = r1Dx[i17];
                 }
 
-                w_loop_ub = r1Dy.size(1);
-                for (int i24 = 0; i24 < w_loop_ub; i24++) {
-                    r1D[3 * i24 + 1] = r1Dy[i24];
+                r_loop_ub = r1Dy.size(1);
+                for (int i18 = 0; i18 < r_loop_ub; i18++) {
+                    r1D[3 * i18 + 1] = r1Dy[i18];
                 }
 
-                x_loop_ub = r1Dz.size(1);
-                for (int i25 = 0; i25 < x_loop_ub; i25++) {
-                    r1D[3 * i25 + 2] = r1Dz[i25];
+                s_loop_ub = r1Dz.size(1);
+                for (int i19 = 0; i19 < s_loop_ub; i19++) {
+                    r1D[3 * i19 + 2] = r1Dz[i19];
                 }
 
                 r2D.set_size(3, r2Dx.size(1));
-                y_loop_ub = r2Dx.size(1);
-                for (int i26 = 0; i26 < y_loop_ub; i26++) {
-                    r2D[3 * i26] = r2Dx[i26];
+                t_loop_ub = r2Dx.size(1);
+                for (int i20 = 0; i20 < t_loop_ub; i20++) {
+                    r2D[3 * i20] = r2Dx[i20];
                 }
 
-                ab_loop_ub = r2Dy.size(1);
-                for (int i27 = 0; i27 < ab_loop_ub; i27++) {
-                    r2D[3 * i27 + 1] = r2Dy[i27];
+                u_loop_ub = r2Dy.size(1);
+                for (int i21 = 0; i21 < u_loop_ub; i21++) {
+                    r2D[3 * i21 + 1] = r2Dy[i21];
                 }
 
-                bb_loop_ub = r2Dz.size(1);
-                for (int i28 = 0; i28 < bb_loop_ub; i28++) {
-                    r2D[3 * i28 + 2] = r2Dz[i28];
+                v_loop_ub = r2Dz.size(1);
+                for (int i22 = 0; i22 < v_loop_ub; i22++) {
+                    r2D[3 * i22 + 2] = r2Dz[i22];
                 }
 
                 r3D.set_size(3, r3Dx.size(1));
-                cb_loop_ub = r3Dx.size(1);
-                for (int i29 = 0; i29 < cb_loop_ub; i29++) {
-                    r3D[3 * i29] = r3Dx[i29];
+                w_loop_ub = r3Dx.size(1);
+                for (int i23 = 0; i23 < w_loop_ub; i23++) {
+                    r3D[3 * i23] = r3Dx[i23];
                 }
 
-                db_loop_ub = r3Dy.size(1);
-                for (int i30 = 0; i30 < db_loop_ub; i30++) {
-                    r3D[3 * i30 + 1] = r3Dy[i30];
+                x_loop_ub = r3Dy.size(1);
+                for (int i24 = 0; i24 < x_loop_ub; i24++) {
+                    r3D[3 * i24 + 1] = r3Dy[i24];
                 }
 
-                eb_loop_ub = r3Dz.size(1);
-                for (int i31 = 0; i31 < eb_loop_ub; i31++) {
-                    r3D[3 * i31 + 2] = r3Dz[i31];
+                y_loop_ub = r3Dz.size(1);
+                for (int i25 = 0; i25 < y_loop_ub; i25++) {
+                    r3D[3 * i25 + 2] = r3Dz[i25];
                 }
             }
             break;
@@ -17795,20 +17728,20 @@ namespace ocn
 
         c = std::pow(b_CurvStruct->a_param, 2.0);
         r2D.set_size(3, r2D.size(1));
-        m_loop_ub = r2D.size(1);
-        for (int i13 = 0; i13 < m_loop_ub; i13++) {
-            r2D[3 * i13] = c * r2D[3 * i13];
-            r2D[3 * i13 + 1] = c * r2D[3 * i13 + 1];
-            r2D[3 * i13 + 2] = c * r2D[3 * i13 + 2];
+        k_loop_ub = r2D.size(1);
+        for (int i11 = 0; i11 < k_loop_ub; i11++) {
+            r2D[3 * i11] = c * r2D[3 * i11];
+            r2D[3 * i11 + 1] = c * r2D[3 * i11 + 1];
+            r2D[3 * i11 + 2] = c * r2D[3 * i11 + 2];
         }
 
         b_c = std::pow(b_CurvStruct->a_param, 3.0);
         r3D.set_size(3, r3D.size(1));
-        p_loop_ub = r3D.size(1);
-        for (int i16 = 0; i16 < p_loop_ub; i16++) {
-            r3D[3 * i16] = b_c * r3D[3 * i16];
-            r3D[3 * i16 + 1] = b_c * r3D[3 * i16 + 1];
-            r3D[3 * i16 + 2] = b_c * r3D[3 * i16 + 2];
+        m_loop_ub = r3D.size(1);
+        for (int i13 = 0; i13 < m_loop_ub; i13++) {
+            r3D[3 * i13] = b_c * r3D[3 * i13];
+            r3D[3 * i13 + 1] = b_c * r3D[3 * i13 + 1];
+            r3D[3 * i13 + 2] = b_c * r3D[3 * i13 + 2];
         }
     }
 
@@ -17826,19 +17759,7 @@ namespace ocn
         double r1D[3];
         double r2D[3];
         double r3D[3];
-        double r0Dx;
-        double r1Dx;
-        double r2Dx;
-        double r3Dx;
         char message[30];
-        double r0Dy;
-        double r1Dy;
-        double r2Dy;
-        double r3Dy;
-        double r0Dz;
-        double r1Dz;
-        double r2Dz;
-        double r3Dz;
         if (!isInitialized_sinspace) {
             sinspace_initialize();
         }
@@ -17873,15 +17794,7 @@ namespace ocn
         switch (Curv->Type) {
           case CurveType_Line:
             //  line (G01)
-            //
-            //  parametrization of a straight line between P0 and P1
-            //
-            r0D[0] = Curv->P1[0] * u_vec_tilda + Curv->P0[0] * (1.0 - u_vec_tilda);
-            r0D[1] = Curv->P1[1] * u_vec_tilda + Curv->P0[1] * (1.0 - u_vec_tilda);
-            r0D[2] = Curv->P1[2] * u_vec_tilda + Curv->P0[2] * (1.0 - u_vec_tilda);
-
-            //
-            //
+            b_EvalLine(Curv->P0, Curv->P1, u_vec_tilda, r0D, r1D);
             break;
 
           case CurveType_Helix:
@@ -17897,15 +17810,8 @@ namespace ocn
 
           case CurveType_Spline:
             //  BSpline
-            b_bspline_eval_vec(Spline->sp.Bl.handle, Spline->sp.CoeffX, u_vec_tilda, &r0Dx, &r1Dx,
-                               &r2Dx, &r3Dx);
-            b_bspline_eval_vec(Spline->sp.Bl.handle, Spline->sp.CoeffY, u_vec_tilda, &r0Dy, &r1Dy,
-                               &r2Dy, &r3Dy);
-            b_bspline_eval_vec(Spline->sp.Bl.handle, Spline->sp.CoeffZ, u_vec_tilda, &r0Dz, &r1Dz,
-                               &r2Dz, &r3Dz);
-            r0D[0] = r0Dx;
-            r0D[1] = r0Dy;
-            r0D[2] = r0Dz;
+            EvalBSplineNoCtx(Spline->sp.CoeffX, Spline->sp.CoeffY, Spline->sp.CoeffZ,
+                             Spline->sp.Bl.handle, u_vec_tilda, r0D, r1D, r2D, r3D);
             break;
 
           default:

@@ -5,7 +5,7 @@
 // File: sinspace.h
 //
 // MATLAB Coder version            : 5.0
-// C/C++ source code generated on  : 02-Sep-2020 16:12:34
+// C/C++ source code generated on  : 04-Sep-2020 14:20:08
 //
 #ifndef SINSPACE_H
 #define SINSPACE_H
