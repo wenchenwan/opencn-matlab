@@ -3,7 +3,9 @@ function [CurvStruct1_C, CurvStruct_T, CurvStruct2_C, status]  = CalcTransition(
 global DebugActive
 
 CutOff=ctx.cfg.CutOff;
+CollTolDeg=ctx.cfg.CollTolDeg;
 Length_Threshold=3*CutOff;
+
 DebugLog('========== CalcTransition ==========\n')
 DebugLog('CutOff = %.3f\n', CutOff)
 if DebugActive
@@ -13,19 +15,17 @@ end
 
 CurvStruct_T = CurvStruct1; %default value
 
-[~, r0D1] = EvalCurvStruct(ctx, CurvStruct1, 1);
+[~, r0D1_1] = EvalCurvStruct(ctx, CurvStruct1, 1);
+[~, r1D1_1] = EvalCurvStruct(ctx, CurvStruct2, 0);
 
-[~, r1D1] = EvalCurvStruct(ctx, CurvStruct2, 0);
-
-
-% In case of max. 2° collinearity between two lines, NO transition P5
-% is calculated
+% colinearity test
 if CurvStruct1.Type~=CurveType.Helix && CurvStruct2.Type~=CurveType.Helix && ...
-        collinear(r0D1, r1D1, 1e-6) % && norm(r0D2 - r1D2) < 10*eps && collinear(r0D2, r1D2, 1e-2)
+        collinear(r0D1_1, r1D1_1, CollTolDeg) % && norm(r0D2 - r1D2) < 10*eps && collinear(r0D2, r1D2, 1e-2)
     
-    status = TransitionResult.Collinear;
+    status = TransitionResult.Collinear;    
     CurvStruct1_C = CurvStruct1;
     CurvStruct2_C = CurvStruct2;
+    
     return
     
 end
@@ -96,18 +96,20 @@ if status==1
     % transition CurvStruct calculation
     CurvStruct_T = ConstrTransP5Struct(p5, CurvStruct1.FeedRate);
     status = TransitionResult.Ok;
+    
 else
-    %PlotCurvStructs(ctx, [CurvStruct1 CurvStruct2]);
-%     SaveTransition
-%     PrintCurvStruct(ctx, CurvStruct1);
-%     PrintCurvStruct(ctx, CurvStruct2);
+    
+    PrintCurvStruct(ctx, CurvStruct1);
+    PrintCurvStruct(ctx, CurvStruct2);
     status = TransitionResult.NoSolution;
-%     warning('Unable to calculate transition');
+    
+    PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct2]);
+    scatter3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
+    scatter3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
+    axis equal;
+    hold off;
+    
 end
-
-% CurvStruct1_C.index_gcode = CurvStruct1.index_gcode;
-% CurvStruct_T.index_gcode = CurvStruct1.index_gcode;
-% CurvStruct2_C.index_gcode = CurvStruct2.index_gcode;
 
     CurvStruct1_C.gcode_source_line = CurvStruct1.gcode_source_line;
     CurvStruct_T.gcode_source_line = CurvStruct2.gcode_source_line;
