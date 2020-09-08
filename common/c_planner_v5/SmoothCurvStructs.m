@@ -35,7 +35,7 @@ if Ncrv > 1
                 NextCurv.zspdmode = ZSpdMode.ZN;
                 CurvStruct2 = NextCurv;
 %                 SaveTransition;
-                % If the transition fails, force a zero-stop
+%                 If the transition fails, force a zero-stop
                 [CurvStruct1_C, CurvStruct2_C] = CutZeroEnd(ctx, CurvStruct1, k);
                 [CurvStruct3_C, CurvStruct4_C] = CutZeroStart(ctx, NextCurv, k);
                 ctx.q_smooth.push(CurvStruct1_C);

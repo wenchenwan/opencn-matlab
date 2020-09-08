@@ -42,11 +42,7 @@ else
     if CurvStruct1.Type == CurveType.Spline
         Spline=ctx.q_splines.get(CurvStruct1.sp_index);
         sp = Spline.sp;
-        if length(sp.knots)>8
-            l1 = SplineLengthApprox(ctx, CurvStruct1, sp.knots(end-4), 1)/2;
-        else
-            l1 = SplineLengthApprox(ctx, CurvStruct1, 0, 1)/3;
-        end
+        l1 = SplineLengthApprox(ctx, CurvStruct1, sp.knots(end-4), 1)/2;
     else
         if L1<Length_Threshold
             l1 = L1/3;
@@ -58,11 +54,7 @@ else
     if CurvStruct2.Type == CurveType.Spline
         Spline=ctx.q_splines.get(CurvStruct2.sp_index);
         sp = Spline.sp;
-        if length(sp.knots)>8
-            l2 = SplineLengthApprox(ctx, CurvStruct2, 0, sp.knots(5))/2;
-        else
-            l2 = SplineLengthApprox(ctx, CurvStruct2, 0, 1)/3;
-        end
+        l2 = SplineLengthApprox(ctx, CurvStruct2, 0, sp.knots(5))/2;
     else
         if L2<Length_Threshold
             l2 = L2/3;
@@ -92,22 +84,25 @@ end
 % G2 transition calculation
 [p5, status] = G2_Hermite_Interpolation(r0D0, r0D1, r0D2, r1D0, r1D1, r1D2);
 
-if status==1
+if status==1 
     % transition CurvStruct calculation
     CurvStruct_T = ConstrTransP5Struct(p5, CurvStruct1.FeedRate);
     status = TransitionResult.Ok;
     
 else
     
-    PrintCurvStruct(ctx, CurvStruct1);
-    PrintCurvStruct(ctx, CurvStruct2);
-    status = TransitionResult.NoSolution;
-    
-    PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct2]);
-    scatter3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
-    scatter3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
-    axis equal;
-    hold off;
+    if status==6
+        % TODO: manage this case in the future
+        CurvStruct_T = ConstrTransP5Struct(p5, CurvStruct1.FeedRate);
+        status = TransitionResult.Ok;
+    else
+        status = TransitionResult.NoSolution;
+    end
+%     PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct_T CurvStruct2]);
+%     plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
+%     plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
+%     axis equal;
+%     hold off;
     
 end
 
