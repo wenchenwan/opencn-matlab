@@ -1,18 +1,27 @@
 function [L, Integrand, u_mid_tilda, du_tilda]  = SplineLengthApprox(ctx, Curv, u0, u1)
-% computes approximately the arc length of a parametric spline / RHG / BR
+% computes approximately the arc length of a parametric spline
 
-
+% get the sp structure
 Spline=ctx.q_splines.get(Curv.sp_index);
 sp = Spline.sp;
 
+% get the actual a and b params
 a = Curv.a_param;
 b = Curv.b_param;
 
+% the ORIGINAL spline is parametrized with u_tilda
+% after cut-off, new parameter is called u.
+% u=0 corresponds to the first lift-off point
+% u=1 corresponds to the second lift-off point
+
+% if we want to measure a spline between u=u0 and u=u1,
+% we must first compute the corresponding u_tilda values
 u0_tilda = a*u0+b;
 u1_tilda = a*u1+b;
 
 if coder.target('matlab')
-    sp1D      = fnder(sp); % derivative
+    % derivative whith respect to u_tilda !!!
+    sp1D      = fnder(sp);
     Knots     = sp1D.knots;
 else
     Knots = sp.knots;
@@ -23,10 +32,11 @@ Idx2      = find(Knots < u1_tilda, 1, 'last');
 
 
 u_vec_tilda     = [u0_tilda, Knots(Idx1(1):Idx2(1)), u1_tilda];
-
 u_tilda=zeros(1, 0);
 coder.varsize('u_tilda', [1, Inf], [0, 1]);
 
+% 100 equally spaced u_tilda values between each pair of knots
+% from u0_tilda until u1_tilda
 for k=1:length(u_vec_tilda)-1
     
     if  ~isempty(u_tilda)
@@ -36,10 +46,13 @@ for k=1:length(u_vec_tilda)-1
     u_tilda=[u_tilda linspace(u_vec_tilda(k), u_vec_tilda(k+1), 100)];
     
 end
-
+ 
+% midpoint values
 u_mid_tilda     = 0.5*(u_tilda(1:end-1)+u_tilda(2:end)); % midpoint values
 du_tilda        = diff(u_tilda);
 
+% parametric derivative calculation at each midpoint value
+% with respect to u_tilda
 if coder.target('rtw') || coder.target('mex')
     [~, r1Dx] = bspline_eval_vec(sp.Bl, sp.CoeffX, u_mid_tilda);
     [~, r1Dy] = bspline_eval_vec(sp.Bl, sp.CoeffY, u_mid_tilda);
@@ -49,7 +62,6 @@ else
     r1D = spval(sp1D, u_mid_tilda);
 end
 
-r1D = a.*r1D;
-
+% length (between u0 and u1) calculation by rectangles method
 Integrand = MyNorm(r1D);
 L         = sum(Integrand.*du_tilda);

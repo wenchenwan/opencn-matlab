@@ -12,15 +12,19 @@ function ctx = TestAllNGC_BR
 
     ngc_unit_list = string(fullfile('ngc_test/unit', {dir('ngc_test/unit/*.ngc').name}));
     ngc_full_list = string(fullfile('ngc_test/full', {dir('ngc_test/full/*.ngc').name}));
-    ngc_full_Montre_list = string(fullfile('ngc_test/full', {dir('ngc_test/full/*Montre*.ngc').name}));
+    ngc_full_Montres_list = string(fullfile('ngc_test/full', {dir('ngc_test/full/*Montre*.ngc').name}));
         
-    for k=1:numel(ngc_full_Montre_list)
+    for k=1:numel(ngc_full_Montres_list)
         
-        cfg.source = char(ngc_full_Montre_list(k));
+        cfg.source = char(ngc_full_Montres_list(k));
         ctx = InitFeedoptPlan(cfg);
+        tic;
         ctx = FeedoptPlanRun(ctx);
-        PlotCurvStructsBR(ctx, ctx.q_split.getall());
-        title(ngc_full_Montre_list(k), 'Interpreter', 'none');
+        time = toc;
+        time_str = sprintf('time: %.2f seconds', time);
+        figure;
+        PlotCurvStructsBR_2(ctx, ctx.q_split.getall());
+        title({ngc_full_Montres_list(k), time_str}, 'Interpreter', 'none');
         
     end
 

@@ -12,6 +12,8 @@ if CurvStruct.Type == CurveType.Spline
 
     if d0 ~= 0
         
+        % length (between u0 and u1) calculation by rectangles method
+        % until d0 is reached
         L = 0;
         k = 1;
         while (L < d0) && (k <= length(du_tilda))
@@ -29,6 +31,8 @@ if CurvStruct.Type == CurveType.Spline
     
     if d1 ~= 0
                 
+        % length (between u0 and u1) calculation by rectangles method
+        % until L_tot-d1 is reached
         L = 0;
         k = 1;
         while (L < L_tot-d1) && (k <= length(du_tilda))
@@ -46,12 +50,19 @@ if CurvStruct.Type == CurveType.Spline
 
 else
     
+    % In case of helix and line, ||r'(u)||=const,
+    % for 0 < u < 1
+    
+    % r1D0 and r1D1 are with respect to u
     [~, r1D0] = EvalCurvStruct(ctx, CurvStruct, 0);
     [~, r1D1] = EvalCurvStruct(ctx, CurvStruct, 1);
 
+    % d0 = Integral_0_u0 ||r'(u)||du
+    % d1 = Integral_u1_1 ||r'(u)||du
     u0 = d0/MyNorm(r1D0);
     u1 = 1 - d1/MyNorm(r1D1);
     
+    % conversion to native spline parameter u_tilda
     u0_tilda = a*u0+b;
     u1_tilda = a*u1+b;
         

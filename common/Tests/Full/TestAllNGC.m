@@ -17,24 +17,20 @@ function ctx = TestAllNGC
     CutList = CutList(:);
 
     ngc_unit_list = string(fullfile('ngc_test/unit', {dir('ngc_test/unit/*.ngc').name}));
-    ngc_full_list = string(fullfile('ngc_test/full', {dir('ngc_test/full/*.ngc').name}));
+    ngc_full_list = string(fullfile('ngc_test/full', {dir('ngc_test/full/*Montre*.ngc').name}));
 
     ngc_list = [ngc_unit_list];
 
     Ntotal = numel(ngc_list) * numel(CutList);
     Ndone = 0;
 
-    % diary test_ngc.log
-    % 
-    % tic
-    % cfg.source = char(ngc_full_list(21));
-    % cfg.source = char('ngc_test/spline_osc_2.ngc');
-    % cfg.source = char('ngc_test/full/Ebauche_3axes_V01.nc');
-    cfg.source = char('ngc_test/full/018_Montre_V9.ngc'); % trans problem !!!
-        % line 121, 174, 1375, 2010, ...
-    % cfg.source = char('ngc_test/full/020_Montre_V11.ngc');
-    % cfg.source = char('ngc_test/full/021_Montre_V12.ngc');
-    % cfg.source = char('ngc_test/anchor.ngc');
+%     diary test_ngc.log
+%     
+%     tic
+    cfg.source = char(ngc_full_list(k));
+%     cfg.source = char('ngc_test/full/Ebauche_3axes_V01.nc');
+%     cfg.source = char('ngc_test/full/020_Montre_V11.ngc');
+%     cfg.source = char('ngc_test/anchor.ngc');
     cfg.NDiscr = 20;
     cfg.NBreak = 10;
     cfg.NHorz = 5;
