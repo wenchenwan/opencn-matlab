@@ -98,11 +98,14 @@ else
     else
         status = TransitionResult.NoSolution;
     end
+    
+%     figure;
 %     PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct_T CurvStruct2]);
+%     hold on;
 %     plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
+%     hold on;
 %     plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
 %     axis equal;
-%     hold off;
     
 end
 
