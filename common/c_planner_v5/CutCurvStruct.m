@@ -6,13 +6,16 @@ a = CurvStruct.a_param;
 b = CurvStruct.b_param;
 
 if CurvStruct.Type == CurveType.Spline
-
-    [L_tot, Integrand, u_mid_tilda, du_tilda]  = ...
-        SplineLengthApprox(ctx, CurvStruct, 0, 1);
+    
+    Spline=ctx.q_splines.get(CurvStruct.sp_index);
 
     if d0 ~= 0
         
-        % length (between u0 and u1) calculation by rectangles method
+        % discretizing between the first and the second knots
+        [~, Integrand, u_mid_tilda, du_tilda]  = ...
+            SplineLengthApprox(ctx, CurvStruct, 0, Spline.sp.knots(5));
+    
+        % spline-long length calculation by rectangles method
         % until d0 is reached
         L = 0;
         k = 1;
@@ -30,12 +33,16 @@ if CurvStruct.Type == CurveType.Spline
     end
     
     if d1 ~= 0
+        
+        % discretizing between the 2 last knots
+        [L_2, Integrand, u_mid_tilda, du_tilda]  = ...
+            SplineLengthApprox(ctx, CurvStruct, Spline.sp.knots(end-4), 1);
                 
-        % length (between u0 and u1) calculation by rectangles method
-        % until L_tot-d1 is reached
+        % spline-long length calculation by rectangles method
+        % until L_2-d1 is reached
         L = 0;
         k = 1;
-        while (L < L_tot-d1) && (k <= length(du_tilda))
+        while (L < L_2-d1) && (k <= length(du_tilda))
             L = L + Integrand(k)*du_tilda(k);
             k = k + 1;
         end
@@ -62,7 +69,7 @@ else
     u0 = d0/MyNorm(r1D0);
     u1 = 1 - d1/MyNorm(r1D1);
     
-    % conversion to native spline parameter u_tilda
+    % conversion to native curve parameter u_tilda
     u0_tilda = a*u0+b;
     u1_tilda = a*u1+b;
         

@@ -26,6 +26,7 @@ switch ctx.op
 %         
     case Fopt.GCode
         status = int32(ReadGCode(ReadGCodeCmd.Load, ctx.cfg.source));
+        DebugLog('Reading G-code...\n');
         while status
             [status, CurvStruct] = ReadGCode(ReadGCodeCmd.Read, '');
             if status == 1 && CurvStruct.Type ~= 0

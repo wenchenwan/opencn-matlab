@@ -1,23 +1,18 @@
-function [L, Integrand, u_mid_tilda, du_tilda]  = SplineLengthApprox(ctx, Curv, u0, u1)
+function [L, Integrand, u_mid_tilda, du_tilda]  = ...
+    SplineLengthApprox(ctx, Curv, u0_tilda, u1_tilda)
 % computes approximately the arc length of a parametric spline
 
 % get the sp structure
 Spline=ctx.q_splines.get(Curv.sp_index);
 sp = Spline.sp;
 
-% get the actual a and b params
-a = Curv.a_param;
-b = Curv.b_param;
+N = ctx.cfg.NGridLengthSpline;
 
 % the ORIGINAL spline is parametrized with u_tilda
 % after cut-off, new parameter is called u.
 % u=0 corresponds to the first lift-off point
 % u=1 corresponds to the second lift-off point
-
-% if we want to measure a spline between u=u0 and u=u1,
-% we must first compute the corresponding u_tilda values
-u0_tilda = a*u0+b;
-u1_tilda = a*u1+b;
+% u is NOT used in this function
 
 if coder.target('matlab')
     % derivative whith respect to u_tilda !!!
@@ -35,7 +30,7 @@ u_vec_tilda     = [u0_tilda, Knots(Idx1(1):Idx2(1)), u1_tilda];
 u_tilda=zeros(1, 0);
 coder.varsize('u_tilda', [1, Inf], [0, 1]);
 
-% 100 equally spaced u_tilda values between each pair of knots
+% N equally spaced u_tilda values between each pair of knots
 % from u0_tilda until u1_tilda
 for k=1:length(u_vec_tilda)-1
     
@@ -43,7 +38,7 @@ for k=1:length(u_vec_tilda)-1
         u_tilda=u_tilda(1:end-1);
     end
     
-    u_tilda=[u_tilda linspace(u_vec_tilda(k), u_vec_tilda(k+1), 100)];
+    u_tilda=[u_tilda linspace(u_vec_tilda(k), u_vec_tilda(k+1), N)];
     
 end
  
@@ -62,6 +57,6 @@ else
     r1D = spval(sp1D, u_mid_tilda);
 end
 
-% length (between u0 and u1) calculation by rectangles method
+% length (between u0_tilda and u1_tilda) calculation by rectangles method
 Integrand = MyNorm(r1D);
 L         = sum(Integrand.*du_tilda);

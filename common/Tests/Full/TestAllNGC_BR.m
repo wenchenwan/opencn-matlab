@@ -2,6 +2,9 @@ function ctx = TestAllNGC_BR
 
     clear; clc;
     
+    global DebugActive;
+    DebugActive = true;
+    
     cfg = FeedoptDefaultConfig;
     cfg.NDiscr = 20;
     cfg.NBreak = 10;
@@ -18,6 +21,7 @@ function ctx = TestAllNGC_BR
         
         cfg.source = char(ngc_full_Montres_list(k));
         ctx = InitFeedoptPlan(cfg);
+        DebugLog([ctx.cfg.source, '\n']);
         tic;
         ctx = FeedoptPlanRun(ctx);
         time = toc;
