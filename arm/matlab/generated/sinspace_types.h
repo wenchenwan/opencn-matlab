@@ -5,7 +5,7 @@
 // File: sinspace_types.h
 //
 // MATLAB Coder version            : 5.0
-// C/C++ source code generated on  : 04-Sep-2020 14:20:08
+// C/C++ source code generated on  : 11-Sep-2020 14:19:50
 //
 #ifndef SINSPACE_TYPES_H
 #define SINSPACE_TYPES_H
@@ -111,6 +111,7 @@ namespace ocn
         double P1[3];
         double evec[3];
         double theta;
+        double cottheta2;
         double pitch;
         double CoeffP5[6][3];
         int sp_index;
