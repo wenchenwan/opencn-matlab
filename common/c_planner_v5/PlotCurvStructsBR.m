@@ -42,6 +42,11 @@ for i = 1:N
         pvec = [pvec P];
         plot3(P(1, :), P(2, :), P(3, :), '-k');
         hold on;
+        
+        uvec = sp.knots(4:end-3);
+        P = EvalCurvStruct(ctx, CurvStructs(i), uvec);
+        plot3(P(1, :), P(2, :), P(3, :), 'xg');
+        hold on;
               
     end
     

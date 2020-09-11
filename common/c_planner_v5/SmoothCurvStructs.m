@@ -11,7 +11,7 @@ if coder.target('rtw')
 end
 Ncrv = ctx.q_compress.size;
 
-DebugLog('Smoothing ...\n');
+DebugLog('Smoothing...\n');
 
 k = 1;
 
