@@ -11,11 +11,10 @@ function ctx = TestAllNGC_BR
     cfg.NHorz = 5;
     cfg.DebugPrint = false;
     cfg.SkipCompressing = false;
-    cfg.DebugOptimProgress = true;
 
     ngc_unit_list = string(fullfile('ngc_test/unit', {dir('ngc_test/unit/*.ngc').name}));
     ngc_full_list = string(fullfile('ngc_test/full', {dir('ngc_test/full/*.ngc').name}));
-    ngc_full_Montres_list = string(fullfile('ngc_test/full', {dir('ngc_test/full/*Montre*.ngc').name}));
+    ngc_full_Montres_list = string(fullfile('ngc_test/full', {dir('ngc_test/full/020_Montre_V11.ngc').name}));
         
     for k=1:numel(ngc_full_Montres_list)
         
