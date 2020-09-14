@@ -8,13 +8,13 @@ b = CurvStruct.b_param;
 if CurvStruct.Type == CurveType.Spline
     
     Spline=ctx.q_splines.get(CurvStruct.sp_index);
+    
+    % discretizing along the total spline...
+    [L_tot, Integrand, u_mid_tilda, du_tilda]  = ...
+        SplineLengthApprox(ctx, CurvStruct, 0, 1);
 
     if d0 ~= 0
-        
-        % discretizing between the first and the second knots
-        [~, Integrand, u_mid_tilda, du_tilda]  = ...
-            SplineLengthApprox(ctx, CurvStruct, 0, Spline.sp.knots(5));
-    
+                 
         % spline-long length calculation by rectangles method
         % until d0 is reached
         L = 0;
@@ -33,16 +33,12 @@ if CurvStruct.Type == CurveType.Spline
     end
     
     if d1 ~= 0
-        
-        % discretizing between the 2 last knots
-        [L_2, Integrand, u_mid_tilda, du_tilda]  = ...
-            SplineLengthApprox(ctx, CurvStruct, Spline.sp.knots(end-4), 1);
                 
         % spline-long length calculation by rectangles method
-        % until L_2-d1 is reached
+        % until L_tot-d1 is reached
         L = 0;
         k = 1;
-        while (L < L_2-d1) && (k <= length(du_tilda))
+        while (L < L_tot-d1) && (k <= length(du_tilda))
             L = L + Integrand(k)*du_tilda(k);
             k = k + 1;
         end

@@ -16,7 +16,7 @@ for i = 1:N
         hold on;
         
     elseif CurvStructs(i).Type == CurveType.Helix        
-        uvec = linspace(0,1,100);
+        uvec = linspace(0,1,1000);
         P = EvalCurvStruct(ctx, CurvStructs(i), uvec);
         pvec = [pvec P];
         
@@ -25,7 +25,7 @@ for i = 1:N
     
     elseif CurvStructs(i).Type == CurveType.TransP5
         
-        uvec = linspace(0,1,100);
+        uvec = linspace(0,1,1000);
         P = EvalCurvStruct(ctx, CurvStructs(i), uvec);
         pvec = [pvec P];
         
@@ -43,8 +43,8 @@ for i = 1:N
         plot3(P(1, :), P(2, :), P(3, :), '-k');
         hold on;
         
-        uvec = sp.knots(4:end-3);
-        P = EvalCurvStruct(ctx, CurvStructs(i), uvec);
+        uvec_tilda = sp.knots(4:end-3);
+        P = EvalBSpline(ctx, CurvStructs(i), uvec_tilda);
         plot3(P(1, :), P(2, :), P(3, :), 'xg');
         hold on;
               

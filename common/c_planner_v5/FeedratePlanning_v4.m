@@ -72,12 +72,12 @@ if ~success
     return;
 end
 Coeff1  = reshape(Coeff0, N, Ncrv);
-% DebugLog('Coeff1 = ')
-% for k = 1:N
-%     DebugLog('%.4f ', Coeff1(k, 1));
-% end
-% DebugLog('\n')
-%
+DebugLog('Coeff1 = ')
+for k = 1:N
+    DebugLog('%.4f ', Coeff1(k, 1));
+end
+DebugLog('\n')
+
 %% SECOND setup of Linear Program (LP) WITH jerk constraint
 success = false;
 max_increase = 20;
@@ -117,12 +117,12 @@ end
 % toc
 %
 Coeff3 = reshape(Coeff2, N, Ncrv);
-% DebugLog('Coeff3 = ')
-% for k = 1:N
-%     DebugLog('%.4f ', Coeff3(k, 1));
-% end
-% DebugLog('\n')
-% % 
+DebugLog('Coeff3 = ')
+for k = 1:N
+    DebugLog('%.4f ', Coeff3(k, 1));
+end
+DebugLog('\n')
+% 
 [v_0, a_0]  = CalcVAJ_v5(ctx, CurvStructs(1), Bl, Coeff3(:, 1), {1});
 [~, r1D]         = EvalCurvStruct(ctx, CurvStructs(1), 1);
 t_end            = r1D/MyNorm(r1D); % unit tangential vector
