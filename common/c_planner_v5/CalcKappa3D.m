@@ -14,11 +14,11 @@ s_vec     = zeros(N, M);   % preallocation
 for k = 1:N
     [~, r1D, r2D, ~] = EvalCurvStruct(ctx, CurvStructs(k), u_vec);
     %
-    r1Dnorm         = sqrt(sum(r1D.^2));
+    r1Dnorm         = mysqrt(sum(r1D.^2));
     CrossProd       = [r1D(2, :).*r2D(3, :) - r1D(3, :).*r2D(2, :);
         r1D(3, :).*r2D(1, :) - r1D(1, :).*r2D(3, :);
         r1D(1, :).*r2D(2, :) - r1D(2, :).*r2D(1, :)];
-    CrossProdNorm   = sqrt(sum(CrossProd.^2));
+    CrossProdNorm   = mysqrt(sum(CrossProd.^2));
     kappa_vec(k, :) = CrossProdNorm ./ r1Dnorm.^3;
     s_vec(k, :)     = cumsum(r1Dnorm)*delta_u; % integral approximated with sum of rectangles
 end

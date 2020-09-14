@@ -33,7 +33,7 @@ function [CurvStruct1, CurvStruct2] = CutZeroEnd(ctx, CurvStruct, k0)
     
     jt = abs(bsxfun(@rdivide, r3dt.', cfg.jmax));
     at = abs(bsxfun(@rdivide, r2dt.', cfg.amax));
-    norm_vt = sqrt(sum(r1dt.^2, 1))/vmax;
+    norm_vt = mysqrt(sum(r1dt.^2, 1))/vmax;
     norm_vt = norm_vt.';
     
     max_jt = max(jt, [], 2);

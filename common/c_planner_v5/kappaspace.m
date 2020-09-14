@@ -1,5 +1,5 @@
 function uvec = kappaspace(ctx, CurvStruct)
-BaseStep = 1/sqrt(LengthCurv(ctx, CurvStruct, 0, 1))/10;
+BaseStep = 1/mysqrt(LengthCurv(ctx, CurvStruct, 0, 1))/10;
 
 u = 0;
 uvec = zeros(1,1000);

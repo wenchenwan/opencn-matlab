@@ -23,7 +23,7 @@ for k = 1:1
     u_vec = u_cell{k};
     %
     [~, r1D, r2D, r3D] = EvalCurvStruct(ctx, CurvStructs(k), u_vec);
-    r1D_norm             = sqrt(sum(r1D.^2));  % norm
+    r1D_norm             = mysqrt(sum(r1D.^2));  % norm
     %
 %     q_val   = qSpl.fast_eval(u_vec);
 %     qD_val  = qSpl.derivative.fast_eval(u_vec);
@@ -62,11 +62,11 @@ for k = 1:1
     qD_val = qD_val';
     qDD_val = qDD_val';
     
-    tmp1 = bsxfun(@times, r1D_norm, sqrt(q_val'));
+    tmp1 = bsxfun(@times, r1D_norm, mysqrt(q_val'));
     tmp2 = bsxfun(@times, r2D, q_val') + 0.5*bsxfun(@times, r1D, qD_val');
     tmp3 = bsxfun(@times, r3D, (q_val.^(3/2))') + ...
-            1.5*bsxfun(@times, r2D, bsxfun(@times, qD_val',sqrt(q_val)')) + ...
-            0.5*bsxfun(@times, r1D, bsxfun(@times, qDD_val',sqrt(q_val)')); 
+            1.5*bsxfun(@times, r2D, bsxfun(@times, qD_val',mysqrt(q_val)')) + ...
+            0.5*bsxfun(@times, r1D, bsxfun(@times, qDD_val',mysqrt(q_val)')); 
   
     v_norm = tmp1;
     a = tmp2;%zeros(3, size(tmp2, 2));

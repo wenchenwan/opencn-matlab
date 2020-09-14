@@ -43,5 +43,5 @@ else
     r1D = spval(sp1D, u_mid);
 end
 
-Integrand = sqrt(sum(r1D.^2));
+Integrand = mysqrt(sum(r1D.^2));
 L         = sum(Integrand.*du);

@@ -18,7 +18,7 @@ while N <= 10000
 %     qk   = qSpl.fast_eval(uk);
 %     dk   = qSplD.fast_eval(uk);
     [qk, dk, ~] = bspline_eval(Bl, Coeff(:,k), uk);
-    ukp1 = uk + dk*dt^2/4 + sqrt(qk)*dt;
+    ukp1 = uk + dk*dt^2/4 + mysqrt(qk)*dt;
     %
     if ukp1 <= 1 - 1e-3
         u(N) = ukp1;
@@ -29,7 +29,7 @@ while N <= 10000
 %         ukp1      = 1;
 % %         qkp1      = qSpl.fast_eval(ukp1);
 %         [qkp1,~] = c_bspline_eval(Bl, Coeff(:,k), ukp1);
-%         Trest     = 2*(ukp1 - uk) / (sqrt(qkp1) + sqrt(qk));
+%         Trest     = 2*(ukp1 - uk) / (mysqrt(qkp1) + mysqrt(qk));
 %         k         = k + 1;
 %         %
 %         if k > Ncrv
@@ -43,7 +43,7 @@ while N <= 10000
 % %         qk        = qSpl.fast_eval(uk);
 % %         dk        = qSplD.fast_eval(uk);
 %         [qk, dk] = c_bspline_eval(Bl, Coeff(:,k), uk);
-%         ukp1      = uk + dk*dt_begin^2/4 + sqrt(qk)*dt_begin; 
+%         ukp1      = uk + dk*dt_begin^2/4 + mysqrt(qk)*dt_begin; 
 %         u         = ukp1;
 %         N         = N + 1;
     else

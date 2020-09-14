@@ -1,6 +1,8 @@
 function [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec)
+if ~coder.target('MATLAB')
 coder.inline('never')
 coder.ceval('ZoneScopedN', coder.opaque('const char*', '"EvalHelix"'));
+end
 %
 P0      = CurvStruct.P0;
 P1      = CurvStruct.P1;
@@ -29,21 +31,22 @@ end
 % end
 %
 P1proj      = P1 - (P0P1'*evec)*evec;
-C           = ((P0 + P1proj) + cot(theta/2)*EcrP0P1) / 2;
+% C           = ((P0 + P1proj) + mycot(theta/2)*EcrP0P1) / 2;
+C           = ((P0 + P1proj) + CurvStruct.cottheta2*EcrP0P1) / 2;
 CP0         = P0 - C;
 phi_vec     = theta*u_vec;
 EcrCP0      = cross(evec, CP0);
-cphi        = cos(phi_vec);
-sphi        = sin(phi_vec);
+cphi        = mycos(phi_vec);
+sphi        = mysin(phi_vec);
 %
 
-cphiTCP0    = repmat(cphi, 3, 1).*repmat(CP0, 1, N);
-sphiTCP0    = repmat(sphi, 3, 1).*repmat(CP0, 1, N);
-cphiTEcrCP0 = repmat(cphi, 3, 1).*repmat(EcrCP0, 1, N);
-sphiTEcrCP0 = repmat(sphi, 3, 1).*repmat(EcrCP0, 1, N);
+cphiTCP0    = CP0 * cphi;
+sphiTCP0    = CP0 * sphi;
+cphiTEcrCP0 = EcrCP0 * cphi;
+sphiTEcrCP0 = EcrCP0 * sphi;
 Sign        = sign(P0P1'*evec);
 %
-r0D       = repmat(C, 1, N)  + cphiTCP0  + sphiTEcrCP0  + pitch/(2*pi)*repmat(phi_vec, 3, 1).*repmat(evec, 1, N);
-r1D       = -theta  *sphiTCP0  + theta  *cphiTEcrCP0  + theta * pitch/(2*pi) * repmat(evec, 1, N);
+r0D       = bsxfun(@plus, C, cphiTCP0  + sphiTEcrCP0  + pitch/(2*pi)*evec*phi_vec);
+r1D       = bsxfun(@plus, -theta  *sphiTCP0  + theta  *cphiTEcrCP0, theta * pitch/(2*pi) * evec);
 r2D       = -theta^2*cphiTCP0  - theta^2*sphiTEcrCP0;
 r3D       =  theta^3*sphiTCP0  - theta^3*cphiTEcrCP0;

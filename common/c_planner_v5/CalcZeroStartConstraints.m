@@ -11,7 +11,7 @@ function [v_0, at_0] = CalcZeroStartConstraints(ctx, Curv, JerkScale)
     r2dt = bsxfun(@times, r2D, d1uk.^2) + bsxfun(@times, r1D, d2uk);
     r1dt = bsxfun(@times, r1D, d1uk);
     
-    norm_vt = sqrt(sum(r1dt.^2, 1));
+    norm_vt = mysqrt(sum(r1dt.^2, 1));
     t_end = r1D/MyNorm(r1D);
     
     v_0 = norm_vt;

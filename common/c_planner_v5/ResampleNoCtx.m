@@ -18,7 +18,7 @@ else
     ukp1      = 1;
     
     [~, qkp1, ~] = Resample(Curv, Bl, ukp1, state.dt);
-    Trest     = 2*(ukp1 - state.u) / (sqrt(qkp1) + sqrt(qk));
+    Trest     = 2*(ukp1 - state.u) / (mysqrt(qkp1) + mysqrt(qk));
     
     if Trest > state.dt
         dt_begin = 0;
@@ -68,7 +68,7 @@ c_assert(~CurOptStruct.UseConstJerk, 'NN is using jerk');
 
 uk = u;
 [qk, dk, ~] = bspline_eval(Bl, CurOptStruct.Coeff, uk);
-ukp1 = uk + dk*dt^2/4 + sqrt(qk)*dt;
+ukp1 = uk + dk*dt^2/4 + mysqrt(qk)*dt;
 end
 
 function [ukp1, qk, dk] = ResampleNZ(CurOptStruct, u, dt)

@@ -21,5 +21,5 @@ end
 
 u_mid     = 0.5*(u(1:end-1)+u(2:end)); % midpoint values
 du        = diff(u);
-Integrand = sqrt(sum(spval(sp1D, u_mid).^2));
+Integrand = mysqrt(sum(spval(sp1D, u_mid).^2));
 L         = sum(Integrand.*du);

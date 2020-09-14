@@ -24,13 +24,13 @@ else
     ukp1      = 1;
 
     [~, qkp1, dkp1] = Resample(CurOptStruct, ctx.Bl, ukp1, dt);
-    Trest     = 2*(ukp1 - uk) / (sqrt(qkp1) + sqrt(qk));
-%     Trest = (-sqrt(qk) + sqrt(qk + dk*(1 - uk)))/dk*0.5;
+    Trest     = 2*(ukp1 - uk) / (mysqrt(qkp1) + mysqrt(qk));
+%     Trest = (-mysqrt(qk) + mysqrt(qk + dk*(1 - uk)))/dk*0.5;
 %     Trest = EstimateT(CurOptStruct, ctx.Bl, uk, 1, dt/10000);
     
     if Trest > dt
-        % ctx.resample_u = uk + dk*dt^2/4 + sqrt(qk)*dt;
-%         Trest = (-sqrt(qk) + sqrt(qk + dk*(1 - uk)))/dk*0.5;
+        % ctx.resample_u = uk + dk*dt^2/4 + mysqrt(qk)*dt;
+%         Trest = (-mysqrt(qk) + mysqrt(qk + dk*(1 - uk)))/dk*0.5;
 %         if coder.target('matlab')
 %             warning('!!! Trest > dt !!!\n')
 %         else
@@ -85,7 +85,7 @@ function [ukp1, qk, dk] = ResampleNN(CurOptStruct, Bl, u, dt)
 
     uk = u;
     [qk, dk, ~] = bspline_eval(Bl, CurOptStruct.Coeff, uk);
-    ukp1 = uk + dk*dt^2/4 + sqrt(qk)*dt;
+    ukp1 = uk + dk*dt^2/4 + mysqrt(qk)*dt;
 end
 
 function [ukp1, qk, dk] = ResampleNZ(CurOptStruct, u, dt)

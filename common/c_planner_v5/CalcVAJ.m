@@ -1,7 +1,7 @@
 function [v_norm, acc, jerk] = CalcVAJ(ctx, CurvStruct, Bl, u_vec)
 %
 [~, r1D, r2D, r3D] = EvalCurvStruct(ctx, CurvStruct, u_vec);
-r1D_norm             = sqrt(sum(r1D.^2));  % norm
+r1D_norm             = mysqrt(sum(r1D.^2));  % norm
 
 q_val = zeros(size(u_vec));
 qD_val = zeros(size(u_vec));
@@ -22,11 +22,11 @@ if ~CurvStruct.UseConstJerk
     qDD_val = qDD_val';
     
     
-    v_norm = bsxfun(@times, r1D_norm, sqrt(q_val'));
+    v_norm = bsxfun(@times, r1D_norm, mysqrt(q_val'));
     acc = bsxfun(@times, r2D, q_val') + 0.5*bsxfun(@times, r1D, qD_val');
     jerk = bsxfun(@times, r3D, (q_val.^(3/2))') + ...
-        1.5*bsxfun(@times, r2D, bsxfun(@times, qD_val',sqrt(q_val)')) + ...
-        0.5*bsxfun(@times, r1D, bsxfun(@times, qDD_val',sqrt(q_val)'));
+        1.5*bsxfun(@times, r2D, bsxfun(@times, qD_val',mysqrt(q_val)')) + ...
+        0.5*bsxfun(@times, r1D, bsxfun(@times, qDD_val',mysqrt(q_val)'));
     
 else
     jps = CurvStruct.ConstJerk;
@@ -53,7 +53,7 @@ else
     r2dt = r2D.*d1uk.^2 + r1D.*d2uk;
     r1dt = r1D.*d1uk;
     
-    v_norm = sqrt(sum(r1dt.^2, 1));
+    v_norm = mysqrt(sum(r1dt.^2, 1));
     acc    = r2dt;
     jerk   = r3dt;
 end
