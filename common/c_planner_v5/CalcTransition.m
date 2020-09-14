@@ -7,12 +7,12 @@ CutOff=ctx.cfg.CutOff;
 CollTolDeg=ctx.cfg.CollTolDeg;
 Length_Threshold=3*CutOff;
 
-% DebugLog('========== CalcTransition ==========\n')
-% DebugLog('CutOff = %.3f\n', CutOff)
-% if DebugActive
-%     PrintCurvStruct(ctx, CurvStruct1);
-%     PrintCurvStruct(ctx, CurvStruct2);
-% end
+DebugLog('========== CalcTransition ==========\n')
+DebugLog('CutOff = %.3f\n', CutOff)
+if DebugActive
+    PrintCurvStruct(ctx, CurvStruct1);
+    PrintCurvStruct(ctx, CurvStruct2);
+end
 
 CurvStruct_T = CurvStruct1; %default value
 
@@ -39,8 +39,6 @@ if CurvStruct1.Type ~= CurveType.Spline && CurvStruct2.Type ~= CurveType.Spline
     if L1 < Length_Threshold || L2 < Length_Threshold
         CutOff = min (L1,L2)/3;
     end
-    CurvStruct1_C = CutCurvStruct(ctx, CurvStruct1, 0, CutOff);
-    CurvStruct2_C = CutCurvStruct(ctx, CurvStruct2, CutOff, 0);
 else
     if CurvStruct1.Type == CurveType.Spline
         Spline=ctx.q_splines.get(CurvStruct1.sp_index);
@@ -75,11 +73,11 @@ status = TransitionResult.Ok;
 CurvStruct1_C = CutCurvStruct(ctx, CurvStruct1, 0, CutOff);
 CurvStruct2_C = CutCurvStruct(ctx, CurvStruct2, CutOff, 0);
 
-% DebugLog('========== AFTER CUTTING \n')
-% if DebugActive
-%     PrintCurvStruct(ctx, CurvStruct1_C)
-%     PrintCurvStruct(ctx, CurvStruct2_C)
-% end
+DebugLog('========== AFTER CUTTING \n')
+if DebugActive
+    PrintCurvStruct(ctx, CurvStruct1_C)
+    PrintCurvStruct(ctx, CurvStruct2_C)
+end
 
 [r0D0, r0D1, r0D2] = EvalCurvStruct(ctx, CurvStruct1_C, 1);
 [r1D0, r1D1, r1D2] = EvalCurvStruct(ctx, CurvStruct2_C, 0);
@@ -87,54 +85,52 @@ CurvStruct2_C = CutCurvStruct(ctx, CurvStruct2, CutOff, 0);
 % G2 transition calculation
 [p5, status, alpha0, alpha1] = G2_Hermite_Interpolation(r0D0, r0D1, r0D2, r1D0, r1D1, r1D2);
 
-if status==1 && alpha0>0 && alpha1>0
+if status==1
+    
     % standard case
     % transition CurvStruct calculation
     CurvStruct_T = ConstrTransP5Struct(p5, CurvStruct1.FeedRate);
     status = TransitionResult.Ok;
+
+elseif status==6
     
-elseif ~(alpha0>0 && alpha1>0) && DebugActive
-    
-    DebugLog('========== CalcTransition ==========\n');
-    DebugLog('========== alpha0 or alpha1 not 0 ==========\n');
-    DebugLog('Lines: %d, %d\n\n', CurvStruct1.gcode_source_line, ...
-        CurvStruct2.gcode_source_line);
-    
+    % TODO: decide in the future...
     CurvStruct_T = ConstrTransP5Struct(p5, CurvStruct1.FeedRate);
     status = TransitionResult.Ok;
-    
-    figure;
-    PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct_T CurvStruct2]);
-    hold on;
-    plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
-    hold on;
-    plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
-    title({ctx.cfg.source, 'alpha0 or alpha1 not 0'}, 'Interpreter', 'none');
-    axis equal;
-
-elseif status==2 && DebugActive
-        
-    DebugLog('========== CalcTransition ==========\n');
-    DebugLog('=========== status = 2 ==========\n');
-    DebugLog('Lines: %d, %d\n\n', CurvStruct1.gcode_source_line, ...
+              
+    DebugLogBR(ctx, '========== CalcTransition ==========\n');
+    DebugLogBR(ctx, '=========== status = 6 ==========\n');
+    DebugLogBR(ctx, 'Lines: %d, %d\n\n', CurvStruct1.gcode_source_line, ...
         CurvStruct2.gcode_source_line);
 
-    CurvStruct_T = ConstrTransP5Struct(p5, CurvStruct1.FeedRate);
-    status = TransitionResult.Ok;
-    
-    figure;
-    PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct_T CurvStruct2]);
-    hold on;
-    plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
-    hold on;
-    plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
-    title({ctx.cfg.source, 'status_G2_Hermite=2'}, 'Interpreter', 'none');
-    axis equal;
-    
+%     figure;
+%     PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct_T CurvStruct2]);
+%     hold on;
+%     plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
+%     hold on;
+%     plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
+%     title({ctx.cfg.source, 'status_G2_Hermite=6'}, 'Interpreter', 'none');
+%     axis equal;
+%     camproj('orthographic');
+       
 else
     
-     status = TransitionResult.NoSolution;
+    status = TransitionResult.NoSolution;
     
+    DebugLogBR(ctx, '========== CalcTransition ==========\n');
+    DebugLogBR(ctx, '=========== No Solution ==========\n');
+    DebugLogBR(ctx, 'Lines: %d, %d\n\n', CurvStruct1.gcode_source_line, ...
+        CurvStruct2.gcode_source_line);
+
+%     figure;
+%     PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct2]);
+%     hold on;
+%     plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
+%     hold on;
+%     plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
+%     title({ctx.cfg.source, 'No solution'}, 'Interpreter', 'none');
+%     camproj('orthographic');
+            
 end
 
     CurvStruct1_C.gcode_source_line = CurvStruct1.gcode_source_line;

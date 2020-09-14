@@ -12,6 +12,7 @@ end
 Ncrv = ctx.q_compress.size;
 
 DebugLog('Smoothing...\n');
+DebugLogBR(ctx, 'Smoothing...\n');
 
 k = 1;
 

@@ -15,6 +15,7 @@ CumulatedLength = 0;
 Length_Threshold = ctx.cfg.LThreshold; % [mm]
 
 DebugLog('Compressing...\n');
+DebugLogBR(ctx, 'Compressing...\n');
 
 % Satisfy coder
 % -------------

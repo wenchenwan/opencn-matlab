@@ -26,7 +26,7 @@ switch ctx.op
 %         
     case Fopt.GCode
         status = int32(ReadGCode(ReadGCodeCmd.Load, ctx.cfg.source));
-        DebugLog('Reading G-code...\n');
+        DebugLogBR(ctx, 'Reading G-code...\n');
         while status
             [status, CurvStruct] = ReadGCode(ReadGCodeCmd.Read, '');
             if status == 1 && CurvStruct.Type ~= 0
@@ -66,7 +66,6 @@ switch ctx.op
     case Fopt.Split
         ctx = SplitCurvStructs(ctx);
         ctx.op = Fopt.Opt;
-        DebugLog('FEEDRATE PLANNING...\n');
         
     case Fopt.Opt
         if ctx.q_split.isempty
@@ -134,17 +133,17 @@ switch ctx.op
                         nopt = nopt + 1;
                         OptSegment(nopt) = NextCurv;
                         
-%                         if DebugActive
-%                             PrintCurvStruct(ctx, OptSegment(k-ctx.k0+1))
-%                         end
-%                         if k < k1
-%                             DebugLog('-----------------------------------\n')
-%                         end
+                        if DebugActive
+                            PrintCurvStruct(ctx, OptSegment(k-ctx.k0+1))
+                        end
+                        if k < k1
+                            DebugLog('-----------------------------------\n')
+                        end
                     else
                         error('Wrong ZspdMode');
                     end
                 end
-%                 DebugLog('================================================\n')
+                DebugLog('================================================\n')
                 
                 Retry = 0;
                 success = false;
@@ -182,9 +181,9 @@ switch ctx.op
                 ctx.Coeff = Coeff;
                 if success == 0
                     for nprint = 1:ctx.cfg.NHorz
-%                         if DebugActive
-%                             PrintCurvStruct(ctx, OptSegment(1));
-%                         end
+                        if DebugActive
+                            PrintCurvStruct(ctx, OptSegment(1));
+                        end
                     end
                     if coder.target('MATLAB')
                         error('OPTIMIZATION FAILED')
