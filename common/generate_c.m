@@ -1,6 +1,6 @@
 clear; clc;
 
-generate_for_arm = false;
+generate_for_arm = true;
 
 cfg = coder.config('lib', 'ecoder', true);
 cfg.IndentSize = 4;
@@ -56,9 +56,8 @@ C = coder.OutputType('ConstrCurvStructType');
 
 splineType = coder.OutputType('bspline_create');
 
-global DebugActive DebugActiveBR
-DebugActive = false;
-DebugActiveBR = false;
+global DebugConfig
+DebugConfig = 0;
 
 % 
 % R0D0 = [0,0,0]';

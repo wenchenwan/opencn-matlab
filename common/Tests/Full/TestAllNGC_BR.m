@@ -2,11 +2,8 @@ function ctx = TestAllNGC_BR
 
     clear; clc;
     
-    global DebugActive;
-    DebugActive = false;
-    
-    global DebugActiveBR;
-    DebugActiveBR = true;
+    global DebugConfig
+    DebugConfig = 0;
     
     cfg = FeedoptDefaultConfig;
     cfg.NDiscr = 20;
@@ -15,22 +12,35 @@ function ctx = TestAllNGC_BR
     cfg.DebugPrint = false;
     cfg.SkipCompressing = false;
     cfg.DebugOptimProgress = true;
-    cfg.logID = fopen('log.txt', 'w');
 
     ngc_unit_list = string(fullfile('ngc_test/unit', {dir('ngc_test/unit/*.ngc').name}));
     ngc_full_list = string(fullfile('ngc_test/full', {dir('ngc_test/full/*.ngc').name}));
-    ngc_full_Montres_list = string(fullfile('ngc_test/full', {dir('ngc_test/full/020_Montre_V11.ngc').name}));
+    ngc_full_Montres_list = string(fullfile('ngc_test/full', {dir('ngc_test/full/*.ngc').name}));
+            
+    if coder.target('matlab')
+        diary ([cfg.LogFileName, '_', ...
+            datestr(now,'yyyy_mm_dd_HH_MM_SS'), ...
+            '.txt']);
+        diary on;
+    end
+    
+    EnableDebugLog(DebugCfg.OptimProgress);
+    EnableDebugLog(DebugCfg.Transitions);
         
     for k=1:numel(ngc_full_Montres_list)
         
         cfg.source = char(ngc_full_Montres_list(k));
+        DebugLog(DebugCfg.Transitions, [cfg.source, '\n']);
         ctx = InitFeedoptPlan(cfg);
-        DebugLogBR(ctx, [ctx.cfg.source, '\n']);
         ctx = FeedoptPlanRun(ctx);
 %         figure;
 %         PlotCurvStructsBR_2(ctx, ctx.q_split.getall());
 %         title(ngc_full_Montres_list(k), 'Interpreter', 'none');
         
+    end
+    
+    if coder.target('matlab')
+        diary off;
     end
 
     % PlotResampled(ctx, 1e-3)
