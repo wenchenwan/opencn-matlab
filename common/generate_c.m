@@ -56,7 +56,11 @@ C = coder.OutputType('ConstrCurvStructType');
 
 splineType = coder.OutputType('bspline_create');
 
-global DebugActive
+global sqrt_calls sin_calls cos_calls cot_calls DebugActive
+sqrt_calls = 0;
+sin_calls = 0;
+cos_calls = 0;
+cot_calls = 0;
 DebugActive = false;
 
 % 

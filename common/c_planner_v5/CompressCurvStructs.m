@@ -20,6 +20,7 @@ DebugLog('Compressing ...\n');
 % -------------
 if coder.target('rtw') || coder.target('mex')
     pvec = zeros(3, 0);
+    spindle_speed = 75000;
     coder.varsize('pvec', [3, Inf], [0, 1]);
     CurvStruct1 = ctx.q_gcode.get(1);
 end
@@ -56,6 +57,8 @@ while k <= Ncrv
                 spline.gcode_source_line = Curv.gcode_source_line;
                 spline.sp_index = int32(spline_index);
                 spline_index = spline_index + 1;
+                spline.SpindleSpeed = spindle_speed;
+                spindle_speed = 75000;
                 ctx.q_compress.push(spline);
                 if Curv.zspdmode == ZSpdMode.NZ
                     [CurvStruct1_C, CurvStruct2_C] = CutZeroEnd(ctx, Curv, k);
@@ -96,6 +99,7 @@ while k <= Ncrv
         CumulatedLength = CumulatedLength + LengthCurv(ctx, Curv, 0, 1);
         P1 = EvalCurvStruct(ctx, Curv, 1);
         pvec = [pvec P1];
+        spindle_speed = min(spindle_speed, Curv.SpindleSpeed);
     end
     k = k + 1;
 end

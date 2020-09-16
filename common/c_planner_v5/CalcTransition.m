@@ -113,4 +113,8 @@ end
     CurvStruct_T.gcode_source_line = CurvStruct2.gcode_source_line;
     CurvStruct2_C.gcode_source_line = CurvStruct2.gcode_source_line;
     
+    CurvStruct1_C.SpindleSpeed = CurvStruct1.SpindleSpeed;
+    CurvStruct_T.SpindleSpeed = min(CurvStruct1.SpindleSpeed, CurvStruct2.SpindleSpeed);
+    CurvStruct2_C.SpindleSpeed = CurvStruct2.SpindleSpeed;
+    
 end
