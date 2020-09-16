@@ -9,7 +9,7 @@ if ctx.q_gcode.isempty()
 end
 
 Ncrv = double(ctx.q_gcode.size);
-DebugLog('Expanding ...\n');
+DebugLog(DebugCfg.Transitions, 'Expanding ...\n');
 
 for k = 1:Ncrv
     Curv = ctx.q_gcode.get(k);

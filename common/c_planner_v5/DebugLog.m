@@ -1,8 +1,9 @@
-function DebugLog(varargin)
-global DebugActive
-if DebugActive
+function DebugLog(cfg, varargin)
     % 1 -> stdout
     % 2 -> stderr
-    fprintf(2, varargin{:});
-end
+    
+    if IsEnabledDebugLog(cfg)
+        fprintf(1, varargin{:});        
+    end
+
 end

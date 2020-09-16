@@ -14,8 +14,7 @@ Ncrv = ctx.q_gcode.size;
 CumulatedLength = 0;
 Length_Threshold = ctx.cfg.LThreshold; % [mm]
 
-DebugLog('Compressing...\n');
-DebugLogBR(ctx, 'Compressing...\n');
+DebugLog(DebugCfg.Transitions, 'Compressing...\n');
 
 % Satisfy coder
 % -------------
