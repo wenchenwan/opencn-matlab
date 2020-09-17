@@ -75,8 +75,7 @@ switch ctx.op
         ctx.op = Fopt.Opt;
         
         if IsEnabledDebugLog(DebugCfg.OptimProgress)
-            DebugLog(DebugCfg.OptimProgress, ...
-                '%4d/%u\n', ctx.k0, ctx.q_split.size);
+            fprintf('%4d/%u\n', ctx.k0, ctx.q_split.size);
         end
         
         if ctx.go_next
