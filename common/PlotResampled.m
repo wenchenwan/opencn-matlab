@@ -27,7 +27,9 @@ state = ResampleState(dt);
 N = ctx.q_opt.size();
 fprintf('Resampling ...\n');
 for k = 1:N
-    fprintf('%4d/%d\n', k, N);
+    if IsEnabledDebugLog(DebugCfg.OptimProgress)
+        fprintf('%4d/%d\n', k, N);
+    end
     Curv = ctx.q_opt.get(k);
     SplineCurv = ctx.q_splines.get(Curv.sp_index);
     Curv.MaxConstantFeedRate = GetCurvMaxFeedrate(ctx, Curv);
@@ -51,10 +53,10 @@ for k = 1:N
     end
     
     state.go_next = false;
-    if ktick > 200000
-        warning('Breaking because ktick > 200000')
-        break;
-    end
+%     if ktick > 200000
+%         warning('Breaking because ktick > 200000')
+%         break;
+%     end
 end
 
 ktick = ktick - 1;
@@ -117,7 +119,8 @@ dcm_obj = datacursormode(gcf);
 set(dcm_obj,'UpdateFcn',{@myupdatefcn,ctx, data})
 
 ax(1) = subplot(2,4,3);
-plot(uvec, vvec*60, 'b', uvec, fvec, 'r', uvec, cfvec, 'm')
+% plot(uvec, vvec*60, 'b', uvec, fvec, 'r', uvec, cfvec, 'm')
+plot(uvec, vvec*60, 'b')
 title('Velocity in mm/min')
 xlabel('Cumulative u')
 legend('norm', 'Specified Feedrate', 'Max Constant Feedrate')
