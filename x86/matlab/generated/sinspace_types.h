@@ -5,7 +5,7 @@
 // File: sinspace_types.h
 //
 // MATLAB Coder version            : 5.0
-// C/C++ source code generated on  : 16-Sep-2020 12:34:56
+// C/C++ source code generated on  : 18-Sep-2020 14:50:59
 //
 #ifndef SINSPACE_TYPES_H
 #define SINSPACE_TYPES_H
@@ -104,9 +104,9 @@ namespace ocn
         ZSpdMode zspdmode;
         double P0[3];
         double P1[3];
+        double HelixCenter[3];
         double evec[3];
         double theta;
-        double cottheta2;
         double pitch;
         double CoeffP5[6][3];
         int sp_index;

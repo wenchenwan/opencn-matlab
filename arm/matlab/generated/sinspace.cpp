@@ -5,7 +5,7 @@
 // File: sinspace.cpp
 //
 // MATLAB Coder version            : 5.0
-// C/C++ source code generated on  : 11-Sep-2020 14:19:50
+// C/C++ source code generated on  : 18-Sep-2020 14:56:07
 //
 
 // Include Files
@@ -123,10 +123,10 @@ namespace ocn
     static void CalcFrenet(const double rD1[3], const double rD2[3], double t[3], double n[3],
                            double *kappa);
     static void CalcZeroStartConstraints(const queue_coder *ctx_q_splines, CurveType Curv_Type,
-        const double Curv_P0[3], const double Curv_P1[3], const double Curv_evec[3], double
-        Curv_theta, double Curv_cottheta2, double Curv_pitch, const double Curv_CoeffP5[6][3], int
-        Curv_sp_index, bool Curv_UseConstJerk, double Curv_ConstJerk, double Curv_a_param, double
-        Curv_b_param, double JerkScale, double *v_0, double *at_0);
+        const double Curv_P0[3], const double Curv_P1[3], const double Curv_HelixCenter[3], const
+        double Curv_evec[3], double Curv_theta, double Curv_pitch, const double Curv_CoeffP5[6][3],
+        int Curv_sp_index, bool Curv_UseConstJerk, double Curv_ConstJerk, double Curv_a_param,
+        double Curv_b_param, double JerkScale, double *v_0, double *at_0);
     static void Calc_beta0_beta1(double alpha0, double alpha1, const double in3[3], const double
         in4[3], const double in5[3], double kappa0, const double in7[3], const double in8[3], const
         double in9[3], double kappa1, double *beta0, double *beta1);
@@ -135,8 +135,9 @@ namespace ocn
                             kappa0, const double in5[3], const double in6[3], const double in7[3],
                             double kappa1, double CoefPS[16]);
     static void CompressCurvStructs(const FeedoptContext *ctx);
-    static void ConstrBSplineStruct(const coder::array<double, 2U> &pvec, double FeedRate,
-        CurvStruct *b_CurvStruct);
+    static void ConstrCurvStruct(CurveType Type, ZSpdMode b_ZSpdMode, const double P0[3], const
+        double P1[3], const double C[3], const double evec[3], double theta, double pitch, const
+        double CoeffP5[6][3], double FeedRate, CurvStruct *CStrct);
     static void ConstrTransP5Struct(const double CoeffP5[6][3], double FeedRate, CurvStruct
         *b_CurvStruct);
     static void CutCurvStruct(const queue_coder *ctx_q_splines, CurvStruct *b_CurvStruct, double d0,
@@ -161,10 +162,10 @@ namespace ocn
         double in5[3], const double in6[3], const double in7[3], double kappa0, const double in9[3],
         const double in10[3], const double in11[3], double kappa1);
     static void EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3], const double
-                          CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_cottheta2,
-                          double CurvStruct_pitch, const coder::array<double, 2U> &u_vec, coder::
-                          array<double, 2U> &r0D, coder::array<double, 2U> &r1D, coder::array<double,
-                          2U> &r2D, coder::array<double, 2U> &r3D);
+                          CurvStruct_HelixCenter[3], const double CurvStruct_evec[3], double
+                          CurvStruct_theta, double CurvStruct_pitch, const coder::array<double, 2U>
+                          &u_vec, coder::array<double, 2U> &r0D, coder::array<double, 2U> &r1D,
+                          coder::array<double, 2U> &r2D, coder::array<double, 2U> &r3D);
     static void EvalLine(const double CurvStruct_P0[3], const double CurvStruct_P1[3], const coder::
                          array<double, 2U> &u_vec, coder::array<double, 2U> &r0D, coder::array<
                          double, 2U> &r1D, coder::array<double, 2U> &r2D, coder::array<double, 2U>
@@ -184,14 +185,14 @@ namespace ocn
         int *status);
     static double GetCurvMaxFeedrate(const queue_coder *ctx_q_splines, const double ctx_cfg_amax[3],
         const double ctx_cfg_jmax[3], CurveType CurvStruct_Type, const double CurvStruct_P0[3],
-        const double CurvStruct_P1[3], const double CurvStruct_evec[3], double CurvStruct_theta,
-        double CurvStruct_cottheta2, double CurvStruct_pitch, const double CurvStruct_CoeffP5[6][3],
-        int CurvStruct_sp_index, double CurvStruct_FeedRate, double CurvStruct_a_param, double
-        CurvStruct_b_param);
+        const double CurvStruct_P1[3], const double CurvStruct_HelixCenter[3], const double
+        CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch, const double
+        CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_FeedRate, double
+        CurvStruct_a_param, double CurvStruct_b_param);
     static double LengthCurv(const queue_coder *ctx_q_splines, CurveType Curv_Type, const double
-        Curv_P0[3], const double Curv_P1[3], const double Curv_evec[3], double Curv_theta, double
-        Curv_cottheta2, double Curv_pitch, const double Curv_CoeffP5[6][3], int Curv_sp_index,
-        double Curv_a_param, double Curv_b_param);
+        Curv_P0[3], const double Curv_P1[3], const double Curv_HelixCenter[3], const double
+        Curv_evec[3], double Curv_theta, double Curv_pitch, const double Curv_CoeffP5[6][3], int
+        Curv_sp_index, double Curv_a_param, double Curv_b_param);
     static unsigned int MultiWord2uLong(const unsigned int u[]);
     static void MultiWordAdd(const unsigned int u1[], const unsigned int u2[], unsigned int y[], int
         n);
@@ -219,22 +220,23 @@ namespace ocn
         ctx_cfg_ZeroStartVelLimit, bool ctx_cfg_DebugCutZero, const CurvStruct *b_CurvStruct,
         CurvStruct *CurvStruct1, CurvStruct *CurvStruct2);
     static void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_evec[3],
-        double CurvStruct_theta, double CurvStruct_cottheta2, double CurvStruct_pitch, const double
-        CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_b_param, double r0D[3]);
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
+        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_b_param,
+        double r0D[3]);
     static void b_EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3], const
-                            double CurvStruct_evec[3], double CurvStruct_theta, double
-                            CurvStruct_cottheta2, double CurvStruct_pitch, double u_vec, double r0D
-                            [3], double r1D[3], double r2D[3], double r3D[3]);
+                            double CurvStruct_HelixCenter[3], const double CurvStruct_evec[3],
+                            double CurvStruct_theta, double CurvStruct_pitch, double u_vec, double
+                            r0D[3], double r1D[3], double r2D[3], double r3D[3]);
     static void b_EvalLine(const double CurvStruct_P0[3], const double CurvStruct_P1[3], double
                            u_vec, double r0D[3], double r1D[3]);
     static void b_EvalTransP5(const double CurvStruct_CoeffP5[6][3], double u_vec, double r_0D[3],
         double r_1D[3], double r_2D[3], double r_3D[3]);
     static void b_PrintCurvStruct(const queue_coder *ctx_q_splines, CurveType S_Type, ZSpdMode
-        S_zspdmode, const double S_P0[3], const double S_P1[3], const double S_evec[3], double
-        S_theta, double S_cottheta2, double S_pitch, const double S_CoeffP5[6][3], int S_sp_index,
-        double S_FeedRate, bool S_UseConstJerk, double S_ConstJerk, double S_a_param, double
-        S_b_param);
+        S_zspdmode, const double S_P0[3], const double S_P1[3], const double S_HelixCenter[3], const
+        double S_evec[3], double S_theta, double S_pitch, const double S_CoeffP5[6][3], int
+        S_sp_index, double S_FeedRate, bool S_UseConstJerk, double S_ConstJerk, double S_a_param,
+        double S_b_param);
     static double b_SplineLengthApprox(const queue_coder *ctx_q_splines, int Curv_sp_index, double
         u1);
     static void b_bspline_create(int degree, const coder::array<double, 2U> &breakpoints, int
@@ -260,13 +262,13 @@ namespace ocn
     static void bsxfun(const coder::array<double, 2U> &a, const coder::array<double, 2U> &b, coder::
                        array<double, 2U> &c);
     static void c_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_evec[3],
-        double CurvStruct_theta, double CurvStruct_cottheta2, double CurvStruct_pitch, const double
-        CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param, double
-        CurvStruct_b_param, double r0D[3]);
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
+        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
+        double CurvStruct_b_param, double r0D[3]);
     static void c_EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3], const
-                            double CurvStruct_evec[3], double CurvStruct_theta, double
-                            CurvStruct_cottheta2, double CurvStruct_pitch, const double u_vec[10],
+                            double CurvStruct_HelixCenter[3], const double CurvStruct_evec[3],
+                            double CurvStruct_theta, double CurvStruct_pitch, const double u_vec[10],
                             double r0D[10][3], double r1D[10][3], double r2D[10][3], double r3D[10]
                             [3]);
     static void c_EvalLine(const double CurvStruct_P0[3], const double CurvStruct_P1[3], const
@@ -284,49 +286,49 @@ namespace ocn
                           array<double, 2U> &beq, coder::array<double, 2U> &C, bool *success, int
                           *status);
     static void d_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_evec[3],
-        double CurvStruct_theta, double CurvStruct_cottheta2, double CurvStruct_pitch, const double
-        CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param, double
-        CurvStruct_b_param, double r0D[3], double r1D[3], double r2D[3]);
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
+        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
+        double CurvStruct_b_param, double r0D[3], double r1D[3], double r2D[3]);
     static void d_bspline_eval_vec(const uint64m_T Bl_handle, const coder::array<double, 2U> &coeffs,
         const double u[10], double x[10], double xd[10], double xdd[10], double xddd[10]);
     static void diff(const coder::array<double, 2U> &x, coder::array<double, 2U> &y);
     static int div_s32_floor(int numerator, int denominator);
     static void e_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_evec[3],
-        double CurvStruct_theta, double CurvStruct_cottheta2, double CurvStruct_pitch, const double
-        CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param, double
-        CurvStruct_b_param, double r0D[3], double r1D[3]);
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
+        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
+        double CurvStruct_b_param, double r0D[3], double r1D[3]);
     static void eml_find(const coder::array<bool, 2U> &x, int i_data[], int i_size[2]);
     static void eml_float_colon(double d, double b, coder::array<double, 2U> &y);
     static void f_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_evec[3],
-        double CurvStruct_theta, double CurvStruct_cottheta2, double CurvStruct_pitch, const double
-        CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param, double
-        CurvStruct_b_param, double r0D[3], double r1D[3]);
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
+        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
+        double CurvStruct_b_param, double r0D[3], double r1D[3]);
     static void g_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_evec[3],
-        double CurvStruct_theta, double CurvStruct_cottheta2, double CurvStruct_pitch, const double
-        CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param, double
-        CurvStruct_b_param, double r0D[3], double r1D[3], double r2D[3]);
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
+        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
+        double CurvStruct_b_param, double r0D[3], double r1D[3], double r2D[3]);
     static void h_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_evec[3],
-        double CurvStruct_theta, double CurvStruct_cottheta2, double CurvStruct_pitch, const double
-        CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param, double
-        CurvStruct_b_param, coder::array<double, 2U> &u_vec, coder::array<double, 2U> &r0D, coder::
-        array<double, 2U> &r1D, coder::array<double, 2U> &r2D, coder::array<double, 2U> &r3D);
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
+        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
+        double CurvStruct_b_param, coder::array<double, 2U> &u_vec, coder::array<double, 2U> &r0D,
+        coder::array<double, 2U> &r1D, coder::array<double, 2U> &r2D, coder::array<double, 2U> &r3D);
     static void i_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_evec[3],
-        double CurvStruct_theta, double CurvStruct_cottheta2, double CurvStruct_pitch, const double
-        CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param, double
-        CurvStruct_b_param, double r0D[10][3], double r1D[10][3], double r2D[10][3], double r3D[10]
-        [3]);
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
+        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
+        double CurvStruct_b_param, double r0D[10][3], double r1D[10][3], double r2D[10][3], double
+        r3D[10][3]);
     static void j_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_evec[3],
-        double CurvStruct_theta, double CurvStruct_cottheta2, double CurvStruct_pitch, const double
-        CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param, double
-        CurvStruct_b_param, coder::array<double, 2U> &u_vec, coder::array<double, 2U> &r0D, coder::
-        array<double, 2U> &r1D, coder::array<double, 2U> &r2D);
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
+        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
+        double CurvStruct_b_param, coder::array<double, 2U> &u_vec, coder::array<double, 2U> &r0D,
+        coder::array<double, 2U> &r1D, coder::array<double, 2U> &r2D);
     static void minimum(const double x_data[], const int x_size[1], double *ex, int *idx);
     static void mldiv(const coder::array<double, 2U> &A, const coder::array<double, 1U> &B, coder::
                       array<double, 1U> &Y);
@@ -413,29 +415,16 @@ namespace ocn
     }
 
     //
-    // Arguments    : int b_index
+    // Arguments    : unsigned int b_index
     //                CurvStruct *value
     // Return Type  : void
     //
-    void queue_coder::get(int b_index, CurvStruct *value) const
+    void queue_coder::get(unsigned int b_index, CurvStruct *value) const
     {
         *value = this->value_type;
 
         // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
-        c_queue_get(this->ptr, static_cast<unsigned int>(b_index), value);
-    }
-
-    //
-    // Arguments    : const int64m_T b_index
-    //                CurvStruct *value
-    // Return Type  : void
-    //
-    void queue_coder::get(const int64m_T b_index, CurvStruct *value) const
-    {
-        *value = this->value_type;
-
-        // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
-        c_queue_get(this->ptr, MultiWord2uLong((unsigned int *)&b_index.chunks[0U]), value);
+        c_queue_get(this->ptr, b_index, value);
     }
 
     //
@@ -452,16 +441,29 @@ namespace ocn
     }
 
     //
-    // Arguments    : unsigned int b_index
+    // Arguments    : const int64m_T b_index
     //                CurvStruct *value
     // Return Type  : void
     //
-    void queue_coder::get(unsigned int b_index, CurvStruct *value) const
+    void queue_coder::get(const int64m_T b_index, CurvStruct *value) const
     {
         *value = this->value_type;
 
         // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
-        c_queue_get(this->ptr, b_index, value);
+        c_queue_get(this->ptr, MultiWord2uLong((unsigned int *)&b_index.chunks[0U]), value);
+    }
+
+    //
+    // Arguments    : int b_index
+    //                CurvStruct *value
+    // Return Type  : void
+    //
+    void queue_coder::get(int b_index, CurvStruct *value) const
+    {
+        *value = this->value_type;
+
+        // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
+        c_queue_get(this->ptr, static_cast<unsigned int>(b_index), value);
     }
 
     //
@@ -473,31 +475,6 @@ namespace ocn
         this->set_u();
         this->set_go_next();
         this->set_dt(b_dt);
-    }
-
-    //
-    // Arguments    : double ridx
-    //                double cidx
-    // Return Type  : void
-    //
-    void coder_internal_sparse::init(double ridx, double cidx)
-    {
-        int this_tmp;
-        int loop_ub;
-        this->m = static_cast<int>(ridx);
-        this_tmp = static_cast<int>(cidx);
-        this->n = this_tmp;
-        this->d.set_size(1);
-        this->d[0] = 0.0;
-        loop_ub = this_tmp + 1;
-        this->colidx.set_size(loop_ub);
-        for (int i = 0; i < loop_ub; i++) {
-            this->colidx[i] = 1;
-        }
-
-        this->rowidx.set_size(1);
-        this->rowidx[0] = 1;
-        this->maxnz = 1;
     }
 
     //
@@ -541,14 +518,28 @@ namespace ocn
     }
 
     //
-    // Arguments    : const CurvStruct *b_value_type
+    // Arguments    : double ridx
+    //                double cidx
     // Return Type  : void
     //
-    void queue_coder::init(const CurvStruct *b_value_type)
+    void coder_internal_sparse::init(double ridx, double cidx)
     {
-        //              fprintf('queue_coder::ctor\n');
-        this->value_type = *b_value_type;
-        this->ptr = c_queue_new();
+        int this_tmp;
+        int loop_ub;
+        this->m = static_cast<int>(ridx);
+        this_tmp = static_cast<int>(cidx);
+        this->n = this_tmp;
+        this->d.set_size(1);
+        this->d[0] = 0.0;
+        loop_ub = this_tmp + 1;
+        this->colidx.set_size(loop_ub);
+        for (int i = 0; i < loop_ub; i++) {
+            this->colidx[i] = 1;
+        }
+
+        this->rowidx.set_size(1);
+        this->rowidx[0] = 1;
+        this->maxnz = 1;
     }
 
     //
@@ -561,6 +552,17 @@ namespace ocn
         this->Value.size[1] = 2;
         this->Value.data[0] = 'N';
         this->Value.data[1] = 'N';
+    }
+
+    //
+    // Arguments    : const CurvStruct *b_value_type
+    // Return Type  : void
+    //
+    void queue_coder::init(const CurvStruct *b_value_type)
+    {
+        //              fprintf('queue_coder::ctor\n');
+        this->value_type = *b_value_type;
+        this->ptr = c_queue_new();
     }
 
     //
@@ -892,21 +894,21 @@ namespace ocn
     }
 
     //
-    // Arguments    : void
-    // Return Type  : void
-    //
-    void ResampleStateClass::set_u()
-    {
-        this->u = 0.0;
-    }
-
-    //
     // Arguments    : double val
     // Return Type  : void
     //
     void ResampleStateClass::set_u(double val)
     {
         this->u = val;
+    }
+
+    //
+    // Arguments    : void
+    // Return Type  : void
+    //
+    void ResampleStateClass::set_u()
+    {
+        this->u = 0.0;
     }
 
     //
@@ -1265,7 +1267,7 @@ namespace ocn
         }
 
         h_EvalCurvStruct(ctx_q_splines, CurvStructs[0].Type, CurvStructs[0].P0, CurvStructs[0].P1,
-                         CurvStructs[0].evec, CurvStructs[0].theta, CurvStructs[0].cottheta2,
+                         CurvStructs[0].HelixCenter, CurvStructs[0].evec, CurvStructs[0].theta,
                          CurvStructs[0].pitch, CurvStructs[0].CoeffP5, CurvStructs[0].sp_index,
                          CurvStructs[0].a_param, CurvStructs[0].b_param, b_u_vec, unusedU0, r1D, r2D,
                          r3D);
@@ -1704,9 +1706,9 @@ namespace ocn
             }
 
             h_EvalCurvStruct(ctx_q_splines, CurvStructs[e_k + 1].Type, CurvStructs[e_k + 1].P0,
-                             CurvStructs[e_k + 1].P1, CurvStructs[e_k + 1].evec, CurvStructs[e_k + 1]
-                             .theta, CurvStructs[e_k + 1].cottheta2, CurvStructs[e_k + 1].pitch,
-                             CurvStructs[e_k + 1].CoeffP5, CurvStructs[e_k + 1].sp_index,
+                             CurvStructs[e_k + 1].P1, CurvStructs[e_k + 1].HelixCenter,
+                             CurvStructs[e_k + 1].evec, CurvStructs[e_k + 1].theta, CurvStructs[e_k
+                             + 1].pitch, CurvStructs[e_k + 1].CoeffP5, CurvStructs[e_k + 1].sp_index,
                              CurvStructs[e_k + 1].a_param, CurvStructs[e_k + 1].b_param, c_u_vec,
                              unusedU1, r1D, r2D, r3D);
 
@@ -2230,9 +2232,9 @@ namespace ocn
         if (ctx_cfg_UseDynamicBreakpoints) {
             double varargin_1;
             varargin_1 = LengthCurv(ctx_q_splines, CurvStructs[0].Type, CurvStructs[0].P0,
-                                    CurvStructs[0].P1, CurvStructs[0].evec, CurvStructs[0].theta,
-                                    CurvStructs[0].cottheta2, CurvStructs[0].pitch, CurvStructs[0].
-                                    CoeffP5, CurvStructs[0].sp_index, CurvStructs[0].a_param,
+                                    CurvStructs[0].P1, CurvStructs[0].HelixCenter, CurvStructs[0].
+                                    evec, CurvStructs[0].theta, CurvStructs[0].pitch, CurvStructs[0]
+                                    .CoeffP5, CurvStructs[0].sp_index, CurvStructs[0].a_param,
                                     CurvStructs[0].b_param) / c_ctx_cfg_DynamicBreakpointsDis;
             if (ctx_cfg_UseLinearBreakpoints) {
                 double delta1;
@@ -2306,7 +2308,7 @@ namespace ocn
         }
 
         j_EvalCurvStruct(ctx_q_splines, CurvStructs[0].Type, CurvStructs[0].P0, CurvStructs[0].P1,
-                         CurvStructs[0].evec, CurvStructs[0].theta, CurvStructs[0].cottheta2,
+                         CurvStructs[0].HelixCenter, CurvStructs[0].evec, CurvStructs[0].theta,
                          CurvStructs[0].pitch, CurvStructs[0].CoeffP5, CurvStructs[0].sp_index,
                          CurvStructs[0].a_param, CurvStructs[0].b_param, b_u_vec, unusedU0, r1D, r2D);
         power(r1D, r);
@@ -2812,11 +2814,11 @@ namespace ocn
             if (ctx_cfg_UseDynamicBreakpoints) {
                 double varargin_2;
                 varargin_2 = LengthCurv(ctx_q_splines, CurvStructs[b_k + 1].Type, CurvStructs[b_k +
-                                        1].P0, CurvStructs[b_k + 1].P1, CurvStructs[b_k + 1].evec,
-                                        CurvStructs[b_k + 1].theta, CurvStructs[b_k + 1].cottheta2,
-                                        CurvStructs[b_k + 1].pitch, CurvStructs[b_k + 1].CoeffP5,
-                                        CurvStructs[b_k + 1].sp_index, CurvStructs[b_k + 1].a_param,
-                                        CurvStructs[b_k + 1].b_param) /
+                                        1].P0, CurvStructs[b_k + 1].P1, CurvStructs[b_k + 1].
+                                        HelixCenter, CurvStructs[b_k + 1].evec, CurvStructs[b_k + 1]
+                                        .theta, CurvStructs[b_k + 1].pitch, CurvStructs[b_k + 1].
+                                        CoeffP5, CurvStructs[b_k + 1].sp_index, CurvStructs[b_k + 1]
+                                        .a_param, CurvStructs[b_k + 1].b_param) /
                     c_ctx_cfg_DynamicBreakpointsDis;
                 if (ctx_cfg_UseLinearBreakpoints) {
                     int i61;
@@ -2857,9 +2859,9 @@ namespace ocn
             int d_r1D;
             double d2;
             j_EvalCurvStruct(ctx_q_splines, CurvStructs[b_k + 1].Type, CurvStructs[b_k + 1].P0,
-                             CurvStructs[b_k + 1].P1, CurvStructs[b_k + 1].evec, CurvStructs[b_k + 1]
-                             .theta, CurvStructs[b_k + 1].cottheta2, CurvStructs[b_k + 1].pitch,
-                             CurvStructs[b_k + 1].CoeffP5, CurvStructs[b_k + 1].sp_index,
+                             CurvStructs[b_k + 1].P1, CurvStructs[b_k + 1].HelixCenter,
+                             CurvStructs[b_k + 1].evec, CurvStructs[b_k + 1].theta, CurvStructs[b_k
+                             + 1].pitch, CurvStructs[b_k + 1].CoeffP5, CurvStructs[b_k + 1].sp_index,
                              CurvStructs[b_k + 1].a_param, CurvStructs[b_k + 1].b_param, c_u_vec,
                              unusedU1, r1Dn, r2Dn);
             power(r1Dn, r5);
@@ -3987,9 +3989,9 @@ namespace ocn
     //                CurveType Curv_Type
     //                const double Curv_P0[3]
     //                const double Curv_P1[3]
+    //                const double Curv_HelixCenter[3]
     //                const double Curv_evec[3]
     //                double Curv_theta
-    //                double Curv_cottheta2
     //                double Curv_pitch
     //                const double Curv_CoeffP5[6][3]
     //                int Curv_sp_index
@@ -4003,10 +4005,10 @@ namespace ocn
     // Return Type  : void
     //
     static void CalcZeroStartConstraints(const queue_coder *ctx_q_splines, CurveType Curv_Type,
-        const double Curv_P0[3], const double Curv_P1[3], const double Curv_evec[3], double
-        Curv_theta, double Curv_cottheta2, double Curv_pitch, const double Curv_CoeffP5[6][3], int
-        Curv_sp_index, bool Curv_UseConstJerk, double Curv_ConstJerk, double Curv_a_param, double
-        Curv_b_param, double JerkScale, double *v_0, double *at_0)
+        const double Curv_P0[3], const double Curv_P1[3], const double Curv_HelixCenter[3], const
+        double Curv_evec[3], double Curv_theta, double Curv_pitch, const double Curv_CoeffP5[6][3],
+        int Curv_sp_index, bool Curv_UseConstJerk, double Curv_ConstJerk, double Curv_a_param,
+        double Curv_b_param, double JerkScale, double *v_0, double *at_0)
     {
         double jps;
         double t;
@@ -4038,8 +4040,8 @@ namespace ocn
         t = std::pow(6.0 / jps, 0.33333333333333331);
         d1uk = jps * std::pow(t, 2.0) / 2.0;
         b = jps * t;
-        d_EvalCurvStruct(ctx_q_splines, Curv_Type, Curv_P0, Curv_P1, Curv_evec, Curv_theta,
-                         Curv_cottheta2, Curv_pitch, Curv_CoeffP5, Curv_sp_index, Curv_a_param,
+        d_EvalCurvStruct(ctx_q_splines, Curv_Type, Curv_P0, Curv_P1, Curv_HelixCenter, Curv_evec,
+                         Curv_theta, Curv_pitch, Curv_CoeffP5, Curv_sp_index, Curv_a_param,
                          Curv_b_param, unusedU0, r1D, r2D);
         b_b = std::pow(d1uk, 2.0);
         *v_0 = __ocn_sqrt((std::pow(r1D[0] * d1uk, 2.0) + std::pow(r1D[1] * d1uk, 2.0)) + std::pow
@@ -5761,14 +5763,18 @@ namespace ocn
         CurvStruct CurvStruct1_C;
         CurvStruct CurvStruct2_C;
         double P0[3];
-        CurvStruct spline;
         double P1[3];
+        double dv[3];
         CurvStruct b_CurvStruct2_C;
         CurvStruct CurvStruct3_C;
-        coder::array<double, 2U> b_pvec;
+        coder::array<double, 2U> d_pvec;
+        double dv1[3];
+        double dv2[6][3];
+        CurvStruct spline;
         if (!ctx->q_gcode.isempty()) {
             unsigned int spline_index;
             unsigned int Ncrv;
+            double spindle_speed;
             spline_index = ctx->q_splines.size() + 1U;
             Ncrv = ctx->q_gcode.size();
             CumulatedLength = 0.0;
@@ -5781,6 +5787,8 @@ namespace ocn
                 fflush(stderr);
             }
 
+            spindle_speed = 75000.0;
+
             //  Satisfy coder
             //  -------------
             pvec.set_size(3, 0);
@@ -5789,8 +5797,8 @@ namespace ocn
             //  -------------
             for (double k = 1.0; k <= Ncrv; k++) {
                 ctx->q_gcode.get(k, (&Curv));
-                if ((LengthCurv(&ctx->q_splines, Curv.Type, Curv.P0, Curv.P1, Curv.evec, Curv.theta,
-                                Curv.cottheta2, Curv.pitch, Curv.CoeffP5, Curv.sp_index,
+                if ((LengthCurv(&ctx->q_splines, Curv.Type, Curv.P0, Curv.P1, Curv.HelixCenter,
+                                Curv.evec, Curv.theta, Curv.pitch, Curv.CoeffP5, Curv.sp_index,
                                 Curv.a_param, Curv.b_param) >= ctx->cfg.LThreshold) ||
                         (Curv.zspdmode != ZSpdMode_NN)) {
                     if (CumulatedLength == 0.0) {
@@ -5827,6 +5835,7 @@ namespace ocn
                         }
                     } else {
                         if (pvec.size(1) > 2) {
+                            int c_pvec;
                             ConstrCurvStructType(&SplineCurve);
                             CalcBspline_Lee(ctx->cfg.SplineDegree, pvec, SplineCurve.sp.CoeffX,
                                             SplineCurve.sp.CoeffY, SplineCurve.sp.CoeffZ,
@@ -5834,10 +5843,27 @@ namespace ocn
                                             &SplineCurve.sp.Bl.handle, &SplineCurve.sp.Bl.degree,
                                             SplineCurve.sp.knots);
                             ctx->q_splines.push((&SplineCurve));
-                            ConstrBSplineStruct(pvec, Curv.FeedRate, &spline);
+                            c_pvec = pvec.size(1);
+                            dv[0] = 0.0;
+                            dv1[0] = 0.0;
+                            dv[1] = 0.0;
+                            dv1[1] = 0.0;
+                            dv[2] = 0.0;
+                            dv1[2] = 0.0;
+                            for (int i2 = 0; i2 < 6; i2++) {
+                                dv2[i2][0] = 0.0;
+                                dv2[i2][1] = 0.0;
+                                dv2[i2][2] = 0.0;
+                            }
+
+                            ConstrCurvStruct(CurveType_Spline, ZSpdMode_NN, *(double (*)[3])&pvec[0],
+                                             *(double (*)[3])&pvec[3 * (c_pvec - 1)], dv, dv1, 0.0,
+                                             0.0, dv2, Curv.FeedRate, &spline);
                             spline.gcode_source_line = Curv.gcode_source_line;
                             spline.sp_index = static_cast<int>(spline_index);
                             spline_index++;
+                            spline.SpindleSpeed = spindle_speed;
+                            spindle_speed = 75000.0;
                             ctx->q_compress.push((&spline));
                             if (Curv.zspdmode == ZSpdMode_NZ) {
                                 CutZeroEnd(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz,
@@ -5869,6 +5895,7 @@ namespace ocn
                         CumulatedLength = 0.0;
                     }
                 } else if ((static_cast<unsigned int>(k) == Ncrv) && (CumulatedLength != 0.0)) {
+                    int b_pvec;
                     ConstrCurvStructType(&SplineCurve);
                     CalcBspline_Lee(ctx->cfg.SplineDegree, pvec, SplineCurve.sp.CoeffX,
                                     SplineCurve.sp.CoeffY, SplineCurve.sp.CoeffZ,
@@ -5876,7 +5903,22 @@ namespace ocn
                                     &SplineCurve.sp.Bl.handle, &SplineCurve.sp.Bl.degree,
                                     SplineCurve.sp.knots);
                     ctx->q_splines.push((&SplineCurve));
-                    ConstrBSplineStruct(pvec, Curv.FeedRate, &spline);
+                    b_pvec = pvec.size(1);
+                    dv[0] = 0.0;
+                    dv1[0] = 0.0;
+                    dv[1] = 0.0;
+                    dv1[1] = 0.0;
+                    dv[2] = 0.0;
+                    dv1[2] = 0.0;
+                    for (int i1 = 0; i1 < 6; i1++) {
+                        dv2[i1][0] = 0.0;
+                        dv2[i1][1] = 0.0;
+                        dv2[i1][2] = 0.0;
+                    }
+
+                    ConstrCurvStruct(CurveType_Spline, ZSpdMode_NN, *(double (*)[3])&pvec[0],
+                                     *(double (*)[3])&pvec[3 * (b_pvec - 1)], dv, dv1, 0.0, 0.0, dv2,
+                                     Curv.FeedRate, &spline);
                     spline.gcode_source_line = Curv.gcode_source_line;
                     spline.sp_index = static_cast<int>(spline_index);
                     ctx->q_compress.push((&spline));
@@ -5886,9 +5928,9 @@ namespace ocn
                     int loop_ub;
                     int b_loop_ub;
                     if (CumulatedLength == 0.0) {
-                        b_EvalCurvStruct(&ctx->q_splines, Curv.Type, Curv.P0, Curv.P1, Curv.evec,
-                                         Curv.theta, Curv.cottheta2, Curv.pitch, Curv.CoeffP5,
-                                         Curv.sp_index, Curv.b_param, P0);
+                        b_EvalCurvStruct(&ctx->q_splines, Curv.Type, Curv.P0, Curv.P1,
+                                         Curv.HelixCenter, Curv.evec, Curv.theta, Curv.pitch,
+                                         Curv.CoeffP5, Curv.sp_index, Curv.b_param, P0);
                         pvec.set_size(3, 1);
                         pvec[0] = P0[0];
                         pvec[1] = P0[1];
@@ -5896,94 +5938,106 @@ namespace ocn
                     }
 
                     CumulatedLength += LengthCurv(&ctx->q_splines, Curv.Type, Curv.P0, Curv.P1,
-                        Curv.evec, Curv.theta, Curv.cottheta2, Curv.pitch, Curv.CoeffP5,
+                        Curv.HelixCenter, Curv.evec, Curv.theta, Curv.pitch, Curv.CoeffP5,
                         Curv.sp_index, Curv.a_param, Curv.b_param);
-                    c_EvalCurvStruct(&ctx->q_splines, Curv.Type, Curv.P0, Curv.P1, Curv.evec,
-                                     Curv.theta, Curv.cottheta2, Curv.pitch, Curv.CoeffP5,
-                                     Curv.sp_index, Curv.a_param, Curv.b_param, P1);
-                    b_pvec.set_size(3, (pvec.size(1) + 1));
+                    c_EvalCurvStruct(&ctx->q_splines, Curv.Type, Curv.P0, Curv.P1, Curv.HelixCenter,
+                                     Curv.evec, Curv.theta, Curv.pitch, Curv.CoeffP5, Curv.sp_index,
+                                     Curv.a_param, Curv.b_param, P1);
+                    d_pvec.set_size(3, (pvec.size(1) + 1));
                     loop_ub = pvec.size(1);
                     for (int i = 0; i < loop_ub; i++) {
-                        b_pvec[3 * i] = pvec[3 * i];
-                        b_pvec[3 * i + 1] = pvec[3 * i + 1];
-                        b_pvec[3 * i + 2] = pvec[3 * i + 2];
+                        d_pvec[3 * i] = pvec[3 * i];
+                        d_pvec[3 * i + 1] = pvec[3 * i + 1];
+                        d_pvec[3 * i + 2] = pvec[3 * i + 2];
                     }
 
-                    b_pvec[3 * pvec.size(1)] = P1[0];
-                    b_pvec[3 * pvec.size(1) + 1] = P1[1];
-                    b_pvec[3 * pvec.size(1) + 2] = P1[2];
-                    pvec.set_size(3, b_pvec.size(1));
-                    b_loop_ub = b_pvec.size(1);
-                    for (int i1 = 0; i1 < b_loop_ub; i1++) {
-                        pvec[3 * i1] = b_pvec[3 * i1];
-                        pvec[3 * i1 + 1] = b_pvec[3 * i1 + 1];
-                        pvec[3 * i1 + 2] = b_pvec[3 * i1 + 2];
+                    d_pvec[3 * pvec.size(1)] = P1[0];
+                    d_pvec[3 * pvec.size(1) + 1] = P1[1];
+                    d_pvec[3 * pvec.size(1) + 2] = P1[2];
+                    pvec.set_size(3, d_pvec.size(1));
+                    b_loop_ub = d_pvec.size(1);
+                    for (int i3 = 0; i3 < b_loop_ub; i3++) {
+                        pvec[3 * i3] = d_pvec[3 * i3];
+                        pvec[3 * i3 + 1] = d_pvec[3 * i3 + 1];
+                        pvec[3 * i3 + 2] = d_pvec[3 * i3 + 2];
                     }
+
+                    spindle_speed = std::fmin(spindle_speed, Curv.SpindleSpeed);
                 }
             }
         }
     }
 
     //
-    // Arguments    : const coder::array<double, 2U> &pvec
+    // ctxType = coder.OutputType('InitFeedoptPlan');
+    // Arguments    : CurveType Type
+    //                ZSpdMode b_ZSpdMode
+    //                const double P0[3]
+    //                const double P1[3]
+    //                const double C[3]
+    //                const double evec[3]
+    //                double theta
+    //                double pitch
+    //                const double CoeffP5[6][3]
     //                double FeedRate
-    //                CurvStruct *b_CurvStruct
+    //                CurvStruct *CStrct
     // Return Type  : void
     //
-    static void ConstrBSplineStruct(const coder::array<double, 2U> &pvec, double FeedRate,
-        CurvStruct *b_CurvStruct)
+    static void ConstrCurvStruct(CurveType Type, ZSpdMode b_ZSpdMode, const double P0[3], const
+        double P1[3], const double C[3], const double evec[3], double theta, double pitch, const
+        double CoeffP5[6][3], double FeedRate, CurvStruct *CStrct)
     {
         static const uint64m_T r = { { 0U, 0U }// chunks
         };
 
-        //
-        //
-        //  ctxType = coder.OutputType('InitFeedoptPlan');
-        b_CurvStruct->Type = CurveType_Spline;
-        b_CurvStruct->zspdmode = ZSpdMode_NN;
-        b_CurvStruct->P0[0] = pvec[0];
-        b_CurvStruct->P1[0] = pvec[3 * (pvec.size(1) - 1)];
-        b_CurvStruct->evec[0] = 0.0;
-        b_CurvStruct->P0[1] = pvec[1];
-        b_CurvStruct->P1[1] = pvec[3 * (pvec.size(1) - 1) + 1];
-        b_CurvStruct->evec[1] = 0.0;
-        b_CurvStruct->P0[2] = pvec[2];
-        b_CurvStruct->P1[2] = pvec[3 * (pvec.size(1) - 1) + 2];
-        b_CurvStruct->evec[2] = 0.0;
-        b_CurvStruct->theta = 0.0;
-        b_CurvStruct->cottheta2 = 0.0;
-        b_CurvStruct->pitch = 0.0;
+        CStrct->Type = Type;
+        CStrct->zspdmode = b_ZSpdMode;
+        CStrct->P0[0] = P0[0];
+        CStrct->P1[0] = P1[0];
+        CStrct->HelixCenter[0] = C[0];
+        CStrct->evec[0] = evec[0];
+        CStrct->P0[1] = P0[1];
+        CStrct->P1[1] = P1[1];
+        CStrct->HelixCenter[1] = C[1];
+        CStrct->evec[1] = evec[1];
+        CStrct->P0[2] = P0[2];
+        CStrct->P1[2] = P1[2];
+        CStrct->HelixCenter[2] = C[2];
+        CStrct->evec[2] = evec[2];
+        CStrct->theta = theta;
+        CStrct->pitch = pitch;
         for (int i = 0; i < 6; i++) {
-            b_CurvStruct->CoeffP5[i][0] = 0.0;
-            b_CurvStruct->CoeffP5[i][1] = 0.0;
-            b_CurvStruct->CoeffP5[i][2] = 0.0;
+            CStrct->CoeffP5[i][0] = CoeffP5[i][0];
+            CStrct->CoeffP5[i][1] = CoeffP5[i][1];
+            CStrct->CoeffP5[i][2] = CoeffP5[i][2];
         }
 
-        b_CurvStruct->sp_index = 1;
-        b_CurvStruct->FeedRate = FeedRate;
-        b_CurvStruct->MaxConstantFeedRate = 0.0;
-        b_CurvStruct->i_begin_sp = 0;
-        b_CurvStruct->i_end_sp = 0;
-        b_CurvStruct->gcode_source_line = 0;
-        b_CurvStruct->index_smooth = 0;
-        b_CurvStruct->UseConstJerk = false;
-        b_CurvStruct->ConstJerk = 0.0;
-        b_CurvStruct->ConstJerkMaxIterations = 0;
-        b_CurvStruct->Coeff.set_size(0);
-        b_CurvStruct->a_param = 1.0;
-        b_CurvStruct->b_param = 0.0;
-        b_CurvStruct->sp.CoeffX.set_size(1, 1);
-        b_CurvStruct->sp.CoeffX[0] = 0.0;
-        b_CurvStruct->sp.CoeffY.set_size(1, 1);
-        b_CurvStruct->sp.CoeffY[0] = 0.0;
-        b_CurvStruct->sp.CoeffZ.set_size(1, 1);
-        b_CurvStruct->sp.CoeffZ[0] = 0.0;
-        b_CurvStruct->sp.Bl.ncoeff = 0;
-        b_CurvStruct->sp.Bl.breakpoints.set_size(1, 0);
-        b_CurvStruct->sp.Bl.handle = r;
-        b_CurvStruct->sp.Bl.degree = 0;
-        b_CurvStruct->sp.knots.set_size(1, 1);
-        b_CurvStruct->sp.knots[0] = 0.0;
+        CStrct->sp_index = 1;
+        CStrct->FeedRate = FeedRate;
+        CStrct->SpindleSpeed = 0.0;
+        CStrct->MaxConstantFeedRate = 0.0;
+        CStrct->i_begin_sp = 0;
+        CStrct->i_end_sp = 0;
+        CStrct->gcode_source_line = 0;
+        CStrct->index_smooth = 0;
+        CStrct->UseConstJerk = false;
+        CStrct->ConstJerk = 0.0;
+        CStrct->ConstJerkMaxIterations = 0;
+        CStrct->Coeff.set_size(0);
+        CStrct->a_param = 1.0;
+        CStrct->b_param = 0.0;
+        CStrct->sp.CoeffX.set_size(1, 1);
+        CStrct->sp.CoeffX[0] = 0.0;
+        CStrct->sp.CoeffY.set_size(1, 1);
+        CStrct->sp.CoeffY[0] = 0.0;
+        CStrct->sp.CoeffZ.set_size(1, 1);
+        CStrct->sp.CoeffZ[0] = 0.0;
+        CStrct->sp.Bl.ncoeff = 0;
+        CStrct->sp.Bl.breakpoints.set_size(1, 0);
+        CStrct->sp.Bl.handle = r;
+        CStrct->sp.Bl.degree = 0;
+        CStrct->sp.knots.set_size(1, 1);
+        CStrct->sp.knots[0] = 0.0;
     }
 
     //
@@ -5995,14 +6049,13 @@ namespace ocn
     static void ConstrTransP5Struct(const double CoeffP5[6][3], double FeedRate, CurvStruct
         *b_CurvStruct)
     {
-        double P1_idx_0;
-        double P1_idx_1;
-        double P1_idx_2;
-        double P0_idx_0;
-        double P0_idx_1;
-        double P0_idx_2;
-        static const uint64m_T r = { { 0U, 0U }// chunks
-        };
+        double d;
+        double d1;
+        double d2;
+        double P1[3];
+        double P0[3];
+        double dv[3];
+        double dv1[3];
 
         // POLYVAL Evaluate array of polynomials with same degree.
         //
@@ -6012,72 +6065,35 @@ namespace ocn
         //
         //
         //  Use Horner's method for general case where X is an array.
-        P1_idx_0 = CoeffP5[0][0];
-        P1_idx_1 = CoeffP5[0][1];
-        P1_idx_2 = CoeffP5[0][2];
+        d = CoeffP5[0][0];
+        d1 = CoeffP5[0][1];
+        d2 = CoeffP5[0][2];
         for (int i = 0; i < 5; i++) {
-            double d;
-            double d1;
-            double d2;
-            d = CoeffP5[i + 1][0];
-            P0_idx_0 = d;
-            d1 = CoeffP5[i + 1][1];
-            P0_idx_1 = d1;
-            d2 = CoeffP5[i + 1][2];
-            P0_idx_2 = d2;
-            P1_idx_0 += d;
-            P1_idx_1 += d1;
-            P1_idx_2 += d2;
+            double d3;
+            double d4;
+            double d5;
+            d3 = CoeffP5[i + 1][0];
+            P0[0] = d3;
+            d4 = CoeffP5[i + 1][1];
+            P0[1] = d4;
+            d5 = CoeffP5[i + 1][2];
+            P0[2] = d5;
+            d += d3;
+            d1 += d4;
+            d2 += d5;
         }
 
-        //
-        //
-        //  ctxType = coder.OutputType('InitFeedoptPlan');
-        b_CurvStruct->Type = CurveType_TransP5;
-        b_CurvStruct->zspdmode = ZSpdMode_NN;
-        b_CurvStruct->P0[0] = P0_idx_0;
-        b_CurvStruct->P1[0] = P1_idx_0;
-        b_CurvStruct->evec[0] = 0.0;
-        b_CurvStruct->P0[1] = P0_idx_1;
-        b_CurvStruct->P1[1] = P1_idx_1;
-        b_CurvStruct->evec[1] = 0.0;
-        b_CurvStruct->P0[2] = P0_idx_2;
-        b_CurvStruct->P1[2] = P1_idx_2;
-        b_CurvStruct->evec[2] = 0.0;
-        b_CurvStruct->theta = 0.0;
-        b_CurvStruct->cottheta2 = 0.0;
-        b_CurvStruct->pitch = 0.0;
-        for (int b_i = 0; b_i < 6; b_i++) {
-            b_CurvStruct->CoeffP5[b_i][0] = CoeffP5[b_i][0];
-            b_CurvStruct->CoeffP5[b_i][1] = CoeffP5[b_i][1];
-            b_CurvStruct->CoeffP5[b_i][2] = CoeffP5[b_i][2];
-        }
-
-        b_CurvStruct->sp_index = 1;
-        b_CurvStruct->FeedRate = FeedRate;
-        b_CurvStruct->MaxConstantFeedRate = 0.0;
-        b_CurvStruct->i_begin_sp = 0;
-        b_CurvStruct->i_end_sp = 0;
-        b_CurvStruct->gcode_source_line = 0;
-        b_CurvStruct->index_smooth = 0;
-        b_CurvStruct->UseConstJerk = false;
-        b_CurvStruct->ConstJerk = 0.0;
-        b_CurvStruct->ConstJerkMaxIterations = 0;
-        b_CurvStruct->Coeff.set_size(0);
-        b_CurvStruct->a_param = 1.0;
-        b_CurvStruct->b_param = 0.0;
-        b_CurvStruct->sp.CoeffX.set_size(1, 1);
-        b_CurvStruct->sp.CoeffX[0] = 0.0;
-        b_CurvStruct->sp.CoeffY.set_size(1, 1);
-        b_CurvStruct->sp.CoeffY[0] = 0.0;
-        b_CurvStruct->sp.CoeffZ.set_size(1, 1);
-        b_CurvStruct->sp.CoeffZ[0] = 0.0;
-        b_CurvStruct->sp.Bl.ncoeff = 0;
-        b_CurvStruct->sp.Bl.breakpoints.set_size(1, 0);
-        b_CurvStruct->sp.Bl.handle = r;
-        b_CurvStruct->sp.Bl.degree = 0;
-        b_CurvStruct->sp.knots.set_size(1, 1);
-        b_CurvStruct->sp.knots[0] = 0.0;
+        P1[2] = d2;
+        P1[1] = d1;
+        P1[0] = d;
+        dv[0] = 0.0;
+        dv1[0] = 0.0;
+        dv[1] = 0.0;
+        dv1[1] = 0.0;
+        dv[2] = 0.0;
+        dv1[2] = 0.0;
+        ConstrCurvStruct(CurveType_TransP5, ZSpdMode_NN, P0, P1, dv, dv1, 0.0, 0.0, CoeffP5,
+                         FeedRate, b_CurvStruct);
     }
 
     //
@@ -6098,11 +6114,11 @@ namespace ocn
         double r1D1[3];
         double u_tilda_0;
         f_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                         b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->cottheta2,
+                         b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
                          b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
                          b_CurvStruct->a_param, b_CurvStruct->b_param, unusedU0, r1D0);
         e_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                         b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->cottheta2,
+                         b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
                          b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
                          b_CurvStruct->a_param, b_CurvStruct->b_param, unusedU1, r1D1);
         sqrt_calls++;
@@ -6181,17 +6197,18 @@ namespace ocn
         int c_N;
         double TmpCurv_P0[3];
         double TmpCurv_P1[3];
-        double TmpCurv_evec[3];
+        double TmpCurv_HelixCenter[3];
         coder::array<double, 2U> c;
+        double TmpCurv_evec[3];
         coder::array<double, 2U> r5;
         coder::array<double, 2U> b_d1uk;
         int f_loop_ub;
         coder::array<double, 2U> r6;
-        double TmpCurv_CoeffP5[6][3];
         coder::array<double, 2U> a;
         int g_loop_ub;
-        uint64m_T r7;
+        double TmpCurv_CoeffP5[6][3];
         coder::array<double, 2U> b_x;
+        uint64m_T r7;
         coder::array<double, 2U> jt;
         coder::array<double, 2U> b_z1;
         int d_N;
@@ -6228,7 +6245,7 @@ namespace ocn
         int cut_index;
         double L;
         f_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                         b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->cottheta2,
+                         b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
                          b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
                          b_CurvStruct->a_param, b_CurvStruct->b_param, unusedU0, r1D);
         ex = ctx_cfg_jmax[0];
@@ -6306,7 +6323,7 @@ namespace ocn
 
         double DBLMAXFLINT;
         h_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                         b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->cottheta2,
+                         b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
                          b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
                          b_CurvStruct->a_param, b_CurvStruct->b_param, b_uk, unusedU1, b_r1D, r2D,
                          r3D);
@@ -6345,12 +6362,15 @@ namespace ocn
             ctx_q_gcode->get(c_k, (&expl_temp));
             TmpCurv_P0[0] = expl_temp.P0[0];
             TmpCurv_P1[0] = expl_temp.P1[0];
+            TmpCurv_HelixCenter[0] = expl_temp.HelixCenter[0];
             TmpCurv_evec[0] = expl_temp.evec[0];
             TmpCurv_P0[1] = expl_temp.P0[1];
             TmpCurv_P1[1] = expl_temp.P1[1];
+            TmpCurv_HelixCenter[1] = expl_temp.HelixCenter[1];
             TmpCurv_evec[1] = expl_temp.evec[1];
             TmpCurv_P0[2] = expl_temp.P0[2];
             TmpCurv_P1[2] = expl_temp.P1[2];
+            TmpCurv_HelixCenter[2] = expl_temp.HelixCenter[2];
             TmpCurv_evec[2] = expl_temp.evec[2];
             for (int i7 = 0; i7 < 6; i7++) {
                 TmpCurv_CoeffP5[i7][0] = expl_temp.CoeffP5[i7][0];
@@ -6360,8 +6380,8 @@ namespace ocn
 
             double y;
             y = GetCurvMaxFeedrate(ctx_q_splines, ctx_cfg_amax, ctx_cfg_jmax, expl_temp.Type,
-                                   TmpCurv_P0, TmpCurv_P1, TmpCurv_evec, expl_temp.theta,
-                                   expl_temp.cottheta2, expl_temp.pitch, TmpCurv_CoeffP5,
+                                   TmpCurv_P0, TmpCurv_P1, TmpCurv_HelixCenter, TmpCurv_evec,
+                                   expl_temp.theta, expl_temp.pitch, TmpCurv_CoeffP5,
                                    expl_temp.sp_index, expl_temp.FeedRate, expl_temp.a_param,
                                    expl_temp.b_param);
             b_vmax = std::fmin(b_vmax, y);
@@ -6660,7 +6680,7 @@ namespace ocn
         //      actual_jps = jps;
         //      cut_index = N + 1 - cut_index;
         L = LengthCurv(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                       b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->cottheta2,
+                       b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
                        b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
                        b_CurvStruct->a_param, b_CurvStruct->b_param);
         *CurvStruct1 = *b_CurvStruct;
@@ -6734,20 +6754,21 @@ namespace ocn
         int c_N;
         double TmpCurv_P0[3];
         double TmpCurv_P1[3];
-        double TmpCurv_evec[3];
+        double TmpCurv_HelixCenter[3];
         coder::array<double, 2U> c;
+        double TmpCurv_evec[3];
         coder::array<double, 2U> r1;
         coder::array<double, 2U> b_d1uk;
         int f_loop_ub;
         coder::array<double, 2U> r2;
-        double TmpCurv_CoeffP5[6][3];
         coder::array<double, 2U> a;
         int g_loop_ub;
+        double TmpCurv_CoeffP5[6][3];
+        coder::array<double, 2U> b_x;
         static const int64m_T r3 = { { 1U, 0U }// chunks
         };
 
         int64m_T r4;
-        coder::array<double, 2U> b_x;
         coder::array<double, 2U> jt;
         coder::array<double, 2U> b_z1;
         int d_N;
@@ -6788,7 +6809,7 @@ namespace ocn
         int cut_index;
         double L;
         f_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                         b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->cottheta2,
+                         b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
                          b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
                          b_CurvStruct->a_param, b_CurvStruct->b_param, unusedU0, r1D);
         ex = ctx_cfg_jmax[0];
@@ -6865,7 +6886,7 @@ namespace ocn
         }
 
         h_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                         b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->cottheta2,
+                         b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
                          b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
                          b_CurvStruct->a_param, b_CurvStruct->b_param, b_uk, unusedU1, b_r1D, r2D,
                          r3D);
@@ -6886,12 +6907,15 @@ namespace ocn
             ctx_q_gcode->get(c_k, (&expl_temp));
             TmpCurv_P0[0] = expl_temp.P0[0];
             TmpCurv_P1[0] = expl_temp.P1[0];
+            TmpCurv_HelixCenter[0] = expl_temp.HelixCenter[0];
             TmpCurv_evec[0] = expl_temp.evec[0];
             TmpCurv_P0[1] = expl_temp.P0[1];
             TmpCurv_P1[1] = expl_temp.P1[1];
+            TmpCurv_HelixCenter[1] = expl_temp.HelixCenter[1];
             TmpCurv_evec[1] = expl_temp.evec[1];
             TmpCurv_P0[2] = expl_temp.P0[2];
             TmpCurv_P1[2] = expl_temp.P1[2];
+            TmpCurv_HelixCenter[2] = expl_temp.HelixCenter[2];
             TmpCurv_evec[2] = expl_temp.evec[2];
             for (int i7 = 0; i7 < 6; i7++) {
                 TmpCurv_CoeffP5[i7][0] = expl_temp.CoeffP5[i7][0];
@@ -6901,7 +6925,7 @@ namespace ocn
 
             double b_y;
             b_y = GetCurvMaxFeedrate(ctx_q_splines, ctx_cfg_amax, ctx_cfg_jmax, expl_temp.Type,
-                TmpCurv_P0, TmpCurv_P1, TmpCurv_evec, expl_temp.theta, expl_temp.cottheta2,
+                TmpCurv_P0, TmpCurv_P1, TmpCurv_HelixCenter, TmpCurv_evec, expl_temp.theta,
                 expl_temp.pitch, TmpCurv_CoeffP5, expl_temp.sp_index, expl_temp.FeedRate,
                 expl_temp.a_param, expl_temp.b_param);
             b_vmax = std::fmin(b_vmax, b_y);
@@ -7214,7 +7238,7 @@ namespace ocn
         }
 
         L = LengthCurv(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                       b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->cottheta2,
+                       b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
                        b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
                        b_CurvStruct->a_param, b_CurvStruct->b_param);
         *CurvStruct1 = *b_CurvStruct;
@@ -7236,8 +7260,8 @@ namespace ocn
             printf("Initial: \n");
             fflush(stdout);
             b_PrintCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->zspdmode,
-                              b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->evec,
-                              b_CurvStruct->theta, b_CurvStruct->cottheta2, b_CurvStruct->pitch,
+                              b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->HelixCenter,
+                              b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->pitch,
                               b_CurvStruct->CoeffP5, b_CurvStruct->sp_index, b_CurvStruct->FeedRate,
                               b_CurvStruct->UseConstJerk, b_CurvStruct->ConstJerk,
                               b_CurvStruct->a_param, b_CurvStruct->b_param);
@@ -7248,13 +7272,13 @@ namespace ocn
             printf("jps = %e, norm_vt(%d) = %f\n", jps, cut_index, norm_vt[cut_index - 1]);
             fflush(stdout);
             b_PrintCurvStruct(ctx_q_splines, CurvStruct1->Type, ZSpdMode_ZN, CurvStruct1->P0,
-                              CurvStruct1->P1, CurvStruct1->evec, CurvStruct1->theta,
-                              CurvStruct1->cottheta2, CurvStruct1->pitch, CurvStruct1->CoeffP5,
+                              CurvStruct1->P1, CurvStruct1->HelixCenter, CurvStruct1->evec,
+                              CurvStruct1->theta, CurvStruct1->pitch, CurvStruct1->CoeffP5,
                               CurvStruct1->sp_index, CurvStruct1->FeedRate, true,
                               CurvStruct1->ConstJerk, CurvStruct1->a_param, CurvStruct1->b_param);
             b_PrintCurvStruct(ctx_q_splines, CurvStruct2->Type, ZSpdMode_NN, CurvStruct2->P0,
-                              CurvStruct2->P1, CurvStruct2->evec, CurvStruct2->theta,
-                              CurvStruct2->cottheta2, CurvStruct2->pitch, CurvStruct2->CoeffP5,
+                              CurvStruct2->P1, CurvStruct2->HelixCenter, CurvStruct2->evec,
+                              CurvStruct2->theta, CurvStruct2->pitch, CurvStruct2->CoeffP5,
                               CurvStruct2->sp_index, CurvStruct2->FeedRate,
                               CurvStruct2->UseConstJerk, CurvStruct2->ConstJerk,
                               CurvStruct2->a_param, CurvStruct2->b_param);
@@ -7516,9 +7540,9 @@ namespace ocn
     //
     // Arguments    : const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
+    //                const double CurvStruct_HelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
-    //                double CurvStruct_cottheta2
     //                double CurvStruct_pitch
     //                const coder::array<double, 2U> &u_vec
     //                coder::array<double, 2U> &r0D
@@ -7528,17 +7552,14 @@ namespace ocn
     // Return Type  : void
     //
     static void EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3], const double
-                          CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_cottheta2,
-                          double CurvStruct_pitch, const coder::array<double, 2U> &u_vec, coder::
-                          array<double, 2U> &r0D, coder::array<double, 2U> &r1D, coder::array<double,
-                          2U> &r2D, coder::array<double, 2U> &r3D)
+                          CurvStruct_HelixCenter[3], const double CurvStruct_evec[3], double
+                          CurvStruct_theta, double CurvStruct_pitch, const coder::array<double, 2U>
+                          &u_vec, coder::array<double, 2U> &r0D, coder::array<double, 2U> &r1D,
+                          coder::array<double, 2U> &r2D, coder::array<double, 2U> &r3D)
     {
         double P0P1_idx_0;
         double P0P1_idx_1;
         double P0P1_idx_2;
-        double EcrP0P1_idx_0;
-        double EcrP0P1_idx_1;
-        double EcrP0P1_idx_2;
         int loop_ub;
         int b_loop_ub;
         int c_loop_ub;
@@ -7560,9 +7581,6 @@ namespace ocn
         P0P1_idx_0 = CurvStruct_P1[0] - CurvStruct_P0[0];
         P0P1_idx_1 = CurvStruct_P1[1] - CurvStruct_P0[1];
         P0P1_idx_2 = CurvStruct_P1[2] - CurvStruct_P0[2];
-        EcrP0P1_idx_0 = CurvStruct_evec[1] * P0P1_idx_2 - CurvStruct_evec[2] * P0P1_idx_1;
-        EcrP0P1_idx_1 = CurvStruct_evec[2] * P0P1_idx_0 - CurvStruct_evec[0] * P0P1_idx_2;
-        EcrP0P1_idx_2 = CurvStruct_evec[0] * P0P1_idx_1 - CurvStruct_evec[1] * P0P1_idx_0;
         r0D.set_size(3, u_vec.size(1));
         loop_ub = u_vec.size(1);
         for (int i = 0; i < loop_ub; i++) {
@@ -7596,19 +7614,17 @@ namespace ocn
         }
 
         sqrt_calls++;
-        if (__ocn_sqrt((std::pow(EcrP0P1_idx_0, 2.0) + std::pow(EcrP0P1_idx_1, 2.0)) + std::pow
-                       (EcrP0P1_idx_2, 2.0)) <= 2.2204460492503131E-16) {
+        if (__ocn_sqrt((std::pow(CurvStruct_evec[1] * P0P1_idx_2 - CurvStruct_evec[2] * P0P1_idx_1,
+                                 2.0) + std::pow(CurvStruct_evec[2] * P0P1_idx_0 - CurvStruct_evec[0]
+               * P0P1_idx_2, 2.0)) + std::pow(CurvStruct_evec[0] * P0P1_idx_1 - CurvStruct_evec[1] *
+              P0P1_idx_0, 2.0)) <= 2.2204460492503131E-16) {
             for (int i4 = 0; i4 < 16; i4++) {
                 message[i4] = cv1[i4];
             }
 
             c_assert_(&message[0]);
         } else {
-            double P0P1;
-            double d;
-            double C_idx_0;
             double CP0_idx_0;
-            double C_idx_1;
             double CP0_idx_1;
             double CP0_idx_2;
             int e_loop_ub;
@@ -7641,21 +7657,9 @@ namespace ocn
             //      end
             //  end
             //
-            P0P1 = (P0P1_idx_0 * CurvStruct_evec[0] + P0P1_idx_1 * CurvStruct_evec[1]) + P0P1_idx_2 *
-                CurvStruct_evec[2];
-
-            //  C           = ((P0 + P1proj) + mycot(theta/2)*EcrP0P1) / 2;
-            d = ((CurvStruct_P0[0] + (CurvStruct_P1[0] - P0P1 * CurvStruct_evec[0])) +
-                 CurvStruct_cottheta2 * EcrP0P1_idx_0) / 2.0;
-            C_idx_0 = d;
-            CP0_idx_0 = CurvStruct_P0[0] - d;
-            d = ((CurvStruct_P0[1] + (CurvStruct_P1[1] - P0P1 * CurvStruct_evec[1])) +
-                 CurvStruct_cottheta2 * EcrP0P1_idx_1) / 2.0;
-            C_idx_1 = d;
-            CP0_idx_1 = CurvStruct_P0[1] - d;
-            d = ((CurvStruct_P0[2] + (CurvStruct_P1[2] - P0P1 * CurvStruct_evec[2])) +
-                 CurvStruct_cottheta2 * EcrP0P1_idx_2) / 2.0;
-            CP0_idx_2 = CurvStruct_P0[2] - d;
+            CP0_idx_0 = CurvStruct_P0[0] - CurvStruct_HelixCenter[0];
+            CP0_idx_1 = CurvStruct_P0[1] - CurvStruct_HelixCenter[1];
+            CP0_idx_2 = CurvStruct_P0[2] - CurvStruct_HelixCenter[2];
             phi_vec.set_size(1, u_vec.size(1));
             e_loop_ub = u_vec.size(1);
             for (int i5 = 0; i5 < e_loop_ub; i5++) {
@@ -7745,9 +7749,9 @@ namespace ocn
                 for (int c_k = 0; c_k <= i15; c_k++) {
                     int varargin_3;
                     varargin_3 = bcoef * c_k;
-                    r0D[3 * c_k] = C_idx_0 + b[3 * varargin_3];
-                    r0D[3 * c_k + 1] = C_idx_1 + b[3 * varargin_3 + 1];
-                    r0D[3 * c_k + 2] = d + b[3 * varargin_3 + 2];
+                    r0D[3 * c_k] = CurvStruct_HelixCenter[0] + b[3 * varargin_3];
+                    r0D[3 * c_k + 1] = CurvStruct_HelixCenter[1] + b[3 * varargin_3 + 1];
+                    r0D[3 * c_k + 2] = CurvStruct_HelixCenter[2] + b[3 * varargin_3 + 2];
                 }
             }
 
@@ -8302,9 +8306,9 @@ namespace ocn
             for (int b_k = 0; b_k < varargin_2; b_k++) {
                 b_PrintCurvStruct(&ctx->q_splines, CurvStructs0[b_k].Type, CurvStructs0[b_k].
                                   zspdmode, CurvStructs0[b_k].P0, CurvStructs0[b_k].P1,
-                                  CurvStructs0[b_k].evec, CurvStructs0[b_k].theta, CurvStructs0[b_k]
-                                  .cottheta2, CurvStructs0[b_k].pitch, CurvStructs0[b_k].CoeffP5,
-                                  CurvStructs0[b_k].sp_index, CurvStructs0[b_k].FeedRate,
+                                  CurvStructs0[b_k].HelixCenter, CurvStructs0[b_k].evec,
+                                  CurvStructs0[b_k].theta, CurvStructs0[b_k].pitch, CurvStructs0[b_k]
+                                  .CoeffP5, CurvStructs0[b_k].sp_index, CurvStructs0[b_k].FeedRate,
                                   CurvStructs0[b_k].UseConstJerk, CurvStructs0[b_k].ConstJerk,
                                   CurvStructs0[b_k].a_param, CurvStructs0[b_k].b_param);
             }
@@ -8577,9 +8581,9 @@ namespace ocn
 
                   case CurveType_Helix:
                     //  arc of circle / helix (G02, G03)
-                    b_EvalHelix(CurvStructs0[0].P0, CurvStructs0[0].P1, CurvStructs0[0].evec,
-                                CurvStructs0[0].theta, CurvStructs0[0].cottheta2, CurvStructs0[0].
-                                pitch, u_vec_tilda, unusedU0, r1D, r2D, r3D);
+                    b_EvalHelix(CurvStructs0[0].P0, CurvStructs0[0].P1, CurvStructs0[0].HelixCenter,
+                                CurvStructs0[0].evec, CurvStructs0[0].theta, CurvStructs0[0].pitch,
+                                u_vec_tilda, unusedU0, r1D, r2D, r3D);
                     break;
 
                   case CurveType_TransP5:
@@ -8691,9 +8695,9 @@ namespace ocn
 
                 // zeros(3, size(tmp2, 2));
                 e_EvalCurvStruct(&ctx->q_splines, CurvStructs0[0].Type, CurvStructs0[0].P0,
-                                 CurvStructs0[0].P1, CurvStructs0[0].evec, CurvStructs0[0].theta,
-                                 CurvStructs0[0].cottheta2, CurvStructs0[0].pitch, CurvStructs0[0].
-                                 CoeffP5, CurvStructs0[0].sp_index, CurvStructs0[0].a_param,
+                                 CurvStructs0[0].P1, CurvStructs0[0].HelixCenter, CurvStructs0[0].
+                                 evec, CurvStructs0[0].theta, CurvStructs0[0].pitch, CurvStructs0[0]
+                                 .CoeffP5, CurvStructs0[0].sp_index, CurvStructs0[0].a_param,
                                  CurvStructs0[0].b_param, unusedU1, r1D);
                 n = __ocn_sqrt((std::pow(r1D[0], 2.0) + std::pow(r1D[1], 2.0)) + std::pow(r1D[2],
                                 2.0));
@@ -9381,9 +9385,9 @@ namespace ocn
     //                CurveType CurvStruct_Type
     //                const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
+    //                const double CurvStruct_HelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
-    //                double CurvStruct_cottheta2
     //                double CurvStruct_pitch
     //                const double CurvStruct_CoeffP5[6][3]
     //                int CurvStruct_sp_index
@@ -9394,10 +9398,10 @@ namespace ocn
     //
     static double GetCurvMaxFeedrate(const queue_coder *ctx_q_splines, const double ctx_cfg_amax[3],
         const double ctx_cfg_jmax[3], CurveType CurvStruct_Type, const double CurvStruct_P0[3],
-        const double CurvStruct_P1[3], const double CurvStruct_evec[3], double CurvStruct_theta,
-        double CurvStruct_cottheta2, double CurvStruct_pitch, const double CurvStruct_CoeffP5[6][3],
-        int CurvStruct_sp_index, double CurvStruct_FeedRate, double CurvStruct_a_param, double
-        CurvStruct_b_param)
+        const double CurvStruct_P1[3], const double CurvStruct_HelixCenter[3], const double
+        CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch, const double
+        CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_FeedRate, double
+        CurvStruct_a_param, double CurvStruct_b_param)
     {
         double Feedrate;
         double unusedU0[10][3];
@@ -9430,7 +9434,7 @@ namespace ocn
         //  rdot'*rdot = r1D'*r1D * u1d
         //  ConstantFeedrate = r1D'*r1D * u1d     (1)
         i_EvalCurvStruct(ctx_q_splines, CurvStruct_Type, CurvStruct_P0, CurvStruct_P1,
-                         CurvStruct_evec, CurvStruct_theta, CurvStruct_cottheta2, CurvStruct_pitch,
+                         CurvStruct_HelixCenter, CurvStruct_evec, CurvStruct_theta, CurvStruct_pitch,
                          CurvStruct_CoeffP5, CurvStruct_sp_index, CurvStruct_a_param,
                          CurvStruct_b_param, unusedU0, r1D, r2D, r3D);
 
@@ -9677,9 +9681,9 @@ namespace ocn
     //                CurveType Curv_Type
     //                const double Curv_P0[3]
     //                const double Curv_P1[3]
+    //                const double Curv_HelixCenter[3]
     //                const double Curv_evec[3]
     //                double Curv_theta
-    //                double Curv_cottheta2
     //                double Curv_pitch
     //                const double Curv_CoeffP5[6][3]
     //                int Curv_sp_index
@@ -9688,9 +9692,9 @@ namespace ocn
     // Return Type  : double
     //
     static double LengthCurv(const queue_coder *ctx_q_splines, CurveType Curv_Type, const double
-        Curv_P0[3], const double Curv_P1[3], const double Curv_evec[3], double Curv_theta, double
-        Curv_cottheta2, double Curv_pitch, const double Curv_CoeffP5[6][3], int Curv_sp_index,
-        double Curv_a_param, double Curv_b_param)
+        Curv_P0[3], const double Curv_P1[3], const double Curv_HelixCenter[3], const double
+        Curv_evec[3], double Curv_theta, double Curv_pitch, const double Curv_CoeffP5[6][3], int
+        Curv_sp_index, double Curv_a_param, double Curv_b_param)
     {
         double L;
         char message[29];
@@ -9721,7 +9725,7 @@ namespace ocn
                 b_EvalLine(Curv_P0, Curv_P1, Curv_b_param, unusedU0, r1D);
             } else {
                 //  arc of circle / helix (G02, G03)
-                b_EvalHelix(Curv_P0, Curv_P1, Curv_evec, Curv_theta, Curv_cottheta2, Curv_pitch,
+                b_EvalHelix(Curv_P0, Curv_P1, Curv_HelixCenter, Curv_evec, Curv_theta, Curv_pitch,
                             Curv_b_param, unusedU0, r1D, unusedU1, unusedU2);
             }
 
@@ -10371,9 +10375,9 @@ namespace ocn
                 Curv = *CurvStrct;
                 a = Curv.a_param;
                 b = Curv.b_param;
-                L = LengthCurv(&ctx->q_splines, Curv.Type, Curv.P0, Curv.P1, Curv.evec, Curv.theta,
-                               Curv.cottheta2, Curv.pitch, Curv.CoeffP5, Curv.sp_index, Curv.a_param,
-                               Curv.b_param);
+                L = LengthCurv(&ctx->q_splines, Curv.Type, Curv.P0, Curv.P1, Curv.HelixCenter,
+                               Curv.evec, Curv.theta, Curv.pitch, Curv.CoeffP5, Curv.sp_index,
+                               Curv.a_param, Curv.b_param);
                 if (L < 2.0 * ctx->cfg.LSplit) {
                     ctx->q_split.push((&Curv));
                 } else {
@@ -10588,14 +10592,14 @@ namespace ocn
 
         if (DebugActive) {
             b_PrintCurvStruct(ctx_q_splines, CurvStruct1->Type, CurvStruct1->zspdmode,
-                              CurvStruct1->P0, CurvStruct1->P1, CurvStruct1->evec,
-                              CurvStruct1->theta, CurvStruct1->cottheta2, CurvStruct1->pitch,
+                              CurvStruct1->P0, CurvStruct1->P1, CurvStruct1->HelixCenter,
+                              CurvStruct1->evec, CurvStruct1->theta, CurvStruct1->pitch,
                               CurvStruct1->CoeffP5, CurvStruct1->sp_index, CurvStruct1->FeedRate,
                               CurvStruct1->UseConstJerk, CurvStruct1->ConstJerk,
                               CurvStruct1->a_param, CurvStruct1->b_param);
             b_PrintCurvStruct(ctx_q_splines, CurvStruct2->Type, CurvStruct2->zspdmode,
-                              CurvStruct2->P0, CurvStruct2->P1, CurvStruct2->evec,
-                              CurvStruct2->theta, CurvStruct2->cottheta2, CurvStruct2->pitch,
+                              CurvStruct2->P0, CurvStruct2->P1, CurvStruct2->HelixCenter,
+                              CurvStruct2->evec, CurvStruct2->theta, CurvStruct2->pitch,
                               CurvStruct2->CoeffP5, CurvStruct2->sp_index, CurvStruct2->FeedRate,
                               CurvStruct2->UseConstJerk, CurvStruct2->ConstJerk,
                               CurvStruct2->a_param, CurvStruct2->b_param);
@@ -10605,11 +10609,11 @@ namespace ocn
 
         // default value
         e_EvalCurvStruct(ctx_q_splines, CurvStruct1->Type, CurvStruct1->P0, CurvStruct1->P1,
-                         CurvStruct1->evec, CurvStruct1->theta, CurvStruct1->cottheta2,
+                         CurvStruct1->HelixCenter, CurvStruct1->evec, CurvStruct1->theta,
                          CurvStruct1->pitch, CurvStruct1->CoeffP5, CurvStruct1->sp_index,
                          CurvStruct1->a_param, CurvStruct1->b_param, unusedU0, r0D1);
         f_EvalCurvStruct(ctx_q_splines, CurvStruct2->Type, CurvStruct2->P0, CurvStruct2->P1,
-                         CurvStruct2->evec, CurvStruct2->theta, CurvStruct2->cottheta2,
+                         CurvStruct2->HelixCenter, CurvStruct2->evec, CurvStruct2->theta,
                          CurvStruct2->pitch, CurvStruct2->CoeffP5, CurvStruct2->sp_index,
                          CurvStruct2->a_param, CurvStruct2->b_param, unusedU1, r1D1);
 
@@ -10715,11 +10719,11 @@ namespace ocn
             double L1;
             double L2;
             L1 = LengthCurv(ctx_q_splines, CurvStruct1->Type, CurvStruct1->P0, CurvStruct1->P1,
-                            CurvStruct1->evec, CurvStruct1->theta, CurvStruct1->cottheta2,
+                            CurvStruct1->HelixCenter, CurvStruct1->evec, CurvStruct1->theta,
                             CurvStruct1->pitch, CurvStruct1->CoeffP5, CurvStruct1->sp_index,
                             CurvStruct1->a_param, CurvStruct1->b_param);
             L2 = LengthCurv(ctx_q_splines, CurvStruct2->Type, CurvStruct2->P0, CurvStruct2->P1,
-                            CurvStruct2->evec, CurvStruct2->theta, CurvStruct2->cottheta2,
+                            CurvStruct2->HelixCenter, CurvStruct2->evec, CurvStruct2->theta,
                             CurvStruct2->pitch, CurvStruct2->CoeffP5, CurvStruct2->sp_index,
                             CurvStruct2->a_param, CurvStruct2->b_param);
 
@@ -10791,29 +10795,29 @@ namespace ocn
 
             if (DebugActive) {
                 b_PrintCurvStruct(ctx_q_splines, CurvStruct1_C->Type, CurvStruct1_C->zspdmode,
-                                  CurvStruct1_C->P0, CurvStruct1_C->P1, CurvStruct1_C->evec,
-                                  CurvStruct1_C->theta, CurvStruct1_C->cottheta2,
-                                  CurvStruct1_C->pitch, CurvStruct1_C->CoeffP5,
-                                  CurvStruct1_C->sp_index, CurvStruct1_C->FeedRate,
-                                  CurvStruct1_C->UseConstJerk, CurvStruct1_C->ConstJerk,
-                                  CurvStruct1_C->a_param, CurvStruct1_C->b_param);
+                                  CurvStruct1_C->P0, CurvStruct1_C->P1, CurvStruct1_C->HelixCenter,
+                                  CurvStruct1_C->evec, CurvStruct1_C->theta, CurvStruct1_C->pitch,
+                                  CurvStruct1_C->CoeffP5, CurvStruct1_C->sp_index,
+                                  CurvStruct1_C->FeedRate, CurvStruct1_C->UseConstJerk,
+                                  CurvStruct1_C->ConstJerk, CurvStruct1_C->a_param,
+                                  CurvStruct1_C->b_param);
                 b_PrintCurvStruct(ctx_q_splines, CurvStruct2_C->Type, CurvStruct2_C->zspdmode,
-                                  CurvStruct2_C->P0, CurvStruct2_C->P1, CurvStruct2_C->evec,
-                                  CurvStruct2_C->theta, CurvStruct2_C->cottheta2,
-                                  CurvStruct2_C->pitch, CurvStruct2_C->CoeffP5,
-                                  CurvStruct2_C->sp_index, CurvStruct2_C->FeedRate,
-                                  CurvStruct2_C->UseConstJerk, CurvStruct2_C->ConstJerk,
-                                  CurvStruct2_C->a_param, CurvStruct2_C->b_param);
+                                  CurvStruct2_C->P0, CurvStruct2_C->P1, CurvStruct2_C->HelixCenter,
+                                  CurvStruct2_C->evec, CurvStruct2_C->theta, CurvStruct2_C->pitch,
+                                  CurvStruct2_C->CoeffP5, CurvStruct2_C->sp_index,
+                                  CurvStruct2_C->FeedRate, CurvStruct2_C->UseConstJerk,
+                                  CurvStruct2_C->ConstJerk, CurvStruct2_C->a_param,
+                                  CurvStruct2_C->b_param);
             }
 
             d_EvalCurvStruct(ctx_q_splines, CurvStruct1_C->Type, CurvStruct1_C->P0,
-                             CurvStruct1_C->P1, CurvStruct1_C->evec, CurvStruct1_C->theta,
-                             CurvStruct1_C->cottheta2, CurvStruct1_C->pitch, CurvStruct1_C->CoeffP5,
+                             CurvStruct1_C->P1, CurvStruct1_C->HelixCenter, CurvStruct1_C->evec,
+                             CurvStruct1_C->theta, CurvStruct1_C->pitch, CurvStruct1_C->CoeffP5,
                              CurvStruct1_C->sp_index, CurvStruct1_C->a_param, CurvStruct1_C->b_param,
                              r0D0, r0D1, r0D2);
             g_EvalCurvStruct(ctx_q_splines, CurvStruct2_C->Type, CurvStruct2_C->P0,
-                             CurvStruct2_C->P1, CurvStruct2_C->evec, CurvStruct2_C->theta,
-                             CurvStruct2_C->cottheta2, CurvStruct2_C->pitch, CurvStruct2_C->CoeffP5,
+                             CurvStruct2_C->P1, CurvStruct2_C->HelixCenter, CurvStruct2_C->evec,
+                             CurvStruct2_C->theta, CurvStruct2_C->pitch, CurvStruct2_C->CoeffP5,
                              CurvStruct2_C->sp_index, CurvStruct2_C->a_param, CurvStruct2_C->b_param,
                              r1D0, r1D1, r1D2);
 
@@ -10839,6 +10843,10 @@ namespace ocn
             CurvStruct1_C->gcode_source_line = CurvStruct1->gcode_source_line;
             CurvStruct_T->gcode_source_line = CurvStruct2->gcode_source_line;
             CurvStruct2_C->gcode_source_line = CurvStruct2->gcode_source_line;
+            CurvStruct1_C->SpindleSpeed = CurvStruct1->SpindleSpeed;
+            CurvStruct_T->SpindleSpeed = std::fmin(CurvStruct1->SpindleSpeed,
+                CurvStruct2->SpindleSpeed);
+            CurvStruct2_C->SpindleSpeed = CurvStruct2->SpindleSpeed;
         }
 
         *status = b_status;
@@ -10909,17 +10917,18 @@ namespace ocn
         int c_N;
         double TmpCurv_P0[3];
         double TmpCurv_P1[3];
-        double TmpCurv_evec[3];
+        double TmpCurv_HelixCenter[3];
         coder::array<double, 2U> c;
+        double TmpCurv_evec[3];
         coder::array<double, 2U> r5;
         coder::array<double, 2U> b_d1uk;
         int f_loop_ub;
         coder::array<double, 2U> r6;
-        double TmpCurv_CoeffP5[6][3];
         coder::array<double, 2U> a;
         int g_loop_ub;
-        uint64m_T r7;
+        double TmpCurv_CoeffP5[6][3];
         coder::array<double, 2U> b_x;
+        uint64m_T r7;
         coder::array<double, 2U> jt;
         coder::array<double, 2U> b_z1;
         int d_N;
@@ -10956,7 +10965,7 @@ namespace ocn
         int cut_index;
         double L;
         f_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                         b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->cottheta2,
+                         b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
                          b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
                          b_CurvStruct->a_param, b_CurvStruct->b_param, unusedU0, r1D);
         ex = ctx_cfg_jmax[0];
@@ -11035,7 +11044,7 @@ namespace ocn
         uint64m_T r;
         double DBLMAXFLINT;
         h_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                         b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->cottheta2,
+                         b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
                          b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
                          b_CurvStruct->a_param, b_CurvStruct->b_param, b_uk, unusedU1, b_r1D, r2D,
                          r3D);
@@ -11072,12 +11081,15 @@ namespace ocn
             ctx_q_gcode->get(c_k, (&expl_temp));
             TmpCurv_P0[0] = expl_temp.P0[0];
             TmpCurv_P1[0] = expl_temp.P1[0];
+            TmpCurv_HelixCenter[0] = expl_temp.HelixCenter[0];
             TmpCurv_evec[0] = expl_temp.evec[0];
             TmpCurv_P0[1] = expl_temp.P0[1];
             TmpCurv_P1[1] = expl_temp.P1[1];
+            TmpCurv_HelixCenter[1] = expl_temp.HelixCenter[1];
             TmpCurv_evec[1] = expl_temp.evec[1];
             TmpCurv_P0[2] = expl_temp.P0[2];
             TmpCurv_P1[2] = expl_temp.P1[2];
+            TmpCurv_HelixCenter[2] = expl_temp.HelixCenter[2];
             TmpCurv_evec[2] = expl_temp.evec[2];
             for (int i7 = 0; i7 < 6; i7++) {
                 TmpCurv_CoeffP5[i7][0] = expl_temp.CoeffP5[i7][0];
@@ -11087,8 +11099,8 @@ namespace ocn
 
             double y;
             y = GetCurvMaxFeedrate(ctx_q_splines, ctx_cfg_amax, ctx_cfg_jmax, expl_temp.Type,
-                                   TmpCurv_P0, TmpCurv_P1, TmpCurv_evec, expl_temp.theta,
-                                   expl_temp.cottheta2, expl_temp.pitch, TmpCurv_CoeffP5,
+                                   TmpCurv_P0, TmpCurv_P1, TmpCurv_HelixCenter, TmpCurv_evec,
+                                   expl_temp.theta, expl_temp.pitch, TmpCurv_CoeffP5,
                                    expl_temp.sp_index, expl_temp.FeedRate, expl_temp.a_param,
                                    expl_temp.b_param);
             b_vmax = std::fmin(b_vmax, y);
@@ -11387,7 +11399,7 @@ namespace ocn
         //      actual_jps = jps;
         //      cut_index = N + 1 - cut_index;
         L = LengthCurv(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                       b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->cottheta2,
+                       b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
                        b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
                        b_CurvStruct->a_param, b_CurvStruct->b_param);
         *CurvStruct1 = *b_CurvStruct;
@@ -11463,17 +11475,18 @@ namespace ocn
         int c_N;
         double TmpCurv_P0[3];
         double TmpCurv_P1[3];
-        double TmpCurv_evec[3];
+        double TmpCurv_HelixCenter[3];
         coder::array<double, 2U> c;
+        double TmpCurv_evec[3];
         coder::array<double, 2U> r2;
         coder::array<double, 2U> b_d1uk;
         int f_loop_ub;
         coder::array<double, 2U> r3;
-        double TmpCurv_CoeffP5[6][3];
         coder::array<double, 2U> a;
         int g_loop_ub;
-        int64m_T r4;
+        double TmpCurv_CoeffP5[6][3];
         coder::array<double, 2U> b_x;
+        int64m_T r4;
         coder::array<double, 2U> jt;
         coder::array<double, 2U> b_z1;
         int d_N;
@@ -11514,7 +11527,7 @@ namespace ocn
         int cut_index;
         double L;
         f_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                         b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->cottheta2,
+                         b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
                          b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
                          b_CurvStruct->a_param, b_CurvStruct->b_param, unusedU0, r1D);
         ex = ctx_cfg_jmax[0];
@@ -11591,7 +11604,7 @@ namespace ocn
         }
 
         h_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                         b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->cottheta2,
+                         b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
                          b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
                          b_CurvStruct->a_param, b_CurvStruct->b_param, b_uk, unusedU1, b_r1D, r2D,
                          r3D);
@@ -11611,12 +11624,15 @@ namespace ocn
             ctx_q_gcode->get(c_k, (&expl_temp));
             TmpCurv_P0[0] = expl_temp.P0[0];
             TmpCurv_P1[0] = expl_temp.P1[0];
+            TmpCurv_HelixCenter[0] = expl_temp.HelixCenter[0];
             TmpCurv_evec[0] = expl_temp.evec[0];
             TmpCurv_P0[1] = expl_temp.P0[1];
             TmpCurv_P1[1] = expl_temp.P1[1];
+            TmpCurv_HelixCenter[1] = expl_temp.HelixCenter[1];
             TmpCurv_evec[1] = expl_temp.evec[1];
             TmpCurv_P0[2] = expl_temp.P0[2];
             TmpCurv_P1[2] = expl_temp.P1[2];
+            TmpCurv_HelixCenter[2] = expl_temp.HelixCenter[2];
             TmpCurv_evec[2] = expl_temp.evec[2];
             for (int i7 = 0; i7 < 6; i7++) {
                 TmpCurv_CoeffP5[i7][0] = expl_temp.CoeffP5[i7][0];
@@ -11626,7 +11642,7 @@ namespace ocn
 
             double b_y;
             b_y = GetCurvMaxFeedrate(ctx_q_splines, ctx_cfg_amax, ctx_cfg_jmax, expl_temp.Type,
-                TmpCurv_P0, TmpCurv_P1, TmpCurv_evec, expl_temp.theta, expl_temp.cottheta2,
+                TmpCurv_P0, TmpCurv_P1, TmpCurv_HelixCenter, TmpCurv_evec, expl_temp.theta,
                 expl_temp.pitch, TmpCurv_CoeffP5, expl_temp.sp_index, expl_temp.FeedRate,
                 expl_temp.a_param, expl_temp.b_param);
             b_vmax = std::fmin(b_vmax, b_y);
@@ -11939,7 +11955,7 @@ namespace ocn
         }
 
         L = LengthCurv(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                       b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->cottheta2,
+                       b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
                        b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
                        b_CurvStruct->a_param, b_CurvStruct->b_param);
         *CurvStruct1 = *b_CurvStruct;
@@ -11961,8 +11977,8 @@ namespace ocn
             printf("Initial: \n");
             fflush(stdout);
             b_PrintCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->zspdmode,
-                              b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->evec,
-                              b_CurvStruct->theta, b_CurvStruct->cottheta2, b_CurvStruct->pitch,
+                              b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->HelixCenter,
+                              b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->pitch,
                               b_CurvStruct->CoeffP5, b_CurvStruct->sp_index, b_CurvStruct->FeedRate,
                               b_CurvStruct->UseConstJerk, b_CurvStruct->ConstJerk,
                               b_CurvStruct->a_param, b_CurvStruct->b_param);
@@ -11973,13 +11989,13 @@ namespace ocn
             printf("jps = %e, norm_vt(%d) = %f\n", jps, cut_index, norm_vt[cut_index - 1]);
             fflush(stdout);
             b_PrintCurvStruct(ctx_q_splines, CurvStruct1->Type, ZSpdMode_ZN, CurvStruct1->P0,
-                              CurvStruct1->P1, CurvStruct1->evec, CurvStruct1->theta,
-                              CurvStruct1->cottheta2, CurvStruct1->pitch, CurvStruct1->CoeffP5,
+                              CurvStruct1->P1, CurvStruct1->HelixCenter, CurvStruct1->evec,
+                              CurvStruct1->theta, CurvStruct1->pitch, CurvStruct1->CoeffP5,
                               CurvStruct1->sp_index, CurvStruct1->FeedRate, true,
                               CurvStruct1->ConstJerk, CurvStruct1->a_param, CurvStruct1->b_param);
             b_PrintCurvStruct(ctx_q_splines, CurvStruct2->Type, ZSpdMode_NN, CurvStruct2->P0,
-                              CurvStruct2->P1, CurvStruct2->evec, CurvStruct2->theta,
-                              CurvStruct2->cottheta2, CurvStruct2->pitch, CurvStruct2->CoeffP5,
+                              CurvStruct2->P1, CurvStruct2->HelixCenter, CurvStruct2->evec,
+                              CurvStruct2->theta, CurvStruct2->pitch, CurvStruct2->CoeffP5,
                               CurvStruct2->sp_index, CurvStruct2->FeedRate,
                               CurvStruct2->UseConstJerk, CurvStruct2->ConstJerk,
                               CurvStruct2->a_param, CurvStruct2->b_param);
@@ -11992,9 +12008,9 @@ namespace ocn
     //                CurveType CurvStruct_Type
     //                const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
+    //                const double CurvStruct_HelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
-    //                double CurvStruct_cottheta2
     //                double CurvStruct_pitch
     //                const double CurvStruct_CoeffP5[6][3]
     //                int CurvStruct_sp_index
@@ -12003,9 +12019,10 @@ namespace ocn
     // Return Type  : void
     //
     static void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_evec[3],
-        double CurvStruct_theta, double CurvStruct_cottheta2, double CurvStruct_pitch, const double
-        CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_b_param, double r0D[3])
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
+        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_b_param,
+        double r0D[3])
     {
         double r1D[3];
         double r2D[3];
@@ -12041,9 +12058,8 @@ namespace ocn
 
           case CurveType_Helix:
             //  arc of circle / helix (G02, G03)
-            b_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_evec, CurvStruct_theta,
-                        CurvStruct_cottheta2, CurvStruct_pitch, CurvStruct_b_param, r0D, r1D, r2D,
-                        r3D);
+            b_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_HelixCenter, CurvStruct_evec,
+                        CurvStruct_theta, CurvStruct_pitch, CurvStruct_b_param, r0D, r1D, r2D, r3D);
             break;
 
           case CurveType_TransP5:
@@ -12102,9 +12118,9 @@ namespace ocn
     //
     // Arguments    : const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
+    //                const double CurvStruct_HelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
-    //                double CurvStruct_cottheta2
     //                double CurvStruct_pitch
     //                double u_vec
     //                double r0D[3]
@@ -12114,16 +12130,13 @@ namespace ocn
     // Return Type  : void
     //
     static void b_EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3], const
-                            double CurvStruct_evec[3], double CurvStruct_theta, double
-                            CurvStruct_cottheta2, double CurvStruct_pitch, double u_vec, double r0D
-                            [3], double r1D[3], double r2D[3], double r3D[3])
+                            double CurvStruct_HelixCenter[3], const double CurvStruct_evec[3],
+                            double CurvStruct_theta, double CurvStruct_pitch, double u_vec, double
+                            r0D[3], double r1D[3], double r2D[3], double r3D[3])
     {
         double P0P1_idx_0;
         double P0P1_idx_1;
         double P0P1_idx_2;
-        double EcrP0P1_idx_0;
-        double EcrP0P1_idx_1;
-        double EcrP0P1_idx_2;
         char message[16];
         ZoneScopedN("EvalHelix");
 
@@ -12144,29 +12157,24 @@ namespace ocn
         r1D[2] = 0.0;
         r2D[2] = 0.0;
         r3D[2] = 0.0;
-        EcrP0P1_idx_0 = CurvStruct_evec[1] * P0P1_idx_2 - CurvStruct_evec[2] * P0P1_idx_1;
-        EcrP0P1_idx_1 = CurvStruct_evec[2] * P0P1_idx_0 - CurvStruct_evec[0] * P0P1_idx_2;
-        EcrP0P1_idx_2 = CurvStruct_evec[0] * P0P1_idx_1 - CurvStruct_evec[1] * P0P1_idx_0;
         sqrt_calls++;
-        if (__ocn_sqrt((std::pow(EcrP0P1_idx_0, 2.0) + std::pow(EcrP0P1_idx_1, 2.0)) + std::pow
-                       (EcrP0P1_idx_2, 2.0)) <= 2.2204460492503131E-16) {
+        if (__ocn_sqrt((std::pow(CurvStruct_evec[1] * P0P1_idx_2 - CurvStruct_evec[2] * P0P1_idx_1,
+                                 2.0) + std::pow(CurvStruct_evec[2] * P0P1_idx_0 - CurvStruct_evec[0]
+               * P0P1_idx_2, 2.0)) + std::pow(CurvStruct_evec[0] * P0P1_idx_1 - CurvStruct_evec[1] *
+              P0P1_idx_0, 2.0)) <= 2.2204460492503131E-16) {
             for (int i = 0; i < 16; i++) {
                 message[i] = cv1[i];
             }
 
             c_assert_(&message[0]);
         } else {
-            double P0P1;
             double phi_vec;
             double cphi;
             double sphi;
             double d;
-            double C_idx_0;
-            double d1;
             double CP0_idx_0;
             double cphiTCP0_idx_0;
             double sphiTCP0_idx_0;
-            double C_idx_1;
             double CP0_idx_1;
             double cphiTCP0_idx_1;
             double sphiTCP0_idx_1;
@@ -12179,8 +12187,8 @@ namespace ocn
             double b_a;
             double a_tmp;
             double b_a_tmp;
+            double d1;
             double d2;
-            double d3;
 
             //  if pitch == 0
             //      if ~c_assert(evec'*P0P1 > eps, 'e'' * P0P1 = 0')
@@ -12188,10 +12196,6 @@ namespace ocn
             //      end
             //  end
             //
-            P0P1 = (P0P1_idx_0 * CurvStruct_evec[0] + P0P1_idx_1 * CurvStruct_evec[1]) + P0P1_idx_2 *
-                CurvStruct_evec[2];
-
-            //  C           = ((P0 + P1proj) + mycot(theta/2)*EcrP0P1) / 2;
             phi_vec = CurvStruct_theta * u_vec;
             cphi = std::cos(phi_vec);
             cos_calls++;
@@ -12199,27 +12203,19 @@ namespace ocn
             sin_calls++;
 
             //
-            d = ((CurvStruct_P0[0] + (CurvStruct_P1[0] - P0P1 * CurvStruct_evec[0])) +
-                 CurvStruct_cottheta2 * EcrP0P1_idx_0) / 2.0;
-            C_idx_0 = d;
-            d1 = CurvStruct_P0[0] - d;
-            CP0_idx_0 = d1;
-            cphiTCP0_idx_0 = d1 * cphi;
-            sphiTCP0_idx_0 = d1 * sphi;
-            d = ((CurvStruct_P0[1] + (CurvStruct_P1[1] - P0P1 * CurvStruct_evec[1])) +
-                 CurvStruct_cottheta2 * EcrP0P1_idx_1) / 2.0;
-            C_idx_1 = d;
-            d1 = CurvStruct_P0[1] - d;
-            CP0_idx_1 = d1;
-            cphiTCP0_idx_1 = d1 * cphi;
-            sphiTCP0_idx_1 = d1 * sphi;
-            d = ((CurvStruct_P0[2] + (CurvStruct_P1[2] - P0P1 * CurvStruct_evec[2])) +
-                 CurvStruct_cottheta2 * EcrP0P1_idx_2) / 2.0;
-            d1 = CurvStruct_P0[2] - d;
-            cphiTCP0_idx_2 = d1 * cphi;
-            sphiTCP0_idx_2 = d1 * sphi;
-            EcrCP0_idx_0 = CurvStruct_evec[1] * d1 - CurvStruct_evec[2] * CP0_idx_1;
-            EcrCP0_idx_1 = CurvStruct_evec[2] * CP0_idx_0 - CurvStruct_evec[0] * d1;
+            d = CurvStruct_P0[0] - CurvStruct_HelixCenter[0];
+            CP0_idx_0 = d;
+            cphiTCP0_idx_0 = d * cphi;
+            sphiTCP0_idx_0 = d * sphi;
+            d = CurvStruct_P0[1] - CurvStruct_HelixCenter[1];
+            CP0_idx_1 = d;
+            cphiTCP0_idx_1 = d * cphi;
+            sphiTCP0_idx_1 = d * sphi;
+            d = CurvStruct_P0[2] - CurvStruct_HelixCenter[2];
+            cphiTCP0_idx_2 = d * cphi;
+            sphiTCP0_idx_2 = d * sphi;
+            EcrCP0_idx_0 = CurvStruct_evec[1] * d - CurvStruct_evec[2] * CP0_idx_1;
+            EcrCP0_idx_1 = CurvStruct_evec[2] * CP0_idx_0 - CurvStruct_evec[0] * d;
             EcrCP0_idx_2 = CurvStruct_evec[0] * CP0_idx_1 - CurvStruct_evec[1] * CP0_idx_0;
 
             //
@@ -12227,27 +12223,30 @@ namespace ocn
             b_a = CurvStruct_theta * CurvStruct_pitch / 6.2831853071795862;
             a_tmp = std::pow(CurvStruct_theta, 2.0);
             b_a_tmp = std::pow(CurvStruct_theta, 3.0);
-            d2 = EcrCP0_idx_0 * cphi;
-            d3 = EcrCP0_idx_0 * sphi;
-            r0D[0] = C_idx_0 + ((cphiTCP0_idx_0 + d3) + a * CurvStruct_evec[0] * phi_vec);
-            r1D[0] = (-CurvStruct_theta * sphiTCP0_idx_0 + CurvStruct_theta * d2) + b_a *
+            d1 = EcrCP0_idx_0 * cphi;
+            d2 = EcrCP0_idx_0 * sphi;
+            r0D[0] = CurvStruct_HelixCenter[0] + ((cphiTCP0_idx_0 + d2) + a * CurvStruct_evec[0] *
+                phi_vec);
+            r1D[0] = (-CurvStruct_theta * sphiTCP0_idx_0 + CurvStruct_theta * d1) + b_a *
                 CurvStruct_evec[0];
-            r2D[0] = -a_tmp * cphiTCP0_idx_0 - a_tmp * d3;
-            r3D[0] = b_a_tmp * sphiTCP0_idx_0 - b_a_tmp * d2;
-            d2 = EcrCP0_idx_1 * cphi;
-            d3 = EcrCP0_idx_1 * sphi;
-            r0D[1] = C_idx_1 + ((cphiTCP0_idx_1 + d3) + a * CurvStruct_evec[1] * phi_vec);
-            r1D[1] = (-CurvStruct_theta * sphiTCP0_idx_1 + CurvStruct_theta * d2) + b_a *
+            r2D[0] = -a_tmp * cphiTCP0_idx_0 - a_tmp * d2;
+            r3D[0] = b_a_tmp * sphiTCP0_idx_0 - b_a_tmp * d1;
+            d1 = EcrCP0_idx_1 * cphi;
+            d2 = EcrCP0_idx_1 * sphi;
+            r0D[1] = CurvStruct_HelixCenter[1] + ((cphiTCP0_idx_1 + d2) + a * CurvStruct_evec[1] *
+                phi_vec);
+            r1D[1] = (-CurvStruct_theta * sphiTCP0_idx_1 + CurvStruct_theta * d1) + b_a *
                 CurvStruct_evec[1];
-            r2D[1] = -a_tmp * cphiTCP0_idx_1 - a_tmp * d3;
-            r3D[1] = b_a_tmp * sphiTCP0_idx_1 - b_a_tmp * d2;
-            d2 = EcrCP0_idx_2 * cphi;
-            d3 = EcrCP0_idx_2 * sphi;
-            r0D[2] = d + ((cphiTCP0_idx_2 + d3) + a * CurvStruct_evec[2] * phi_vec);
-            r1D[2] = (-CurvStruct_theta * sphiTCP0_idx_2 + CurvStruct_theta * d2) + b_a *
+            r2D[1] = -a_tmp * cphiTCP0_idx_1 - a_tmp * d2;
+            r3D[1] = b_a_tmp * sphiTCP0_idx_1 - b_a_tmp * d1;
+            d1 = EcrCP0_idx_2 * cphi;
+            d2 = EcrCP0_idx_2 * sphi;
+            r0D[2] = CurvStruct_HelixCenter[2] + ((cphiTCP0_idx_2 + d2) + a * CurvStruct_evec[2] *
+                phi_vec);
+            r1D[2] = (-CurvStruct_theta * sphiTCP0_idx_2 + CurvStruct_theta * d1) + b_a *
                 CurvStruct_evec[2];
-            r2D[2] = -a_tmp * cphiTCP0_idx_2 - a_tmp * d3;
-            r3D[2] = b_a_tmp * sphiTCP0_idx_2 - b_a_tmp * d2;
+            r2D[2] = -a_tmp * cphiTCP0_idx_2 - a_tmp * d2;
+            r3D[2] = b_a_tmp * sphiTCP0_idx_2 - b_a_tmp * d1;
         }
     }
 
@@ -12419,9 +12418,9 @@ namespace ocn
     //                ZSpdMode S_zspdmode
     //                const double S_P0[3]
     //                const double S_P1[3]
+    //                const double S_HelixCenter[3]
     //                const double S_evec[3]
     //                double S_theta
-    //                double S_cottheta2
     //                double S_pitch
     //                const double S_CoeffP5[6][3]
     //                int S_sp_index
@@ -12433,10 +12432,10 @@ namespace ocn
     // Return Type  : void
     //
     static void b_PrintCurvStruct(const queue_coder *ctx_q_splines, CurveType S_Type, ZSpdMode
-        S_zspdmode, const double S_P0[3], const double S_P1[3], const double S_evec[3], double
-        S_theta, double S_cottheta2, double S_pitch, const double S_CoeffP5[6][3], int S_sp_index,
-        double S_FeedRate, bool S_UseConstJerk, double S_ConstJerk, double S_a_param, double
-        S_b_param)
+        S_zspdmode, const double S_P0[3], const double S_P1[3], const double S_HelixCenter[3], const
+        double S_evec[3], double S_theta, double S_pitch, const double S_CoeffP5[6][3], int
+        S_sp_index, double S_FeedRate, bool S_UseConstJerk, double S_ConstJerk, double S_a_param,
+        double S_b_param)
     {
         int varargin_1_size_idx_1;
         char varargin_1_data[9];
@@ -12565,15 +12564,15 @@ namespace ocn
             break;
         }
 
-        b_EvalCurvStruct(ctx_q_splines, S_Type, S_P0, S_P1, S_evec, S_theta, S_cottheta2, S_pitch,
+        b_EvalCurvStruct(ctx_q_splines, S_Type, S_P0, S_P1, S_HelixCenter, S_evec, S_theta, S_pitch,
                          S_CoeffP5, S_sp_index, S_b_param, P0);
-        c_EvalCurvStruct(ctx_q_splines, S_Type, S_P0, S_P1, S_evec, S_theta, S_cottheta2, S_pitch,
+        c_EvalCurvStruct(ctx_q_splines, S_Type, S_P0, S_P1, S_HelixCenter, S_evec, S_theta, S_pitch,
                          S_CoeffP5, S_sp_index, S_a_param, S_b_param, P1);
         printf("%10s: [%.4f %.4f %.4f] -> [%.4f %.4f %.4f]\n", "P", P0[0], P0[1], P0[2], P1[0], P1[1],
                P1[2]);
         fflush(stdout);
-        validatedHoleFilling_f2 = LengthCurv(ctx_q_splines, S_Type, S_P0, S_P1, S_evec, S_theta,
-            S_cottheta2, S_pitch, S_CoeffP5, S_sp_index, S_a_param, S_b_param);
+        validatedHoleFilling_f2 = LengthCurv(ctx_q_splines, S_Type, S_P0, S_P1, S_HelixCenter,
+            S_evec, S_theta, S_pitch, S_CoeffP5, S_sp_index, S_a_param, S_b_param);
         printf("%10s: %e\n", "Length", validatedHoleFilling_f2);
         fflush(stdout);
         switch (S_zspdmode) {
@@ -12612,9 +12611,9 @@ namespace ocn
         printf("FeedRate: %.2f\n", S_FeedRate);
         fflush(stdout);
         if (S_UseConstJerk) {
-            CalcZeroStartConstraints(ctx_q_splines, S_Type, S_P0, S_P1, S_evec, S_theta, S_cottheta2,
-                S_pitch, S_CoeffP5, S_sp_index, true, S_ConstJerk, S_a_param, S_b_param, 1.0,
-                &validatedHoleFilling_idx_0, &b_validatedHoleFilling_idx_0);
+            CalcZeroStartConstraints(ctx_q_splines, S_Type, S_P0, S_P1, S_HelixCenter, S_evec,
+                S_theta, S_pitch, S_CoeffP5, S_sp_index, true, S_ConstJerk, S_a_param, S_b_param,
+                1.0, &validatedHoleFilling_idx_0, &b_validatedHoleFilling_idx_0);
             printf("ConstJerk: %e\n", S_ConstJerk);
             fflush(stdout);
             printf("v_0      : %f\n", validatedHoleFilling_idx_0);
@@ -13506,9 +13505,9 @@ namespace ocn
     //                CurveType CurvStruct_Type
     //                const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
+    //                const double CurvStruct_HelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
-    //                double CurvStruct_cottheta2
     //                double CurvStruct_pitch
     //                const double CurvStruct_CoeffP5[6][3]
     //                int CurvStruct_sp_index
@@ -13518,10 +13517,10 @@ namespace ocn
     // Return Type  : void
     //
     static void c_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_evec[3],
-        double CurvStruct_theta, double CurvStruct_cottheta2, double CurvStruct_pitch, const double
-        CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param, double
-        CurvStruct_b_param, double r0D[3])
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
+        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
+        double CurvStruct_b_param, double r0D[3])
     {
         double u_vec_tilda;
         double r1D[3];
@@ -13559,8 +13558,8 @@ namespace ocn
 
           case CurveType_Helix:
             //  arc of circle / helix (G02, G03)
-            b_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_evec, CurvStruct_theta,
-                        CurvStruct_cottheta2, CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
+            b_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_HelixCenter, CurvStruct_evec,
+                        CurvStruct_theta, CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
             break;
 
           case CurveType_TransP5:
@@ -13619,9 +13618,9 @@ namespace ocn
     //
     // Arguments    : const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
+    //                const double CurvStruct_HelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
-    //                double CurvStruct_cottheta2
     //                double CurvStruct_pitch
     //                const double u_vec[10]
     //                double r0D[10][3]
@@ -13631,17 +13630,14 @@ namespace ocn
     // Return Type  : void
     //
     static void c_EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3], const
-                            double CurvStruct_evec[3], double CurvStruct_theta, double
-                            CurvStruct_cottheta2, double CurvStruct_pitch, const double u_vec[10],
+                            double CurvStruct_HelixCenter[3], const double CurvStruct_evec[3],
+                            double CurvStruct_theta, double CurvStruct_pitch, const double u_vec[10],
                             double r0D[10][3], double r1D[10][3], double r2D[10][3], double r3D[10]
                             [3])
     {
         double P0P1_idx_0;
         double P0P1_idx_1;
         double P0P1_idx_2;
-        double EcrP0P1_idx_0;
-        double EcrP0P1_idx_1;
-        double EcrP0P1_idx_2;
         char message[16];
         ZoneScopedN("EvalHelix");
 
@@ -13650,9 +13646,6 @@ namespace ocn
         P0P1_idx_0 = CurvStruct_P1[0] - CurvStruct_P0[0];
         P0P1_idx_1 = CurvStruct_P1[1] - CurvStruct_P0[1];
         P0P1_idx_2 = CurvStruct_P1[2] - CurvStruct_P0[2];
-        EcrP0P1_idx_0 = CurvStruct_evec[1] * P0P1_idx_2 - CurvStruct_evec[2] * P0P1_idx_1;
-        EcrP0P1_idx_1 = CurvStruct_evec[2] * P0P1_idx_0 - CurvStruct_evec[0] * P0P1_idx_2;
-        EcrP0P1_idx_2 = CurvStruct_evec[0] * P0P1_idx_1 - CurvStruct_evec[1] * P0P1_idx_0;
         for (int i = 0; i < 10; i++) {
             r0D[i][0] = 0.0;
             r1D[i][0] = 0.0;
@@ -13669,19 +13662,17 @@ namespace ocn
         }
 
         sqrt_calls++;
-        if (__ocn_sqrt((std::pow(EcrP0P1_idx_0, 2.0) + std::pow(EcrP0P1_idx_1, 2.0)) + std::pow
-                       (EcrP0P1_idx_2, 2.0)) <= 2.2204460492503131E-16) {
+        if (__ocn_sqrt((std::pow(CurvStruct_evec[1] * P0P1_idx_2 - CurvStruct_evec[2] * P0P1_idx_1,
+                                 2.0) + std::pow(CurvStruct_evec[2] * P0P1_idx_0 - CurvStruct_evec[0]
+               * P0P1_idx_2, 2.0)) + std::pow(CurvStruct_evec[0] * P0P1_idx_1 - CurvStruct_evec[1] *
+              P0P1_idx_0, 2.0)) <= 2.2204460492503131E-16) {
             for (int i1 = 0; i1 < 16; i1++) {
                 message[i1] = cv1[i1];
             }
 
             c_assert_(&message[0]);
         } else {
-            double P0P1;
-            double d;
-            double C_idx_0;
             double CP0_idx_0;
-            double C_idx_1;
             double CP0_idx_1;
             double CP0_idx_2;
             double EcrCP0_idx_0;
@@ -13701,21 +13692,9 @@ namespace ocn
             //      end
             //  end
             //
-            P0P1 = (P0P1_idx_0 * CurvStruct_evec[0] + P0P1_idx_1 * CurvStruct_evec[1]) + P0P1_idx_2 *
-                CurvStruct_evec[2];
-
-            //  C           = ((P0 + P1proj) + mycot(theta/2)*EcrP0P1) / 2;
-            d = ((CurvStruct_P0[0] + (CurvStruct_P1[0] - P0P1 * CurvStruct_evec[0])) +
-                 CurvStruct_cottheta2 * EcrP0P1_idx_0) / 2.0;
-            C_idx_0 = d;
-            CP0_idx_0 = CurvStruct_P0[0] - d;
-            d = ((CurvStruct_P0[1] + (CurvStruct_P1[1] - P0P1 * CurvStruct_evec[1])) +
-                 CurvStruct_cottheta2 * EcrP0P1_idx_1) / 2.0;
-            C_idx_1 = d;
-            CP0_idx_1 = CurvStruct_P0[1] - d;
-            d = ((CurvStruct_P0[2] + (CurvStruct_P1[2] - P0P1 * CurvStruct_evec[2])) +
-                 CurvStruct_cottheta2 * EcrP0P1_idx_2) / 2.0;
-            CP0_idx_2 = CurvStruct_P0[2] - d;
+            CP0_idx_0 = CurvStruct_P0[0] - CurvStruct_HelixCenter[0];
+            CP0_idx_1 = CurvStruct_P0[1] - CurvStruct_HelixCenter[1];
+            CP0_idx_2 = CurvStruct_P0[2] - CurvStruct_HelixCenter[2];
             EcrCP0_idx_0 = CurvStruct_evec[1] * CP0_idx_2 - CurvStruct_evec[2] * CP0_idx_1;
             EcrCP0_idx_1 = CurvStruct_evec[2] * CP0_idx_0 - CurvStruct_evec[0] * CP0_idx_2;
             EcrCP0_idx_2 = CurvStruct_evec[0] * CP0_idx_1 - CurvStruct_evec[1] * CP0_idx_0;
@@ -13732,6 +13711,7 @@ namespace ocn
             a_tmp = std::pow(CurvStruct_theta, 2.0);
             b_a_tmp = std::pow(CurvStruct_theta, 3.0);
             for (int k = 0; k < 10; k++) {
+                double d;
                 double d1;
                 double d2;
                 double d3;
@@ -13746,38 +13726,37 @@ namespace ocn
                 double d12;
                 double d13;
                 double d14;
-                double d15;
-                d1 = CurvStruct_theta * u_vec[k];
-                d2 = std::cos(d1);
-                d3 = std::sin(d1);
-                d4 = CP0_idx_0 * d2;
-                d5 = d4;
-                d6 = CP0_idx_0 * d3;
+                d = CurvStruct_theta * u_vec[k];
+                d1 = std::cos(d);
+                d2 = std::sin(d);
+                d3 = CP0_idx_0 * d1;
+                d4 = d3;
+                d5 = CP0_idx_0 * d2;
+                d6 = EcrCP0_idx_0 * d1;
                 d7 = EcrCP0_idx_0 * d2;
-                d8 = EcrCP0_idx_0 * d3;
-                d9 = d8;
-                r0D[k][0] = C_idx_0 + ((d4 + d8) + a * CurvStruct_evec[0] * d1);
-                d4 = CP0_idx_1 * d2;
-                d10 = d4;
-                d11 = CP0_idx_1 * d3;
-                d12 = EcrCP0_idx_1 * d2;
-                d8 = EcrCP0_idx_1 * d3;
-                d13 = d8;
-                r0D[k][1] = C_idx_1 + ((d4 + d8) + a * CurvStruct_evec[1] * d1);
-                d4 = CP0_idx_2 * d2;
-                d14 = CP0_idx_2 * d3;
-                d15 = EcrCP0_idx_2 * d2;
-                d8 = EcrCP0_idx_2 * d3;
-                r0D[k][2] = d + ((d4 + d8) + a * CurvStruct_evec[2] * d1);
-                r1D[k][0] = (-CurvStruct_theta * d6 + CurvStruct_theta * d7) + y_idx_0;
-                r2D[k][0] = -a_tmp * d5 - a_tmp * d9;
-                r3D[k][0] = b_a_tmp * d6 - b_a_tmp * d7;
-                r1D[k][1] = (-CurvStruct_theta * d11 + CurvStruct_theta * d12) + y_idx_1;
-                r2D[k][1] = -a_tmp * d10 - a_tmp * d13;
-                r3D[k][1] = b_a_tmp * d11 - b_a_tmp * d12;
-                r1D[k][2] = (-CurvStruct_theta * d14 + CurvStruct_theta * d15) + y_idx_2;
-                r2D[k][2] = -a_tmp * d4 - a_tmp * d8;
-                r3D[k][2] = b_a_tmp * d14 - b_a_tmp * d15;
+                d8 = d7;
+                r0D[k][0] = CurvStruct_HelixCenter[0] + ((d3 + d7) + a * CurvStruct_evec[0] * d);
+                d3 = CP0_idx_1 * d1;
+                d9 = d3;
+                d10 = CP0_idx_1 * d2;
+                d11 = EcrCP0_idx_1 * d1;
+                d7 = EcrCP0_idx_1 * d2;
+                d12 = d7;
+                r0D[k][1] = CurvStruct_HelixCenter[1] + ((d3 + d7) + a * CurvStruct_evec[1] * d);
+                d3 = CP0_idx_2 * d1;
+                d13 = CP0_idx_2 * d2;
+                d14 = EcrCP0_idx_2 * d1;
+                d7 = EcrCP0_idx_2 * d2;
+                r0D[k][2] = CurvStruct_HelixCenter[2] + ((d3 + d7) + a * CurvStruct_evec[2] * d);
+                r1D[k][0] = (-CurvStruct_theta * d5 + CurvStruct_theta * d6) + y_idx_0;
+                r2D[k][0] = -a_tmp * d4 - a_tmp * d8;
+                r3D[k][0] = b_a_tmp * d5 - b_a_tmp * d6;
+                r1D[k][1] = (-CurvStruct_theta * d10 + CurvStruct_theta * d11) + y_idx_1;
+                r2D[k][1] = -a_tmp * d9 - a_tmp * d12;
+                r3D[k][1] = b_a_tmp * d10 - b_a_tmp * d11;
+                r1D[k][2] = (-CurvStruct_theta * d13 + CurvStruct_theta * d14) + y_idx_2;
+                r2D[k][2] = -a_tmp * d3 - a_tmp * d7;
+                r3D[k][2] = b_a_tmp * d13 - b_a_tmp * d14;
             }
         }
     }
@@ -14348,9 +14327,9 @@ namespace ocn
     //                CurveType CurvStruct_Type
     //                const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
+    //                const double CurvStruct_HelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
-    //                double CurvStruct_cottheta2
     //                double CurvStruct_pitch
     //                const double CurvStruct_CoeffP5[6][3]
     //                int CurvStruct_sp_index
@@ -14362,10 +14341,10 @@ namespace ocn
     // Return Type  : void
     //
     static void d_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_evec[3],
-        double CurvStruct_theta, double CurvStruct_cottheta2, double CurvStruct_pitch, const double
-        CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param, double
-        CurvStruct_b_param, double r0D[3], double r1D[3], double r2D[3])
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
+        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
+        double CurvStruct_b_param, double r0D[3], double r1D[3], double r2D[3])
     {
         double u_vec_tilda;
         double r3D[3];
@@ -14408,8 +14387,8 @@ namespace ocn
 
           case CurveType_Helix:
             //  arc of circle / helix (G02, G03)
-            b_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_evec, CurvStruct_theta,
-                        CurvStruct_cottheta2, CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
+            b_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_HelixCenter, CurvStruct_evec,
+                        CurvStruct_theta, CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
             break;
 
           case CurveType_TransP5:
@@ -14608,9 +14587,9 @@ namespace ocn
     //                CurveType CurvStruct_Type
     //                const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
+    //                const double CurvStruct_HelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
-    //                double CurvStruct_cottheta2
     //                double CurvStruct_pitch
     //                const double CurvStruct_CoeffP5[6][3]
     //                int CurvStruct_sp_index
@@ -14621,10 +14600,10 @@ namespace ocn
     // Return Type  : void
     //
     static void e_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_evec[3],
-        double CurvStruct_theta, double CurvStruct_cottheta2, double CurvStruct_pitch, const double
-        CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param, double
-        CurvStruct_b_param, double r0D[3], double r1D[3])
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
+        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
+        double CurvStruct_b_param, double r0D[3], double r1D[3])
     {
         double u_vec_tilda;
         double r2D[3];
@@ -14664,8 +14643,8 @@ namespace ocn
 
           case CurveType_Helix:
             //  arc of circle / helix (G02, G03)
-            b_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_evec, CurvStruct_theta,
-                        CurvStruct_cottheta2, CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
+            b_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_HelixCenter, CurvStruct_evec,
+                        CurvStruct_theta, CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
             break;
 
           case CurveType_TransP5:
@@ -14834,9 +14813,9 @@ namespace ocn
     //                CurveType CurvStruct_Type
     //                const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
+    //                const double CurvStruct_HelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
-    //                double CurvStruct_cottheta2
     //                double CurvStruct_pitch
     //                const double CurvStruct_CoeffP5[6][3]
     //                int CurvStruct_sp_index
@@ -14847,10 +14826,10 @@ namespace ocn
     // Return Type  : void
     //
     static void f_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_evec[3],
-        double CurvStruct_theta, double CurvStruct_cottheta2, double CurvStruct_pitch, const double
-        CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param, double
-        CurvStruct_b_param, double r0D[3], double r1D[3])
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
+        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
+        double CurvStruct_b_param, double r0D[3], double r1D[3])
     {
         double r2D[3];
         double r3D[3];
@@ -14888,9 +14867,8 @@ namespace ocn
 
           case CurveType_Helix:
             //  arc of circle / helix (G02, G03)
-            b_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_evec, CurvStruct_theta,
-                        CurvStruct_cottheta2, CurvStruct_pitch, CurvStruct_b_param, r0D, r1D, r2D,
-                        r3D);
+            b_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_HelixCenter, CurvStruct_evec,
+                        CurvStruct_theta, CurvStruct_pitch, CurvStruct_b_param, r0D, r1D, r2D, r3D);
             break;
 
           case CurveType_TransP5:
@@ -14959,9 +14937,9 @@ namespace ocn
     //                CurveType CurvStruct_Type
     //                const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
+    //                const double CurvStruct_HelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
-    //                double CurvStruct_cottheta2
     //                double CurvStruct_pitch
     //                const double CurvStruct_CoeffP5[6][3]
     //                int CurvStruct_sp_index
@@ -14973,10 +14951,10 @@ namespace ocn
     // Return Type  : void
     //
     static void g_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_evec[3],
-        double CurvStruct_theta, double CurvStruct_cottheta2, double CurvStruct_pitch, const double
-        CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param, double
-        CurvStruct_b_param, double r0D[3], double r1D[3], double r2D[3])
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
+        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
+        double CurvStruct_b_param, double r0D[3], double r1D[3], double r2D[3])
     {
         double r3D[3];
         CurvStruct expl_temp;
@@ -15017,9 +14995,8 @@ namespace ocn
 
           case CurveType_Helix:
             //  arc of circle / helix (G02, G03)
-            b_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_evec, CurvStruct_theta,
-                        CurvStruct_cottheta2, CurvStruct_pitch, CurvStruct_b_param, r0D, r1D, r2D,
-                        r3D);
+            b_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_HelixCenter, CurvStruct_evec,
+                        CurvStruct_theta, CurvStruct_pitch, CurvStruct_b_param, r0D, r1D, r2D, r3D);
             break;
 
           case CurveType_TransP5:
@@ -15095,9 +15072,9 @@ namespace ocn
     //                CurveType CurvStruct_Type
     //                const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
+    //                const double CurvStruct_HelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
-    //                double CurvStruct_cottheta2
     //                double CurvStruct_pitch
     //                const double CurvStruct_CoeffP5[6][3]
     //                int CurvStruct_sp_index
@@ -15111,11 +15088,11 @@ namespace ocn
     // Return Type  : void
     //
     static void h_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_evec[3],
-        double CurvStruct_theta, double CurvStruct_cottheta2, double CurvStruct_pitch, const double
-        CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param, double
-        CurvStruct_b_param, coder::array<double, 2U> &u_vec, coder::array<double, 2U> &r0D, coder::
-        array<double, 2U> &r1D, coder::array<double, 2U> &r2D, coder::array<double, 2U> &r3D)
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
+        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
+        double CurvStruct_b_param, coder::array<double, 2U> &u_vec, coder::array<double, 2U> &r0D,
+        coder::array<double, 2U> &r1D, coder::array<double, 2U> &r2D, coder::array<double, 2U> &r3D)
     {
         coder::array<bool, 2U> x;
         int loop_ub;
@@ -15261,8 +15238,8 @@ namespace ocn
 
           case CurveType_Helix:
             //  arc of circle / helix (G02, G03)
-            EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_evec, CurvStruct_theta,
-                      CurvStruct_cottheta2, CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
+            EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_HelixCenter, CurvStruct_evec,
+                      CurvStruct_theta, CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
             break;
 
           case CurveType_TransP5:
@@ -15422,9 +15399,9 @@ namespace ocn
     //                CurveType CurvStruct_Type
     //                const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
+    //                const double CurvStruct_HelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
-    //                double CurvStruct_cottheta2
     //                double CurvStruct_pitch
     //                const double CurvStruct_CoeffP5[6][3]
     //                int CurvStruct_sp_index
@@ -15437,11 +15414,11 @@ namespace ocn
     // Return Type  : void
     //
     static void i_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_evec[3],
-        double CurvStruct_theta, double CurvStruct_cottheta2, double CurvStruct_pitch, const double
-        CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param, double
-        CurvStruct_b_param, double r0D[10][3], double r1D[10][3], double r2D[10][3], double r3D[10]
-        [3])
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
+        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
+        double CurvStruct_b_param, double r0D[10][3], double r1D[10][3], double r2D[10][3], double
+        r3D[10][3])
     {
         double u_vec_tilda[10];
         CurvStruct expl_temp;
@@ -15491,8 +15468,8 @@ namespace ocn
 
           case CurveType_Helix:
             //  arc of circle / helix (G02, G03)
-            c_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_evec, CurvStruct_theta,
-                        CurvStruct_cottheta2, CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
+            c_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_HelixCenter, CurvStruct_evec,
+                        CurvStruct_theta, CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
             break;
 
           case CurveType_TransP5:
@@ -15579,9 +15556,9 @@ namespace ocn
     //                CurveType CurvStruct_Type
     //                const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
+    //                const double CurvStruct_HelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
-    //                double CurvStruct_cottheta2
     //                double CurvStruct_pitch
     //                const double CurvStruct_CoeffP5[6][3]
     //                int CurvStruct_sp_index
@@ -15594,11 +15571,11 @@ namespace ocn
     // Return Type  : void
     //
     static void j_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_evec[3],
-        double CurvStruct_theta, double CurvStruct_cottheta2, double CurvStruct_pitch, const double
-        CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param, double
-        CurvStruct_b_param, coder::array<double, 2U> &u_vec, coder::array<double, 2U> &r0D, coder::
-        array<double, 2U> &r1D, coder::array<double, 2U> &r2D)
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
+        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
+        double CurvStruct_b_param, coder::array<double, 2U> &u_vec, coder::array<double, 2U> &r0D,
+        coder::array<double, 2U> &r1D, coder::array<double, 2U> &r2D)
     {
         coder::array<bool, 2U> x;
         int loop_ub;
@@ -15734,8 +15711,8 @@ namespace ocn
 
           case CurveType_Helix:
             //  arc of circle / helix (G02, G03)
-            EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_evec, CurvStruct_theta,
-                      CurvStruct_cottheta2, CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
+            EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_HelixCenter, CurvStruct_evec,
+                      CurvStruct_theta, CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
             break;
 
           case CurveType_TransP5:
@@ -16975,14 +16952,14 @@ namespace ocn
 
         if (DebugActive) {
             b_PrintCurvStruct(&ctx->q_splines, CurvStruct1->Type, CurvStruct1->zspdmode,
-                              CurvStruct1->P0, CurvStruct1->P1, CurvStruct1->evec,
-                              CurvStruct1->theta, CurvStruct1->cottheta2, CurvStruct1->pitch,
+                              CurvStruct1->P0, CurvStruct1->P1, CurvStruct1->HelixCenter,
+                              CurvStruct1->evec, CurvStruct1->theta, CurvStruct1->pitch,
                               CurvStruct1->CoeffP5, CurvStruct1->sp_index, CurvStruct1->FeedRate,
                               CurvStruct1->UseConstJerk, CurvStruct1->ConstJerk,
                               CurvStruct1->a_param, CurvStruct1->b_param);
             b_PrintCurvStruct(&ctx->q_splines, CurvStruct2->Type, CurvStruct2->zspdmode,
-                              CurvStruct2->P0, CurvStruct2->P1, CurvStruct2->evec,
-                              CurvStruct2->theta, CurvStruct2->cottheta2, CurvStruct2->pitch,
+                              CurvStruct2->P0, CurvStruct2->P1, CurvStruct2->HelixCenter,
+                              CurvStruct2->evec, CurvStruct2->theta, CurvStruct2->pitch,
                               CurvStruct2->CoeffP5, CurvStruct2->sp_index, CurvStruct2->FeedRate,
                               CurvStruct2->UseConstJerk, CurvStruct2->ConstJerk,
                               CurvStruct2->a_param, CurvStruct2->b_param);
@@ -16992,11 +16969,11 @@ namespace ocn
 
         // default value
         e_EvalCurvStruct(&ctx->q_splines, CurvStruct1->Type, CurvStruct1->P0, CurvStruct1->P1,
-                         CurvStruct1->evec, CurvStruct1->theta, CurvStruct1->cottheta2,
+                         CurvStruct1->HelixCenter, CurvStruct1->evec, CurvStruct1->theta,
                          CurvStruct1->pitch, CurvStruct1->CoeffP5, CurvStruct1->sp_index,
                          CurvStruct1->a_param, CurvStruct1->b_param, unusedU0, r0D1);
         f_EvalCurvStruct(&ctx->q_splines, CurvStruct2->Type, CurvStruct2->P0, CurvStruct2->P1,
-                         CurvStruct2->evec, CurvStruct2->theta, CurvStruct2->cottheta2,
+                         CurvStruct2->HelixCenter, CurvStruct2->evec, CurvStruct2->theta,
                          CurvStruct2->pitch, CurvStruct2->CoeffP5, CurvStruct2->sp_index,
                          CurvStruct2->a_param, CurvStruct2->b_param, unusedU1, r1D1);
 
@@ -17102,11 +17079,11 @@ namespace ocn
             double L1;
             double L2;
             L1 = LengthCurv(&ctx->q_splines, CurvStruct1->Type, CurvStruct1->P0, CurvStruct1->P1,
-                            CurvStruct1->evec, CurvStruct1->theta, CurvStruct1->cottheta2,
+                            CurvStruct1->HelixCenter, CurvStruct1->evec, CurvStruct1->theta,
                             CurvStruct1->pitch, CurvStruct1->CoeffP5, CurvStruct1->sp_index,
                             CurvStruct1->a_param, CurvStruct1->b_param);
             L2 = LengthCurv(&ctx->q_splines, CurvStruct2->Type, CurvStruct2->P0, CurvStruct2->P1,
-                            CurvStruct2->evec, CurvStruct2->theta, CurvStruct2->cottheta2,
+                            CurvStruct2->HelixCenter, CurvStruct2->evec, CurvStruct2->theta,
                             CurvStruct2->pitch, CurvStruct2->CoeffP5, CurvStruct2->sp_index,
                             CurvStruct2->a_param, CurvStruct2->b_param);
 
@@ -17178,29 +17155,29 @@ namespace ocn
 
             if (DebugActive) {
                 b_PrintCurvStruct(&ctx->q_splines, CurvStruct1_C->Type, CurvStruct1_C->zspdmode,
-                                  CurvStruct1_C->P0, CurvStruct1_C->P1, CurvStruct1_C->evec,
-                                  CurvStruct1_C->theta, CurvStruct1_C->cottheta2,
-                                  CurvStruct1_C->pitch, CurvStruct1_C->CoeffP5,
-                                  CurvStruct1_C->sp_index, CurvStruct1_C->FeedRate,
-                                  CurvStruct1_C->UseConstJerk, CurvStruct1_C->ConstJerk,
-                                  CurvStruct1_C->a_param, CurvStruct1_C->b_param);
+                                  CurvStruct1_C->P0, CurvStruct1_C->P1, CurvStruct1_C->HelixCenter,
+                                  CurvStruct1_C->evec, CurvStruct1_C->theta, CurvStruct1_C->pitch,
+                                  CurvStruct1_C->CoeffP5, CurvStruct1_C->sp_index,
+                                  CurvStruct1_C->FeedRate, CurvStruct1_C->UseConstJerk,
+                                  CurvStruct1_C->ConstJerk, CurvStruct1_C->a_param,
+                                  CurvStruct1_C->b_param);
                 b_PrintCurvStruct(&ctx->q_splines, CurvStruct2_C->Type, CurvStruct2_C->zspdmode,
-                                  CurvStruct2_C->P0, CurvStruct2_C->P1, CurvStruct2_C->evec,
-                                  CurvStruct2_C->theta, CurvStruct2_C->cottheta2,
-                                  CurvStruct2_C->pitch, CurvStruct2_C->CoeffP5,
-                                  CurvStruct2_C->sp_index, CurvStruct2_C->FeedRate,
-                                  CurvStruct2_C->UseConstJerk, CurvStruct2_C->ConstJerk,
-                                  CurvStruct2_C->a_param, CurvStruct2_C->b_param);
+                                  CurvStruct2_C->P0, CurvStruct2_C->P1, CurvStruct2_C->HelixCenter,
+                                  CurvStruct2_C->evec, CurvStruct2_C->theta, CurvStruct2_C->pitch,
+                                  CurvStruct2_C->CoeffP5, CurvStruct2_C->sp_index,
+                                  CurvStruct2_C->FeedRate, CurvStruct2_C->UseConstJerk,
+                                  CurvStruct2_C->ConstJerk, CurvStruct2_C->a_param,
+                                  CurvStruct2_C->b_param);
             }
 
             d_EvalCurvStruct(&ctx->q_splines, CurvStruct1_C->Type, CurvStruct1_C->P0,
-                             CurvStruct1_C->P1, CurvStruct1_C->evec, CurvStruct1_C->theta,
-                             CurvStruct1_C->cottheta2, CurvStruct1_C->pitch, CurvStruct1_C->CoeffP5,
+                             CurvStruct1_C->P1, CurvStruct1_C->HelixCenter, CurvStruct1_C->evec,
+                             CurvStruct1_C->theta, CurvStruct1_C->pitch, CurvStruct1_C->CoeffP5,
                              CurvStruct1_C->sp_index, CurvStruct1_C->a_param, CurvStruct1_C->b_param,
                              r0D0, r0D1, r0D2);
             g_EvalCurvStruct(&ctx->q_splines, CurvStruct2_C->Type, CurvStruct2_C->P0,
-                             CurvStruct2_C->P1, CurvStruct2_C->evec, CurvStruct2_C->theta,
-                             CurvStruct2_C->cottheta2, CurvStruct2_C->pitch, CurvStruct2_C->CoeffP5,
+                             CurvStruct2_C->P1, CurvStruct2_C->HelixCenter, CurvStruct2_C->evec,
+                             CurvStruct2_C->theta, CurvStruct2_C->pitch, CurvStruct2_C->CoeffP5,
                              CurvStruct2_C->sp_index, CurvStruct2_C->a_param, CurvStruct2_C->b_param,
                              r1D0, r1D1, r1D2);
 
@@ -17226,6 +17203,10 @@ namespace ocn
             CurvStruct1_C->gcode_source_line = CurvStruct1->gcode_source_line;
             CurvStruct_T->gcode_source_line = CurvStruct2->gcode_source_line;
             CurvStruct2_C->gcode_source_line = CurvStruct2->gcode_source_line;
+            CurvStruct1_C->SpindleSpeed = CurvStruct1->SpindleSpeed;
+            CurvStruct_T->SpindleSpeed = std::fmin(CurvStruct1->SpindleSpeed,
+                CurvStruct2->SpindleSpeed);
+            CurvStruct2_C->SpindleSpeed = CurvStruct2->SpindleSpeed;
         }
 
         *status = b_status;
@@ -17295,6 +17276,7 @@ namespace ocn
     //
     // Arguments    : const double P0[3]
     //                const double P1[3]
+    //                const double C[3]
     //                const double evec[3]
     //                double theta
     //                double pitch
@@ -17303,65 +17285,23 @@ namespace ocn
     //                CurvStruct *b_CurvStruct
     // Return Type  : void
     //
-    void ConstrHelixStruct(const double P0[3], const double P1[3], const double evec[3], double
-                           theta, double pitch, double FeedRate, ZSpdMode b_ZSpdMode, CurvStruct
-                           *b_CurvStruct)
+    void ConstrHelixStruct(const double P0[3], const double P1[3], const double C[3], const double
+                           evec[3], double theta, double pitch, double FeedRate, ZSpdMode b_ZSpdMode,
+                           CurvStruct *b_CurvStruct)
     {
-        static const uint64m_T r = { { 0U, 0U }// chunks
-        };
-
+        double dv[6][3];
         if (!isInitialized_sinspace) {
             sinspace_initialize();
         }
 
-        //
-        //
-        //  ctxType = coder.OutputType('InitFeedoptPlan');
-        b_CurvStruct->Type = CurveType_Helix;
-        b_CurvStruct->zspdmode = b_ZSpdMode;
-        b_CurvStruct->P0[0] = P0[0];
-        b_CurvStruct->P1[0] = P1[0];
-        b_CurvStruct->evec[0] = evec[0];
-        b_CurvStruct->P0[1] = P0[1];
-        b_CurvStruct->P1[1] = P1[1];
-        b_CurvStruct->evec[1] = evec[1];
-        b_CurvStruct->P0[2] = P0[2];
-        b_CurvStruct->P1[2] = P1[2];
-        b_CurvStruct->evec[2] = evec[2];
-        b_CurvStruct->theta = theta;
-        b_CurvStruct->pitch = pitch;
         for (int i = 0; i < 6; i++) {
-            b_CurvStruct->CoeffP5[i][0] = 0.0;
-            b_CurvStruct->CoeffP5[i][1] = 0.0;
-            b_CurvStruct->CoeffP5[i][2] = 0.0;
+            dv[i][0] = 0.0;
+            dv[i][1] = 0.0;
+            dv[i][2] = 0.0;
         }
 
-        b_CurvStruct->sp_index = 1;
-        b_CurvStruct->FeedRate = FeedRate;
-        b_CurvStruct->MaxConstantFeedRate = 0.0;
-        b_CurvStruct->i_begin_sp = 0;
-        b_CurvStruct->i_end_sp = 0;
-        b_CurvStruct->gcode_source_line = 0;
-        b_CurvStruct->index_smooth = 0;
-        b_CurvStruct->UseConstJerk = false;
-        b_CurvStruct->ConstJerk = 0.0;
-        b_CurvStruct->ConstJerkMaxIterations = 0;
-        b_CurvStruct->Coeff.set_size(0);
-        b_CurvStruct->a_param = 1.0;
-        b_CurvStruct->b_param = 0.0;
-        b_CurvStruct->sp.CoeffX.set_size(1, 1);
-        b_CurvStruct->sp.CoeffX[0] = 0.0;
-        b_CurvStruct->sp.CoeffY.set_size(1, 1);
-        b_CurvStruct->sp.CoeffY[0] = 0.0;
-        b_CurvStruct->sp.CoeffZ.set_size(1, 1);
-        b_CurvStruct->sp.CoeffZ[0] = 0.0;
-        b_CurvStruct->sp.Bl.ncoeff = 0;
-        b_CurvStruct->sp.Bl.breakpoints.set_size(1, 0);
-        b_CurvStruct->sp.Bl.handle = r;
-        b_CurvStruct->sp.Bl.degree = 0;
-        b_CurvStruct->sp.knots.set_size(1, 1);
-        b_CurvStruct->sp.knots[0] = 0.0;
-        b_CurvStruct->cottheta2 = 1.0 / std::tan(theta / 2.0);
+        ConstrCurvStruct(CurveType_Helix, b_ZSpdMode, P0, P1, C, evec, theta, pitch, dv, FeedRate,
+                         b_CurvStruct);
     }
 
     //
@@ -17385,6 +17325,7 @@ namespace ocn
     {
         double P0[3];
         double P1[3];
+        double C[3];
         double b_idx_0;
         double b_idx_1;
         double b_idx_2;
@@ -17407,6 +17348,9 @@ namespace ocn
         P1[0] = p1x;
         P1[1] = p1y;
         P1[2] = p1z;
+        C[0] = cx;
+        C[1] = cy;
+        C[2] = cz;
         b_idx_0 = p0x - cx;
         b_idx_1 = p0y - cy;
         b_idx_2 = p0z - cz;
@@ -17447,8 +17391,8 @@ namespace ocn
             theta += (rotation + 1.0) * 2.0 * 3.1415926535897931;
         }
 
-        ConstrHelixStruct(P0, P1, evec, theta, (((evec[0] * p1x + evec[1] * p1y) + evec[2] * p1z) -
-                           ((evec[0] * p0x + evec[1] * p0y) + evec[2] * p0z)) / theta * 2.0 *
+        ConstrHelixStruct(P0, P1, C, evec, theta, (((evec[0] * p1x + evec[1] * p1y) + evec[2] * p1z)
+                           - ((evec[0] * p0x + evec[1] * p0y) + evec[2] * p0z)) / theta * 2.0 *
                           3.1415926535897931, 1.0, ZSpdMode_NN, b_CurvStruct);
     }
 
@@ -17463,61 +17407,27 @@ namespace ocn
     void ConstrLineStruct(const double P0[3], const double P1[3], double FeedRate, ZSpdMode
                           b_ZSpdMode, CurvStruct *b_CurvStruct)
     {
-        static const uint64m_T r = { { 0U, 0U }// chunks
-        };
-
+        double dv[3];
+        double dv1[3];
+        double dv2[6][3];
         if (!isInitialized_sinspace) {
             sinspace_initialize();
         }
 
-        //
-        //
-        //  ctxType = coder.OutputType('InitFeedoptPlan');
-        b_CurvStruct->Type = CurveType_Line;
-        b_CurvStruct->zspdmode = b_ZSpdMode;
-        b_CurvStruct->P0[0] = P0[0];
-        b_CurvStruct->P1[0] = P1[0];
-        b_CurvStruct->evec[0] = 0.0;
-        b_CurvStruct->P0[1] = P0[1];
-        b_CurvStruct->P1[1] = P1[1];
-        b_CurvStruct->evec[1] = 0.0;
-        b_CurvStruct->P0[2] = P0[2];
-        b_CurvStruct->P1[2] = P1[2];
-        b_CurvStruct->evec[2] = 0.0;
-        b_CurvStruct->theta = 0.0;
-        b_CurvStruct->cottheta2 = 0.0;
-        b_CurvStruct->pitch = 0.0;
+        dv[0] = 0.0;
+        dv1[0] = 0.0;
+        dv[1] = 0.0;
+        dv1[1] = 0.0;
+        dv[2] = 0.0;
+        dv1[2] = 0.0;
         for (int i = 0; i < 6; i++) {
-            b_CurvStruct->CoeffP5[i][0] = 0.0;
-            b_CurvStruct->CoeffP5[i][1] = 0.0;
-            b_CurvStruct->CoeffP5[i][2] = 0.0;
+            dv2[i][0] = 0.0;
+            dv2[i][1] = 0.0;
+            dv2[i][2] = 0.0;
         }
 
-        b_CurvStruct->sp_index = 1;
-        b_CurvStruct->FeedRate = FeedRate;
-        b_CurvStruct->MaxConstantFeedRate = 0.0;
-        b_CurvStruct->i_begin_sp = 0;
-        b_CurvStruct->i_end_sp = 0;
-        b_CurvStruct->gcode_source_line = 0;
-        b_CurvStruct->index_smooth = 0;
-        b_CurvStruct->UseConstJerk = false;
-        b_CurvStruct->ConstJerk = 0.0;
-        b_CurvStruct->ConstJerkMaxIterations = 0;
-        b_CurvStruct->Coeff.set_size(0);
-        b_CurvStruct->a_param = 1.0;
-        b_CurvStruct->b_param = 0.0;
-        b_CurvStruct->sp.CoeffX.set_size(1, 1);
-        b_CurvStruct->sp.CoeffX[0] = 0.0;
-        b_CurvStruct->sp.CoeffY.set_size(1, 1);
-        b_CurvStruct->sp.CoeffY[0] = 0.0;
-        b_CurvStruct->sp.CoeffZ.set_size(1, 1);
-        b_CurvStruct->sp.CoeffZ[0] = 0.0;
-        b_CurvStruct->sp.Bl.ncoeff = 0;
-        b_CurvStruct->sp.Bl.breakpoints.set_size(1, 0);
-        b_CurvStruct->sp.Bl.handle = r;
-        b_CurvStruct->sp.Bl.degree = 0;
-        b_CurvStruct->sp.knots.set_size(1, 1);
-        b_CurvStruct->sp.knots[0] = 0.0;
+        ConstrCurvStruct(CurveType_Line, b_ZSpdMode, P0, P1, dv, dv1, 0.0, 0.0, dv2, FeedRate,
+                         b_CurvStruct);
     }
 
     //
@@ -17697,8 +17607,9 @@ namespace ocn
 
           case CurveType_Helix:
             //  arc of circle / helix (G02, G03)
-            EvalHelix(b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->evec, b_CurvStruct->theta,
-                      b_CurvStruct->cottheta2, b_CurvStruct->pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
+            EvalHelix(b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->HelixCenter,
+                      b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->pitch, u_vec_tilda, r0D,
+                      r1D, r2D, r3D);
             break;
 
           case CurveType_TransP5:
@@ -17906,7 +17817,7 @@ namespace ocn
 
           case CurveType_Helix:
             //  arc of circle / helix (G02, G03)
-            b_EvalHelix(Curv->P0, Curv->P1, Curv->evec, Curv->theta, Curv->cottheta2, Curv->pitch,
+            b_EvalHelix(Curv->P0, Curv->P1, Curv->HelixCenter, Curv->evec, Curv->theta, Curv->pitch,
                         u_vec_tilda, r0D, r1D, r2D, r3D);
             break;
 
@@ -18140,12 +18051,14 @@ namespace ocn
                     double b_t;
                     ctx->q_gcode.get((k + 1U), (&Curv1));
                     ctx->q_gcode.get((k - 4294967294U), (&Curv2));
-                    e_EvalCurvStruct(&ctx->q_splines, Curv1.Type, Curv1.P0, Curv1.P1, Curv1.evec,
-                                     Curv1.theta, Curv1.cottheta2, Curv1.pitch, Curv1.CoeffP5,
-                                     Curv1.sp_index, Curv1.a_param, Curv1.b_param, unusedU0, r0D1);
-                    f_EvalCurvStruct(&ctx->q_splines, Curv2.Type, Curv2.P0, Curv2.P1, Curv2.evec,
-                                     Curv2.theta, Curv2.cottheta2, Curv2.pitch, Curv2.CoeffP5,
-                                     Curv2.sp_index, Curv2.a_param, Curv2.b_param, unusedU1, r1D1);
+                    e_EvalCurvStruct(&ctx->q_splines, Curv1.Type, Curv1.P0, Curv1.P1,
+                                     Curv1.HelixCenter, Curv1.evec, Curv1.theta, Curv1.pitch,
+                                     Curv1.CoeffP5, Curv1.sp_index, Curv1.a_param, Curv1.b_param,
+                                     unusedU0, r0D1);
+                    f_EvalCurvStruct(&ctx->q_splines, Curv2.Type, Curv2.P0, Curv2.P1,
+                                     Curv2.HelixCenter, Curv2.evec, Curv2.theta, Curv2.pitch,
+                                     Curv2.CoeffP5, Curv2.sp_index, Curv2.a_param, Curv2.b_param,
+                                     unusedU1, r1D1);
                     scale = 3.3121686421112381E-170;
                     b_scale = 3.3121686421112381E-170;
                     absxk = std::abs(r0D1[0]);
@@ -18326,7 +18239,7 @@ namespace ocn
                                 b_optimized = true;
                                 d_ctx = ctx->q_splines;
                                 CalcZeroStartConstraints(&d_ctx, first.Type, first.P0, first.P1,
-                                    first.evec, first.theta, first.cottheta2, first.pitch,
+                                    first.HelixCenter, first.evec, first.theta, first.pitch,
                                     first.CoeffP5, first.sp_index, first.UseConstJerk,
                                     first.ConstJerk, first.a_param, first.b_param, 1.0, &ctx->v_0,
                                     &ctx->at_0);
@@ -18372,8 +18285,8 @@ namespace ocn
                                         //  end of all segments
                                         e_ctx = ctx->q_splines;
                                         CalcZeroStartConstraints(&e_ctx, NextCurv.Type, NextCurv.P0,
-                                            NextCurv.P1, NextCurv.evec, NextCurv.theta,
-                                            NextCurv.cottheta2, NextCurv.pitch, NextCurv.CoeffP5,
+                                            NextCurv.P1, NextCurv.HelixCenter, NextCurv.evec,
+                                            NextCurv.theta, NextCurv.pitch, NextCurv.CoeffP5,
                                             NextCurv.sp_index, NextCurv.UseConstJerk,
                                             NextCurv.ConstJerk, NextCurv.a_param, NextCurv.b_param,
                                             1.0, &ctx->v_1, &at_0);
@@ -18391,9 +18304,9 @@ namespace ocn
                                                 expl_temp = OptSegment[c_k - ctx->k0];
                                                 b_PrintCurvStruct(&ctx->q_splines, expl_temp.Type,
                                                                   expl_temp.zspdmode, expl_temp.P0,
-                                                                  expl_temp.P1, expl_temp.evec,
-                                                                  expl_temp.theta,
-                                                                  expl_temp.cottheta2,
+                                                                  expl_temp.P1,
+                                                                  expl_temp.HelixCenter,
+                                                                  expl_temp.evec, expl_temp.theta,
                                                                   expl_temp.pitch, expl_temp.CoeffP5,
                                                                   expl_temp.sp_index,
                                                                   expl_temp.FeedRate,
@@ -18501,11 +18414,11 @@ namespace ocn
                                         fflush(stdout);
                                         ctx->q_split.get((ctx->k0 - 1), (&r));
                                         g_ctx = ctx->q_splines;
-                                        CalcZeroStartConstraints(&g_ctx, r.Type, r.P0, r.P1, r.evec,
-                                            r.theta, r.cottheta2, r.pitch, r.CoeffP5, r.sp_index,
-                                            r.UseConstJerk, r.ConstJerk, r.a_param, r.b_param, std::
-                                            pow(0.5, static_cast<double>(Retry)), &ctx->v_0,
-                                            &ctx->at_0);
+                                        CalcZeroStartConstraints(&g_ctx, r.Type, r.P0, r.P1,
+                                            r.HelixCenter, r.evec, r.theta, r.pitch, r.CoeffP5,
+                                            r.sp_index, r.UseConstJerk, r.ConstJerk, r.a_param,
+                                            r.b_param, std::pow(0.5, static_cast<double>(Retry)),
+                                            &ctx->v_0, &ctx->at_0);
                                     }
 
                                     if ((!b_success) && ctx->zero_end) {
@@ -18513,10 +18426,11 @@ namespace ocn
                                         fflush(stdout);
                                         ctx->q_split.get(kend, (&r));
                                         h_ctx = ctx->q_splines;
-                                        CalcZeroStartConstraints(&h_ctx, r.Type, r.P0, r.P1, r.evec,
-                                            r.theta, r.cottheta2, r.pitch, r.CoeffP5, r.sp_index,
-                                            r.UseConstJerk, r.ConstJerk, r.a_param, r.b_param, std::
-                                            pow(0.5, static_cast<double>(Retry)), &ctx->v_1, &b_at_0);
+                                        CalcZeroStartConstraints(&h_ctx, r.Type, r.P0, r.P1,
+                                            r.HelixCenter, r.evec, r.theta, r.pitch, r.CoeffP5,
+                                            r.sp_index, r.UseConstJerk, r.ConstJerk, r.a_param,
+                                            r.b_param, std::pow(0.5, static_cast<double>(Retry)),
+                                            &ctx->v_1, &b_at_0);
                                         ctx->at_1 = -b_at_0;
                                     }
 
@@ -18544,11 +18458,11 @@ namespace ocn
                                             b_PrintCurvStruct(&ctx->q_splines, OptSegment[0].Type,
                                                               OptSegment[0].zspdmode, OptSegment[0].
                                                               P0, OptSegment[0].P1, OptSegment[0].
-                                                              evec, OptSegment[0].theta, OptSegment
-                                                              [0].cottheta2, OptSegment[0].pitch,
-                                                              OptSegment[0].CoeffP5, OptSegment[0].
-                                                              sp_index, OptSegment[0].FeedRate,
-                                                              OptSegment[0].UseConstJerk,
+                                                              HelixCenter, OptSegment[0].evec,
+                                                              OptSegment[0].theta, OptSegment[0].
+                                                              pitch, OptSegment[0].CoeffP5,
+                                                              OptSegment[0].sp_index, OptSegment[0].
+                                                              FeedRate, OptSegment[0].UseConstJerk,
                                                               OptSegment[0].ConstJerk, OptSegment[0]
                                                               .a_param, OptSegment[0].b_param);
                                         }
@@ -19041,15 +18955,15 @@ namespace ocn
             break;
         }
 
-        b_EvalCurvStruct(&ctx->q_splines, S->Type, S->P0, S->P1, S->evec, S->theta, S->cottheta2,
+        b_EvalCurvStruct(&ctx->q_splines, S->Type, S->P0, S->P1, S->HelixCenter, S->evec, S->theta,
                          S->pitch, S->CoeffP5, S->sp_index, S->b_param, P0);
-        c_EvalCurvStruct(&ctx->q_splines, S->Type, S->P0, S->P1, S->evec, S->theta, S->cottheta2,
+        c_EvalCurvStruct(&ctx->q_splines, S->Type, S->P0, S->P1, S->HelixCenter, S->evec, S->theta,
                          S->pitch, S->CoeffP5, S->sp_index, S->a_param, S->b_param, P1);
         printf("%10s: [%.4f %.4f %.4f] -> [%.4f %.4f %.4f]\n", "P", P0[0], P0[1], P0[2], P1[0], P1[1],
                P1[2]);
         fflush(stdout);
-        validatedHoleFilling_f2 = LengthCurv(&ctx->q_splines, S->Type, S->P0, S->P1, S->evec,
-            S->theta, S->cottheta2, S->pitch, S->CoeffP5, S->sp_index, S->a_param, S->b_param);
+        validatedHoleFilling_f2 = LengthCurv(&ctx->q_splines, S->Type, S->P0, S->P1, S->HelixCenter,
+            S->evec, S->theta, S->pitch, S->CoeffP5, S->sp_index, S->a_param, S->b_param);
         printf("%10s: %e\n", "Length", validatedHoleFilling_f2);
         fflush(stdout);
         switch (S->zspdmode) {
@@ -19088,8 +19002,8 @@ namespace ocn
         printf("FeedRate: %.2f\n", S->FeedRate);
         fflush(stdout);
         if (S->UseConstJerk) {
-            CalcZeroStartConstraints(&ctx->q_splines, S->Type, S->P0, S->P1, S->evec, S->theta,
-                S->cottheta2, S->pitch, S->CoeffP5, S->sp_index, S->UseConstJerk, S->ConstJerk,
+            CalcZeroStartConstraints(&ctx->q_splines, S->Type, S->P0, S->P1, S->HelixCenter, S->evec,
+                S->theta, S->pitch, S->CoeffP5, S->sp_index, S->UseConstJerk, S->ConstJerk,
                 S->a_param, S->b_param, 1.0, &validatedHoleFilling_idx_0,
                 &b_validatedHoleFilling_idx_0);
             printf("ConstJerk: %e\n", S->ConstJerk);
@@ -19364,9 +19278,9 @@ namespace ocn
     void sinspace_initialize()
     {
         DebugActive = false;
-        sin_calls = 1675.0;
-        cos_calls = 1675.0;
-        sqrt_calls = 6839.0;
+        sin_calls = 0.0;
+        cos_calls = 0.0;
+        sqrt_calls = 0.0;
         isInitialized_sinspace = true;
     }
 

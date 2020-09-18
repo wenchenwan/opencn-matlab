@@ -15,12 +15,12 @@ CumulatedLength = 0;
 Length_Threshold = ctx.cfg.LThreshold; % [mm]
 
 DebugLog('Compressing ...\n');
+spindle_speed = 75000;
 
 % Satisfy coder
 % -------------
 if coder.target('rtw') || coder.target('mex')
     pvec = zeros(3, 0);
-    spindle_speed = 75000;
     coder.varsize('pvec', [3, Inf], [0, 1]);
     CurvStruct1 = ctx.q_gcode.get(1);
 end

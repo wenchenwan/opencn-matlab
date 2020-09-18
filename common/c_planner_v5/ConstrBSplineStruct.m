@@ -8,4 +8,4 @@ pitch       = 0;
 
 CoeffP5     = zeros(3, 6);
 
-CurvStruct  = ConstrCurvStruct(CurveType.Spline, zspdmode, P0, P1, evec, theta, pitch, CoeffP5, FeedRate);
+CurvStruct  = ConstrCurvStruct(CurveType.Spline, zspdmode, P0, P1, [0,0,0]', evec, theta, pitch, CoeffP5, FeedRate);

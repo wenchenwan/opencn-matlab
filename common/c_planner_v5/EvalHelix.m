@@ -30,9 +30,7 @@ end
 %     end
 % end
 %
-P1proj      = P1 - (P0P1'*evec)*evec;
-% C           = ((P0 + P1proj) + mycot(theta/2)*EcrP0P1) / 2;
-C           = ((P0 + P1proj) + CurvStruct.cottheta2*EcrP0P1) / 2;
+C           = CurvStruct.HelixCenter;
 CP0         = P0 - C;
 phi_vec     = theta*u_vec;
 EcrCP0      = cross(evec, CP0);

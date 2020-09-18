@@ -40,6 +40,6 @@ else
 end
 
 pitch = devec/theta*2*pi;
-CurvStruct = ConstrHelixStruct(P0, P1, evec, theta, pitch, 1, ZSpdMode.NN);
+CurvStruct = ConstrHelixStruct(P0, P1, C, evec, theta, pitch, 1, ZSpdMode.NN);
 
 end
