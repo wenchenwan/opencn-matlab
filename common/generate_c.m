@@ -1,6 +1,6 @@
 clear; clc;
 
-generate_for_arm = true;
+generate_for_arm = false;
 
 cfg = coder.config('lib', 'ecoder', true);
 cfg.IndentSize = 4;

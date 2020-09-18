@@ -148,7 +148,7 @@ elseif status==6
         plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
         title({ctx.cfg.source, 'status_G2_Hermite=6'}, 'Interpreter', 'none');
         axis equal;
-        camproj('orthographic');
+        camproj('perspective');
 
     end
        
@@ -173,7 +173,7 @@ else
         hold on;
         plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
         title({ctx.cfg.source, 'No solution'}, 'Interpreter', 'none');
-        camproj('orthographic');
+        camproj('perspective');
 
     end
             

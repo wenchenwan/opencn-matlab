@@ -12,10 +12,10 @@ function ctx = TestAllNGC_BR
     cfg.DebugPrint = false;
     cfg.SkipCompressing = false;
     cfg.DebugOptimProgress = true;
-
+    
     ngc_unit_list = string(fullfile('ngc_test/unit', {dir('ngc_test/unit/*.ngc').name}));
     ngc_full_list = string(fullfile('ngc_test/full', {dir('ngc_test/full/*.ngc').name}));
-    ngc_full_Montres_list = string(fullfile('ngc_test/full', {dir('ngc_test/full/020_Montre_V11.ngc').name}));
+    ngc_full_Montres_list = string(fullfile('ngc_test/full', {dir('ngc_test/full/013_Montre_V2.ngc').name}));
             
     if coder.target('matlab')
         diary ([cfg.LogFileName, '_', ...
@@ -37,7 +37,7 @@ function ctx = TestAllNGC_BR
 %         PlotCurvStructsBR_2(ctx, ctx.q_split.getall());
 %         title(ngc_full_Montres_list(k), 'Interpreter', 'none');
 
-        PlotResampled(ctx, 1e-3);
+%         PlotResampled(ctx, 1e-3);
         
     end
     
