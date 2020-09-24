@@ -17,6 +17,7 @@ extern "C" {
 typedef struct bspline {
     gsl_bspline_workspace *ws;
     gsl_matrix *dB;
+	gsl_matrix *dBNonZero;
 } bspline_t;
 
 void c_bspline_create(void *handle, double x0, double x1, int32_t degree, int32_t nbreak);

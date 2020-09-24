@@ -34,6 +34,7 @@ void c_bspline_create(void *handle_, double x0, double x1, int32_t degree, int32
     
     // the number of coeffs will not change so we can allocate dB once and forget about it
     bs->dB = gsl_matrix_alloc(ncoeffs, nderiv + 1);
+	bs->dBNonZero = gsl_matrix_alloc(degree, nderiv + 1);
     
     *handle = (size_t)bs;
 }
@@ -60,11 +61,10 @@ void c_bspline_create_with_breakpoints(void *handle_, int32_t degree, double* br
     
     // the number of coeffs will not change so we can allocate dB once and forget about it
     bs->dB = gsl_matrix_alloc(ncoeffs, nderiv + 1);
+	bs->dBNonZero = gsl_matrix_alloc(degree, nderiv + 1);
     
     *handle = (size_t)bs;
 }
-
-// void c_bspline_create(size_t *handle) { *handle = (unsigned long)malloc(1024); }
 
 void c_bspline_destroy(const void *handle_)
 {
@@ -72,6 +72,7 @@ void c_bspline_destroy(const void *handle_)
     bspline_t *bs = (bspline_t *)*handle;
     gsl_bspline_free((gsl_bspline_workspace *)bs->ws);
     gsl_matrix_free(bs->dB);
+	gsl_matrix_free(bs->dBNonZero);
 #ifdef __KERNEL__
     kfree(bs);
 #else
@@ -109,10 +110,8 @@ void c_bspline_base_eval(const void *handle_, int32_t N, const double *xvec,
 void c_bspline_eval(const void *handle_, const double *c, double x, double X[4])
 {
 	const size_t* handle = (const size_t*)handle_;
-    size_t k, i;
+    size_t k, i, istart, iend;
     bspline_t *bs = (bspline_t *)*handle;
-   
-    const size_t ncoeffs = gsl_bspline_ncoeffs(bs->ws);
     
 #ifdef __KERNEL__
     if (x < 0.0) {
@@ -133,14 +132,14 @@ void c_bspline_eval(const void *handle_, const double *c, double x, double X[4])
         x = 1.0;
     }
 #endif
-    
-    gsl_bspline_deriv_eval(x, nderiv, bs->dB, bs->ws);
+   
+    gsl_bspline_deriv_eval_nonzero(x, nderiv, bs->dBNonZero, &istart, &iend, bs->ws);
     /* for each deriv degree */
     for (k = 0; k < nderiv + 1; k++) {
         X[k] = 0.0;
         /* for each coeff */
-        for (i = 0; i < ncoeffs; i++) {
-            X[k] += gsl_matrix_get(bs->dB, i, k) * c[i];
+        for (i = istart; i <= iend; i++) {
+            X[k] += gsl_matrix_get(bs->dBNonZero, i - istart, k) * c[i];
         }
     }
 }
