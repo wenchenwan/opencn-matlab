@@ -27,9 +27,7 @@ state = ResampleState(dt);
 N = ctx.q_opt.size();
 fprintf('Resampling ...\n');
 for k = 1:N
-    if IsEnabledDebugLog(DebugCfg.OptimProgress)
-        fprintf('%4d/%d\n', k, N);
-    end
+    DebugLog(DebugCfg.OptimProgress, '%4d/%d\n', k, N);
     Curv = ctx.q_opt.get(k);
     SplineCurv = ctx.q_splines.get(Curv.sp_index);
     Curv.MaxConstantFeedRate = GetCurvMaxFeedrate(ctx, Curv);
