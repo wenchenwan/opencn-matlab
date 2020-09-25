@@ -5,7 +5,7 @@
 // File: sinspace_types.h
 //
 // MATLAB Coder version            : 5.0
-// C/C++ source code generated on  : 18-Sep-2020 14:56:07
+// C/C++ source code generated on  : 25-Sep-2020 10:33:29
 //
 #ifndef SINSPACE_TYPES_H
 #define SINSPACE_TYPES_H
@@ -179,10 +179,11 @@ namespace ocn
         double ZeroStartJerkLimit;
         double ZeroStartVelLimit;
         char source[1024];
-        bool DebugFeedratePlanning;
         bool DebugCutZero;
         bool SkipCompressing;
-        bool DebugOptimProgress;
+        double CollTolDeg;
+        double NGridLengthSpline;
+        char LogFileName[9];
     };
 
     struct FeedoptContext

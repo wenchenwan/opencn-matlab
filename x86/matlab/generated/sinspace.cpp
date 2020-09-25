@@ -5,7 +5,7 @@
 // File: sinspace.cpp
 //
 // MATLAB Coder version            : 5.0
-// C/C++ source code generated on  : 18-Sep-2020 14:50:59
+// C/C++ source code generated on  : 25-Sep-2020 10:36:53
 //
 
 // Include Files
@@ -17,7 +17,7 @@
 #include <cfloat>
 #include <cmath>
 #include <cstring>
-#include <immintrin.h>
+#include <emmintrin.h>
 #include <math.h>
 #include <stdio.h>
 
@@ -87,7 +87,7 @@ namespace ocn
     double sqrt_calls;
     double cos_calls;
     double sin_calls;
-    bool DebugActive;
+    double DebugConfig;
     static const char cv[30] = { 'U', 'n', 'k', 'n', 'o', 'w', 'n', ' ', 'C', 'u', 'r', 'v', 'e',
         ' ', 'T', 'y', 'p', 'e', ' ', 'f', 'o', 'r', ' ', 'E', 'v', 'a', 'l', '.', '\\', 'n' };
 
@@ -109,11 +109,11 @@ namespace ocn
         coder::array<double, 1U> &b);
     static void BuildConstr_v4(const queue_coder *ctx_q_splines, bool ctx_cfg_UseDynamicBreakpoints,
         bool ctx_cfg_UseLinearBreakpoints, double c_ctx_cfg_DynamicBreakpointsDis, int
-        ctx_cfg_SplineDegree, int ctx_Bl_ncoeff, unsigned long ctx_Bl_handle, const coder::array<
-        CurvStruct, 2U> &CurvStructs, const double amax[3], double v_0, double at_0, double v_1,
-        double at_1, coder::array<double, 2U> &BasisVal, coder::array<double, 2U> &BasisValD, const
-        coder::array<double, 2U> &u_vec, coder_internal_sparse *A, coder::array<double, 1U> &b,
-        coder::array<double, 2U> &Aeq, coder::array<double, 1U> &beq);
+        ctx_cfg_SplineDegree, double ctx_cfg_NGridLengthSpline, int ctx_Bl_ncoeff, unsigned long
+        ctx_Bl_handle, const coder::array<CurvStruct, 2U> &CurvStructs, const double amax[3], double
+        v_0, double at_0, double v_1, double at_1, coder::array<double, 2U> &BasisVal, coder::array<
+        double, 2U> &BasisValD, const coder::array<double, 2U> &u_vec, coder_internal_sparse *A,
+        coder::array<double, 1U> &b, coder::array<double, 2U> &Aeq, coder::array<double, 1U> &beq);
     static void CalcAlpha0(const double alpha1_data[], const int alpha1_size[1], const double in2[16],
                            double alpha0_s_data[], int alpha0_s_size[1]);
     static void CalcBspline_Lee(int cfg_SplineDegree, const coder::array<double, 2U> &points, coder::
@@ -131,6 +131,7 @@ namespace ocn
         in4[3], const double in5[3], double kappa0, const double in7[3], const double in8[3], const
         double in9[3], double kappa1, double *beta0, double *beta1);
     static void CharPolyAlpha1(const double in1[16], double Coeff_Poly_Alpha1[10]);
+    static void CheckCurvStructs(const FeedoptContext *ctx);
     static void CoefPolySys(const double in1[3], const double in2[3], const double in3[3], double
                             kappa0, const double in5[3], const double in6[3], const double in7[3],
                             double kappa1, double CoefPS[16]);
@@ -140,19 +141,19 @@ namespace ocn
         double CoeffP5[6][3], double FeedRate, CurvStruct *CStrct);
     static void ConstrTransP5Struct(const double CoeffP5[6][3], double FeedRate, CurvStruct
         *b_CurvStruct);
-    static void CutCurvStruct(const queue_coder *ctx_q_splines, CurvStruct *b_CurvStruct, double d0,
-        double d1);
+    static void CutCurvStruct(const queue_coder *ctx_q_splines, double ctx_cfg_NGridLengthSpline,
+        CurvStruct *b_CurvStruct, double d1);
     static void CutZeroEnd(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splines, int
                            ctx_cfg_NHorz, const double ctx_cfg_amax[3], const double ctx_cfg_jmax[3],
                            double ctx_cfg_dt, double ctx_cfg_ZeroStartAccLimit, double
-                           ctx_cfg_ZeroStartJerkLimit, double ctx_cfg_ZeroStartVelLimit, const
-                           CurvStruct *b_CurvStruct, double k0, CurvStruct *CurvStruct1, CurvStruct *
-                           CurvStruct2);
+                           ctx_cfg_ZeroStartJerkLimit, double ctx_cfg_ZeroStartVelLimit, double
+                           ctx_cfg_NGridLengthSpline, const CurvStruct *b_CurvStruct, double k0,
+                           CurvStruct *CurvStruct1, CurvStruct *CurvStruct2);
     static void CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splines, int
         ctx_cfg_NHorz, const double ctx_cfg_amax[3], const double ctx_cfg_jmax[3], double ctx_cfg_dt,
         double ctx_cfg_ZeroStartAccLimit, double ctx_cfg_ZeroStartJerkLimit, double
-        ctx_cfg_ZeroStartVelLimit, bool ctx_cfg_DebugCutZero, const CurvStruct *b_CurvStruct, double
-        k0, CurvStruct *CurvStruct1, CurvStruct *CurvStruct2);
+        ctx_cfg_ZeroStartVelLimit, bool ctx_cfg_DebugCutZero, double ctx_cfg_NGridLengthSpline,
+        const CurvStruct *b_CurvStruct, double k0, CurvStruct *CurvStruct1, CurvStruct *CurvStruct2);
     static void EvalBSplineNoCtx(const coder::array<double, 2U> &CurvSpline_sp_CoeffX, const coder::
         array<double, 2U> &CurvSpline_sp_CoeffY, const coder::array<double, 2U>
         &CurvSpline_sp_CoeffZ, unsigned long CurvSpline_sp_Bl_handle, double uvec, double r0D[3],
@@ -181,38 +182,41 @@ namespace ocn
         bool *success);
     static void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const double
         r0D2[3], const double r1D0[3], const double r1D1[3], const double r1D2[3], double p5_3D[6][3],
-        int *status);
+        int *status, double *alpha0, double *alpha1);
     static double GetCurvMaxFeedrate(const queue_coder *ctx_q_splines, const double ctx_cfg_amax[3],
         const double ctx_cfg_jmax[3], CurveType CurvStruct_Type, const double CurvStruct_P0[3],
         const double CurvStruct_P1[3], const double CurvStruct_HelixCenter[3], const double
         CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch, const double
         CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_FeedRate, double
         CurvStruct_a_param, double CurvStruct_b_param);
-    static double LengthCurv(const queue_coder *ctx_q_splines, CurveType Curv_Type, const double
-        Curv_P0[3], const double Curv_P1[3], const double Curv_HelixCenter[3], const double
-        Curv_evec[3], double Curv_theta, double Curv_pitch, const double Curv_CoeffP5[6][3], int
-        Curv_sp_index, double Curv_a_param, double Curv_b_param);
+    static double LengthCurv(const queue_coder *ctx_q_splines, double ctx_cfg_NGridLengthSpline,
+        CurveType Curv_Type, const double Curv_P0[3], const double Curv_P1[3], const double
+        Curv_HelixCenter[3], const double Curv_evec[3], double Curv_theta, double Curv_pitch, const
+        double Curv_CoeffP5[6][3], int Curv_sp_index, double Curv_a_param, double Curv_b_param);
     static void Resample(ZSpdMode CurOptStruct_zspdmode, bool CurOptStruct_UseConstJerk, double
                          CurOptStruct_ConstJerk, const coder::array<double, 1U> &CurOptStruct_Coeff,
                          unsigned long Bl_handle, double u, double dt, double *ukp1, double *qk,
                          double *dk);
     static void SmoothCurvStructs(const FeedoptContext *ctx);
-    static double SplineLengthApprox(const queue_coder *ctx_q_splines, int Curv_sp_index, double u0,
-        double u1);
-    static void SplitCurvStruct(const FeedoptContext *ctx, const CurvStruct *CurvStrct);
-    static void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff, const
-        CurvStruct *CurvStruct1, const CurvStruct *CurvStruct2, CurvStruct *CurvStruct1_C,
-        CurvStruct *CurvStruct_T, CurvStruct *CurvStruct2_C, TransitionResult *status);
+    static double SplineLengthApprox(const queue_coder *ctx_q_splines, double
+        ctx_cfg_NGridLengthSpline, int Curv_sp_index, double u0_tilda, double u1_tilda);
+    static void SplitCurvStructs(const FeedoptContext *ctx);
+    static void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff, double
+        ctx_cfg_CollTolDeg, double ctx_cfg_NGridLengthSpline, const CurvStruct *CurvStruct1, const
+        CurvStruct *CurvStruct2, CurvStruct *CurvStruct1_C, CurvStruct *CurvStruct_T, CurvStruct
+        *CurvStruct2_C, TransitionResult *status);
+    static void b_CutCurvStruct(const queue_coder *ctx_q_splines, double ctx_cfg_NGridLengthSpline,
+        CurvStruct *b_CurvStruct, double d0);
     static void b_CutZeroEnd(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splines, int
         ctx_cfg_NHorz, const double ctx_cfg_amax[3], const double ctx_cfg_jmax[3], double ctx_cfg_dt,
         double ctx_cfg_ZeroStartAccLimit, double ctx_cfg_ZeroStartJerkLimit, double
-        ctx_cfg_ZeroStartVelLimit, const CurvStruct *b_CurvStruct, CurvStruct *CurvStruct1,
-        CurvStruct *CurvStruct2);
+        ctx_cfg_ZeroStartVelLimit, double ctx_cfg_NGridLengthSpline, const CurvStruct *b_CurvStruct,
+        CurvStruct *CurvStruct1, CurvStruct *CurvStruct2);
     static void b_CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splines, int
         ctx_cfg_NHorz, const double ctx_cfg_amax[3], const double ctx_cfg_jmax[3], double ctx_cfg_dt,
         double ctx_cfg_ZeroStartAccLimit, double ctx_cfg_ZeroStartJerkLimit, double
-        ctx_cfg_ZeroStartVelLimit, bool ctx_cfg_DebugCutZero, const CurvStruct *b_CurvStruct,
-        CurvStruct *CurvStruct1, CurvStruct *CurvStruct2);
+        ctx_cfg_ZeroStartVelLimit, bool ctx_cfg_DebugCutZero, double ctx_cfg_NGridLengthSpline,
+        const CurvStruct *b_CurvStruct, CurvStruct *CurvStruct1, CurvStruct *CurvStruct2);
     static void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
         double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
         [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
@@ -226,13 +230,11 @@ namespace ocn
                            u_vec, double r0D[3], double r1D[3]);
     static void b_EvalTransP5(const double CurvStruct_CoeffP5[6][3], double u_vec, double r_0D[3],
         double r_1D[3], double r_2D[3], double r_3D[3]);
-    static void b_PrintCurvStruct(const queue_coder *ctx_q_splines, CurveType S_Type, ZSpdMode
-        S_zspdmode, const double S_P0[3], const double S_P1[3], const double S_HelixCenter[3], const
-        double S_evec[3], double S_theta, double S_pitch, const double S_CoeffP5[6][3], int
-        S_sp_index, double S_FeedRate, bool S_UseConstJerk, double S_ConstJerk, double S_a_param,
-        double S_b_param);
-    static double b_SplineLengthApprox(const queue_coder *ctx_q_splines, int Curv_sp_index, double
-        u1);
+    static void b_PrintCurvStruct(const queue_coder *ctx_q_splines, double ctx_cfg_NGridLengthSpline,
+        const CurvStruct *S);
+    static double b_SplineLengthApprox(const queue_coder *ctx_q_splines, double
+        ctx_cfg_NGridLengthSpline, int Curv_sp_index, const double u0_tilda_data[], const int
+        u0_tilda_size[2], double u1_tilda);
     static void b_bspline_create(int degree, const coder::array<double, 2U> &breakpoints, int
         *Bl_ncoeff, coder::array<double, 2U> &Bl_breakpoints, unsigned long *Bl_handle, int
         *Bl_degree);
@@ -270,21 +272,28 @@ namespace ocn
                            double u_vec[10], double r0D[10][3], double r1D[10][3]);
     static void c_EvalTransP5(const double CurvStruct_CoeffP5[6][3], const double u_vec[10], double
         r_0D[10][3], double r_1D[10][3], double r_2D[10][3], double r_3D[10][3]);
+    static double c_SplineLengthApprox(const queue_coder *ctx_q_splines, double
+        ctx_cfg_NGridLengthSpline, int Curv_sp_index, double u0_tilda, const double u1_tilda_data[],
+        const int u1_tilda_size[2]);
     static void c_bspline_eval_vec(unsigned long Bl_handle, const coder::array<double, 2U> &coeffs,
         const coder::array<double, 2U> &u, coder::array<double, 2U> &x, coder::array<double, 2U> &xd);
     static void c_bsxfun(const coder::array<double, 2U> &a, const coder::array<double, 1U> &b, coder::
                          array<double, 2U> &c);
     static void c_eml_find(const bool x_data[], const int x_size[1], int i_data[], int i_size[1]);
-    static void c_linspace(double d1, double d2, double y[10]);
     static void c_simplex(const coder::array<double, 2U> &f, const coder_internal_sparse *A, coder::
                           array<double, 2U> &b, const coder::array<double, 2U> &Aeq, const coder::
                           array<double, 2U> &beq, coder::array<double, 2U> &C, bool *success, int
                           *status);
+    static bool collinear(const double u[3], const double v[3], double tol_angle_d);
     static void d_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
         double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
         [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
         const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
         double CurvStruct_b_param, double r0D[3], double r1D[3], double r2D[3]);
+    static void d_SplineLengthApprox(const queue_coder *ctx_q_splines, double
+        ctx_cfg_NGridLengthSpline, int Curv_sp_index, double u0_tilda, double u1_tilda, double *L,
+        coder::array<double, 2U> &Integrand, coder::array<double, 2U> &u_mid_tilda, coder::array<
+        double, 2U> &du_tilda);
     static void d_bspline_eval_vec(unsigned long Bl_handle, const coder::array<double, 2U> &coeffs,
         const double u[10], double x[10], double xd[10], double xdd[10], double xddd[10]);
     static void diff(const coder::array<double, 2U> &x, coder::array<double, 2U> &y);
@@ -388,11 +397,11 @@ namespace ocn
     }
 
     //
-    // Arguments    : int b_index
+    // Arguments    : unsigned long b_index
     //                CurvStruct *value
     // Return Type  : void
     //
-    void queue_coder::get(int b_index, CurvStruct *value) const
+    void queue_coder::get(unsigned long b_index, CurvStruct *value) const
     {
         *value = this->value_type;
 
@@ -414,11 +423,24 @@ namespace ocn
     }
 
     //
-    // Arguments    : unsigned long b_index
+    // Arguments    : double b_index
     //                CurvStruct *value
     // Return Type  : void
     //
-    void queue_coder::get(unsigned long b_index, CurvStruct *value) const
+    void queue_coder::get(double b_index, CurvStruct *value) const
+    {
+        *value = this->value_type;
+
+        // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
+        c_queue_get(this->ptr, static_cast<unsigned int>(std::round(b_index)), value);
+    }
+
+    //
+    // Arguments    : int b_index
+    //                CurvStruct *value
+    // Return Type  : void
+    //
+    void queue_coder::get(int b_index, CurvStruct *value) const
     {
         *value = this->value_type;
 
@@ -440,38 +462,15 @@ namespace ocn
     }
 
     //
-    // Arguments    : double b_index
-    //                CurvStruct *value
+    // Arguments    : void
     // Return Type  : void
     //
-    void queue_coder::get(double b_index, CurvStruct *value) const
+    void rtString::init()
     {
-        *value = this->value_type;
-
-        // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
-        c_queue_get(this->ptr, static_cast<unsigned int>(std::round(b_index)), value);
-    }
-
-    //
-    // Arguments    : const CurvStruct *b_value_type
-    // Return Type  : void
-    //
-    void queue_coder::init(const CurvStruct *b_value_type)
-    {
-        //              fprintf('queue_coder::ctor\n');
-        this->value_type = *b_value_type;
-        this->ptr = c_queue_new();
-    }
-
-    //
-    // Arguments    : double b_dt
-    // Return Type  : void
-    //
-    void ResampleStateClass::init(double b_dt)
-    {
-        this->set_u();
-        this->set_go_next();
-        this->set_dt(b_dt);
+        this->Value.size[0] = 1;
+        this->Value.size[1] = 2;
+        this->Value.data[0] = 'N';
+        this->Value.data[1] = 'N';
     }
 
     //
@@ -540,15 +539,25 @@ namespace ocn
     }
 
     //
-    // Arguments    : void
+    // Arguments    : const CurvStruct *b_value_type
     // Return Type  : void
     //
-    void rtString::init()
+    void queue_coder::init(const CurvStruct *b_value_type)
     {
-        this->Value.size[0] = 1;
-        this->Value.size[1] = 2;
-        this->Value.data[0] = 'N';
-        this->Value.data[1] = 'N';
+        //              fprintf('queue_coder::ctor\n');
+        this->value_type = *b_value_type;
+        this->ptr = c_queue_new();
+    }
+
+    //
+    // Arguments    : double b_dt
+    // Return Type  : void
+    //
+    void ResampleStateClass::init(double b_dt)
+    {
+        this->set_u();
+        this->set_go_next();
+        this->set_dt(b_dt);
     }
 
     //
@@ -1269,13 +1278,13 @@ namespace ocn
         for (int k = 0; k < inner; k++) {
             int scalarLB;
             int vectorUB;
-            scalarLB = (mc + 1) & -4;
-            vectorUB = scalarLB - 4;
-            for (c_i = 0; c_i <= vectorUB; c_i += 4) {
-                __m256d r;
-                r = _mm256_loadu_pd(&q_val[c_i]);
-                _mm256_storeu_pd(&q_val[c_i], _mm256_add_pd(r, _mm256_mul_pd(_mm256_loadu_pd
-                                   (&BasisVal[c_i + BasisVal.size(0) * k]), _mm256_set1_pd(Coeff[k]))));
+            scalarLB = (mc + 1) & -2;
+            vectorUB = scalarLB - 2;
+            for (c_i = 0; c_i <= vectorUB; c_i += 2) {
+                __m128d r;
+                r = _mm_loadu_pd(&q_val[c_i]);
+                _mm_storeu_pd(&q_val[c_i], _mm_add_pd(r, _mm_mul_pd(_mm_loadu_pd(&BasisVal[c_i +
+                                 BasisVal.size(0) * k]), _mm_set1_pd(Coeff[k]))));
             }
 
             for (c_i = scalarLB; c_i <= mc; c_i++) {
@@ -1303,12 +1312,12 @@ namespace ocn
         }
 
         i3 = q_val.size(0);
-        b_scalarLB = q_val.size(0) & -4;
-        b_vectorUB = b_scalarLB - 4;
-        for (b_k = 0; b_k <= b_vectorUB; b_k += 4) {
-            __m256d r1;
-            r1 = _mm256_loadu_pd(&y[b_k]);
-            _mm256_storeu_pd(&y[b_k], _mm256_sqrt_pd(r1));
+        b_scalarLB = q_val.size(0) & -2;
+        b_vectorUB = b_scalarLB - 2;
+        for (b_k = 0; b_k <= b_vectorUB; b_k += 2) {
+            __m128d r1;
+            r1 = _mm_loadu_pd(&y[b_k]);
+            _mm_storeu_pd(&y[b_k], _mm_sqrt_pd(r1));
         }
 
         for (b_k = b_scalarLB; b_k < i3; b_k++) {
@@ -1343,18 +1352,17 @@ namespace ocn
             int c_scalarLB;
             int c_vectorUB;
             g_loop_ub = r2.size(0);
-            c_scalarLB = r2.size(0) & -4;
-            c_vectorUB = c_scalarLB - 4;
-            for (i9 = 0; i9 <= c_vectorUB; i9 += 4) {
-                __m256d r5;
-                __m256d r6;
-                __m256d r7;
-                r5 = _mm256_loadu_pd(&r3[i9 + r3.size(0) * i7]);
-                r6 = _mm256_loadu_pd(&r2[i9 + r2.size(0) * i7]);
-                r7 = _mm256_loadu_pd(&r4[i9 + r4.size(0) * i7]);
-                _mm256_storeu_pd(&r2[i9 + r2.size(0) * i7], _mm256_add_pd(_mm256_add_pd(r6,
-                                   _mm256_mul_pd(_mm256_set1_pd(1.5), r5)), _mm256_mul_pd
-                                  (_mm256_set1_pd(0.5), r7)));
+            c_scalarLB = r2.size(0) & -2;
+            c_vectorUB = c_scalarLB - 2;
+            for (i9 = 0; i9 <= c_vectorUB; i9 += 2) {
+                __m128d r5;
+                __m128d r6;
+                __m128d r7;
+                r5 = _mm_loadu_pd(&r3[i9 + r3.size(0) * i7]);
+                r6 = _mm_loadu_pd(&r2[i9 + r2.size(0) * i7]);
+                r7 = _mm_loadu_pd(&r4[i9 + r4.size(0) * i7]);
+                _mm_storeu_pd(&r2[i9 + r2.size(0) * i7], _mm_add_pd(_mm_add_pd(r6, _mm_mul_pd
+                                (_mm_set1_pd(1.5), r5)), _mm_mul_pd(_mm_set1_pd(0.5), r7)));
             }
 
             for (i9 = c_scalarLB; i9 < g_loop_ub; i9++) {
@@ -1371,12 +1379,12 @@ namespace ocn
         }
 
         i10 = q_val.size(0);
-        d_scalarLB = q_val.size(0) & -4;
-        d_vectorUB = d_scalarLB - 4;
-        for (c_k = 0; c_k <= d_vectorUB; c_k += 4) {
-            __m256d r8;
-            r8 = _mm256_loadu_pd(&y[c_k]);
-            _mm256_storeu_pd(&y[c_k], _mm256_sqrt_pd(r8));
+        d_scalarLB = q_val.size(0) & -2;
+        d_vectorUB = d_scalarLB - 2;
+        for (c_k = 0; c_k <= d_vectorUB; c_k += 2) {
+            __m128d r8;
+            r8 = _mm_loadu_pd(&y[c_k]);
+            _mm_storeu_pd(&y[c_k], _mm_sqrt_pd(r8));
         }
 
         for (c_k = d_scalarLB; c_k < i10; c_k++) {
@@ -1411,18 +1419,17 @@ namespace ocn
             int e_scalarLB;
             int e_vectorUB;
             m_loop_ub = r2.size(0);
-            e_scalarLB = r2.size(0) & -4;
-            e_vectorUB = e_scalarLB - 4;
-            for (i16 = 0; i16 <= e_vectorUB; i16 += 4) {
-                __m256d r9;
-                __m256d r11;
-                __m256d r12;
-                r9 = _mm256_loadu_pd(&r3[i16 + r3.size(0) * i14]);
-                r11 = _mm256_loadu_pd(&r2[i16 + r2.size(0) * i14]);
-                r12 = _mm256_loadu_pd(&r4[i16 + r4.size(0) * i14]);
-                _mm256_storeu_pd(&r2[i16 + r2.size(0) * i14], _mm256_add_pd(_mm256_add_pd(r11,
-                                   _mm256_mul_pd(_mm256_set1_pd(1.5), r9)), _mm256_mul_pd
-                                  (_mm256_set1_pd(0.5), r12)));
+            e_scalarLB = r2.size(0) & -2;
+            e_vectorUB = e_scalarLB - 2;
+            for (i16 = 0; i16 <= e_vectorUB; i16 += 2) {
+                __m128d r9;
+                __m128d r11;
+                __m128d r12;
+                r9 = _mm_loadu_pd(&r3[i16 + r3.size(0) * i14]);
+                r11 = _mm_loadu_pd(&r2[i16 + r2.size(0) * i14]);
+                r12 = _mm_loadu_pd(&r4[i16 + r4.size(0) * i14]);
+                _mm_storeu_pd(&r2[i16 + r2.size(0) * i14], _mm_add_pd(_mm_add_pd(r11, _mm_mul_pd
+                                (_mm_set1_pd(1.5), r9)), _mm_mul_pd(_mm_set1_pd(0.5), r12)));
             }
 
             for (i16 = e_scalarLB; i16 < m_loop_ub; i16++) {
@@ -1433,12 +1440,12 @@ namespace ocn
 
         c_bsxfun(r2, y, R2);
         i15 = q_val.size(0);
-        f_scalarLB = q_val.size(0) & -4;
-        f_vectorUB = f_scalarLB - 4;
-        for (d_k = 0; d_k <= f_vectorUB; d_k += 4) {
-            __m256d r10;
-            r10 = _mm256_loadu_pd(&q_val[d_k]);
-            _mm256_storeu_pd(&q_val[d_k], _mm256_sqrt_pd(r10));
+        f_scalarLB = q_val.size(0) & -2;
+        f_vectorUB = f_scalarLB - 2;
+        for (d_k = 0; d_k <= f_vectorUB; d_k += 2) {
+            __m128d r10;
+            r10 = _mm_loadu_pd(&q_val[d_k]);
+            _mm_storeu_pd(&q_val[d_k], _mm_sqrt_pd(r10));
         }
 
         for (d_k = f_scalarLB; d_k < i15; d_k++) {
@@ -1473,18 +1480,17 @@ namespace ocn
             int g_scalarLB;
             int g_vectorUB;
             r_loop_ub = r2.size(0);
-            g_scalarLB = r2.size(0) & -4;
-            g_vectorUB = g_scalarLB - 4;
-            for (i21 = 0; i21 <= g_vectorUB; i21 += 4) {
-                __m256d r13;
-                __m256d r14;
-                __m256d r15;
-                r13 = _mm256_loadu_pd(&r3[i21 + r3.size(0) * i20]);
-                r14 = _mm256_loadu_pd(&r2[i21 + r2.size(0) * i20]);
-                r15 = _mm256_loadu_pd(&r4[i21 + r4.size(0) * i20]);
-                _mm256_storeu_pd(&r2[i21 + r2.size(0) * i20], _mm256_add_pd(_mm256_add_pd(r14,
-                                   _mm256_mul_pd(_mm256_set1_pd(1.5), r13)), _mm256_mul_pd
-                                  (_mm256_set1_pd(0.5), r15)));
+            g_scalarLB = r2.size(0) & -2;
+            g_vectorUB = g_scalarLB - 2;
+            for (i21 = 0; i21 <= g_vectorUB; i21 += 2) {
+                __m128d r13;
+                __m128d r14;
+                __m128d r15;
+                r13 = _mm_loadu_pd(&r3[i21 + r3.size(0) * i20]);
+                r14 = _mm_loadu_pd(&r2[i21 + r2.size(0) * i20]);
+                r15 = _mm_loadu_pd(&r4[i21 + r4.size(0) * i20]);
+                _mm_storeu_pd(&r2[i21 + r2.size(0) * i20], _mm_add_pd(_mm_add_pd(r14, _mm_mul_pd
+                                (_mm_set1_pd(1.5), r13)), _mm_mul_pd(_mm_set1_pd(0.5), r15)));
             }
 
             for (i21 = g_scalarLB; i21 < r_loop_ub; i21++) {
@@ -1509,13 +1515,13 @@ namespace ocn
             int h_scalarLB;
             int h_vectorUB;
             t_loop_ub = R1.size(0);
-            h_scalarLB = R1.size(0) & -4;
-            h_vectorUB = h_scalarLB - 4;
-            for (i24 = 0; i24 <= h_vectorUB; i24 += 4) {
-                __m256d r16;
-                r16 = _mm256_loadu_pd(&R1[i24 + R1.size(0) * i22]);
-                _mm256_storeu_pd(&varargin_2[i24 + varargin_2.size(0) * i22], _mm256_mul_pd(r16,
-                                  _mm256_set1_pd(-1.0)));
+            h_scalarLB = R1.size(0) & -2;
+            h_vectorUB = h_scalarLB - 2;
+            for (i24 = 0; i24 <= h_vectorUB; i24 += 2) {
+                __m128d r16;
+                r16 = _mm_loadu_pd(&R1[i24 + R1.size(0) * i22]);
+                _mm_storeu_pd(&varargin_2[i24 + varargin_2.size(0) * i22], _mm_mul_pd(r16,
+                               _mm_set1_pd(-1.0)));
             }
 
             for (i24 = h_scalarLB; i24 < t_loop_ub; i24++) {
@@ -1530,13 +1536,13 @@ namespace ocn
             int i_scalarLB;
             int i_vectorUB;
             v_loop_ub = R2.size(0);
-            i_scalarLB = R2.size(0) & -4;
-            i_vectorUB = i_scalarLB - 4;
-            for (i26 = 0; i26 <= i_vectorUB; i26 += 4) {
-                __m256d r17;
-                r17 = _mm256_loadu_pd(&R2[i26 + R2.size(0) * i23]);
-                _mm256_storeu_pd(&varargin_4[i26 + varargin_4.size(0) * i23], _mm256_mul_pd(r17,
-                                  _mm256_set1_pd(-1.0)));
+            i_scalarLB = R2.size(0) & -2;
+            i_vectorUB = i_scalarLB - 2;
+            for (i26 = 0; i26 <= i_vectorUB; i26 += 2) {
+                __m128d r17;
+                r17 = _mm_loadu_pd(&R2[i26 + R2.size(0) * i23]);
+                _mm_storeu_pd(&varargin_4[i26 + varargin_4.size(0) * i23], _mm_mul_pd(r17,
+                               _mm_set1_pd(-1.0)));
             }
 
             for (i26 = i_scalarLB; i26 < v_loop_ub; i26++) {
@@ -1551,13 +1557,13 @@ namespace ocn
             int j_scalarLB;
             int j_vectorUB;
             x_loop_ub = R3.size(0);
-            j_scalarLB = R3.size(0) & -4;
-            j_vectorUB = j_scalarLB - 4;
-            for (i27 = 0; i27 <= j_vectorUB; i27 += 4) {
-                __m256d r18;
-                r18 = _mm256_loadu_pd(&R3[i27 + R3.size(0) * i25]);
-                _mm256_storeu_pd(&varargin_6[i27 + varargin_6.size(0) * i25], _mm256_mul_pd(r18,
-                                  _mm256_set1_pd(-1.0)));
+            j_scalarLB = R3.size(0) & -2;
+            j_vectorUB = j_scalarLB - 2;
+            for (i27 = 0; i27 <= j_vectorUB; i27 += 2) {
+                __m128d r18;
+                r18 = _mm_loadu_pd(&R3[i27 + R3.size(0) * i25]);
+                _mm_storeu_pd(&varargin_6[i27 + varargin_6.size(0) * i25], _mm_mul_pd(r18,
+                               _mm_set1_pd(-1.0)));
             }
 
             for (i27 = j_scalarLB; i27 < x_loop_ub; i27++) {
@@ -1857,14 +1863,14 @@ namespace ocn
             for (int f_k = 0; f_k < b_inner; f_k++) {
                 int k_scalarLB;
                 int k_vectorUB;
-                k_scalarLB = (b_mc + 1) & -4;
-                k_vectorUB = k_scalarLB - 4;
-                for (e_i = 0; e_i <= k_vectorUB; e_i += 4) {
-                    __m256d r20;
-                    r20 = _mm256_loadu_pd(&q_val[e_i]);
-                    _mm256_storeu_pd(&q_val[e_i], _mm256_add_pd(r20, _mm256_mul_pd(_mm256_loadu_pd
-                                       (&BasisVal[e_i + BasisVal.size(0) * f_k]), _mm256_set1_pd
-                                       (Coeff[f_k + Coeff.size(0) * (e_k + 1)]))));
+                k_scalarLB = (b_mc + 1) & -2;
+                k_vectorUB = k_scalarLB - 2;
+                for (e_i = 0; e_i <= k_vectorUB; e_i += 2) {
+                    __m128d r20;
+                    r20 = _mm_loadu_pd(&q_val[e_i]);
+                    _mm_storeu_pd(&q_val[e_i], _mm_add_pd(r20, _mm_mul_pd(_mm_loadu_pd(&BasisVal[e_i
+                                     + BasisVal.size(0) * f_k]), _mm_set1_pd(Coeff[f_k + Coeff.size
+                                     (0) * (e_k + 1)]))));
                 }
 
                 for (e_i = k_scalarLB; e_i <= b_mc; e_i++) {
@@ -1881,12 +1887,12 @@ namespace ocn
             }
 
             i56 = q_val.size(0);
-            l_scalarLB = q_val.size(0) & -4;
-            l_vectorUB = l_scalarLB - 4;
-            for (g_k = 0; g_k <= l_vectorUB; g_k += 4) {
-                __m256d r21;
-                r21 = _mm256_loadu_pd(&y[g_k]);
-                _mm256_storeu_pd(&y[g_k], _mm256_sqrt_pd(r21));
+            l_scalarLB = q_val.size(0) & -2;
+            l_vectorUB = l_scalarLB - 2;
+            for (g_k = 0; g_k <= l_vectorUB; g_k += 2) {
+                __m128d r21;
+                r21 = _mm_loadu_pd(&y[g_k]);
+                _mm_storeu_pd(&y[g_k], _mm_sqrt_pd(r21));
             }
 
             for (g_k = l_scalarLB; g_k < i56; g_k++) {
@@ -1921,18 +1927,17 @@ namespace ocn
                 int m_scalarLB;
                 int m_vectorUB;
                 rb_loop_ub = r2.size(0);
-                m_scalarLB = r2.size(0) & -4;
-                m_vectorUB = m_scalarLB - 4;
-                for (i62 = 0; i62 <= m_vectorUB; i62 += 4) {
-                    __m256d r22;
-                    __m256d r23;
-                    __m256d r24;
-                    r22 = _mm256_loadu_pd(&r3[i62 + r3.size(0) * i60]);
-                    r23 = _mm256_loadu_pd(&r2[i62 + r2.size(0) * i60]);
-                    r24 = _mm256_loadu_pd(&r4[i62 + r4.size(0) * i60]);
-                    _mm256_storeu_pd(&r2[i62 + r2.size(0) * i60], _mm256_add_pd(_mm256_add_pd(r23,
-                                       _mm256_mul_pd(_mm256_set1_pd(1.5), r22)), _mm256_mul_pd
-                                      (_mm256_set1_pd(0.5), r24)));
+                m_scalarLB = r2.size(0) & -2;
+                m_vectorUB = m_scalarLB - 2;
+                for (i62 = 0; i62 <= m_vectorUB; i62 += 2) {
+                    __m128d r22;
+                    __m128d r23;
+                    __m128d r24;
+                    r22 = _mm_loadu_pd(&r3[i62 + r3.size(0) * i60]);
+                    r23 = _mm_loadu_pd(&r2[i62 + r2.size(0) * i60]);
+                    r24 = _mm_loadu_pd(&r4[i62 + r4.size(0) * i60]);
+                    _mm_storeu_pd(&r2[i62 + r2.size(0) * i60], _mm_add_pd(_mm_add_pd(r23, _mm_mul_pd
+                                    (_mm_set1_pd(1.5), r22)), _mm_mul_pd(_mm_set1_pd(0.5), r24)));
                 }
 
                 for (i62 = m_scalarLB; i62 < rb_loop_ub; i62++) {
@@ -1949,12 +1954,12 @@ namespace ocn
             }
 
             i63 = q_val.size(0);
-            n_scalarLB = q_val.size(0) & -4;
-            n_vectorUB = n_scalarLB - 4;
-            for (h_k = 0; h_k <= n_vectorUB; h_k += 4) {
-                __m256d r25;
-                r25 = _mm256_loadu_pd(&y[h_k]);
-                _mm256_storeu_pd(&y[h_k], _mm256_sqrt_pd(r25));
+            n_scalarLB = q_val.size(0) & -2;
+            n_vectorUB = n_scalarLB - 2;
+            for (h_k = 0; h_k <= n_vectorUB; h_k += 2) {
+                __m128d r25;
+                r25 = _mm_loadu_pd(&y[h_k]);
+                _mm_storeu_pd(&y[h_k], _mm_sqrt_pd(r25));
             }
 
             for (h_k = n_scalarLB; h_k < i63; h_k++) {
@@ -1989,18 +1994,17 @@ namespace ocn
                 int o_scalarLB;
                 int o_vectorUB;
                 xb_loop_ub = r2.size(0);
-                o_scalarLB = r2.size(0) & -4;
-                o_vectorUB = o_scalarLB - 4;
-                for (i69 = 0; i69 <= o_vectorUB; i69 += 4) {
-                    __m256d r26;
-                    __m256d r28;
-                    __m256d r29;
-                    r26 = _mm256_loadu_pd(&r3[i69 + r3.size(0) * i67]);
-                    r28 = _mm256_loadu_pd(&r2[i69 + r2.size(0) * i67]);
-                    r29 = _mm256_loadu_pd(&r4[i69 + r4.size(0) * i67]);
-                    _mm256_storeu_pd(&r2[i69 + r2.size(0) * i67], _mm256_add_pd(_mm256_add_pd(r28,
-                                       _mm256_mul_pd(_mm256_set1_pd(1.5), r26)), _mm256_mul_pd
-                                      (_mm256_set1_pd(0.5), r29)));
+                o_scalarLB = r2.size(0) & -2;
+                o_vectorUB = o_scalarLB - 2;
+                for (i69 = 0; i69 <= o_vectorUB; i69 += 2) {
+                    __m128d r26;
+                    __m128d r28;
+                    __m128d r29;
+                    r26 = _mm_loadu_pd(&r3[i69 + r3.size(0) * i67]);
+                    r28 = _mm_loadu_pd(&r2[i69 + r2.size(0) * i67]);
+                    r29 = _mm_loadu_pd(&r4[i69 + r4.size(0) * i67]);
+                    _mm_storeu_pd(&r2[i69 + r2.size(0) * i67], _mm_add_pd(_mm_add_pd(r28, _mm_mul_pd
+                                    (_mm_set1_pd(1.5), r26)), _mm_mul_pd(_mm_set1_pd(0.5), r29)));
                 }
 
                 for (i69 = o_scalarLB; i69 < xb_loop_ub; i69++) {
@@ -2011,12 +2015,12 @@ namespace ocn
 
             c_bsxfun(r2, y, R2);
             i68 = q_val.size(0);
-            p_scalarLB = q_val.size(0) & -4;
-            p_vectorUB = p_scalarLB - 4;
-            for (i_k = 0; i_k <= p_vectorUB; i_k += 4) {
-                __m256d r27;
-                r27 = _mm256_loadu_pd(&q_val[i_k]);
-                _mm256_storeu_pd(&q_val[i_k], _mm256_sqrt_pd(r27));
+            p_scalarLB = q_val.size(0) & -2;
+            p_vectorUB = p_scalarLB - 2;
+            for (i_k = 0; i_k <= p_vectorUB; i_k += 2) {
+                __m128d r27;
+                r27 = _mm_loadu_pd(&q_val[i_k]);
+                _mm_storeu_pd(&q_val[i_k], _mm_sqrt_pd(r27));
             }
 
             for (i_k = p_scalarLB; i_k < i68; i_k++) {
@@ -2051,18 +2055,17 @@ namespace ocn
                 int q_scalarLB;
                 int q_vectorUB;
                 dc_loop_ub = r2.size(0);
-                q_scalarLB = r2.size(0) & -4;
-                q_vectorUB = q_scalarLB - 4;
-                for (i74 = 0; i74 <= q_vectorUB; i74 += 4) {
-                    __m256d r30;
-                    __m256d r31;
-                    __m256d r32;
-                    r30 = _mm256_loadu_pd(&r3[i74 + r3.size(0) * i73]);
-                    r31 = _mm256_loadu_pd(&r2[i74 + r2.size(0) * i73]);
-                    r32 = _mm256_loadu_pd(&r4[i74 + r4.size(0) * i73]);
-                    _mm256_storeu_pd(&r2[i74 + r2.size(0) * i73], _mm256_add_pd(_mm256_add_pd(r31,
-                                       _mm256_mul_pd(_mm256_set1_pd(1.5), r30)), _mm256_mul_pd
-                                      (_mm256_set1_pd(0.5), r32)));
+                q_scalarLB = r2.size(0) & -2;
+                q_vectorUB = q_scalarLB - 2;
+                for (i74 = 0; i74 <= q_vectorUB; i74 += 2) {
+                    __m128d r30;
+                    __m128d r31;
+                    __m128d r32;
+                    r30 = _mm_loadu_pd(&r3[i74 + r3.size(0) * i73]);
+                    r31 = _mm_loadu_pd(&r2[i74 + r2.size(0) * i73]);
+                    r32 = _mm_loadu_pd(&r4[i74 + r4.size(0) * i73]);
+                    _mm_storeu_pd(&r2[i74 + r2.size(0) * i73], _mm_add_pd(_mm_add_pd(r31, _mm_mul_pd
+                                    (_mm_set1_pd(1.5), r30)), _mm_mul_pd(_mm_set1_pd(0.5), r32)));
                 }
 
                 for (i74 = q_scalarLB; i74 < dc_loop_ub; i74++) {
@@ -2087,13 +2090,13 @@ namespace ocn
                 int r_scalarLB;
                 int r_vectorUB;
                 fc_loop_ub = R1.size(0);
-                r_scalarLB = R1.size(0) & -4;
-                r_vectorUB = r_scalarLB - 4;
-                for (i77 = 0; i77 <= r_vectorUB; i77 += 4) {
-                    __m256d r33;
-                    r33 = _mm256_loadu_pd(&R1[i77 + R1.size(0) * i75]);
-                    _mm256_storeu_pd(&varargin_2[i77 + varargin_2.size(0) * i75], _mm256_mul_pd(r33,
-                                      _mm256_set1_pd(-1.0)));
+                r_scalarLB = R1.size(0) & -2;
+                r_vectorUB = r_scalarLB - 2;
+                for (i77 = 0; i77 <= r_vectorUB; i77 += 2) {
+                    __m128d r33;
+                    r33 = _mm_loadu_pd(&R1[i77 + R1.size(0) * i75]);
+                    _mm_storeu_pd(&varargin_2[i77 + varargin_2.size(0) * i75], _mm_mul_pd(r33,
+                                   _mm_set1_pd(-1.0)));
                 }
 
                 for (i77 = r_scalarLB; i77 < fc_loop_ub; i77++) {
@@ -2108,13 +2111,13 @@ namespace ocn
                 int s_scalarLB;
                 int s_vectorUB;
                 hc_loop_ub = R2.size(0);
-                s_scalarLB = R2.size(0) & -4;
-                s_vectorUB = s_scalarLB - 4;
-                for (i79 = 0; i79 <= s_vectorUB; i79 += 4) {
-                    __m256d r34;
-                    r34 = _mm256_loadu_pd(&R2[i79 + R2.size(0) * i76]);
-                    _mm256_storeu_pd(&varargin_4[i79 + varargin_4.size(0) * i76], _mm256_mul_pd(r34,
-                                      _mm256_set1_pd(-1.0)));
+                s_scalarLB = R2.size(0) & -2;
+                s_vectorUB = s_scalarLB - 2;
+                for (i79 = 0; i79 <= s_vectorUB; i79 += 2) {
+                    __m128d r34;
+                    r34 = _mm_loadu_pd(&R2[i79 + R2.size(0) * i76]);
+                    _mm_storeu_pd(&varargin_4[i79 + varargin_4.size(0) * i76], _mm_mul_pd(r34,
+                                   _mm_set1_pd(-1.0)));
                 }
 
                 for (i79 = s_scalarLB; i79 < hc_loop_ub; i79++) {
@@ -2129,13 +2132,13 @@ namespace ocn
                 int t_scalarLB;
                 int t_vectorUB;
                 jc_loop_ub = R3.size(0);
-                t_scalarLB = R3.size(0) & -4;
-                t_vectorUB = t_scalarLB - 4;
-                for (i80 = 0; i80 <= t_vectorUB; i80 += 4) {
-                    __m256d r35;
-                    r35 = _mm256_loadu_pd(&R3[i80 + R3.size(0) * i78]);
-                    _mm256_storeu_pd(&varargin_6[i80 + varargin_6.size(0) * i78], _mm256_mul_pd(r35,
-                                      _mm256_set1_pd(-1.0)));
+                t_scalarLB = R3.size(0) & -2;
+                t_vectorUB = t_scalarLB - 2;
+                for (i80 = 0; i80 <= t_vectorUB; i80 += 2) {
+                    __m128d r35;
+                    r35 = _mm_loadu_pd(&R3[i80 + R3.size(0) * i78]);
+                    _mm_storeu_pd(&varargin_6[i80 + varargin_6.size(0) * i78], _mm_mul_pd(r35,
+                                   _mm_set1_pd(-1.0)));
                 }
 
                 for (i80 = t_scalarLB; i80 < jc_loop_ub; i80++) {
@@ -2323,6 +2326,7 @@ namespace ocn
     //                bool ctx_cfg_UseLinearBreakpoints
     //                double c_ctx_cfg_DynamicBreakpointsDis
     //                int ctx_cfg_SplineDegree
+    //                double ctx_cfg_NGridLengthSpline
     //                int ctx_Bl_ncoeff
     //                unsigned long ctx_Bl_handle
     //                const coder::array<CurvStruct, 2U> &CurvStructs
@@ -2342,11 +2346,11 @@ namespace ocn
     //
     static void BuildConstr_v4(const queue_coder *ctx_q_splines, bool ctx_cfg_UseDynamicBreakpoints,
         bool ctx_cfg_UseLinearBreakpoints, double c_ctx_cfg_DynamicBreakpointsDis, int
-        ctx_cfg_SplineDegree, int ctx_Bl_ncoeff, unsigned long ctx_Bl_handle, const coder::array<
-        CurvStruct, 2U> &CurvStructs, const double amax[3], double v_0, double at_0, double v_1,
-        double at_1, coder::array<double, 2U> &BasisVal, coder::array<double, 2U> &BasisValD, const
-        coder::array<double, 2U> &u_vec, coder_internal_sparse *A, coder::array<double, 1U> &b,
-        coder::array<double, 2U> &Aeq, coder::array<double, 1U> &beq)
+        ctx_cfg_SplineDegree, double ctx_cfg_NGridLengthSpline, int ctx_Bl_ncoeff, unsigned long
+        ctx_Bl_handle, const coder::array<CurvStruct, 2U> &CurvStructs, const double amax[3], double
+        v_0, double at_0, double v_1, double at_1, coder::array<double, 2U> &BasisVal, coder::array<
+        double, 2U> &BasisValD, const coder::array<double, 2U> &u_vec, coder_internal_sparse *A,
+        coder::array<double, 1U> &b, coder::array<double, 2U> &Aeq, coder::array<double, 1U> &beq)
     {
         int Bl_ncoeff;
         unsigned long Bl_handle;
@@ -2441,7 +2445,7 @@ namespace ocn
         int jb_loop_ub;
         int kb_loop_ub;
         coder::array<double, 2U> g_a;
-        coder::array<double, 2U> r14;
+        coder::array<double, 2U> r15;
         int lb_loop_ub;
         int mb_loop_ub;
         coder::array<double, 2U> r1Dn_sqnorm;
@@ -2463,12 +2467,14 @@ namespace ocn
         coder::array<double, 2U> r2Dn;
         int ub_loop_ub;
         double m_a;
-        coder::array<double, 2U> r15;
+        coder::array<double, 2U> r16;
         double d1;
         int i64;
+        int f_r1D;
+        int g_r1D;
         double t_1[3];
-        int e_r1D;
         double d3;
+        __m128d r18;
         int xb_loop_ub;
         coder::array<double, 1U> b_r2Dn;
         int yb_loop_ub;
@@ -2484,24 +2490,25 @@ namespace ocn
         int i88;
         cell_wrap_3 reshapes[3];
         coder::array<double, 2U> b_reshapes;
-        if (DebugActive) {
-            //  1 -> stdout
-            //  2 -> stderr
-            fprintf(stderr,
-                    "BuildConstr_v4 with Ncrv = %d, amax = [%f, %f, %f], v_0 = %f, at_0 = %f, v_1 = %f, at_1 = %f\n",
-                    CurvStructs.size(1), amax[0], amax[1], amax[2], v_0, at_0, v_1, at_1);
-            fflush(stderr);
+
+        //  1 -> stdout
+        //  2 -> stderr
+        if ((static_cast<unsigned long>(std::round(DebugConfig)) & 8UL) != 0UL) {
+            printf("BuildConstr_v4 with Ncrv = %d, amax = [%f, %f, %f], v_0 = %f, at_0 = %f, v_1 = %f, at_1 = %f\n",
+                   CurvStructs.size(1), amax[0], amax[1], amax[2], v_0, at_0, v_1, at_1);
+            fflush(stdout);
         }
 
         Bl_ncoeff = ctx_Bl_ncoeff;
         Bl_handle = ctx_Bl_handle;
         if (ctx_cfg_UseDynamicBreakpoints) {
             double varargin_1;
-            varargin_1 = LengthCurv(ctx_q_splines, CurvStructs[0].Type, CurvStructs[0].P0,
-                                    CurvStructs[0].P1, CurvStructs[0].HelixCenter, CurvStructs[0].
-                                    evec, CurvStructs[0].theta, CurvStructs[0].pitch, CurvStructs[0]
-                                    .CoeffP5, CurvStructs[0].sp_index, CurvStructs[0].a_param,
-                                    CurvStructs[0].b_param) / c_ctx_cfg_DynamicBreakpointsDis;
+            varargin_1 = LengthCurv(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStructs[0].Type,
+                                    CurvStructs[0].P0, CurvStructs[0].P1, CurvStructs[0].HelixCenter,
+                                    CurvStructs[0].evec, CurvStructs[0].theta, CurvStructs[0].pitch,
+                                    CurvStructs[0].CoeffP5, CurvStructs[0].sp_index, CurvStructs[0].
+                                    a_param, CurvStructs[0].b_param) /
+                c_ctx_cfg_DynamicBreakpointsDis;
             if (ctx_cfg_UseLinearBreakpoints) {
                 double delta1;
                 int i;
@@ -2606,15 +2613,15 @@ namespace ocn
             int scalarLB;
             int vectorUB;
             g_loop_ub = r1.size(0);
-            scalarLB = r1.size(0) & -4;
-            vectorUB = scalarLB - 4;
-            for (i11 = 0; i11 <= vectorUB; i11 += 4) {
-                __m256d r3;
-                __m256d r4;
-                r3 = _mm256_loadu_pd(&r2[i11 + r2.size(0) * i9]);
-                r4 = _mm256_loadu_pd(&r1[i11 + r1.size(0) * i9]);
-                _mm256_storeu_pd(&R1[i11 + R1.size(0) * i9], _mm256_add_pd(r4, _mm256_mul_pd
-                                  (_mm256_set1_pd(0.5), r3)));
+            scalarLB = r1.size(0) & -2;
+            vectorUB = scalarLB - 2;
+            for (i11 = 0; i11 <= vectorUB; i11 += 2) {
+                __m128d r3;
+                __m128d r4;
+                r3 = _mm_loadu_pd(&r2[i11 + r2.size(0) * i9]);
+                r4 = _mm_loadu_pd(&r1[i11 + r1.size(0) * i9]);
+                _mm_storeu_pd(&R1[i11 + R1.size(0) * i9], _mm_add_pd(r4, _mm_mul_pd(_mm_set1_pd(0.5),
+                                r3)));
             }
 
             for (i11 = scalarLB; i11 < g_loop_ub; i11++) {
@@ -2644,15 +2651,15 @@ namespace ocn
             int b_scalarLB;
             int b_vectorUB;
             k_loop_ub = r1.size(0);
-            b_scalarLB = r1.size(0) & -4;
-            b_vectorUB = b_scalarLB - 4;
-            for (i15 = 0; i15 <= b_vectorUB; i15 += 4) {
-                __m256d r5;
-                __m256d r6;
-                r5 = _mm256_loadu_pd(&r2[i15 + r2.size(0) * i13]);
-                r6 = _mm256_loadu_pd(&r1[i15 + r1.size(0) * i13]);
-                _mm256_storeu_pd(&R2[i15 + R2.size(0) * i13], _mm256_add_pd(r6, _mm256_mul_pd
-                                  (_mm256_set1_pd(0.5), r5)));
+            b_scalarLB = r1.size(0) & -2;
+            b_vectorUB = b_scalarLB - 2;
+            for (i15 = 0; i15 <= b_vectorUB; i15 += 2) {
+                __m128d r5;
+                __m128d r6;
+                r5 = _mm_loadu_pd(&r2[i15 + r2.size(0) * i13]);
+                r6 = _mm_loadu_pd(&r1[i15 + r1.size(0) * i13]);
+                _mm_storeu_pd(&R2[i15 + R2.size(0) * i13], _mm_add_pd(r6, _mm_mul_pd(_mm_set1_pd(0.5),
+                                r5)));
             }
 
             for (i15 = b_scalarLB; i15 < k_loop_ub; i15++) {
@@ -2682,15 +2689,15 @@ namespace ocn
             int c_scalarLB;
             int c_vectorUB;
             n_loop_ub = r1.size(0);
-            c_scalarLB = r1.size(0) & -4;
-            c_vectorUB = c_scalarLB - 4;
-            for (i19 = 0; i19 <= c_vectorUB; i19 += 4) {
-                __m256d r7;
-                __m256d r8;
-                r7 = _mm256_loadu_pd(&r2[i19 + r2.size(0) * i17]);
-                r8 = _mm256_loadu_pd(&r1[i19 + r1.size(0) * i17]);
-                _mm256_storeu_pd(&R3[i19 + R3.size(0) * i17], _mm256_add_pd(r8, _mm256_mul_pd
-                                  (_mm256_set1_pd(0.5), r7)));
+            c_scalarLB = r1.size(0) & -2;
+            c_vectorUB = c_scalarLB - 2;
+            for (i19 = 0; i19 <= c_vectorUB; i19 += 2) {
+                __m128d r7;
+                __m128d r8;
+                r7 = _mm_loadu_pd(&r2[i19 + r2.size(0) * i17]);
+                r8 = _mm_loadu_pd(&r1[i19 + r1.size(0) * i17]);
+                _mm_storeu_pd(&R3[i19 + R3.size(0) * i17], _mm_add_pd(r8, _mm_mul_pd(_mm_set1_pd(0.5),
+                                r7)));
             }
 
             for (i19 = c_scalarLB; i19 < n_loop_ub; i19++) {
@@ -2707,13 +2714,13 @@ namespace ocn
             int d_scalarLB;
             int d_vectorUB;
             p_loop_ub = R1.size(0);
-            d_scalarLB = R1.size(0) & -4;
-            d_vectorUB = d_scalarLB - 4;
-            for (i21 = 0; i21 <= d_vectorUB; i21 += 4) {
-                __m256d r9;
-                r9 = _mm256_loadu_pd(&R1[i21 + R1.size(0) * i18]);
-                _mm256_storeu_pd(&varargin_3[i21 + varargin_3.size(0) * i18], _mm256_mul_pd(r9,
-                                  _mm256_set1_pd(-1.0)));
+            d_scalarLB = R1.size(0) & -2;
+            d_vectorUB = d_scalarLB - 2;
+            for (i21 = 0; i21 <= d_vectorUB; i21 += 2) {
+                __m128d r9;
+                r9 = _mm_loadu_pd(&R1[i21 + R1.size(0) * i18]);
+                _mm_storeu_pd(&varargin_3[i21 + varargin_3.size(0) * i18], _mm_mul_pd(r9,
+                               _mm_set1_pd(-1.0)));
             }
 
             for (i21 = d_scalarLB; i21 < p_loop_ub; i21++) {
@@ -2728,13 +2735,13 @@ namespace ocn
             int e_scalarLB;
             int e_vectorUB;
             r_loop_ub = R2.size(0);
-            e_scalarLB = R2.size(0) & -4;
-            e_vectorUB = e_scalarLB - 4;
-            for (i23 = 0; i23 <= e_vectorUB; i23 += 4) {
-                __m256d r10;
-                r10 = _mm256_loadu_pd(&R2[i23 + R2.size(0) * i20]);
-                _mm256_storeu_pd(&varargin_5[i23 + varargin_5.size(0) * i20], _mm256_mul_pd(r10,
-                                  _mm256_set1_pd(-1.0)));
+            e_scalarLB = R2.size(0) & -2;
+            e_vectorUB = e_scalarLB - 2;
+            for (i23 = 0; i23 <= e_vectorUB; i23 += 2) {
+                __m128d r10;
+                r10 = _mm_loadu_pd(&R2[i23 + R2.size(0) * i20]);
+                _mm_storeu_pd(&varargin_5[i23 + varargin_5.size(0) * i20], _mm_mul_pd(r10,
+                               _mm_set1_pd(-1.0)));
             }
 
             for (i23 = e_scalarLB; i23 < r_loop_ub; i23++) {
@@ -2749,13 +2756,13 @@ namespace ocn
             int f_scalarLB;
             int f_vectorUB;
             t_loop_ub = R3.size(0);
-            f_scalarLB = R3.size(0) & -4;
-            f_vectorUB = f_scalarLB - 4;
-            for (i24 = 0; i24 <= f_vectorUB; i24 += 4) {
-                __m256d r11;
-                r11 = _mm256_loadu_pd(&R3[i24 + R3.size(0) * i22]);
-                _mm256_storeu_pd(&varargin_7[i24 + varargin_7.size(0) * i22], _mm256_mul_pd(r11,
-                                  _mm256_set1_pd(-1.0)));
+            f_scalarLB = R3.size(0) & -2;
+            f_vectorUB = f_scalarLB - 2;
+            for (i24 = 0; i24 <= f_vectorUB; i24 += 2) {
+                __m128d r11;
+                r11 = _mm_loadu_pd(&R3[i24 + R3.size(0) * i22]);
+                _mm_storeu_pd(&varargin_7[i24 + varargin_7.size(0) * i22], _mm_mul_pd(r11,
+                               _mm_set1_pd(-1.0)));
             }
 
             for (i24 = f_scalarLB; i24 < t_loop_ub; i24++) {
@@ -2974,12 +2981,12 @@ namespace ocn
         e_unnamed_idx_1 = bC3.size(0);
         f_unnamed_idx_1 = bC4.size(0);
         bb_loop_ub = r12.size(0);
-        g_scalarLB = r12.size(0) & -4;
-        g_vectorUB = g_scalarLB - 4;
-        for (i47 = 0; i47 <= g_vectorUB; i47 += 4) {
-            __m256d r13;
-            r13 = _mm256_loadu_pd(&r12[i47]);
-            _mm256_storeu_pd(&b[i47], _mm256_div_pd(_mm256_set1_pd(x), r13));
+        g_scalarLB = r12.size(0) & -2;
+        g_vectorUB = g_scalarLB - 2;
+        for (i47 = 0; i47 <= g_vectorUB; i47 += 2) {
+            __m128d r13;
+            r13 = _mm_loadu_pd(&r12[i47]);
+            _mm_storeu_pd(&b[i47], _mm_div_pd(_mm_set1_pd(x), r13));
         }
 
         for (i47 = g_scalarLB; i47 < bb_loop_ub; i47++) {
@@ -3020,6 +3027,7 @@ namespace ocn
         }
 
         double d;
+        __m128d r14;
 
         //
         a = r2D[0];
@@ -3029,8 +3037,8 @@ namespace ocn
         e_a = r2D[2];
         f_a = 0.5 * r1D[2];
         d = b_norm(*(double (*)[3])&r1D[0]);
-        c_r1D[0] = r1D[0] / d;
-        c_r1D[1] = r1D[1] / d;
+        r14 = _mm_loadu_pd(&r1D[0]);
+        _mm_storeu_pd(&c_r1D[0], _mm_div_pd(r14, _mm_set1_pd(d)));
         c_r1D[2] = r1D[2] / d;
         ib_loop_ub = BasisVal.size(1);
         jb_loop_ub = BasisVal.size(1);
@@ -3051,15 +3059,15 @@ namespace ocn
                 BasisValD[BasisValD.size(0) * i56];
         }
 
-        mtimes(c_r1D, g_a, r14);
+        mtimes(c_r1D, g_a, r15);
         lb_loop_ub = BasisVal.size(1);
         for (int i57 = 0; i57 < lb_loop_ub; i57++) {
             Aeq[Aeq.size(0) * i57] = BasisVal[BasisVal.size(0) * i57];
         }
 
-        mb_loop_ub = r14.size(1);
+        mb_loop_ub = r15.size(1);
         for (int i58 = 0; i58 < mb_loop_ub; i58++) {
-            Aeq[Aeq.size(0) * i58 + 1] = r14[i58];
+            Aeq[Aeq.size(0) * i58 + 1] = r15[i58];
         }
 
         beq[0] = std::pow(v_0, 2.0) / r1D_sqnorm[0];
@@ -3159,12 +3167,12 @@ namespace ocn
             int jd_loop_ub;
             if (ctx_cfg_UseDynamicBreakpoints) {
                 double varargin_2;
-                varargin_2 = LengthCurv(ctx_q_splines, CurvStructs[b_k + 1].Type, CurvStructs[b_k +
-                                        1].P0, CurvStructs[b_k + 1].P1, CurvStructs[b_k + 1].
-                                        HelixCenter, CurvStructs[b_k + 1].evec, CurvStructs[b_k + 1]
-                                        .theta, CurvStructs[b_k + 1].pitch, CurvStructs[b_k + 1].
-                                        CoeffP5, CurvStructs[b_k + 1].sp_index, CurvStructs[b_k + 1]
-                                        .a_param, CurvStructs[b_k + 1].b_param) /
+                varargin_2 = LengthCurv(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStructs[b_k +
+                                        1].Type, CurvStructs[b_k + 1].P0, CurvStructs[b_k + 1].P1,
+                                        CurvStructs[b_k + 1].HelixCenter, CurvStructs[b_k + 1].evec,
+                                        CurvStructs[b_k + 1].theta, CurvStructs[b_k + 1].pitch,
+                                        CurvStructs[b_k + 1].CoeffP5, CurvStructs[b_k + 1].sp_index,
+                                        CurvStructs[b_k + 1].a_param, CurvStructs[b_k + 1].b_param) /
                     c_ctx_cfg_DynamicBreakpointsDis;
                 if (ctx_cfg_UseLinearBreakpoints) {
                     int i61;
@@ -3203,22 +3211,25 @@ namespace ocn
             }
 
             int d_r1D;
+            int e_r1D;
             double d2;
+            __m128d r17;
             j_EvalCurvStruct(ctx_q_splines, CurvStructs[b_k + 1].Type, CurvStructs[b_k + 1].P0,
                              CurvStructs[b_k + 1].P1, CurvStructs[b_k + 1].HelixCenter,
                              CurvStructs[b_k + 1].evec, CurvStructs[b_k + 1].theta, CurvStructs[b_k
                              + 1].pitch, CurvStructs[b_k + 1].CoeffP5, CurvStructs[b_k + 1].sp_index,
                              CurvStructs[b_k + 1].a_param, CurvStructs[b_k + 1].b_param, c_u_vec,
                              unusedU1, r1Dn, r2Dn);
-            power(r1Dn, r15);
-            sum(r15, r1Dn_sqnorm);
+            power(r1Dn, r16);
+            sum(r16, r1Dn_sqnorm);
 
             //  squared norm
             b_x = std::pow(CurvStructs[b_k + 1].FeedRate, 2.0);
             d_r1D = r1D.size(1);
-            d2 = b_norm(*(double (*)[3])&r1D[3 * (d_r1D - 1)]);
-            t_1[0] = r1D[3 * (r1D.size(1) - 1)] / d2;
-            t_1[1] = r1D[3 * (r1D.size(1) - 1) + 1] / d2;
+            e_r1D = r1D.size(1);
+            d2 = b_norm(*(double (*)[3])&r1D[3 * (e_r1D - 1)]);
+            r17 = _mm_loadu_pd(&r1D[3 * (d_r1D - 1)]);
+            _mm_storeu_pd(&t_1[0], _mm_div_pd(r17, _mm_set1_pd(d2)));
             t_1[2] = r1D[3 * (r1D.size(1) - 1) + 2] / d2;
 
             //  unit tangent vector @ end of previous piece
@@ -3244,15 +3255,15 @@ namespace ocn
                 int h_scalarLB;
                 int h_vectorUB;
                 fc_loop_ub = r1.size(0);
-                h_scalarLB = r1.size(0) & -4;
-                h_vectorUB = h_scalarLB - 4;
-                for (i75 = 0; i75 <= h_vectorUB; i75 += 4) {
-                    __m256d r16;
-                    __m256d r17;
-                    r16 = _mm256_loadu_pd(&r2[i75 + r2.size(0) * i71]);
-                    r17 = _mm256_loadu_pd(&r1[i75 + r1.size(0) * i71]);
-                    _mm256_storeu_pd(&R1[i75 + R1.size(0) * i71], _mm256_add_pd(r17, _mm256_mul_pd
-                                      (_mm256_set1_pd(0.5), r16)));
+                h_scalarLB = r1.size(0) & -2;
+                h_vectorUB = h_scalarLB - 2;
+                for (i75 = 0; i75 <= h_vectorUB; i75 += 2) {
+                    __m128d r19;
+                    __m128d r20;
+                    r19 = _mm_loadu_pd(&r2[i75 + r2.size(0) * i71]);
+                    r20 = _mm_loadu_pd(&r1[i75 + r1.size(0) * i71]);
+                    _mm_storeu_pd(&R1[i75 + R1.size(0) * i71], _mm_add_pd(r20, _mm_mul_pd
+                                   (_mm_set1_pd(0.5), r19)));
                 }
 
                 for (i75 = h_scalarLB; i75 < fc_loop_ub; i75++) {
@@ -3282,15 +3293,15 @@ namespace ocn
                 int i_scalarLB;
                 int i_vectorUB;
                 kc_loop_ub = r1.size(0);
-                i_scalarLB = r1.size(0) & -4;
-                i_vectorUB = i_scalarLB - 4;
-                for (i79 = 0; i79 <= i_vectorUB; i79 += 4) {
-                    __m256d r18;
-                    __m256d r19;
-                    r18 = _mm256_loadu_pd(&r2[i79 + r2.size(0) * i77]);
-                    r19 = _mm256_loadu_pd(&r1[i79 + r1.size(0) * i77]);
-                    _mm256_storeu_pd(&R2[i79 + R2.size(0) * i77], _mm256_add_pd(r19, _mm256_mul_pd
-                                      (_mm256_set1_pd(0.5), r18)));
+                i_scalarLB = r1.size(0) & -2;
+                i_vectorUB = i_scalarLB - 2;
+                for (i79 = 0; i79 <= i_vectorUB; i79 += 2) {
+                    __m128d r21;
+                    __m128d r22;
+                    r21 = _mm_loadu_pd(&r2[i79 + r2.size(0) * i77]);
+                    r22 = _mm_loadu_pd(&r1[i79 + r1.size(0) * i77]);
+                    _mm_storeu_pd(&R2[i79 + R2.size(0) * i77], _mm_add_pd(r22, _mm_mul_pd
+                                   (_mm_set1_pd(0.5), r21)));
                 }
 
                 for (i79 = i_scalarLB; i79 < kc_loop_ub; i79++) {
@@ -3320,15 +3331,15 @@ namespace ocn
                 int j_scalarLB;
                 int j_vectorUB;
                 nc_loop_ub = r1.size(0);
-                j_scalarLB = r1.size(0) & -4;
-                j_vectorUB = j_scalarLB - 4;
-                for (i83 = 0; i83 <= j_vectorUB; i83 += 4) {
-                    __m256d r20;
-                    __m256d r21;
-                    r20 = _mm256_loadu_pd(&r2[i83 + r2.size(0) * i81]);
-                    r21 = _mm256_loadu_pd(&r1[i83 + r1.size(0) * i81]);
-                    _mm256_storeu_pd(&R3[i83 + R3.size(0) * i81], _mm256_add_pd(r21, _mm256_mul_pd
-                                      (_mm256_set1_pd(0.5), r20)));
+                j_scalarLB = r1.size(0) & -2;
+                j_vectorUB = j_scalarLB - 2;
+                for (i83 = 0; i83 <= j_vectorUB; i83 += 2) {
+                    __m128d r23;
+                    __m128d r24;
+                    r23 = _mm_loadu_pd(&r2[i83 + r2.size(0) * i81]);
+                    r24 = _mm_loadu_pd(&r1[i83 + r1.size(0) * i81]);
+                    _mm_storeu_pd(&R3[i83 + R3.size(0) * i81], _mm_add_pd(r24, _mm_mul_pd
+                                   (_mm_set1_pd(0.5), r23)));
                 }
 
                 for (i83 = j_scalarLB; i83 < nc_loop_ub; i83++) {
@@ -3345,13 +3356,13 @@ namespace ocn
                 int k_scalarLB;
                 int k_vectorUB;
                 pc_loop_ub = R1.size(0);
-                k_scalarLB = R1.size(0) & -4;
-                k_vectorUB = k_scalarLB - 4;
-                for (i85 = 0; i85 <= k_vectorUB; i85 += 4) {
-                    __m256d r22;
-                    r22 = _mm256_loadu_pd(&R1[i85 + R1.size(0) * i82]);
-                    _mm256_storeu_pd(&varargin_3[i85 + varargin_3.size(0) * i82], _mm256_mul_pd(r22,
-                                      _mm256_set1_pd(-1.0)));
+                k_scalarLB = R1.size(0) & -2;
+                k_vectorUB = k_scalarLB - 2;
+                for (i85 = 0; i85 <= k_vectorUB; i85 += 2) {
+                    __m128d r25;
+                    r25 = _mm_loadu_pd(&R1[i85 + R1.size(0) * i82]);
+                    _mm_storeu_pd(&varargin_3[i85 + varargin_3.size(0) * i82], _mm_mul_pd(r25,
+                                   _mm_set1_pd(-1.0)));
                 }
 
                 for (i85 = k_scalarLB; i85 < pc_loop_ub; i85++) {
@@ -3366,13 +3377,13 @@ namespace ocn
                 int l_scalarLB;
                 int l_vectorUB;
                 rc_loop_ub = R2.size(0);
-                l_scalarLB = R2.size(0) & -4;
-                l_vectorUB = l_scalarLB - 4;
-                for (i87 = 0; i87 <= l_vectorUB; i87 += 4) {
-                    __m256d r23;
-                    r23 = _mm256_loadu_pd(&R2[i87 + R2.size(0) * i84]);
-                    _mm256_storeu_pd(&varargin_5[i87 + varargin_5.size(0) * i84], _mm256_mul_pd(r23,
-                                      _mm256_set1_pd(-1.0)));
+                l_scalarLB = R2.size(0) & -2;
+                l_vectorUB = l_scalarLB - 2;
+                for (i87 = 0; i87 <= l_vectorUB; i87 += 2) {
+                    __m128d r26;
+                    r26 = _mm_loadu_pd(&R2[i87 + R2.size(0) * i84]);
+                    _mm_storeu_pd(&varargin_5[i87 + varargin_5.size(0) * i84], _mm_mul_pd(r26,
+                                   _mm_set1_pd(-1.0)));
                 }
 
                 for (i87 = l_scalarLB; i87 < rc_loop_ub; i87++) {
@@ -3387,13 +3398,13 @@ namespace ocn
                 int m_scalarLB;
                 int m_vectorUB;
                 tc_loop_ub = R3.size(0);
-                m_scalarLB = R3.size(0) & -4;
-                m_vectorUB = m_scalarLB - 4;
-                for (i88 = 0; i88 <= m_vectorUB; i88 += 4) {
-                    __m256d r24;
-                    r24 = _mm256_loadu_pd(&R3[i88 + R3.size(0) * i86]);
-                    _mm256_storeu_pd(&varargin_7[i88 + varargin_7.size(0) * i86], _mm256_mul_pd(r24,
-                                      _mm256_set1_pd(-1.0)));
+                m_scalarLB = R3.size(0) & -2;
+                m_vectorUB = m_scalarLB - 2;
+                for (i88 = 0; i88 <= m_vectorUB; i88 += 2) {
+                    __m128d r27;
+                    r27 = _mm_loadu_pd(&R3[i88 + R3.size(0) * i86]);
+                    _mm_storeu_pd(&varargin_7[i88 + varargin_7.size(0) * i86], _mm_mul_pd(r27,
+                                   _mm_set1_pd(-1.0)));
                 }
 
                 for (i88 = m_scalarLB; i88 < tc_loop_ub; i88++) {
@@ -3689,10 +3700,10 @@ namespace ocn
                 g_a[3 * i121 + 2] = u_a * d8 + v_a * d9;
             }
 
-            mtimes(t_1, g_a, r14);
-            cd_loop_ub = r14.size(1);
+            mtimes(t_1, g_a, r15);
+            cd_loop_ub = r15.size(1);
             for (int i122 = 0; i122 < cd_loop_ub; i122++) {
-                Aeq[i120 + Aeq.size(0) * ((i119 + i122) - 1)] = r14[i122];
+                Aeq[i120 + Aeq.size(0) * ((i119 + i122) - 1)] = r15[i122];
             }
 
             //
@@ -3740,10 +3751,10 @@ namespace ocn
                 b_reshapes[3 * i127 + 2] = reshapes[2].f1[i127];
             }
 
-            mtimes(t_1, b_reshapes, r14);
-            hd_loop_ub = r14.size(1);
+            mtimes(t_1, b_reshapes, r15);
+            hd_loop_ub = r15.size(1);
             for (int i128 = 0; i128 < hd_loop_ub; i128++) {
-                Aeq[i120 + Aeq.size(0) * ((i123 + i128) - 1)] = -r14[i128];
+                Aeq[i120 + Aeq.size(0) * ((i123 + i128) - 1)] = -r15[i128];
             }
 
             //
@@ -3782,10 +3793,11 @@ namespace ocn
 
         b_unnamed_idx_0 = Aeq.size(0) - 2;
         unnamed_idx_1 = Aeq.size(0) - 1;
-        e_r1D = r1D.size(1);
-        d3 = b_norm(*(double (*)[3])&r1D[3 * (e_r1D - 1)]);
-        c_r1D[0] = r1D[3 * (r1D.size(1) - 1)] / d3;
-        c_r1D[1] = r1D[3 * (r1D.size(1) - 1) + 1] / d3;
+        f_r1D = r1D.size(1);
+        g_r1D = r1D.size(1);
+        d3 = b_norm(*(double (*)[3])&r1D[3 * (g_r1D - 1)]);
+        r18 = _mm_loadu_pd(&r1D[3 * (f_r1D - 1)]);
+        _mm_storeu_pd(&c_r1D[0], _mm_div_pd(r18, _mm_set1_pd(d3)));
         c_r1D[2] = r1D[3 * (r1D.size(1) - 1) + 2] / d3;
         xb_loop_ub = BasisVal.size(1);
         yb_loop_ub = BasisVal.size(1);
@@ -3806,16 +3818,16 @@ namespace ocn
                 * BasisValD[(BasisValD.size(0) + BasisValD.size(0) * i70) - 1];
         }
 
-        mtimes(c_r1D, g_a, r14);
+        mtimes(c_r1D, g_a, r15);
         dc_loop_ub = BasisVal.size(1);
         for (int i72 = 0; i72 < dc_loop_ub; i72++) {
             Aeq[b_unnamed_idx_0 + Aeq.size(0) * (i64 + i72)] = BasisVal[(BasisVal.size(0) +
                 BasisVal.size(0) * i72) - 1];
         }
 
-        gc_loop_ub = r14.size(1);
+        gc_loop_ub = r15.size(1);
         for (int i73 = 0; i73 < gc_loop_ub; i73++) {
-            Aeq[unnamed_idx_1 + Aeq.size(0) * (i64 + i73)] = r14[i73];
+            Aeq[unnamed_idx_1 + Aeq.size(0) * (i64 + i73)] = r15[i73];
         }
 
         int b_beq;
@@ -3899,11 +3911,11 @@ namespace ocn
         c_in2 = in2[2];
         t10_size_idx_0 = alpha1_size[0];
         b_loop_ub = alpha1_size[0];
-        scalarLB_tmp = alpha1_size[0] & -4;
-        vectorUB = scalarLB_tmp - 4;
-        for (i = 0; i <= vectorUB; i += 4) {
-            _mm256_storeu_pd(&t10_data[i], _mm256_add_pd(_mm256_set1_pd(b_in2), _mm256_mul_pd
-                              (_mm256_loadu_pd((double *)&alpha1_data[i]), _mm256_set1_pd(c_in2))));
+        scalarLB_tmp = alpha1_size[0] & -2;
+        vectorUB = scalarLB_tmp - 2;
+        for (i = 0; i <= vectorUB; i += 2) {
+            _mm_storeu_pd(&t10_data[i], _mm_add_pd(_mm_set1_pd(b_in2), _mm_mul_pd(_mm_loadu_pd
+                            ((double *)&alpha1_data[i]), _mm_set1_pd(c_in2))));
         }
 
         for (i = scalarLB_tmp; i < b_loop_ub; i++) {
@@ -3914,11 +3926,10 @@ namespace ocn
         e_in2 = in2[0];
         t11_size_idx_0 = alpha1_size[0];
         c_loop_ub = alpha1_size[0];
-        b_vectorUB = scalarLB_tmp - 4;
-        for (i1 = 0; i1 <= b_vectorUB; i1 += 4) {
-            _mm256_storeu_pd(&t11_data[i1], _mm256_div_pd(_mm256_set1_pd(1.0), _mm256_add_pd
-                              (_mm256_set1_pd(d_in2), _mm256_mul_pd(_mm256_set1_pd(e_in2),
-                                _mm256_loadu_pd((double *)&alpha1_data[i1])))));
+        b_vectorUB = scalarLB_tmp - 2;
+        for (i1 = 0; i1 <= b_vectorUB; i1 += 2) {
+            _mm_storeu_pd(&t11_data[i1], _mm_div_pd(_mm_set1_pd(1.0), _mm_add_pd(_mm_set1_pd(d_in2),
+                            _mm_mul_pd(_mm_set1_pd(e_in2), _mm_loadu_pd((double *)&alpha1_data[i1])))));
         }
 
         for (i1 = scalarLB_tmp; i1 < c_loop_ub; i1++) {
@@ -3935,16 +3946,15 @@ namespace ocn
         h_in2 = in2[5];
         i_in2 = in2[4];
         d_loop_ub = alpha1_size[0];
-        c_vectorUB = scalarLB_tmp - 4;
-        for (i2 = 0; i2 <= c_vectorUB; i2 += 4) {
-            __m256d r;
-            __m256d r1;
-            r = _mm256_loadu_pd(&z1_data[i2]);
-            r1 = _mm256_loadu_pd(&b_z1_data[i2]);
-            _mm256_storeu_pd(&t12_data[i2], _mm256_add_pd(_mm256_add_pd(_mm256_add_pd(_mm256_set1_pd
-                                (f_in2), _mm256_mul_pd(_mm256_loadu_pd((double *)&alpha1_data[i2]),
-                                 _mm256_set1_pd(g_in2))), _mm256_mul_pd(_mm256_set1_pd(h_in2), r)),
-                              _mm256_mul_pd(_mm256_set1_pd(i_in2), r1)));
+        c_vectorUB = scalarLB_tmp - 2;
+        for (i2 = 0; i2 <= c_vectorUB; i2 += 2) {
+            __m128d r;
+            __m128d r1;
+            r = _mm_loadu_pd(&z1_data[i2]);
+            r1 = _mm_loadu_pd(&b_z1_data[i2]);
+            _mm_storeu_pd(&t12_data[i2], _mm_add_pd(_mm_add_pd(_mm_add_pd(_mm_set1_pd(f_in2),
+                             _mm_mul_pd(_mm_loadu_pd((double *)&alpha1_data[i2]), _mm_set1_pd(g_in2))),
+                            _mm_mul_pd(_mm_set1_pd(h_in2), r)), _mm_mul_pd(_mm_set1_pd(i_in2), r1)));
         }
 
         for (i2 = scalarLB_tmp; i2 < d_loop_ub; i2++) {
@@ -3972,34 +3982,31 @@ namespace ocn
         s_in2 = in2[12];
         alpha0_s_size[0] = alpha1_size[0];
         e_loop_ub = alpha1_size[0];
-        d_vectorUB = scalarLB_tmp - 4;
-        for (i3 = 0; i3 <= d_vectorUB; i3 += 4) {
-            __m256d r2;
-            __m256d r3;
-            __m256d r4;
-            __m256d r5;
-            __m256d r6;
-            __m256d r7;
-            __m256d r8;
-            r2 = _mm256_loadu_pd((double *)&alpha1_data[i3]);
-            r3 = _mm256_loadu_pd(&z1_data[i3]);
-            r4 = _mm256_loadu_pd(&t11_data[i3]);
-            r5 = _mm256_loadu_pd(&t12_data[i3]);
-            r6 = _mm256_loadu_pd(&t10_data[i3]);
-            r7 = _mm256_loadu_pd(&b_z1_data[i3]);
-            r8 = _mm256_loadu_pd(&c_z1_data[i3]);
-            _mm256_storeu_pd(&alpha0_s_data[i3], _mm256_div_pd(_mm256_mul_pd(_mm256_add_pd
-                               (_mm256_sub_pd(_mm256_add_pd(_mm256_add_pd(_mm256_set1_pd(j_in2),
-                                   _mm256_mul_pd(r2, _mm256_set1_pd(k_in2))), _mm256_mul_pd
-                                  (_mm256_set1_pd(l_in2), r3)), _mm256_mul_pd(_mm256_mul_pd
-                                  (_mm256_set1_pd(m_in2), r4), r5)), _mm256_mul_pd(_mm256_mul_pd
-                                 (_mm256_mul_pd(_mm256_set1_pd(n_in2), r6), r7), r5)),
-                               _mm256_set1_pd(-1.0)), _mm256_sub_pd(_mm256_sub_pd(_mm256_add_pd
-                                (_mm256_add_pd(_mm256_set1_pd(o_in2), _mm256_mul_pd(r2,
-                                   _mm256_set1_pd(p_in2))), _mm256_mul_pd(_mm256_set1_pd(q_in2), r3)),
-                                _mm256_mul_pd(_mm256_mul_pd(_mm256_set1_pd(r_in2), r6), r4)),
-                               _mm256_mul_pd(_mm256_mul_pd(_mm256_set1_pd(s_in2), r4), _mm256_sub_pd
-                                (r5, _mm256_mul_pd(r8, r4))))));
+        d_vectorUB = scalarLB_tmp - 2;
+        for (i3 = 0; i3 <= d_vectorUB; i3 += 2) {
+            __m128d r2;
+            __m128d r3;
+            __m128d r4;
+            __m128d r5;
+            __m128d r6;
+            __m128d r7;
+            __m128d r8;
+            r2 = _mm_loadu_pd((double *)&alpha1_data[i3]);
+            r3 = _mm_loadu_pd(&z1_data[i3]);
+            r4 = _mm_loadu_pd(&t11_data[i3]);
+            r5 = _mm_loadu_pd(&t12_data[i3]);
+            r6 = _mm_loadu_pd(&t10_data[i3]);
+            r7 = _mm_loadu_pd(&b_z1_data[i3]);
+            r8 = _mm_loadu_pd(&c_z1_data[i3]);
+            _mm_storeu_pd(&alpha0_s_data[i3], _mm_div_pd(_mm_mul_pd(_mm_add_pd(_mm_sub_pd(_mm_add_pd
+                              (_mm_add_pd(_mm_set1_pd(j_in2), _mm_mul_pd(r2, _mm_set1_pd(k_in2))),
+                               _mm_mul_pd(_mm_set1_pd(l_in2), r3)), _mm_mul_pd(_mm_mul_pd
+                               (_mm_set1_pd(m_in2), r4), r5)), _mm_mul_pd(_mm_mul_pd(_mm_mul_pd
+                               (_mm_set1_pd(n_in2), r6), r7), r5)), _mm_set1_pd(-1.0)), _mm_sub_pd
+                           (_mm_sub_pd(_mm_add_pd(_mm_add_pd(_mm_set1_pd(o_in2), _mm_mul_pd(r2,
+                                _mm_set1_pd(p_in2))), _mm_mul_pd(_mm_set1_pd(q_in2), r3)),
+                             _mm_mul_pd(_mm_mul_pd(_mm_set1_pd(r_in2), r6), r4)), _mm_mul_pd
+                            (_mm_mul_pd(_mm_set1_pd(s_in2), r4), _mm_sub_pd(r5, _mm_mul_pd(r8, r4))))));
         }
 
         for (i3 = scalarLB_tmp; i3 < e_loop_ub; i3++) {
@@ -4196,12 +4203,12 @@ namespace ocn
         b_u = u[u.size(1) - 1];
         u.set_size(1, u.size(1));
         d_loop_ub = u.size(1);
-        scalarLB = u.size(1) & -4;
-        vectorUB = scalarLB - 4;
-        for (i6 = 0; i6 <= vectorUB; i6 += 4) {
-            __m256d b_r;
-            b_r = _mm256_loadu_pd(&u[i6]);
-            _mm256_storeu_pd(&u[i6], _mm256_div_pd(b_r, _mm256_set1_pd(b_u)));
+        scalarLB = u.size(1) & -2;
+        vectorUB = scalarLB - 2;
+        for (i6 = 0; i6 <= vectorUB; i6 += 2) {
+            __m128d b_r;
+            b_r = _mm_loadu_pd(&u[i6]);
+            _mm_storeu_pd(&u[i6], _mm_div_pd(b_r, _mm_set1_pd(b_u)));
         }
 
         for (i6 = scalarLB; i6 < d_loop_ub; i6++) {
@@ -4457,6 +4464,7 @@ namespace ocn
                            double *kappa)
     {
         double n_tmp;
+        double b[3];
 
         //  computes the local Frenet frame (t, n, b) of a curve in R^3
         //  [t, n, b, kappa] = CalcFrenet(rD1, rD2)
@@ -4473,29 +4481,30 @@ namespace ocn
         if (std::abs(std::abs((t[0] * rD2[0] + t[1] * rD2[1]) + t[2] * rD2[2]) - std::sqrt((std::pow
                 (rD2[0], 2.0) + std::pow(rD2[1], 2.0)) + std::pow(rD2[2], 2.0))) >
                 2.2204460492503131E-16) {
-            double b_idx_0_tmp;
-            double b_idx_1_tmp;
-            double b_idx_2_tmp;
+            double b_tmp;
+            double b_b_tmp;
+            double c_b_tmp;
             double b_n_tmp;
-            double b_idx_0;
-            double b_idx_1;
-            double b_idx_2;
+            __m128d r;
 
             //  regular case
-            b_idx_0_tmp = rD1[1] * rD2[2] - rD1[2] * rD2[1];
-            b_idx_1_tmp = rD1[2] * rD2[0] - rD1[0] * rD2[2];
-            b_idx_2_tmp = rD1[0] * rD2[1] - rD1[1] * rD2[0];
-            b_n_tmp = std::sqrt((std::pow(b_idx_0_tmp, 2.0) + std::pow(b_idx_1_tmp, 2.0)) + std::pow
-                                (b_idx_2_tmp, 2.0));
+            b_tmp = rD1[1] * rD2[2] - rD1[2] * rD2[1];
+            b[0] = b_tmp;
+            b_b_tmp = rD1[2] * rD2[0] - rD1[0] * rD2[2];
+            b[1] = b_b_tmp;
+            c_b_tmp = rD1[0] * rD2[1] - rD1[1] * rD2[0];
+            b[2] = c_b_tmp;
+            b_n_tmp = std::sqrt((std::pow(b_tmp, 2.0) + std::pow(b_b_tmp, 2.0)) + std::pow(c_b_tmp,
+                                 2.0));
             sqrt_calls++;
-            b_idx_0 = b_idx_0_tmp / b_n_tmp;
-            b_idx_1 = b_idx_1_tmp / b_n_tmp;
-            b_idx_2 = b_idx_2_tmp / b_n_tmp;
+            r = _mm_loadu_pd(&b[0]);
+            _mm_storeu_pd(&b[0], _mm_div_pd(r, _mm_set1_pd(b_n_tmp)));
+            b[2] /= b_n_tmp;
 
             //  binormal unit vector
-            n[0] = b_idx_1 * t[2] - b_idx_2 * t[1];
-            n[1] = b_idx_2 * t[0] - b_idx_0 * t[2];
-            n[2] = b_idx_0 * t[1] - b_idx_1 * t[0];
+            n[0] = b[1] * t[2] - b[2] * t[1];
+            n[1] = b[2] * t[0] - b[0] * t[2];
+            n[2] = b[0] * t[1] - b[1] * t[0];
 
             //  normal unit vector
             sqrt_calls++;
@@ -5452,6 +5461,155 @@ namespace ocn
     }
 
     //
+    // Arguments    : const FeedoptContext *ctx
+    // Return Type  : void
+    //
+    static void CheckCurvStructs(const FeedoptContext *ctx)
+    {
+        unsigned int N;
+        int i;
+        CurvStruct Curv1;
+        CurvStruct Curv2;
+        double unusedU0[3];
+        double r0D1[3];
+        double unusedU1[3];
+        double r1D1[3];
+        double y;
+        double b_y;
+        double d;
+        N = ctx->q_gcode.size();
+
+        //  1 -> stdout
+        //  2 -> stderr
+        if ((static_cast<unsigned long>(std::round(DebugConfig)) & 1UL) != 0UL) {
+            printf("Checking for cusps...\n");
+            fflush(stdout);
+        }
+
+        i = static_cast<int>(N - 1U);
+        for (int k = 0; k < i; k++) {
+            double scale;
+            double b_scale;
+            double absxk;
+            double t;
+            double b_absxk;
+            double b_t;
+            ctx->q_gcode.get((k + 1U), (&Curv1));
+            ctx->q_gcode.get((k - 4294967294U), (&Curv2));
+            e_EvalCurvStruct(&ctx->q_splines, Curv1.Type, Curv1.P0, Curv1.P1, Curv1.HelixCenter,
+                             Curv1.evec, Curv1.theta, Curv1.pitch, Curv1.CoeffP5, Curv1.sp_index,
+                             Curv1.a_param, Curv1.b_param, unusedU0, r0D1);
+            f_EvalCurvStruct(&ctx->q_splines, Curv2.Type, Curv2.P0, Curv2.P1, Curv2.HelixCenter,
+                             Curv2.evec, Curv2.theta, Curv2.pitch, Curv2.CoeffP5, Curv2.sp_index,
+                             Curv2.a_param, Curv2.b_param, unusedU1, r1D1);
+            scale = 3.3121686421112381E-170;
+            b_scale = 3.3121686421112381E-170;
+            absxk = std::abs(r0D1[0]);
+            if (absxk > 3.3121686421112381E-170) {
+                y = 1.0;
+                scale = absxk;
+            } else {
+                t = absxk / 3.3121686421112381E-170;
+                y = t * t;
+            }
+
+            b_absxk = std::abs(r1D1[0]);
+            if (b_absxk > 3.3121686421112381E-170) {
+                b_y = 1.0;
+                b_scale = b_absxk;
+            } else {
+                b_t = b_absxk / 3.3121686421112381E-170;
+                b_y = b_t * b_t;
+            }
+
+            absxk = std::abs(r0D1[1]);
+            if (absxk > scale) {
+                t = scale / absxk;
+                y = y * t * t + 1.0;
+                scale = absxk;
+            } else {
+                t = absxk / scale;
+                y += t * t;
+            }
+
+            b_absxk = std::abs(r1D1[1]);
+            if (b_absxk > b_scale) {
+                b_t = b_scale / b_absxk;
+                b_y = b_y * b_t * b_t + 1.0;
+                b_scale = b_absxk;
+            } else {
+                b_t = b_absxk / b_scale;
+                b_y += b_t * b_t;
+            }
+
+            absxk = std::abs(r0D1[2]);
+            if (absxk > scale) {
+                t = scale / absxk;
+                y = y * t * t + 1.0;
+                scale = absxk;
+            } else {
+                t = absxk / scale;
+                y += t * t;
+            }
+
+            b_absxk = std::abs(r1D1[2]);
+            if (b_absxk > b_scale) {
+                b_t = b_scale / b_absxk;
+                b_y = b_y * b_t * b_t + 1.0;
+                b_scale = b_absxk;
+            } else {
+                b_t = b_absxk / b_scale;
+                b_y += b_t * b_t;
+            }
+
+            y = scale * std::sqrt(y);
+            b_y = b_scale * std::sqrt(b_y);
+            d = 180.0 - ctx->cfg.CuspThreshold;
+            b_cosd(&d);
+            if (((r0D1[0] * r1D1[0] + r0D1[1] * r1D1[1]) + r0D1[2] * r1D1[2]) / (y * b_y) < d) {
+                switch (Curv1.zspdmode) {
+                  case ZSpdMode_NN:
+                    Curv1.zspdmode = ZSpdMode_NZ;
+                    break;
+
+                  case ZSpdMode_ZN:
+                    Curv1.zspdmode = ZSpdMode_ZZ;
+                    break;
+
+                  case ZSpdMode_NZ:
+                    //  Nothing to do
+                    break;
+
+                  default:
+                    //  Nothing to do
+                    break;
+                }
+
+                switch (Curv2.zspdmode) {
+                  case ZSpdMode_NN:
+                    Curv2.zspdmode = ZSpdMode_ZN;
+                    break;
+
+                  case ZSpdMode_ZN:
+                    //  Nothing to do
+                    break;
+
+                  case ZSpdMode_NZ:
+                    Curv2.zspdmode = ZSpdMode_ZZ;
+                    break;
+
+                  default:
+                    //  Nothing to do
+                    break;
+                }
+
+                ctx->q_gcode.set((k + 1U), (&Curv1));
+                ctx->q_gcode.set((k - 4294967294U), (&Curv2));
+            }
+        }
+    }
+
+    //
     // COEFPOLYSYS
     //     COEFPS = COEFPOLYSYS(IN1,IN2,IN3,KAPPA0,IN5,IN6,IN7,KAPPA1)
     // Arguments    : const double in1[3]
@@ -6304,20 +6462,17 @@ namespace ocn
         if (!ctx->q_gcode.isempty()) {
             unsigned int spline_index;
             unsigned int Ncrv;
-            double spindle_speed;
             spline_index = ctx->q_splines.size() + 1U;
             Ncrv = ctx->q_gcode.size();
             CumulatedLength = 0.0;
 
             //  [mm]
-            if (DebugActive) {
-                //  1 -> stdout
-                //  2 -> stderr
-                fprintf(stderr, "Compressing ...\n");
-                fflush(stderr);
+            //  1 -> stdout
+            //  2 -> stderr
+            if ((static_cast<unsigned long>(std::round(DebugConfig)) & 1UL) != 0UL) {
+                printf("Compressing...\n");
+                fflush(stdout);
             }
-
-            spindle_speed = 75000.0;
 
             //  Satisfy coder
             //  -------------
@@ -6327,36 +6482,40 @@ namespace ocn
             //  -------------
             for (double k = 1.0; k <= Ncrv; k++) {
                 ctx->q_gcode.get(k, (&Curv));
-                if ((LengthCurv(&ctx->q_splines, Curv.Type, Curv.P0, Curv.P1, Curv.HelixCenter,
-                                Curv.evec, Curv.theta, Curv.pitch, Curv.CoeffP5, Curv.sp_index,
-                                Curv.a_param, Curv.b_param) >= ctx->cfg.LThreshold) ||
-                        (Curv.zspdmode != ZSpdMode_NN)) {
+                if ((LengthCurv(&ctx->q_splines, ctx->cfg.NGridLengthSpline, Curv.Type, Curv.P0,
+                                Curv.P1, Curv.HelixCenter, Curv.evec, Curv.theta, Curv.pitch,
+                                Curv.CoeffP5, Curv.sp_index, Curv.a_param, Curv.b_param) >=
+                        ctx->cfg.LThreshold) || (Curv.zspdmode != ZSpdMode_NN)) {
                     if (CumulatedLength == 0.0) {
                         if (Curv.zspdmode == ZSpdMode_ZN) {
                             CutZeroStart(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz,
                                          ctx->cfg.amax, ctx->cfg.jmax, ctx->cfg.dt,
                                          ctx->cfg.ZeroStartAccLimit, ctx->cfg.ZeroStartJerkLimit,
-                                         ctx->cfg.ZeroStartVelLimit, ctx->cfg.DebugCutZero, &Curv, k,
-                                         &CurvStruct1_C, &CurvStruct2_C);
+                                         ctx->cfg.ZeroStartVelLimit, ctx->cfg.DebugCutZero,
+                                         ctx->cfg.NGridLengthSpline, &Curv, k, &CurvStruct1_C,
+                                         &CurvStruct2_C);
                             ctx->q_compress.push((&CurvStruct1_C));
                             ctx->q_compress.push((&CurvStruct2_C));
                         } else if (Curv.zspdmode == ZSpdMode_NZ) {
                             CutZeroEnd(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz, ctx->cfg.amax,
                                        ctx->cfg.jmax, ctx->cfg.dt, ctx->cfg.ZeroStartAccLimit,
                                        ctx->cfg.ZeroStartJerkLimit, ctx->cfg.ZeroStartVelLimit,
-                                       &Curv, k, &CurvStruct1_C, &CurvStruct2_C);
+                                       ctx->cfg.NGridLengthSpline, &Curv, k, &CurvStruct1_C,
+                                       &CurvStruct2_C);
                             ctx->q_compress.push((&CurvStruct1_C));
                             ctx->q_compress.push((&CurvStruct2_C));
                         } else if (Curv.zspdmode == ZSpdMode_ZZ) {
                             CutZeroStart(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz,
                                          ctx->cfg.amax, ctx->cfg.jmax, ctx->cfg.dt,
                                          ctx->cfg.ZeroStartAccLimit, ctx->cfg.ZeroStartJerkLimit,
-                                         ctx->cfg.ZeroStartVelLimit, ctx->cfg.DebugCutZero, &Curv, k,
-                                         &CurvStruct1_C, &CurvStruct2_C);
+                                         ctx->cfg.ZeroStartVelLimit, ctx->cfg.DebugCutZero,
+                                         ctx->cfg.NGridLengthSpline, &Curv, k, &CurvStruct1_C,
+                                         &CurvStruct2_C);
                             CutZeroEnd(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz, ctx->cfg.amax,
                                        ctx->cfg.jmax, ctx->cfg.dt, ctx->cfg.ZeroStartAccLimit,
                                        ctx->cfg.ZeroStartJerkLimit, ctx->cfg.ZeroStartVelLimit,
-                                       &CurvStruct2_C, k, &b_CurvStruct2_C, &CurvStruct3_C);
+                                       ctx->cfg.NGridLengthSpline, &CurvStruct2_C, k,
+                                       &b_CurvStruct2_C, &CurvStruct3_C);
                             ctx->q_compress.push((&CurvStruct1_C));
                             ctx->q_compress.push((&b_CurvStruct2_C));
                             ctx->q_compress.push((&CurvStruct3_C));
@@ -6392,15 +6551,13 @@ namespace ocn
                             spline.gcode_source_line = Curv.gcode_source_line;
                             spline.sp_index = static_cast<int>(spline_index);
                             spline_index++;
-                            spline.SpindleSpeed = spindle_speed;
-                            spindle_speed = 75000.0;
                             ctx->q_compress.push((&spline));
                             if (Curv.zspdmode == ZSpdMode_NZ) {
                                 CutZeroEnd(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz,
                                            ctx->cfg.amax, ctx->cfg.jmax, ctx->cfg.dt,
                                            ctx->cfg.ZeroStartAccLimit, ctx->cfg.ZeroStartJerkLimit,
-                                           ctx->cfg.ZeroStartVelLimit, &Curv, k, &CurvStruct1_C,
-                                           &CurvStruct2_C);
+                                           ctx->cfg.ZeroStartVelLimit, ctx->cfg.NGridLengthSpline,
+                                           &Curv, k, &CurvStruct1_C, &CurvStruct2_C);
                                 ctx->q_compress.push((&CurvStruct1_C));
                                 ctx->q_compress.push((&CurvStruct2_C));
                             } else {
@@ -6413,8 +6570,8 @@ namespace ocn
                                 CutZeroEnd(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz,
                                            ctx->cfg.amax, ctx->cfg.jmax, ctx->cfg.dt,
                                            ctx->cfg.ZeroStartAccLimit, ctx->cfg.ZeroStartJerkLimit,
-                                           ctx->cfg.ZeroStartVelLimit, &Curv, k, &CurvStruct1_C,
-                                           &CurvStruct2_C);
+                                           ctx->cfg.ZeroStartVelLimit, ctx->cfg.NGridLengthSpline,
+                                           &Curv, k, &CurvStruct1_C, &CurvStruct2_C);
                                 ctx->q_compress.push((&CurvStruct1_C));
                                 ctx->q_compress.push((&CurvStruct2_C));
                             } else {
@@ -6467,9 +6624,9 @@ namespace ocn
                         pvec[2] = P0[2];
                     }
 
-                    CumulatedLength += LengthCurv(&ctx->q_splines, Curv.Type, Curv.P0, Curv.P1,
-                        Curv.HelixCenter, Curv.evec, Curv.theta, Curv.pitch, Curv.CoeffP5,
-                        Curv.sp_index, Curv.a_param, Curv.b_param);
+                    CumulatedLength += LengthCurv(&ctx->q_splines, ctx->cfg.NGridLengthSpline,
+                        Curv.Type, Curv.P0, Curv.P1, Curv.HelixCenter, Curv.evec, Curv.theta,
+                        Curv.pitch, Curv.CoeffP5, Curv.sp_index, Curv.a_param, Curv.b_param);
                     c_EvalCurvStruct(&ctx->q_splines, Curv.Type, Curv.P0, Curv.P1, Curv.HelixCenter,
                                      Curv.evec, Curv.theta, Curv.pitch, Curv.CoeffP5, Curv.sp_index,
                                      Curv.a_param, Curv.b_param, P1);
@@ -6491,8 +6648,6 @@ namespace ocn
                         pvec[3 * i3 + 1] = d_pvec[3 * i3 + 1];
                         pvec[3 * i3 + 2] = d_pvec[3 * i3 + 2];
                     }
-
-                    spindle_speed = std::fmin(spindle_speed, Curv.SpindleSpeed);
                 }
             }
         }
@@ -6576,12 +6731,9 @@ namespace ocn
     static void ConstrTransP5Struct(const double CoeffP5[6][3], double FeedRate, CurvStruct
         *b_CurvStruct)
     {
-        double d;
-        double d1;
-        double d2;
         double P1[3];
-        double P0[3];
         double dv[3];
+        double P0[3];
         double dv1[3];
 
         // POLYVAL Evaluate array of polynomials with same degree.
@@ -6592,27 +6744,21 @@ namespace ocn
         //
         //
         //  Use Horner's method for general case where X is an array.
-        d = CoeffP5[0][0];
-        d1 = CoeffP5[0][1];
-        d2 = CoeffP5[0][2];
+        P1[0] = CoeffP5[0][0];
+        P1[1] = CoeffP5[0][1];
+        P1[2] = CoeffP5[0][2];
         for (int i = 0; i < 5; i++) {
-            double d3;
-            double d4;
-            double d5;
-            d3 = CoeffP5[i + 1][0];
-            P0[0] = d3;
-            d4 = CoeffP5[i + 1][1];
-            P0[1] = d4;
-            d5 = CoeffP5[i + 1][2];
-            P0[2] = d5;
-            d += d3;
-            d1 += d4;
-            d2 += d5;
+            double P0_tmp;
+            __m128d r;
+            P0[0] = CoeffP5[i + 1][0];
+            P0[1] = CoeffP5[i + 1][1];
+            P0_tmp = CoeffP5[i + 1][2];
+            P0[2] = P0_tmp;
+            r = _mm_loadu_pd(&P1[0]);
+            _mm_storeu_pd(&P1[0], _mm_add_pd(r, _mm_loadu_pd((double *)&CoeffP5[i + 1][0])));
+            P1[2] += P0_tmp;
         }
 
-        P1[2] = d2;
-        P1[1] = d1;
-        P1[0] = d;
         dv[0] = 0.0;
         dv1[0] = 0.0;
         dv[1] = 0.0;
@@ -6625,37 +6771,83 @@ namespace ocn
 
     //
     // We cut d0 [mm] in the beginning and d1 [mm] in the end of the segment
-    //  We determine a new value of the parameter u_tilda (u_tilda_prim)
+    //  We determine a new value of the parameter u_tilda
     // Arguments    : const queue_coder *ctx_q_splines
+    //                double ctx_cfg_NGridLengthSpline
     //                CurvStruct *b_CurvStruct
-    //                double d0
     //                double d1
     // Return Type  : void
     //
-    static void CutCurvStruct(const queue_coder *ctx_q_splines, CurvStruct *b_CurvStruct, double d0,
-        double d1)
+    static void CutCurvStruct(const queue_coder *ctx_q_splines, double ctx_cfg_NGridLengthSpline,
+        CurvStruct *b_CurvStruct, double d1)
     {
+        CurvStruct b_ctx_q_splines;
         double unusedU0[3];
         double r1D0[3];
+        double L_tot;
+        coder::array<double, 2U> Integrand;
+        coder::array<double, 2U> u_mid_tilda;
+        coder::array<double, 2U> du_tilda;
         double unusedU1[3];
         double r1D1[3];
-        double u_tilda_0;
-        f_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                         b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
-                         b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
-                         b_CurvStruct->a_param, b_CurvStruct->b_param, unusedU0, r1D0);
-        e_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                         b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
-                         b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
-                         b_CurvStruct->a_param, b_CurvStruct->b_param, unusedU1, r1D1);
-        sqrt_calls++;
-        sqrt_calls++;
-        u_tilda_0 = b_CurvStruct->a_param * (d0 / std::sqrt((std::pow(r1D0[0], 2.0) + std::pow(r1D0
-            [1], 2.0)) + std::pow(r1D0[2], 2.0))) + b_CurvStruct->b_param;
-        b_CurvStruct->a_param = (b_CurvStruct->a_param * (1.0 - d1 / std::sqrt((std::pow(r1D1[0],
-            2.0) + std::pow(r1D1[1], 2.0)) + std::pow(r1D1[2], 2.0))) + b_CurvStruct->b_param) -
-            u_tilda_0;
-        b_CurvStruct->b_param = u_tilda_0;
+        double u0_tilda;
+        double u1_tilda;
+        double L;
+        if (b_CurvStruct->Type == CurveType_Spline) {
+            ctx_q_splines->get(b_CurvStruct->sp_index, (&b_ctx_q_splines));
+
+            //  discretizing along the total spline
+            //  from u=0 to u=1
+            d_SplineLengthApprox(ctx_q_splines, ctx_cfg_NGridLengthSpline, b_CurvStruct->sp_index,
+                                 b_CurvStruct->b_param, b_CurvStruct->a_param +
+                                 b_CurvStruct->b_param, &L_tot, Integrand, u_mid_tilda, du_tilda);
+            u0_tilda = b_CurvStruct->b_param;
+            if (d1 != 0.0) {
+                unsigned int k;
+
+                //  spline-long length calculation by rectangles method
+                //  beginning from u=0
+                //  until L_tot-d1 is reached
+                L = 0.0;
+                k = 1U;
+                while ((L < L_tot - d1) && (k <= static_cast<unsigned int>(du_tilda.size(1)))) {
+                    int L_tmp;
+                    L_tmp = static_cast<int>(k) - 1;
+                    L += Integrand[L_tmp] * du_tilda[L_tmp];
+                    k++;
+                }
+
+                u1_tilda = u_mid_tilda[static_cast<int>(k) - 1];
+            } else {
+                u1_tilda = b_CurvStruct->a_param + b_CurvStruct->b_param;
+            }
+        } else {
+            //  In case of helix and line, ||r'(u)||=const,
+            //  for 0 < u < 1
+            //  r1D0 and r1D1 are with respect to u
+            f_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
+                             b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
+                             b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
+                             b_CurvStruct->a_param, b_CurvStruct->b_param, unusedU0, r1D0);
+            e_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
+                             b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
+                             b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
+                             b_CurvStruct->a_param, b_CurvStruct->b_param, unusedU1, r1D1);
+
+            //  d0 = Integral_0_u0 ||r'(u)||du
+            //  d1 = Integral_u1_1 ||r'(u)||du
+            sqrt_calls++;
+            sqrt_calls++;
+
+            //  conversion to native curve parameter u_tilda
+            u0_tilda = b_CurvStruct->a_param * (0.0 / std::sqrt((std::pow(r1D0[0], 2.0) + std::pow
+                (r1D0[1], 2.0)) + std::pow(r1D0[2], 2.0))) + b_CurvStruct->b_param;
+            u1_tilda = b_CurvStruct->a_param * (1.0 - d1 / std::sqrt((std::pow(r1D1[0], 2.0) + std::
+                pow(r1D1[1], 2.0)) + std::pow(r1D1[2], 2.0))) + b_CurvStruct->b_param;
+        }
+
+        b_CurvStruct->a_param = u1_tilda - u0_tilda;
+        b_CurvStruct->b_param = u0_tilda;
     }
 
     //
@@ -6668,6 +6860,7 @@ namespace ocn
     //                double ctx_cfg_ZeroStartAccLimit
     //                double ctx_cfg_ZeroStartJerkLimit
     //                double ctx_cfg_ZeroStartVelLimit
+    //                double ctx_cfg_NGridLengthSpline
     //                const CurvStruct *b_CurvStruct
     //                double k0
     //                CurvStruct *CurvStruct1
@@ -6677,9 +6870,9 @@ namespace ocn
     static void CutZeroEnd(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splines, int
                            ctx_cfg_NHorz, const double ctx_cfg_amax[3], const double ctx_cfg_jmax[3],
                            double ctx_cfg_dt, double ctx_cfg_ZeroStartAccLimit, double
-                           ctx_cfg_ZeroStartJerkLimit, double ctx_cfg_ZeroStartVelLimit, const
-                           CurvStruct *b_CurvStruct, double k0, CurvStruct *CurvStruct1, CurvStruct *
-                           CurvStruct2)
+                           ctx_cfg_ZeroStartJerkLimit, double ctx_cfg_ZeroStartVelLimit, double
+                           ctx_cfg_NGridLengthSpline, const CurvStruct *b_CurvStruct, double k0,
+                           CurvStruct *CurvStruct1, CurvStruct *CurvStruct2)
     {
         double unusedU0[3];
         double r1D[3];
@@ -6716,8 +6909,10 @@ namespace ocn
         coder::array<double, 2U> r2D;
         coder::array<double, 2U> r3D;
         double b_vmax;
-        unsigned long x;
+        int b_exp;
+        unsigned long z;
         bool p;
+        double DBLMAXFLINT;
         bool blarge;
         bool alarge;
         unsigned long c_N;
@@ -6737,10 +6932,10 @@ namespace ocn
         int d_vectorUB;
         int i6;
         double TmpCurv_CoeffP5[6][3];
-        coder::array<double, 2U> r6;
+        coder::array<double, 2U> r7;
         coder::array<double, 2U> a;
         int g_loop_ub;
-        coder::array<double, 2U> b_x;
+        coder::array<double, 2U> x;
         coder::array<double, 2U> jt;
         coder::array<double, 2U> b_z1;
         int e_N;
@@ -6749,7 +6944,7 @@ namespace ocn
         coder::array<double, 2U> b_a;
         coder::array<double, 2U> c_z1;
         int f_N;
-        coder::array<double, 2U> c_x;
+        coder::array<double, 2U> b_x;
         int i22;
         int e_scalarLB;
         int e_vectorUB;
@@ -6770,7 +6965,7 @@ namespace ocn
         int cut_index_acc_size_idx_1;
         int p_loop_ub;
         int cut_index_acc_data[1];
-        coder::array<bool, 2U> d_x;
+        coder::array<bool, 2U> c_x;
         int q_loop_ub;
         int cut_index_vel_size_idx_1;
         int r_loop_ub;
@@ -6828,13 +7023,12 @@ namespace ocn
 
         uk.set_size(1, z1.size(1));
         b_loop_ub = z1.size(1);
-        scalarLB = z1.size(1) & -4;
-        vectorUB = scalarLB - 4;
-        for (i1 = 0; i1 <= vectorUB; i1 += 4) {
-            __m256d r;
-            r = _mm256_loadu_pd(&z1[i1]);
-            _mm256_storeu_pd(&uk[i1], _mm256_div_pd(_mm256_mul_pd(_mm256_set1_pd(jps), r),
-                              _mm256_set1_pd(6.0)));
+        scalarLB = z1.size(1) & -2;
+        vectorUB = scalarLB - 2;
+        for (i1 = 0; i1 <= vectorUB; i1 += 2) {
+            __m128d r;
+            r = _mm_loadu_pd(&z1[i1]);
+            _mm_storeu_pd(&uk[i1], _mm_div_pd(_mm_mul_pd(_mm_set1_pd(jps), r), _mm_set1_pd(6.0)));
         }
 
         for (i1 = scalarLB; i1 < b_loop_ub; i1++) {
@@ -6849,13 +7043,12 @@ namespace ocn
 
         d1uk.set_size(1, z1.size(1));
         c_loop_ub = z1.size(1);
-        b_scalarLB = z1.size(1) & -4;
-        b_vectorUB = b_scalarLB - 4;
-        for (i2 = 0; i2 <= b_vectorUB; i2 += 4) {
-            __m256d r1;
-            r1 = _mm256_loadu_pd(&z1[i2]);
-            _mm256_storeu_pd(&d1uk[i2], _mm256_div_pd(_mm256_mul_pd(_mm256_set1_pd(jps), r1),
-                              _mm256_set1_pd(2.0)));
+        b_scalarLB = z1.size(1) & -2;
+        b_vectorUB = b_scalarLB - 2;
+        for (i2 = 0; i2 <= b_vectorUB; i2 += 2) {
+            __m128d r1;
+            r1 = _mm_loadu_pd(&z1[i2]);
+            _mm_storeu_pd(&d1uk[i2], _mm_div_pd(_mm_mul_pd(_mm_set1_pd(jps), r1), _mm_set1_pd(2.0)));
         }
 
         for (i2 = b_scalarLB; i2 < c_loop_ub; i2++) {
@@ -6864,12 +7057,12 @@ namespace ocn
 
         d2uk.set_size(1, t.size(1));
         d_loop_ub = t.size(1);
-        c_scalarLB = t.size(1) & -4;
-        c_vectorUB = c_scalarLB - 4;
-        for (i3 = 0; i3 <= c_vectorUB; i3 += 4) {
-            __m256d r2;
-            r2 = _mm256_loadu_pd(&t[i3]);
-            _mm256_storeu_pd(&d2uk[i3], _mm256_mul_pd(_mm256_set1_pd(jps), r2));
+        c_scalarLB = t.size(1) & -2;
+        c_vectorUB = c_scalarLB - 2;
+        for (i3 = 0; i3 <= c_vectorUB; i3 += 2) {
+            __m128d r2;
+            r2 = _mm_loadu_pd(&t[i3]);
+            _mm_storeu_pd(&d2uk[i3], _mm_mul_pd(_mm_set1_pd(jps), r2));
         }
 
         for (i3 = c_scalarLB; i3 < d_loop_ub; i3++) {
@@ -6882,32 +7075,48 @@ namespace ocn
             b_uk[i4] = uk[i4];
         }
 
-        double DBLMAXFLINT;
         h_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
                          b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
                          b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
                          b_CurvStruct->a_param, b_CurvStruct->b_param, b_uk, unusedU1, b_r1D, r2D,
                          r3D);
         b_vmax = b_CurvStruct->FeedRate;
-        x = (static_cast<unsigned long>(k0) - ctx_cfg_NHorz) + 1UL;
+        if ((0.0 <= k0) && (k0 < 1.8446744073709552E+19)) {
+            z = static_cast<unsigned long>(k0) - ctx_cfg_NHorz;
+        } else {
+            double xd;
+            unsigned long dif;
+            xd = frexp(k0, &b_exp);
+            dif = static_cast<unsigned long>(std::ldexp(xd, 64)) - (static_cast<unsigned long>
+                (ctx_cfg_NHorz) >> 1);
+            if ((dif & 9223372036854775808UL) > 0UL) {
+                z = MAX_uint64_T;
+            } else {
+                z = dif << 1;
+                if ((ctx_cfg_NHorz & 1UL) == 1UL) {
+                    z--;
+                }
+            }
+        }
+
         p = false;
         DBLMAXFLINT = std::pow(2.0, 52.0);
         blarge = (1.0 >= DBLMAXFLINT);
-        alarge = (x >= static_cast<unsigned long>(std::round(DBLMAXFLINT)));
+        alarge = (z + 1UL >= static_cast<unsigned long>(std::round(DBLMAXFLINT)));
         if ((!alarge) && blarge) {
             p = true;
         } else if (alarge && blarge) {
-            p = (x < 1UL);
+            p = (z + 1UL < 1UL);
         } else {
             if (!alarge) {
-                p = (x < 1.0);
+                p = (z + 1UL < 1.0);
             }
         }
 
         if (p) {
             c_N = 1UL;
         } else {
-            c_N = x;
+            c_N = z + 1UL;
         }
 
         c_k = static_cast<unsigned long>(std::round(k0));
@@ -6960,9 +7169,10 @@ namespace ocn
             i5 = b_r1D.size(1) - 1;
             for (int e_k = 0; e_k <= i5; e_k++) {
                 int varargin_2;
+                __m128d r4;
                 varargin_2 = acoef * e_k;
-                c[3 * e_k] = b_r1D[3 * varargin_2] * jps;
-                c[3 * e_k + 1] = b_r1D[3 * varargin_2 + 1] * jps;
+                r4 = _mm_loadu_pd(&b_r1D[3 * varargin_2]);
+                _mm_storeu_pd(&c[3 * e_k], _mm_mul_pd(r4, _mm_set1_pd(jps)));
                 c[3 * e_k + 2] = b_r1D[3 * varargin_2 + 2] * jps;
             }
         }
@@ -6970,49 +7180,48 @@ namespace ocn
         bsxfun(r3D, z1, r3);
         b_d1uk.set_size(1, d1uk.size(1));
         f_loop_ub = d1uk.size(1);
-        d_scalarLB = d1uk.size(1) & -4;
-        d_vectorUB = d_scalarLB - 4;
-        for (i6 = 0; i6 <= d_vectorUB; i6 += 4) {
-            __m256d r4;
-            __m256d r5;
-            r4 = _mm256_loadu_pd(&d1uk[i6]);
-            r5 = _mm256_loadu_pd(&d2uk[i6]);
-            _mm256_storeu_pd(&b_d1uk[i6], _mm256_mul_pd(r4, r5));
+        d_scalarLB = d1uk.size(1) & -2;
+        d_vectorUB = d_scalarLB - 2;
+        for (i6 = 0; i6 <= d_vectorUB; i6 += 2) {
+            __m128d r5;
+            __m128d r6;
+            r5 = _mm_loadu_pd(&d1uk[i6]);
+            r6 = _mm_loadu_pd(&d2uk[i6]);
+            _mm_storeu_pd(&b_d1uk[i6], _mm_mul_pd(r5, r6));
         }
 
         for (i6 = d_scalarLB; i6 < f_loop_ub; i6++) {
             b_d1uk[i6] = d1uk[i6] * d2uk[i6];
         }
 
-        bsxfun(r2D, b_d1uk, r6);
+        bsxfun(r2D, b_d1uk, r7);
         a.set_size(r3.size(1), 3);
         g_loop_ub = r3.size(1);
         for (int i8 = 0; i8 < 3; i8++) {
             for (int i9 = 0; i9 < g_loop_ub; i9++) {
-                a[i9 + a.size(0) * i8] = (r3[i8 + 3 * i9] + 3.0 * r6[i8 + 3 * i9]) + c[i8 + 3 * i9];
+                a[i9 + a.size(0) * i8] = (r3[i8 + 3 * i9] + 3.0 * r7[i8 + 3 * i9]) + c[i8 + 3 * i9];
             }
         }
 
-        b_x.set_size(a.size(0), 3);
+        x.set_size(a.size(0), 3);
         if (a.size(0) != 0) {
             int b_acoef;
             b_acoef = (a.size(0) != 1);
             for (int f_k = 0; f_k < 3; f_k++) {
                 int i10;
-                i10 = b_x.size(0) - 1;
+                i10 = x.size(0) - 1;
                 for (int g_k = 0; g_k <= i10; g_k++) {
-                    b_x[g_k + b_x.size(0) * f_k] = a[b_acoef * g_k + a.size(0) * f_k] /
-                        ctx_cfg_jmax[f_k];
+                    x[g_k + x.size(0) * f_k] = a[b_acoef * g_k + a.size(0) * f_k] / ctx_cfg_jmax[f_k];
                 }
             }
         }
 
-        jt.set_size(b_x.size(0), 3);
-        if (b_x.size(0) != 0) {
+        jt.set_size(x.size(0), 3);
+        if (x.size(0) != 0) {
             int h_loop_ub;
             int i_loop_ub;
-            b_z1.set_size(b_x.size(0), 3);
-            h_loop_ub = b_x.size(0);
+            b_z1.set_size(x.size(0), 3);
+            h_loop_ub = x.size(0);
             for (int i11 = 0; i11 < 3; i11++) {
                 for (int i12 = 0; i12 < h_loop_ub; i12++) {
                     b_z1[i12 + b_z1.size(0) * i11] = jt[i12 + jt.size(0) * i11];
@@ -7023,7 +7232,7 @@ namespace ocn
                 int i13;
                 i13 = b_z1.size(0);
                 for (int j_k = 0; j_k < i13; j_k++) {
-                    b_z1[j_k + b_z1.size(0) * i_k] = std::abs(b_x[j_k + b_x.size(0) * i_k]);
+                    b_z1[j_k + b_z1.size(0) * i_k] = std::abs(x[j_k + x.size(0) * i_k]);
                 }
             }
 
@@ -7043,35 +7252,34 @@ namespace ocn
         }
 
         bsxfun(r2D, z1, r3);
-        bsxfun(b_r1D, d2uk, r6);
+        bsxfun(b_r1D, d2uk, r7);
         a.set_size(r3.size(1), 3);
         j_loop_ub = r3.size(1);
         for (int i15 = 0; i15 < 3; i15++) {
             for (int i17 = 0; i17 < j_loop_ub; i17++) {
-                a[i17 + a.size(0) * i15] = r3[i15 + 3 * i17] + r6[i15 + 3 * i17];
+                a[i17 + a.size(0) * i15] = r3[i15 + 3 * i17] + r7[i15 + 3 * i17];
             }
         }
 
-        b_x.set_size(a.size(0), 3);
+        x.set_size(a.size(0), 3);
         if (a.size(0) != 0) {
             int c_acoef;
             c_acoef = (a.size(0) != 1);
             for (int k_k = 0; k_k < 3; k_k++) {
                 int i18;
-                i18 = b_x.size(0) - 1;
+                i18 = x.size(0) - 1;
                 for (int l_k = 0; l_k <= i18; l_k++) {
-                    b_x[l_k + b_x.size(0) * k_k] = a[c_acoef * l_k + a.size(0) * k_k] /
-                        ctx_cfg_amax[k_k];
+                    x[l_k + x.size(0) * k_k] = a[c_acoef * l_k + a.size(0) * k_k] / ctx_cfg_amax[k_k];
                 }
             }
         }
 
-        at.set_size(b_x.size(0), 3);
-        if (b_x.size(0) != 0) {
+        at.set_size(x.size(0), 3);
+        if (x.size(0) != 0) {
             int k_loop_ub;
             int l_loop_ub;
-            b_z1.set_size(b_x.size(0), 3);
-            k_loop_ub = b_x.size(0);
+            b_z1.set_size(x.size(0), 3);
+            k_loop_ub = x.size(0);
             for (int i19 = 0; i19 < 3; i19++) {
                 for (int i20 = 0; i20 < k_loop_ub; i20++) {
                     b_z1[i20 + b_z1.size(0) * i19] = at[i20 + at.size(0) * i19];
@@ -7082,7 +7290,7 @@ namespace ocn
                 int i21;
                 i21 = b_z1.size(0);
                 for (int o_k = 0; o_k < i21; o_k++) {
-                    b_z1[o_k + b_z1.size(0) * n_k] = std::abs(b_x[o_k + b_x.size(0) * n_k]);
+                    b_z1[o_k + b_z1.size(0) * n_k] = std::abs(x[o_k + x.size(0) * n_k]);
                 }
             }
 
@@ -7104,18 +7312,18 @@ namespace ocn
             c_z1[3 * m_k + 2] = std::pow(b_a[3 * m_k + 2], 2.0);
         }
 
-        sum(c_z1, c_x);
-        i22 = c_x.size(1);
-        e_scalarLB = c_x.size(1) & -4;
-        e_vectorUB = e_scalarLB - 4;
-        for (p_k = 0; p_k <= e_vectorUB; p_k += 4) {
-            __m256d r7;
-            r7 = _mm256_loadu_pd(&c_x[p_k]);
-            _mm256_storeu_pd(&c_x[p_k], _mm256_sqrt_pd(r7));
+        sum(c_z1, b_x);
+        i22 = b_x.size(1);
+        e_scalarLB = b_x.size(1) & -2;
+        e_vectorUB = e_scalarLB - 2;
+        for (p_k = 0; p_k <= e_vectorUB; p_k += 2) {
+            __m128d r8;
+            r8 = _mm_loadu_pd(&b_x[p_k]);
+            _mm_storeu_pd(&b_x[p_k], _mm_sqrt_pd(r8));
         }
 
         for (p_k = e_scalarLB; p_k < i22; p_k++) {
-            c_x[p_k] = std::sqrt(c_x[p_k]);
+            b_x[p_k] = std::sqrt(b_x[p_k]);
         }
 
         sqrt_calls++;
@@ -7203,13 +7411,13 @@ namespace ocn
             cut_index_acc_data[0] = 1;
         }
 
-        d_x.set_size(1, c_x.size(1));
-        q_loop_ub = c_x.size(1);
+        c_x.set_size(1, b_x.size(1));
+        q_loop_ub = b_x.size(1);
         for (int i27 = 0; i27 < q_loop_ub; i27++) {
-            d_x[i27] = (c_x[i27] / b_vmax > ctx_cfg_ZeroStartVelLimit);
+            c_x[i27] = (b_x[i27] / b_vmax > ctx_cfg_ZeroStartVelLimit);
         }
 
-        b_eml_find(d_x, tmp_data, tmp_size);
+        b_eml_find(c_x, tmp_data, tmp_size);
         cut_index_vel_size_idx_1 = tmp_size[1];
         r_loop_ub = tmp_size[1];
         if (0 <= r_loop_ub - 1) {
@@ -7249,14 +7457,15 @@ namespace ocn
 
         //      actual_jps = jps;
         //      cut_index = N + 1 - cut_index;
-        L = LengthCurv(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                       b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
-                       b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
-                       b_CurvStruct->a_param, b_CurvStruct->b_param);
+        L = LengthCurv(ctx_q_splines, ctx_cfg_NGridLengthSpline, b_CurvStruct->Type,
+                       b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->HelixCenter,
+                       b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->pitch,
+                       b_CurvStruct->CoeffP5, b_CurvStruct->sp_index, b_CurvStruct->a_param,
+                       b_CurvStruct->b_param);
         *CurvStruct1 = *b_CurvStruct;
-        CutCurvStruct(ctx_q_splines, CurvStruct1, 0.0, uk[cut_index] * L);
+        CutCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct1, uk[cut_index] * L);
         *CurvStruct2 = *b_CurvStruct;
-        CutCurvStruct(ctx_q_splines, CurvStruct2, L - uk[cut_index] * L, 0.0);
+        b_CutCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct2, L - uk[cut_index] * L);
         CurvStruct2->ConstJerkMaxIterations = max_at.size(0) - cut_index;
         CurvStruct2->UseConstJerk = true;
         CurvStruct2->ConstJerk = 6.0 / std::pow(t[cut_index], 3.0);
@@ -7277,6 +7486,7 @@ namespace ocn
     //                double ctx_cfg_ZeroStartJerkLimit
     //                double ctx_cfg_ZeroStartVelLimit
     //                bool ctx_cfg_DebugCutZero
+    //                double ctx_cfg_NGridLengthSpline
     //                const CurvStruct *b_CurvStruct
     //                double k0
     //                CurvStruct *CurvStruct1
@@ -7286,8 +7496,8 @@ namespace ocn
     static void CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splines, int
         ctx_cfg_NHorz, const double ctx_cfg_amax[3], const double ctx_cfg_jmax[3], double ctx_cfg_dt,
         double ctx_cfg_ZeroStartAccLimit, double ctx_cfg_ZeroStartJerkLimit, double
-        ctx_cfg_ZeroStartVelLimit, bool ctx_cfg_DebugCutZero, const CurvStruct *b_CurvStruct, double
-        k0, CurvStruct *CurvStruct1, CurvStruct *CurvStruct2)
+        ctx_cfg_ZeroStartVelLimit, bool ctx_cfg_DebugCutZero, double ctx_cfg_NGridLengthSpline,
+        const CurvStruct *b_CurvStruct, double k0, CurvStruct *CurvStruct1, CurvStruct *CurvStruct2)
     {
         double unusedU0[3];
         double r1D[3];
@@ -7343,7 +7553,7 @@ namespace ocn
         int d_vectorUB;
         int i6;
         double TmpCurv_CoeffP5[6][3];
-        coder::array<double, 2U> r6;
+        coder::array<double, 2U> r7;
         coder::array<double, 2U> a;
         int g_loop_ub;
         coder::array<double, 2U> b_x;
@@ -7441,13 +7651,12 @@ namespace ocn
 
         uk.set_size(1, z1.size(1));
         b_loop_ub = z1.size(1);
-        scalarLB = z1.size(1) & -4;
-        vectorUB = scalarLB - 4;
-        for (i1 = 0; i1 <= vectorUB; i1 += 4) {
-            __m256d r;
-            r = _mm256_loadu_pd(&z1[i1]);
-            _mm256_storeu_pd(&uk[i1], _mm256_div_pd(_mm256_mul_pd(_mm256_set1_pd(jps), r),
-                              _mm256_set1_pd(6.0)));
+        scalarLB = z1.size(1) & -2;
+        vectorUB = scalarLB - 2;
+        for (i1 = 0; i1 <= vectorUB; i1 += 2) {
+            __m128d r;
+            r = _mm_loadu_pd(&z1[i1]);
+            _mm_storeu_pd(&uk[i1], _mm_div_pd(_mm_mul_pd(_mm_set1_pd(jps), r), _mm_set1_pd(6.0)));
         }
 
         for (i1 = scalarLB; i1 < b_loop_ub; i1++) {
@@ -7462,13 +7671,12 @@ namespace ocn
 
         d1uk.set_size(1, z1.size(1));
         c_loop_ub = z1.size(1);
-        b_scalarLB = z1.size(1) & -4;
-        b_vectorUB = b_scalarLB - 4;
-        for (i2 = 0; i2 <= b_vectorUB; i2 += 4) {
-            __m256d r1;
-            r1 = _mm256_loadu_pd(&z1[i2]);
-            _mm256_storeu_pd(&d1uk[i2], _mm256_div_pd(_mm256_mul_pd(_mm256_set1_pd(jps), r1),
-                              _mm256_set1_pd(2.0)));
+        b_scalarLB = z1.size(1) & -2;
+        b_vectorUB = b_scalarLB - 2;
+        for (i2 = 0; i2 <= b_vectorUB; i2 += 2) {
+            __m128d r1;
+            r1 = _mm_loadu_pd(&z1[i2]);
+            _mm_storeu_pd(&d1uk[i2], _mm_div_pd(_mm_mul_pd(_mm_set1_pd(jps), r1), _mm_set1_pd(2.0)));
         }
 
         for (i2 = b_scalarLB; i2 < c_loop_ub; i2++) {
@@ -7477,12 +7685,12 @@ namespace ocn
 
         d2uk.set_size(1, t.size(1));
         d_loop_ub = t.size(1);
-        c_scalarLB = t.size(1) & -4;
-        c_vectorUB = c_scalarLB - 4;
-        for (i3 = 0; i3 <= c_vectorUB; i3 += 4) {
-            __m256d r2;
-            r2 = _mm256_loadu_pd(&t[i3]);
-            _mm256_storeu_pd(&d2uk[i3], _mm256_mul_pd(_mm256_set1_pd(jps), r2));
+        c_scalarLB = t.size(1) & -2;
+        c_vectorUB = c_scalarLB - 2;
+        for (i3 = 0; i3 <= c_vectorUB; i3 += 2) {
+            __m128d r2;
+            r2 = _mm_loadu_pd(&t[i3]);
+            _mm_storeu_pd(&d2uk[i3], _mm_mul_pd(_mm_set1_pd(jps), r2));
         }
 
         for (i3 = c_scalarLB; i3 < d_loop_ub; i3++) {
@@ -7558,9 +7766,10 @@ namespace ocn
             i5 = b_r1D.size(1) - 1;
             for (int e_k = 0; e_k <= i5; e_k++) {
                 int varargin_2;
+                __m128d r4;
                 varargin_2 = acoef * e_k;
-                c[3 * e_k] = b_r1D[3 * varargin_2] * jps;
-                c[3 * e_k + 1] = b_r1D[3 * varargin_2 + 1] * jps;
+                r4 = _mm_loadu_pd(&b_r1D[3 * varargin_2]);
+                _mm_storeu_pd(&c[3 * e_k], _mm_mul_pd(r4, _mm_set1_pd(jps)));
                 c[3 * e_k + 2] = b_r1D[3 * varargin_2 + 2] * jps;
             }
         }
@@ -7568,26 +7777,26 @@ namespace ocn
         bsxfun(r3D, z1, r3);
         b_d1uk.set_size(1, d1uk.size(1));
         f_loop_ub = d1uk.size(1);
-        d_scalarLB = d1uk.size(1) & -4;
-        d_vectorUB = d_scalarLB - 4;
-        for (i6 = 0; i6 <= d_vectorUB; i6 += 4) {
-            __m256d r4;
-            __m256d r5;
-            r4 = _mm256_loadu_pd(&d1uk[i6]);
-            r5 = _mm256_loadu_pd(&d2uk[i6]);
-            _mm256_storeu_pd(&b_d1uk[i6], _mm256_mul_pd(r4, r5));
+        d_scalarLB = d1uk.size(1) & -2;
+        d_vectorUB = d_scalarLB - 2;
+        for (i6 = 0; i6 <= d_vectorUB; i6 += 2) {
+            __m128d r5;
+            __m128d r6;
+            r5 = _mm_loadu_pd(&d1uk[i6]);
+            r6 = _mm_loadu_pd(&d2uk[i6]);
+            _mm_storeu_pd(&b_d1uk[i6], _mm_mul_pd(r5, r6));
         }
 
         for (i6 = d_scalarLB; i6 < f_loop_ub; i6++) {
             b_d1uk[i6] = d1uk[i6] * d2uk[i6];
         }
 
-        bsxfun(r2D, b_d1uk, r6);
+        bsxfun(r2D, b_d1uk, r7);
         a.set_size(r3.size(1), 3);
         g_loop_ub = r3.size(1);
         for (int i8 = 0; i8 < 3; i8++) {
             for (int i9 = 0; i9 < g_loop_ub; i9++) {
-                a[i9 + a.size(0) * i8] = (r3[i8 + 3 * i9] + 3.0 * r6[i8 + 3 * i9]) + c[i8 + 3 * i9];
+                a[i9 + a.size(0) * i8] = (r3[i8 + 3 * i9] + 3.0 * r7[i8 + 3 * i9]) + c[i8 + 3 * i9];
             }
         }
 
@@ -7641,12 +7850,12 @@ namespace ocn
         }
 
         bsxfun(r2D, z1, r3);
-        bsxfun(b_r1D, d2uk, r6);
+        bsxfun(b_r1D, d2uk, r7);
         a.set_size(r3.size(1), 3);
         j_loop_ub = r3.size(1);
         for (int i15 = 0; i15 < 3; i15++) {
             for (int i17 = 0; i17 < j_loop_ub; i17++) {
-                a[i17 + a.size(0) * i15] = r3[i15 + 3 * i17] + r6[i15 + 3 * i17];
+                a[i17 + a.size(0) * i15] = r3[i15 + 3 * i17] + r7[i15 + 3 * i17];
             }
         }
 
@@ -7704,12 +7913,12 @@ namespace ocn
 
         sum(c_z1, c_x);
         i22 = c_x.size(1);
-        e_scalarLB = c_x.size(1) & -4;
-        e_vectorUB = e_scalarLB - 4;
-        for (p_k = 0; p_k <= e_vectorUB; p_k += 4) {
-            __m256d r7;
-            r7 = _mm256_loadu_pd(&c_x[p_k]);
-            _mm256_storeu_pd(&c_x[p_k], _mm256_sqrt_pd(r7));
+        e_scalarLB = c_x.size(1) & -2;
+        e_vectorUB = e_scalarLB - 2;
+        for (p_k = 0; p_k <= e_vectorUB; p_k += 2) {
+            __m128d r8;
+            r8 = _mm_loadu_pd(&c_x[p_k]);
+            _mm_storeu_pd(&c_x[p_k], _mm_sqrt_pd(r8));
         }
 
         for (p_k = e_scalarLB; p_k < i22; p_k++) {
@@ -7719,12 +7928,12 @@ namespace ocn
         sqrt_calls++;
         norm_vt.set_size(c_x.size(1));
         m_loop_ub = c_x.size(1);
-        f_scalarLB = c_x.size(1) & -4;
-        f_vectorUB = f_scalarLB - 4;
-        for (i25 = 0; i25 <= f_vectorUB; i25 += 4) {
-            __m256d r8;
-            r8 = _mm256_loadu_pd(&c_x[i25]);
-            _mm256_storeu_pd(&norm_vt[i25], _mm256_div_pd(r8, _mm256_set1_pd(b_vmax)));
+        f_scalarLB = c_x.size(1) & -2;
+        f_vectorUB = f_scalarLB - 2;
+        for (i25 = 0; i25 <= f_vectorUB; i25 += 2) {
+            __m128d r9;
+            r9 = _mm_loadu_pd(&c_x[i25]);
+            _mm_storeu_pd(&norm_vt[i25], _mm_div_pd(r9, _mm_set1_pd(b_vmax)));
         }
 
         for (i25 = f_scalarLB; i25 < m_loop_ub; i25++) {
@@ -7869,19 +8078,21 @@ namespace ocn
             cut_index = u1;
         }
 
-        L = LengthCurv(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                       b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
-                       b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
-                       b_CurvStruct->a_param, b_CurvStruct->b_param);
+        L = LengthCurv(ctx_q_splines, ctx_cfg_NGridLengthSpline, b_CurvStruct->Type,
+                       b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->HelixCenter,
+                       b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->pitch,
+                       b_CurvStruct->CoeffP5, b_CurvStruct->sp_index, b_CurvStruct->a_param,
+                       b_CurvStruct->b_param);
         *CurvStruct1 = *b_CurvStruct;
-        CutCurvStruct(ctx_q_splines, CurvStruct1, 0.0, L - uk[cut_index - 1] * L);
+        CutCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct1, L - uk[cut_index - 1] *
+                      L);
         CurvStruct1->UseConstJerk = true;
         CurvStruct1->ConstJerk = 6.0 / std::pow(t[cut_index - 1], 3.0);
 
         //      CurvStruct1.ConstJerkTime = t_cut;
         CurvStruct1->ConstJerkMaxIterations = cut_index;
         *CurvStruct2 = *b_CurvStruct;
-        CutCurvStruct(ctx_q_splines, CurvStruct2, uk[cut_index - 1] * L, 0.0);
+        b_CutCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct2, uk[cut_index - 1] * L);
         CurvStruct1->zspdmode = ZSpdMode_ZN;
         CurvStruct2->zspdmode = ZSpdMode_NN;
         CurvStruct1->gcode_source_line = b_CurvStruct->gcode_source_line;
@@ -7891,29 +8102,15 @@ namespace ocn
             fflush(stdout);
             printf("Initial: \n");
             fflush(stdout);
-            b_PrintCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->zspdmode,
-                              b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->HelixCenter,
-                              b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->pitch,
-                              b_CurvStruct->CoeffP5, b_CurvStruct->sp_index, b_CurvStruct->FeedRate,
-                              b_CurvStruct->UseConstJerk, b_CurvStruct->ConstJerk,
-                              b_CurvStruct->a_param, b_CurvStruct->b_param);
+            b_PrintCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, b_CurvStruct);
             printf("\nCut:\n");
             fflush(stdout);
             printf("Index = %d, t_cut = %e, vmax = %.1f\n", cut_index, t[cut_index - 1], b_vmax);
             fflush(stdout);
             printf("jps = %e, norm_vt(%d) = %f\n", jps, cut_index, norm_vt[cut_index - 1]);
             fflush(stdout);
-            b_PrintCurvStruct(ctx_q_splines, CurvStruct1->Type, ZSpdMode_ZN, CurvStruct1->P0,
-                              CurvStruct1->P1, CurvStruct1->HelixCenter, CurvStruct1->evec,
-                              CurvStruct1->theta, CurvStruct1->pitch, CurvStruct1->CoeffP5,
-                              CurvStruct1->sp_index, CurvStruct1->FeedRate, true,
-                              CurvStruct1->ConstJerk, CurvStruct1->a_param, CurvStruct1->b_param);
-            b_PrintCurvStruct(ctx_q_splines, CurvStruct2->Type, ZSpdMode_NN, CurvStruct2->P0,
-                              CurvStruct2->P1, CurvStruct2->HelixCenter, CurvStruct2->evec,
-                              CurvStruct2->theta, CurvStruct2->pitch, CurvStruct2->CoeffP5,
-                              CurvStruct2->sp_index, CurvStruct2->FeedRate,
-                              CurvStruct2->UseConstJerk, CurvStruct2->ConstJerk,
-                              CurvStruct2->a_param, CurvStruct2->b_param);
+            b_PrintCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct1);
+            b_PrintCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct2);
         }
     }
 
@@ -8128,16 +8325,17 @@ namespace ocn
                           &u_vec, coder::array<double, 2U> &r0D, coder::array<double, 2U> &r1D,
                           coder::array<double, 2U> &r2D, coder::array<double, 2U> &r3D)
     {
-        double P0P1_idx_0;
-        double P0P1_idx_1;
-        double P0P1_idx_2;
+        __m128d r;
+        double P0P1[3];
         int loop_ub;
         int b_loop_ub;
         int c_loop_ub;
         int d_loop_ub;
         char message[16];
+        double CP0[3];
         coder::array<double, 2U> phi_vec;
         int i5;
+        double EcrCP0[3];
         coder::array<double, 2U> cphi;
         coder::array<double, 2U> sphi;
         coder::array<double, 2U> cphiTCP0;
@@ -8145,14 +8343,15 @@ namespace ocn
         coder::array<double, 2U> cphiTEcrCP0;
         coder::array<double, 2U> sphiTEcrCP0;
         coder::array<double, 2U> b;
+        double y[3];
         coder::array<double, 2U> c_a;
         ZoneScopedN("EvalHelix");
 
         //
         //
-        P0P1_idx_0 = CurvStruct_P1[0] - CurvStruct_P0[0];
-        P0P1_idx_1 = CurvStruct_P1[1] - CurvStruct_P0[1];
-        P0P1_idx_2 = CurvStruct_P1[2] - CurvStruct_P0[2];
+        r = _mm_loadu_pd((double *)&CurvStruct_P0[0]);
+        _mm_storeu_pd(&P0P1[0], _mm_sub_pd(_mm_loadu_pd((double *)&CurvStruct_P1[0]), r));
+        P0P1[2] = CurvStruct_P1[2] - CurvStruct_P0[2];
         r0D.set_size(3, u_vec.size(1));
         loop_ub = u_vec.size(1);
         for (int i = 0; i < loop_ub; i++) {
@@ -8186,25 +8385,20 @@ namespace ocn
         }
 
         sqrt_calls++;
-        if (std::sqrt((std::pow(CurvStruct_evec[1] * P0P1_idx_2 - CurvStruct_evec[2] * P0P1_idx_1,
-                                2.0) + std::pow(CurvStruct_evec[2] * P0P1_idx_0 - CurvStruct_evec[0]
-               * P0P1_idx_2, 2.0)) + std::pow(CurvStruct_evec[0] * P0P1_idx_1 - CurvStruct_evec[1] *
-              P0P1_idx_0, 2.0)) <= 2.2204460492503131E-16) {
+        if (std::sqrt((std::pow(CurvStruct_evec[1] * P0P1[2] - CurvStruct_evec[2] * P0P1[1], 2.0) +
+                       std::pow(CurvStruct_evec[2] * P0P1[0] - CurvStruct_evec[0] * P0P1[2], 2.0)) +
+                      std::pow(CurvStruct_evec[0] * P0P1[1] - CurvStruct_evec[1] * P0P1[0], 2.0)) <=
+            2.2204460492503131E-16) {
             for (int i4 = 0; i4 < 16; i4++) {
                 message[i4] = cv1[i4];
             }
 
             c_assert_(&message[0]);
         } else {
-            double CP0_idx_0;
-            double CP0_idx_1;
-            double CP0_idx_2;
+            __m128d r1;
             int e_loop_ub;
             int scalarLB;
             int vectorUB;
-            double EcrCP0_idx_0;
-            double EcrCP0_idx_1;
-            double EcrCP0_idx_2;
             int f_loop_ub;
             int i7;
             int g_loop_ub;
@@ -8216,9 +8410,6 @@ namespace ocn
             double a;
             int l_loop_ub;
             double b_a;
-            double y_idx_0;
-            double y_idx_1;
-            double y_idx_2;
             int m_loop_ub;
             double a_tmp;
             int n_loop_ub;
@@ -8231,25 +8422,25 @@ namespace ocn
             //      end
             //  end
             //
-            CP0_idx_0 = CurvStruct_P0[0] - CurvStruct_HelixCenter[0];
-            CP0_idx_1 = CurvStruct_P0[1] - CurvStruct_HelixCenter[1];
-            CP0_idx_2 = CurvStruct_P0[2] - CurvStruct_HelixCenter[2];
+            r1 = _mm_loadu_pd((double *)&CurvStruct_HelixCenter[0]);
+            _mm_storeu_pd(&CP0[0], _mm_sub_pd(r, r1));
+            CP0[2] = CurvStruct_P0[2] - CurvStruct_HelixCenter[2];
             phi_vec.set_size(1, u_vec.size(1));
             e_loop_ub = u_vec.size(1);
-            scalarLB = u_vec.size(1) & -4;
-            vectorUB = scalarLB - 4;
-            for (i5 = 0; i5 <= vectorUB; i5 += 4) {
-                _mm256_storeu_pd(&phi_vec[i5], _mm256_mul_pd(_mm256_set1_pd(CurvStruct_theta),
-                                  _mm256_loadu_pd(&u_vec[i5])));
+            scalarLB = u_vec.size(1) & -2;
+            vectorUB = scalarLB - 2;
+            for (i5 = 0; i5 <= vectorUB; i5 += 2) {
+                _mm_storeu_pd(&phi_vec[i5], _mm_mul_pd(_mm_set1_pd(CurvStruct_theta), _mm_loadu_pd
+                               (&u_vec[i5])));
             }
 
             for (i5 = scalarLB; i5 < e_loop_ub; i5++) {
                 phi_vec[i5] = CurvStruct_theta * u_vec[i5];
             }
 
-            EcrCP0_idx_0 = CurvStruct_evec[1] * CP0_idx_2 - CurvStruct_evec[2] * CP0_idx_1;
-            EcrCP0_idx_1 = CurvStruct_evec[2] * CP0_idx_0 - CurvStruct_evec[0] * CP0_idx_2;
-            EcrCP0_idx_2 = CurvStruct_evec[0] * CP0_idx_1 - CurvStruct_evec[1] * CP0_idx_0;
+            EcrCP0[0] = CurvStruct_evec[1] * CP0[2] - CurvStruct_evec[2] * CP0[1];
+            EcrCP0[1] = CurvStruct_evec[2] * CP0[0] - CurvStruct_evec[0] * CP0[2];
+            EcrCP0[2] = CurvStruct_evec[0] * CP0[1] - CurvStruct_evec[1] * CP0[0];
             cphi.set_size(1, phi_vec.size(1));
             f_loop_ub = phi_vec.size(1);
             for (int i6 = 0; i6 < f_loop_ub; i6++) {
@@ -8279,33 +8470,37 @@ namespace ocn
             cphiTCP0.set_size(3, cphi.size(1));
             h_loop_ub = cphi.size(1);
             for (int i10 = 0; i10 < h_loop_ub; i10++) {
-                cphiTCP0[3 * i10] = CP0_idx_0 * cphi[i10];
-                cphiTCP0[3 * i10 + 1] = CP0_idx_1 * cphi[i10];
-                cphiTCP0[3 * i10 + 2] = CP0_idx_2 * cphi[i10];
+                __m128d r2;
+                r2 = _mm_loadu_pd(&CP0[0]);
+                _mm_storeu_pd(&cphiTCP0[3 * i10], _mm_mul_pd(r2, _mm_set1_pd(cphi[i10])));
+                cphiTCP0[3 * i10 + 2] = CP0[2] * cphi[i10];
             }
 
             sphiTCP0.set_size(3, sphi.size(1));
             i_loop_ub = sphi.size(1);
             for (int i11 = 0; i11 < i_loop_ub; i11++) {
-                sphiTCP0[3 * i11] = CP0_idx_0 * sphi[i11];
-                sphiTCP0[3 * i11 + 1] = CP0_idx_1 * sphi[i11];
-                sphiTCP0[3 * i11 + 2] = CP0_idx_2 * sphi[i11];
+                __m128d r3;
+                r3 = _mm_loadu_pd(&CP0[0]);
+                _mm_storeu_pd(&sphiTCP0[3 * i11], _mm_mul_pd(r3, _mm_set1_pd(sphi[i11])));
+                sphiTCP0[3 * i11 + 2] = CP0[2] * sphi[i11];
             }
 
             cphiTEcrCP0.set_size(3, cphi.size(1));
             j_loop_ub = cphi.size(1);
             for (int i12 = 0; i12 < j_loop_ub; i12++) {
-                cphiTEcrCP0[3 * i12] = EcrCP0_idx_0 * cphi[i12];
-                cphiTEcrCP0[3 * i12 + 1] = EcrCP0_idx_1 * cphi[i12];
-                cphiTEcrCP0[3 * i12 + 2] = EcrCP0_idx_2 * cphi[i12];
+                __m128d r4;
+                r4 = _mm_loadu_pd(&EcrCP0[0]);
+                _mm_storeu_pd(&cphiTEcrCP0[3 * i12], _mm_mul_pd(r4, _mm_set1_pd(cphi[i12])));
+                cphiTEcrCP0[3 * i12 + 2] = EcrCP0[2] * cphi[i12];
             }
 
             sphiTEcrCP0.set_size(3, sphi.size(1));
             k_loop_ub = sphi.size(1);
             for (int i13 = 0; i13 < k_loop_ub; i13++) {
-                sphiTEcrCP0[3 * i13] = EcrCP0_idx_0 * sphi[i13];
-                sphiTEcrCP0[3 * i13 + 1] = EcrCP0_idx_1 * sphi[i13];
-                sphiTEcrCP0[3 * i13 + 2] = EcrCP0_idx_2 * sphi[i13];
+                __m128d r5;
+                r5 = _mm_loadu_pd(&EcrCP0[0]);
+                _mm_storeu_pd(&sphiTEcrCP0[3 * i13], _mm_mul_pd(r5, _mm_set1_pd(sphi[i13])));
+                sphiTEcrCP0[3 * i13 + 2] = EcrCP0[2] * sphi[i13];
             }
 
             //
@@ -8313,10 +8508,13 @@ namespace ocn
             b.set_size(3, phi_vec.size(1));
             l_loop_ub = phi_vec.size(1);
             for (int i14 = 0; i14 < l_loop_ub; i14++) {
-                b[3 * i14] = (cphiTCP0[3 * i14] + sphiTEcrCP0[3 * i14]) + a * CurvStruct_evec[0] *
-                    phi_vec[i14];
-                b[3 * i14 + 1] = (cphiTCP0[3 * i14 + 1] + sphiTEcrCP0[3 * i14 + 1]) + a *
-                    CurvStruct_evec[1] * phi_vec[i14];
+                __m128d r6;
+                __m128d r7;
+                r6 = _mm_loadu_pd(&cphiTCP0[3 * i14]);
+                r7 = _mm_loadu_pd(&sphiTEcrCP0[3 * i14]);
+                _mm_storeu_pd(&b[3 * i14], _mm_add_pd(_mm_add_pd(r6, r7), _mm_add_pd(_mm_set1_pd(0.0),
+                                _mm_mul_pd(_mm_mul_pd(_mm_set1_pd(a), _mm_loadu_pd((double *)
+                                   &CurvStruct_evec[0])), _mm_set1_pd(phi_vec[i14])))));
                 b[3 * i14 + 2] = (cphiTCP0[3 * i14 + 2] + sphiTEcrCP0[3 * i14 + 2]) + a *
                     CurvStruct_evec[2] * phi_vec[i14];
             }
@@ -8329,24 +8527,27 @@ namespace ocn
                 i15 = b.size(1) - 1;
                 for (int c_k = 0; c_k <= i15; c_k++) {
                     int varargin_3;
+                    __m128d r8;
                     varargin_3 = bcoef * c_k;
-                    r0D[3 * c_k] = CurvStruct_HelixCenter[0] + b[3 * varargin_3];
-                    r0D[3 * c_k + 1] = CurvStruct_HelixCenter[1] + b[3 * varargin_3 + 1];
+                    r8 = _mm_loadu_pd(&b[3 * varargin_3]);
+                    _mm_storeu_pd(&r0D[3 * c_k], _mm_add_pd(r1, r8));
                     r0D[3 * c_k + 2] = CurvStruct_HelixCenter[2] + b[3 * varargin_3 + 2];
                 }
             }
 
             b_a = CurvStruct_theta * CurvStruct_pitch / 6.2831853071795862;
-            y_idx_0 = b_a * CurvStruct_evec[0];
-            y_idx_1 = b_a * CurvStruct_evec[1];
-            y_idx_2 = b_a * CurvStruct_evec[2];
+            _mm_storeu_pd(&y[0], _mm_mul_pd(_mm_set1_pd(b_a), _mm_loadu_pd((double *)
+                            &CurvStruct_evec[0])));
+            y[2] = b_a * CurvStruct_evec[2];
             c_a.set_size(3, sphiTCP0.size(1));
             m_loop_ub = sphiTCP0.size(1);
             for (int i16 = 0; i16 < m_loop_ub; i16++) {
-                c_a[3 * i16] = -CurvStruct_theta * sphiTCP0[3 * i16] + CurvStruct_theta *
-                    cphiTEcrCP0[3 * i16];
-                c_a[3 * i16 + 1] = -CurvStruct_theta * sphiTCP0[3 * i16 + 1] + CurvStruct_theta *
-                    cphiTEcrCP0[3 * i16 + 1];
+                __m128d r9;
+                __m128d r10;
+                r9 = _mm_loadu_pd(&sphiTCP0[3 * i16]);
+                r10 = _mm_loadu_pd(&cphiTEcrCP0[3 * i16]);
+                _mm_storeu_pd(&c_a[3 * i16], _mm_add_pd(_mm_mul_pd(_mm_set1_pd(-CurvStruct_theta),
+                                r9), _mm_mul_pd(_mm_set1_pd(CurvStruct_theta), r10)));
                 c_a[3 * i16 + 2] = -CurvStruct_theta * sphiTCP0[3 * i16 + 2] + CurvStruct_theta *
                     cphiTEcrCP0[3 * i16 + 2];
             }
@@ -8359,10 +8560,13 @@ namespace ocn
                 i17 = c_a.size(1) - 1;
                 for (int d_k = 0; d_k <= i17; d_k++) {
                     int varargin_2;
+                    __m128d r11;
+                    __m128d r13;
                     varargin_2 = acoef * d_k;
-                    r1D[3 * d_k] = c_a[3 * varargin_2] + y_idx_0;
-                    r1D[3 * d_k + 1] = c_a[3 * varargin_2 + 1] + y_idx_1;
-                    r1D[3 * d_k + 2] = c_a[3 * varargin_2 + 2] + y_idx_2;
+                    r11 = _mm_loadu_pd(&c_a[3 * varargin_2]);
+                    r13 = _mm_loadu_pd(&y[0]);
+                    _mm_storeu_pd(&r1D[3 * d_k], _mm_add_pd(r11, r13));
+                    r1D[3 * d_k + 2] = c_a[3 * varargin_2 + 2] + y[2];
                 }
             }
 
@@ -8370,8 +8574,12 @@ namespace ocn
             r2D.set_size(3, cphiTCP0.size(1));
             n_loop_ub = cphiTCP0.size(1);
             for (int i18 = 0; i18 < n_loop_ub; i18++) {
-                r2D[3 * i18] = -a_tmp * cphiTCP0[3 * i18] - a_tmp * sphiTEcrCP0[3 * i18];
-                r2D[3 * i18 + 1] = -a_tmp * cphiTCP0[3 * i18 + 1] - a_tmp * sphiTEcrCP0[3 * i18 + 1];
+                __m128d r12;
+                __m128d r14;
+                r12 = _mm_loadu_pd(&cphiTCP0[3 * i18]);
+                r14 = _mm_loadu_pd(&sphiTEcrCP0[3 * i18]);
+                _mm_storeu_pd(&r2D[3 * i18], _mm_sub_pd(_mm_mul_pd(_mm_set1_pd(-a_tmp), r12),
+                               _mm_mul_pd(_mm_set1_pd(a_tmp), r14)));
                 r2D[3 * i18 + 2] = -a_tmp * cphiTCP0[3 * i18 + 2] - a_tmp * sphiTEcrCP0[3 * i18 + 2];
             }
 
@@ -8379,9 +8587,13 @@ namespace ocn
             r3D.set_size(3, sphiTCP0.size(1));
             o_loop_ub = sphiTCP0.size(1);
             for (int i19 = 0; i19 < o_loop_ub; i19++) {
-                r3D[3 * i19] = b_a_tmp * sphiTCP0[3 * i19] - b_a_tmp * cphiTEcrCP0[3 * i19];
-                r3D[3 * i19 + 1] = b_a_tmp * sphiTCP0[3 * i19 + 1] - b_a_tmp * cphiTEcrCP0[3 * i19 +
-                    1];
+                __m128d r15;
+                __m128d r16;
+                __m128d r17;
+                r15 = _mm_loadu_pd(&sphiTCP0[3 * i19]);
+                r16 = _mm_loadu_pd(&cphiTEcrCP0[3 * i19]);
+                r17 = _mm_set1_pd(b_a_tmp);
+                _mm_storeu_pd(&r3D[3 * i19], _mm_sub_pd(_mm_mul_pd(r17, r15), _mm_mul_pd(r17, r16)));
                 r3D[3 * i19 + 2] = b_a_tmp * sphiTCP0[3 * i19 + 2] - b_a_tmp * cphiTEcrCP0[3 * i19 +
                     2];
             }
@@ -8406,9 +8618,7 @@ namespace ocn
         int loop_ub;
         int b_loop_ub;
         int c_loop_ub;
-        double a_idx_0;
-        double a_idx_1;
-        double a_idx_2;
+        double a[3];
         int d_loop_ub;
         int e_loop_ub;
         ZoneScopedN("EvalLine");
@@ -8439,17 +8649,17 @@ namespace ocn
         }
 
         //
-        a_idx_0 = CurvStruct_P1[0] - CurvStruct_P0[0];
-        a_idx_1 = CurvStruct_P1[1] - CurvStruct_P0[1];
-        a_idx_2 = CurvStruct_P1[2] - CurvStruct_P0[2];
+        _mm_storeu_pd(&a[0], _mm_sub_pd(_mm_loadu_pd((double *)&CurvStruct_P1[0]), _mm_loadu_pd
+                       ((double *)&CurvStruct_P0[0])));
+        a[2] = CurvStruct_P1[2] - CurvStruct_P0[2];
         r1D.set_size(3, u_vec.size(1));
         if (u_vec.size(1) != 0) {
             int i3;
             i3 = u_vec.size(1) - 1;
             for (int t = 0; t <= i3; t++) {
-                r1D[3 * t] = a_idx_0;
-                r1D[3 * t + 1] = a_idx_1;
-                r1D[3 * t + 2] = a_idx_2;
+                r1D[3 * t] = a[0];
+                r1D[3 * t + 1] = a[1];
+                r1D[3 * t + 2] = a[2];
             }
         }
 
@@ -8487,7 +8697,7 @@ namespace ocn
         double p5_1D[5][3];
         double p5_2D[4][3];
         double p5_3D[3][3];
-        coder::array<double, 2U> r;
+        coder::array<double, 2U> r5;
         coder::array<double, 2U> b;
         ZoneScopedN("EvalTransP5");
 
@@ -8496,34 +8706,50 @@ namespace ocn
         //
         // u  = u(:).';
         for (int k = 0; k < 5; k++) {
-            int p5_1D_tmp;
-            p5_1D_tmp = 5 - k;
-            p5_1D[k][0] = CurvStruct_CoeffP5[k][0] * static_cast<double>(p5_1D_tmp);
-            p5_1D[k][1] = CurvStruct_CoeffP5[k][1] * static_cast<double>(p5_1D_tmp);
-            p5_1D[k][2] = CurvStruct_CoeffP5[k][2] * static_cast<double>(p5_1D_tmp);
+            int i;
+            i = 5 - k;
+            _mm_storeu_pd(&p5_1D[k][0], _mm_mul_pd(_mm_loadu_pd((double *)&CurvStruct_CoeffP5[k][0]),
+                           _mm_set1_pd(static_cast<double>(i))));
+            p5_1D[k][2] = CurvStruct_CoeffP5[k][2] * static_cast<double>(i);
         }
+
+        __m128d r;
+        __m128d r1;
+        __m128d r2;
+        __m128d r3;
+        __m128d r4;
 
         // MYPOLYDER Differentiate polynomial.
         //
         // u  = u(:).';
-        for (int b_k = 0; b_k < 4; b_k++) {
-            int p5_2D_tmp;
-            p5_2D_tmp = 4 - b_k;
-            p5_2D[b_k][0] = p5_1D[b_k][0] * static_cast<double>(p5_2D_tmp);
-            p5_2D[b_k][1] = p5_1D[b_k][1] * static_cast<double>(p5_2D_tmp);
-            p5_2D[b_k][2] = p5_1D[b_k][2] * static_cast<double>(p5_2D_tmp);
-        }
+        r = _mm_loadu_pd(&p5_1D[0][0]);
+        _mm_storeu_pd(&p5_2D[0][0], _mm_mul_pd(r, _mm_set1_pd(4.0)));
+        p5_2D[0][2] = p5_1D[0][2] * 4.0;
+        r = _mm_loadu_pd(&p5_1D[1][0]);
+        r1 = _mm_set1_pd(3.0);
+        _mm_storeu_pd(&p5_2D[1][0], _mm_mul_pd(r, r1));
+        p5_2D[1][2] = p5_1D[1][2] * 3.0;
+        r = _mm_loadu_pd(&p5_1D[2][0]);
+        r2 = _mm_set1_pd(2.0);
+        _mm_storeu_pd(&p5_2D[2][0], _mm_mul_pd(r, r2));
+        p5_2D[2][2] = p5_1D[2][2] * 2.0;
+        r = _mm_loadu_pd(&p5_1D[3][0]);
+        r3 = _mm_set1_pd(1.0);
+        _mm_storeu_pd(&p5_2D[3][0], _mm_mul_pd(r, r3));
+        p5_2D[3][2] = p5_1D[3][2];
 
         // MYPOLYDER Differentiate polynomial.
         //
         // u  = u(:).';
-        for (int c_k = 0; c_k < 3; c_k++) {
-            int p5_3D_tmp;
-            p5_3D_tmp = 3 - c_k;
-            p5_3D[c_k][0] = p5_2D[c_k][0] * static_cast<double>(p5_3D_tmp);
-            p5_3D[c_k][1] = p5_2D[c_k][1] * static_cast<double>(p5_3D_tmp);
-            p5_3D[c_k][2] = p5_2D[c_k][2] * static_cast<double>(p5_3D_tmp);
-        }
+        r4 = _mm_loadu_pd(&p5_2D[0][0]);
+        _mm_storeu_pd(&p5_3D[0][0], _mm_mul_pd(r4, r1));
+        p5_3D[0][2] = p5_2D[0][2] * 3.0;
+        r4 = _mm_loadu_pd(&p5_2D[1][0]);
+        _mm_storeu_pd(&p5_3D[1][0], _mm_mul_pd(r4, r2));
+        p5_3D[1][2] = p5_2D[1][2] * 2.0;
+        r4 = _mm_loadu_pd(&p5_2D[2][0]);
+        _mm_storeu_pd(&p5_3D[2][0], _mm_mul_pd(r4, r3));
+        p5_3D[2][2] = p5_2D[2][2];
 
         //
         // POLYVAL Evaluate array of polynomials with same degree.
@@ -8532,9 +8758,9 @@ namespace ocn
         //  Use Horner's method for general case where X is an array.
         r_0D.set_size(3, u_vec.size(1));
         if (u_vec.size(1) != 0) {
-            int i;
-            i = u_vec.size(1) - 1;
-            for (int t = 0; t <= i; t++) {
+            int i1;
+            i1 = u_vec.size(1) - 1;
+            for (int t = 0; t <= i1; t++) {
                 r_0D[3 * t] = CurvStruct_CoeffP5[0][0];
                 r_0D[3 * t + 1] = CurvStruct_CoeffP5[0][1];
                 r_0D[3 * t + 2] = CurvStruct_CoeffP5[0][2];
@@ -8543,34 +8769,39 @@ namespace ocn
 
         for (int b_i = 0; b_i < 5; b_i++) {
             int loop_ub;
-            r.set_size(3, u_vec.size(1));
+            r5.set_size(3, u_vec.size(1));
             if (u_vec.size(1) != 0) {
                 int na;
                 na = u_vec.size(1);
-                for (int d_k = 0; d_k < na; d_k++) {
-                    r[3 * d_k] = u_vec[d_k];
-                    r[3 * d_k + 1] = u_vec[d_k];
-                    r[3 * d_k + 2] = u_vec[d_k];
+                for (int b_k = 0; b_k < na; b_k++) {
+                    r5[3 * b_k] = u_vec[b_k];
+                    r5[3 * b_k + 1] = u_vec[b_k];
+                    r5[3 * b_k + 2] = u_vec[b_k];
                 }
             }
 
             b.set_size(3, u_vec.size(1));
             if (u_vec.size(1) != 0) {
-                int i1;
-                i1 = u_vec.size(1) - 1;
-                for (int b_t = 0; b_t <= i1; b_t++) {
+                int i2;
+                i2 = u_vec.size(1) - 1;
+                for (int b_t = 0; b_t <= i2; b_t++) {
                     b[3 * b_t] = CurvStruct_CoeffP5[b_i + 1][0];
                     b[3 * b_t + 1] = CurvStruct_CoeffP5[b_i + 1][1];
                     b[3 * b_t + 2] = CurvStruct_CoeffP5[b_i + 1][2];
                 }
             }
 
-            r_0D.set_size(3, r.size(1));
-            loop_ub = r.size(1);
-            for (int i3 = 0; i3 < loop_ub; i3++) {
-                r_0D[3 * i3] = r[3 * i3] * r_0D[3 * i3] + b[3 * i3];
-                r_0D[3 * i3 + 1] = r[3 * i3 + 1] * r_0D[3 * i3 + 1] + b[3 * i3 + 1];
-                r_0D[3 * i3 + 2] = r[3 * i3 + 2] * r_0D[3 * i3 + 2] + b[3 * i3 + 2];
+            r_0D.set_size(3, r5.size(1));
+            loop_ub = r5.size(1);
+            for (int i4 = 0; i4 < loop_ub; i4++) {
+                __m128d r6;
+                __m128d r7;
+                __m128d r8;
+                r6 = _mm_loadu_pd(&r5[3 * i4]);
+                r7 = _mm_loadu_pd(&r_0D[3 * i4]);
+                r8 = _mm_loadu_pd(&b[3 * i4]);
+                _mm_storeu_pd(&r_0D[3 * i4], _mm_add_pd(_mm_mul_pd(r6, r7), r8));
+                r_0D[3 * i4 + 2] = r5[3 * i4 + 2] * r_0D[3 * i4 + 2] + b[3 * i4 + 2];
             }
         }
 
@@ -8580,9 +8811,9 @@ namespace ocn
         //  Use Horner's method for general case where X is an array.
         r_1D.set_size(3, u_vec.size(1));
         if (u_vec.size(1) != 0) {
-            int i2;
-            i2 = u_vec.size(1) - 1;
-            for (int c_t = 0; c_t <= i2; c_t++) {
+            int i3;
+            i3 = u_vec.size(1) - 1;
+            for (int c_t = 0; c_t <= i3; c_t++) {
                 r_1D[3 * c_t] = p5_1D[0][0];
                 r_1D[3 * c_t + 1] = p5_1D[0][1];
                 r_1D[3 * c_t + 2] = p5_1D[0][2];
@@ -8591,34 +8822,39 @@ namespace ocn
 
         for (int c_i = 0; c_i < 4; c_i++) {
             int b_loop_ub;
-            r.set_size(3, u_vec.size(1));
+            r5.set_size(3, u_vec.size(1));
             if (u_vec.size(1) != 0) {
                 int b_na;
                 b_na = u_vec.size(1);
-                for (int e_k = 0; e_k < b_na; e_k++) {
-                    r[3 * e_k] = u_vec[e_k];
-                    r[3 * e_k + 1] = u_vec[e_k];
-                    r[3 * e_k + 2] = u_vec[e_k];
+                for (int c_k = 0; c_k < b_na; c_k++) {
+                    r5[3 * c_k] = u_vec[c_k];
+                    r5[3 * c_k + 1] = u_vec[c_k];
+                    r5[3 * c_k + 2] = u_vec[c_k];
                 }
             }
 
             b.set_size(3, u_vec.size(1));
             if (u_vec.size(1) != 0) {
-                int i4;
-                i4 = u_vec.size(1) - 1;
-                for (int d_t = 0; d_t <= i4; d_t++) {
+                int i5;
+                i5 = u_vec.size(1) - 1;
+                for (int d_t = 0; d_t <= i5; d_t++) {
                     b[3 * d_t] = p5_1D[c_i + 1][0];
                     b[3 * d_t + 1] = p5_1D[c_i + 1][1];
                     b[3 * d_t + 2] = p5_1D[c_i + 1][2];
                 }
             }
 
-            r_1D.set_size(3, r.size(1));
-            b_loop_ub = r.size(1);
-            for (int i6 = 0; i6 < b_loop_ub; i6++) {
-                r_1D[3 * i6] = r[3 * i6] * r_1D[3 * i6] + b[3 * i6];
-                r_1D[3 * i6 + 1] = r[3 * i6 + 1] * r_1D[3 * i6 + 1] + b[3 * i6 + 1];
-                r_1D[3 * i6 + 2] = r[3 * i6 + 2] * r_1D[3 * i6 + 2] + b[3 * i6 + 2];
+            r_1D.set_size(3, r5.size(1));
+            b_loop_ub = r5.size(1);
+            for (int i7 = 0; i7 < b_loop_ub; i7++) {
+                __m128d r9;
+                __m128d r10;
+                __m128d r11;
+                r9 = _mm_loadu_pd(&r5[3 * i7]);
+                r10 = _mm_loadu_pd(&r_1D[3 * i7]);
+                r11 = _mm_loadu_pd(&b[3 * i7]);
+                _mm_storeu_pd(&r_1D[3 * i7], _mm_add_pd(_mm_mul_pd(r9, r10), r11));
+                r_1D[3 * i7 + 2] = r5[3 * i7 + 2] * r_1D[3 * i7 + 2] + b[3 * i7 + 2];
             }
         }
 
@@ -8628,9 +8864,9 @@ namespace ocn
         //  Use Horner's method for general case where X is an array.
         r_2D.set_size(3, u_vec.size(1));
         if (u_vec.size(1) != 0) {
-            int i5;
-            i5 = u_vec.size(1) - 1;
-            for (int e_t = 0; e_t <= i5; e_t++) {
+            int i6;
+            i6 = u_vec.size(1) - 1;
+            for (int e_t = 0; e_t <= i6; e_t++) {
                 r_2D[3 * e_t] = p5_2D[0][0];
                 r_2D[3 * e_t + 1] = p5_2D[0][1];
                 r_2D[3 * e_t + 2] = p5_2D[0][2];
@@ -8639,34 +8875,39 @@ namespace ocn
 
         for (int d_i = 0; d_i < 3; d_i++) {
             int c_loop_ub;
-            r.set_size(3, u_vec.size(1));
+            r5.set_size(3, u_vec.size(1));
             if (u_vec.size(1) != 0) {
                 int c_na;
                 c_na = u_vec.size(1);
-                for (int f_k = 0; f_k < c_na; f_k++) {
-                    r[3 * f_k] = u_vec[f_k];
-                    r[3 * f_k + 1] = u_vec[f_k];
-                    r[3 * f_k + 2] = u_vec[f_k];
+                for (int d_k = 0; d_k < c_na; d_k++) {
+                    r5[3 * d_k] = u_vec[d_k];
+                    r5[3 * d_k + 1] = u_vec[d_k];
+                    r5[3 * d_k + 2] = u_vec[d_k];
                 }
             }
 
             b.set_size(3, u_vec.size(1));
             if (u_vec.size(1) != 0) {
-                int i7;
-                i7 = u_vec.size(1) - 1;
-                for (int f_t = 0; f_t <= i7; f_t++) {
+                int i8;
+                i8 = u_vec.size(1) - 1;
+                for (int f_t = 0; f_t <= i8; f_t++) {
                     b[3 * f_t] = p5_2D[d_i + 1][0];
                     b[3 * f_t + 1] = p5_2D[d_i + 1][1];
                     b[3 * f_t + 2] = p5_2D[d_i + 1][2];
                 }
             }
 
-            r_2D.set_size(3, r.size(1));
-            c_loop_ub = r.size(1);
-            for (int i9 = 0; i9 < c_loop_ub; i9++) {
-                r_2D[3 * i9] = r[3 * i9] * r_2D[3 * i9] + b[3 * i9];
-                r_2D[3 * i9 + 1] = r[3 * i9 + 1] * r_2D[3 * i9 + 1] + b[3 * i9 + 1];
-                r_2D[3 * i9 + 2] = r[3 * i9 + 2] * r_2D[3 * i9 + 2] + b[3 * i9 + 2];
+            r_2D.set_size(3, r5.size(1));
+            c_loop_ub = r5.size(1);
+            for (int i10 = 0; i10 < c_loop_ub; i10++) {
+                __m128d r12;
+                __m128d r13;
+                __m128d r14;
+                r12 = _mm_loadu_pd(&r5[3 * i10]);
+                r13 = _mm_loadu_pd(&r_2D[3 * i10]);
+                r14 = _mm_loadu_pd(&b[3 * i10]);
+                _mm_storeu_pd(&r_2D[3 * i10], _mm_add_pd(_mm_mul_pd(r12, r13), r14));
+                r_2D[3 * i10 + 2] = r5[3 * i10 + 2] * r_2D[3 * i10 + 2] + b[3 * i10 + 2];
             }
         }
 
@@ -8676,9 +8917,9 @@ namespace ocn
         //  Use Horner's method for general case where X is an array.
         r_3D.set_size(3, u_vec.size(1));
         if (u_vec.size(1) != 0) {
-            int i8;
-            i8 = u_vec.size(1) - 1;
-            for (int g_t = 0; g_t <= i8; g_t++) {
+            int i9;
+            i9 = u_vec.size(1) - 1;
+            for (int g_t = 0; g_t <= i9; g_t++) {
                 r_3D[3 * g_t] = p5_3D[0][0];
                 r_3D[3 * g_t + 1] = p5_3D[0][1];
                 r_3D[3 * g_t + 2] = p5_3D[0][2];
@@ -8687,34 +8928,39 @@ namespace ocn
 
         for (int e_i = 0; e_i < 2; e_i++) {
             int d_loop_ub;
-            r.set_size(3, u_vec.size(1));
+            r5.set_size(3, u_vec.size(1));
             if (u_vec.size(1) != 0) {
                 int d_na;
                 d_na = u_vec.size(1);
-                for (int g_k = 0; g_k < d_na; g_k++) {
-                    r[3 * g_k] = u_vec[g_k];
-                    r[3 * g_k + 1] = u_vec[g_k];
-                    r[3 * g_k + 2] = u_vec[g_k];
+                for (int e_k = 0; e_k < d_na; e_k++) {
+                    r5[3 * e_k] = u_vec[e_k];
+                    r5[3 * e_k + 1] = u_vec[e_k];
+                    r5[3 * e_k + 2] = u_vec[e_k];
                 }
             }
 
             b.set_size(3, u_vec.size(1));
             if (u_vec.size(1) != 0) {
-                int i10;
-                i10 = u_vec.size(1) - 1;
-                for (int h_t = 0; h_t <= i10; h_t++) {
+                int i11;
+                i11 = u_vec.size(1) - 1;
+                for (int h_t = 0; h_t <= i11; h_t++) {
                     b[3 * h_t] = p5_3D[e_i + 1][0];
                     b[3 * h_t + 1] = p5_3D[e_i + 1][1];
                     b[3 * h_t + 2] = p5_3D[e_i + 1][2];
                 }
             }
 
-            r_3D.set_size(3, r.size(1));
-            d_loop_ub = r.size(1);
-            for (int i11 = 0; i11 < d_loop_ub; i11++) {
-                r_3D[3 * i11] = r[3 * i11] * r_3D[3 * i11] + b[3 * i11];
-                r_3D[3 * i11 + 1] = r[3 * i11 + 1] * r_3D[3 * i11 + 1] + b[3 * i11 + 1];
-                r_3D[3 * i11 + 2] = r[3 * i11 + 2] * r_3D[3 * i11 + 2] + b[3 * i11 + 2];
+            r_3D.set_size(3, r5.size(1));
+            d_loop_ub = r5.size(1);
+            for (int i12 = 0; i12 < d_loop_ub; i12++) {
+                __m128d r15;
+                __m128d r16;
+                __m128d r17;
+                r15 = _mm_loadu_pd(&r5[3 * i12]);
+                r16 = _mm_loadu_pd(&r_3D[3 * i12]);
+                r17 = _mm_loadu_pd(&b[3 * i12]);
+                _mm_storeu_pd(&r_3D[3 * i12], _mm_add_pd(_mm_mul_pd(r15, r16), r17));
+                r_3D[3 * i12 + 2] = r5[3 * i12 + 2] * r_3D[3 * i12 + 2] + b[3 * i12 + 2];
             }
         }
     }
@@ -8737,11 +8983,12 @@ namespace ocn
             unsigned int Ncrv;
             int i;
             Ncrv = ctx->q_gcode.size();
-            if (DebugActive) {
-                //  1 -> stdout
-                //  2 -> stderr
-                fprintf(stderr, "Expanding ...\n");
-                fflush(stderr);
+
+            //  1 -> stdout
+            //  2 -> stderr
+            if ((static_cast<unsigned long>(std::round(DebugConfig)) & 1UL) != 0UL) {
+                printf("Expanding ...\n");
+                fflush(stdout);
             }
 
             i = static_cast<int>(Ncrv);
@@ -8751,28 +8998,29 @@ namespace ocn
                     CutZeroStart(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz, ctx->cfg.amax,
                                  ctx->cfg.jmax, ctx->cfg.dt, ctx->cfg.ZeroStartAccLimit,
                                  ctx->cfg.ZeroStartJerkLimit, ctx->cfg.ZeroStartVelLimit,
-                                 ctx->cfg.DebugCutZero, &Curv, static_cast<double>(k) + 1.0,
-                                 &CurvStruct1_C, &CurvStruct2_C);
+                                 ctx->cfg.DebugCutZero, ctx->cfg.NGridLengthSpline, &Curv,
+                                 static_cast<double>(k) + 1.0, &CurvStruct1_C, &CurvStruct2_C);
                     ctx->q_compress.push((&CurvStruct1_C));
                     ctx->q_compress.push((&CurvStruct2_C));
                 } else if (Curv.zspdmode == ZSpdMode_NZ) {
                     CutZeroEnd(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz, ctx->cfg.amax,
                                ctx->cfg.jmax, ctx->cfg.dt, ctx->cfg.ZeroStartAccLimit,
-                               ctx->cfg.ZeroStartJerkLimit, ctx->cfg.ZeroStartVelLimit, &Curv,
-                               static_cast<double>(k) + 1.0, &CurvStruct1_C, &CurvStruct2_C);
+                               ctx->cfg.ZeroStartJerkLimit, ctx->cfg.ZeroStartVelLimit,
+                               ctx->cfg.NGridLengthSpline, &Curv, static_cast<double>(k) + 1.0,
+                               &CurvStruct1_C, &CurvStruct2_C);
                     ctx->q_compress.push((&CurvStruct1_C));
                     ctx->q_compress.push((&CurvStruct2_C));
                 } else if (Curv.zspdmode == ZSpdMode_ZZ) {
                     CutZeroStart(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz, ctx->cfg.amax,
                                  ctx->cfg.jmax, ctx->cfg.dt, ctx->cfg.ZeroStartAccLimit,
                                  ctx->cfg.ZeroStartJerkLimit, ctx->cfg.ZeroStartVelLimit,
-                                 ctx->cfg.DebugCutZero, &Curv, static_cast<double>(k) + 1.0,
-                                 &CurvStruct1_C, &CurvStruct2_C);
+                                 ctx->cfg.DebugCutZero, ctx->cfg.NGridLengthSpline, &Curv,
+                                 static_cast<double>(k) + 1.0, &CurvStruct1_C, &CurvStruct2_C);
                     CutZeroEnd(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz, ctx->cfg.amax,
                                ctx->cfg.jmax, ctx->cfg.dt, ctx->cfg.ZeroStartAccLimit,
                                ctx->cfg.ZeroStartJerkLimit, ctx->cfg.ZeroStartVelLimit,
-                               &CurvStruct2_C, static_cast<double>(k) + 1.0, &b_CurvStruct2_C,
-                               &CurvStruct3_C);
+                               ctx->cfg.NGridLengthSpline, &CurvStruct2_C, static_cast<double>(k) +
+                               1.0, &b_CurvStruct2_C, &CurvStruct3_C);
                     ctx->q_compress.push((&CurvStruct1_C));
                     ctx->q_compress.push((&b_CurvStruct2_C));
                     ctx->q_compress.push((&CurvStruct3_C));
@@ -8808,6 +9056,8 @@ namespace ocn
         bool *success)
     {
         int varargin_2;
+        unsigned long u;
+        unsigned long u1;
         coder::array<double, 2U> b;
         coder::array<double, 2U> f;
         int loop_ub;
@@ -8862,7 +9112,9 @@ namespace ocn
         double q_val;
         double qD_val;
         coder::array<double, 1U> b_Coeff2;
+        double e_b[3];
         double v3;
+        double b_c[3];
         double unusedU1[3];
         if (1 > N_Hor) {
             varargin_2 = 0;
@@ -8870,33 +9122,70 @@ namespace ocn
             varargin_2 = N_Hor;
         }
 
-        if (ctx->cfg.DebugFeedratePlanning) {
+        //  1 -> stdout
+        //  2 -> stderr
+        u = static_cast<unsigned long>(std::round(DebugConfig));
+        u1 = u & 4UL;
+        if (u1 != 0UL) {
             printf("===============================\n");
             fflush(stdout);
+        }
+
+        //  1 -> stdout
+        //  2 -> stderr
+        if (u1 != 0UL) {
             printf("====== FEEDRATE PLANNING ======\n");
             fflush(stdout);
+        }
+
+        //  1 -> stdout
+        //  2 -> stderr
+        if (u1 != 0UL) {
             printf("===============================\n");
             fflush(stdout);
+        }
+
+        //  1 -> stdout
+        //  2 -> stderr
+        if (u1 != 0UL) {
             printf("v_0  = %f\n", ctx->v_0);
             fflush(stdout);
+        }
+
+        //  1 -> stdout
+        //  2 -> stderr
+        if (u1 != 0UL) {
             printf("at_0 = %f\n", ctx->at_0);
             fflush(stdout);
+        }
+
+        //  1 -> stdout
+        //  2 -> stderr
+        if (u1 != 0UL) {
             printf("v_1  = %f\n", ctx->v_1);
             fflush(stdout);
+        }
+
+        //  1 -> stdout
+        //  2 -> stderr
+        if (u1 != 0UL) {
             printf("at_1 = %f\n", ctx->at_1);
             fflush(stdout);
-            for (int b_k = 0; b_k < varargin_2; b_k++) {
-                b_PrintCurvStruct(&ctx->q_splines, CurvStructs0[b_k].Type, CurvStructs0[b_k].
-                                  zspdmode, CurvStructs0[b_k].P0, CurvStructs0[b_k].P1,
-                                  CurvStructs0[b_k].HelixCenter, CurvStructs0[b_k].evec,
-                                  CurvStructs0[b_k].theta, CurvStructs0[b_k].pitch, CurvStructs0[b_k]
-                                  .CoeffP5, CurvStructs0[b_k].sp_index, CurvStructs0[b_k].FeedRate,
-                                  CurvStructs0[b_k].UseConstJerk, CurvStructs0[b_k].ConstJerk,
-                                  CurvStructs0[b_k].a_param, CurvStructs0[b_k].b_param);
+            for (int k = 0; k < varargin_2; k++) {
+                b_PrintCurvStruct(&ctx->q_splines, ctx->cfg.NGridLengthSpline, &CurvStructs0[k]);
             }
+        }
 
+        //  1 -> stdout
+        //  2 -> stderr
+        if (u1 != 0UL) {
             printf("===============================\n");
             fflush(stdout);
+        }
+
+        //  1 -> stdout
+        //  2 -> stderr
+        if (u1 != 0UL) {
             printf("===============================\n");
             fflush(stdout);
         }
@@ -8910,8 +9199,8 @@ namespace ocn
             for (int t = 0; t <= i; t++) {
                 int na;
                 na = BasisIntegr.size(0);
-                for (int k = 0; k < na; k++) {
-                    b[k + b.size(0) * t] = BasisIntegr[k];
+                for (int b_k = 0; b_k < na; b_k++) {
+                    b[b_k + b.size(0) * t] = BasisIntegr[b_k];
                 }
             }
         }
@@ -8923,12 +9212,12 @@ namespace ocn
             int scalarLB;
             int vectorUB;
             b_loop_ub = b.size(0);
-            scalarLB = b.size(0) & -4;
-            vectorUB = scalarLB - 4;
-            for (i2 = 0; i2 <= vectorUB; i2 += 4) {
-                __m256d r;
-                r = _mm256_loadu_pd(&b[i2 + b.size(0) * i1]);
-                _mm256_storeu_pd(&f[i2 + f.size(0) * i1], _mm256_mul_pd(r, _mm256_set1_pd(-1.0)));
+            scalarLB = b.size(0) & -2;
+            vectorUB = scalarLB - 2;
+            for (i2 = 0; i2 <= vectorUB; i2 += 2) {
+                __m128d r;
+                r = _mm_loadu_pd(&b[i2 + b.size(0) * i1]);
+                _mm_storeu_pd(&f[i2 + f.size(0) * i1], _mm_mul_pd(r, _mm_set1_pd(-1.0)));
             }
 
             for (i2 = scalarLB; i2 < b_loop_ub; i2++) {
@@ -8968,9 +9257,9 @@ namespace ocn
         int b_idx_0;
         BuildConstr_v4(&ctx->q_splines, ctx->cfg.UseDynamicBreakpoints,
                        ctx->cfg.UseLinearBreakpoints, ctx->cfg.DynamicBreakpointsDistance,
-                       ctx->cfg.SplineDegree, ctx->Bl.ncoeff, ctx->Bl.handle, b_CurvStructs0, amax,
-                       ctx->v_0, ctx->at_0, ctx->v_1, ctx->at_1, b_BasisVal, b_BasisValD, u_vec, &A,
-                       b_b, Aeq, beq);
+                       ctx->cfg.SplineDegree, ctx->cfg.NGridLengthSpline, ctx->Bl.ncoeff,
+                       ctx->Bl.handle, b_CurvStructs0, amax, ctx->v_0, ctx->at_0, ctx->v_1,
+                       ctx->at_1, b_BasisVal, b_BasisValD, u_vec, &A, b_b, Aeq, beq);
         b_idx_0 = b_b.size(0);
         beq_idx_0 = beq.size(0);
         c_b.set_size(b_idx_0, 1);
@@ -8992,33 +9281,35 @@ namespace ocn
             Coeff.set_size(0, 0);
             b_NCoeff = 0;
         } else {
+            unsigned long u2;
             int i9;
             int max_increase;
-            if (DebugActive) {
-                //  1 -> stdout
-                //  2 -> stderr
-                fprintf(stderr, "Coeff1 = ");
-                fflush(stderr);
+
+            //  1 -> stdout
+            //  2 -> stderr
+            u2 = u & 8UL;
+            if (u2 != 0UL) {
+                printf("Coeff1 = ");
+                fflush(stdout);
             }
 
             i9 = BasisVal.size(1);
             for (int c_k = 0; c_k < i9; c_k++) {
-                if (DebugActive) {
-                    //  1 -> stdout
-                    //  2 -> stderr
-                    fprintf(stderr, "%.4f ", Coeff0[c_k]);
-                    fflush(stderr);
+                //  1 -> stdout
+                //  2 -> stderr
+                if (u2 != 0UL) {
+                    printf("%.4f ", Coeff0[c_k]);
+                    fflush(stdout);
                 }
             }
 
-            if (DebugActive) {
-                //  1 -> stdout
-                //  2 -> stderr
-                fprintf(stderr, "\n");
-                fflush(stderr);
+            //  1 -> stdout
+            //  2 -> stderr
+            if (u2 != 0UL) {
+                printf("\n");
+                fflush(stdout);
             }
 
-            //
             //  SECOND setup of Linear Program (LP) WITH jerk constraint
             c_success = false;
             max_increase = 20;
@@ -9083,16 +9374,23 @@ namespace ocn
                 c_simplex(f, &r1, d_b, Aeq, c_beq, Coeff2, &d_success, &b_status);
                 c_success = d_success;
                 if (!d_success) {
+                    __m128d r2;
+
                     //          amax = amax*1.1;
                     ctx->jmax_increase_count++;
-                    jmax[0] *= 2.0;
-                    jmax[1] *= 2.0;
+                    r2 = _mm_loadu_pd(&jmax[0]);
+                    _mm_storeu_pd(&jmax[0], _mm_mul_pd(r2, _mm_set1_pd(2.0)));
                     jmax[2] *= 2.0;
 
                     //  TODO: valeur à ajuster, avant: 1.1...
-                    printf("WARNING: (Jerk) Increasing jmax to [%f,%f,%f]\n", jmax[0], jmax[1],
-                           jmax[2]);
-                    fflush(stdout);
+                    //  1 -> stdout
+                    //  2 -> stderr
+                    if ((u & 16UL) != 0UL) {
+                        printf("WARNING: (Jerk) Increasing jmax to [%f,%f,%f]\n", jmax[0], jmax[1],
+                               jmax[2]);
+                        fflush(stdout);
+                    }
+
                     max_increase--;
                 }
             }
@@ -9107,8 +9405,8 @@ namespace ocn
                 double d;
                 double z1_idx_0;
                 double z1_idx_1;
-                double b_b_idx_0;
-                double b_idx_1;
+                __m128d r3;
+                __m128d r4;
                 double n;
                 int BasisVal_idx_0;
 
@@ -9117,31 +9415,31 @@ namespace ocn
                 //  Coeff1 = linprog(f, Atot, btot, Aeq, beq, [], [], options);
                 //  toc
                 //
-                if (DebugActive) {
-                    //  1 -> stdout
-                    //  2 -> stderr
-                    fprintf(stderr, "Coeff3 = ");
-                    fflush(stderr);
+                //  1 -> stdout
+                //  2 -> stderr
+                if (u2 != 0UL) {
+                    printf("Coeff3 = ");
+                    fflush(stdout);
                 }
 
                 i13 = BasisVal.size(1);
                 for (int d_k = 0; d_k < i13; d_k++) {
-                    if (DebugActive) {
-                        //  1 -> stdout
-                        //  2 -> stderr
-                        fprintf(stderr, "%.4f ", Coeff2[d_k]);
-                        fflush(stderr);
+                    //  1 -> stdout
+                    //  2 -> stderr
+                    if (u2 != 0UL) {
+                        printf("%.4f ", Coeff2[d_k]);
+                        fflush(stdout);
                     }
                 }
 
-                if (DebugActive) {
-                    //  1 -> stdout
-                    //  2 -> stderr
-                    fprintf(stderr, "\n");
-                    fflush(stderr);
+                //  1 -> stdout
+                //  2 -> stderr
+                if (u2 != 0UL) {
+                    printf("\n");
+                    fflush(stdout);
                 }
 
-                //  %
+                //
                 //
                 //  import splines.*
                 //
@@ -9243,6 +9541,7 @@ namespace ocn
                 r2D[1] *= c;
                 z1_idx_1 = std::pow(d, 2.0);
                 d = CurvStructs0[0].a_param * r1D[2];
+                r1D[2] = d;
                 r2D[2] *= c;
                 sqrt_calls++;
 
@@ -9280,8 +9579,10 @@ namespace ocn
                 }
 
                 sqrt_calls++;
-                b_b_idx_0 = r1D[0] * qD_val;
-                b_idx_1 = r1D[1] * qD_val;
+                r3 = _mm_loadu_pd(&r1D[0]);
+                _mm_storeu_pd(&e_b[0], _mm_mul_pd(r3, _mm_set1_pd(qD_val)));
+                r4 = _mm_loadu_pd(&r2D[0]);
+                _mm_storeu_pd(&b_c[0], _mm_mul_pd(r4, _mm_set1_pd(q_val)));
                 sqrt_calls++;
                 sqrt_calls++;
 
@@ -9295,9 +9596,8 @@ namespace ocn
                 sqrt_calls++;
 
                 //  unit tangential vector
-                ctx->at_0 = ((r2D[0] * q_val + 0.5 * b_b_idx_0) * (r1D[0] / n) + (r2D[1] * q_val +
-                              0.5 * b_idx_1) * (r1D[1] / n)) + (r2D[2] * q_val + 0.5 * (d * qD_val))
-                    * (r1D[2] / n);
+                ctx->at_0 = ((b_c[0] + 0.5 * e_b[0]) * (r1D[0] / n) + (b_c[1] + 0.5 * e_b[1]) *
+                             (r1D[1] / n)) + (r2D[2] * q_val + 0.5 * (d * qD_val)) * (r1D[2] / n);
 
                 //  tangential acceleration at the end of first piece in horizon
                 ctx->v_0 = std::sqrt((z1_idx_0 + z1_idx_1) + std::pow(d, 2.0)) * std::sqrt(q_val);
@@ -9330,11 +9630,13 @@ namespace ocn
     //                const double r1D2[3]
     //                double p5_3D[6][3]
     //                int *status
+    //                double *alpha0
+    //                double *alpha1
     // Return Type  : void
     //
     static void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const double
         r0D2[3], const double r1D0[3], const double r1D1[3], const double r1D2[3], double p5_3D[6][3],
-        int *status)
+        int *status, double *alpha0, double *alpha1)
     {
         double t0[3];
         double n0[3];
@@ -9353,11 +9655,9 @@ namespace ocn
         double dv1[10];
         double dv2[4];
         int alpha1_t_size[1];
-        double alpha0;
         double alpha1_t_data[9];
         double alpha0_t_data[9];
         int alpha0_t_size[1];
-        double alpha1;
         int b_alpha0_t_size[1];
         double a;
         double b_a;
@@ -9367,29 +9667,36 @@ namespace ocn
         int Idx_data[9];
         signed char b_tmp_data[3];
         int CostInt_size[1];
-        double CostInt_data[9];
         double b_r0D0[6][3];
         static const signed char b_b[6] = { -6, 15, -10, 0, 0, 1 };
 
+        double b_alpha0[6][3];
         static const signed char c_b[6] = { -3, 8, -6, 0, 1, 0 };
 
+        double e_a[3];
+        double CostInt_data[9];
+        double beta0_u_data[9];
+        double z1_data[9];
+        double c_r0D0[6][3];
         static const double d_b[6] = { -0.5, 1.5, -1.5, 0.5, 0.0, 0.0 };
 
+        double b_z1_data[9];
         double b_r1D0[6][3];
         static const signed char e_b[6] = { 6, -15, 10, 0, 0, 0 };
 
-        double beta0_u_data[9];
-        double z1_data[9];
+        double beta1_u_data[9];
+        double unusedU2;
+        int iindx;
+        int i8;
+        int i9;
         static const signed char f_b[6] = { -3, 7, -4, 0, 0, 0 };
 
         static const double g_b[6] = { 0.5, -1.0, 0.5, 0.0, 0.0, 0.0 };
 
-        double b_z1_data[9];
-        double beta1_u_data[9];
+        int i10;
         int c_alpha0_t_size[1];
+        int i11;
         int b_alpha1_t_size[1];
-        double unusedU2;
-        int iindx;
         bool c_alpha0_t_data[3];
         bool b_alpha1_t_data[3];
         double unusedU0;
@@ -9434,6 +9741,9 @@ namespace ocn
             p5_3D[i][1] = 0.0;
             p5_3D[i][2] = 0.0;
         }
+
+        *alpha0 = 0.0;
+        *alpha1 = 0.0;
 
         //  compute Frenet frame
         CalcFrenet(r0D1, r0D2, t0, n0, &kappa0);
@@ -9480,16 +9790,12 @@ namespace ocn
             X_idx_0 = (B[r1] - X_idx_1 * A[1][r1]) / A[0][r1];
 
             //  resolution of linear system
-            alpha0 = X_idx_0;
-            alpha1 = X_idx_1;
+            *alpha0 = X_idx_0;
+            *alpha1 = X_idx_1;
             if ((X_idx_0 > 0.0) && (X_idx_1 > 0.0)) {
-                // c_assert((alpha0 > 0) && (alpha1 > 0), 'no positive solution of linear system');
-                //
                 Calc_beta0_beta1(X_idx_0, X_idx_1, r0D0, t0, n0, kappa0, r1D0, t1, n1, kappa1, &a,
                                  &b_a);
                 guard1 = true;
-            } else {
-                *status = 2;
             }
         } else if (kappa0 == 0.0) {
             int b_trueCount;
@@ -9555,16 +9861,47 @@ namespace ocn
 
             //  retain only positive real roots
             if ((std::abs(CoefPS[2]) < 1.0E-11) && (std::abs(CoefPS[3]) < 1.0E-11)) {
+                double b_CoefPS;
+                double c_CoefPS;
+                double f_CoefPS;
+                double i_CoefPS;
+                int scalarLB;
+                int vectorUB;
                 for (int c_k = 0; c_k < b_trueCount; c_k++) {
                     z1_data[c_k] = std::pow(alpha1_t_data[c_k], 2.0);
                 }
 
+                b_CoefPS = CoefPS[9];
+                c_CoefPS = CoefPS[11];
+                f_CoefPS = CoefPS[15];
+                i_CoefPS = CoefPS[14];
                 alpha0_t_size[0] = b_trueCount;
-                for (int i7 = 0; i7 < b_trueCount; i7++) {
-                    alpha0_t_data[i7] = -((CoefPS[9] * z1_data[i7] + CoefPS[11] * alpha1_t_data[i7])
-                                          + CoefPS[15]) / CoefPS[14];
+                scalarLB = b_trueCount & -2;
+                vectorUB = scalarLB - 2;
+                for (i8 = 0; i8 <= vectorUB; i8 += 2) {
+                    __m128d r12;
+                    __m128d r13;
+                    r12 = _mm_loadu_pd(&z1_data[0]);
+                    r13 = _mm_loadu_pd(&alpha1_t_data[0]);
+                    _mm_storeu_pd(&alpha0_t_data[0], _mm_div_pd(_mm_mul_pd(_mm_add_pd(_mm_add_pd
+                                     (_mm_mul_pd(_mm_set1_pd(b_CoefPS), r12), _mm_mul_pd(_mm_set1_pd
+                                       (c_CoefPS), r13)), _mm_set1_pd(f_CoefPS)), _mm_set1_pd(-1.0)),
+                                   _mm_set1_pd(i_CoefPS)));
+                }
+
+                for (i8 = scalarLB; i8 < b_trueCount; i8++) {
+                    alpha0_t_data[i8] = -((b_CoefPS * z1_data[i8] + c_CoefPS * alpha1_t_data[i8]) +
+                                          f_CoefPS) / i_CoefPS;
                 }
             } else {
+                double e_CoefPS;
+                double h_CoefPS;
+                double l_CoefPS;
+                double o_CoefPS;
+                double q_CoefPS;
+                double s_CoefPS;
+                int c_scalarLB;
+                int c_vectorUB;
                 for (int b_k = 0; b_k < b_trueCount; b_k++) {
                     z1_data[b_k] = std::pow(alpha1_t_data[b_k], 3.0);
                 }
@@ -9573,18 +9910,41 @@ namespace ocn
                     b_z1_data[f_k] = std::pow(alpha1_t_data[f_k], 2.0);
                 }
 
+                e_CoefPS = CoefPS[4];
+                h_CoefPS = CoefPS[5];
+                l_CoefPS = CoefPS[6];
+                o_CoefPS = CoefPS[7];
+                q_CoefPS = CoefPS[2];
+                s_CoefPS = CoefPS[3];
                 alpha0_t_size[0] = b_trueCount;
-                for (int i9 = 0; i9 < b_trueCount; i9++) {
-                    alpha0_t_data[i9] = -(((CoefPS[4] * z1_data[i9] + CoefPS[5] * b_z1_data[i9]) +
-                                           CoefPS[6] * alpha1_t_data[i9]) + CoefPS[7]) / (CoefPS[2] *
-                        alpha1_t_data[i9] + CoefPS[3]);
+                c_scalarLB = b_trueCount & -2;
+                c_vectorUB = c_scalarLB - 2;
+                for (i10 = 0; i10 <= c_vectorUB; i10 += 2) {
+                    __m128d r16;
+                    __m128d r17;
+                    __m128d r19;
+                    r16 = _mm_loadu_pd(&z1_data[0]);
+                    r17 = _mm_loadu_pd(&b_z1_data[0]);
+                    r19 = _mm_loadu_pd(&alpha1_t_data[0]);
+                    _mm_storeu_pd(&alpha0_t_data[0], _mm_div_pd(_mm_mul_pd(_mm_add_pd(_mm_add_pd
+                                     (_mm_add_pd(_mm_mul_pd(_mm_set1_pd(e_CoefPS), r16), _mm_mul_pd
+                                       (_mm_set1_pd(h_CoefPS), r17)), _mm_mul_pd(_mm_set1_pd
+                                       (l_CoefPS), r19)), _mm_set1_pd(o_CoefPS)), _mm_set1_pd(-1.0)),
+                                   _mm_add_pd(_mm_mul_pd(_mm_set1_pd(q_CoefPS), r19), _mm_set1_pd
+                                    (s_CoefPS))));
+                }
+
+                for (i10 = c_scalarLB; i10 < b_trueCount; i10++) {
+                    alpha0_t_data[i10] = -(((e_CoefPS * z1_data[i10] + h_CoefPS * b_z1_data[i10]) +
+                                            l_CoefPS * alpha1_t_data[i10]) + o_CoefPS) / (q_CoefPS *
+                        alpha1_t_data[i10] + s_CoefPS);
                 }
             }
 
             c_alpha0_t_size[0] = alpha0_t_size[0];
             f_loop_ub = alpha0_t_size[0];
-            for (int i11 = 0; i11 < f_loop_ub; i11++) {
-                c_alpha0_t_data[i11] = (alpha0_t_data[i11] > 0.0);
+            for (int i12 = 0; i12 < f_loop_ub; i12++) {
+                c_alpha0_t_data[i12] = (alpha0_t_data[i12] > 0.0);
             }
 
             c_eml_find(c_alpha0_t_data, c_alpha0_t_size, tmp_data, tmp_size);
@@ -9594,7 +9954,6 @@ namespace ocn
                 std::memcpy(&Idx_data[0], &tmp_data[0], h_loop_ub * sizeof(int));
             }
 
-            //
             if (tmp_size[0] <= 0) {
                 *status = 3;
             } else {
@@ -9634,13 +9993,13 @@ namespace ocn
                     int b_alpha0_tmp;
                     minimum(CostInt_data, CostInt_size, &unusedU0, &b_iindx);
                     b_alpha0_tmp = Idx_data[b_iindx - 1] - 1;
-                    alpha0 = alpha0_t_data[b_alpha0_tmp];
-                    alpha1 = alpha1_t_data[b_alpha0_tmp];
+                    *alpha0 = alpha0_t_data[b_alpha0_tmp];
+                    *alpha1 = alpha1_t_data[b_alpha0_tmp];
                     a = beta0_u_data[b_iindx - 1];
                     b_a = beta1_u_data[b_iindx - 1];
                 } else {
-                    alpha0 = alpha0_t_data[Idx_data[0] - 1];
-                    alpha1 = alpha1_t_data[Idx_data[0] - 1];
+                    *alpha0 = alpha0_t_data[Idx_data[0] - 1];
+                    *alpha1 = alpha1_t_data[Idx_data[0] - 1];
                     Calc_beta0_beta1(alpha0_t_data[Idx_data[0] - 1], alpha1_t_data[Idx_data[0] - 1],
                                      r0D0, t0, n0, kappa0, r1D0, t1, n1, kappa1, &a, &b_a);
                 }
@@ -9712,16 +10071,47 @@ namespace ocn
 
             //  retain only positive real roots
             if ((std::abs(CoefPS[10]) < 1.0E-11) && (std::abs(CoefPS[11]) < 1.0E-11)) {
+                double d_CoefPS;
+                double g_CoefPS;
+                double k_CoefPS;
+                double n_CoefPS;
+                int b_scalarLB;
+                int b_vectorUB;
                 for (int e_k = 0; e_k < c_trueCount; e_k++) {
                     z1_data[e_k] = std::pow(alpha0_t_data[e_k], 2.0);
                 }
 
+                d_CoefPS = CoefPS[1];
+                g_CoefPS = CoefPS[3];
+                k_CoefPS = CoefPS[7];
+                n_CoefPS = CoefPS[6];
                 alpha1_t_size[0] = c_trueCount;
-                for (int i8 = 0; i8 < c_trueCount; i8++) {
-                    alpha1_t_data[i8] = -((CoefPS[1] * z1_data[i8] + CoefPS[3] * alpha0_t_data[i8])
-                                          + CoefPS[7]) / CoefPS[6];
+                b_scalarLB = c_trueCount & -2;
+                b_vectorUB = b_scalarLB - 2;
+                for (i9 = 0; i9 <= b_vectorUB; i9 += 2) {
+                    __m128d r14;
+                    __m128d r15;
+                    r14 = _mm_loadu_pd(&z1_data[0]);
+                    r15 = _mm_loadu_pd(&alpha0_t_data[0]);
+                    _mm_storeu_pd(&alpha1_t_data[0], _mm_div_pd(_mm_mul_pd(_mm_add_pd(_mm_add_pd
+                                     (_mm_mul_pd(_mm_set1_pd(d_CoefPS), r14), _mm_mul_pd(_mm_set1_pd
+                                       (g_CoefPS), r15)), _mm_set1_pd(k_CoefPS)), _mm_set1_pd(-1.0)),
+                                   _mm_set1_pd(n_CoefPS)));
+                }
+
+                for (i9 = b_scalarLB; i9 < c_trueCount; i9++) {
+                    alpha1_t_data[i9] = -((d_CoefPS * z1_data[i9] + g_CoefPS * alpha0_t_data[i9]) +
+                                          k_CoefPS) / n_CoefPS;
                 }
             } else {
+                double j_CoefPS;
+                double m_CoefPS;
+                double p_CoefPS;
+                double r_CoefPS;
+                double t_CoefPS;
+                double u_CoefPS;
+                int d_scalarLB;
+                int d_vectorUB;
                 for (int d_k = 0; d_k < c_trueCount; d_k++) {
                     z1_data[d_k] = std::pow(alpha0_t_data[d_k], 3.0);
                 }
@@ -9730,18 +10120,41 @@ namespace ocn
                     b_z1_data[g_k] = std::pow(alpha0_t_data[g_k], 2.0);
                 }
 
+                j_CoefPS = CoefPS[12];
+                m_CoefPS = CoefPS[13];
+                p_CoefPS = CoefPS[14];
+                r_CoefPS = CoefPS[15];
+                t_CoefPS = CoefPS[10];
+                u_CoefPS = CoefPS[11];
                 alpha1_t_size[0] = c_trueCount;
-                for (int i10 = 0; i10 < c_trueCount; i10++) {
-                    alpha1_t_data[i10] = -(((CoefPS[12] * z1_data[i10] + CoefPS[13] * b_z1_data[i10])
-                                            + CoefPS[14] * alpha0_t_data[i10]) + CoefPS[15]) /
-                        (CoefPS[10] * alpha0_t_data[i10] + CoefPS[11]);
+                d_scalarLB = c_trueCount & -2;
+                d_vectorUB = d_scalarLB - 2;
+                for (i11 = 0; i11 <= d_vectorUB; i11 += 2) {
+                    __m128d r18;
+                    __m128d r20;
+                    __m128d r21;
+                    r18 = _mm_loadu_pd(&z1_data[0]);
+                    r20 = _mm_loadu_pd(&b_z1_data[0]);
+                    r21 = _mm_loadu_pd(&alpha0_t_data[0]);
+                    _mm_storeu_pd(&alpha1_t_data[0], _mm_div_pd(_mm_mul_pd(_mm_add_pd(_mm_add_pd
+                                     (_mm_add_pd(_mm_mul_pd(_mm_set1_pd(j_CoefPS), r18), _mm_mul_pd
+                                       (_mm_set1_pd(m_CoefPS), r20)), _mm_mul_pd(_mm_set1_pd
+                                       (p_CoefPS), r21)), _mm_set1_pd(r_CoefPS)), _mm_set1_pd(-1.0)),
+                                   _mm_add_pd(_mm_mul_pd(_mm_set1_pd(t_CoefPS), r21), _mm_set1_pd
+                                    (u_CoefPS))));
+                }
+
+                for (i11 = d_scalarLB; i11 < c_trueCount; i11++) {
+                    alpha1_t_data[i11] = -(((j_CoefPS * z1_data[i11] + m_CoefPS * b_z1_data[i11]) +
+                                            p_CoefPS * alpha0_t_data[i11]) + r_CoefPS) / (t_CoefPS *
+                        alpha0_t_data[i11] + u_CoefPS);
                 }
             }
 
             b_alpha1_t_size[0] = alpha1_t_size[0];
             g_loop_ub = alpha1_t_size[0];
-            for (int i12 = 0; i12 < g_loop_ub; i12++) {
-                b_alpha1_t_data[i12] = (alpha1_t_data[i12] > 0.0);
+            for (int i13 = 0; i13 < g_loop_ub; i13++) {
+                b_alpha1_t_data[i13] = (alpha1_t_data[i13] > 0.0);
             }
 
             c_eml_find(b_alpha1_t_data, b_alpha1_t_size, tmp_data, tmp_size);
@@ -9791,13 +10204,13 @@ namespace ocn
                     int c_alpha0_tmp;
                     minimum(CostInt_data, CostInt_size, &unusedU1, &c_iindx);
                     c_alpha0_tmp = Idx_data[c_iindx - 1] - 1;
-                    alpha0 = alpha0_t_data[c_alpha0_tmp];
-                    alpha1 = alpha1_t_data[c_alpha0_tmp];
+                    *alpha0 = alpha0_t_data[c_alpha0_tmp];
+                    *alpha1 = alpha1_t_data[c_alpha0_tmp];
                     a = beta0_u_data[c_iindx - 1];
                     b_a = beta1_u_data[c_iindx - 1];
                 } else {
-                    alpha0 = alpha0_t_data[Idx_data[0] - 1];
-                    alpha1 = alpha1_t_data[Idx_data[0] - 1];
+                    *alpha0 = alpha0_t_data[Idx_data[0] - 1];
+                    *alpha1 = alpha1_t_data[Idx_data[0] - 1];
                     Calc_beta0_beta1(alpha0_t_data[Idx_data[0] - 1], alpha1_t_data[Idx_data[0] - 1],
                                      r0D0, t0, n0, kappa0, r1D0, t1, n1, kappa1, &a, &b_a);
                 }
@@ -9895,13 +10308,13 @@ namespace ocn
                     int alpha0_tmp;
                     minimum(CostInt_data, CostInt_size, &unusedU2, &iindx);
                     alpha0_tmp = Idx_data[iindx - 1] - 1;
-                    alpha0 = alpha0_t_data[alpha0_tmp];
-                    alpha1 = alpha1_t_data[alpha0_tmp];
+                    *alpha0 = alpha0_t_data[alpha0_tmp];
+                    *alpha1 = alpha1_t_data[alpha0_tmp];
                     a = beta0_u_data[iindx - 1];
                     b_a = beta1_u_data[iindx - 1];
                 } else {
-                    alpha0 = alpha0_t_data[Idx_data[0] - 1];
-                    alpha1 = alpha1_t_data[Idx_data[0] - 1];
+                    *alpha0 = alpha0_t_data[Idx_data[0] - 1];
+                    *alpha1 = alpha1_t_data[Idx_data[0] - 1];
                     Calc_beta0_beta1(alpha0_t_data[Idx_data[0] - 1], alpha1_t_data[Idx_data[0] - 1],
                                      r0D0, t0, n0, kappa0, r1D0, t1, n1, kappa1, &a, &b_a);
                 }
@@ -9915,58 +10328,82 @@ namespace ocn
             double c_a;
             double b_a_tmp;
             double d_a;
-            double a_idx_0;
-            double a_idx_1;
-            double a_idx_2;
+            __m128d r;
+            __m128d r3;
+            __m128d r8;
+            __m128d r9;
 
             //
             //  Hermite basis
             //  evaluate coefficients as sum of basis functions
-            a_tmp = std::pow(alpha0, 2.0);
+            a_tmp = std::pow(*alpha0, 2.0);
             c_a = kappa0 * a_tmp;
-            b_a_tmp = std::pow(alpha1, 2.0);
+            b_a_tmp = std::pow(*alpha1, 2.0);
             d_a = kappa1 * b_a_tmp;
-            a_idx_0 = a * t0[0] + c_a * n0[0];
-            a_idx_1 = a * t0[1] + c_a * n0[1];
-            a_idx_2 = a * t0[2] + c_a * n0[2];
+            r = _mm_loadu_pd(&t0[0]);
             for (int i3 = 0; i3 < 6; i3++) {
-                b_r0D0[i3][0] = (r0D0[0] * static_cast<double>(b_b[i3]) + alpha0 * t0[0] *
-                                 static_cast<double>(c_b[i3])) + a_idx_0 * d_b[i3];
-                b_r1D0[i3][0] = r1D0[0] * static_cast<double>(e_b[i3]);
-                b_r0D0[i3][1] = (r0D0[1] * static_cast<double>(b_b[i3]) + alpha0 * t0[1] *
-                                 static_cast<double>(c_b[i3])) + a_idx_1 * d_b[i3];
-                b_r1D0[i3][1] = r1D0[1] * static_cast<double>(e_b[i3]);
-                b_r0D0[i3][2] = (r0D0[2] * static_cast<double>(b_b[i3]) + alpha0 * t0[2] *
-                                 static_cast<double>(c_b[i3])) + a_idx_2 * d_b[i3];
-                b_r1D0[i3][2] = r1D0[2] * static_cast<double>(e_b[i3]);
+                _mm_storeu_pd(&b_r0D0[i3][0], _mm_mul_pd(_mm_loadu_pd((double *)&r0D0[0]),
+                               _mm_set1_pd(static_cast<double>(b_b[i3]))));
+                _mm_storeu_pd(&b_alpha0[i3][0], _mm_mul_pd(_mm_mul_pd(_mm_set1_pd(*alpha0), r),
+                               _mm_set1_pd(static_cast<double>(c_b[i3]))));
+                b_r0D0[i3][2] = r0D0[2] * static_cast<double>(b_b[i3]);
+                b_alpha0[i3][2] = *alpha0 * t0[2] * static_cast<double>(c_b[i3]);
             }
 
-            a_idx_0 = b_a * t1[0] + d_a * n1[0];
-            a_idx_1 = b_a * t1[1] + d_a * n1[1];
-            a_idx_2 = b_a * t1[2] + d_a * n1[2];
+            __m128d b_r1;
+            __m128d b_r2;
+            b_r1 = _mm_loadu_pd(&t0[0]);
+            b_r2 = _mm_loadu_pd(&n0[0]);
+            _mm_storeu_pd(&e_a[0], _mm_add_pd(_mm_mul_pd(_mm_set1_pd(a), b_r1), _mm_mul_pd
+                           (_mm_set1_pd(c_a), b_r2)));
+            e_a[2] = a * t0[2] + c_a * n0[2];
+            r3 = _mm_loadu_pd(&e_a[0]);
             for (int i6 = 0; i6 < 6; i6++) {
-                p5_3D[i6][0] = ((b_r0D0[i6][0] + b_r1D0[i6][0]) + alpha1 * t1[0] * static_cast<
-                                double>(f_b[i6])) + a_idx_0 * g_b[i6];
-                p5_3D[i6][1] = ((b_r0D0[i6][1] + b_r1D0[i6][1]) + alpha1 * t1[1] * static_cast<
-                                double>(f_b[i6])) + a_idx_1 * g_b[i6];
-                p5_3D[i6][2] = ((b_r0D0[i6][2] + b_r1D0[i6][2]) + alpha1 * t1[2] * static_cast<
-                                double>(f_b[i6])) + a_idx_2 * g_b[i6];
+                __m128d r5;
+                __m128d r7;
+                r5 = _mm_loadu_pd(&b_r0D0[i6][0]);
+                r7 = _mm_loadu_pd(&b_alpha0[i6][0]);
+                _mm_storeu_pd(&c_r0D0[i6][0], _mm_add_pd(_mm_add_pd(r5, r7), _mm_add_pd(_mm_set1_pd
+                                (0.0), _mm_mul_pd(r3, _mm_set1_pd(d_b[i6])))));
+                _mm_storeu_pd(&b_r1D0[i6][0], _mm_mul_pd(_mm_loadu_pd((double *)&r1D0[0]),
+                               _mm_set1_pd(static_cast<double>(e_b[i6]))));
+                c_r0D0[i6][2] = (b_r0D0[i6][2] + b_alpha0[i6][2]) + e_a[2] * d_b[i6];
+                b_r1D0[i6][2] = r1D0[2] * static_cast<double>(e_b[i6]);
+            }
+
+            __m128d r4;
+            __m128d r6;
+            r4 = _mm_loadu_pd(&t1[0]);
+            r6 = _mm_loadu_pd(&n1[0]);
+            _mm_storeu_pd(&e_a[0], _mm_add_pd(_mm_mul_pd(_mm_set1_pd(b_a), r4), _mm_mul_pd
+                           (_mm_set1_pd(d_a), r6)));
+            e_a[2] = b_a * t1[2] + d_a * n1[2];
+            r8 = _mm_loadu_pd(&t1[0]);
+            r9 = _mm_loadu_pd(&e_a[0]);
+            for (int i7 = 0; i7 < 6; i7++) {
+                __m128d r10;
+                __m128d r11;
+                r10 = _mm_loadu_pd(&c_r0D0[i7][0]);
+                r11 = _mm_loadu_pd(&b_r1D0[i7][0]);
+                _mm_storeu_pd(&p5_3D[i7][0], _mm_add_pd(_mm_add_pd(_mm_add_pd(r10, r11), _mm_add_pd
+                                (_mm_set1_pd(0.0), _mm_mul_pd(_mm_mul_pd(_mm_set1_pd(*alpha1), r8),
+                                  _mm_set1_pd(static_cast<double>(f_b[i7]))))), _mm_mul_pd(r9,
+                                _mm_set1_pd(g_b[i7]))));
+                p5_3D[i7][2] = ((c_r0D0[i7][2] + b_r1D0[i7][2]) + *alpha1 * t1[2] * static_cast<
+                                double>(f_b[i7])) + e_a[2] * g_b[i7];
             }
 
             //  last cross check ...
             //
-            if ((std::abs((((((CoefPS[0] * alpha1 + CoefPS[1]) * a_tmp + (CoefPS[2] * alpha1 +
-                       CoefPS[3]) * alpha0) + CoefPS[4] * std::pow(alpha1, 3.0)) + CoefPS[5] *
-                            b_a_tmp) + CoefPS[6] * alpha1) + CoefPS[7]) >= 1.0E-7) || (std::abs
-                    ((((((CoefPS[8] * alpha0 + CoefPS[9]) * b_a_tmp + (CoefPS[10] * alpha0 + CoefPS
-                       [11]) * alpha1) + CoefPS[12] * std::pow(alpha0, 3.0)) + CoefPS[13] * a_tmp) +
-                      CoefPS[14] * alpha0) + CoefPS[15]) >= 1.0E-7)) {
+            if ((std::abs((((((CoefPS[0] * *alpha1 + CoefPS[1]) * a_tmp + (CoefPS[2] * *alpha1 +
+                       CoefPS[3]) * *alpha0) + CoefPS[4] * std::pow(*alpha1, 3.0)) + CoefPS[5] *
+                            b_a_tmp) + CoefPS[6] * *alpha1) + CoefPS[7]) >= 1.0E-7) || (std::abs
+                    ((((((CoefPS[8] * *alpha0 + CoefPS[9]) * b_a_tmp + (CoefPS[10] * *alpha0 +
+                       CoefPS[11]) * *alpha1) + CoefPS[12] * std::pow(*alpha0, 3.0)) + CoefPS[13] *
+                       a_tmp) + CoefPS[14] * *alpha0) + CoefPS[15]) >= 1.0E-7)) {
                 *status = 6;
             }
         }
-
-        //  c_assert(abs(p1val) < 1e-7, 'error in solution of polynomial system');
-        //  c_assert(abs(p2val) < 1e-7, 'error in solution of polynomial system');
     }
 
     //
@@ -10004,21 +10441,28 @@ namespace ocn
         double z1[10][3];
         double d2;
         double d4;
+        double r2t[10][3];
         double A[3];
         double r3t[10][3];
+        double d7;
+        double d8;
         double d10;
-        double d11;
-        double d13;
         double J[3];
         int trueCount;
         int partialTrueCount;
         signed char tmp_data[3];
         double x_data[9];
+        int scalarLB;
         double y_data[9];
+        int vectorUB;
+        int i2;
         int b_trueCount;
         double z_data[9];
         int b_partialTrueCount;
         signed char b_tmp_data[3];
+        int b_scalarLB;
+        int b_vectorUB;
+        int i5;
         double b_z_data[9];
 
         //  rdot = r1D * u1d
@@ -10043,43 +10487,41 @@ namespace ocn
         for (int b_k = 0; b_k < 10; b_k++) {
             double d1;
             double d3;
-            double d5;
-            double d6;
-            double d7;
+            __m128d r;
             d1 = 1.0 / y[b_k];
             d3 = std::pow(d1, 2.0);
-            d5 = r2D[b_k][0] * d3;
-            d6 = r2D[b_k][1] * d3;
-            d7 = r2D[b_k][2] * d3;
+            r = _mm_loadu_pd(&r2D[b_k][0]);
+            _mm_storeu_pd(&r2t[b_k][0], _mm_mul_pd(r, _mm_set1_pd(d3)));
+            r2t[b_k][2] = r2D[b_k][2] * d3;
             d3 = std::pow(d1, 3.0);
             r3t[b_k][0] = r3D[b_k][0] * d3;
-            z1[b_k][0] = std::abs(d5);
+            z1[b_k][0] = std::abs(r2t[b_k][0]);
             r3t[b_k][1] = r3D[b_k][1] * d3;
-            z1[b_k][1] = std::abs(d6);
+            z1[b_k][1] = std::abs(r2t[b_k][1]);
             r3t[b_k][2] = r3D[b_k][2] * d3;
-            z1[b_k][2] = std::abs(d7);
+            z1[b_k][2] = std::abs(r2t[b_k][2]);
         }
 
         d = z1[0][0];
         d2 = z1[0][1];
         d4 = z1[0][2];
         for (int j = 0; j < 9; j++) {
-            double d8;
+            double d5;
+            double d6;
             double d9;
-            double d12;
-            d8 = z1[j + 1][0];
-            if (d < d8) {
-                d = d8;
+            d5 = z1[j + 1][0];
+            if (d < d5) {
+                d = d5;
             }
 
-            d9 = z1[j + 1][1];
-            if (d2 < d9) {
-                d2 = d9;
+            d6 = z1[j + 1][1];
+            if (d2 < d6) {
+                d2 = d6;
             }
 
-            d12 = z1[j + 1][2];
-            if (d4 < d12) {
-                d4 = d12;
+            d9 = z1[j + 1][2];
+            if (d4 < d9) {
+                d4 = d9;
             }
         }
 
@@ -10092,32 +10534,32 @@ namespace ocn
             z1[c_k][2] = std::abs(r3t[c_k][2]);
         }
 
-        d10 = z1[0][0];
-        d11 = z1[0][1];
-        d13 = z1[0][2];
+        d7 = z1[0][0];
+        d8 = z1[0][1];
+        d10 = z1[0][2];
         for (int b_j = 0; b_j < 9; b_j++) {
-            double d14;
-            double d15;
-            double d16;
-            d14 = z1[b_j + 1][0];
-            if (d10 < d14) {
-                d10 = d14;
+            double d11;
+            double d12;
+            double d13;
+            d11 = z1[b_j + 1][0];
+            if (d7 < d11) {
+                d7 = d11;
             }
 
-            d15 = z1[b_j + 1][1];
-            if (d11 < d15) {
-                d11 = d15;
+            d12 = z1[b_j + 1][1];
+            if (d8 < d12) {
+                d8 = d12;
             }
 
-            d16 = z1[b_j + 1][2];
-            if (d13 < d16) {
-                d13 = d16;
+            d13 = z1[b_j + 1][2];
+            if (d10 < d13) {
+                d10 = d13;
             }
         }
 
-        J[2] = d13;
-        J[1] = d11;
-        J[0] = d10;
+        J[2] = d10;
+        J[1] = d8;
+        J[0] = d7;
         trueCount = 0;
         if (d != 0.0) {
             trueCount = 1;
@@ -10154,35 +10596,45 @@ namespace ocn
             y_data[i1] = ctx_cfg_amax[tmp_data[i1] - 1];
         }
 
-        for (int i2 = 0; i2 < trueCount; i2++) {
+        scalarLB = trueCount & -2;
+        vectorUB = scalarLB - 2;
+        for (i2 = 0; i2 <= vectorUB; i2 += 2) {
+            __m128d r1;
+            __m128d r2;
+            r1 = _mm_loadu_pd(&x_data[0]);
+            r2 = _mm_loadu_pd(&y_data[0]);
+            _mm_storeu_pd(&z_data[0], _mm_div_pd(r1, r2));
+        }
+
+        for (i2 = scalarLB; i2 < trueCount; i2++) {
             z_data[i2] = x_data[i2] / y_data[i2];
         }
 
         b_trueCount = 0;
-        if (d10 != 0.0) {
+        if (d7 != 0.0) {
             b_trueCount = 1;
         }
 
-        if (d11 != 0.0) {
+        if (d8 != 0.0) {
             b_trueCount++;
         }
 
-        if (d13 != 0.0) {
+        if (d10 != 0.0) {
             b_trueCount++;
         }
 
         b_partialTrueCount = 0;
-        if (d10 != 0.0) {
+        if (d7 != 0.0) {
             b_tmp_data[0] = 1;
             b_partialTrueCount = 1;
         }
 
-        if (d11 != 0.0) {
+        if (d8 != 0.0) {
             b_tmp_data[b_partialTrueCount] = 2;
             b_partialTrueCount++;
         }
 
-        if (d13 != 0.0) {
+        if (d10 != 0.0) {
             b_tmp_data[b_partialTrueCount] = 3;
         }
 
@@ -10194,7 +10646,17 @@ namespace ocn
             y_data[i4] = ctx_cfg_jmax[b_tmp_data[i4] - 1];
         }
 
-        for (int i5 = 0; i5 < b_trueCount; i5++) {
+        b_scalarLB = b_trueCount & -2;
+        b_vectorUB = b_scalarLB - 2;
+        for (i5 = 0; i5 <= b_vectorUB; i5 += 2) {
+            __m128d r3;
+            __m128d r4;
+            r3 = _mm_loadu_pd(&x_data[0]);
+            r4 = _mm_loadu_pd(&y_data[0]);
+            _mm_storeu_pd(&b_z_data[0], _mm_div_pd(r3, r4));
+        }
+
+        for (i5 = b_scalarLB; i5 < b_trueCount; i5++) {
             b_z_data[i5] = x_data[i5] / y_data[i5];
         }
 
@@ -10269,6 +10731,7 @@ namespace ocn
 
     //
     // Arguments    : const queue_coder *ctx_q_splines
+    //                double ctx_cfg_NGridLengthSpline
     //                CurveType Curv_Type
     //                const double Curv_P0[3]
     //                const double Curv_P1[3]
@@ -10282,10 +10745,10 @@ namespace ocn
     //                double Curv_b_param
     // Return Type  : double
     //
-    static double LengthCurv(const queue_coder *ctx_q_splines, CurveType Curv_Type, const double
-        Curv_P0[3], const double Curv_P1[3], const double Curv_HelixCenter[3], const double
-        Curv_evec[3], double Curv_theta, double Curv_pitch, const double Curv_CoeffP5[6][3], int
-        Curv_sp_index, double Curv_a_param, double Curv_b_param)
+    static double LengthCurv(const queue_coder *ctx_q_splines, double ctx_cfg_NGridLengthSpline,
+        CurveType Curv_Type, const double Curv_P0[3], const double Curv_P1[3], const double
+        Curv_HelixCenter[3], const double Curv_evec[3], double Curv_theta, double Curv_pitch, const
+        double Curv_CoeffP5[6][3], int Curv_sp_index, double Curv_a_param, double Curv_b_param)
     {
         double L;
         char message[29];
@@ -10301,11 +10764,11 @@ namespace ocn
         double b_y1[9];
         double y[9];
         double b_y[9][3];
-        double x[9];
         static const double a[9] = { 0.055555555555555552, 0.16666666666666666, 0.27777777777777779,
             0.38888888888888884, 0.5, 0.61111111111111116, 0.7222222222222221, 0.83333333333333326,
             0.94444444444444442 };
 
+        double x[9];
         double c_y;
         if ((Curv_Type == CurveType_Helix) || (Curv_Type == CurveType_Line)) {
             //  coder.cstructname(CurvStruct, 'CurvStruct')
@@ -10324,8 +10787,8 @@ namespace ocn
                             2.0)) + std::pow(Curv_a_param * r1D[2], 2.0));
             sqrt_calls++;
         } else if (Curv_Type == CurveType_Spline) {
-            L = SplineLengthApprox(ctx_q_splines, Curv_sp_index, Curv_b_param, Curv_a_param +
-                                   Curv_b_param);
+            L = SplineLengthApprox(ctx_q_splines, ctx_cfg_NGridLengthSpline, Curv_sp_index,
+                                   Curv_b_param, Curv_a_param + Curv_b_param);
         } else if (Curv_Type == CurveType_TransP5) {
             int ixLead;
             int iyLead;
@@ -10336,11 +10799,11 @@ namespace ocn
             //
             // u  = u(:).';
             for (int k = 0; k < 5; k++) {
-                int p5_1D_tmp;
-                p5_1D_tmp = 5 - k;
-                p5_1D[k][0] = Curv_CoeffP5[k][0] * static_cast<double>(p5_1D_tmp);
-                p5_1D[k][1] = Curv_CoeffP5[k][1] * static_cast<double>(p5_1D_tmp);
-                p5_1D[k][2] = Curv_CoeffP5[k][2] * static_cast<double>(p5_1D_tmp);
+                int i1;
+                i1 = 5 - k;
+                _mm_storeu_pd(&p5_1D[k][0], _mm_mul_pd(_mm_loadu_pd((double *)&Curv_CoeffP5[k][0]),
+                               _mm_set1_pd(static_cast<double>(i1))));
+                p5_1D[k][2] = Curv_CoeffP5[k][2] * static_cast<double>(i1);
             }
 
             //  derivative
@@ -10368,16 +10831,13 @@ namespace ocn
             }
 
             for (int b_i = 0; b_i < 4; b_i++) {
-                double d;
-                double d1;
-                double d2;
-                d = p5_1D[b_i + 1][0];
-                d1 = p5_1D[b_i + 1][1];
-                d2 = p5_1D[b_i + 1][2];
+                __m128d r;
+                r = _mm_loadu_pd(&p5_1D[b_i + 1][0]);
                 for (int c_k = 0; c_k < 9; c_k++) {
-                    b_y[c_k][0] = a[c_k] * b_y[c_k][0] + d;
-                    b_y[c_k][1] = a[c_k] * b_y[c_k][1] + d1;
-                    b_y[c_k][2] = a[c_k] * b_y[c_k][2] + d2;
+                    __m128d r2;
+                    r2 = _mm_loadu_pd(&b_y[c_k][0]);
+                    _mm_storeu_pd(&b_y[c_k][0], _mm_add_pd(_mm_mul_pd(_mm_set1_pd(a[c_k]), r2), r));
+                    b_y[c_k][2] = a[c_k] * b_y[c_k][2] + p5_1D[b_i + 1][2];
                 }
             }
 
@@ -10387,15 +10847,21 @@ namespace ocn
                 y[b_k] += std::pow(b_y[b_k][2], 2.0);
             }
 
-            __m256d r;
-            __m256d r1;
+            __m128d r1;
+            __m128d r3;
             sqrt_calls++;
-            r = _mm256_loadu_pd(&y[0]);
-            r1 = _mm256_loadu_pd(&b_y1[0]);
-            _mm256_storeu_pd(&x[0], _mm256_mul_pd(_mm256_sqrt_pd(r), r1));
-            r = _mm256_loadu_pd(&y[4]);
-            r1 = _mm256_loadu_pd(&b_y1[4]);
-            _mm256_storeu_pd(&x[4], _mm256_mul_pd(_mm256_sqrt_pd(r), r1));
+            r1 = _mm_loadu_pd(&y[0]);
+            r3 = _mm_loadu_pd(&b_y1[0]);
+            _mm_storeu_pd(&x[0], _mm_mul_pd(_mm_sqrt_pd(r1), r3));
+            r1 = _mm_loadu_pd(&y[2]);
+            r3 = _mm_loadu_pd(&b_y1[2]);
+            _mm_storeu_pd(&x[2], _mm_mul_pd(_mm_sqrt_pd(r1), r3));
+            r1 = _mm_loadu_pd(&y[4]);
+            r3 = _mm_loadu_pd(&b_y1[4]);
+            _mm_storeu_pd(&x[4], _mm_mul_pd(_mm_sqrt_pd(r1), r3));
+            r1 = _mm_loadu_pd(&y[6]);
+            r3 = _mm_loadu_pd(&b_y1[6]);
+            _mm_storeu_pd(&x[6], _mm_mul_pd(_mm_sqrt_pd(r1), r3));
             x[8] = std::sqrt(y[8]) * b_y1[8];
             c_y = x[0];
             for (int d_k = 0; d_k < 8; d_k++) {
@@ -10526,11 +10992,12 @@ namespace ocn
 
             //  to satisfy the coder
             Ncrv = ctx->q_compress.size();
-            if (DebugActive) {
-                //  1 -> stdout
-                //  2 -> stderr
-                fprintf(stderr, "Smoothing ...\n");
-                fflush(stderr);
+
+            //  1 -> stdout
+            //  2 -> stderr
+            if ((static_cast<unsigned long>(std::round(DebugConfig)) & 1UL) != 0UL) {
+                printf("Smoothing...\n");
+                fflush(stdout);
             }
 
             k = 1U;
@@ -10540,7 +11007,8 @@ namespace ocn
                     ctx->q_compress.get((static_cast<double>(k) + 1.0), (&NextCurv));
                     if ((CurvStruct1.zspdmode == ZSpdMode_NN) && (NextCurv.zspdmode == ZSpdMode_NN))
                     {
-                        b_CalcTransition(&ctx->q_splines, ctx->cfg.CutOff, &CurvStruct1, &NextCurv,
+                        b_CalcTransition(&ctx->q_splines, ctx->cfg.CutOff, ctx->cfg.CollTolDeg,
+                                         ctx->cfg.NGridLengthSpline, &CurvStruct1, &NextCurv,
                                          &CurvStruct1_C, &CurvStruct_T, &CurvStruct2_C, &status);
                         if (status == TransitionResult_Ok) {
                             ctx->q_smooth.push((&CurvStruct1_C));
@@ -10554,18 +11022,18 @@ namespace ocn
                             NextCurv.zspdmode = ZSpdMode_ZN;
 
                             //                  SaveTransition;
-                            //  If the transition fails, force a zero-stop
+                            //                  If the transition fails, force a zero-stop
                             CutZeroEnd(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz, ctx->cfg.amax,
                                        ctx->cfg.jmax, ctx->cfg.dt, ctx->cfg.ZeroStartAccLimit,
                                        ctx->cfg.ZeroStartJerkLimit, ctx->cfg.ZeroStartVelLimit,
-                                       &CurvStruct1, static_cast<double>(k), &CurvStruct1_C,
-                                       &CurvStruct2_C);
+                                       ctx->cfg.NGridLengthSpline, &CurvStruct1, static_cast<double>
+                                       (k), &CurvStruct1_C, &CurvStruct2_C);
                             CutZeroStart(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz,
                                          ctx->cfg.amax, ctx->cfg.jmax, ctx->cfg.dt,
                                          ctx->cfg.ZeroStartAccLimit, ctx->cfg.ZeroStartJerkLimit,
                                          ctx->cfg.ZeroStartVelLimit, ctx->cfg.DebugCutZero,
-                                         &NextCurv, static_cast<double>(k), &CurvStruct3_C,
-                                         &CurvStruct1);
+                                         ctx->cfg.NGridLengthSpline, &NextCurv, static_cast<double>
+                                         (k), &CurvStruct3_C, &CurvStruct1);
                             ctx->q_smooth.push((&CurvStruct1_C));
                             ctx->q_smooth.push((&CurvStruct2_C));
                             ctx->q_smooth.push((&CurvStruct3_C));
@@ -10586,12 +11054,13 @@ namespace ocn
                     b_CutZeroStart(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz, ctx->cfg.amax,
                                    ctx->cfg.jmax, ctx->cfg.dt, ctx->cfg.ZeroStartAccLimit,
                                    ctx->cfg.ZeroStartJerkLimit, ctx->cfg.ZeroStartVelLimit,
-                                   ctx->cfg.DebugCutZero, &CurvStruct1, &CurvStruct1_C,
-                                   &CurvStruct2_C);
+                                   ctx->cfg.DebugCutZero, ctx->cfg.NGridLengthSpline, &CurvStruct1,
+                                   &CurvStruct1_C, &CurvStruct2_C);
                     b_CutZeroEnd(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz, ctx->cfg.amax,
                                  ctx->cfg.jmax, ctx->cfg.dt, ctx->cfg.ZeroStartAccLimit,
                                  ctx->cfg.ZeroStartJerkLimit, ctx->cfg.ZeroStartVelLimit,
-                                 &CurvStruct2_C, &b_CurvStruct2_C, &CurvStruct3_C);
+                                 ctx->cfg.NGridLengthSpline, &CurvStruct2_C, &b_CurvStruct2_C,
+                                 &CurvStruct3_C);
                     ctx->q_smooth.push((&CurvStruct1_C));
                     ctx->q_smooth.push((&b_CurvStruct2_C));
                     ctx->q_smooth.push((&CurvStruct3_C));
@@ -10607,15 +11076,16 @@ namespace ocn
     }
 
     //
-    // computes approximately the arc length of a parametric spline / RHG / BR
+    // computes approximately the arc length of a parametric spline
     // Arguments    : const queue_coder *ctx_q_splines
+    //                double ctx_cfg_NGridLengthSpline
     //                int Curv_sp_index
-    //                double u0
-    //                double u1
+    //                double u0_tilda
+    //                double u1_tilda
     // Return Type  : double
     //
-    static double SplineLengthApprox(const queue_coder *ctx_q_splines, int Curv_sp_index, double u0,
-        double u1)
+    static double SplineLengthApprox(const queue_coder *ctx_q_splines, double
+        ctx_cfg_NGridLengthSpline, int Curv_sp_index, double u0_tilda, double u1_tilda)
     {
         double L;
         CurvStruct expl_temp;
@@ -10644,14 +11114,14 @@ namespace ocn
         int i6;
         int i7;
         int g_loop_ub;
-        coder::array<double, 2U> u_vec;
-        coder::array<double, 2U> u;
+        coder::array<double, 2U> u_vec_tilda;
+        coder::array<double, 2U> u_tilda;
         int i9;
         int i10;
         int h_loop_ub;
+        coder::array<double, 2U> r;
         int i11;
-        double dv[10];
-        coder::array<double, 2U> u_mid;
+        coder::array<double, 2U> u_mid_tilda;
         int scalarLB;
         int vectorUB;
         int i13;
@@ -10662,9 +11132,9 @@ namespace ocn
         coder::array<double, 2U> unusedU2;
         coder::array<double, 2U> r1Dz;
         coder::array<double, 2U> a;
-        int i_loop_ub;
         int j_loop_ub;
         int k_loop_ub;
+        int l_loop_ub;
         coder::array<double, 2U> z1;
         int N;
         coder::array<double, 2U> Integrand;
@@ -10672,13 +11142,14 @@ namespace ocn
         int b_scalarLB;
         int b_vectorUB;
         int f_k;
-        coder::array<double, 2U> r3;
         coder::array<double, 2U> b_x;
-        int l_loop_ub;
+        int m_loop_ub;
         int c_scalarLB;
         int c_vectorUB;
         int i20;
         int vlen;
+
+        //  get the sp structure
         ctx_q_splines->get(Curv_sp_index, (&expl_temp));
         Spline_sp_CoeffX.set_size(1, expl_temp.sp.CoeffX.size(1));
         loop_ub = expl_temp.sp.CoeffX.size(1);
@@ -10704,10 +11175,15 @@ namespace ocn
             Spline_sp_knots[i3] = expl_temp.sp.knots[i3];
         }
 
+        //  the ORIGINAL spline is parametrized with u_tilda
+        //  after cut-off, new parameter is called u.
+        //  u=0 corresponds to the first lift-off point
+        //  u=1 corresponds to the second lift-off point
+        //  u is NOT used in this function
         x.set_size(1, Spline_sp_knots.size(1));
         e_loop_ub = Spline_sp_knots.size(1);
         for (int i4 = 0; i4 < e_loop_ub; i4++) {
-            x[i4] = (Spline_sp_knots[i4] > u0);
+            x[i4] = (Spline_sp_knots[i4] > u0_tilda);
         }
 
         k = (1 <= x.size(1));
@@ -10740,7 +11216,7 @@ namespace ocn
         x.set_size(1, Spline_sp_knots.size(1));
         f_loop_ub = Spline_sp_knots.size(1);
         for (int i5 = 0; i5 < f_loop_ub; i5++) {
-            x[i5] = (Spline_sp_knots[i5] < u1);
+            x[i5] = (Spline_sp_knots[i5] < u1_tilda);
         }
 
         b_k = (1 <= x.size(1));
@@ -10779,74 +11255,84 @@ namespace ocn
         }
 
         g_loop_ub = i7 - i6;
-        u_vec.set_size(1, (g_loop_ub + 2));
-        u_vec[0] = u0;
+        u_vec_tilda.set_size(1, (g_loop_ub + 2));
+        u_vec_tilda[0] = u0_tilda;
         for (int i8 = 0; i8 < g_loop_ub; i8++) {
-            u_vec[i8 + 1] = Spline_sp_knots[i6 + i8];
+            u_vec_tilda[i8 + 1] = Spline_sp_knots[i6 + i8];
         }
 
-        u_vec[g_loop_ub + 1] = u1;
-        u.set_size(1, 0);
-        i9 = u_vec.size(1);
+        u_vec_tilda[g_loop_ub + 1] = u1_tilda;
+        u_tilda.set_size(1, 0);
+
+        //  N equally spaced u_tilda values between each pair of knots
+        //  from u0_tilda until u1_tilda
+        i9 = u_vec_tilda.size(1);
         for (int c_k = 0; c_k <= i9 - 2; c_k++) {
             int i12;
-            i10 = u.size(1);
-            if (u.size(1) != 0) {
-                if (1 > u.size(1) - 1) {
+            int i_loop_ub;
+            i10 = u_tilda.size(1);
+            if (u_tilda.size(1) != 0) {
+                if (1 > u_tilda.size(1) - 1) {
                     i10 = 0;
                 } else {
-                    i10 = u.size(1) - 1;
+                    i10 = u_tilda.size(1) - 1;
                 }
             }
 
-            c_linspace(u_vec[c_k], u_vec[c_k + 1], dv);
+            linspace(u_vec_tilda[c_k], u_vec_tilda[c_k + 1], ctx_cfg_NGridLengthSpline, r);
             i12 = i10;
-            i10 += 10;
-            u.set_size(u.size(0), i10);
-            for (int i14 = 0; i14 < 10; i14++) {
-                u[i12 + i14] = dv[i14];
+            i_loop_ub = r.size(1);
+            i10 += r.size(1);
+            u_tilda.set_size(u_tilda.size(0), i10);
+            for (int i14 = 0; i14 < i_loop_ub; i14++) {
+                u_tilda[i12 + i14] = r[i14];
             }
         }
 
-        if (1 > u.size(1) - 1) {
+        //  midpoint values
+        if (1 > u_tilda.size(1) - 1) {
             h_loop_ub = 0;
         } else {
-            h_loop_ub = u.size(1) - 1;
+            h_loop_ub = u_tilda.size(1) - 1;
         }
 
-        i11 = (2 <= u.size(1));
-        u_mid.set_size(1, h_loop_ub);
-        scalarLB = h_loop_ub & -4;
-        vectorUB = scalarLB - 4;
-        for (i13 = 0; i13 <= vectorUB; i13 += 4) {
-            __m256d r;
-            __m256d r1;
-            r = _mm256_loadu_pd(&u[i13]);
-            r1 = _mm256_loadu_pd(&u[i11 + i13]);
-            _mm256_storeu_pd(&u_mid[i13], _mm256_mul_pd(_mm256_set1_pd(0.5), _mm256_add_pd(r, r1)));
+        i11 = (2 <= u_tilda.size(1));
+        u_mid_tilda.set_size(1, h_loop_ub);
+        scalarLB = h_loop_ub & -2;
+        vectorUB = scalarLB - 2;
+        for (i13 = 0; i13 <= vectorUB; i13 += 2) {
+            __m128d r1;
+            __m128d r2;
+            r1 = _mm_loadu_pd(&u_tilda[i13]);
+            r2 = _mm_loadu_pd(&u_tilda[i11 + i13]);
+            _mm_storeu_pd(&u_mid_tilda[i13], _mm_mul_pd(_mm_set1_pd(0.5), _mm_add_pd(r1, r2)));
         }
 
         for (i13 = scalarLB; i13 < h_loop_ub; i13++) {
-            u_mid[i13] = 0.5 * (u[i13] + u[i11 + i13]);
+            u_mid_tilda[i13] = 0.5 * (u_tilda[i13] + u_tilda[i11 + i13]);
         }
 
         //  midpoint values
-        c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffX, u_mid, unusedU0, r1Dx);
-        c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffY, u_mid, unusedU1, r1Dy);
-        c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffZ, u_mid, unusedU2, r1Dz);
+        //  parametric derivative calculation at each midpoint value
+        //  with respect to u_tilda
+        c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffX, u_mid_tilda, unusedU0, r1Dx);
+        c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffY, u_mid_tilda, unusedU1, r1Dy);
+        c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffZ, u_mid_tilda, unusedU2, r1Dz);
+
+        //  length (between u0_tilda and u1_tilda) calculation by rectangles method
         a.set_size(3, r1Dx.size(1));
-        i_loop_ub = r1Dx.size(1);
-        for (int i15 = 0; i15 < i_loop_ub; i15++) {
+        j_loop_ub = r1Dx.size(1);
+        for (int i15 = 0; i15 < j_loop_ub; i15++) {
             a[3 * i15] = r1Dx[i15];
         }
 
-        j_loop_ub = r1Dy.size(1);
-        for (int i16 = 0; i16 < j_loop_ub; i16++) {
+        k_loop_ub = r1Dy.size(1);
+        for (int i16 = 0; i16 < k_loop_ub; i16++) {
             a[3 * i16 + 1] = r1Dy[i16];
         }
 
-        k_loop_ub = r1Dz.size(1);
-        for (int i17 = 0; i17 < k_loop_ub; i17++) {
+        l_loop_ub = r1Dz.size(1);
+        for (int i17 = 0; i17 < l_loop_ub; i17++) {
             a[3 * i17 + 2] = r1Dz[i17];
         }
 
@@ -10872,12 +11358,12 @@ namespace ocn
         }
 
         i19 = Integrand.size(1);
-        b_scalarLB = Integrand.size(1) & -4;
-        b_vectorUB = b_scalarLB - 4;
-        for (f_k = 0; f_k <= b_vectorUB; f_k += 4) {
-            __m256d r2;
-            r2 = _mm256_loadu_pd(&Integrand[f_k]);
-            _mm256_storeu_pd(&Integrand[f_k], _mm256_sqrt_pd(r2));
+        b_scalarLB = Integrand.size(1) & -2;
+        b_vectorUB = b_scalarLB - 2;
+        for (f_k = 0; f_k <= b_vectorUB; f_k += 2) {
+            __m128d r3;
+            r3 = _mm_loadu_pd(&Integrand[f_k]);
+            _mm_storeu_pd(&Integrand[f_k], _mm_sqrt_pd(r3));
         }
 
         for (f_k = b_scalarLB; f_k < i19; f_k++) {
@@ -10885,21 +11371,21 @@ namespace ocn
         }
 
         sqrt_calls++;
-        diff(u, r3);
+        diff(u_tilda, r);
         b_x.set_size(1, Integrand.size(1));
-        l_loop_ub = Integrand.size(1);
-        c_scalarLB = Integrand.size(1) & -4;
-        c_vectorUB = c_scalarLB - 4;
-        for (i20 = 0; i20 <= c_vectorUB; i20 += 4) {
-            __m256d r4;
-            __m256d r5;
-            r4 = _mm256_loadu_pd(&Integrand[i20]);
-            r5 = _mm256_loadu_pd(&r3[i20]);
-            _mm256_storeu_pd(&b_x[i20], _mm256_mul_pd(r4, r5));
+        m_loop_ub = Integrand.size(1);
+        c_scalarLB = Integrand.size(1) & -2;
+        c_vectorUB = c_scalarLB - 2;
+        for (i20 = 0; i20 <= c_vectorUB; i20 += 2) {
+            __m128d r4;
+            __m128d r5;
+            r4 = _mm_loadu_pd(&Integrand[i20]);
+            r5 = _mm_loadu_pd(&r[i20]);
+            _mm_storeu_pd(&b_x[i20], _mm_mul_pd(r4, r5));
         }
 
-        for (i20 = c_scalarLB; i20 < l_loop_ub; i20++) {
-            b_x[i20] = Integrand[i20] * r3[i20];
+        for (i20 = c_scalarLB; i20 < m_loop_ub; i20++) {
+            b_x[i20] = Integrand[i20] * r[i20];
         }
 
         vlen = b_x.size(1);
@@ -10925,12 +11411,10 @@ namespace ocn
     }
 
     //
-    // coder.varsize('CrvStructs', [1, 100], [0, 1]);
     // Arguments    : const FeedoptContext *ctx
-    //                const CurvStruct *CurvStrct
     // Return Type  : void
     //
-    static void SplitCurvStruct(const FeedoptContext *ctx, const CurvStruct *CurvStrct)
+    static void SplitCurvStructs(const FeedoptContext *ctx)
     {
         CurvStruct Curv;
         CurvStruct expl_temp;
@@ -10941,182 +11425,205 @@ namespace ocn
         int Idx2_data[1];
         coder::array<double, 2U> knots;
         double b_L;
-        if ((CurvStrct->Type != CurveType_TransP5) && (!CurvStrct->UseConstJerk)) {
-            if ((CurvStrct->Type == CurveType_Line) || (CurvStrct->Type == CurveType_Helix)) {
-                double a;
-                double b;
-                double L;
-                Curv = *CurvStrct;
-                a = Curv.a_param;
-                b = Curv.b_param;
-                L = LengthCurv(&ctx->q_splines, Curv.Type, Curv.P0, Curv.P1, Curv.HelixCenter,
-                               Curv.evec, Curv.theta, Curv.pitch, Curv.CoeffP5, Curv.sp_index,
-                               Curv.a_param, Curv.b_param);
-                if (L < 2.0 * ctx->cfg.LSplit) {
-                    ctx->q_split.push((&Curv));
-                } else {
-                    double N;
-                    double L_split;
-                    int i1;
-                    N = std::ceil(L / ctx->cfg.LSplit);
-                    L_split = L / N;
-                    i1 = static_cast<int>(N);
-                    for (int k = 0; k < i1; k++) {
-                        double u_tilda_0_tmp;
-                        double u_tilda_0;
-                        u_tilda_0_tmp = L_split / L;
-                        u_tilda_0 = a * (((static_cast<double>(k) + 1.0) - 1.0) * u_tilda_0_tmp) + b;
-                        Curv.a_param = (a * ((static_cast<double>(k) + 1.0) * u_tilda_0_tmp) + b) -
-                            u_tilda_0;
-                        Curv.b_param = u_tilda_0;
-                        ctx->q_split.push((&Curv));
-                    }
-                }
-            } else {
-                int loop_ub;
-                double u1_tilda;
-                int i2;
-                int i3;
-                int b_loop_ub;
-                int i4;
-                int b_k;
-                int idx;
-                int ii_size_idx_1;
-                int ii;
-                bool exitg1;
-                int c_k;
-                int b_ii;
-                int b_idx;
-                int i7;
-                int i8;
-                int c_loop_ub;
-                int d_k;
-                Curv = *CurvStrct;
-                ctx->q_splines.get(Curv.sp_index, (&expl_temp));
-                Spline_sp_knots.set_size(1, expl_temp.sp.knots.size(1));
-                loop_ub = expl_temp.sp.knots.size(1);
-                for (int i = 0; i < loop_ub; i++) {
-                    Spline_sp_knots[i] = expl_temp.sp.knots[i];
-                }
+        if (!ctx->q_smooth.isempty()) {
+            unsigned int N;
+            int i;
+            N = ctx->q_smooth.size();
 
-                u1_tilda = Curv.a_param + Curv.b_param;
-                if (4 > Spline_sp_knots.size(1) - 3) {
-                    i2 = 0;
-                    i3 = -1;
-                } else {
-                    i2 = 3;
-                    i3 = Spline_sp_knots.size(1) - 4;
-                }
+            //  1 -> stdout
+            //  2 -> stderr
+            if ((static_cast<unsigned long>(std::round(DebugConfig)) & 1UL) != 0UL) {
+                printf("Splitting...\n");
+                fflush(stdout);
+            }
 
-                b_loop_ub = i3 - i2;
-                i4 = b_loop_ub + 1;
-                x.set_size(1, i4);
-                for (int i5 = 0; i5 <= b_loop_ub; i5++) {
-                    x[i5] = (Spline_sp_knots[i2 + i5] > Curv.b_param);
-                }
+            i = static_cast<int>(N);
+            for (int k = 0; k < i; k++) {
+                ctx->q_smooth.get((k + 1U), (&Curv));
 
-                b_k = (1 <= x.size(1));
-                idx = 0;
-                ii_size_idx_1 = b_k;
-                ii = 0;
-                exitg1 = false;
-                while ((!exitg1) && (ii <= x.size(1) - 1)) {
-                    if (x[ii]) {
-                        idx = 1;
-                        ii_data[0] = ii + 1;
-                        exitg1 = true;
+                //  coder.varsize('CrvStructs', [1, 100], [0, 1]);
+                //
+                if ((Curv.Type != CurveType_TransP5) && (!Curv.UseConstJerk)) {
+                    if ((Curv.Type == CurveType_Line) || (Curv.Type == CurveType_Helix)) {
+                        double d;
+                        double d1;
+                        double L;
+                        d = Curv.a_param;
+                        d1 = Curv.b_param;
+                        L = LengthCurv(&ctx->q_splines, ctx->cfg.NGridLengthSpline, Curv.Type,
+                                       Curv.P0, Curv.P1, Curv.HelixCenter, Curv.evec, Curv.theta,
+                                       Curv.pitch, Curv.CoeffP5, Curv.sp_index, Curv.a_param,
+                                       Curv.b_param);
+                        if (L < 2.0 * ctx->cfg.LSplit) {
+                            ctx->q_split.push((&Curv));
+                        } else {
+                            double b_N;
+                            double L_split;
+                            int i2;
+                            b_N = std::ceil(L / ctx->cfg.LSplit);
+                            L_split = L / b_N;
+                            i2 = static_cast<int>(b_N);
+                            for (int b_k = 0; b_k < i2; b_k++) {
+                                double u_tilda_0_tmp;
+                                double u_tilda_0;
+                                u_tilda_0_tmp = L_split / L;
+                                u_tilda_0 = d * (((static_cast<double>(b_k) + 1.0) - 1.0) *
+                                                 u_tilda_0_tmp) + d1;
+                                Curv.a_param = (d * ((static_cast<double>(b_k) + 1.0) *
+                                                     u_tilda_0_tmp) + d1) - u_tilda_0;
+                                Curv.b_param = u_tilda_0;
+                                ctx->q_split.push((&Curv));
+                            }
+                        }
                     } else {
-                        ii++;
-                    }
-                }
+                        int loop_ub;
+                        double u1_tilda;
+                        int i3;
+                        int i4;
+                        int b_loop_ub;
+                        int i5;
+                        int c_k;
+                        int idx;
+                        int ii_size_idx_1;
+                        int ii;
+                        bool exitg1;
+                        int d_k;
+                        int b_ii;
+                        int b_idx;
+                        int i8;
+                        int i9;
+                        int c_loop_ub;
+                        int e_k;
+                        ctx->q_splines.get(Curv.sp_index, (&expl_temp));
+                        Spline_sp_knots.set_size(1, expl_temp.sp.knots.size(1));
+                        loop_ub = expl_temp.sp.knots.size(1);
+                        for (int i1 = 0; i1 < loop_ub; i1++) {
+                            Spline_sp_knots[i1] = expl_temp.sp.knots[i1];
+                        }
 
-                if (b_k == 1) {
-                    if (idx == 0) {
-                        ii_size_idx_1 = 0;
+                        u1_tilda = Curv.a_param + Curv.b_param;
+                        if (4 > Spline_sp_knots.size(1) - 3) {
+                            i3 = 0;
+                            i4 = -1;
+                        } else {
+                            i3 = 3;
+                            i4 = Spline_sp_knots.size(1) - 4;
+                        }
+
+                        b_loop_ub = i4 - i3;
+                        i5 = b_loop_ub + 1;
+                        x.set_size(1, i5);
+                        for (int i6 = 0; i6 <= b_loop_ub; i6++) {
+                            x[i6] = (Spline_sp_knots[i3 + i6] > Curv.b_param);
+                        }
+
+                        c_k = (1 <= x.size(1));
+                        idx = 0;
+                        ii_size_idx_1 = c_k;
+                        ii = 0;
+                        exitg1 = false;
+                        while ((!exitg1) && (ii <= x.size(1) - 1)) {
+                            if (x[ii]) {
+                                idx = 1;
+                                ii_data[0] = ii + 1;
+                                exitg1 = true;
+                            } else {
+                                ii++;
+                            }
+                        }
+
+                        if (c_k == 1) {
+                            if (idx == 0) {
+                                ii_size_idx_1 = 0;
+                            }
+                        } else {
+                            ii_size_idx_1 = (1 <= idx);
+                        }
+
+                        if (0 <= ii_size_idx_1 - 1) {
+                            Idx1_data[0] = ii_data[0];
+                        }
+
+                        x.set_size(1, i5);
+                        for (int i7 = 0; i7 <= b_loop_ub; i7++) {
+                            x[i7] = (Spline_sp_knots[i3 + i7] < u1_tilda);
+                        }
+
+                        d_k = (1 <= x.size(1));
+                        b_ii = x.size(1);
+                        b_idx = 0;
+                        ii_size_idx_1 = d_k;
+                        exitg1 = false;
+                        while ((!exitg1) && (b_ii > 0)) {
+                            if (x[b_ii - 1]) {
+                                b_idx = 1;
+                                ii_data[0] = b_ii;
+                                exitg1 = true;
+                            } else {
+                                b_ii--;
+                            }
+                        }
+
+                        if (d_k == 1) {
+                            if (b_idx == 0) {
+                                ii_size_idx_1 = 0;
+                            }
+                        } else {
+                            ii_size_idx_1 = (1 <= b_idx);
+                        }
+
+                        if (0 <= ii_size_idx_1 - 1) {
+                            Idx2_data[0] = ii_data[0];
+                        }
+
+                        if (Idx1_data[0] > Idx2_data[0]) {
+                            i8 = 0;
+                            i9 = 0;
+                        } else {
+                            i8 = Idx1_data[0] - 1;
+                            i9 = Idx2_data[0];
+                        }
+
+                        c_loop_ub = i9 - i8;
+                        knots.set_size(1, (c_loop_ub + 2));
+                        knots[0] = Curv.b_param;
+                        for (int i10 = 0; i10 < c_loop_ub; i10++) {
+                            knots[i10 + 1] = Spline_sp_knots[(i3 + i8) + i10];
+                        }
+
+                        knots[c_loop_ub + 1] = u1_tilda;
+                        b_L = 0.0;
+                        e_k = 0;
+                        while (e_k + 1 < knots.size(1)) {
+                            int b_i;
+                            b_i = e_k;
+                            while ((b_L < ctx->cfg.LSplit) && (e_k + 1 < knots.size(1))) {
+                                double delta_L;
+                                delta_L = SplineLengthApprox(&ctx->q_splines,
+                                    ctx->cfg.NGridLengthSpline, Curv.sp_index, knots[e_k], knots[e_k
+                                    + 1]);
+                                b_L += delta_L;
+                                e_k++;
+                            }
+
+                            Curv.a_param = knots[e_k] - knots[b_i];
+                            Curv.b_param = knots[b_i];
+                            ctx->q_split.push((&Curv));
+                            b_L = 0.0;
+                        }
                     }
                 } else {
-                    ii_size_idx_1 = (1 <= idx);
-                }
-
-                if (0 <= ii_size_idx_1 - 1) {
-                    Idx1_data[0] = ii_data[0];
-                }
-
-                x.set_size(1, i4);
-                for (int i6 = 0; i6 <= b_loop_ub; i6++) {
-                    x[i6] = (Spline_sp_knots[i2 + i6] < u1_tilda);
-                }
-
-                c_k = (1 <= x.size(1));
-                b_ii = x.size(1);
-                b_idx = 0;
-                ii_size_idx_1 = c_k;
-                exitg1 = false;
-                while ((!exitg1) && (b_ii > 0)) {
-                    if (x[b_ii - 1]) {
-                        b_idx = 1;
-                        ii_data[0] = b_ii;
-                        exitg1 = true;
-                    } else {
-                        b_ii--;
-                    }
-                }
-
-                if (c_k == 1) {
-                    if (b_idx == 0) {
-                        ii_size_idx_1 = 0;
-                    }
-                } else {
-                    ii_size_idx_1 = (1 <= b_idx);
-                }
-
-                if (0 <= ii_size_idx_1 - 1) {
-                    Idx2_data[0] = ii_data[0];
-                }
-
-                if (Idx1_data[0] > Idx2_data[0]) {
-                    i7 = 0;
-                    i8 = 0;
-                } else {
-                    i7 = Idx1_data[0] - 1;
-                    i8 = Idx2_data[0];
-                }
-
-                c_loop_ub = i8 - i7;
-                knots.set_size(1, (c_loop_ub + 2));
-                knots[0] = Curv.b_param;
-                for (int i9 = 0; i9 < c_loop_ub; i9++) {
-                    knots[i9 + 1] = Spline_sp_knots[(i2 + i7) + i9];
-                }
-
-                knots[c_loop_ub + 1] = u1_tilda;
-                b_L = 0.0;
-                d_k = 0;
-                while (d_k + 1 < knots.size(1)) {
-                    int b_i;
-                    b_i = d_k;
-                    while ((b_L < ctx->cfg.LSplit) && (d_k + 1 < knots.size(1))) {
-                        double delta_L;
-                        delta_L = SplineLengthApprox(&ctx->q_splines, Curv.sp_index, knots[d_k],
-                            knots[d_k + 1]);
-                        b_L += delta_L;
-                        d_k++;
-                    }
-
-                    Curv.a_param = knots[d_k] - knots[b_i];
-                    Curv.b_param = knots[b_i];
                     ctx->q_split.push((&Curv));
-                    b_L = 0.0;
                 }
             }
-        } else {
-            ctx->q_split.push(CurvStrct);
         }
     }
 
     //
     // Arguments    : const queue_coder *ctx_q_splines
     //                double ctx_cfg_CutOff
+    //                double ctx_cfg_CollTolDeg
+    //                double ctx_cfg_NGridLengthSpline
     //                const CurvStruct *CurvStruct1
     //                const CurvStruct *CurvStruct2
     //                CurvStruct *CurvStruct1_C
@@ -11125,58 +11632,60 @@ namespace ocn
     //                TransitionResult *status
     // Return Type  : void
     //
-    static void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff, const
-        CurvStruct *CurvStruct1, const CurvStruct *CurvStruct2, CurvStruct *CurvStruct1_C,
-        CurvStruct *CurvStruct_T, CurvStruct *CurvStruct2_C, TransitionResult *status)
+    static void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff, double
+        ctx_cfg_CollTolDeg, double ctx_cfg_NGridLengthSpline, const CurvStruct *CurvStruct1, const
+        CurvStruct *CurvStruct2, CurvStruct *CurvStruct1_C, CurvStruct *CurvStruct_T, CurvStruct
+        *CurvStruct2_C, TransitionResult *status)
     {
         double CutOff;
         double Length_Threshold;
+        unsigned long u;
+        unsigned long u1;
+        unsigned long u2;
         double unusedU0[3];
-        double r0D1[3];
+        double r0D1_1[3];
         double unusedU1[3];
-        double r1D1[3];
-        bool guard1 = false;
-        double d;
+        double r1D1_1[3];
         TransitionResult b_status;
         CurvStruct expl_temp;
         coder::array<double, 2U> Spline_sp_knots;
         double r0D0[3];
+        double r0D1[3];
         double r0D2[3];
         double r1D0[3];
+        double r1D1[3];
         double r1D2[3];
+        coder::array<bool, 2U> b_x;
         double p5[6][3];
         int c_status;
-        double d1;
-        double d2;
+        double alpha0;
+        double alpha1;
+        int ii_data[1];
+        int Spline_sp_knots_size[2];
+        double Spline_sp_knots_data[1];
         CutOff = ctx_cfg_CutOff;
         Length_Threshold = 3.0 * ctx_cfg_CutOff;
-        if (DebugActive) {
-            //  1 -> stdout
-            //  2 -> stderr
-            fprintf(stderr, "========== CalcTransition ==========\n");
-            fflush(stderr);
+
+        //  1 -> stdout
+        //  2 -> stderr
+        u = static_cast<unsigned long>(std::round(DebugConfig));
+        u1 = u & 1UL;
+        if (u1 != 0UL) {
+            printf("========== CalcTransition ==========\n");
+            fflush(stdout);
         }
 
-        if (DebugActive) {
-            //  1 -> stdout
-            //  2 -> stderr
-            fprintf(stderr, "CutOff = %.3f\n", ctx_cfg_CutOff);
-            fflush(stderr);
+        //  1 -> stdout
+        //  2 -> stderr
+        if (u1 != 0UL) {
+            printf("CutOff = %.3f\n", ctx_cfg_CutOff);
+            fflush(stdout);
         }
 
-        if (DebugActive) {
-            b_PrintCurvStruct(ctx_q_splines, CurvStruct1->Type, CurvStruct1->zspdmode,
-                              CurvStruct1->P0, CurvStruct1->P1, CurvStruct1->HelixCenter,
-                              CurvStruct1->evec, CurvStruct1->theta, CurvStruct1->pitch,
-                              CurvStruct1->CoeffP5, CurvStruct1->sp_index, CurvStruct1->FeedRate,
-                              CurvStruct1->UseConstJerk, CurvStruct1->ConstJerk,
-                              CurvStruct1->a_param, CurvStruct1->b_param);
-            b_PrintCurvStruct(ctx_q_splines, CurvStruct2->Type, CurvStruct2->zspdmode,
-                              CurvStruct2->P0, CurvStruct2->P1, CurvStruct2->HelixCenter,
-                              CurvStruct2->evec, CurvStruct2->theta, CurvStruct2->pitch,
-                              CurvStruct2->CoeffP5, CurvStruct2->sp_index, CurvStruct2->FeedRate,
-                              CurvStruct2->UseConstJerk, CurvStruct2->ConstJerk,
-                              CurvStruct2->a_param, CurvStruct2->b_param);
+        u2 = u & 8UL;
+        if (u2 != 0UL) {
+            b_PrintCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct1);
+            b_PrintCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct2);
         }
 
         *CurvStruct_T = *CurvStruct1;
@@ -11185,121 +11694,32 @@ namespace ocn
         e_EvalCurvStruct(ctx_q_splines, CurvStruct1->Type, CurvStruct1->P0, CurvStruct1->P1,
                          CurvStruct1->HelixCenter, CurvStruct1->evec, CurvStruct1->theta,
                          CurvStruct1->pitch, CurvStruct1->CoeffP5, CurvStruct1->sp_index,
-                         CurvStruct1->a_param, CurvStruct1->b_param, unusedU0, r0D1);
+                         CurvStruct1->a_param, CurvStruct1->b_param, unusedU0, r0D1_1);
         f_EvalCurvStruct(ctx_q_splines, CurvStruct2->Type, CurvStruct2->P0, CurvStruct2->P1,
                          CurvStruct2->HelixCenter, CurvStruct2->evec, CurvStruct2->theta,
                          CurvStruct2->pitch, CurvStruct2->CoeffP5, CurvStruct2->sp_index,
-                         CurvStruct2->a_param, CurvStruct2->b_param, unusedU1, r1D1);
+                         CurvStruct2->a_param, CurvStruct2->b_param, unusedU1, r1D1_1);
 
-        //  In case of max. 2° collinearity between two lines, NO transition P5
-        //  is calculated
-        guard1 = false;
-        if ((CurvStruct1->Type != CurveType_Helix) && (CurvStruct2->Type != CurveType_Helix)) {
-            double scale;
-            double absxk;
-            double t;
-            bool value;
-            scale = 3.3121686421112381E-170;
-            absxk = std::abs(r0D1[0]);
-            if (absxk > 3.3121686421112381E-170) {
-                d = 1.0;
-                scale = absxk;
-            } else {
-                t = absxk / 3.3121686421112381E-170;
-                d = t * t;
-            }
-
-            absxk = std::abs(r0D1[1]);
-            if (absxk > scale) {
-                t = scale / absxk;
-                d = d * t * t + 1.0;
-                scale = absxk;
-            } else {
-                t = absxk / scale;
-                d += t * t;
-            }
-
-            absxk = std::abs(r0D1[2]);
-            if (absxk > scale) {
-                t = scale / absxk;
-                d = d * t * t + 1.0;
-                scale = absxk;
-            } else {
-                t = absxk / scale;
-                d += t * t;
-            }
-
-            d = scale * std::sqrt(d);
-            if (d < 2.2204460492503131E-16) {
-                value = true;
-            } else {
-                double b_scale;
-                double b_absxk;
-                double b_t;
-                b_scale = 3.3121686421112381E-170;
-                b_absxk = std::abs(r1D1[0]);
-                if (b_absxk > 3.3121686421112381E-170) {
-                    d1 = 1.0;
-                    b_scale = b_absxk;
-                } else {
-                    b_t = b_absxk / 3.3121686421112381E-170;
-                    d1 = b_t * b_t;
-                }
-
-                b_absxk = std::abs(r1D1[1]);
-                if (b_absxk > b_scale) {
-                    b_t = b_scale / b_absxk;
-                    d1 = d1 * b_t * b_t + 1.0;
-                    b_scale = b_absxk;
-                } else {
-                    b_t = b_absxk / b_scale;
-                    d1 += b_t * b_t;
-                }
-
-                b_absxk = std::abs(r1D1[2]);
-                if (b_absxk > b_scale) {
-                    b_t = b_scale / b_absxk;
-                    d1 = d1 * b_t * b_t + 1.0;
-                    b_scale = b_absxk;
-                } else {
-                    b_t = b_absxk / b_scale;
-                    d1 += b_t * b_t;
-                }
-
-                d1 = b_scale * std::sqrt(d1);
-                if (d1 < 2.2204460492503131E-16) {
-                    value = true;
-                } else {
-                    d2 = 1.0E-6;
-                    b_cosd(&d2);
-                    value = (((r0D1[0] * r1D1[0] + r0D1[1] * r1D1[1]) + r0D1[2] * r1D1[2]) / (d * d1)
-                             > d2);
-                }
-            }
-
-            if (value) {
-                //  && norm(r0D2 - r1D2) < 10*eps && collinear(r0D2, r1D2, 1e-2)
-                b_status = TransitionResult_Collinear;
-                *CurvStruct1_C = *CurvStruct1;
-                *CurvStruct2_C = *CurvStruct2;
-            } else {
-                guard1 = true;
-            }
+        //  colinearity test
+        if ((CurvStruct1->Type != CurveType_Helix) && (CurvStruct2->Type != CurveType_Helix) &&
+                collinear(r0D1_1, r1D1_1, ctx_cfg_CollTolDeg)) {
+            //  && norm(r0D2 - r1D2) < 10*eps && collinear(r0D2, r1D2, 1e-2)
+            b_status = TransitionResult_Collinear;
+            *CurvStruct1_C = *CurvStruct1;
+            *CurvStruct2_C = *CurvStruct2;
         } else {
-            guard1 = true;
-        }
-
-        if (guard1) {
             double L1;
             double L2;
-            L1 = LengthCurv(ctx_q_splines, CurvStruct1->Type, CurvStruct1->P0, CurvStruct1->P1,
-                            CurvStruct1->HelixCenter, CurvStruct1->evec, CurvStruct1->theta,
-                            CurvStruct1->pitch, CurvStruct1->CoeffP5, CurvStruct1->sp_index,
-                            CurvStruct1->a_param, CurvStruct1->b_param);
-            L2 = LengthCurv(ctx_q_splines, CurvStruct2->Type, CurvStruct2->P0, CurvStruct2->P1,
-                            CurvStruct2->HelixCenter, CurvStruct2->evec, CurvStruct2->theta,
-                            CurvStruct2->pitch, CurvStruct2->CoeffP5, CurvStruct2->sp_index,
-                            CurvStruct2->a_param, CurvStruct2->b_param);
+            L1 = LengthCurv(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct1->Type,
+                            CurvStruct1->P0, CurvStruct1->P1, CurvStruct1->HelixCenter,
+                            CurvStruct1->evec, CurvStruct1->theta, CurvStruct1->pitch,
+                            CurvStruct1->CoeffP5, CurvStruct1->sp_index, CurvStruct1->a_param,
+                            CurvStruct1->b_param);
+            L2 = LengthCurv(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct2->Type,
+                            CurvStruct2->P0, CurvStruct2->P1, CurvStruct2->HelixCenter,
+                            CurvStruct2->evec, CurvStruct2->theta, CurvStruct2->pitch,
+                            CurvStruct2->CoeffP5, CurvStruct2->sp_index, CurvStruct2->a_param,
+                            CurvStruct2->b_param);
 
             //  CutOff calculation
             if ((CurvStruct1->Type != CurveType_Spline) && (CurvStruct2->Type != CurveType_Spline))
@@ -11310,8 +11730,15 @@ namespace ocn
             } else {
                 double x;
                 double y;
+                int ii_size_idx_1;
+                bool exitg1;
                 if (CurvStruct1->Type == CurveType_Spline) {
                     int loop_ub;
+                    double u1_tilda;
+                    int c_loop_ub;
+                    int k;
+                    int ii;
+                    int idx;
                     ctx_q_splines->get(CurvStruct1->sp_index, (&expl_temp));
                     Spline_sp_knots.set_size(1, expl_temp.sp.knots.size(1));
                     loop_ub = expl_temp.sp.knots.size(1);
@@ -11319,13 +11746,53 @@ namespace ocn
                         Spline_sp_knots[i] = expl_temp.sp.knots[i];
                     }
 
-                    if (Spline_sp_knots.size(1) > 8) {
-                        x = SplineLengthApprox(ctx_q_splines, CurvStruct1->sp_index,
-                                               Spline_sp_knots[Spline_sp_knots.size(1) - 5], 1.0) /
-                            2.0;
-                    } else {
-                        x = b_SplineLengthApprox(ctx_q_splines, CurvStruct1->sp_index, 1.0) / 3.0;
+                    //  In a very general case we may cut a spline several times
+                    //  at the end;
+                    //  If a spline had already been cut at the end,
+                    //  we must compute the corresponding
+                    //  native spline parameter (u1_tilda) value
+                    //  This value will be different from 1 in this special case
+                    u1_tilda = CurvStruct1->a_param + CurvStruct1->b_param;
+
+                    //  We need to find the previous spline knot u0_tilda...
+                    b_x.set_size(1, Spline_sp_knots.size(1));
+                    c_loop_ub = Spline_sp_knots.size(1);
+                    for (int i2 = 0; i2 < c_loop_ub; i2++) {
+                        b_x[i2] = (Spline_sp_knots[i2] < u1_tilda);
                     }
+
+                    k = (1 <= b_x.size(1));
+                    ii = b_x.size(1);
+                    idx = 0;
+                    ii_size_idx_1 = k;
+                    exitg1 = false;
+                    while ((!exitg1) && (ii > 0)) {
+                        if (b_x[ii - 1]) {
+                            idx = 1;
+                            ii_data[0] = ii;
+                            exitg1 = true;
+                        } else {
+                            ii--;
+                        }
+                    }
+
+                    if (k == 1) {
+                        if (idx == 0) {
+                            ii_size_idx_1 = 0;
+                        }
+                    } else {
+                        ii_size_idx_1 = (1 <= idx);
+                    }
+
+                    Spline_sp_knots_size[0] = 1;
+                    Spline_sp_knots_size[1] = ii_size_idx_1;
+                    if (0 <= ii_size_idx_1 - 1) {
+                        Spline_sp_knots_data[0] = Spline_sp_knots[ii_data[0] - 1];
+                    }
+
+                    x = b_SplineLengthApprox(ctx_q_splines, ctx_cfg_NGridLengthSpline,
+                        CurvStruct1->sp_index, Spline_sp_knots_data, Spline_sp_knots_size, u1_tilda)
+                        / 2.0;
                 } else if (L1 < Length_Threshold) {
                     x = L1 / 3.0;
                 } else {
@@ -11334,6 +11801,10 @@ namespace ocn
 
                 if (CurvStruct2->Type == CurveType_Spline) {
                     int b_loop_ub;
+                    int d_loop_ub;
+                    int b_k;
+                    int b_idx;
+                    int b_ii;
                     ctx_q_splines->get(CurvStruct2->sp_index, (&expl_temp));
                     Spline_sp_knots.set_size(1, expl_temp.sp.knots.size(1));
                     b_loop_ub = expl_temp.sp.knots.size(1);
@@ -11341,12 +11812,51 @@ namespace ocn
                         Spline_sp_knots[i1] = expl_temp.sp.knots[i1];
                     }
 
-                    if (Spline_sp_knots.size(1) > 8) {
-                        y = b_SplineLengthApprox(ctx_q_splines, CurvStruct2->sp_index,
-                            Spline_sp_knots[4]) / 2.0;
-                    } else {
-                        y = b_SplineLengthApprox(ctx_q_splines, CurvStruct2->sp_index, 1.0) / 3.0;
+                    //  In a very general case we may cut a spline several times
+                    //  at the beginning;
+                    //  If a spline had already been cut at the beginning,
+                    //  we must compute the corresponding
+                    //  native spline parameter (u0_tilda) value
+                    //  This value will be different from 0 in this special case
+                    //  We need to find the next spline knot u1_tilda...
+                    b_x.set_size(1, Spline_sp_knots.size(1));
+                    d_loop_ub = Spline_sp_knots.size(1);
+                    for (int i3 = 0; i3 < d_loop_ub; i3++) {
+                        b_x[i3] = (Spline_sp_knots[i3] > CurvStruct2->b_param);
                     }
+
+                    b_k = (1 <= b_x.size(1));
+                    b_idx = 0;
+                    ii_size_idx_1 = b_k;
+                    b_ii = 0;
+                    exitg1 = false;
+                    while ((!exitg1) && (b_ii <= b_x.size(1) - 1)) {
+                        if (b_x[b_ii]) {
+                            b_idx = 1;
+                            ii_data[0] = b_ii + 1;
+                            exitg1 = true;
+                        } else {
+                            b_ii++;
+                        }
+                    }
+
+                    if (b_k == 1) {
+                        if (b_idx == 0) {
+                            ii_size_idx_1 = 0;
+                        }
+                    } else {
+                        ii_size_idx_1 = (1 <= b_idx);
+                    }
+
+                    Spline_sp_knots_size[0] = 1;
+                    Spline_sp_knots_size[1] = ii_size_idx_1;
+                    if (0 <= ii_size_idx_1 - 1) {
+                        Spline_sp_knots_data[0] = Spline_sp_knots[ii_data[0] - 1];
+                    }
+
+                    y = c_SplineLengthApprox(ctx_q_splines, ctx_cfg_NGridLengthSpline,
+                        CurvStruct2->sp_index, CurvStruct2->b_param, Spline_sp_knots_data,
+                        Spline_sp_knots_size) / 2.0;
                 } else if (L2 < Length_Threshold) {
                     y = L2 / 3.0;
                 } else {
@@ -11357,31 +11867,17 @@ namespace ocn
             }
 
             *CurvStruct1_C = *CurvStruct1;
-            CutCurvStruct(ctx_q_splines, CurvStruct1_C, 0.0, CutOff);
+            CutCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct1_C, CutOff);
             *CurvStruct2_C = *CurvStruct2;
-            CutCurvStruct(ctx_q_splines, CurvStruct2_C, CutOff, 0.0);
-            if (DebugActive) {
-                //  1 -> stdout
-                //  2 -> stderr
-                fprintf(stderr, "========== AFTER CUTTING \n");
-                fflush(stderr);
-            }
+            b_CutCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct2_C, CutOff);
 
-            if (DebugActive) {
-                b_PrintCurvStruct(ctx_q_splines, CurvStruct1_C->Type, CurvStruct1_C->zspdmode,
-                                  CurvStruct1_C->P0, CurvStruct1_C->P1, CurvStruct1_C->HelixCenter,
-                                  CurvStruct1_C->evec, CurvStruct1_C->theta, CurvStruct1_C->pitch,
-                                  CurvStruct1_C->CoeffP5, CurvStruct1_C->sp_index,
-                                  CurvStruct1_C->FeedRate, CurvStruct1_C->UseConstJerk,
-                                  CurvStruct1_C->ConstJerk, CurvStruct1_C->a_param,
-                                  CurvStruct1_C->b_param);
-                b_PrintCurvStruct(ctx_q_splines, CurvStruct2_C->Type, CurvStruct2_C->zspdmode,
-                                  CurvStruct2_C->P0, CurvStruct2_C->P1, CurvStruct2_C->HelixCenter,
-                                  CurvStruct2_C->evec, CurvStruct2_C->theta, CurvStruct2_C->pitch,
-                                  CurvStruct2_C->CoeffP5, CurvStruct2_C->sp_index,
-                                  CurvStruct2_C->FeedRate, CurvStruct2_C->UseConstJerk,
-                                  CurvStruct2_C->ConstJerk, CurvStruct2_C->a_param,
-                                  CurvStruct2_C->b_param);
+            //  1 -> stdout
+            //  2 -> stderr
+            if (u2 != 0UL) {
+                printf("========== AFTER CUTTING \n");
+                fflush(stdout);
+                b_PrintCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct1_C);
+                b_PrintCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct2_C);
             }
 
             d_EvalCurvStruct(ctx_q_splines, CurvStruct1_C->Type, CurvStruct1_C->P0,
@@ -11396,24 +11892,66 @@ namespace ocn
                              r1D0, r1D1, r1D2);
 
             //  G2 transition calculation
-            G2_Hermite_Interpolation(r0D0, r0D1, r0D2, r1D0, r1D1, r1D2, p5, &c_status);
+            G2_Hermite_Interpolation(r0D0, r0D1, r0D2, r1D0, r1D1, r1D2, p5, &c_status, &alpha0,
+                &alpha1);
             if (c_status == 1) {
+                //  standard case
                 //  transition CurvStruct calculation
                 ConstrTransP5Struct(p5, CurvStruct1->FeedRate, CurvStruct_T);
                 b_status = TransitionResult_Ok;
+            } else if (c_status == 6) {
+                //  TODO: decide in the future...
+                //  Now we ignore and construct the transition curve anyway
+                ConstrTransP5Struct(p5, CurvStruct1->FeedRate, CurvStruct_T);
+                b_status = TransitionResult_Ok;
+
+                //  1 -> stdout
+                //  2 -> stderr
+                if (u1 != 0UL) {
+                    printf("========== CalcTransition ==========\n");
+                    fflush(stdout);
+                }
+
+                //  1 -> stdout
+                //  2 -> stderr
+                if (u1 != 0UL) {
+                    printf("=========== status = 6 ==========\n");
+                    fflush(stdout);
+                }
+
+                //  1 -> stdout
+                //  2 -> stderr
+                if (u1 != 0UL) {
+                    printf("Lines: %d, %d\n\n", CurvStruct1->gcode_source_line,
+                           CurvStruct2->gcode_source_line);
+                    fflush(stdout);
+                }
             } else {
-                // PlotCurvStructs(ctx, [CurvStruct1 CurvStruct2]);
-                //      SaveTransition
-                //      PrintCurvStruct(ctx, CurvStruct1);
-                //      PrintCurvStruct(ctx, CurvStruct2);
                 b_status = TransitionResult_NoSolution;
 
-                //      warning('Unable to calculate transition');
+                //  1 -> stdout
+                //  2 -> stderr
+                if (u1 != 0UL) {
+                    printf("========== CalcTransition ==========\n");
+                    fflush(stdout);
+                }
+
+                //  1 -> stdout
+                //  2 -> stderr
+                if (u1 != 0UL) {
+                    printf("=========== No Solution ==========\n");
+                    fflush(stdout);
+                }
+
+                //  1 -> stdout
+                //  2 -> stderr
+                if (u1 != 0UL) {
+                    printf("Lines: %d, %d\n\n", CurvStruct1->gcode_source_line,
+                           CurvStruct2->gcode_source_line);
+                    fflush(stdout);
+                }
             }
 
-            //  CurvStruct1_C.index_gcode = CurvStruct1.index_gcode;
-            //  CurvStruct_T.index_gcode = CurvStruct1.index_gcode;
-            //  CurvStruct2_C.index_gcode = CurvStruct2.index_gcode;
             CurvStruct1_C->gcode_source_line = CurvStruct1->gcode_source_line;
             CurvStruct_T->gcode_source_line = CurvStruct2->gcode_source_line;
             CurvStruct2_C->gcode_source_line = CurvStruct2->gcode_source_line;
@@ -11427,6 +11965,88 @@ namespace ocn
     }
 
     //
+    // We cut d0 [mm] in the beginning and d1 [mm] in the end of the segment
+    //  We determine a new value of the parameter u_tilda
+    // Arguments    : const queue_coder *ctx_q_splines
+    //                double ctx_cfg_NGridLengthSpline
+    //                CurvStruct *b_CurvStruct
+    //                double d0
+    // Return Type  : void
+    //
+    static void b_CutCurvStruct(const queue_coder *ctx_q_splines, double ctx_cfg_NGridLengthSpline,
+        CurvStruct *b_CurvStruct, double d0)
+    {
+        CurvStruct b_ctx_q_splines;
+        double unusedU0[3];
+        double r1D0[3];
+        double L_tot;
+        coder::array<double, 2U> Integrand;
+        coder::array<double, 2U> u_mid_tilda;
+        coder::array<double, 2U> du_tilda;
+        double unusedU1[3];
+        double r1D1[3];
+        double u0_tilda;
+        double u1_tilda;
+        double L;
+        if (b_CurvStruct->Type == CurveType_Spline) {
+            ctx_q_splines->get(b_CurvStruct->sp_index, (&b_ctx_q_splines));
+
+            //  discretizing along the total spline
+            //  from u=0 to u=1
+            d_SplineLengthApprox(ctx_q_splines, ctx_cfg_NGridLengthSpline, b_CurvStruct->sp_index,
+                                 b_CurvStruct->b_param, b_CurvStruct->a_param +
+                                 b_CurvStruct->b_param, &L_tot, Integrand, u_mid_tilda, du_tilda);
+            if (d0 != 0.0) {
+                unsigned int k;
+
+                //  spline-long length calculation by rectangles method
+                //  beginning from u=0
+                //  until d0 is reached
+                L = 0.0;
+                k = 1U;
+                while ((L < d0) && (k <= static_cast<unsigned int>(du_tilda.size(1)))) {
+                    int L_tmp;
+                    L_tmp = static_cast<int>(k) - 1;
+                    L += Integrand[L_tmp] * du_tilda[L_tmp];
+                    k++;
+                }
+
+                u0_tilda = u_mid_tilda[static_cast<int>(k) - 1];
+            } else {
+                u0_tilda = b_CurvStruct->b_param;
+            }
+
+            u1_tilda = b_CurvStruct->a_param + b_CurvStruct->b_param;
+        } else {
+            //  In case of helix and line, ||r'(u)||=const,
+            //  for 0 < u < 1
+            //  r1D0 and r1D1 are with respect to u
+            f_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
+                             b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
+                             b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
+                             b_CurvStruct->a_param, b_CurvStruct->b_param, unusedU0, r1D0);
+            e_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
+                             b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
+                             b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
+                             b_CurvStruct->a_param, b_CurvStruct->b_param, unusedU1, r1D1);
+
+            //  d0 = Integral_0_u0 ||r'(u)||du
+            //  d1 = Integral_u1_1 ||r'(u)||du
+            sqrt_calls++;
+            sqrt_calls++;
+
+            //  conversion to native curve parameter u_tilda
+            u0_tilda = b_CurvStruct->a_param * (d0 / std::sqrt((std::pow(r1D0[0], 2.0) + std::pow
+                (r1D0[1], 2.0)) + std::pow(r1D0[2], 2.0))) + b_CurvStruct->b_param;
+            u1_tilda = b_CurvStruct->a_param * (1.0 - 0.0 / std::sqrt((std::pow(r1D1[0], 2.0) + std::
+                pow(r1D1[1], 2.0)) + std::pow(r1D1[2], 2.0))) + b_CurvStruct->b_param;
+        }
+
+        b_CurvStruct->a_param = u1_tilda - u0_tilda;
+        b_CurvStruct->b_param = u0_tilda;
+    }
+
+    //
     // Arguments    : const queue_coder *ctx_q_gcode
     //                const queue_coder *ctx_q_splines
     //                int ctx_cfg_NHorz
@@ -11436,6 +12056,7 @@ namespace ocn
     //                double ctx_cfg_ZeroStartAccLimit
     //                double ctx_cfg_ZeroStartJerkLimit
     //                double ctx_cfg_ZeroStartVelLimit
+    //                double ctx_cfg_NGridLengthSpline
     //                const CurvStruct *b_CurvStruct
     //                CurvStruct *CurvStruct1
     //                CurvStruct *CurvStruct2
@@ -11444,8 +12065,8 @@ namespace ocn
     static void b_CutZeroEnd(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splines, int
         ctx_cfg_NHorz, const double ctx_cfg_amax[3], const double ctx_cfg_jmax[3], double ctx_cfg_dt,
         double ctx_cfg_ZeroStartAccLimit, double ctx_cfg_ZeroStartJerkLimit, double
-        ctx_cfg_ZeroStartVelLimit, const CurvStruct *b_CurvStruct, CurvStruct *CurvStruct1,
-        CurvStruct *CurvStruct2)
+        ctx_cfg_ZeroStartVelLimit, double ctx_cfg_NGridLengthSpline, const CurvStruct *b_CurvStruct,
+        CurvStruct *CurvStruct1, CurvStruct *CurvStruct2)
     {
         double unusedU0[3];
         double r1D[3];
@@ -11503,7 +12124,7 @@ namespace ocn
         int d_vectorUB;
         int i6;
         double TmpCurv_CoeffP5[6][3];
-        coder::array<double, 2U> r6;
+        coder::array<double, 2U> r7;
         coder::array<double, 2U> a;
         int g_loop_ub;
         coder::array<double, 2U> x;
@@ -11594,13 +12215,12 @@ namespace ocn
 
         uk.set_size(1, z1.size(1));
         b_loop_ub = z1.size(1);
-        scalarLB = z1.size(1) & -4;
-        vectorUB = scalarLB - 4;
-        for (i1 = 0; i1 <= vectorUB; i1 += 4) {
-            __m256d r;
-            r = _mm256_loadu_pd(&z1[i1]);
-            _mm256_storeu_pd(&uk[i1], _mm256_div_pd(_mm256_mul_pd(_mm256_set1_pd(jps), r),
-                              _mm256_set1_pd(6.0)));
+        scalarLB = z1.size(1) & -2;
+        vectorUB = scalarLB - 2;
+        for (i1 = 0; i1 <= vectorUB; i1 += 2) {
+            __m128d r;
+            r = _mm_loadu_pd(&z1[i1]);
+            _mm_storeu_pd(&uk[i1], _mm_div_pd(_mm_mul_pd(_mm_set1_pd(jps), r), _mm_set1_pd(6.0)));
         }
 
         for (i1 = scalarLB; i1 < b_loop_ub; i1++) {
@@ -11615,13 +12235,12 @@ namespace ocn
 
         d1uk.set_size(1, z1.size(1));
         c_loop_ub = z1.size(1);
-        b_scalarLB = z1.size(1) & -4;
-        b_vectorUB = b_scalarLB - 4;
-        for (i2 = 0; i2 <= b_vectorUB; i2 += 4) {
-            __m256d r1;
-            r1 = _mm256_loadu_pd(&z1[i2]);
-            _mm256_storeu_pd(&d1uk[i2], _mm256_div_pd(_mm256_mul_pd(_mm256_set1_pd(jps), r1),
-                              _mm256_set1_pd(2.0)));
+        b_scalarLB = z1.size(1) & -2;
+        b_vectorUB = b_scalarLB - 2;
+        for (i2 = 0; i2 <= b_vectorUB; i2 += 2) {
+            __m128d r1;
+            r1 = _mm_loadu_pd(&z1[i2]);
+            _mm_storeu_pd(&d1uk[i2], _mm_div_pd(_mm_mul_pd(_mm_set1_pd(jps), r1), _mm_set1_pd(2.0)));
         }
 
         for (i2 = b_scalarLB; i2 < c_loop_ub; i2++) {
@@ -11630,12 +12249,12 @@ namespace ocn
 
         d2uk.set_size(1, t.size(1));
         d_loop_ub = t.size(1);
-        c_scalarLB = t.size(1) & -4;
-        c_vectorUB = c_scalarLB - 4;
-        for (i3 = 0; i3 <= c_vectorUB; i3 += 4) {
-            __m256d r2;
-            r2 = _mm256_loadu_pd(&t[i3]);
-            _mm256_storeu_pd(&d2uk[i3], _mm256_mul_pd(_mm256_set1_pd(jps), r2));
+        c_scalarLB = t.size(1) & -2;
+        c_vectorUB = c_scalarLB - 2;
+        for (i3 = 0; i3 <= c_vectorUB; i3 += 2) {
+            __m128d r2;
+            r2 = _mm_loadu_pd(&t[i3]);
+            _mm_storeu_pd(&d2uk[i3], _mm_mul_pd(_mm_set1_pd(jps), r2));
         }
 
         for (i3 = c_scalarLB; i3 < d_loop_ub; i3++) {
@@ -11726,9 +12345,10 @@ namespace ocn
             i5 = b_r1D.size(1) - 1;
             for (int e_k = 0; e_k <= i5; e_k++) {
                 int varargin_2;
+                __m128d r4;
                 varargin_2 = acoef * e_k;
-                c[3 * e_k] = b_r1D[3 * varargin_2] * jps;
-                c[3 * e_k + 1] = b_r1D[3 * varargin_2 + 1] * jps;
+                r4 = _mm_loadu_pd(&b_r1D[3 * varargin_2]);
+                _mm_storeu_pd(&c[3 * e_k], _mm_mul_pd(r4, _mm_set1_pd(jps)));
                 c[3 * e_k + 2] = b_r1D[3 * varargin_2 + 2] * jps;
             }
         }
@@ -11736,26 +12356,26 @@ namespace ocn
         bsxfun(r3D, z1, r3);
         b_d1uk.set_size(1, d1uk.size(1));
         f_loop_ub = d1uk.size(1);
-        d_scalarLB = d1uk.size(1) & -4;
-        d_vectorUB = d_scalarLB - 4;
-        for (i6 = 0; i6 <= d_vectorUB; i6 += 4) {
-            __m256d r4;
-            __m256d r5;
-            r4 = _mm256_loadu_pd(&d1uk[i6]);
-            r5 = _mm256_loadu_pd(&d2uk[i6]);
-            _mm256_storeu_pd(&b_d1uk[i6], _mm256_mul_pd(r4, r5));
+        d_scalarLB = d1uk.size(1) & -2;
+        d_vectorUB = d_scalarLB - 2;
+        for (i6 = 0; i6 <= d_vectorUB; i6 += 2) {
+            __m128d r5;
+            __m128d r6;
+            r5 = _mm_loadu_pd(&d1uk[i6]);
+            r6 = _mm_loadu_pd(&d2uk[i6]);
+            _mm_storeu_pd(&b_d1uk[i6], _mm_mul_pd(r5, r6));
         }
 
         for (i6 = d_scalarLB; i6 < f_loop_ub; i6++) {
             b_d1uk[i6] = d1uk[i6] * d2uk[i6];
         }
 
-        bsxfun(r2D, b_d1uk, r6);
+        bsxfun(r2D, b_d1uk, r7);
         a.set_size(r3.size(1), 3);
         g_loop_ub = r3.size(1);
         for (int i8 = 0; i8 < 3; i8++) {
             for (int i9 = 0; i9 < g_loop_ub; i9++) {
-                a[i9 + a.size(0) * i8] = (r3[i8 + 3 * i9] + 3.0 * r6[i8 + 3 * i9]) + c[i8 + 3 * i9];
+                a[i9 + a.size(0) * i8] = (r3[i8 + 3 * i9] + 3.0 * r7[i8 + 3 * i9]) + c[i8 + 3 * i9];
             }
         }
 
@@ -11808,12 +12428,12 @@ namespace ocn
         }
 
         bsxfun(r2D, z1, r3);
-        bsxfun(b_r1D, d2uk, r6);
+        bsxfun(b_r1D, d2uk, r7);
         a.set_size(r3.size(1), 3);
         j_loop_ub = r3.size(1);
         for (int i15 = 0; i15 < 3; i15++) {
             for (int i17 = 0; i17 < j_loop_ub; i17++) {
-                a[i17 + a.size(0) * i15] = r3[i15 + 3 * i17] + r6[i15 + 3 * i17];
+                a[i17 + a.size(0) * i15] = r3[i15 + 3 * i17] + r7[i15 + 3 * i17];
             }
         }
 
@@ -11870,12 +12490,12 @@ namespace ocn
 
         sum(c_z1, b_x);
         i22 = b_x.size(1);
-        e_scalarLB = b_x.size(1) & -4;
-        e_vectorUB = e_scalarLB - 4;
-        for (p_k = 0; p_k <= e_vectorUB; p_k += 4) {
-            __m256d r7;
-            r7 = _mm256_loadu_pd(&b_x[p_k]);
-            _mm256_storeu_pd(&b_x[p_k], _mm256_sqrt_pd(r7));
+        e_scalarLB = b_x.size(1) & -2;
+        e_vectorUB = e_scalarLB - 2;
+        for (p_k = 0; p_k <= e_vectorUB; p_k += 2) {
+            __m128d r8;
+            r8 = _mm_loadu_pd(&b_x[p_k]);
+            _mm_storeu_pd(&b_x[p_k], _mm_sqrt_pd(r8));
         }
 
         for (p_k = e_scalarLB; p_k < i22; p_k++) {
@@ -12013,14 +12633,15 @@ namespace ocn
 
         //      actual_jps = jps;
         //      cut_index = N + 1 - cut_index;
-        L = LengthCurv(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                       b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
-                       b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
-                       b_CurvStruct->a_param, b_CurvStruct->b_param);
+        L = LengthCurv(ctx_q_splines, ctx_cfg_NGridLengthSpline, b_CurvStruct->Type,
+                       b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->HelixCenter,
+                       b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->pitch,
+                       b_CurvStruct->CoeffP5, b_CurvStruct->sp_index, b_CurvStruct->a_param,
+                       b_CurvStruct->b_param);
         *CurvStruct1 = *b_CurvStruct;
-        CutCurvStruct(ctx_q_splines, CurvStruct1, 0.0, uk[cut_index] * L);
+        CutCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct1, uk[cut_index] * L);
         *CurvStruct2 = *b_CurvStruct;
-        CutCurvStruct(ctx_q_splines, CurvStruct2, L - uk[cut_index] * L, 0.0);
+        b_CutCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct2, L - uk[cut_index] * L);
         CurvStruct2->ConstJerkMaxIterations = max_at.size(0) - cut_index;
         CurvStruct2->UseConstJerk = true;
         CurvStruct2->ConstJerk = 6.0 / std::pow(t[cut_index], 3.0);
@@ -12041,6 +12662,7 @@ namespace ocn
     //                double ctx_cfg_ZeroStartJerkLimit
     //                double ctx_cfg_ZeroStartVelLimit
     //                bool ctx_cfg_DebugCutZero
+    //                double ctx_cfg_NGridLengthSpline
     //                const CurvStruct *b_CurvStruct
     //                CurvStruct *CurvStruct1
     //                CurvStruct *CurvStruct2
@@ -12049,8 +12671,8 @@ namespace ocn
     static void b_CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splines, int
         ctx_cfg_NHorz, const double ctx_cfg_amax[3], const double ctx_cfg_jmax[3], double ctx_cfg_dt,
         double ctx_cfg_ZeroStartAccLimit, double ctx_cfg_ZeroStartJerkLimit, double
-        ctx_cfg_ZeroStartVelLimit, bool ctx_cfg_DebugCutZero, const CurvStruct *b_CurvStruct,
-        CurvStruct *CurvStruct1, CurvStruct *CurvStruct2)
+        ctx_cfg_ZeroStartVelLimit, bool ctx_cfg_DebugCutZero, double ctx_cfg_NGridLengthSpline,
+        const CurvStruct *b_CurvStruct, CurvStruct *CurvStruct1, CurvStruct *CurvStruct2)
     {
         double unusedU0[3];
         double r1D[3];
@@ -12105,7 +12727,7 @@ namespace ocn
         int d_vectorUB;
         int i6;
         double TmpCurv_CoeffP5[6][3];
-        coder::array<double, 2U> r6;
+        coder::array<double, 2U> r7;
         coder::array<double, 2U> a;
         int g_loop_ub;
         coder::array<double, 2U> x;
@@ -12203,13 +12825,12 @@ namespace ocn
 
         uk.set_size(1, z1.size(1));
         b_loop_ub = z1.size(1);
-        scalarLB = z1.size(1) & -4;
-        vectorUB = scalarLB - 4;
-        for (i1 = 0; i1 <= vectorUB; i1 += 4) {
-            __m256d r;
-            r = _mm256_loadu_pd(&z1[i1]);
-            _mm256_storeu_pd(&uk[i1], _mm256_div_pd(_mm256_mul_pd(_mm256_set1_pd(jps), r),
-                              _mm256_set1_pd(6.0)));
+        scalarLB = z1.size(1) & -2;
+        vectorUB = scalarLB - 2;
+        for (i1 = 0; i1 <= vectorUB; i1 += 2) {
+            __m128d r;
+            r = _mm_loadu_pd(&z1[i1]);
+            _mm_storeu_pd(&uk[i1], _mm_div_pd(_mm_mul_pd(_mm_set1_pd(jps), r), _mm_set1_pd(6.0)));
         }
 
         for (i1 = scalarLB; i1 < b_loop_ub; i1++) {
@@ -12224,13 +12845,12 @@ namespace ocn
 
         d1uk.set_size(1, z1.size(1));
         c_loop_ub = z1.size(1);
-        b_scalarLB = z1.size(1) & -4;
-        b_vectorUB = b_scalarLB - 4;
-        for (i2 = 0; i2 <= b_vectorUB; i2 += 4) {
-            __m256d r1;
-            r1 = _mm256_loadu_pd(&z1[i2]);
-            _mm256_storeu_pd(&d1uk[i2], _mm256_div_pd(_mm256_mul_pd(_mm256_set1_pd(jps), r1),
-                              _mm256_set1_pd(2.0)));
+        b_scalarLB = z1.size(1) & -2;
+        b_vectorUB = b_scalarLB - 2;
+        for (i2 = 0; i2 <= b_vectorUB; i2 += 2) {
+            __m128d r1;
+            r1 = _mm_loadu_pd(&z1[i2]);
+            _mm_storeu_pd(&d1uk[i2], _mm_div_pd(_mm_mul_pd(_mm_set1_pd(jps), r1), _mm_set1_pd(2.0)));
         }
 
         for (i2 = b_scalarLB; i2 < c_loop_ub; i2++) {
@@ -12239,12 +12859,12 @@ namespace ocn
 
         d2uk.set_size(1, t.size(1));
         d_loop_ub = t.size(1);
-        c_scalarLB = t.size(1) & -4;
-        c_vectorUB = c_scalarLB - 4;
-        for (i3 = 0; i3 <= c_vectorUB; i3 += 4) {
-            __m256d r2;
-            r2 = _mm256_loadu_pd(&t[i3]);
-            _mm256_storeu_pd(&d2uk[i3], _mm256_mul_pd(_mm256_set1_pd(jps), r2));
+        c_scalarLB = t.size(1) & -2;
+        c_vectorUB = c_scalarLB - 2;
+        for (i3 = 0; i3 <= c_vectorUB; i3 += 2) {
+            __m128d r2;
+            r2 = _mm_loadu_pd(&t[i3]);
+            _mm_storeu_pd(&d2uk[i3], _mm_mul_pd(_mm_set1_pd(jps), r2));
         }
 
         for (i3 = c_scalarLB; i3 < d_loop_ub; i3++) {
@@ -12319,9 +12939,10 @@ namespace ocn
             i5 = b_r1D.size(1) - 1;
             for (int e_k = 0; e_k <= i5; e_k++) {
                 int varargin_2;
+                __m128d r4;
                 varargin_2 = acoef * e_k;
-                c[3 * e_k] = b_r1D[3 * varargin_2] * jps;
-                c[3 * e_k + 1] = b_r1D[3 * varargin_2 + 1] * jps;
+                r4 = _mm_loadu_pd(&b_r1D[3 * varargin_2]);
+                _mm_storeu_pd(&c[3 * e_k], _mm_mul_pd(r4, _mm_set1_pd(jps)));
                 c[3 * e_k + 2] = b_r1D[3 * varargin_2 + 2] * jps;
             }
         }
@@ -12329,26 +12950,26 @@ namespace ocn
         bsxfun(r3D, z1, r3);
         b_d1uk.set_size(1, d1uk.size(1));
         f_loop_ub = d1uk.size(1);
-        d_scalarLB = d1uk.size(1) & -4;
-        d_vectorUB = d_scalarLB - 4;
-        for (i6 = 0; i6 <= d_vectorUB; i6 += 4) {
-            __m256d r4;
-            __m256d r5;
-            r4 = _mm256_loadu_pd(&d1uk[i6]);
-            r5 = _mm256_loadu_pd(&d2uk[i6]);
-            _mm256_storeu_pd(&b_d1uk[i6], _mm256_mul_pd(r4, r5));
+        d_scalarLB = d1uk.size(1) & -2;
+        d_vectorUB = d_scalarLB - 2;
+        for (i6 = 0; i6 <= d_vectorUB; i6 += 2) {
+            __m128d r5;
+            __m128d r6;
+            r5 = _mm_loadu_pd(&d1uk[i6]);
+            r6 = _mm_loadu_pd(&d2uk[i6]);
+            _mm_storeu_pd(&b_d1uk[i6], _mm_mul_pd(r5, r6));
         }
 
         for (i6 = d_scalarLB; i6 < f_loop_ub; i6++) {
             b_d1uk[i6] = d1uk[i6] * d2uk[i6];
         }
 
-        bsxfun(r2D, b_d1uk, r6);
+        bsxfun(r2D, b_d1uk, r7);
         a.set_size(r3.size(1), 3);
         g_loop_ub = r3.size(1);
         for (int i8 = 0; i8 < 3; i8++) {
             for (int i9 = 0; i9 < g_loop_ub; i9++) {
-                a[i9 + a.size(0) * i8] = (r3[i8 + 3 * i9] + 3.0 * r6[i8 + 3 * i9]) + c[i8 + 3 * i9];
+                a[i9 + a.size(0) * i8] = (r3[i8 + 3 * i9] + 3.0 * r7[i8 + 3 * i9]) + c[i8 + 3 * i9];
             }
         }
 
@@ -12401,12 +13022,12 @@ namespace ocn
         }
 
         bsxfun(r2D, z1, r3);
-        bsxfun(b_r1D, d2uk, r6);
+        bsxfun(b_r1D, d2uk, r7);
         a.set_size(r3.size(1), 3);
         j_loop_ub = r3.size(1);
         for (int i15 = 0; i15 < 3; i15++) {
             for (int i17 = 0; i17 < j_loop_ub; i17++) {
-                a[i17 + a.size(0) * i15] = r3[i15 + 3 * i17] + r6[i15 + 3 * i17];
+                a[i17 + a.size(0) * i15] = r3[i15 + 3 * i17] + r7[i15 + 3 * i17];
             }
         }
 
@@ -12463,12 +13084,12 @@ namespace ocn
 
         sum(c_z1, b_x);
         i22 = b_x.size(1);
-        e_scalarLB = b_x.size(1) & -4;
-        e_vectorUB = e_scalarLB - 4;
-        for (p_k = 0; p_k <= e_vectorUB; p_k += 4) {
-            __m256d r7;
-            r7 = _mm256_loadu_pd(&b_x[p_k]);
-            _mm256_storeu_pd(&b_x[p_k], _mm256_sqrt_pd(r7));
+        e_scalarLB = b_x.size(1) & -2;
+        e_vectorUB = e_scalarLB - 2;
+        for (p_k = 0; p_k <= e_vectorUB; p_k += 2) {
+            __m128d r8;
+            r8 = _mm_loadu_pd(&b_x[p_k]);
+            _mm_storeu_pd(&b_x[p_k], _mm_sqrt_pd(r8));
         }
 
         for (p_k = e_scalarLB; p_k < i22; p_k++) {
@@ -12478,12 +13099,12 @@ namespace ocn
         sqrt_calls++;
         norm_vt.set_size(b_x.size(1));
         m_loop_ub = b_x.size(1);
-        f_scalarLB = b_x.size(1) & -4;
-        f_vectorUB = f_scalarLB - 4;
-        for (i25 = 0; i25 <= f_vectorUB; i25 += 4) {
-            __m256d r8;
-            r8 = _mm256_loadu_pd(&b_x[i25]);
-            _mm256_storeu_pd(&norm_vt[i25], _mm256_div_pd(r8, _mm256_set1_pd(b_vmax)));
+        f_scalarLB = b_x.size(1) & -2;
+        f_vectorUB = f_scalarLB - 2;
+        for (i25 = 0; i25 <= f_vectorUB; i25 += 2) {
+            __m128d r9;
+            r9 = _mm_loadu_pd(&b_x[i25]);
+            _mm_storeu_pd(&norm_vt[i25], _mm_div_pd(r9, _mm_set1_pd(b_vmax)));
         }
 
         for (i25 = f_scalarLB; i25 < m_loop_ub; i25++) {
@@ -12628,19 +13249,21 @@ namespace ocn
             cut_index = u1;
         }
 
-        L = LengthCurv(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                       b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
-                       b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
-                       b_CurvStruct->a_param, b_CurvStruct->b_param);
+        L = LengthCurv(ctx_q_splines, ctx_cfg_NGridLengthSpline, b_CurvStruct->Type,
+                       b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->HelixCenter,
+                       b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->pitch,
+                       b_CurvStruct->CoeffP5, b_CurvStruct->sp_index, b_CurvStruct->a_param,
+                       b_CurvStruct->b_param);
         *CurvStruct1 = *b_CurvStruct;
-        CutCurvStruct(ctx_q_splines, CurvStruct1, 0.0, L - uk[cut_index - 1] * L);
+        CutCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct1, L - uk[cut_index - 1] *
+                      L);
         CurvStruct1->UseConstJerk = true;
         CurvStruct1->ConstJerk = 6.0 / std::pow(t[cut_index - 1], 3.0);
 
         //      CurvStruct1.ConstJerkTime = t_cut;
         CurvStruct1->ConstJerkMaxIterations = cut_index;
         *CurvStruct2 = *b_CurvStruct;
-        CutCurvStruct(ctx_q_splines, CurvStruct2, uk[cut_index - 1] * L, 0.0);
+        b_CutCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct2, uk[cut_index - 1] * L);
         CurvStruct1->zspdmode = ZSpdMode_ZN;
         CurvStruct2->zspdmode = ZSpdMode_NN;
         CurvStruct1->gcode_source_line = b_CurvStruct->gcode_source_line;
@@ -12650,29 +13273,15 @@ namespace ocn
             fflush(stdout);
             printf("Initial: \n");
             fflush(stdout);
-            b_PrintCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->zspdmode,
-                              b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->HelixCenter,
-                              b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->pitch,
-                              b_CurvStruct->CoeffP5, b_CurvStruct->sp_index, b_CurvStruct->FeedRate,
-                              b_CurvStruct->UseConstJerk, b_CurvStruct->ConstJerk,
-                              b_CurvStruct->a_param, b_CurvStruct->b_param);
+            b_PrintCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, b_CurvStruct);
             printf("\nCut:\n");
             fflush(stdout);
             printf("Index = %d, t_cut = %e, vmax = %.1f\n", cut_index, t[cut_index - 1], b_vmax);
             fflush(stdout);
             printf("jps = %e, norm_vt(%d) = %f\n", jps, cut_index, norm_vt[cut_index - 1]);
             fflush(stdout);
-            b_PrintCurvStruct(ctx_q_splines, CurvStruct1->Type, ZSpdMode_ZN, CurvStruct1->P0,
-                              CurvStruct1->P1, CurvStruct1->HelixCenter, CurvStruct1->evec,
-                              CurvStruct1->theta, CurvStruct1->pitch, CurvStruct1->CoeffP5,
-                              CurvStruct1->sp_index, CurvStruct1->FeedRate, true,
-                              CurvStruct1->ConstJerk, CurvStruct1->a_param, CurvStruct1->b_param);
-            b_PrintCurvStruct(ctx_q_splines, CurvStruct2->Type, ZSpdMode_NN, CurvStruct2->P0,
-                              CurvStruct2->P1, CurvStruct2->HelixCenter, CurvStruct2->evec,
-                              CurvStruct2->theta, CurvStruct2->pitch, CurvStruct2->CoeffP5,
-                              CurvStruct2->sp_index, CurvStruct2->FeedRate,
-                              CurvStruct2->UseConstJerk, CurvStruct2->ConstJerk,
-                              CurvStruct2->a_param, CurvStruct2->b_param);
+            b_PrintCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct1);
+            b_PrintCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct2);
         }
     }
 
@@ -12808,34 +13417,35 @@ namespace ocn
                             double CurvStruct_theta, double CurvStruct_pitch, double u_vec, double
                             r0D[3], double r1D[3], double r2D[3], double r3D[3])
     {
-        double P0P1_idx_0;
-        double P0P1_idx_1;
-        double P0P1_idx_2;
+        __m128d r;
+        double P0P1[3];
+        __m128d r1;
         char message[16];
+        double CP0[3];
+        double cphiTCP0[3];
+        double sphiTCP0[3];
+        double EcrCP0[3];
         ZoneScopedN("EvalHelix");
 
         //
         //
-        P0P1_idx_0 = CurvStruct_P1[0] - CurvStruct_P0[0];
-        r0D[0] = 0.0;
-        r1D[0] = 0.0;
-        r2D[0] = 0.0;
-        r3D[0] = 0.0;
-        P0P1_idx_1 = CurvStruct_P1[1] - CurvStruct_P0[1];
-        r0D[1] = 0.0;
-        r1D[1] = 0.0;
-        r2D[1] = 0.0;
-        r3D[1] = 0.0;
-        P0P1_idx_2 = CurvStruct_P1[2] - CurvStruct_P0[2];
+        r = _mm_loadu_pd((double *)&CurvStruct_P0[0]);
+        _mm_storeu_pd(&P0P1[0], _mm_sub_pd(_mm_loadu_pd((double *)&CurvStruct_P1[0]), r));
+        r1 = _mm_set1_pd(0.0);
+        _mm_storeu_pd(&r0D[0], r1);
+        _mm_storeu_pd(&r1D[0], r1);
+        _mm_storeu_pd(&r2D[0], r1);
+        _mm_storeu_pd(&r3D[0], r1);
+        P0P1[2] = CurvStruct_P1[2] - CurvStruct_P0[2];
         r0D[2] = 0.0;
         r1D[2] = 0.0;
         r2D[2] = 0.0;
         r3D[2] = 0.0;
         sqrt_calls++;
-        if (std::sqrt((std::pow(CurvStruct_evec[1] * P0P1_idx_2 - CurvStruct_evec[2] * P0P1_idx_1,
-                                2.0) + std::pow(CurvStruct_evec[2] * P0P1_idx_0 - CurvStruct_evec[0]
-               * P0P1_idx_2, 2.0)) + std::pow(CurvStruct_evec[0] * P0P1_idx_1 - CurvStruct_evec[1] *
-              P0P1_idx_0, 2.0)) <= 2.2204460492503131E-16) {
+        if (std::sqrt((std::pow(CurvStruct_evec[1] * P0P1[2] - CurvStruct_evec[2] * P0P1[1], 2.0) +
+                       std::pow(CurvStruct_evec[2] * P0P1[0] - CurvStruct_evec[0] * P0P1[2], 2.0)) +
+                      std::pow(CurvStruct_evec[0] * P0P1[1] - CurvStruct_evec[1] * P0P1[0], 2.0)) <=
+            2.2204460492503131E-16) {
             for (int i = 0; i < 16; i++) {
                 message[i] = cv1[i];
             }
@@ -12845,22 +13455,22 @@ namespace ocn
             double phi_vec;
             double cphi;
             double sphi;
+            __m128d r2;
+            __m128d r3;
+            __m128d r4;
+            __m128d r5;
             double d;
-            double CP0_idx_0;
-            double cphiTCP0_idx_0;
-            double sphiTCP0_idx_0;
-            double CP0_idx_1;
-            double cphiTCP0_idx_1;
-            double sphiTCP0_idx_1;
-            double cphiTCP0_idx_2;
-            double sphiTCP0_idx_2;
-            double EcrCP0_idx_0;
-            double EcrCP0_idx_1;
-            double EcrCP0_idx_2;
             double a;
             double b_a;
             double a_tmp;
             double b_a_tmp;
+            __m128d r6;
+            __m128d r7;
+            __m128d r8;
+            __m128d r9;
+            __m128d r10;
+            __m128d r11;
+            __m128d r12;
             double d1;
             double d2;
 
@@ -12877,50 +13487,48 @@ namespace ocn
             sin_calls++;
 
             //
-            d = CurvStruct_P0[0] - CurvStruct_HelixCenter[0];
-            CP0_idx_0 = d;
-            cphiTCP0_idx_0 = d * cphi;
-            sphiTCP0_idx_0 = d * sphi;
-            d = CurvStruct_P0[1] - CurvStruct_HelixCenter[1];
-            CP0_idx_1 = d;
-            cphiTCP0_idx_1 = d * cphi;
-            sphiTCP0_idx_1 = d * sphi;
+            r2 = _mm_loadu_pd((double *)&CurvStruct_HelixCenter[0]);
+            r3 = _mm_sub_pd(r, r2);
+            _mm_storeu_pd(&CP0[0], r3);
+            r4 = _mm_set1_pd(cphi);
+            _mm_storeu_pd(&cphiTCP0[0], _mm_mul_pd(r3, r4));
+            r5 = _mm_set1_pd(sphi);
+            _mm_storeu_pd(&sphiTCP0[0], _mm_mul_pd(r3, r5));
             d = CurvStruct_P0[2] - CurvStruct_HelixCenter[2];
-            cphiTCP0_idx_2 = d * cphi;
-            sphiTCP0_idx_2 = d * sphi;
-            EcrCP0_idx_0 = CurvStruct_evec[1] * d - CurvStruct_evec[2] * CP0_idx_1;
-            EcrCP0_idx_1 = CurvStruct_evec[2] * CP0_idx_0 - CurvStruct_evec[0] * d;
-            EcrCP0_idx_2 = CurvStruct_evec[0] * CP0_idx_1 - CurvStruct_evec[1] * CP0_idx_0;
+            cphiTCP0[2] = d * cphi;
+            sphiTCP0[2] = d * sphi;
+            EcrCP0[0] = CurvStruct_evec[1] * d - CurvStruct_evec[2] * CP0[1];
+            EcrCP0[1] = CurvStruct_evec[2] * CP0[0] - CurvStruct_evec[0] * d;
+            EcrCP0[2] = CurvStruct_evec[0] * CP0[1] - CurvStruct_evec[1] * CP0[0];
 
             //
             a = CurvStruct_pitch / 6.2831853071795862;
             b_a = CurvStruct_theta * CurvStruct_pitch / 6.2831853071795862;
             a_tmp = std::pow(CurvStruct_theta, 2.0);
             b_a_tmp = std::pow(CurvStruct_theta, 3.0);
-            d1 = EcrCP0_idx_0 * cphi;
-            d2 = EcrCP0_idx_0 * sphi;
-            r0D[0] = CurvStruct_HelixCenter[0] + ((cphiTCP0_idx_0 + d2) + a * CurvStruct_evec[0] *
+            r6 = _mm_loadu_pd(&EcrCP0[0]);
+            r7 = _mm_mul_pd(r6, r4);
+            r8 = _mm_mul_pd(r6, r5);
+            r9 = _mm_loadu_pd(&cphiTCP0[0]);
+            r10 = _mm_loadu_pd((double *)&CurvStruct_evec[0]);
+            _mm_storeu_pd(&r0D[0], _mm_add_pd(r2, _mm_add_pd(_mm_add_pd(r9, r8), _mm_mul_pd
+                            (_mm_mul_pd(_mm_set1_pd(a), r10), _mm_set1_pd(phi_vec)))));
+            r11 = _mm_loadu_pd(&sphiTCP0[0]);
+            _mm_storeu_pd(&r1D[0], _mm_add_pd(_mm_add_pd(_mm_mul_pd(_mm_set1_pd(-CurvStruct_theta),
+                             r11), _mm_mul_pd(_mm_set1_pd(CurvStruct_theta), r7)), _mm_mul_pd
+                           (_mm_set1_pd(b_a), r10)));
+            _mm_storeu_pd(&r2D[0], _mm_sub_pd(_mm_mul_pd(_mm_set1_pd(-a_tmp), r9), _mm_mul_pd
+                           (_mm_set1_pd(a_tmp), r8)));
+            r12 = _mm_set1_pd(b_a_tmp);
+            _mm_storeu_pd(&r3D[0], _mm_sub_pd(_mm_mul_pd(r12, r11), _mm_mul_pd(r12, r7)));
+            d1 = EcrCP0[2] * cphi;
+            d2 = EcrCP0[2] * sphi;
+            r0D[2] = CurvStruct_HelixCenter[2] + ((cphiTCP0[2] + d2) + a * CurvStruct_evec[2] *
                 phi_vec);
-            r1D[0] = (-CurvStruct_theta * sphiTCP0_idx_0 + CurvStruct_theta * d1) + b_a *
-                CurvStruct_evec[0];
-            r2D[0] = -a_tmp * cphiTCP0_idx_0 - a_tmp * d2;
-            r3D[0] = b_a_tmp * sphiTCP0_idx_0 - b_a_tmp * d1;
-            d1 = EcrCP0_idx_1 * cphi;
-            d2 = EcrCP0_idx_1 * sphi;
-            r0D[1] = CurvStruct_HelixCenter[1] + ((cphiTCP0_idx_1 + d2) + a * CurvStruct_evec[1] *
-                phi_vec);
-            r1D[1] = (-CurvStruct_theta * sphiTCP0_idx_1 + CurvStruct_theta * d1) + b_a *
-                CurvStruct_evec[1];
-            r2D[1] = -a_tmp * cphiTCP0_idx_1 - a_tmp * d2;
-            r3D[1] = b_a_tmp * sphiTCP0_idx_1 - b_a_tmp * d1;
-            d1 = EcrCP0_idx_2 * cphi;
-            d2 = EcrCP0_idx_2 * sphi;
-            r0D[2] = CurvStruct_HelixCenter[2] + ((cphiTCP0_idx_2 + d2) + a * CurvStruct_evec[2] *
-                phi_vec);
-            r1D[2] = (-CurvStruct_theta * sphiTCP0_idx_2 + CurvStruct_theta * d1) + b_a *
+            r1D[2] = (-CurvStruct_theta * sphiTCP0[2] + CurvStruct_theta * d1) + b_a *
                 CurvStruct_evec[2];
-            r2D[2] = -a_tmp * cphiTCP0_idx_2 - a_tmp * d2;
-            r3D[2] = b_a_tmp * sphiTCP0_idx_2 - b_a_tmp * d1;
+            r2D[2] = -a_tmp * cphiTCP0[2] - a_tmp * d2;
+            r3D[2] = b_a_tmp * sphiTCP0[2] - b_a_tmp * d1;
         }
     }
 
@@ -12945,8 +13553,8 @@ namespace ocn
         r0D[2] = CurvStruct_P1[2] * u_vec + CurvStruct_P0[2] * (1.0 - u_vec);
 
         //
-        r1D[0] = CurvStruct_P1[0] - CurvStruct_P0[0];
-        r1D[1] = CurvStruct_P1[1] - CurvStruct_P0[1];
+        _mm_storeu_pd(&r1D[0], _mm_sub_pd(_mm_loadu_pd((double *)&CurvStruct_P1[0]), _mm_loadu_pd
+                       ((double *)&CurvStruct_P0[0])));
         r1D[2] = CurvStruct_P1[2] - CurvStruct_P0[2];
 
         //
@@ -12964,45 +13572,24 @@ namespace ocn
     static void b_EvalTransP5(const double CurvStruct_CoeffP5[6][3], double u_vec, double r_0D[3],
         double r_1D[3], double r_2D[3], double r_3D[3])
     {
+        __m128d r;
+        __m128d r1;
+        __m128d r2;
         double p5_1D[5][3];
         double p5_2D[4][3];
-        double d;
-        double d1;
         double p5_3D[3][3];
-        double d2;
-        double d3;
-        double d4;
-        double d5;
-        double d6;
-        double d7;
-        double d8;
-        double d9;
-        double d10;
-        double d11;
         ZoneScopedN("EvalTransP5");
 
         //
         // MYPOLYDER Differentiate polynomial.
         //
         // u  = u(:).';
-        for (int k = 0; k < 5; k++) {
-            int p5_1D_tmp;
-            p5_1D_tmp = 5 - k;
-            p5_1D[k][0] = CurvStruct_CoeffP5[k][0] * static_cast<double>(p5_1D_tmp);
-            p5_1D[k][1] = CurvStruct_CoeffP5[k][1] * static_cast<double>(p5_1D_tmp);
-            p5_1D[k][2] = CurvStruct_CoeffP5[k][2] * static_cast<double>(p5_1D_tmp);
-        }
-
         // MYPOLYDER Differentiate polynomial.
         //
         // u  = u(:).';
-        for (int b_k = 0; b_k < 4; b_k++) {
-            int p5_2D_tmp;
-            p5_2D_tmp = 4 - b_k;
-            p5_2D[b_k][0] = p5_1D[b_k][0] * static_cast<double>(p5_2D_tmp);
-            p5_2D[b_k][1] = p5_1D[b_k][1] * static_cast<double>(p5_2D_tmp);
-            p5_2D[b_k][2] = p5_1D[b_k][2] * static_cast<double>(p5_2D_tmp);
-        }
+        r = _mm_set1_pd(3.0);
+        r1 = _mm_set1_pd(2.0);
+        r2 = _mm_set1_pd(1.0);
 
         // MYPOLYDER Differentiate polynomial.
         //
@@ -13012,104 +13599,123 @@ namespace ocn
         //
         //
         //  Use Horner's method for general case where X is an array.
-        for (int c_k = 0; c_k < 3; c_k++) {
-            int p5_3D_tmp;
-            p5_3D_tmp = 3 - c_k;
-            p5_3D[c_k][0] = p5_2D[c_k][0] * static_cast<double>(p5_3D_tmp);
-            p5_3D[c_k][1] = p5_2D[c_k][1] * static_cast<double>(p5_3D_tmp);
-            p5_3D[c_k][2] = p5_2D[c_k][2] * static_cast<double>(p5_3D_tmp);
-            r_0D[c_k] = CurvStruct_CoeffP5[0][c_k];
-        }
-
-        d = r_0D[0];
-        d1 = r_0D[1];
-        d2 = r_0D[2];
+        r_0D[0] = CurvStruct_CoeffP5[0][0];
+        r_0D[1] = CurvStruct_CoeffP5[0][1];
+        r_0D[2] = CurvStruct_CoeffP5[0][2];
         for (int i = 0; i < 5; i++) {
-            d = u_vec * d + CurvStruct_CoeffP5[i + 1][0];
-            d1 = u_vec * d1 + CurvStruct_CoeffP5[i + 1][1];
-            d2 = u_vec * d2 + CurvStruct_CoeffP5[i + 1][2];
+            int b_i;
+            __m128d r4;
+            b_i = 5 - i;
+            _mm_storeu_pd(&p5_1D[i][0], _mm_mul_pd(_mm_loadu_pd((double *)&CurvStruct_CoeffP5[i][0]),
+                           _mm_set1_pd(static_cast<double>(b_i))));
+            p5_1D[i][2] = CurvStruct_CoeffP5[i][2] * static_cast<double>(b_i);
+            r4 = _mm_loadu_pd(&r_0D[0]);
+            _mm_storeu_pd(&r_0D[0], _mm_add_pd(_mm_mul_pd(_mm_set1_pd(u_vec), r4), _mm_loadu_pd
+                           ((double *)&CurvStruct_CoeffP5[i + 1][0])));
+            r_0D[2] = u_vec * r_0D[2] + CurvStruct_CoeffP5[i + 1][2];
         }
 
-        r_0D[2] = d2;
-        r_0D[1] = d1;
-        r_0D[0] = d;
+        __m128d r3;
+        __m128d r5;
+        __m128d r6;
+        __m128d r7;
+        __m128d r8;
+        __m128d r9;
+        __m128d r10;
+        __m128d r11;
+        __m128d r12;
+        r3 = _mm_loadu_pd(&p5_1D[0][0]);
+        _mm_storeu_pd(&p5_2D[0][0], _mm_mul_pd(r3, _mm_set1_pd(4.0)));
+        p5_2D[0][2] = p5_1D[0][2] * 4.0;
+        r3 = _mm_loadu_pd(&p5_1D[1][0]);
+        _mm_storeu_pd(&p5_2D[1][0], _mm_mul_pd(r3, r));
+        p5_2D[1][2] = p5_1D[1][2] * 3.0;
+        r3 = _mm_loadu_pd(&p5_1D[2][0]);
+        _mm_storeu_pd(&p5_2D[2][0], _mm_mul_pd(r3, r1));
+        p5_2D[2][2] = p5_1D[2][2] * 2.0;
+        r3 = _mm_loadu_pd(&p5_1D[3][0]);
+        _mm_storeu_pd(&p5_2D[3][0], _mm_mul_pd(r3, r2));
+        p5_2D[3][2] = p5_1D[3][2];
+        r5 = _mm_loadu_pd(&p5_2D[0][0]);
+        _mm_storeu_pd(&p5_3D[0][0], _mm_mul_pd(r5, r));
+        p5_3D[0][2] = p5_2D[0][2] * 3.0;
+        r5 = _mm_loadu_pd(&p5_2D[1][0]);
+        _mm_storeu_pd(&p5_3D[1][0], _mm_mul_pd(r5, r1));
+        p5_3D[1][2] = p5_2D[1][2] * 2.0;
+        r5 = _mm_loadu_pd(&p5_2D[2][0]);
+        _mm_storeu_pd(&p5_3D[2][0], _mm_mul_pd(r5, r2));
+        p5_3D[2][2] = p5_2D[2][2];
 
         // POLYVAL Evaluate array of polynomials with same degree.
         //
         //
         //  Use Horner's method for general case where X is an array.
-        d3 = p5_1D[0][0];
-        d4 = p5_1D[0][1];
-        d5 = p5_1D[0][2];
-        for (int b_i = 0; b_i < 4; b_i++) {
-            d3 = u_vec * d3 + p5_1D[b_i + 1][0];
-            d4 = u_vec * d4 + p5_1D[b_i + 1][1];
-            d5 = u_vec * d5 + p5_1D[b_i + 1][2];
-        }
-
-        r_1D[2] = d5;
-        r_1D[1] = d4;
-        r_1D[0] = d3;
+        r_1D[0] = p5_1D[0][0];
+        r_1D[1] = p5_1D[0][1];
+        r_1D[2] = p5_1D[0][2];
+        r6 = _mm_loadu_pd(&r_1D[0]);
+        r7 = _mm_loadu_pd(&p5_1D[1][0]);
+        r8 = _mm_set1_pd(u_vec);
+        _mm_storeu_pd(&r_1D[0], _mm_add_pd(_mm_mul_pd(r8, r6), r7));
+        r_1D[2] = u_vec * r_1D[2] + p5_1D[1][2];
+        r6 = _mm_loadu_pd(&r_1D[0]);
+        r7 = _mm_loadu_pd(&p5_1D[2][0]);
+        _mm_storeu_pd(&r_1D[0], _mm_add_pd(_mm_mul_pd(r8, r6), r7));
+        r_1D[2] = u_vec * r_1D[2] + p5_1D[2][2];
+        r6 = _mm_loadu_pd(&r_1D[0]);
+        r7 = _mm_loadu_pd(&p5_1D[3][0]);
+        _mm_storeu_pd(&r_1D[0], _mm_add_pd(_mm_mul_pd(r8, r6), r7));
+        r_1D[2] = u_vec * r_1D[2] + p5_1D[3][2];
+        r6 = _mm_loadu_pd(&r_1D[0]);
+        r7 = _mm_loadu_pd(&p5_1D[4][0]);
+        _mm_storeu_pd(&r_1D[0], _mm_add_pd(_mm_mul_pd(r8, r6), r7));
+        r_1D[2] = u_vec * r_1D[2] + p5_1D[4][2];
 
         // POLYVAL Evaluate array of polynomials with same degree.
         //
         //
         //  Use Horner's method for general case where X is an array.
+        r_2D[0] = p5_2D[0][0];
+        r_2D[1] = p5_2D[0][1];
+        r_2D[2] = p5_2D[0][2];
+
         // POLYVAL Evaluate array of polynomials with same degree.
         //
         //
         //  Use Horner's method for general case where X is an array.
-        d6 = p5_2D[0][0];
-        d7 = p5_2D[0][1];
-        d8 = p5_2D[0][2];
-        for (int c_i = 0; c_i < 3; c_i++) {
-            d6 = u_vec * d6 + p5_2D[c_i + 1][0];
-            d7 = u_vec * d7 + p5_2D[c_i + 1][1];
-            d8 = u_vec * d8 + p5_2D[c_i + 1][2];
-            r_3D[c_i] = p5_3D[0][c_i];
-        }
-
-        r_2D[2] = d8;
-        r_2D[1] = d7;
-        r_2D[0] = d6;
-        d9 = r_3D[0];
-        d10 = r_3D[1];
-        d11 = r_3D[2];
-        for (int d_i = 0; d_i < 2; d_i++) {
-            d9 = u_vec * d9 + p5_3D[d_i + 1][0];
-            d10 = u_vec * d10 + p5_3D[d_i + 1][1];
-            d11 = u_vec * d11 + p5_3D[d_i + 1][2];
-        }
-
-        r_3D[2] = d11;
-        r_3D[1] = d10;
-        r_3D[0] = d9;
+        r9 = _mm_loadu_pd(&r_2D[0]);
+        r10 = _mm_loadu_pd(&p5_2D[1][0]);
+        _mm_storeu_pd(&r_2D[0], _mm_add_pd(_mm_mul_pd(r8, r9), r10));
+        r_2D[2] = u_vec * r_2D[2] + p5_2D[1][2];
+        r_3D[0] = p5_3D[0][0];
+        r9 = _mm_loadu_pd(&r_2D[0]);
+        r10 = _mm_loadu_pd(&p5_2D[2][0]);
+        _mm_storeu_pd(&r_2D[0], _mm_add_pd(_mm_mul_pd(r8, r9), r10));
+        r_2D[2] = u_vec * r_2D[2] + p5_2D[2][2];
+        r_3D[1] = p5_3D[0][1];
+        r9 = _mm_loadu_pd(&r_2D[0]);
+        r10 = _mm_loadu_pd(&p5_2D[3][0]);
+        _mm_storeu_pd(&r_2D[0], _mm_add_pd(_mm_mul_pd(r8, r9), r10));
+        r_2D[2] = u_vec * r_2D[2] + p5_1D[3][2];
+        r_3D[2] = p5_3D[0][2];
+        r11 = _mm_loadu_pd(&r_3D[0]);
+        r12 = _mm_loadu_pd(&p5_3D[1][0]);
+        _mm_storeu_pd(&r_3D[0], _mm_add_pd(_mm_mul_pd(r8, r11), r12));
+        r_3D[2] = u_vec * r_3D[2] + p5_3D[1][2];
+        r11 = _mm_loadu_pd(&r_3D[0]);
+        r12 = _mm_loadu_pd(&p5_3D[2][0]);
+        _mm_storeu_pd(&r_3D[0], _mm_add_pd(_mm_mul_pd(r8, r11), r12));
+        r_3D[2] = u_vec * r_3D[2] + p5_2D[2][2];
     }
 
     //
     // Arguments    : const queue_coder *ctx_q_splines
-    //                CurveType S_Type
-    //                ZSpdMode S_zspdmode
-    //                const double S_P0[3]
-    //                const double S_P1[3]
-    //                const double S_HelixCenter[3]
-    //                const double S_evec[3]
-    //                double S_theta
-    //                double S_pitch
-    //                const double S_CoeffP5[6][3]
-    //                int S_sp_index
-    //                double S_FeedRate
-    //                bool S_UseConstJerk
-    //                double S_ConstJerk
-    //                double S_a_param
-    //                double S_b_param
+    //                double ctx_cfg_NGridLengthSpline
+    //                const CurvStruct *S
     // Return Type  : void
     //
-    static void b_PrintCurvStruct(const queue_coder *ctx_q_splines, CurveType S_Type, ZSpdMode
-        S_zspdmode, const double S_P0[3], const double S_P1[3], const double S_HelixCenter[3], const
-        double S_evec[3], double S_theta, double S_pitch, const double S_CoeffP5[6][3], int
-        S_sp_index, double S_FeedRate, bool S_UseConstJerk, double S_ConstJerk, double S_a_param,
-        double S_b_param)
+    static void b_PrintCurvStruct(const queue_coder *ctx_q_splines, double ctx_cfg_NGridLengthSpline,
+        const CurvStruct *S)
     {
         int varargin_1_size_idx_1;
         char varargin_1_data[9];
@@ -13137,7 +13743,7 @@ namespace ocn
         double b_validatedHoleFilling_idx_0;
         printf("--------- CURVE STRUCT ---------\n");
         fflush(stdout);
-        switch (S_Type) {
+        switch (S->Type) {
           case CurveType_Line:
             varargin_1_size_idx_1 = 4;
             varargin_1_data[0] = 'L';
@@ -13189,17 +13795,17 @@ namespace ocn
 
         printf("%10s: %s\n", "Type", &varargin_2_data[0]);
         fflush(stdout);
-        switch (S_Type) {
+        switch (S->Type) {
           case CurveType_Line:
           case CurveType_Spline:
             break;
 
           case CurveType_Helix:
-            printf("%10s: [%.3f %.3f %.3f]\n", "evec", S_evec[0], S_evec[1], S_evec[2]);
+            printf("%10s: [%.3f %.3f %.3f]\n", "evec", S->evec[0], S->evec[1], S->evec[2]);
             fflush(stdout);
-            printf("%10s: %.3f\n", "theta", S_theta);
+            printf("%10s: %.3f\n", "theta", S->theta);
             fflush(stdout);
-            printf("%10s: %.3f\n", "pitch", S_pitch);
+            printf("%10s: %.3f\n", "pitch", S->pitch);
             fflush(stdout);
             break;
 
@@ -13210,7 +13816,7 @@ namespace ocn
             fflush(stdout);
             for (int i4 = 0; i4 < 3; i4++) {
                 for (int i5 = 0; i5 < 6; i5++) {
-                    dv[i4][i5] = S_CoeffP5[i5][i4];
+                    dv[i4][i5] = S->CoeffP5[i5][i4];
                 }
             }
 
@@ -13228,28 +13834,29 @@ namespace ocn
             fflush(stdout);
             printf("\n");
             fflush(stdout);
-            printf("FeedRate: %.2f\n", S_FeedRate);
+            printf("FeedRate: %.2f\n", S->FeedRate);
             fflush(stdout);
             break;
 
           default:
-            printf("!!! Type = %d, UNKNOWN !!!\n", static_cast<int>(S_Type));
+            printf("!!! Type = %d, UNKNOWN !!!\n", static_cast<int>(S->Type));
             fflush(stdout);
             break;
         }
 
-        b_EvalCurvStruct(ctx_q_splines, S_Type, S_P0, S_P1, S_HelixCenter, S_evec, S_theta, S_pitch,
-                         S_CoeffP5, S_sp_index, S_b_param, P0);
-        c_EvalCurvStruct(ctx_q_splines, S_Type, S_P0, S_P1, S_HelixCenter, S_evec, S_theta, S_pitch,
-                         S_CoeffP5, S_sp_index, S_a_param, S_b_param, P1);
+        b_EvalCurvStruct(ctx_q_splines, S->Type, S->P0, S->P1, S->HelixCenter, S->evec, S->theta,
+                         S->pitch, S->CoeffP5, S->sp_index, S->b_param, P0);
+        c_EvalCurvStruct(ctx_q_splines, S->Type, S->P0, S->P1, S->HelixCenter, S->evec, S->theta,
+                         S->pitch, S->CoeffP5, S->sp_index, S->a_param, S->b_param, P1);
         printf("%10s: [%.4f %.4f %.4f] -> [%.4f %.4f %.4f]\n", "P", P0[0], P0[1], P0[2], P1[0], P1[1],
                P1[2]);
         fflush(stdout);
-        validatedHoleFilling_f2 = LengthCurv(ctx_q_splines, S_Type, S_P0, S_P1, S_HelixCenter,
-            S_evec, S_theta, S_pitch, S_CoeffP5, S_sp_index, S_a_param, S_b_param);
+        validatedHoleFilling_f2 = LengthCurv(ctx_q_splines, ctx_cfg_NGridLengthSpline, S->Type,
+            S->P0, S->P1, S->HelixCenter, S->evec, S->theta, S->pitch, S->CoeffP5, S->sp_index,
+            S->a_param, S->b_param);
         printf("%10s: %e\n", "Length", validatedHoleFilling_f2);
         fflush(stdout);
-        switch (S_zspdmode) {
+        switch (S->zspdmode) {
           case ZSpdMode_NN:
             formatSpec.init();
             break;
@@ -13282,13 +13889,14 @@ namespace ocn
 
         printf("ZSpdMode: %s\n", &b_varargin_1_data[0]);
         fflush(stdout);
-        printf("FeedRate: %.2f\n", S_FeedRate);
+        printf("FeedRate: %.2f\n", S->FeedRate);
         fflush(stdout);
-        if (S_UseConstJerk) {
-            CalcZeroStartConstraints(ctx_q_splines, S_Type, S_P0, S_P1, S_HelixCenter, S_evec,
-                S_theta, S_pitch, S_CoeffP5, S_sp_index, true, S_ConstJerk, S_a_param, S_b_param,
-                1.0, &validatedHoleFilling_idx_0, &b_validatedHoleFilling_idx_0);
-            printf("ConstJerk: %e\n", S_ConstJerk);
+        if (S->UseConstJerk) {
+            CalcZeroStartConstraints(ctx_q_splines, S->Type, S->P0, S->P1, S->HelixCenter, S->evec,
+                S->theta, S->pitch, S->CoeffP5, S->sp_index, S->UseConstJerk, S->ConstJerk,
+                S->a_param, S->b_param, 1.0, &validatedHoleFilling_idx_0,
+                &b_validatedHoleFilling_idx_0);
+            printf("ConstJerk: %e\n", S->ConstJerk);
             fflush(stdout);
             printf("v_0      : %f\n", validatedHoleFilling_idx_0);
             fflush(stdout);
@@ -13298,14 +13906,18 @@ namespace ocn
     }
 
     //
-    // computes approximately the arc length of a parametric spline / RHG / BR
+    // computes approximately the arc length of a parametric spline
     // Arguments    : const queue_coder *ctx_q_splines
+    //                double ctx_cfg_NGridLengthSpline
     //                int Curv_sp_index
-    //                double u1
+    //                const double u0_tilda_data[]
+    //                const int u0_tilda_size[2]
+    //                double u1_tilda
     // Return Type  : double
     //
-    static double b_SplineLengthApprox(const queue_coder *ctx_q_splines, int Curv_sp_index, double
-        u1)
+    static double b_SplineLengthApprox(const queue_coder *ctx_q_splines, double
+        ctx_cfg_NGridLengthSpline, int Curv_sp_index, const double u0_tilda_data[], const int
+        u0_tilda_size[2], double u1_tilda)
     {
         double L;
         CurvStruct expl_temp;
@@ -13320,31 +13932,25 @@ namespace ocn
         coder::array<bool, 2U> x;
         int e_loop_ub;
         int k;
+        int ii;
         int idx;
         int ii_size_idx_1;
-        int ii;
         bool exitg1;
         int ii_data[1];
-        unsigned int Idx1_data[1];
-        int f_loop_ub;
-        int b_k;
-        int b_ii;
-        int b_idx;
         unsigned int Idx2_data[1];
-        int i6;
-        int i7;
+        int f_loop_ub;
+        coder::array<double, 2U> u_vec_tilda;
         int g_loop_ub;
-        coder::array<double, 2U> u_vec;
-        coder::array<double, 2U> u;
-        int i9;
-        int i10;
+        coder::array<double, 2U> u_tilda;
+        int i7;
+        int i8;
         int h_loop_ub;
-        int i11;
-        double dv[10];
-        coder::array<double, 2U> u_mid;
+        coder::array<double, 2U> r;
+        int i9;
+        coder::array<double, 2U> u_mid_tilda;
         int scalarLB;
         int vectorUB;
-        int i13;
+        int i11;
         coder::array<double, 2U> unusedU0;
         coder::array<double, 2U> r1Dx;
         coder::array<double, 2U> unusedU1;
@@ -13352,23 +13958,24 @@ namespace ocn
         coder::array<double, 2U> unusedU2;
         coder::array<double, 2U> r1Dz;
         coder::array<double, 2U> a;
-        int i_loop_ub;
         int j_loop_ub;
         int k_loop_ub;
+        int l_loop_ub;
         coder::array<double, 2U> z1;
         int N;
         coder::array<double, 2U> Integrand;
-        int i19;
+        int i17;
         int b_scalarLB;
         int b_vectorUB;
-        int f_k;
-        coder::array<double, 2U> r3;
+        int e_k;
         coder::array<double, 2U> b_x;
-        int l_loop_ub;
+        int m_loop_ub;
         int c_scalarLB;
         int c_vectorUB;
-        int i20;
+        int i18;
         int vlen;
+
+        //  get the sp structure
         ctx_q_splines->get(Curv_sp_index, (&expl_temp));
         Spline_sp_CoeffX.set_size(1, expl_temp.sp.CoeffX.size(1));
         loop_ub = expl_temp.sp.CoeffX.size(1);
@@ -13394,24 +14001,29 @@ namespace ocn
             Spline_sp_knots[i3] = expl_temp.sp.knots[i3];
         }
 
+        //  the ORIGINAL spline is parametrized with u_tilda
+        //  after cut-off, new parameter is called u.
+        //  u=0 corresponds to the first lift-off point
+        //  u=1 corresponds to the second lift-off point
+        //  u is NOT used in this function
         x.set_size(1, Spline_sp_knots.size(1));
         e_loop_ub = Spline_sp_knots.size(1);
         for (int i4 = 0; i4 < e_loop_ub; i4++) {
-            x[i4] = (Spline_sp_knots[i4] > 0.0);
+            x[i4] = (Spline_sp_knots[i4] < u1_tilda);
         }
 
         k = (1 <= x.size(1));
+        ii = x.size(1);
         idx = 0;
         ii_size_idx_1 = k;
-        ii = 0;
         exitg1 = false;
-        while ((!exitg1) && (ii <= x.size(1) - 1)) {
-            if (x[ii]) {
+        while ((!exitg1) && (ii > 0)) {
+            if (x[ii - 1]) {
                 idx = 1;
-                ii_data[0] = ii + 1;
+                ii_data[0] = ii;
                 exitg1 = true;
             } else {
-                ii++;
+                ii--;
             }
         }
 
@@ -13424,172 +14036,145 @@ namespace ocn
         }
 
         if (0 <= ii_size_idx_1 - 1) {
-            Idx1_data[0] = static_cast<unsigned int>(ii_data[0]);
-        }
-
-        x.set_size(1, Spline_sp_knots.size(1));
-        f_loop_ub = Spline_sp_knots.size(1);
-        for (int i5 = 0; i5 < f_loop_ub; i5++) {
-            x[i5] = (Spline_sp_knots[i5] < u1);
-        }
-
-        b_k = (1 <= x.size(1));
-        b_ii = x.size(1);
-        b_idx = 0;
-        ii_size_idx_1 = b_k;
-        exitg1 = false;
-        while ((!exitg1) && (b_ii > 0)) {
-            if (x[b_ii - 1]) {
-                b_idx = 1;
-                ii_data[0] = b_ii;
-                exitg1 = true;
-            } else {
-                b_ii--;
-            }
-        }
-
-        if (b_k == 1) {
-            if (b_idx == 0) {
-                ii_size_idx_1 = 0;
-            }
-        } else {
-            ii_size_idx_1 = (1 <= b_idx);
-        }
-
-        if (0 <= ii_size_idx_1 - 1) {
             Idx2_data[0] = static_cast<unsigned int>(ii_data[0]);
         }
 
-        if (static_cast<int>(Idx1_data[0]) > static_cast<int>(Idx2_data[0])) {
-            i6 = 0;
-            i7 = 0;
-        } else {
-            i6 = static_cast<int>(Idx1_data[0]) - 1;
-            i7 = static_cast<int>(Idx2_data[0]);
+        f_loop_ub = static_cast<int>(Idx2_data[0]);
+        u_vec_tilda.set_size(1, ((u0_tilda_size[1] + static_cast<int>(Idx2_data[0])) + 1));
+        g_loop_ub = u0_tilda_size[1];
+        for (int i5 = 0; i5 < g_loop_ub; i5++) {
+            u_vec_tilda[i5] = u0_tilda_data[i5];
         }
 
-        g_loop_ub = i7 - i6;
-        u_vec.set_size(1, (g_loop_ub + 2));
-        u_vec[0] = 0.0;
-        for (int i8 = 0; i8 < g_loop_ub; i8++) {
-            u_vec[i8 + 1] = Spline_sp_knots[i6 + i8];
+        for (int i6 = 0; i6 < f_loop_ub; i6++) {
+            u_vec_tilda[i6 + u0_tilda_size[1]] = Spline_sp_knots[i6];
         }
 
-        u_vec[g_loop_ub + 1] = u1;
-        u.set_size(1, 0);
-        i9 = u_vec.size(1);
-        for (int c_k = 0; c_k <= i9 - 2; c_k++) {
-            int i12;
-            i10 = u.size(1);
-            if (u.size(1) != 0) {
-                if (1 > u.size(1) - 1) {
-                    i10 = 0;
+        u_vec_tilda[u0_tilda_size[1] + static_cast<int>(Idx2_data[0])] = u1_tilda;
+        u_tilda.set_size(1, 0);
+
+        //  N equally spaced u_tilda values between each pair of knots
+        //  from u0_tilda until u1_tilda
+        i7 = u_vec_tilda.size(1);
+        for (int b_k = 0; b_k <= i7 - 2; b_k++) {
+            int i10;
+            int i_loop_ub;
+            i8 = u_tilda.size(1);
+            if (u_tilda.size(1) != 0) {
+                if (1 > u_tilda.size(1) - 1) {
+                    i8 = 0;
                 } else {
-                    i10 = u.size(1) - 1;
+                    i8 = u_tilda.size(1) - 1;
                 }
             }
 
-            c_linspace(u_vec[c_k], u_vec[c_k + 1], dv);
-            i12 = i10;
-            i10 += 10;
-            u.set_size(u.size(0), i10);
-            for (int i14 = 0; i14 < 10; i14++) {
-                u[i12 + i14] = dv[i14];
+            linspace(u_vec_tilda[b_k], u_vec_tilda[b_k + 1], ctx_cfg_NGridLengthSpline, r);
+            i10 = i8;
+            i_loop_ub = r.size(1);
+            i8 += r.size(1);
+            u_tilda.set_size(u_tilda.size(0), i8);
+            for (int i12 = 0; i12 < i_loop_ub; i12++) {
+                u_tilda[i10 + i12] = r[i12];
             }
         }
 
-        if (1 > u.size(1) - 1) {
+        //  midpoint values
+        if (1 > u_tilda.size(1) - 1) {
             h_loop_ub = 0;
         } else {
-            h_loop_ub = u.size(1) - 1;
+            h_loop_ub = u_tilda.size(1) - 1;
         }
 
-        i11 = (2 <= u.size(1));
-        u_mid.set_size(1, h_loop_ub);
-        scalarLB = h_loop_ub & -4;
-        vectorUB = scalarLB - 4;
-        for (i13 = 0; i13 <= vectorUB; i13 += 4) {
-            __m256d r;
-            __m256d r1;
-            r = _mm256_loadu_pd(&u[i13]);
-            r1 = _mm256_loadu_pd(&u[i11 + i13]);
-            _mm256_storeu_pd(&u_mid[i13], _mm256_mul_pd(_mm256_set1_pd(0.5), _mm256_add_pd(r, r1)));
+        i9 = (2 <= u_tilda.size(1));
+        u_mid_tilda.set_size(1, h_loop_ub);
+        scalarLB = h_loop_ub & -2;
+        vectorUB = scalarLB - 2;
+        for (i11 = 0; i11 <= vectorUB; i11 += 2) {
+            __m128d r1;
+            __m128d r2;
+            r1 = _mm_loadu_pd(&u_tilda[i11]);
+            r2 = _mm_loadu_pd(&u_tilda[i9 + i11]);
+            _mm_storeu_pd(&u_mid_tilda[i11], _mm_mul_pd(_mm_set1_pd(0.5), _mm_add_pd(r1, r2)));
         }
 
-        for (i13 = scalarLB; i13 < h_loop_ub; i13++) {
-            u_mid[i13] = 0.5 * (u[i13] + u[i11 + i13]);
+        for (i11 = scalarLB; i11 < h_loop_ub; i11++) {
+            u_mid_tilda[i11] = 0.5 * (u_tilda[i11] + u_tilda[i9 + i11]);
         }
 
         //  midpoint values
-        c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffX, u_mid, unusedU0, r1Dx);
-        c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffY, u_mid, unusedU1, r1Dy);
-        c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffZ, u_mid, unusedU2, r1Dz);
+        //  parametric derivative calculation at each midpoint value
+        //  with respect to u_tilda
+        c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffX, u_mid_tilda, unusedU0, r1Dx);
+        c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffY, u_mid_tilda, unusedU1, r1Dy);
+        c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffZ, u_mid_tilda, unusedU2, r1Dz);
+
+        //  length (between u0_tilda and u1_tilda) calculation by rectangles method
         a.set_size(3, r1Dx.size(1));
-        i_loop_ub = r1Dx.size(1);
-        for (int i15 = 0; i15 < i_loop_ub; i15++) {
-            a[3 * i15] = r1Dx[i15];
+        j_loop_ub = r1Dx.size(1);
+        for (int i13 = 0; i13 < j_loop_ub; i13++) {
+            a[3 * i13] = r1Dx[i13];
         }
 
-        j_loop_ub = r1Dy.size(1);
-        for (int i16 = 0; i16 < j_loop_ub; i16++) {
-            a[3 * i16 + 1] = r1Dy[i16];
+        k_loop_ub = r1Dy.size(1);
+        for (int i14 = 0; i14 < k_loop_ub; i14++) {
+            a[3 * i14 + 1] = r1Dy[i14];
         }
 
-        k_loop_ub = r1Dz.size(1);
-        for (int i17 = 0; i17 < k_loop_ub; i17++) {
-            a[3 * i17 + 2] = r1Dz[i17];
+        l_loop_ub = r1Dz.size(1);
+        for (int i15 = 0; i15 < l_loop_ub; i15++) {
+            a[3 * i15 + 2] = r1Dz[i15];
         }
 
         z1.set_size(3, a.size(1));
         N = a.size(1);
-        for (int d_k = 0; d_k < N; d_k++) {
-            z1[3 * d_k] = std::pow(a[3 * d_k], 2.0);
-            z1[3 * d_k + 1] = std::pow(a[3 * d_k + 1], 2.0);
-            z1[3 * d_k + 2] = std::pow(a[3 * d_k + 2], 2.0);
+        for (int c_k = 0; c_k < N; c_k++) {
+            z1[3 * c_k] = std::pow(a[3 * c_k], 2.0);
+            z1[3 * c_k + 1] = std::pow(a[3 * c_k + 1], 2.0);
+            z1[3 * c_k + 2] = std::pow(a[3 * c_k + 2], 2.0);
         }
 
         if (z1.size(1) == 0) {
             Integrand.set_size(1, 0);
         } else {
-            int i18;
+            int i16;
             Integrand.set_size(1, z1.size(1));
-            i18 = z1.size(1);
-            for (int e_k = 0; e_k < i18; e_k++) {
-                Integrand[e_k] = z1[3 * e_k];
-                Integrand[e_k] = Integrand[e_k] + z1[3 * e_k + 1];
-                Integrand[e_k] = Integrand[e_k] + z1[3 * e_k + 2];
+            i16 = z1.size(1);
+            for (int d_k = 0; d_k < i16; d_k++) {
+                Integrand[d_k] = z1[3 * d_k];
+                Integrand[d_k] = Integrand[d_k] + z1[3 * d_k + 1];
+                Integrand[d_k] = Integrand[d_k] + z1[3 * d_k + 2];
             }
         }
 
-        i19 = Integrand.size(1);
-        b_scalarLB = Integrand.size(1) & -4;
-        b_vectorUB = b_scalarLB - 4;
-        for (f_k = 0; f_k <= b_vectorUB; f_k += 4) {
-            __m256d r2;
-            r2 = _mm256_loadu_pd(&Integrand[f_k]);
-            _mm256_storeu_pd(&Integrand[f_k], _mm256_sqrt_pd(r2));
+        i17 = Integrand.size(1);
+        b_scalarLB = Integrand.size(1) & -2;
+        b_vectorUB = b_scalarLB - 2;
+        for (e_k = 0; e_k <= b_vectorUB; e_k += 2) {
+            __m128d r3;
+            r3 = _mm_loadu_pd(&Integrand[e_k]);
+            _mm_storeu_pd(&Integrand[e_k], _mm_sqrt_pd(r3));
         }
 
-        for (f_k = b_scalarLB; f_k < i19; f_k++) {
-            Integrand[f_k] = std::sqrt(Integrand[f_k]);
+        for (e_k = b_scalarLB; e_k < i17; e_k++) {
+            Integrand[e_k] = std::sqrt(Integrand[e_k]);
         }
 
         sqrt_calls++;
-        diff(u, r3);
+        diff(u_tilda, r);
         b_x.set_size(1, Integrand.size(1));
-        l_loop_ub = Integrand.size(1);
-        c_scalarLB = Integrand.size(1) & -4;
-        c_vectorUB = c_scalarLB - 4;
-        for (i20 = 0; i20 <= c_vectorUB; i20 += 4) {
-            __m256d r4;
-            __m256d r5;
-            r4 = _mm256_loadu_pd(&Integrand[i20]);
-            r5 = _mm256_loadu_pd(&r3[i20]);
-            _mm256_storeu_pd(&b_x[i20], _mm256_mul_pd(r4, r5));
+        m_loop_ub = Integrand.size(1);
+        c_scalarLB = Integrand.size(1) & -2;
+        c_vectorUB = c_scalarLB - 2;
+        for (i18 = 0; i18 <= c_vectorUB; i18 += 2) {
+            __m128d r4;
+            __m128d r5;
+            r4 = _mm_loadu_pd(&Integrand[i18]);
+            r5 = _mm_loadu_pd(&r[i18]);
+            _mm_storeu_pd(&b_x[i18], _mm_mul_pd(r4, r5));
         }
 
-        for (i20 = c_scalarLB; i20 < l_loop_ub; i20++) {
-            b_x[i20] = Integrand[i20] * r3[i20];
+        for (i18 = c_scalarLB; i18 < m_loop_ub; i18++) {
+            b_x[i18] = Integrand[i18] * r[i18];
         }
 
         vlen = b_x.size(1);
@@ -13598,11 +14183,11 @@ namespace ocn
         } else {
             double y;
             y = b_x[0];
-            for (int g_k = 2; g_k <= vlen; g_k++) {
+            for (int f_k = 2; f_k <= vlen; f_k++) {
                 double b_y;
                 b_y = y;
                 if (vlen >= 2) {
-                    b_y = y + b_x[g_k - 1];
+                    b_y = y + b_x[f_k - 1];
                 }
 
                 y = b_y;
@@ -14207,8 +14792,8 @@ namespace ocn
                 int varargin_3;
                 varargin_2 = acoef * k;
                 varargin_3 = bcoef * k;
-                c[3 * k] = a[3 * varargin_2] * b[varargin_3];
-                c[3 * k + 1] = a[3 * varargin_2 + 1] * b[varargin_3];
+                _mm_storeu_pd(&c[3 * k], _mm_mul_pd(_mm_loadu_pd(&a[3 * varargin_2]), _mm_set1_pd
+                               (b[varargin_3])));
                 c[3 * k + 2] = a[3 * varargin_2 + 2] * b[varargin_3];
             }
         }
@@ -14350,17 +14935,23 @@ namespace ocn
                             double r0D[10][3], double r1D[10][3], double r2D[10][3], double r3D[10]
                             [3])
     {
-        double P0P1_idx_0;
-        double P0P1_idx_1;
-        double P0P1_idx_2;
+        __m128d r;
+        double P0P1[3];
         char message[16];
+        double CP0[3];
+        double EcrCP0[3];
+        double y[3];
+        double cphiTCP0[10][3];
+        double sphiTCP0[10][3];
+        double cphiTEcrCP0[10][3];
+        double sphiTEcrCP0[10][3];
         ZoneScopedN("EvalHelix");
 
         //
         //
-        P0P1_idx_0 = CurvStruct_P1[0] - CurvStruct_P0[0];
-        P0P1_idx_1 = CurvStruct_P1[1] - CurvStruct_P0[1];
-        P0P1_idx_2 = CurvStruct_P1[2] - CurvStruct_P0[2];
+        r = _mm_loadu_pd((double *)&CurvStruct_P0[0]);
+        _mm_storeu_pd(&P0P1[0], _mm_sub_pd(_mm_loadu_pd((double *)&CurvStruct_P1[0]), r));
+        P0P1[2] = CurvStruct_P1[2] - CurvStruct_P0[2];
         for (int i = 0; i < 10; i++) {
             r0D[i][0] = 0.0;
             r1D[i][0] = 0.0;
@@ -14377,29 +14968,24 @@ namespace ocn
         }
 
         sqrt_calls++;
-        if (std::sqrt((std::pow(CurvStruct_evec[1] * P0P1_idx_2 - CurvStruct_evec[2] * P0P1_idx_1,
-                                2.0) + std::pow(CurvStruct_evec[2] * P0P1_idx_0 - CurvStruct_evec[0]
-               * P0P1_idx_2, 2.0)) + std::pow(CurvStruct_evec[0] * P0P1_idx_1 - CurvStruct_evec[1] *
-              P0P1_idx_0, 2.0)) <= 2.2204460492503131E-16) {
+        if (std::sqrt((std::pow(CurvStruct_evec[1] * P0P1[2] - CurvStruct_evec[2] * P0P1[1], 2.0) +
+                       std::pow(CurvStruct_evec[2] * P0P1[0] - CurvStruct_evec[0] * P0P1[2], 2.0)) +
+                      std::pow(CurvStruct_evec[0] * P0P1[1] - CurvStruct_evec[1] * P0P1[0], 2.0)) <=
+            2.2204460492503131E-16) {
             for (int i1 = 0; i1 < 16; i1++) {
                 message[i1] = cv1[i1];
             }
 
             c_assert_(&message[0]);
         } else {
-            double CP0_idx_0;
-            double CP0_idx_1;
-            double CP0_idx_2;
-            double EcrCP0_idx_0;
-            double EcrCP0_idx_1;
-            double EcrCP0_idx_2;
+            __m128d r1;
             double a;
-            double b_a;
-            double y_idx_0;
-            double y_idx_1;
-            double y_idx_2;
+            __m128d r2;
+            __m128d r3;
             double a_tmp;
             double b_a_tmp;
+            __m128d r6;
+            __m128d r7;
 
             //  if pitch == 0
             //      if ~c_assert(evec'*P0P1 > eps, 'e'' * P0P1 = 0')
@@ -14407,71 +14993,81 @@ namespace ocn
             //      end
             //  end
             //
-            CP0_idx_0 = CurvStruct_P0[0] - CurvStruct_HelixCenter[0];
-            CP0_idx_1 = CurvStruct_P0[1] - CurvStruct_HelixCenter[1];
-            CP0_idx_2 = CurvStruct_P0[2] - CurvStruct_HelixCenter[2];
-            EcrCP0_idx_0 = CurvStruct_evec[1] * CP0_idx_2 - CurvStruct_evec[2] * CP0_idx_1;
-            EcrCP0_idx_1 = CurvStruct_evec[2] * CP0_idx_0 - CurvStruct_evec[0] * CP0_idx_2;
-            EcrCP0_idx_2 = CurvStruct_evec[0] * CP0_idx_1 - CurvStruct_evec[1] * CP0_idx_0;
+            r1 = _mm_loadu_pd((double *)&CurvStruct_HelixCenter[0]);
+            _mm_storeu_pd(&CP0[0], _mm_sub_pd(r, r1));
+            CP0[2] = CurvStruct_P0[2] - CurvStruct_HelixCenter[2];
+            EcrCP0[0] = CurvStruct_evec[1] * CP0[2] - CurvStruct_evec[2] * CP0[1];
+            EcrCP0[1] = CurvStruct_evec[2] * CP0[0] - CurvStruct_evec[0] * CP0[2];
+            EcrCP0[2] = CurvStruct_evec[0] * CP0[1] - CurvStruct_evec[1] * CP0[0];
             cos_calls++;
             sin_calls++;
 
             //
             //
             a = CurvStruct_pitch / 6.2831853071795862;
-            b_a = CurvStruct_theta * CurvStruct_pitch / 6.2831853071795862;
-            y_idx_0 = b_a * CurvStruct_evec[0];
-            y_idx_1 = b_a * CurvStruct_evec[1];
-            y_idx_2 = b_a * CurvStruct_evec[2];
-            a_tmp = std::pow(CurvStruct_theta, 2.0);
-            b_a_tmp = std::pow(CurvStruct_theta, 3.0);
+            r2 = _mm_loadu_pd(&CP0[0]);
+            r3 = _mm_loadu_pd(&EcrCP0[0]);
             for (int k = 0; k < 10; k++) {
                 double d;
                 double d1;
                 double d2;
+                __m128d r4;
+                __m128d r5;
+                __m128d r8;
+                __m128d r10;
                 double d3;
                 double d4;
-                double d5;
-                double d6;
-                double d7;
-                double d8;
-                double d9;
-                double d10;
-                double d11;
-                double d12;
-                double d13;
-                double d14;
                 d = CurvStruct_theta * u_vec[k];
                 d1 = std::cos(d);
                 d2 = std::sin(d);
-                d3 = CP0_idx_0 * d1;
-                d4 = d3;
-                d5 = CP0_idx_0 * d2;
-                d6 = EcrCP0_idx_0 * d1;
-                d7 = EcrCP0_idx_0 * d2;
-                d8 = d7;
-                r0D[k][0] = CurvStruct_HelixCenter[0] + ((d3 + d7) + a * CurvStruct_evec[0] * d);
-                d3 = CP0_idx_1 * d1;
-                d9 = d3;
-                d10 = CP0_idx_1 * d2;
-                d11 = EcrCP0_idx_1 * d1;
-                d7 = EcrCP0_idx_1 * d2;
-                d12 = d7;
-                r0D[k][1] = CurvStruct_HelixCenter[1] + ((d3 + d7) + a * CurvStruct_evec[1] * d);
-                d3 = CP0_idx_2 * d1;
-                d13 = CP0_idx_2 * d2;
-                d14 = EcrCP0_idx_2 * d1;
-                d7 = EcrCP0_idx_2 * d2;
-                r0D[k][2] = CurvStruct_HelixCenter[2] + ((d3 + d7) + a * CurvStruct_evec[2] * d);
-                r1D[k][0] = (-CurvStruct_theta * d5 + CurvStruct_theta * d6) + y_idx_0;
-                r2D[k][0] = -a_tmp * d4 - a_tmp * d8;
-                r3D[k][0] = b_a_tmp * d5 - b_a_tmp * d6;
-                r1D[k][1] = (-CurvStruct_theta * d10 + CurvStruct_theta * d11) + y_idx_1;
-                r2D[k][1] = -a_tmp * d9 - a_tmp * d12;
-                r3D[k][1] = b_a_tmp * d10 - b_a_tmp * d11;
-                r1D[k][2] = (-CurvStruct_theta * d13 + CurvStruct_theta * d14) + y_idx_2;
-                r2D[k][2] = -a_tmp * d3 - a_tmp * d7;
-                r3D[k][2] = b_a_tmp * d13 - b_a_tmp * d14;
+                r4 = _mm_set1_pd(d1);
+                r5 = _mm_mul_pd(r2, r4);
+                _mm_storeu_pd(&cphiTCP0[k][0], r5);
+                r8 = _mm_set1_pd(d2);
+                _mm_storeu_pd(&sphiTCP0[k][0], _mm_mul_pd(r2, r8));
+                _mm_storeu_pd(&cphiTEcrCP0[k][0], _mm_mul_pd(r3, r4));
+                r10 = _mm_mul_pd(r3, r8);
+                _mm_storeu_pd(&sphiTEcrCP0[k][0], r10);
+                _mm_storeu_pd(&r0D[k][0], _mm_add_pd(r1, _mm_add_pd(_mm_add_pd(r5, r10), _mm_add_pd
+                                (_mm_set1_pd(0.0), _mm_mul_pd(_mm_mul_pd(_mm_set1_pd(a),
+                                   _mm_loadu_pd((double *)&CurvStruct_evec[0])), _mm_set1_pd(d))))));
+                d3 = CP0[2] * d1;
+                cphiTCP0[k][2] = d3;
+                sphiTCP0[k][2] = CP0[2] * d2;
+                cphiTEcrCP0[k][2] = EcrCP0[2] * d1;
+                d4 = EcrCP0[2] * d2;
+                sphiTEcrCP0[k][2] = d4;
+                r0D[k][2] = CurvStruct_HelixCenter[2] + ((d3 + d4) + a * CurvStruct_evec[2] * d);
+            }
+
+            double b_a;
+            b_a = CurvStruct_theta * CurvStruct_pitch / 6.2831853071795862;
+            _mm_storeu_pd(&y[0], _mm_mul_pd(_mm_set1_pd(b_a), _mm_loadu_pd((double *)
+                            &CurvStruct_evec[0])));
+            y[2] = b_a * CurvStruct_evec[2];
+            a_tmp = std::pow(CurvStruct_theta, 2.0);
+            b_a_tmp = std::pow(CurvStruct_theta, 3.0);
+            r6 = _mm_loadu_pd(&y[0]);
+            r7 = _mm_set1_pd(b_a_tmp);
+            for (int b_k = 0; b_k < 10; b_k++) {
+                __m128d r9;
+                __m128d r11;
+                __m128d r12;
+                __m128d r13;
+                r9 = _mm_loadu_pd(&sphiTCP0[b_k][0]);
+                r11 = _mm_loadu_pd(&cphiTEcrCP0[b_k][0]);
+                _mm_storeu_pd(&r1D[b_k][0], _mm_add_pd(_mm_add_pd(_mm_mul_pd(_mm_set1_pd
+                                 (-CurvStruct_theta), r9), _mm_mul_pd(_mm_set1_pd(CurvStruct_theta),
+                                 r11)), r6));
+                r12 = _mm_loadu_pd(&cphiTCP0[b_k][0]);
+                r13 = _mm_loadu_pd(&sphiTEcrCP0[b_k][0]);
+                _mm_storeu_pd(&r2D[b_k][0], _mm_sub_pd(_mm_mul_pd(_mm_set1_pd(-a_tmp), r12),
+                               _mm_mul_pd(_mm_set1_pd(a_tmp), r13)));
+                _mm_storeu_pd(&r3D[b_k][0], _mm_sub_pd(_mm_mul_pd(r7, r9), _mm_mul_pd(r7, r11)));
+                r1D[b_k][2] = (-CurvStruct_theta * sphiTCP0[b_k][2] + CurvStruct_theta *
+                               cphiTEcrCP0[b_k][2]) + y[2];
+                r2D[b_k][2] = -a_tmp * cphiTCP0[b_k][2] - a_tmp * sphiTEcrCP0[b_k][2];
+                r3D[b_k][2] = b_a_tmp * sphiTCP0[b_k][2] - b_a_tmp * cphiTEcrCP0[b_k][2];
             }
         }
     }
@@ -14487,25 +15083,23 @@ namespace ocn
     static void c_EvalLine(const double CurvStruct_P0[3], const double CurvStruct_P1[3], const
                            double u_vec[10], double r0D[10][3], double r1D[10][3])
     {
-        double a_idx_0;
-        double a_idx_1;
-        double a_idx_2;
+        double a[3];
         ZoneScopedN("EvalLine");
 
         //
         //  parametrization of a straight line between P0 and P1
         //
         //
-        a_idx_0 = CurvStruct_P1[0] - CurvStruct_P0[0];
-        a_idx_1 = CurvStruct_P1[1] - CurvStruct_P0[1];
-        a_idx_2 = CurvStruct_P1[2] - CurvStruct_P0[2];
+        _mm_storeu_pd(&a[0], _mm_sub_pd(_mm_loadu_pd((double *)&CurvStruct_P1[0]), _mm_loadu_pd
+                       ((double *)&CurvStruct_P0[0])));
+        a[2] = CurvStruct_P1[2] - CurvStruct_P0[2];
         for (int t = 0; t < 10; t++) {
             r0D[t][0] = CurvStruct_P1[0] * u_vec[t] + CurvStruct_P0[0] * (1.0 - u_vec[t]);
             r0D[t][1] = CurvStruct_P1[1] * u_vec[t] + CurvStruct_P0[1] * (1.0 - u_vec[t]);
             r0D[t][2] = CurvStruct_P1[2] * u_vec[t] + CurvStruct_P0[2] * (1.0 - u_vec[t]);
-            r1D[t][0] = a_idx_0;
-            r1D[t][1] = a_idx_1;
-            r1D[t][2] = a_idx_2;
+            r1D[t][0] = a[0];
+            r1D[t][1] = a[1];
+            r1D[t][2] = a[2];
         }
 
         //
@@ -14533,34 +15127,50 @@ namespace ocn
         //
         // u  = u(:).';
         for (int k = 0; k < 5; k++) {
-            int p5_1D_tmp;
-            p5_1D_tmp = 5 - k;
-            p5_1D[k][0] = CurvStruct_CoeffP5[k][0] * static_cast<double>(p5_1D_tmp);
-            p5_1D[k][1] = CurvStruct_CoeffP5[k][1] * static_cast<double>(p5_1D_tmp);
-            p5_1D[k][2] = CurvStruct_CoeffP5[k][2] * static_cast<double>(p5_1D_tmp);
+            int i;
+            i = 5 - k;
+            _mm_storeu_pd(&p5_1D[k][0], _mm_mul_pd(_mm_loadu_pd((double *)&CurvStruct_CoeffP5[k][0]),
+                           _mm_set1_pd(static_cast<double>(i))));
+            p5_1D[k][2] = CurvStruct_CoeffP5[k][2] * static_cast<double>(i);
         }
+
+        __m128d r;
+        __m128d r1;
+        __m128d r2;
+        __m128d r3;
+        __m128d r4;
 
         // MYPOLYDER Differentiate polynomial.
         //
         // u  = u(:).';
-        for (int b_k = 0; b_k < 4; b_k++) {
-            int p5_2D_tmp;
-            p5_2D_tmp = 4 - b_k;
-            p5_2D[b_k][0] = p5_1D[b_k][0] * static_cast<double>(p5_2D_tmp);
-            p5_2D[b_k][1] = p5_1D[b_k][1] * static_cast<double>(p5_2D_tmp);
-            p5_2D[b_k][2] = p5_1D[b_k][2] * static_cast<double>(p5_2D_tmp);
-        }
+        r = _mm_loadu_pd(&p5_1D[0][0]);
+        _mm_storeu_pd(&p5_2D[0][0], _mm_mul_pd(r, _mm_set1_pd(4.0)));
+        p5_2D[0][2] = p5_1D[0][2] * 4.0;
+        r = _mm_loadu_pd(&p5_1D[1][0]);
+        r1 = _mm_set1_pd(3.0);
+        _mm_storeu_pd(&p5_2D[1][0], _mm_mul_pd(r, r1));
+        p5_2D[1][2] = p5_1D[1][2] * 3.0;
+        r = _mm_loadu_pd(&p5_1D[2][0]);
+        r2 = _mm_set1_pd(2.0);
+        _mm_storeu_pd(&p5_2D[2][0], _mm_mul_pd(r, r2));
+        p5_2D[2][2] = p5_1D[2][2] * 2.0;
+        r = _mm_loadu_pd(&p5_1D[3][0]);
+        r3 = _mm_set1_pd(1.0);
+        _mm_storeu_pd(&p5_2D[3][0], _mm_mul_pd(r, r3));
+        p5_2D[3][2] = p5_1D[3][2];
 
         // MYPOLYDER Differentiate polynomial.
         //
         // u  = u(:).';
-        for (int c_k = 0; c_k < 3; c_k++) {
-            int p5_3D_tmp;
-            p5_3D_tmp = 3 - c_k;
-            p5_3D[c_k][0] = p5_2D[c_k][0] * static_cast<double>(p5_3D_tmp);
-            p5_3D[c_k][1] = p5_2D[c_k][1] * static_cast<double>(p5_3D_tmp);
-            p5_3D[c_k][2] = p5_2D[c_k][2] * static_cast<double>(p5_3D_tmp);
-        }
+        r4 = _mm_loadu_pd(&p5_2D[0][0]);
+        _mm_storeu_pd(&p5_3D[0][0], _mm_mul_pd(r4, r1));
+        p5_3D[0][2] = p5_2D[0][2] * 3.0;
+        r4 = _mm_loadu_pd(&p5_2D[1][0]);
+        _mm_storeu_pd(&p5_3D[1][0], _mm_mul_pd(r4, r2));
+        p5_3D[1][2] = p5_2D[1][2] * 2.0;
+        r4 = _mm_loadu_pd(&p5_2D[2][0]);
+        _mm_storeu_pd(&p5_3D[2][0], _mm_mul_pd(r4, r3));
+        p5_3D[2][2] = p5_2D[2][2];
 
         //
         // POLYVAL Evaluate array of polynomials with same degree.
@@ -14573,17 +15183,13 @@ namespace ocn
             r_0D[t][2] = CurvStruct_CoeffP5[0][2];
         }
 
-        for (int i = 0; i < 5; i++) {
-            double d;
-            double d1;
-            double d2;
-            d = CurvStruct_CoeffP5[i + 1][0];
-            d1 = CurvStruct_CoeffP5[i + 1][1];
-            d2 = CurvStruct_CoeffP5[i + 1][2];
-            for (int d_k = 0; d_k < 10; d_k++) {
-                r_0D[d_k][0] = u_vec[d_k] * r_0D[d_k][0] + d;
-                r_0D[d_k][1] = u_vec[d_k] * r_0D[d_k][1] + d1;
-                r_0D[d_k][2] = u_vec[d_k] * r_0D[d_k][2] + d2;
+        for (int b_i = 0; b_i < 5; b_i++) {
+            for (int b_k = 0; b_k < 10; b_k++) {
+                __m128d r5;
+                r5 = _mm_loadu_pd(&r_0D[b_k][0]);
+                _mm_storeu_pd(&r_0D[b_k][0], _mm_add_pd(_mm_mul_pd(_mm_set1_pd(u_vec[b_k]), r5),
+                               _mm_loadu_pd((double *)&CurvStruct_CoeffP5[b_i + 1][0])));
+                r_0D[b_k][2] = u_vec[b_k] * r_0D[b_k][2] + CurvStruct_CoeffP5[b_i + 1][2];
             }
         }
 
@@ -14597,17 +15203,14 @@ namespace ocn
             r_1D[b_t][2] = p5_1D[0][2];
         }
 
-        for (int b_i = 0; b_i < 4; b_i++) {
-            double d3;
-            double d4;
-            double d5;
-            d3 = p5_1D[b_i + 1][0];
-            d4 = p5_1D[b_i + 1][1];
-            d5 = p5_1D[b_i + 1][2];
-            for (int e_k = 0; e_k < 10; e_k++) {
-                r_1D[e_k][0] = u_vec[e_k] * r_1D[e_k][0] + d3;
-                r_1D[e_k][1] = u_vec[e_k] * r_1D[e_k][1] + d4;
-                r_1D[e_k][2] = u_vec[e_k] * r_1D[e_k][2] + d5;
+        for (int c_i = 0; c_i < 4; c_i++) {
+            __m128d r6;
+            r6 = _mm_loadu_pd(&p5_1D[c_i + 1][0]);
+            for (int c_k = 0; c_k < 10; c_k++) {
+                __m128d r7;
+                r7 = _mm_loadu_pd(&r_1D[c_k][0]);
+                _mm_storeu_pd(&r_1D[c_k][0], _mm_add_pd(_mm_mul_pd(_mm_set1_pd(u_vec[c_k]), r7), r6));
+                r_1D[c_k][2] = u_vec[c_k] * r_1D[c_k][2] + p5_1D[c_i + 1][2];
             }
         }
 
@@ -14621,17 +15224,14 @@ namespace ocn
             r_2D[c_t][2] = p5_2D[0][2];
         }
 
-        for (int c_i = 0; c_i < 3; c_i++) {
-            double d6;
-            double d7;
-            double d8;
-            d6 = p5_2D[c_i + 1][0];
-            d7 = p5_2D[c_i + 1][1];
-            d8 = p5_2D[c_i + 1][2];
-            for (int f_k = 0; f_k < 10; f_k++) {
-                r_2D[f_k][0] = u_vec[f_k] * r_2D[f_k][0] + d6;
-                r_2D[f_k][1] = u_vec[f_k] * r_2D[f_k][1] + d7;
-                r_2D[f_k][2] = u_vec[f_k] * r_2D[f_k][2] + d8;
+        for (int d_i = 0; d_i < 3; d_i++) {
+            __m128d r8;
+            r8 = _mm_loadu_pd(&p5_2D[d_i + 1][0]);
+            for (int d_k = 0; d_k < 10; d_k++) {
+                __m128d r9;
+                r9 = _mm_loadu_pd(&r_2D[d_k][0]);
+                _mm_storeu_pd(&r_2D[d_k][0], _mm_add_pd(_mm_mul_pd(_mm_set1_pd(u_vec[d_k]), r9), r8));
+                r_2D[d_k][2] = u_vec[d_k] * r_2D[d_k][2] + p5_2D[d_i + 1][2];
             }
         }
 
@@ -14645,19 +15245,320 @@ namespace ocn
             r_3D[d_t][2] = p5_3D[0][2];
         }
 
-        for (int d_i = 0; d_i < 2; d_i++) {
-            double d9;
-            double d10;
-            double d11;
-            d9 = p5_3D[d_i + 1][0];
-            d10 = p5_3D[d_i + 1][1];
-            d11 = p5_3D[d_i + 1][2];
-            for (int g_k = 0; g_k < 10; g_k++) {
-                r_3D[g_k][0] = u_vec[g_k] * r_3D[g_k][0] + d9;
-                r_3D[g_k][1] = u_vec[g_k] * r_3D[g_k][1] + d10;
-                r_3D[g_k][2] = u_vec[g_k] * r_3D[g_k][2] + d11;
+        for (int e_i = 0; e_i < 2; e_i++) {
+            __m128d r10;
+            r10 = _mm_loadu_pd(&p5_3D[e_i + 1][0]);
+            for (int e_k = 0; e_k < 10; e_k++) {
+                __m128d r11;
+                r11 = _mm_loadu_pd(&r_3D[e_k][0]);
+                _mm_storeu_pd(&r_3D[e_k][0], _mm_add_pd(_mm_mul_pd(_mm_set1_pd(u_vec[e_k]), r11),
+                               r10));
+                r_3D[e_k][2] = u_vec[e_k] * r_3D[e_k][2] + p5_3D[e_i + 1][2];
             }
         }
+    }
+
+    //
+    // computes approximately the arc length of a parametric spline
+    // Arguments    : const queue_coder *ctx_q_splines
+    //                double ctx_cfg_NGridLengthSpline
+    //                int Curv_sp_index
+    //                double u0_tilda
+    //                const double u1_tilda_data[]
+    //                const int u1_tilda_size[2]
+    // Return Type  : double
+    //
+    static double c_SplineLengthApprox(const queue_coder *ctx_q_splines, double
+        ctx_cfg_NGridLengthSpline, int Curv_sp_index, double u0_tilda, const double u1_tilda_data[],
+        const int u1_tilda_size[2])
+    {
+        double L;
+        CurvStruct expl_temp;
+        coder::array<double, 2U> Spline_sp_CoeffX;
+        int loop_ub;
+        coder::array<double, 2U> Spline_sp_CoeffY;
+        int b_loop_ub;
+        coder::array<double, 2U> Spline_sp_CoeffZ;
+        int c_loop_ub;
+        coder::array<double, 2U> Spline_sp_knots;
+        int d_loop_ub;
+        coder::array<bool, 2U> x;
+        int e_loop_ub;
+        int k;
+        int idx;
+        int ii_size_idx_1;
+        int ii;
+        bool exitg1;
+        int ii_data[1];
+        unsigned int Idx1_data[1];
+        int i5;
+        int i6;
+        int f_loop_ub;
+        int u_vec_tilda_size_idx_1;
+        double u_vec_tilda_data[3];
+        int g_loop_ub;
+        coder::array<double, 2U> u_tilda;
+        int i9;
+        int h_loop_ub;
+        coder::array<double, 2U> r;
+        int i10;
+        coder::array<double, 2U> u_mid_tilda;
+        int scalarLB;
+        int vectorUB;
+        int i12;
+        coder::array<double, 2U> unusedU0;
+        coder::array<double, 2U> r1Dx;
+        coder::array<double, 2U> unusedU1;
+        coder::array<double, 2U> r1Dy;
+        coder::array<double, 2U> unusedU2;
+        coder::array<double, 2U> r1Dz;
+        coder::array<double, 2U> a;
+        int j_loop_ub;
+        int k_loop_ub;
+        int l_loop_ub;
+        coder::array<double, 2U> z1;
+        int N;
+        coder::array<double, 2U> Integrand;
+        int i18;
+        int b_scalarLB;
+        int b_vectorUB;
+        int e_k;
+        coder::array<double, 2U> b_x;
+        int m_loop_ub;
+        int c_scalarLB;
+        int c_vectorUB;
+        int i19;
+        int vlen;
+
+        //  get the sp structure
+        ctx_q_splines->get(Curv_sp_index, (&expl_temp));
+        Spline_sp_CoeffX.set_size(1, expl_temp.sp.CoeffX.size(1));
+        loop_ub = expl_temp.sp.CoeffX.size(1);
+        for (int i = 0; i < loop_ub; i++) {
+            Spline_sp_CoeffX[i] = expl_temp.sp.CoeffX[i];
+        }
+
+        Spline_sp_CoeffY.set_size(1, expl_temp.sp.CoeffY.size(1));
+        b_loop_ub = expl_temp.sp.CoeffY.size(1);
+        for (int i1 = 0; i1 < b_loop_ub; i1++) {
+            Spline_sp_CoeffY[i1] = expl_temp.sp.CoeffY[i1];
+        }
+
+        Spline_sp_CoeffZ.set_size(1, expl_temp.sp.CoeffZ.size(1));
+        c_loop_ub = expl_temp.sp.CoeffZ.size(1);
+        for (int i2 = 0; i2 < c_loop_ub; i2++) {
+            Spline_sp_CoeffZ[i2] = expl_temp.sp.CoeffZ[i2];
+        }
+
+        Spline_sp_knots.set_size(1, expl_temp.sp.knots.size(1));
+        d_loop_ub = expl_temp.sp.knots.size(1);
+        for (int i3 = 0; i3 < d_loop_ub; i3++) {
+            Spline_sp_knots[i3] = expl_temp.sp.knots[i3];
+        }
+
+        //  the ORIGINAL spline is parametrized with u_tilda
+        //  after cut-off, new parameter is called u.
+        //  u=0 corresponds to the first lift-off point
+        //  u=1 corresponds to the second lift-off point
+        //  u is NOT used in this function
+        x.set_size(1, Spline_sp_knots.size(1));
+        e_loop_ub = Spline_sp_knots.size(1);
+        for (int i4 = 0; i4 < e_loop_ub; i4++) {
+            x[i4] = (Spline_sp_knots[i4] > u0_tilda);
+        }
+
+        k = (1 <= x.size(1));
+        idx = 0;
+        ii_size_idx_1 = k;
+        ii = 0;
+        exitg1 = false;
+        while ((!exitg1) && (ii <= x.size(1) - 1)) {
+            if (x[ii]) {
+                idx = 1;
+                ii_data[0] = ii + 1;
+                exitg1 = true;
+            } else {
+                ii++;
+            }
+        }
+
+        if (k == 1) {
+            if (idx == 0) {
+                ii_size_idx_1 = 0;
+            }
+        } else {
+            ii_size_idx_1 = (1 <= idx);
+        }
+
+        if (0 <= ii_size_idx_1 - 1) {
+            Idx1_data[0] = static_cast<unsigned int>(ii_data[0]);
+        }
+
+        if (static_cast<int>(Idx1_data[0]) > 1) {
+            i5 = -2;
+            i6 = -1;
+        } else {
+            i5 = static_cast<int>(Idx1_data[0]) - 3;
+            i6 = 0;
+        }
+
+        f_loop_ub = i6 - i5;
+        u_vec_tilda_size_idx_1 = f_loop_ub + u1_tilda_size[1];
+        u_vec_tilda_data[0] = u0_tilda;
+        for (int i7 = 0; i7 <= f_loop_ub - 2; i7++) {
+            u_vec_tilda_data[i7 + 1] = Spline_sp_knots[(i5 + i7) + 2];
+        }
+
+        g_loop_ub = u1_tilda_size[1];
+        for (int i8 = 0; i8 < g_loop_ub; i8++) {
+            u_vec_tilda_data[(i8 + i6) - i5] = u1_tilda_data[i8];
+        }
+
+        u_tilda.set_size(1, 0);
+
+        //  N equally spaced u_tilda values between each pair of knots
+        //  from u0_tilda until u1_tilda
+        for (int b_k = 0; b_k <= u_vec_tilda_size_idx_1 - 2; b_k++) {
+            int i11;
+            int i_loop_ub;
+            i9 = u_tilda.size(1);
+            if (u_tilda.size(1) != 0) {
+                if (1 > u_tilda.size(1) - 1) {
+                    i9 = 0;
+                } else {
+                    i9 = u_tilda.size(1) - 1;
+                }
+            }
+
+            linspace(u_vec_tilda_data[b_k], u_vec_tilda_data[b_k + 1], ctx_cfg_NGridLengthSpline, r);
+            i11 = i9;
+            i_loop_ub = r.size(1);
+            i9 += r.size(1);
+            u_tilda.set_size(u_tilda.size(0), i9);
+            for (int i13 = 0; i13 < i_loop_ub; i13++) {
+                u_tilda[i11 + i13] = r[i13];
+            }
+        }
+
+        //  midpoint values
+        if (1 > u_tilda.size(1) - 1) {
+            h_loop_ub = 0;
+        } else {
+            h_loop_ub = u_tilda.size(1) - 1;
+        }
+
+        i10 = (2 <= u_tilda.size(1));
+        u_mid_tilda.set_size(1, h_loop_ub);
+        scalarLB = h_loop_ub & -2;
+        vectorUB = scalarLB - 2;
+        for (i12 = 0; i12 <= vectorUB; i12 += 2) {
+            __m128d r1;
+            __m128d r2;
+            r1 = _mm_loadu_pd(&u_tilda[i12]);
+            r2 = _mm_loadu_pd(&u_tilda[i10 + i12]);
+            _mm_storeu_pd(&u_mid_tilda[i12], _mm_mul_pd(_mm_set1_pd(0.5), _mm_add_pd(r1, r2)));
+        }
+
+        for (i12 = scalarLB; i12 < h_loop_ub; i12++) {
+            u_mid_tilda[i12] = 0.5 * (u_tilda[i12] + u_tilda[i10 + i12]);
+        }
+
+        //  midpoint values
+        //  parametric derivative calculation at each midpoint value
+        //  with respect to u_tilda
+        c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffX, u_mid_tilda, unusedU0, r1Dx);
+        c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffY, u_mid_tilda, unusedU1, r1Dy);
+        c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffZ, u_mid_tilda, unusedU2, r1Dz);
+
+        //  length (between u0_tilda and u1_tilda) calculation by rectangles method
+        a.set_size(3, r1Dx.size(1));
+        j_loop_ub = r1Dx.size(1);
+        for (int i14 = 0; i14 < j_loop_ub; i14++) {
+            a[3 * i14] = r1Dx[i14];
+        }
+
+        k_loop_ub = r1Dy.size(1);
+        for (int i15 = 0; i15 < k_loop_ub; i15++) {
+            a[3 * i15 + 1] = r1Dy[i15];
+        }
+
+        l_loop_ub = r1Dz.size(1);
+        for (int i16 = 0; i16 < l_loop_ub; i16++) {
+            a[3 * i16 + 2] = r1Dz[i16];
+        }
+
+        z1.set_size(3, a.size(1));
+        N = a.size(1);
+        for (int c_k = 0; c_k < N; c_k++) {
+            z1[3 * c_k] = std::pow(a[3 * c_k], 2.0);
+            z1[3 * c_k + 1] = std::pow(a[3 * c_k + 1], 2.0);
+            z1[3 * c_k + 2] = std::pow(a[3 * c_k + 2], 2.0);
+        }
+
+        if (z1.size(1) == 0) {
+            Integrand.set_size(1, 0);
+        } else {
+            int i17;
+            Integrand.set_size(1, z1.size(1));
+            i17 = z1.size(1);
+            for (int d_k = 0; d_k < i17; d_k++) {
+                Integrand[d_k] = z1[3 * d_k];
+                Integrand[d_k] = Integrand[d_k] + z1[3 * d_k + 1];
+                Integrand[d_k] = Integrand[d_k] + z1[3 * d_k + 2];
+            }
+        }
+
+        i18 = Integrand.size(1);
+        b_scalarLB = Integrand.size(1) & -2;
+        b_vectorUB = b_scalarLB - 2;
+        for (e_k = 0; e_k <= b_vectorUB; e_k += 2) {
+            __m128d r3;
+            r3 = _mm_loadu_pd(&Integrand[e_k]);
+            _mm_storeu_pd(&Integrand[e_k], _mm_sqrt_pd(r3));
+        }
+
+        for (e_k = b_scalarLB; e_k < i18; e_k++) {
+            Integrand[e_k] = std::sqrt(Integrand[e_k]);
+        }
+
+        sqrt_calls++;
+        diff(u_tilda, r);
+        b_x.set_size(1, Integrand.size(1));
+        m_loop_ub = Integrand.size(1);
+        c_scalarLB = Integrand.size(1) & -2;
+        c_vectorUB = c_scalarLB - 2;
+        for (i19 = 0; i19 <= c_vectorUB; i19 += 2) {
+            __m128d r4;
+            __m128d r5;
+            r4 = _mm_loadu_pd(&Integrand[i19]);
+            r5 = _mm_loadu_pd(&r[i19]);
+            _mm_storeu_pd(&b_x[i19], _mm_mul_pd(r4, r5));
+        }
+
+        for (i19 = c_scalarLB; i19 < m_loop_ub; i19++) {
+            b_x[i19] = Integrand[i19] * r[i19];
+        }
+
+        vlen = b_x.size(1);
+        if (b_x.size(1) == 0) {
+            L = 0.0;
+        } else {
+            double y;
+            y = b_x[0];
+            for (int f_k = 2; f_k <= vlen; f_k++) {
+                double b_y;
+                b_y = y;
+                if (vlen >= 2) {
+                    b_y = y + b_x[f_k - 1];
+                }
+
+                y = b_y;
+            }
+
+            L = y;
+        }
+
+        return L;
     }
 
     //
@@ -14834,39 +15735,6 @@ namespace ocn
     }
 
     //
-    // Arguments    : double d1
-    //                double d2
-    //                double y[10]
-    // Return Type  : void
-    //
-    static void c_linspace(double d1, double d2, double y[10])
-    {
-        y[9] = d2;
-        y[0] = d1;
-        if (d1 == -d2) {
-            for (int k = 0; k < 8; k++) {
-                y[k + 1] = d2 * ((2.0 * (static_cast<double>(k) + 2.0) - 11.0) / 9.0);
-            }
-        } else if (((d1 < 0.0) != (d2 < 0.0)) && ((std::abs(d1) > 8.9884656743115785E+307) || (std::
-                     abs(d2) > 8.9884656743115785E+307))) {
-            double delta1;
-            double delta2;
-            delta1 = d1 / 9.0;
-            delta2 = d2 / 9.0;
-            for (int c_k = 0; c_k < 8; c_k++) {
-                y[c_k + 1] = (d1 + delta2 * (static_cast<double>(c_k) + 1.0)) - delta1 * (
-                    static_cast<double>(c_k) + 1.0);
-            }
-        } else {
-            double delta1;
-            delta1 = (d2 - d1) / 9.0;
-            for (int b_k = 0; b_k < 8; b_k++) {
-                y[b_k + 1] = d1 + (static_cast<double>(b_k) + 1.0) * delta1;
-            }
-        }
-    }
-
-    //
     // Arguments    : const coder::array<double, 2U> &f
     //                const coder_internal_sparse *A
     //                coder::array<double, 2U> &b
@@ -15037,6 +15905,105 @@ namespace ocn
     }
 
     //
+    // Arguments    : const double u[3]
+    //                const double v[3]
+    //                double tol_angle_d
+    // Return Type  : bool
+    //
+    static bool collinear(const double u[3], const double v[3], double tol_angle_d)
+    {
+        bool value;
+        double scale;
+        double absxk;
+        double t;
+        double d;
+        double d1;
+        double d2;
+        double d3;
+        scale = 3.3121686421112381E-170;
+        absxk = std::abs(u[0]);
+        if (absxk > 3.3121686421112381E-170) {
+            d = 1.0;
+            scale = absxk;
+        } else {
+            t = absxk / 3.3121686421112381E-170;
+            d = t * t;
+        }
+
+        absxk = std::abs(u[1]);
+        if (absxk > scale) {
+            t = scale / absxk;
+            d = d * t * t + 1.0;
+            scale = absxk;
+        } else {
+            t = absxk / scale;
+            d += t * t;
+        }
+
+        absxk = std::abs(u[2]);
+        if (absxk > scale) {
+            t = scale / absxk;
+            d = d * t * t + 1.0;
+            scale = absxk;
+        } else {
+            t = absxk / scale;
+            d += t * t;
+        }
+
+        d = scale * std::sqrt(d);
+        if (d < 2.2204460492503131E-16) {
+            value = true;
+        } else {
+            double b_scale;
+            double b_absxk;
+            double b_t;
+            b_scale = 3.3121686421112381E-170;
+            b_absxk = std::abs(v[0]);
+            if (b_absxk > 3.3121686421112381E-170) {
+                d1 = 1.0;
+                b_scale = b_absxk;
+            } else {
+                b_t = b_absxk / 3.3121686421112381E-170;
+                d1 = b_t * b_t;
+            }
+
+            b_absxk = std::abs(v[1]);
+            if (b_absxk > b_scale) {
+                b_t = b_scale / b_absxk;
+                d1 = d1 * b_t * b_t + 1.0;
+                b_scale = b_absxk;
+            } else {
+                b_t = b_absxk / b_scale;
+                d1 += b_t * b_t;
+            }
+
+            b_absxk = std::abs(v[2]);
+            if (b_absxk > b_scale) {
+                b_t = b_scale / b_absxk;
+                d1 = d1 * b_t * b_t + 1.0;
+                b_scale = b_absxk;
+            } else {
+                b_t = b_absxk / b_scale;
+                d1 += b_t * b_t;
+            }
+
+            d1 = b_scale * std::sqrt(d1);
+            if (d1 < 2.2204460492503131E-16) {
+                value = true;
+            } else {
+                d2 = 57.295779513082323 * std::acos(((u[0] * v[0] + u[1] * v[1]) + u[2] * v[2]) / (d
+                    * d1));
+                b_cosd(&d2);
+                d3 = tol_angle_d;
+                b_cosd(&d3);
+                value = (d2 > d3);
+            }
+        }
+
+        return value;
+    }
+
+    //
     // coder.cstructname(CurvStruct, 'CurvStruct')
     // Arguments    : const queue_coder *ctx_q_splines
     //                CurveType CurvStruct_Type
@@ -15067,6 +16034,8 @@ namespace ocn
         char message[30];
         coder::array<double, 2U> Spline_sp_CoeffX;
         double c;
+        __m128d r;
+        __m128d r1;
         coder::array<double, 2U> Spline_sp_CoeffY;
         coder::array<double, 2U> Spline_sp_CoeffZ;
         double r0Dx;
@@ -15165,12 +16134,340 @@ namespace ocn
         }
 
         c = std::pow(CurvStruct_a_param, 2.0);
-        r1D[0] *= CurvStruct_a_param;
-        r2D[0] *= c;
-        r1D[1] *= CurvStruct_a_param;
-        r2D[1] *= c;
+        r = _mm_loadu_pd(&r1D[0]);
+        _mm_storeu_pd(&r1D[0], _mm_mul_pd(_mm_set1_pd(CurvStruct_a_param), r));
+        r1 = _mm_loadu_pd(&r2D[0]);
+        _mm_storeu_pd(&r2D[0], _mm_mul_pd(_mm_set1_pd(c), r1));
         r1D[2] *= CurvStruct_a_param;
         r2D[2] *= c;
+    }
+
+    //
+    // computes approximately the arc length of a parametric spline
+    // Arguments    : const queue_coder *ctx_q_splines
+    //                double ctx_cfg_NGridLengthSpline
+    //                int Curv_sp_index
+    //                double u0_tilda
+    //                double u1_tilda
+    //                double *L
+    //                coder::array<double, 2U> &Integrand
+    //                coder::array<double, 2U> &u_mid_tilda
+    //                coder::array<double, 2U> &du_tilda
+    // Return Type  : void
+    //
+    static void d_SplineLengthApprox(const queue_coder *ctx_q_splines, double
+        ctx_cfg_NGridLengthSpline, int Curv_sp_index, double u0_tilda, double u1_tilda, double *L,
+        coder::array<double, 2U> &Integrand, coder::array<double, 2U> &u_mid_tilda, coder::array<
+        double, 2U> &du_tilda)
+    {
+        CurvStruct expl_temp;
+        coder::array<double, 2U> Spline_sp_CoeffX;
+        int loop_ub;
+        coder::array<double, 2U> Spline_sp_CoeffY;
+        int b_loop_ub;
+        coder::array<double, 2U> Spline_sp_CoeffZ;
+        int c_loop_ub;
+        coder::array<double, 2U> Spline_sp_knots;
+        int d_loop_ub;
+        coder::array<bool, 2U> x;
+        int e_loop_ub;
+        int k;
+        int idx;
+        int ii_size_idx_1;
+        int ii;
+        bool exitg1;
+        int ii_data[1];
+        unsigned int Idx1_data[1];
+        int f_loop_ub;
+        int b_k;
+        int b_ii;
+        int b_idx;
+        unsigned int Idx2_data[1];
+        int i6;
+        int i7;
+        int g_loop_ub;
+        coder::array<double, 2U> u_vec_tilda;
+        coder::array<double, 2U> u_tilda;
+        int i9;
+        int i10;
+        int h_loop_ub;
+        coder::array<double, 2U> r;
+        int i11;
+        int scalarLB;
+        int vectorUB;
+        int i13;
+        coder::array<double, 2U> unusedU0;
+        coder::array<double, 2U> r1Dx;
+        coder::array<double, 2U> unusedU1;
+        coder::array<double, 2U> r1Dy;
+        coder::array<double, 2U> unusedU2;
+        coder::array<double, 2U> r1Dz;
+        coder::array<double, 2U> a;
+        int j_loop_ub;
+        int k_loop_ub;
+        int l_loop_ub;
+        coder::array<double, 2U> z1;
+        int N;
+        int i18;
+        int b_scalarLB;
+        int b_vectorUB;
+        int e_k;
+        coder::array<double, 2U> b_x;
+        int m_loop_ub;
+        int c_scalarLB;
+        int c_vectorUB;
+        int i19;
+        int vlen;
+        double b_L;
+
+        //  get the sp structure
+        ctx_q_splines->get(Curv_sp_index, (&expl_temp));
+        Spline_sp_CoeffX.set_size(1, expl_temp.sp.CoeffX.size(1));
+        loop_ub = expl_temp.sp.CoeffX.size(1);
+        for (int i = 0; i < loop_ub; i++) {
+            Spline_sp_CoeffX[i] = expl_temp.sp.CoeffX[i];
+        }
+
+        Spline_sp_CoeffY.set_size(1, expl_temp.sp.CoeffY.size(1));
+        b_loop_ub = expl_temp.sp.CoeffY.size(1);
+        for (int i1 = 0; i1 < b_loop_ub; i1++) {
+            Spline_sp_CoeffY[i1] = expl_temp.sp.CoeffY[i1];
+        }
+
+        Spline_sp_CoeffZ.set_size(1, expl_temp.sp.CoeffZ.size(1));
+        c_loop_ub = expl_temp.sp.CoeffZ.size(1);
+        for (int i2 = 0; i2 < c_loop_ub; i2++) {
+            Spline_sp_CoeffZ[i2] = expl_temp.sp.CoeffZ[i2];
+        }
+
+        Spline_sp_knots.set_size(1, expl_temp.sp.knots.size(1));
+        d_loop_ub = expl_temp.sp.knots.size(1);
+        for (int i3 = 0; i3 < d_loop_ub; i3++) {
+            Spline_sp_knots[i3] = expl_temp.sp.knots[i3];
+        }
+
+        //  the ORIGINAL spline is parametrized with u_tilda
+        //  after cut-off, new parameter is called u.
+        //  u=0 corresponds to the first lift-off point
+        //  u=1 corresponds to the second lift-off point
+        //  u is NOT used in this function
+        x.set_size(1, Spline_sp_knots.size(1));
+        e_loop_ub = Spline_sp_knots.size(1);
+        for (int i4 = 0; i4 < e_loop_ub; i4++) {
+            x[i4] = (Spline_sp_knots[i4] > u0_tilda);
+        }
+
+        k = (1 <= x.size(1));
+        idx = 0;
+        ii_size_idx_1 = k;
+        ii = 0;
+        exitg1 = false;
+        while ((!exitg1) && (ii <= x.size(1) - 1)) {
+            if (x[ii]) {
+                idx = 1;
+                ii_data[0] = ii + 1;
+                exitg1 = true;
+            } else {
+                ii++;
+            }
+        }
+
+        if (k == 1) {
+            if (idx == 0) {
+                ii_size_idx_1 = 0;
+            }
+        } else {
+            ii_size_idx_1 = (1 <= idx);
+        }
+
+        if (0 <= ii_size_idx_1 - 1) {
+            Idx1_data[0] = static_cast<unsigned int>(ii_data[0]);
+        }
+
+        x.set_size(1, Spline_sp_knots.size(1));
+        f_loop_ub = Spline_sp_knots.size(1);
+        for (int i5 = 0; i5 < f_loop_ub; i5++) {
+            x[i5] = (Spline_sp_knots[i5] < u1_tilda);
+        }
+
+        b_k = (1 <= x.size(1));
+        b_ii = x.size(1);
+        b_idx = 0;
+        ii_size_idx_1 = b_k;
+        exitg1 = false;
+        while ((!exitg1) && (b_ii > 0)) {
+            if (x[b_ii - 1]) {
+                b_idx = 1;
+                ii_data[0] = b_ii;
+                exitg1 = true;
+            } else {
+                b_ii--;
+            }
+        }
+
+        if (b_k == 1) {
+            if (b_idx == 0) {
+                ii_size_idx_1 = 0;
+            }
+        } else {
+            ii_size_idx_1 = (1 <= b_idx);
+        }
+
+        if (0 <= ii_size_idx_1 - 1) {
+            Idx2_data[0] = static_cast<unsigned int>(ii_data[0]);
+        }
+
+        if (static_cast<int>(Idx1_data[0]) > static_cast<int>(Idx2_data[0])) {
+            i6 = 0;
+            i7 = 0;
+        } else {
+            i6 = static_cast<int>(Idx1_data[0]) - 1;
+            i7 = static_cast<int>(Idx2_data[0]);
+        }
+
+        g_loop_ub = i7 - i6;
+        u_vec_tilda.set_size(1, (g_loop_ub + 2));
+        u_vec_tilda[0] = u0_tilda;
+        for (int i8 = 0; i8 < g_loop_ub; i8++) {
+            u_vec_tilda[i8 + 1] = Spline_sp_knots[i6 + i8];
+        }
+
+        u_vec_tilda[g_loop_ub + 1] = u1_tilda;
+        u_tilda.set_size(1, 0);
+
+        //  N equally spaced u_tilda values between each pair of knots
+        //  from u0_tilda until u1_tilda
+        i9 = u_vec_tilda.size(1);
+        for (int c_k = 0; c_k <= i9 - 2; c_k++) {
+            int i12;
+            int i_loop_ub;
+            i10 = u_tilda.size(1);
+            if (u_tilda.size(1) != 0) {
+                if (1 > u_tilda.size(1) - 1) {
+                    i10 = 0;
+                } else {
+                    i10 = u_tilda.size(1) - 1;
+                }
+            }
+
+            linspace(u_vec_tilda[c_k], u_vec_tilda[c_k + 1], ctx_cfg_NGridLengthSpline, r);
+            i12 = i10;
+            i_loop_ub = r.size(1);
+            i10 += r.size(1);
+            u_tilda.set_size(u_tilda.size(0), i10);
+            for (int i14 = 0; i14 < i_loop_ub; i14++) {
+                u_tilda[i12 + i14] = r[i14];
+            }
+        }
+
+        //  midpoint values
+        if (1 > u_tilda.size(1) - 1) {
+            h_loop_ub = 0;
+        } else {
+            h_loop_ub = u_tilda.size(1) - 1;
+        }
+
+        i11 = (2 <= u_tilda.size(1));
+        u_mid_tilda.set_size(1, h_loop_ub);
+        scalarLB = h_loop_ub & -2;
+        vectorUB = scalarLB - 2;
+        for (i13 = 0; i13 <= vectorUB; i13 += 2) {
+            __m128d r1;
+            __m128d r2;
+            r1 = _mm_loadu_pd(&u_tilda[i13]);
+            r2 = _mm_loadu_pd(&u_tilda[i11 + i13]);
+            _mm_storeu_pd(&u_mid_tilda[i13], _mm_mul_pd(_mm_set1_pd(0.5), _mm_add_pd(r1, r2)));
+        }
+
+        for (i13 = scalarLB; i13 < h_loop_ub; i13++) {
+            u_mid_tilda[i13] = 0.5 * (u_tilda[i13] + u_tilda[i11 + i13]);
+        }
+
+        //  midpoint values
+        diff(u_tilda, du_tilda);
+
+        //  parametric derivative calculation at each midpoint value
+        //  with respect to u_tilda
+        c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffX, u_mid_tilda, unusedU0, r1Dx);
+        c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffY, u_mid_tilda, unusedU1, r1Dy);
+        c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffZ, u_mid_tilda, unusedU2, r1Dz);
+
+        //  length (between u0_tilda and u1_tilda) calculation by rectangles method
+        a.set_size(3, r1Dx.size(1));
+        j_loop_ub = r1Dx.size(1);
+        for (int i15 = 0; i15 < j_loop_ub; i15++) {
+            a[3 * i15] = r1Dx[i15];
+        }
+
+        k_loop_ub = r1Dy.size(1);
+        for (int i16 = 0; i16 < k_loop_ub; i16++) {
+            a[3 * i16 + 1] = r1Dy[i16];
+        }
+
+        l_loop_ub = r1Dz.size(1);
+        for (int i17 = 0; i17 < l_loop_ub; i17++) {
+            a[3 * i17 + 2] = r1Dz[i17];
+        }
+
+        z1.set_size(3, a.size(1));
+        N = a.size(1);
+        for (int d_k = 0; d_k < N; d_k++) {
+            z1[3 * d_k] = std::pow(a[3 * d_k], 2.0);
+            z1[3 * d_k + 1] = std::pow(a[3 * d_k + 1], 2.0);
+            z1[3 * d_k + 2] = std::pow(a[3 * d_k + 2], 2.0);
+        }
+
+        sum(z1, Integrand);
+        i18 = Integrand.size(1);
+        b_scalarLB = Integrand.size(1) & -2;
+        b_vectorUB = b_scalarLB - 2;
+        for (e_k = 0; e_k <= b_vectorUB; e_k += 2) {
+            __m128d r3;
+            r3 = _mm_loadu_pd(&Integrand[e_k]);
+            _mm_storeu_pd(&Integrand[e_k], _mm_sqrt_pd(r3));
+        }
+
+        for (e_k = b_scalarLB; e_k < i18; e_k++) {
+            Integrand[e_k] = std::sqrt(Integrand[e_k]);
+        }
+
+        sqrt_calls++;
+        b_x.set_size(1, Integrand.size(1));
+        m_loop_ub = Integrand.size(1);
+        c_scalarLB = Integrand.size(1) & -2;
+        c_vectorUB = c_scalarLB - 2;
+        for (i19 = 0; i19 <= c_vectorUB; i19 += 2) {
+            __m128d r4;
+            __m128d r5;
+            r4 = _mm_loadu_pd(&Integrand[i19]);
+            r5 = _mm_loadu_pd(&du_tilda[i19]);
+            _mm_storeu_pd(&b_x[i19], _mm_mul_pd(r4, r5));
+        }
+
+        for (i19 = c_scalarLB; i19 < m_loop_ub; i19++) {
+            b_x[i19] = Integrand[i19] * du_tilda[i19];
+        }
+
+        vlen = b_x.size(1);
+        if (b_x.size(1) == 0) {
+            b_L = 0.0;
+        } else {
+            double y;
+            y = b_x[0];
+            for (int f_k = 2; f_k <= vlen; f_k++) {
+                double b_y;
+                b_y = y;
+                if (vlen >= 2) {
+                    b_y = y + b_x[f_k - 1];
+                }
+
+                y = b_y;
+            }
+
+            b_L = y;
+        }
+
+        *L = b_L;
     }
 
     //
@@ -15326,6 +16623,7 @@ namespace ocn
         CurvStruct expl_temp;
         char message[30];
         coder::array<double, 2U> Spline_sp_CoeffX;
+        __m128d r;
         coder::array<double, 2U> Spline_sp_CoeffY;
         coder::array<double, 2U> Spline_sp_CoeffZ;
         double r0Dx;
@@ -15417,8 +16715,8 @@ namespace ocn
             break;
         }
 
-        r1D[0] *= CurvStruct_a_param;
-        r1D[1] *= CurvStruct_a_param;
+        r = _mm_loadu_pd(&r1D[0]);
+        _mm_storeu_pd(&r1D[0], _mm_mul_pd(_mm_set1_pd(CurvStruct_a_param), r));
         r1D[2] *= CurvStruct_a_param;
     }
 
@@ -15551,6 +16849,7 @@ namespace ocn
         CurvStruct expl_temp;
         char message[30];
         coder::array<double, 2U> Spline_sp_CoeffX;
+        __m128d r;
         coder::array<double, 2U> Spline_sp_CoeffY;
         coder::array<double, 2U> Spline_sp_CoeffZ;
         double r0Dx;
@@ -15641,8 +16940,8 @@ namespace ocn
             break;
         }
 
-        r1D[0] *= CurvStruct_a_param;
-        r1D[1] *= CurvStruct_a_param;
+        r = _mm_loadu_pd(&r1D[0]);
+        _mm_storeu_pd(&r1D[0], _mm_mul_pd(_mm_set1_pd(CurvStruct_a_param), r));
         r1D[2] *= CurvStruct_a_param;
     }
 
@@ -15676,6 +16975,8 @@ namespace ocn
         char message[30];
         coder::array<double, 2U> Spline_sp_CoeffX;
         double c;
+        __m128d r;
+        __m128d r1;
         coder::array<double, 2U> Spline_sp_CoeffY;
         coder::array<double, 2U> Spline_sp_CoeffZ;
         double r0Dx;
@@ -15773,10 +17074,10 @@ namespace ocn
         }
 
         c = std::pow(CurvStruct_a_param, 2.0);
-        r1D[0] *= CurvStruct_a_param;
-        r2D[0] *= c;
-        r1D[1] *= CurvStruct_a_param;
-        r2D[1] *= c;
+        r = _mm_loadu_pd(&r1D[0]);
+        _mm_storeu_pd(&r1D[0], _mm_mul_pd(_mm_set1_pd(CurvStruct_a_param), r));
+        r1 = _mm_loadu_pd(&r2D[0]);
+        _mm_storeu_pd(&r2D[0], _mm_mul_pd(_mm_set1_pd(c), r1));
         r1D[2] *= CurvStruct_a_param;
         r2D[2] *= c;
     }
@@ -15944,13 +17245,13 @@ namespace ocn
 
         u_vec_tilda.set_size(1, u_vec.size(1));
         g_loop_ub = u_vec.size(1);
-        scalarLB = u_vec.size(1) & -4;
-        vectorUB = scalarLB - 4;
-        for (i6 = 0; i6 <= vectorUB; i6 += 4) {
-            __m256d r;
-            r = _mm256_loadu_pd(&u_vec[i6]);
-            _mm256_storeu_pd(&u_vec_tilda[i6], _mm256_add_pd(_mm256_mul_pd(_mm256_set1_pd
-                               (CurvStruct_a_param), r), _mm256_set1_pd(CurvStruct_b_param)));
+        scalarLB = u_vec.size(1) & -2;
+        vectorUB = scalarLB - 2;
+        for (i6 = 0; i6 <= vectorUB; i6 += 2) {
+            __m128d r;
+            r = _mm_loadu_pd(&u_vec[i6]);
+            _mm_storeu_pd(&u_vec_tilda[i6], _mm_add_pd(_mm_mul_pd(_mm_set1_pd(CurvStruct_a_param), r),
+                           _mm_set1_pd(CurvStruct_b_param)));
         }
 
         for (i6 = scalarLB; i6 < g_loop_ub; i6++) {
@@ -16096,8 +17397,9 @@ namespace ocn
         r1D.set_size(3, r1D.size(1));
         i_loop_ub = r1D.size(1);
         for (int i9 = 0; i9 < i_loop_ub; i9++) {
-            r1D[3 * i9] = CurvStruct_a_param * r1D[3 * i9];
-            r1D[3 * i9 + 1] = CurvStruct_a_param * r1D[3 * i9 + 1];
+            __m128d r1;
+            r1 = _mm_loadu_pd(&r1D[3 * i9]);
+            _mm_storeu_pd(&r1D[3 * i9], _mm_mul_pd(_mm_set1_pd(CurvStruct_a_param), r1));
             r1D[3 * i9 + 2] = CurvStruct_a_param * r1D[3 * i9 + 2];
         }
 
@@ -16105,8 +17407,9 @@ namespace ocn
         r2D.set_size(3, r2D.size(1));
         k_loop_ub = r2D.size(1);
         for (int i11 = 0; i11 < k_loop_ub; i11++) {
-            r2D[3 * i11] = c * r2D[3 * i11];
-            r2D[3 * i11 + 1] = c * r2D[3 * i11 + 1];
+            __m128d r2;
+            r2 = _mm_loadu_pd(&r2D[3 * i11]);
+            _mm_storeu_pd(&r2D[3 * i11], _mm_mul_pd(_mm_set1_pd(c), r2));
             r2D[3 * i11 + 2] = c * r2D[3 * i11 + 2];
         }
 
@@ -16114,8 +17417,9 @@ namespace ocn
         r3D.set_size(3, r3D.size(1));
         m_loop_ub = r3D.size(1);
         for (int i13 = 0; i13 < m_loop_ub; i13++) {
-            r3D[3 * i13] = b_c * r3D[3 * i13];
-            r3D[3 * i13 + 1] = b_c * r3D[3 * i13 + 1];
+            __m128d r3;
+            r3 = _mm_loadu_pd(&r3D[3 * i13]);
+            _mm_storeu_pd(&r3D[3 * i13], _mm_mul_pd(_mm_set1_pd(b_c), r3));
             r3D[3 * i13 + 2] = b_c * r3D[3 * i13 + 2];
         }
     }
@@ -16265,12 +17569,15 @@ namespace ocn
         c = std::pow(CurvStruct_a_param, 2.0);
         b_c = std::pow(CurvStruct_a_param, 3.0);
         for (int i3 = 0; i3 < 10; i3++) {
-            r1D[i3][0] *= CurvStruct_a_param;
-            r2D[i3][0] *= c;
-            r3D[i3][0] *= b_c;
-            r1D[i3][1] *= CurvStruct_a_param;
-            r2D[i3][1] *= c;
-            r3D[i3][1] *= b_c;
+            __m128d r;
+            __m128d r1;
+            __m128d r2;
+            r = _mm_loadu_pd(&r1D[i3][0]);
+            _mm_storeu_pd(&r1D[i3][0], _mm_mul_pd(_mm_set1_pd(CurvStruct_a_param), r));
+            r1 = _mm_loadu_pd(&r2D[i3][0]);
+            _mm_storeu_pd(&r2D[i3][0], _mm_mul_pd(_mm_set1_pd(c), r1));
+            r2 = _mm_loadu_pd(&r3D[i3][0]);
+            _mm_storeu_pd(&r3D[i3][0], _mm_mul_pd(_mm_set1_pd(b_c), r2));
             r1D[i3][2] *= CurvStruct_a_param;
             r2D[i3][2] *= c;
             r3D[i3][2] *= b_c;
@@ -16429,13 +17736,13 @@ namespace ocn
 
         u_vec_tilda.set_size(1, u_vec.size(1));
         f_loop_ub = u_vec.size(1);
-        scalarLB = u_vec.size(1) & -4;
-        vectorUB = scalarLB - 4;
-        for (i5 = 0; i5 <= vectorUB; i5 += 4) {
-            __m256d r;
-            r = _mm256_loadu_pd(&u_vec[i5]);
-            _mm256_storeu_pd(&u_vec_tilda[i5], _mm256_add_pd(_mm256_mul_pd(_mm256_set1_pd
-                               (CurvStruct_a_param), r), _mm256_set1_pd(CurvStruct_b_param)));
+        scalarLB = u_vec.size(1) & -2;
+        vectorUB = scalarLB - 2;
+        for (i5 = 0; i5 <= vectorUB; i5 += 2) {
+            __m128d r;
+            r = _mm_loadu_pd(&u_vec[i5]);
+            _mm_storeu_pd(&u_vec_tilda[i5], _mm_add_pd(_mm_mul_pd(_mm_set1_pd(CurvStruct_a_param), r),
+                           _mm_set1_pd(CurvStruct_b_param)));
         }
 
         for (i5 = scalarLB; i5 < f_loop_ub; i5++) {
@@ -16562,8 +17869,9 @@ namespace ocn
         r1D.set_size(3, r1D.size(1));
         h_loop_ub = r1D.size(1);
         for (int i8 = 0; i8 < h_loop_ub; i8++) {
-            r1D[3 * i8] = CurvStruct_a_param * r1D[3 * i8];
-            r1D[3 * i8 + 1] = CurvStruct_a_param * r1D[3 * i8 + 1];
+            __m128d r1;
+            r1 = _mm_loadu_pd(&r1D[3 * i8]);
+            _mm_storeu_pd(&r1D[3 * i8], _mm_mul_pd(_mm_set1_pd(CurvStruct_a_param), r1));
             r1D[3 * i8 + 2] = CurvStruct_a_param * r1D[3 * i8 + 2];
         }
 
@@ -16571,8 +17879,9 @@ namespace ocn
         r2D.set_size(3, r2D.size(1));
         j_loop_ub = r2D.size(1);
         for (int i10 = 0; i10 < j_loop_ub; i10++) {
-            r2D[3 * i10] = c * r2D[3 * i10];
-            r2D[3 * i10 + 1] = c * r2D[3 * i10 + 1];
+            __m128d r2;
+            r2 = _mm_loadu_pd(&r2D[3 * i10]);
+            _mm_storeu_pd(&r2D[3 * i10], _mm_mul_pd(_mm_set1_pd(c), r2));
             r2D[3 * i10 + 2] = c * r2D[3 * i10 + 2];
         }
     }
@@ -16946,15 +18255,14 @@ namespace ocn
                         int vectorUB;
                         b_B[c_j] = b_B[c_j] - wj;
                         i22 = c_j + 2;
-                        scalarLB = ((((m - c_j) - 1) & -4) + c_j) + 2;
-                        vectorUB = scalarLB - 4;
-                        for (i_i = i22; i_i <= vectorUB; i_i += 4) {
-                            __m256d r;
-                            __m256d r1;
-                            r = _mm256_loadu_pd(&b_A[(i_i + b_A.size(0) * c_j) - 1]);
-                            r1 = _mm256_loadu_pd(&b_B[i_i - 1]);
-                            _mm256_storeu_pd(&b_B[i_i - 1], _mm256_sub_pd(r1, _mm256_mul_pd(r,
-                                               _mm256_set1_pd(wj))));
+                        scalarLB = ((((m - c_j) - 1) & -2) + c_j) + 2;
+                        vectorUB = scalarLB - 2;
+                        for (i_i = i22; i_i <= vectorUB; i_i += 2) {
+                            __m128d r;
+                            __m128d r1;
+                            r = _mm_loadu_pd(&b_A[(i_i + b_A.size(0) * c_j) - 1]);
+                            r1 = _mm_loadu_pd(&b_B[i_i - 1]);
+                            _mm_storeu_pd(&b_B[i_i - 1], _mm_sub_pd(r1, _mm_mul_pd(r, _mm_set1_pd(wj))));
                         }
 
                         for (i_i = scalarLB; i_i <= m; i_i++) {
@@ -17497,56 +18805,57 @@ namespace ocn
     {
         double CutOff;
         double Length_Threshold;
+        unsigned long u;
+        unsigned long u1;
+        unsigned long u2;
         double unusedU0[3];
-        double r0D1[3];
+        double r0D1_1[3];
         double unusedU1[3];
-        double r1D1[3];
-        bool guard1 = false;
-        double d;
+        double r1D1_1[3];
         TransitionResult b_status;
         CurvStruct expl_temp;
         coder::array<double, 2U> Spline_sp_knots;
         double r0D0[3];
+        double r0D1[3];
         double r0D2[3];
         double r1D0[3];
+        double r1D1[3];
         double r1D2[3];
+        coder::array<bool, 2U> b_x;
         double p5[6][3];
         int c_status;
-        double d1;
-        double d2;
+        double alpha0;
+        double alpha1;
+        int ii_data[1];
+        int Spline_sp_knots_size[2];
+        double Spline_sp_knots_data[1];
         if (!isInitialized_sinspace) {
             sinspace_initialize();
         }
 
         CutOff = ctx->cfg.CutOff;
         Length_Threshold = 3.0 * ctx->cfg.CutOff;
-        if (DebugActive) {
-            //  1 -> stdout
-            //  2 -> stderr
-            fprintf(stderr, "========== CalcTransition ==========\n");
-            fflush(stderr);
+
+        //  1 -> stdout
+        //  2 -> stderr
+        u = static_cast<unsigned long>(std::round(DebugConfig));
+        u1 = u & 1UL;
+        if (u1 != 0UL) {
+            printf("========== CalcTransition ==========\n");
+            fflush(stdout);
         }
 
-        if (DebugActive) {
-            //  1 -> stdout
-            //  2 -> stderr
-            fprintf(stderr, "CutOff = %.3f\n", ctx->cfg.CutOff);
-            fflush(stderr);
+        //  1 -> stdout
+        //  2 -> stderr
+        if (u1 != 0UL) {
+            printf("CutOff = %.3f\n", ctx->cfg.CutOff);
+            fflush(stdout);
         }
 
-        if (DebugActive) {
-            b_PrintCurvStruct(&ctx->q_splines, CurvStruct1->Type, CurvStruct1->zspdmode,
-                              CurvStruct1->P0, CurvStruct1->P1, CurvStruct1->HelixCenter,
-                              CurvStruct1->evec, CurvStruct1->theta, CurvStruct1->pitch,
-                              CurvStruct1->CoeffP5, CurvStruct1->sp_index, CurvStruct1->FeedRate,
-                              CurvStruct1->UseConstJerk, CurvStruct1->ConstJerk,
-                              CurvStruct1->a_param, CurvStruct1->b_param);
-            b_PrintCurvStruct(&ctx->q_splines, CurvStruct2->Type, CurvStruct2->zspdmode,
-                              CurvStruct2->P0, CurvStruct2->P1, CurvStruct2->HelixCenter,
-                              CurvStruct2->evec, CurvStruct2->theta, CurvStruct2->pitch,
-                              CurvStruct2->CoeffP5, CurvStruct2->sp_index, CurvStruct2->FeedRate,
-                              CurvStruct2->UseConstJerk, CurvStruct2->ConstJerk,
-                              CurvStruct2->a_param, CurvStruct2->b_param);
+        u2 = u & 8UL;
+        if (u2 != 0UL) {
+            b_PrintCurvStruct(&ctx->q_splines, ctx->cfg.NGridLengthSpline, CurvStruct1);
+            b_PrintCurvStruct(&ctx->q_splines, ctx->cfg.NGridLengthSpline, CurvStruct2);
         }
 
         *CurvStruct_T = *CurvStruct1;
@@ -17555,121 +18864,32 @@ namespace ocn
         e_EvalCurvStruct(&ctx->q_splines, CurvStruct1->Type, CurvStruct1->P0, CurvStruct1->P1,
                          CurvStruct1->HelixCenter, CurvStruct1->evec, CurvStruct1->theta,
                          CurvStruct1->pitch, CurvStruct1->CoeffP5, CurvStruct1->sp_index,
-                         CurvStruct1->a_param, CurvStruct1->b_param, unusedU0, r0D1);
+                         CurvStruct1->a_param, CurvStruct1->b_param, unusedU0, r0D1_1);
         f_EvalCurvStruct(&ctx->q_splines, CurvStruct2->Type, CurvStruct2->P0, CurvStruct2->P1,
                          CurvStruct2->HelixCenter, CurvStruct2->evec, CurvStruct2->theta,
                          CurvStruct2->pitch, CurvStruct2->CoeffP5, CurvStruct2->sp_index,
-                         CurvStruct2->a_param, CurvStruct2->b_param, unusedU1, r1D1);
+                         CurvStruct2->a_param, CurvStruct2->b_param, unusedU1, r1D1_1);
 
-        //  In case of max. 2° collinearity between two lines, NO transition P5
-        //  is calculated
-        guard1 = false;
-        if ((CurvStruct1->Type != CurveType_Helix) && (CurvStruct2->Type != CurveType_Helix)) {
-            double scale;
-            double absxk;
-            double t;
-            bool value;
-            scale = 3.3121686421112381E-170;
-            absxk = std::abs(r0D1[0]);
-            if (absxk > 3.3121686421112381E-170) {
-                d = 1.0;
-                scale = absxk;
-            } else {
-                t = absxk / 3.3121686421112381E-170;
-                d = t * t;
-            }
-
-            absxk = std::abs(r0D1[1]);
-            if (absxk > scale) {
-                t = scale / absxk;
-                d = d * t * t + 1.0;
-                scale = absxk;
-            } else {
-                t = absxk / scale;
-                d += t * t;
-            }
-
-            absxk = std::abs(r0D1[2]);
-            if (absxk > scale) {
-                t = scale / absxk;
-                d = d * t * t + 1.0;
-                scale = absxk;
-            } else {
-                t = absxk / scale;
-                d += t * t;
-            }
-
-            d = scale * std::sqrt(d);
-            if (d < 2.2204460492503131E-16) {
-                value = true;
-            } else {
-                double b_scale;
-                double b_absxk;
-                double b_t;
-                b_scale = 3.3121686421112381E-170;
-                b_absxk = std::abs(r1D1[0]);
-                if (b_absxk > 3.3121686421112381E-170) {
-                    d1 = 1.0;
-                    b_scale = b_absxk;
-                } else {
-                    b_t = b_absxk / 3.3121686421112381E-170;
-                    d1 = b_t * b_t;
-                }
-
-                b_absxk = std::abs(r1D1[1]);
-                if (b_absxk > b_scale) {
-                    b_t = b_scale / b_absxk;
-                    d1 = d1 * b_t * b_t + 1.0;
-                    b_scale = b_absxk;
-                } else {
-                    b_t = b_absxk / b_scale;
-                    d1 += b_t * b_t;
-                }
-
-                b_absxk = std::abs(r1D1[2]);
-                if (b_absxk > b_scale) {
-                    b_t = b_scale / b_absxk;
-                    d1 = d1 * b_t * b_t + 1.0;
-                    b_scale = b_absxk;
-                } else {
-                    b_t = b_absxk / b_scale;
-                    d1 += b_t * b_t;
-                }
-
-                d1 = b_scale * std::sqrt(d1);
-                if (d1 < 2.2204460492503131E-16) {
-                    value = true;
-                } else {
-                    d2 = 1.0E-6;
-                    b_cosd(&d2);
-                    value = (((r0D1[0] * r1D1[0] + r0D1[1] * r1D1[1]) + r0D1[2] * r1D1[2]) / (d * d1)
-                             > d2);
-                }
-            }
-
-            if (value) {
-                //  && norm(r0D2 - r1D2) < 10*eps && collinear(r0D2, r1D2, 1e-2)
-                b_status = TransitionResult_Collinear;
-                *CurvStruct1_C = *CurvStruct1;
-                *CurvStruct2_C = *CurvStruct2;
-            } else {
-                guard1 = true;
-            }
+        //  colinearity test
+        if ((CurvStruct1->Type != CurveType_Helix) && (CurvStruct2->Type != CurveType_Helix) &&
+                collinear(r0D1_1, r1D1_1, ctx->cfg.CollTolDeg)) {
+            //  && norm(r0D2 - r1D2) < 10*eps && collinear(r0D2, r1D2, 1e-2)
+            b_status = TransitionResult_Collinear;
+            *CurvStruct1_C = *CurvStruct1;
+            *CurvStruct2_C = *CurvStruct2;
         } else {
-            guard1 = true;
-        }
-
-        if (guard1) {
             double L1;
             double L2;
-            L1 = LengthCurv(&ctx->q_splines, CurvStruct1->Type, CurvStruct1->P0, CurvStruct1->P1,
-                            CurvStruct1->HelixCenter, CurvStruct1->evec, CurvStruct1->theta,
-                            CurvStruct1->pitch, CurvStruct1->CoeffP5, CurvStruct1->sp_index,
-                            CurvStruct1->a_param, CurvStruct1->b_param);
-            L2 = LengthCurv(&ctx->q_splines, CurvStruct2->Type, CurvStruct2->P0, CurvStruct2->P1,
-                            CurvStruct2->HelixCenter, CurvStruct2->evec, CurvStruct2->theta,
-                            CurvStruct2->pitch, CurvStruct2->CoeffP5, CurvStruct2->sp_index,
-                            CurvStruct2->a_param, CurvStruct2->b_param);
+            L1 = LengthCurv(&ctx->q_splines, ctx->cfg.NGridLengthSpline, CurvStruct1->Type,
+                            CurvStruct1->P0, CurvStruct1->P1, CurvStruct1->HelixCenter,
+                            CurvStruct1->evec, CurvStruct1->theta, CurvStruct1->pitch,
+                            CurvStruct1->CoeffP5, CurvStruct1->sp_index, CurvStruct1->a_param,
+                            CurvStruct1->b_param);
+            L2 = LengthCurv(&ctx->q_splines, ctx->cfg.NGridLengthSpline, CurvStruct2->Type,
+                            CurvStruct2->P0, CurvStruct2->P1, CurvStruct2->HelixCenter,
+                            CurvStruct2->evec, CurvStruct2->theta, CurvStruct2->pitch,
+                            CurvStruct2->CoeffP5, CurvStruct2->sp_index, CurvStruct2->a_param,
+                            CurvStruct2->b_param);
 
             //  CutOff calculation
             if ((CurvStruct1->Type != CurveType_Spline) && (CurvStruct2->Type != CurveType_Spline))
@@ -17680,8 +18900,15 @@ namespace ocn
             } else {
                 double x;
                 double y;
+                int ii_size_idx_1;
+                bool exitg1;
                 if (CurvStruct1->Type == CurveType_Spline) {
                     int loop_ub;
+                    double u1_tilda;
+                    int c_loop_ub;
+                    int k;
+                    int ii;
+                    int idx;
                     ctx->q_splines.get(CurvStruct1->sp_index, (&expl_temp));
                     Spline_sp_knots.set_size(1, expl_temp.sp.knots.size(1));
                     loop_ub = expl_temp.sp.knots.size(1);
@@ -17689,13 +18916,53 @@ namespace ocn
                         Spline_sp_knots[i] = expl_temp.sp.knots[i];
                     }
 
-                    if (Spline_sp_knots.size(1) > 8) {
-                        x = SplineLengthApprox(&ctx->q_splines, CurvStruct1->sp_index,
-                                               Spline_sp_knots[Spline_sp_knots.size(1) - 5], 1.0) /
-                            2.0;
-                    } else {
-                        x = b_SplineLengthApprox(&ctx->q_splines, CurvStruct1->sp_index, 1.0) / 3.0;
+                    //  In a very general case we may cut a spline several times
+                    //  at the end;
+                    //  If a spline had already been cut at the end,
+                    //  we must compute the corresponding
+                    //  native spline parameter (u1_tilda) value
+                    //  This value will be different from 1 in this special case
+                    u1_tilda = CurvStruct1->a_param + CurvStruct1->b_param;
+
+                    //  We need to find the previous spline knot u0_tilda...
+                    b_x.set_size(1, Spline_sp_knots.size(1));
+                    c_loop_ub = Spline_sp_knots.size(1);
+                    for (int i2 = 0; i2 < c_loop_ub; i2++) {
+                        b_x[i2] = (Spline_sp_knots[i2] < u1_tilda);
                     }
+
+                    k = (1 <= b_x.size(1));
+                    ii = b_x.size(1);
+                    idx = 0;
+                    ii_size_idx_1 = k;
+                    exitg1 = false;
+                    while ((!exitg1) && (ii > 0)) {
+                        if (b_x[ii - 1]) {
+                            idx = 1;
+                            ii_data[0] = ii;
+                            exitg1 = true;
+                        } else {
+                            ii--;
+                        }
+                    }
+
+                    if (k == 1) {
+                        if (idx == 0) {
+                            ii_size_idx_1 = 0;
+                        }
+                    } else {
+                        ii_size_idx_1 = (1 <= idx);
+                    }
+
+                    Spline_sp_knots_size[0] = 1;
+                    Spline_sp_knots_size[1] = ii_size_idx_1;
+                    if (0 <= ii_size_idx_1 - 1) {
+                        Spline_sp_knots_data[0] = Spline_sp_knots[ii_data[0] - 1];
+                    }
+
+                    x = b_SplineLengthApprox(&ctx->q_splines, ctx->cfg.NGridLengthSpline,
+                        CurvStruct1->sp_index, Spline_sp_knots_data, Spline_sp_knots_size, u1_tilda)
+                        / 2.0;
                 } else if (L1 < Length_Threshold) {
                     x = L1 / 3.0;
                 } else {
@@ -17704,6 +18971,10 @@ namespace ocn
 
                 if (CurvStruct2->Type == CurveType_Spline) {
                     int b_loop_ub;
+                    int d_loop_ub;
+                    int b_k;
+                    int b_idx;
+                    int b_ii;
                     ctx->q_splines.get(CurvStruct2->sp_index, (&expl_temp));
                     Spline_sp_knots.set_size(1, expl_temp.sp.knots.size(1));
                     b_loop_ub = expl_temp.sp.knots.size(1);
@@ -17711,12 +18982,51 @@ namespace ocn
                         Spline_sp_knots[i1] = expl_temp.sp.knots[i1];
                     }
 
-                    if (Spline_sp_knots.size(1) > 8) {
-                        y = b_SplineLengthApprox(&ctx->q_splines, CurvStruct2->sp_index,
-                            Spline_sp_knots[4]) / 2.0;
-                    } else {
-                        y = b_SplineLengthApprox(&ctx->q_splines, CurvStruct2->sp_index, 1.0) / 3.0;
+                    //  In a very general case we may cut a spline several times
+                    //  at the beginning;
+                    //  If a spline had already been cut at the beginning,
+                    //  we must compute the corresponding
+                    //  native spline parameter (u0_tilda) value
+                    //  This value will be different from 0 in this special case
+                    //  We need to find the next spline knot u1_tilda...
+                    b_x.set_size(1, Spline_sp_knots.size(1));
+                    d_loop_ub = Spline_sp_knots.size(1);
+                    for (int i3 = 0; i3 < d_loop_ub; i3++) {
+                        b_x[i3] = (Spline_sp_knots[i3] > CurvStruct2->b_param);
                     }
+
+                    b_k = (1 <= b_x.size(1));
+                    b_idx = 0;
+                    ii_size_idx_1 = b_k;
+                    b_ii = 0;
+                    exitg1 = false;
+                    while ((!exitg1) && (b_ii <= b_x.size(1) - 1)) {
+                        if (b_x[b_ii]) {
+                            b_idx = 1;
+                            ii_data[0] = b_ii + 1;
+                            exitg1 = true;
+                        } else {
+                            b_ii++;
+                        }
+                    }
+
+                    if (b_k == 1) {
+                        if (b_idx == 0) {
+                            ii_size_idx_1 = 0;
+                        }
+                    } else {
+                        ii_size_idx_1 = (1 <= b_idx);
+                    }
+
+                    Spline_sp_knots_size[0] = 1;
+                    Spline_sp_knots_size[1] = ii_size_idx_1;
+                    if (0 <= ii_size_idx_1 - 1) {
+                        Spline_sp_knots_data[0] = Spline_sp_knots[ii_data[0] - 1];
+                    }
+
+                    y = c_SplineLengthApprox(&ctx->q_splines, ctx->cfg.NGridLengthSpline,
+                        CurvStruct2->sp_index, CurvStruct2->b_param, Spline_sp_knots_data,
+                        Spline_sp_knots_size) / 2.0;
                 } else if (L2 < Length_Threshold) {
                     y = L2 / 3.0;
                 } else {
@@ -17727,31 +19037,17 @@ namespace ocn
             }
 
             *CurvStruct1_C = *CurvStruct1;
-            CutCurvStruct(&ctx->q_splines, CurvStruct1_C, 0.0, CutOff);
+            CutCurvStruct(&ctx->q_splines, ctx->cfg.NGridLengthSpline, CurvStruct1_C, CutOff);
             *CurvStruct2_C = *CurvStruct2;
-            CutCurvStruct(&ctx->q_splines, CurvStruct2_C, CutOff, 0.0);
-            if (DebugActive) {
-                //  1 -> stdout
-                //  2 -> stderr
-                fprintf(stderr, "========== AFTER CUTTING \n");
-                fflush(stderr);
-            }
+            b_CutCurvStruct(&ctx->q_splines, ctx->cfg.NGridLengthSpline, CurvStruct2_C, CutOff);
 
-            if (DebugActive) {
-                b_PrintCurvStruct(&ctx->q_splines, CurvStruct1_C->Type, CurvStruct1_C->zspdmode,
-                                  CurvStruct1_C->P0, CurvStruct1_C->P1, CurvStruct1_C->HelixCenter,
-                                  CurvStruct1_C->evec, CurvStruct1_C->theta, CurvStruct1_C->pitch,
-                                  CurvStruct1_C->CoeffP5, CurvStruct1_C->sp_index,
-                                  CurvStruct1_C->FeedRate, CurvStruct1_C->UseConstJerk,
-                                  CurvStruct1_C->ConstJerk, CurvStruct1_C->a_param,
-                                  CurvStruct1_C->b_param);
-                b_PrintCurvStruct(&ctx->q_splines, CurvStruct2_C->Type, CurvStruct2_C->zspdmode,
-                                  CurvStruct2_C->P0, CurvStruct2_C->P1, CurvStruct2_C->HelixCenter,
-                                  CurvStruct2_C->evec, CurvStruct2_C->theta, CurvStruct2_C->pitch,
-                                  CurvStruct2_C->CoeffP5, CurvStruct2_C->sp_index,
-                                  CurvStruct2_C->FeedRate, CurvStruct2_C->UseConstJerk,
-                                  CurvStruct2_C->ConstJerk, CurvStruct2_C->a_param,
-                                  CurvStruct2_C->b_param);
+            //  1 -> stdout
+            //  2 -> stderr
+            if (u2 != 0UL) {
+                printf("========== AFTER CUTTING \n");
+                fflush(stdout);
+                b_PrintCurvStruct(&ctx->q_splines, ctx->cfg.NGridLengthSpline, CurvStruct1_C);
+                b_PrintCurvStruct(&ctx->q_splines, ctx->cfg.NGridLengthSpline, CurvStruct2_C);
             }
 
             d_EvalCurvStruct(&ctx->q_splines, CurvStruct1_C->Type, CurvStruct1_C->P0,
@@ -17766,24 +19062,66 @@ namespace ocn
                              r1D0, r1D1, r1D2);
 
             //  G2 transition calculation
-            G2_Hermite_Interpolation(r0D0, r0D1, r0D2, r1D0, r1D1, r1D2, p5, &c_status);
+            G2_Hermite_Interpolation(r0D0, r0D1, r0D2, r1D0, r1D1, r1D2, p5, &c_status, &alpha0,
+                &alpha1);
             if (c_status == 1) {
+                //  standard case
                 //  transition CurvStruct calculation
                 ConstrTransP5Struct(p5, CurvStruct1->FeedRate, CurvStruct_T);
                 b_status = TransitionResult_Ok;
+            } else if (c_status == 6) {
+                //  TODO: decide in the future...
+                //  Now we ignore and construct the transition curve anyway
+                ConstrTransP5Struct(p5, CurvStruct1->FeedRate, CurvStruct_T);
+                b_status = TransitionResult_Ok;
+
+                //  1 -> stdout
+                //  2 -> stderr
+                if (u1 != 0UL) {
+                    printf("========== CalcTransition ==========\n");
+                    fflush(stdout);
+                }
+
+                //  1 -> stdout
+                //  2 -> stderr
+                if (u1 != 0UL) {
+                    printf("=========== status = 6 ==========\n");
+                    fflush(stdout);
+                }
+
+                //  1 -> stdout
+                //  2 -> stderr
+                if (u1 != 0UL) {
+                    printf("Lines: %d, %d\n\n", CurvStruct1->gcode_source_line,
+                           CurvStruct2->gcode_source_line);
+                    fflush(stdout);
+                }
             } else {
-                // PlotCurvStructs(ctx, [CurvStruct1 CurvStruct2]);
-                //      SaveTransition
-                //      PrintCurvStruct(ctx, CurvStruct1);
-                //      PrintCurvStruct(ctx, CurvStruct2);
                 b_status = TransitionResult_NoSolution;
 
-                //      warning('Unable to calculate transition');
+                //  1 -> stdout
+                //  2 -> stderr
+                if (u1 != 0UL) {
+                    printf("========== CalcTransition ==========\n");
+                    fflush(stdout);
+                }
+
+                //  1 -> stdout
+                //  2 -> stderr
+                if (u1 != 0UL) {
+                    printf("=========== No Solution ==========\n");
+                    fflush(stdout);
+                }
+
+                //  1 -> stdout
+                //  2 -> stderr
+                if (u1 != 0UL) {
+                    printf("Lines: %d, %d\n\n", CurvStruct1->gcode_source_line,
+                           CurvStruct2->gcode_source_line);
+                    fflush(stdout);
+                }
             }
 
-            //  CurvStruct1_C.index_gcode = CurvStruct1.index_gcode;
-            //  CurvStruct_T.index_gcode = CurvStruct1.index_gcode;
-            //  CurvStruct2_C.index_gcode = CurvStruct2.index_gcode;
             CurvStruct1_C->gcode_source_line = CurvStruct1->gcode_source_line;
             CurvStruct_T->gcode_source_line = CurvStruct2->gcode_source_line;
             CurvStruct2_C->gcode_source_line = CurvStruct2->gcode_source_line;
@@ -17910,12 +19248,14 @@ namespace ocn
         double P0[3];
         double P1[3];
         double C[3];
-        double b_idx_0;
-        double b_idx_1;
-        double b_idx_2;
+        __m128d r;
+        __m128d r1;
+        double b[3];
         double R0_idx_0;
         double R0_idx_1;
         double R0_idx_2;
+        __m128d r2;
+        __m128d r3;
         double R1_idx_0;
         double R1_idx_1;
         double R1_idx_2;
@@ -17935,18 +19275,20 @@ namespace ocn
         C[0] = cx;
         C[1] = cy;
         C[2] = cz;
-        b_idx_0 = p0x - cx;
-        b_idx_1 = p0y - cy;
-        b_idx_2 = p0z - cz;
-        R0_idx_0 = evec[1] * b_idx_2 - evec[2] * b_idx_1;
-        R0_idx_1 = evec[2] * b_idx_0 - evec[0] * b_idx_2;
-        R0_idx_2 = evec[0] * b_idx_1 - evec[1] * b_idx_0;
-        b_idx_0 = p1x - cx;
-        b_idx_1 = p1y - cy;
-        b_idx_2 = p1z - cz;
-        R1_idx_0 = evec[1] * b_idx_2 - evec[2] * b_idx_1;
-        R1_idx_1 = evec[2] * b_idx_0 - evec[0] * b_idx_2;
-        R1_idx_2 = evec[0] * b_idx_1 - evec[1] * b_idx_0;
+        r = _mm_loadu_pd(&P0[0]);
+        r1 = _mm_loadu_pd(&C[0]);
+        _mm_storeu_pd(&b[0], _mm_sub_pd(r, r1));
+        b[2] = p0z - cz;
+        R0_idx_0 = evec[1] * b[2] - evec[2] * b[1];
+        R0_idx_1 = evec[2] * b[0] - evec[0] * b[2];
+        R0_idx_2 = evec[0] * b[1] - evec[1] * b[0];
+        r2 = _mm_loadu_pd(&P1[0]);
+        r3 = _mm_loadu_pd(&C[0]);
+        _mm_storeu_pd(&b[0], _mm_sub_pd(r2, r3));
+        b[2] = p1z - cz;
+        R1_idx_0 = evec[1] * b[2] - evec[2] * b[1];
+        R1_idx_1 = evec[2] * b[0] - evec[0] * b[2];
+        R1_idx_2 = evec[0] * b[1] - evec[1] * b[0];
         if (evec[0] > 0.5) {
             phi0 = atan2(R0_idx_2, R0_idx_1);
             phi1 = atan2(R1_idx_2, R1_idx_1);
@@ -18182,13 +19524,13 @@ namespace ocn
 
         u_vec_tilda.set_size(1, u_vec.size(1));
         g_loop_ub = u_vec.size(1);
-        scalarLB = u_vec.size(1) & -4;
-        vectorUB = scalarLB - 4;
-        for (i6 = 0; i6 <= vectorUB; i6 += 4) {
-            __m256d r;
-            r = _mm256_loadu_pd(&u_vec[i6]);
-            _mm256_storeu_pd(&u_vec_tilda[i6], _mm256_add_pd(_mm256_mul_pd(_mm256_set1_pd
-                               (b_CurvStruct->a_param), r), _mm256_set1_pd(b_CurvStruct->b_param)));
+        scalarLB = u_vec.size(1) & -2;
+        vectorUB = scalarLB - 2;
+        for (i6 = 0; i6 <= vectorUB; i6 += 2) {
+            __m128d r;
+            r = _mm_loadu_pd(&u_vec[i6]);
+            _mm_storeu_pd(&u_vec_tilda[i6], _mm_add_pd(_mm_mul_pd(_mm_set1_pd(b_CurvStruct->a_param),
+                            r), _mm_set1_pd(b_CurvStruct->b_param)));
         }
 
         for (i6 = scalarLB; i6 < g_loop_ub; i6++) {
@@ -18335,8 +19677,9 @@ namespace ocn
         r1D.set_size(3, r1D.size(1));
         i_loop_ub = r1D.size(1);
         for (int i9 = 0; i9 < i_loop_ub; i9++) {
-            r1D[3 * i9] = b_CurvStruct->a_param * r1D[3 * i9];
-            r1D[3 * i9 + 1] = b_CurvStruct->a_param * r1D[3 * i9 + 1];
+            __m128d r1;
+            r1 = _mm_loadu_pd(&r1D[3 * i9]);
+            _mm_storeu_pd(&r1D[3 * i9], _mm_mul_pd(_mm_set1_pd(b_CurvStruct->a_param), r1));
             r1D[3 * i9 + 2] = b_CurvStruct->a_param * r1D[3 * i9 + 2];
         }
 
@@ -18344,8 +19687,9 @@ namespace ocn
         r2D.set_size(3, r2D.size(1));
         k_loop_ub = r2D.size(1);
         for (int i11 = 0; i11 < k_loop_ub; i11++) {
-            r2D[3 * i11] = c * r2D[3 * i11];
-            r2D[3 * i11 + 1] = c * r2D[3 * i11 + 1];
+            __m128d r2;
+            r2 = _mm_loadu_pd(&r2D[3 * i11]);
+            _mm_storeu_pd(&r2D[3 * i11], _mm_mul_pd(_mm_set1_pd(c), r2));
             r2D[3 * i11 + 2] = c * r2D[3 * i11 + 2];
         }
 
@@ -18353,8 +19697,9 @@ namespace ocn
         r3D.set_size(3, r3D.size(1));
         m_loop_ub = r3D.size(1);
         for (int i13 = 0; i13 < m_loop_ub; i13++) {
-            r3D[3 * i13] = b_c * r3D[3 * i13];
-            r3D[3 * i13 + 1] = b_c * r3D[3 * i13 + 1];
+            __m128d r3;
+            r3 = _mm_loadu_pd(&r3D[3 * i13]);
+            _mm_storeu_pd(&r3D[3 * i13], _mm_mul_pd(_mm_set1_pd(b_c), r3));
             r3D[3 * i13 + 2] = b_c * r3D[3 * i13 + 2];
         }
     }
@@ -18447,6 +19792,8 @@ namespace ocn
     //
     void FeedoptDefaultConfig(FeedoptConfig *cfg)
     {
+        static const char b_cv[9] = { 'l', 'o', 'g', 's', '/', 'l', 'o', 'g', 's' };
+
         if (!isInitialized_sinspace) {
             sinspace_initialize();
         }
@@ -18478,10 +19825,13 @@ namespace ocn
         cfg->ZeroStartJerkLimit = 1.0;
         cfg->ZeroStartVelLimit = 0.5;
         std::memset(&cfg->source[0], 0, 1024U * sizeof(char));
-        cfg->DebugFeedratePlanning = false;
         cfg->DebugCutZero = false;
         cfg->SkipCompressing = false;
-        cfg->DebugOptimProgress = false;
+        cfg->CollTolDeg = 1.0E-6;
+        cfg->NGridLengthSpline = 10.0;
+        for (int i = 0; i < 9; i++) {
+            cfg->LogFileName[i] = b_cv[i];
+        }
 
         //      coder.varsize('cfg.source', [1024, 1], [0,1]);;
         //          'MaxNHorz', FeedoptLimits.MaxNHorz,...
@@ -18491,6 +19841,7 @@ namespace ocn
     }
 
     //
+    // See InitFeedoptPlan for information about the context variable ctx
     // Arguments    : FeedoptContext *ctx
     //                bool *optimized
     //                CurvStruct *opt_struct
@@ -18507,45 +19858,40 @@ namespace ocn
         double dv[3];
         double dv1[3];
         bool guard1 = false;
-        CurvStruct Curv1;
-        CurvStruct Curv2;
-        CurvStruct r;
-        double unusedU0[3];
-        double r0D1[3];
-        double unusedU1[3];
-        double r1D1[3];
         CurvStruct b_CurvStruct;
         char b_cv[1025];
         CurvStruct a;
         coder::array<CurvStruct, 2U> OptSegment;
-        double y;
         CurvStruct first;
-        CurvStruct last;
-        double b_y;
         coder::array<double, 2U> c_ctx;
         queue_coder d_ctx;
+        CurvStruct last;
         CurvStruct NextCurv;
         coder::array<double, 2U> Coeff;
         queue_coder e_ctx;
-        double dv2[3];
         double at_0;
+        double dv2[3];
         double dv3[3];
-        double d;
+        coder::array<double, 2U> r;
         coder::array<double, 2U> r1;
         coder::array<double, 2U> r2;
-        coder::array<double, 2U> r3;
-        coder::array<double, 1U> r4;
-        coder::array<double, 2U> r5;
-        int b_unusedU0;
+        coder::array<double, 1U> r3;
+        coder::array<double, 2U> r4;
+        int unusedU0;
         bool b_success;
+        CurvStruct expl_temp;
+        double t0_P0[3];
+        double t0_P1[3];
+        double t0_HelixCenter[3];
+        double t0_evec[3];
         queue_coder g_ctx;
+        double t0_CoeffP5[6][3];
         queue_coder h_ctx;
         double b_at_0;
         if (!isInitialized_sinspace) {
             sinspace_initialize();
         }
 
-        //  See InitFeedoptPlan for information about the context variable ctx
         if (!(ctx->errcode == FeedoptPlanError_Success)) {
             for (int i = 0; i < 39; i++) {
                 message[i] = b_message[i];
@@ -18580,6 +19926,7 @@ namespace ocn
           case Fopt_GCode:
             {
                 int status;
+                unsigned long u;
 
                 //  coder.extrinsic('ReadGCode_mex');
                 //  Wrapper for pulling the next gcode line from the interpreter
@@ -18593,17 +19940,29 @@ namespace ocn
                 std::memcpy(&b_cv[0], &ctx->cfg.source[0], 1024U * sizeof(char));
                 b_cv[1024] = '\x00';
                 status = c_open_gcode(&b_cv[0], &b_CurvStruct);
-                while (status != 0) {
-                    int b_status;
 
-                    //  coder.extrinsic('ReadGCode_mex');
-                    //  Wrapper for pulling the next gcode line from the interpreter
+                //  1 -> stdout
+                //  2 -> stderr
+                u = static_cast<unsigned long>(std::round(DebugConfig));
+                if ((u & 1UL) != 0UL) {
+                    printf("Reading G-code...\n");
+                    fflush(stdout);
+                }
+
+                if (status != 0) {
                     dv[0] = 1.0;
                     dv1[0] = 4.0;
                     dv[1] = 2.0;
                     dv1[1] = 5.0;
                     dv[2] = 3.0;
                     dv1[2] = 6.0;
+                }
+
+                while (status != 0) {
+                    int b_status;
+
+                    //  coder.extrinsic('ReadGCode_mex');
+                    //  Wrapper for pulling the next gcode line from the interpreter
                     ConstrLineStruct(dv, dv1, 0.2, ZSpdMode_NN, &b_CurvStruct);
                     b_status = c_read_and_exec_gcode(NULL, &b_CurvStruct);
                     status = b_status;
@@ -18614,8 +19973,13 @@ namespace ocn
 
                 if (ctx->q_gcode.isempty()) {
                     ctx->op = Fopt_Finished;
-                    printf("ERROR: Optimization failed, Gcode queue is empty\n");
-                    fflush(stdout);
+
+                    //  1 -> stdout
+                    //  2 -> stderr
+                    if ((u & 16UL) != 0UL) {
+                        printf("ERROR: Optimization failed, Gcode queue is empty\n");
+                        fflush(stdout);
+                    }
                 } else {
                     ctx->q_gcode.rget((&last));
                     if (last.zspdmode == ZSpdMode_NN) {
@@ -18633,137 +19997,8 @@ namespace ocn
             break;
 
           case Fopt_Check:
-            {
-                unsigned int N;
-                int i1;
-                N = ctx->q_gcode.size();
-                i1 = static_cast<int>(N - 1U);
-                for (int k = 0; k < i1; k++) {
-                    double scale;
-                    double b_scale;
-                    double absxk;
-                    double t;
-                    double b_absxk;
-                    double b_t;
-                    ctx->q_gcode.get((k + 1U), (&Curv1));
-                    ctx->q_gcode.get((k - 4294967294U), (&Curv2));
-                    e_EvalCurvStruct(&ctx->q_splines, Curv1.Type, Curv1.P0, Curv1.P1,
-                                     Curv1.HelixCenter, Curv1.evec, Curv1.theta, Curv1.pitch,
-                                     Curv1.CoeffP5, Curv1.sp_index, Curv1.a_param, Curv1.b_param,
-                                     unusedU0, r0D1);
-                    f_EvalCurvStruct(&ctx->q_splines, Curv2.Type, Curv2.P0, Curv2.P1,
-                                     Curv2.HelixCenter, Curv2.evec, Curv2.theta, Curv2.pitch,
-                                     Curv2.CoeffP5, Curv2.sp_index, Curv2.a_param, Curv2.b_param,
-                                     unusedU1, r1D1);
-                    scale = 3.3121686421112381E-170;
-                    b_scale = 3.3121686421112381E-170;
-                    absxk = std::abs(r0D1[0]);
-                    if (absxk > 3.3121686421112381E-170) {
-                        y = 1.0;
-                        scale = absxk;
-                    } else {
-                        t = absxk / 3.3121686421112381E-170;
-                        y = t * t;
-                    }
-
-                    b_absxk = std::abs(r1D1[0]);
-                    if (b_absxk > 3.3121686421112381E-170) {
-                        b_y = 1.0;
-                        b_scale = b_absxk;
-                    } else {
-                        b_t = b_absxk / 3.3121686421112381E-170;
-                        b_y = b_t * b_t;
-                    }
-
-                    absxk = std::abs(r0D1[1]);
-                    if (absxk > scale) {
-                        t = scale / absxk;
-                        y = y * t * t + 1.0;
-                        scale = absxk;
-                    } else {
-                        t = absxk / scale;
-                        y += t * t;
-                    }
-
-                    b_absxk = std::abs(r1D1[1]);
-                    if (b_absxk > b_scale) {
-                        b_t = b_scale / b_absxk;
-                        b_y = b_y * b_t * b_t + 1.0;
-                        b_scale = b_absxk;
-                    } else {
-                        b_t = b_absxk / b_scale;
-                        b_y += b_t * b_t;
-                    }
-
-                    absxk = std::abs(r0D1[2]);
-                    if (absxk > scale) {
-                        t = scale / absxk;
-                        y = y * t * t + 1.0;
-                        scale = absxk;
-                    } else {
-                        t = absxk / scale;
-                        y += t * t;
-                    }
-
-                    b_absxk = std::abs(r1D1[2]);
-                    if (b_absxk > b_scale) {
-                        b_t = b_scale / b_absxk;
-                        b_y = b_y * b_t * b_t + 1.0;
-                        b_scale = b_absxk;
-                    } else {
-                        b_t = b_absxk / b_scale;
-                        b_y += b_t * b_t;
-                    }
-
-                    y = scale * std::sqrt(y);
-                    b_y = b_scale * std::sqrt(b_y);
-                    d = 180.0 - ctx->cfg.CuspThreshold;
-                    b_cosd(&d);
-                    if (((r0D1[0] * r1D1[0] + r0D1[1] * r1D1[1]) + r0D1[2] * r1D1[2]) / (y * b_y) <
-                            d) {
-                        switch (Curv1.zspdmode) {
-                          case ZSpdMode_NN:
-                            Curv1.zspdmode = ZSpdMode_NZ;
-                            break;
-
-                          case ZSpdMode_ZN:
-                            Curv1.zspdmode = ZSpdMode_ZZ;
-                            break;
-
-                          case ZSpdMode_NZ:
-                            //  Nothing to do
-                            break;
-
-                          default:
-                            //  Nothing to do
-                            break;
-                        }
-
-                        switch (Curv2.zspdmode) {
-                          case ZSpdMode_NN:
-                            Curv2.zspdmode = ZSpdMode_ZN;
-                            break;
-
-                          case ZSpdMode_ZN:
-                            //  Nothing to do
-                            break;
-
-                          case ZSpdMode_NZ:
-                            Curv2.zspdmode = ZSpdMode_ZZ;
-                            break;
-
-                          default:
-                            //  Nothing to do
-                            break;
-                        }
-
-                        ctx->q_gcode.set((k + 1U), (&Curv1));
-                        ctx->q_gcode.set((k - 4294967294U), (&Curv2));
-                    }
-                }
-
-                ctx->op = Fopt_Compress;
-            }
+            CheckCurvStructs(ctx);
+            ctx->op = Fopt_Compress;
             break;
 
           case Fopt_Compress:
@@ -18782,20 +20017,8 @@ namespace ocn
             break;
 
           case Fopt_Split:
-            {
-                if (!ctx->q_smooth.isempty()) {
-                    unsigned int b_N;
-                    int i2;
-                    b_N = ctx->q_smooth.size();
-                    i2 = static_cast<int>(b_N);
-                    for (int b_k = 0; b_k < i2; b_k++) {
-                        ctx->q_smooth.get((b_k + 1U), (&r));
-                        SplitCurvStruct(ctx, &r);
-                    }
-                }
-
-                ctx->op = Fopt_Opt;
-            }
+            SplitCurvStructs(ctx);
+            ctx->op = Fopt_Opt;
             break;
 
           case Fopt_Opt:
@@ -18804,7 +20027,7 @@ namespace ocn
                     ctx->op = Fopt_Finished;
                 } else {
                     ctx->op = Fopt_Opt;
-                    if (ctx->cfg.DebugOptimProgress) {
+                    if ((static_cast<unsigned long>(std::round(DebugConfig)) & 2UL) != 0UL) {
                         unsigned int validatedHoleFilling_f2;
                         validatedHoleFilling_f2 = ctx->q_split.size();
                         printf("%4d/%u\n", ctx->k0, validatedHoleFilling_f2);
@@ -18825,8 +20048,8 @@ namespace ocn
                             ctx->q_split.get(1.0, (&a));
                             outsize_idx_1 = ctx->cfg.NHorz;
                             OptSegment.set_size(1, outsize_idx_1);
-                            for (int i5 = 0; i5 < outsize_idx_1; i5++) {
-                                OptSegment[i5] = a;
+                            for (int i3 = 0; i3 < outsize_idx_1; i3++) {
+                                OptSegment[i3] = a;
                             }
 
                             ctx->q_split.get(ctx->k0, (&first));
@@ -18844,8 +20067,9 @@ namespace ocn
                                 int k1temp;
                                 int k1;
                                 unsigned int nopt;
+                                unsigned long u1;
                                 int kend;
-                                int c_k;
+                                int k;
                                 bool exitg1;
                                 int Retry;
                                 bool success;
@@ -18861,19 +20085,20 @@ namespace ocn
                                 ctx->at_1 = 0.0;
                                 ctx->v_1 = 0.0;
                                 nopt = 0U;
-                                if (DebugActive) {
-                                    //  1 -> stdout
-                                    //  2 -> stderr
-                                    fprintf(stderr,
-                                            "============= FEEDRATE PLANNING ================\n");
-                                    fflush(stderr);
+
+                                //  1 -> stdout
+                                //  2 -> stderr
+                                u1 = static_cast<unsigned long>(std::round(DebugConfig)) & 8UL;
+                                if (u1 != 0UL) {
+                                    printf("FEEDRATE PLANNING...\n");
+                                    fflush(stdout);
                                 }
 
                                 kend = ctx->k0;
-                                c_k = ctx->k0;
+                                k = ctx->k0;
                                 exitg1 = false;
-                                while ((!exitg1) && (c_k <= k1)) {
-                                    ctx->q_split.get(c_k, (&NextCurv));
+                                while ((!exitg1) && (k <= k1)) {
+                                    ctx->q_split.get(k, (&NextCurv));
                                     if (NextCurv.zspdmode == ZSpdMode_NZ) {
                                         //  If we reach an NZ segment, we set the final velocity
                                         //  and tangent acceleration constraints to the ones
@@ -18889,48 +20114,35 @@ namespace ocn
                                         ctx->at_1 = -at_0;
                                         ctx->zero_end = true;
                                         ctx->reached_end = true;
-                                        kend = c_k;
+                                        kend = k;
                                         exitg1 = true;
                                     } else {
                                         if (NextCurv.zspdmode == ZSpdMode_NN) {
                                             nopt++;
                                             OptSegment[static_cast<int>(nopt) - 1] = NextCurv;
-                                            if (DebugActive) {
-                                                CurvStruct expl_temp;
-                                                expl_temp = OptSegment[c_k - ctx->k0];
-                                                b_PrintCurvStruct(&ctx->q_splines, expl_temp.Type,
-                                                                  expl_temp.zspdmode, expl_temp.P0,
-                                                                  expl_temp.P1,
-                                                                  expl_temp.HelixCenter,
-                                                                  expl_temp.evec, expl_temp.theta,
-                                                                  expl_temp.pitch, expl_temp.CoeffP5,
-                                                                  expl_temp.sp_index,
-                                                                  expl_temp.FeedRate,
-                                                                  expl_temp.UseConstJerk,
-                                                                  expl_temp.ConstJerk,
-                                                                  expl_temp.a_param,
-                                                                  expl_temp.b_param);
+                                            if (u1 != 0UL) {
+                                                b_PrintCurvStruct(&ctx->q_splines,
+                                                                  ctx->cfg.NGridLengthSpline,
+                                                                  &OptSegment[k - ctx->k0]);
                                             }
 
-                                            if ((c_k < k1) && DebugActive) {
+                                            if ((k < k1) && (u1 != 0UL)) {
                                                 //  1 -> stdout
                                                 //  2 -> stderr
-                                                fprintf(stderr,
-                                                        "-----------------------------------\n");
-                                                fflush(stderr);
+                                                printf("-----------------------------------\n");
+                                                fflush(stdout);
                                             }
                                         }
 
-                                        c_k++;
+                                        k++;
                                     }
                                 }
 
-                                if (DebugActive) {
-                                    //  1 -> stdout
-                                    //  2 -> stderr
-                                    fprintf(stderr,
-                                            "================================================\n");
-                                    fflush(stderr);
+                                //  1 -> stdout
+                                //  2 -> stderr
+                                if (u1 != 0UL) {
+                                    printf("================================================\n");
+                                    fflush(stdout);
                                 }
 
                                 Retry = 0;
@@ -18949,49 +20161,49 @@ namespace ocn
                                     dv3[1] = ctx->cfg.jmax[1];
                                     dv2[2] = ctx->cfg.amax[2];
                                     dv3[2] = ctx->cfg.jmax[2];
-                                    r1.set_size(ctx->BasisVal.size(0), ctx->BasisVal.size(1));
+                                    r.set_size(ctx->BasisVal.size(0), ctx->BasisVal.size(1));
                                     g_loop_ub = ctx->BasisVal.size(1);
-                                    for (int i14 = 0; i14 < g_loop_ub; i14++) {
+                                    for (int i12 = 0; i12 < g_loop_ub; i12++) {
                                         int h_loop_ub;
                                         h_loop_ub = ctx->BasisVal.size(0);
-                                        for (int i15 = 0; i15 < h_loop_ub; i15++) {
-                                            r1[i15 + r1.size(0) * i14] = ctx->BasisVal[i15 +
-                                                ctx->BasisVal.size(0) * i14];
+                                        for (int i13 = 0; i13 < h_loop_ub; i13++) {
+                                            r[i13 + r.size(0) * i12] = ctx->BasisVal[i13 +
+                                                ctx->BasisVal.size(0) * i12];
                                         }
                                     }
 
-                                    r2.set_size(ctx->BasisValD.size(0), ctx->BasisValD.size(1));
+                                    r1.set_size(ctx->BasisValD.size(0), ctx->BasisValD.size(1));
                                     i_loop_ub = ctx->BasisValD.size(1);
-                                    for (int i16 = 0; i16 < i_loop_ub; i16++) {
+                                    for (int i14 = 0; i14 < i_loop_ub; i14++) {
                                         int j_loop_ub;
                                         j_loop_ub = ctx->BasisValD.size(0);
-                                        for (int i17 = 0; i17 < j_loop_ub; i17++) {
-                                            r2[i17 + r2.size(0) * i16] = ctx->BasisValD[i17 +
-                                                ctx->BasisValD.size(0) * i16];
+                                        for (int i15 = 0; i15 < j_loop_ub; i15++) {
+                                            r1[i15 + r1.size(0) * i14] = ctx->BasisValD[i15 +
+                                                ctx->BasisValD.size(0) * i14];
                                         }
                                     }
 
-                                    r3.set_size(ctx->BasisValDD.size(0), ctx->BasisValDD.size(1));
+                                    r2.set_size(ctx->BasisValDD.size(0), ctx->BasisValDD.size(1));
                                     k_loop_ub = ctx->BasisValDD.size(1);
-                                    for (int i18 = 0; i18 < k_loop_ub; i18++) {
+                                    for (int i16 = 0; i16 < k_loop_ub; i16++) {
                                         int l_loop_ub;
                                         l_loop_ub = ctx->BasisValDD.size(0);
-                                        for (int i19 = 0; i19 < l_loop_ub; i19++) {
-                                            r3[i19 + r3.size(0) * i18] = ctx->BasisValDD[i19 +
-                                                ctx->BasisValDD.size(0) * i18];
+                                        for (int i17 = 0; i17 < l_loop_ub; i17++) {
+                                            r2[i17 + r2.size(0) * i16] = ctx->BasisValDD[i17 +
+                                                ctx->BasisValDD.size(0) * i16];
                                         }
                                     }
 
-                                    r4.set_size(ctx->BasisIntegr.size(0));
+                                    r3.set_size(ctx->BasisIntegr.size(0));
                                     m_loop_ub = ctx->BasisIntegr.size(0);
-                                    for (int i20 = 0; i20 < m_loop_ub; i20++) {
-                                        r4[i20] = ctx->BasisIntegr[i20];
+                                    for (int i18 = 0; i18 < m_loop_ub; i18++) {
+                                        r3[i18] = ctx->BasisIntegr[i18];
                                     }
 
-                                    r5.set_size(1, ctx->u_vec.size(1));
+                                    r4.set_size(1, ctx->u_vec.size(1));
                                     n_loop_ub = ctx->u_vec.size(1);
-                                    for (int i21 = 0; i21 < n_loop_ub; i21++) {
-                                        r5[i21] = ctx->u_vec[i21];
+                                    for (int i19 = 0; i19 < n_loop_ub; i19++) {
+                                        r4[i19] = ctx->u_vec[i19];
                                     }
 
                                     if (ctx->cfg.NHorz > static_cast<int>(nopt)) {
@@ -19000,33 +20212,83 @@ namespace ocn
                                         f_ctx = ctx->cfg.NHorz;
                                     }
 
-                                    FeedratePlanning_v4(ctx, OptSegment, dv2, dv3, r1, r2, r3, r4,
-                                                        ctx->Bl.handle, r5, f_ctx, Coeff,
-                                                        &b_unusedU0, &b_success);
+                                    FeedratePlanning_v4(ctx, OptSegment, dv2, dv3, r, r1, r2, r3,
+                                                        ctx->Bl.handle, r4, f_ctx, Coeff, &unusedU0,
+                                                        &b_success);
                                     success = b_success;
                                     if ((!b_success) && ctx->zero_start) {
-                                        printf("ZeroStart at k = %d failed, halving jerk\n", ctx->k0
-                                               - 1);
-                                        fflush(stdout);
-                                        ctx->q_split.get((ctx->k0 - 1), (&r));
+                                        //  1 -> stdout
+                                        //  2 -> stderr
+                                        if ((static_cast<unsigned long>(std::round(DebugConfig)) &
+                                                16UL) != 0UL) {
+                                            printf("ZeroStart at k = %d failed, halving jerk\n",
+                                                   ctx->k0 - 1);
+                                            fflush(stdout);
+                                        }
+
+                                        ctx->q_split.get((ctx->k0 - 1), (&expl_temp));
+                                        t0_P0[0] = expl_temp.P0[0];
+                                        t0_P1[0] = expl_temp.P1[0];
+                                        t0_HelixCenter[0] = expl_temp.HelixCenter[0];
+                                        t0_evec[0] = expl_temp.evec[0];
+                                        t0_P0[1] = expl_temp.P0[1];
+                                        t0_P1[1] = expl_temp.P1[1];
+                                        t0_HelixCenter[1] = expl_temp.HelixCenter[1];
+                                        t0_evec[1] = expl_temp.evec[1];
+                                        t0_P0[2] = expl_temp.P0[2];
+                                        t0_P1[2] = expl_temp.P1[2];
+                                        t0_HelixCenter[2] = expl_temp.HelixCenter[2];
+                                        t0_evec[2] = expl_temp.evec[2];
+                                        for (int i20 = 0; i20 < 6; i20++) {
+                                            t0_CoeffP5[i20][0] = expl_temp.CoeffP5[i20][0];
+                                            t0_CoeffP5[i20][1] = expl_temp.CoeffP5[i20][1];
+                                            t0_CoeffP5[i20][2] = expl_temp.CoeffP5[i20][2];
+                                        }
+
                                         g_ctx = ctx->q_splines;
-                                        CalcZeroStartConstraints(&g_ctx, r.Type, r.P0, r.P1,
-                                            r.HelixCenter, r.evec, r.theta, r.pitch, r.CoeffP5,
-                                            r.sp_index, r.UseConstJerk, r.ConstJerk, r.a_param,
-                                            r.b_param, std::pow(0.5, static_cast<double>(Retry)),
-                                            &ctx->v_0, &ctx->at_0);
+                                        CalcZeroStartConstraints(&g_ctx, expl_temp.Type, t0_P0,
+                                            t0_P1, t0_HelixCenter, t0_evec, expl_temp.theta,
+                                            expl_temp.pitch, t0_CoeffP5, expl_temp.sp_index,
+                                            expl_temp.UseConstJerk, expl_temp.ConstJerk,
+                                            expl_temp.a_param, expl_temp.b_param, std::pow(0.5,
+                                            static_cast<double>(Retry)), &ctx->v_0, &ctx->at_0);
                                     }
 
                                     if ((!b_success) && ctx->zero_end) {
-                                        printf("ZeroEnd at k = %d failed, halving jerk\n", kend);
-                                        fflush(stdout);
-                                        ctx->q_split.get(kend, (&r));
+                                        //  1 -> stdout
+                                        //  2 -> stderr
+                                        if ((static_cast<unsigned long>(std::round(DebugConfig)) &
+                                                16UL) != 0UL) {
+                                            printf("ZeroEnd at k = %d failed, halving jerk\n", kend);
+                                            fflush(stdout);
+                                        }
+
+                                        ctx->q_split.get(kend, (&expl_temp));
+                                        t0_P0[0] = expl_temp.P0[0];
+                                        t0_P1[0] = expl_temp.P1[0];
+                                        t0_HelixCenter[0] = expl_temp.HelixCenter[0];
+                                        t0_evec[0] = expl_temp.evec[0];
+                                        t0_P0[1] = expl_temp.P0[1];
+                                        t0_P1[1] = expl_temp.P1[1];
+                                        t0_HelixCenter[1] = expl_temp.HelixCenter[1];
+                                        t0_evec[1] = expl_temp.evec[1];
+                                        t0_P0[2] = expl_temp.P0[2];
+                                        t0_P1[2] = expl_temp.P1[2];
+                                        t0_HelixCenter[2] = expl_temp.HelixCenter[2];
+                                        t0_evec[2] = expl_temp.evec[2];
+                                        for (int i21 = 0; i21 < 6; i21++) {
+                                            t0_CoeffP5[i21][0] = expl_temp.CoeffP5[i21][0];
+                                            t0_CoeffP5[i21][1] = expl_temp.CoeffP5[i21][1];
+                                            t0_CoeffP5[i21][2] = expl_temp.CoeffP5[i21][2];
+                                        }
+
                                         h_ctx = ctx->q_splines;
-                                        CalcZeroStartConstraints(&h_ctx, r.Type, r.P0, r.P1,
-                                            r.HelixCenter, r.evec, r.theta, r.pitch, r.CoeffP5,
-                                            r.sp_index, r.UseConstJerk, r.ConstJerk, r.a_param,
-                                            r.b_param, std::pow(0.5, static_cast<double>(Retry)),
-                                            &ctx->v_1, &b_at_0);
+                                        CalcZeroStartConstraints(&h_ctx, expl_temp.Type, t0_P0,
+                                            t0_P1, t0_HelixCenter, t0_evec, expl_temp.theta,
+                                            expl_temp.pitch, t0_CoeffP5, expl_temp.sp_index,
+                                            expl_temp.UseConstJerk, expl_temp.ConstJerk,
+                                            expl_temp.a_param, expl_temp.b_param, std::pow(0.5,
+                                            static_cast<double>(Retry)), &ctx->v_1, &b_at_0);
                                         ctx->at_1 = -b_at_0;
                                     }
 
@@ -19037,35 +20299,33 @@ namespace ocn
                                 ctx->zero_end = false;
                                 ctx->Coeff.set_size(Coeff.size(0), Coeff.size(1));
                                 e_loop_ub = Coeff.size(1);
-                                for (int i11 = 0; i11 < e_loop_ub; i11++) {
+                                for (int i9 = 0; i9 < e_loop_ub; i9++) {
                                     int f_loop_ub;
                                     f_loop_ub = Coeff.size(0);
-                                    for (int i13 = 0; i13 < f_loop_ub; i13++) {
-                                        ctx->Coeff[i13 + ctx->Coeff.size(0) * i11] = Coeff[i13 +
-                                            Coeff.size(0) * i11];
+                                    for (int i11 = 0; i11 < f_loop_ub; i11++) {
+                                        ctx->Coeff[i11 + ctx->Coeff.size(0) * i9] = Coeff[i11 +
+                                            Coeff.size(0) * i9];
                                     }
                                 }
 
                                 if (!success) {
-                                    int i12;
-                                    i12 = ctx->cfg.NHorz;
-                                    for (int nprint = 0; nprint < i12; nprint++) {
-                                        if (DebugActive) {
-                                            b_PrintCurvStruct(&ctx->q_splines, OptSegment[0].Type,
-                                                              OptSegment[0].zspdmode, OptSegment[0].
-                                                              P0, OptSegment[0].P1, OptSegment[0].
-                                                              HelixCenter, OptSegment[0].evec,
-                                                              OptSegment[0].theta, OptSegment[0].
-                                                              pitch, OptSegment[0].CoeffP5,
-                                                              OptSegment[0].sp_index, OptSegment[0].
-                                                              FeedRate, OptSegment[0].UseConstJerk,
-                                                              OptSegment[0].ConstJerk, OptSegment[0]
-                                                              .a_param, OptSegment[0].b_param);
+                                    int i10;
+                                    i10 = ctx->cfg.NHorz;
+                                    for (int nprint = 0; nprint < i10; nprint++) {
+                                        if (u1 != 0UL) {
+                                            b_PrintCurvStruct(&ctx->q_splines,
+                                                              ctx->cfg.NGridLengthSpline,
+                                                              &OptSegment[0]);
                                         }
                                     }
 
-                                    printf("OPTIMIZATION FAILED!\n");
-                                    fflush(stdout);
+                                    //  1 -> stdout
+                                    //  2 -> stderr
+                                    if (u1 != 0UL) {
+                                        printf("OPTIMIZATION FAILED!\n");
+                                        fflush(stdout);
+                                    }
+
                                     ctx->errcode = c_FeedoptPlanError_Optimization;
                                     ctx->op = Fopt_Finished;
                                 } else {
@@ -19073,8 +20333,8 @@ namespace ocn
                                 }
                             }
                         } else {
+                            int i2;
                             int i4;
-                            int i6;
                             int b_ctx;
                             int b_loop_ub;
                             int c_loop_ub;
@@ -19082,30 +20342,30 @@ namespace ocn
                             //  If we have reached the end of the optimizing segment, we
                             //  can just copy out the coefficients for the whole horizon
                             if (2 > ctx->Coeff.size(1)) {
+                                i2 = 0;
                                 i4 = 0;
-                                i6 = 0;
                             } else {
-                                i4 = 1;
-                                i6 = ctx->Coeff.size(1);
+                                i2 = 1;
+                                i4 = ctx->Coeff.size(1);
                             }
 
                             b_ctx = ctx->Coeff.size(0) - 1;
-                            b_loop_ub = i6 - i4;
+                            b_loop_ub = i4 - i2;
                             c_ctx.set_size((b_ctx + 1), b_loop_ub);
-                            for (int i7 = 0; i7 < b_loop_ub; i7++) {
-                                for (int i8 = 0; i8 <= b_ctx; i8++) {
-                                    c_ctx[i8 + c_ctx.size(0) * i7] = ctx->Coeff[i8 + ctx->Coeff.size
-                                        (0) * (i4 + i7)];
+                            for (int i5 = 0; i5 < b_loop_ub; i5++) {
+                                for (int i6 = 0; i6 <= b_ctx; i6++) {
+                                    c_ctx[i6 + c_ctx.size(0) * i5] = ctx->Coeff[i6 + ctx->Coeff.size
+                                        (0) * (i2 + i5)];
                                 }
                             }
 
                             c_loop_ub = c_ctx.size(1);
-                            for (int i9 = 0; i9 < c_loop_ub; i9++) {
+                            for (int i7 = 0; i7 < c_loop_ub; i7++) {
                                 int d_loop_ub;
                                 d_loop_ub = c_ctx.size(0);
-                                for (int i10 = 0; i10 < d_loop_ub; i10++) {
-                                    ctx->Coeff[i10 + ctx->Coeff.size(0) * i9] = c_ctx[i10 +
-                                        c_ctx.size(0) * i9];
+                                for (int i8 = 0; i8 < d_loop_ub; i8++) {
+                                    ctx->Coeff[i8 + ctx->Coeff.size(0) * i7] = c_ctx[i8 + c_ctx.size
+                                        (0) * i7];
                                 }
                             }
 
@@ -19123,8 +20383,13 @@ namespace ocn
             break;
 
           default:
-            printf("FEEDOPT: WRONG STATE\n");
-            fflush(stdout);
+            //  1 -> stdout
+            //  2 -> stderr
+            if ((static_cast<unsigned long>(std::round(DebugConfig)) & 8UL) != 0UL) {
+                printf("FEEDOPT: WRONG STATE\n");
+                fflush(stdout);
+            }
+
             ctx->op = Fopt_Finished;
             break;
         }
@@ -19135,8 +20400,8 @@ namespace ocn
             ctx->q_split.get((ctx->n_optimized + 1), opt_struct);
             loop_ub = ctx->Coeff.size(0);
             opt_struct->Coeff.set_size(loop_ub);
-            for (int i3 = 0; i3 < loop_ub; i3++) {
-                opt_struct->Coeff[i3] = ctx->Coeff[i3];
+            for (int i1 = 0; i1 < loop_ub; i1++) {
+                opt_struct->Coeff[i1] = ctx->Coeff[i1];
             }
 
             if (opt_struct->zspdmode == ZSpdMode_NZ) {
@@ -19252,12 +20517,12 @@ namespace ocn
             b_linspace(cfg.NBreak, r);
             y.set_size(1, r.size(1));
             loop_ub = r.size(1);
-            scalarLB = r.size(1) & -4;
-            vectorUB = scalarLB - 4;
-            for (i = 0; i <= vectorUB; i += 4) {
-                __m256d r1;
-                r1 = _mm256_loadu_pd(&r[i]);
-                _mm256_storeu_pd(&y[i], _mm256_mul_pd(_mm256_set1_pd(3.1415926535897931), r1));
+            scalarLB = r.size(1) & -2;
+            vectorUB = scalarLB - 2;
+            for (i = 0; i <= vectorUB; i += 2) {
+                __m128d r1;
+                r1 = _mm_loadu_pd(&r[i]);
+                _mm_storeu_pd(&y[i], _mm_mul_pd(_mm_set1_pd(3.1415926535897931), r1));
             }
 
             for (i = scalarLB; i < loop_ub; i++) {
@@ -19271,14 +20536,14 @@ namespace ocn
 
             x.set_size(1, y.size(1));
             c_loop_ub = y.size(1);
-            b_scalarLB = y.size(1) & -4;
-            b_vectorUB = b_scalarLB - 4;
-            for (i5 = 0; i5 <= b_vectorUB; i5 += 4) {
-                __m256d r2;
-                __m256d r3;
-                r2 = _mm256_loadu_pd(&y[i5]);
-                r3 = _mm256_set1_pd(0.5);
-                _mm256_storeu_pd(&x[i5], _mm256_add_pd(_mm256_mul_pd(r2, r3), r3));
+            b_scalarLB = y.size(1) & -2;
+            b_vectorUB = b_scalarLB - 2;
+            for (i5 = 0; i5 <= b_vectorUB; i5 += 2) {
+                __m128d r2;
+                __m128d r3;
+                r2 = _mm_loadu_pd(&y[i5]);
+                r3 = _mm_set1_pd(0.5);
+                _mm_storeu_pd(&x[i5], _mm_add_pd(_mm_mul_pd(r2, r3), r3));
             }
 
             for (i5 = b_scalarLB; i5 < c_loop_ub; i5++) {
@@ -19306,12 +20571,12 @@ namespace ocn
         b_linspace(cfg.NDiscr, r);
         y.set_size(1, r.size(1));
         e_loop_ub = r.size(1);
-        c_scalarLB = r.size(1) & -4;
-        c_vectorUB = c_scalarLB - 4;
-        for (i7 = 0; i7 <= c_vectorUB; i7 += 4) {
-            __m256d r4;
-            r4 = _mm256_loadu_pd(&r[i7]);
-            _mm256_storeu_pd(&y[i7], _mm256_mul_pd(_mm256_set1_pd(3.1415926535897931), r4));
+        c_scalarLB = r.size(1) & -2;
+        c_vectorUB = c_scalarLB - 2;
+        for (i7 = 0; i7 <= c_vectorUB; i7 += 2) {
+            __m128d r4;
+            r4 = _mm_loadu_pd(&r[i7]);
+            _mm_storeu_pd(&y[i7], _mm_mul_pd(_mm_set1_pd(3.1415926535897931), r4));
         }
 
         for (i7 = c_scalarLB; i7 < e_loop_ub; i7++) {
@@ -19325,14 +20590,14 @@ namespace ocn
 
         u_vec.set_size(1, y.size(1));
         h_loop_ub = y.size(1);
-        d_scalarLB = y.size(1) & -4;
-        d_vectorUB = d_scalarLB - 4;
-        for (i10 = 0; i10 <= d_vectorUB; i10 += 4) {
-            __m256d r5;
-            __m256d r6;
-            r5 = _mm256_loadu_pd(&y[i10]);
-            r6 = _mm256_set1_pd(0.5);
-            _mm256_storeu_pd(&u_vec[i10], _mm256_add_pd(_mm256_mul_pd(r5, r6), r6));
+        d_scalarLB = y.size(1) & -2;
+        d_vectorUB = d_scalarLB - 2;
+        for (i10 = 0; i10 <= d_vectorUB; i10 += 2) {
+            __m128d r5;
+            __m128d r6;
+            r5 = _mm_loadu_pd(&y[i10]);
+            r6 = _mm_set1_pd(0.5);
+            _mm_storeu_pd(&u_vec[i10], _mm_add_pd(_mm_mul_pd(r5, r6), r6));
         }
 
         for (i10 = d_scalarLB; i10 < h_loop_ub; i10++) {
@@ -19606,8 +20871,9 @@ namespace ocn
         printf("%10s: [%.4f %.4f %.4f] -> [%.4f %.4f %.4f]\n", "P", P0[0], P0[1], P0[2], P1[0], P1[1],
                P1[2]);
         fflush(stdout);
-        validatedHoleFilling_f2 = LengthCurv(&ctx->q_splines, S->Type, S->P0, S->P1, S->HelixCenter,
-            S->evec, S->theta, S->pitch, S->CoeffP5, S->sp_index, S->a_param, S->b_param);
+        validatedHoleFilling_f2 = LengthCurv(&ctx->q_splines, ctx->cfg.NGridLengthSpline, S->Type,
+            S->P0, S->P1, S->HelixCenter, S->evec, S->theta, S->pitch, S->CoeffP5, S->sp_index,
+            S->a_param, S->b_param);
         printf("%10s: %e\n", "Length", validatedHoleFilling_f2);
         fflush(stdout);
         switch (S->zspdmode) {
@@ -19904,12 +21170,12 @@ namespace ocn
         b_linspace(N, r);
         y.set_size(1, r.size(1));
         loop_ub = r.size(1);
-        scalarLB = r.size(1) & -4;
-        vectorUB = scalarLB - 4;
-        for (i = 0; i <= vectorUB; i += 4) {
-            __m256d r1;
-            r1 = _mm256_loadu_pd(&r[i]);
-            _mm256_storeu_pd(&y[i], _mm256_mul_pd(_mm256_set1_pd(3.1415926535897931), r1));
+        scalarLB = r.size(1) & -2;
+        vectorUB = scalarLB - 2;
+        for (i = 0; i <= vectorUB; i += 2) {
+            __m128d r1;
+            r1 = _mm_loadu_pd(&r[i]);
+            _mm_storeu_pd(&y[i], _mm_mul_pd(_mm_set1_pd(3.1415926535897931), r1));
         }
 
         for (i = scalarLB; i < loop_ub; i++) {
@@ -19924,15 +21190,15 @@ namespace ocn
         b = x1 - x0;
         x.set_size(1, y.size(1));
         b_loop_ub = y.size(1);
-        b_scalarLB = y.size(1) & -4;
-        b_vectorUB = b_scalarLB - 4;
-        for (i2 = 0; i2 <= b_vectorUB; i2 += 4) {
-            __m256d r2;
-            __m256d r3;
-            r2 = _mm256_loadu_pd(&y[i2]);
-            r3 = _mm256_set1_pd(0.5);
-            _mm256_storeu_pd(&x[i2], _mm256_add_pd(_mm256_mul_pd(_mm256_add_pd(_mm256_mul_pd(r2, r3),
-                                r3), _mm256_set1_pd(b)), _mm256_set1_pd(x0)));
+        b_scalarLB = y.size(1) & -2;
+        b_vectorUB = b_scalarLB - 2;
+        for (i2 = 0; i2 <= b_vectorUB; i2 += 2) {
+            __m128d r2;
+            __m128d r3;
+            r2 = _mm_loadu_pd(&y[i2]);
+            r3 = _mm_set1_pd(0.5);
+            _mm_storeu_pd(&x[i2], _mm_add_pd(_mm_mul_pd(_mm_add_pd(_mm_mul_pd(r2, r3), r3),
+                            _mm_set1_pd(b)), _mm_set1_pd(x0)));
         }
 
         for (i2 = b_scalarLB; i2 < b_loop_ub; i2++) {
@@ -19946,7 +21212,7 @@ namespace ocn
     //
     void sinspace_initialize()
     {
-        DebugActive = false;
+        DebugConfig = 0.0;
         sin_calls = 0.0;
         cos_calls = 0.0;
         sqrt_calls = 0.0;

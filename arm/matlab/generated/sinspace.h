@@ -5,7 +5,7 @@
 // File: sinspace.h
 //
 // MATLAB Coder version            : 5.0
-// C/C++ source code generated on  : 18-Sep-2020 14:56:07
+// C/C++ source code generated on  : 25-Sep-2020 10:33:29
 //
 #ifndef SINSPACE_H
 #define SINSPACE_H
@@ -25,7 +25,7 @@ namespace ocn
     extern double sqrt_calls;
     extern double cos_calls;
     extern double sin_calls;
-    extern bool DebugActive;
+    extern double DebugConfig;
 }
 
 // Function Declarations

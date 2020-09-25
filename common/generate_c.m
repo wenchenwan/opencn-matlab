@@ -21,12 +21,13 @@ cfg.EnableAutoExtrinsicCalls = false;
 if ~generate_for_arm
     cfg.HardwareImplementation.TargetHWDeviceType = 'Intel->x86-64 (Linux 64)';
     cfg.HardwareImplementation.ProdHWDeviceType = 'Intel->x86-64 (Linux 64)';
-    cfg.CodeReplacementLibrary = 'Intel AVX (Linux)';
+    cfg.CodeReplacementLibrary = 'Intel SSE (Linux)';
+%     cfg.CodeReplacementLibrary = 'None';
     output_root = '../x86/matlab/generated';
 else
     cfg.HardwareImplementation.TargetHWDeviceType = 'ARM Compatible->ARM Cortex';
     cfg.HardwareImplementation.ProdHWDeviceType = 'ARM Compatible->ARM Cortex';
-    cfg.CodeReplacementLibrary = 'rpi4';
+%     cfg.CodeReplacementLibrary = 'rpi4';
     output_root = '../arm/matlab/generated';
 end
 
@@ -56,12 +57,12 @@ resampleType = coder.OutputType('ResampleState');
 
 	splineType = coder.OutputType('bspline_create');
 
-	global sqrt_calls sin_calls cos_calls cot_calls DebugActive
+	global sqrt_calls sin_calls cos_calls cot_calls DebugConfig
 	sqrt_calls = 0;
 	sin_calls = 0;
 	cos_calls = 0;
 	cot_calls = 0;
-	DebugActive = false;
+	DebugConfig = 0;
 
 	% 
 	% R0D0 = [0,0,0]';
