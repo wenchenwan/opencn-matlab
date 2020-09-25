@@ -53,13 +53,13 @@ function ctx = InitFeedoptPlan(cfg)
     ctx.zero_end = false;
     
     if ~coder.target('matlab')
-    coder.varsize('ctx.BasisVal', [Inf, Inf], [1, 1]);
-    coder.varsize('ctx.BasisValD', [Inf, Inf], [1, 1]);
-    coder.varsize('ctx.BasisValDD', [Inf, Inf], [1, 1]);
-    coder.varsize('ctx.BasisIntegr', [Inf, 1], [1 0]);
-    coder.varsize('ctx.u_vec', [1, Inf], [0, 1]);
-    coder.varsize('ctx.Coeff', [Inf, Inf], [1 1]);
-    coder.varsize('ctx.Bl.breakpoints', [1, Inf], [0, 1]);
+        coder.varsize('ctx.BasisVal', [Inf, Inf], [1, 1]);
+        coder.varsize('ctx.BasisValD', [Inf, Inf], [1, 1]);
+        coder.varsize('ctx.BasisValDD', [Inf, Inf], [1, 1]);
+        coder.varsize('ctx.BasisIntegr', [Inf, 1], [1 0]);
+        coder.varsize('ctx.u_vec', [1, Inf], [0, 1]);
+        coder.varsize('ctx.Coeff', [Inf, Inf], [1 1]);
+        coder.varsize('ctx.Bl.breakpoints', [1, Inf], [0, 1]);
     end
     
     ctx.BasisVal = BasisVal;
@@ -73,4 +73,5 @@ function ctx = InitFeedoptPlan(cfg)
     
     % Push the dummy spline curv
     ctx.q_splines.push(Curv);
+    
 end

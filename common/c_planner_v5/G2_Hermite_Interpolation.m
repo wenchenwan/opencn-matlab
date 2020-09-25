@@ -77,61 +77,71 @@ if (kappa0 == 0) && (kappa1 == 0)   % degenerated case where the polynomial syst
     alpha1  = X(2);
     
     if ~((alpha0 > 0) && (alpha1 > 0))
-        status = int32(2);
         return
     end
-    %c_assert((alpha0 > 0) && (alpha1 > 0), 'no positive solution of linear system');
-    %
+
     [beta0, beta1] = Calc_beta0_beta1(alpha0, alpha1, ...
                                       r0D0, t0, n0, kappa0, ...
                                       r1D0, t1, n1, kappa1);   
 elseif kappa0 == 0
+    
     % compute resultant of the polynomial system
     Coef = [b1*d0 - c3*f1, b0*d0 + b1*e0 - c2*f1, b0*e0 + b1*f0 - c1*f1, b0*f0 - c0*f1];
     %
     alpha1_v   = c_roots_(Coef);             % all roots of 3th degree polynomial in alpha1
     alpha1_t   = real(alpha1_v((abs(imag(alpha1_v)) < TolZero) & (real(alpha1_v) >  0))); % retain only positive real roots
+    
     if (abs(b1) < TolZero) && (abs(b0) < TolZero)
         alpha0_t = -(d0*alpha1_t.^2+e0*alpha1_t+f0)/f1; 
     else
         alpha0_t = -(c3*alpha1_t.^3+c2*alpha1_t.^2+c1*alpha1_t+c0)./(b1*alpha1_t+b0);
     end
+    
     Idx       = find(alpha0_t > 0);
     alpha1_u  = alpha1_t(Idx);
     alpha0_u  = alpha0_t(Idx);
-    %
+    
     if ~(numel(alpha0_u) > 0)
         status = int32(3);
         return
     end
     %c_assert(numel(alpha0_u) > 0, 'no positive solution of polynomial system');
+    
     if length(alpha0_u) > 1
+        
         CostInt = zeros(size(alpha0_u));  % preallocating
         beta0_u = zeros(size(alpha0_u));  % preallocating
         beta1_u = zeros(size(alpha0_u));  % preallocating
         
         for k = 1:length(alpha0_u)
+            
             [beta0_u(k), beta1_u(k)] = Calc_beta0_beta1(alpha0_u(k), alpha1_u(k), ...
                                                         r0D0, t0, n0, kappa0, ...
                                                         r1D0, t1, n1, kappa1);
             CostInt(k)     = EvalCostIntegral(alpha0_u(k),  beta0_u(k), alpha1_u(k), beta1_u(k), ...
                                               r0D0, t0, n0, kappa0, ...
                                               r1D0, t1, n1, kappa1);
+                                          
         end        
+        
         [~, Idx] = min(CostInt);
         alpha0   = alpha0_u(Idx);
         alpha1   = alpha1_u(Idx);
         beta0    = beta0_u(Idx);
-        beta1    = beta1_u(Idx);        
+        beta1    = beta1_u(Idx);  
+        
     else
+        
         alpha0   = alpha0_u(1);
         alpha1   = alpha1_u(1);
         [beta0, beta1] = Calc_beta0_beta1(alpha0, alpha1, ...
                                           r0D0, t0, n0, kappa0, ...
                                           r1D0, t1, n1, kappa1);
+        
     end        
     %
 elseif kappa1 == 0
+    
     % compute resultant of the polynomial system
     Coef = [c1*f3 - a0*e1, c1*f2 - b0*e1 - a0*e0, c1*f1 - c0*e1 - b0*e0, c1*f0 - c0*e0];
     %
@@ -143,56 +153,14 @@ elseif kappa1 == 0
     else
         alpha1_t = -(f3*alpha0_t.^3+f2*alpha0_t.^2+f1*alpha0_t+f0)./(e1*alpha0_t+e0);
     end
+    
     Idx      = find(alpha1_t > 0);
     alpha1_u   = alpha1_t(Idx);
     alpha0_u   = alpha0_t(Idx);
+    
     %
     if ~(numel(alpha0_u) > 0)
         status = int32(4);
-        return
-    end
-    %c_assert(numel(alpha0_u) > 0, 'no positive solution of polynomial system');
-    if length(alpha0_u) > 1
-        CostInt = zeros(size(alpha0_u));  % preallocating
-        beta0_u = zeros(size(alpha0_u));  % preallocating
-        beta1_u = zeros(size(alpha0_u));  % preallocating
-        
-        for k = 1:length(alpha0_u)
-            [beta0_u(k), beta1_u(k)] = Calc_beta0_beta1(alpha0_u(k), alpha1_u(k), ...
-                                                        r0D0, t0, n0, kappa0, ...
-                                                        r1D0, t1, n1, kappa1);
-            CostInt(k)     = EvalCostIntegral(alpha0_u(k),  beta0_u(k), alpha1_u(k), beta1_u(k), ...
-                                              r0D0, t0, n0, kappa0, ...
-                                              r1D0, t1, n1, kappa1);
-        end        
-        [~, Idx] = min(CostInt);
-        alpha0   = alpha0_u(Idx);
-        alpha1   = alpha1_u(Idx);
-        beta0    = beta0_u(Idx);
-        beta1    = beta1_u(Idx);        
-    else
-        alpha0   = alpha0_u(1);
-        alpha1   = alpha1_u(1);
-        [beta0, beta1] = Calc_beta0_beta1(alpha0, alpha1, ...
-                                          r0D0, t0, n0, kappa0, ...
-                                          r1D0, t1, n1, kappa1);
-    end        
-    %    
-else
-    % compute resultant of the polynomial system
-    Coef = CharPolyAlpha1(CoefPS);
-    %
-    alpha1_v = c_roots_(Coef);             % all roots of 9th degree polynomial in alpha1
-    alpha1_t = real(alpha1_v((abs(imag(alpha1_v)) < TolZero) & (real(alpha1_v) >  0))); % retain only positive real roots
-    % compute corresponding values of alpha0
-    alpha0_t  = CalcAlpha0(alpha1_t,   CoefPS);
-    %
-    Idx       = find(alpha0_t > 0);
-    alpha1_u  = alpha1_t(Idx);
-    alpha0_u  = alpha0_t(Idx);
-    %
-    if ~(numel(alpha0_u) > 0)
-        status = int32(5);
         return
     end
     %c_assert(numel(alpha0_u) > 0, 'no positive solution of polynomial system');
@@ -214,14 +182,73 @@ else
         alpha0   = alpha0_u(Idx);
         alpha1   = alpha1_u(Idx);
         beta0    = beta0_u(Idx);
-        beta1    = beta1_u(Idx);        
+        beta1    = beta1_u(Idx);   
+        
     else
+        
         alpha0   = alpha0_u(1);
         alpha1   = alpha1_u(1);
         [beta0, beta1] = Calc_beta0_beta1(alpha0, alpha1, ...
                                           r0D0, t0, n0, kappa0, ...
                                           r1D0, t1, n1, kappa1);
+                                      
     end        
+    %    
+else
+    
+    % compute resultant of the polynomial system
+    Coef = CharPolyAlpha1(CoefPS);
+    %
+    alpha1_v = c_roots_(Coef);             % all roots of 9th degree polynomial in alpha1
+    alpha1_t = real(alpha1_v((abs(imag(alpha1_v)) < TolZero) & (real(alpha1_v) >  0))); % retain only positive real roots
+        
+    % compute corresponding values of alpha0
+    alpha0_t  = CalcAlpha0(alpha1_t,   CoefPS);
+    %
+    Idx       = find(alpha0_t > 0);
+    alpha1_u  = alpha1_t(Idx);
+    alpha0_u  = alpha0_t(Idx);
+    
+     %
+    if ~(numel(alpha0_u) > 0)
+        status = int32(5);
+        return
+    end
+    %c_assert(numel(alpha0_u) > 0, 'no positive solution of polynomial system');
+
+    if length(alpha0_u) > 1
+        
+        CostInt = zeros(size(alpha0_u));  % preallocating
+        beta0_u = zeros(size(alpha0_u));  % preallocating
+        beta1_u = zeros(size(alpha0_u));  % preallocating
+        
+        for k = 1:length(alpha0_u)
+            
+            [beta0_u(k), beta1_u(k)] = Calc_beta0_beta1(alpha0_u(k), alpha1_u(k), ...
+                                                        r0D0, t0, n0, kappa0, ...
+                                                        r1D0, t1, n1, kappa1);
+            CostInt(k)     = EvalCostIntegral(alpha0_u(k),  beta0_u(k), alpha1_u(k), beta1_u(k), ...
+                                              r0D0, t0, n0, kappa0, ...
+                                              r1D0, t1, n1, kappa1);
+                                          
+        end        
+        
+        [~, Idx] = min(CostInt);
+        alpha0   = alpha0_u(Idx);
+        alpha1   = alpha1_u(Idx);
+        beta0    = beta0_u(Idx);
+        beta1    = beta1_u(Idx);  
+        
+    else
+        
+        alpha0   = alpha0_u(1);
+        alpha1   = alpha1_u(1);
+        [beta0, beta1] = Calc_beta0_beta1(alpha0, alpha1, ...
+                                          r0D0, t0, n0, kappa0, ...
+                                          r1D0, t1, n1, kappa1);
+                                                                            
+    end        
+    
 end
 %
 %% Hermite basis 
@@ -243,6 +270,4 @@ if ~(abs(p1val) < 1e-7) || ~(abs(p2val) < 1e-7)
     status = int32(6);
     return
 end
-% c_assert(abs(p1val) < 1e-7, 'error in solution of polynomial system');
-% c_assert(abs(p2val) < 1e-7, 'error in solution of polynomial system');
 

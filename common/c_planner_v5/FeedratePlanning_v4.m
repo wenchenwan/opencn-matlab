@@ -9,27 +9,24 @@ coder.varsize('CurvStructs', [1, Inf], [0,1]);
 Ncrv   = length(CurvStructs);
 [~, N] = size(BasisVal);
 
-if ctx.cfg.DebugFeedratePlanning
+DebugLog(DebugCfg.FeedratePlanning, '===============================\n')
+DebugLog(DebugCfg.FeedratePlanning, '====== FEEDRATE PLANNING ======\n')
+DebugLog(DebugCfg.FeedratePlanning, '===============================\n')
 
-fprintf('===============================\n')
-fprintf('====== FEEDRATE PLANNING ======\n')
-fprintf('===============================\n')
+DebugLog(DebugCfg.FeedratePlanning, 'v_0  = %f\n', ctx.v_0)
+DebugLog(DebugCfg.FeedratePlanning, 'at_0 = %f\n', ctx.at_0)
 
-fprintf('v_0  = %f\n', ctx.v_0)
-fprintf('at_0 = %f\n', ctx.at_0)
+DebugLog(DebugCfg.FeedratePlanning, 'v_1  = %f\n', ctx.v_1)
+DebugLog(DebugCfg.FeedratePlanning, 'at_1 = %f\n', ctx.at_1)
 
-fprintf('v_1  = %f\n', ctx.v_1)
-fprintf('at_1 = %f\n', ctx.at_1)
-
-for k = 1:Ncrv
-    PrintCurvStruct(ctx, CurvStructs(k));
+if IsEnabledDebugLog(DebugCfg.FeedratePlanning)
+    for k = 1:Ncrv
+        PrintCurvStruct(ctx, CurvStructs(k));
+    end
 end
 
-fprintf('===============================\n')
-fprintf('===============================\n')
-
-end
-
+DebugLog(DebugCfg.FeedratePlanning, '===============================\n')
+DebugLog(DebugCfg.FeedratePlanning, '===============================\n')
 
 %
 %% FIRST setup of Linear Program (LP) WITHOUT jerk constraint
@@ -72,12 +69,12 @@ if ~success
     return;
 end
 Coeff1  = reshape(Coeff0, N, Ncrv);
-DebugLog('Coeff1 = ')
+DebugLog(DebugCfg.Global, 'Coeff1 = ');
 for k = 1:N
-    DebugLog('%.4f ', Coeff1(k, 1));
+    DebugLog(DebugCfg.Global, '%.4f ', Coeff1(k, 1));
 end
-DebugLog('\n')
-%
+DebugLog(DebugCfg.Global, '\n')
+
 %% SECOND setup of Linear Program (LP) WITH jerk constraint
 success = false;
 max_increase = 20;
@@ -100,7 +97,8 @@ while ~success && max_increase > 0
 %         amax = amax*1.1;
         ctx.jmax_increase_count = ctx.jmax_increase_count + 1;
         jmax = jmax*2; % TODO: valeur à ajuster, avant: 1.1...
-        fprintf('WARNING: (Jerk) Increasing jmax to [%f,%f,%f]\n', jmax(1), jmax(2), jmax(3));
+        DebugLog(DebugCfg.Warning, ...
+            'WARNING: (Jerk) Increasing jmax to [%f,%f,%f]\n', jmax(1), jmax(2), jmax(3));
         max_increase = max_increase - 1;
     end
     
@@ -117,12 +115,12 @@ end
 % toc
 %
 Coeff3 = reshape(Coeff2, N, Ncrv);
-DebugLog('Coeff3 = ')
+DebugLog(DebugCfg.Global, 'Coeff3 = ');
 for k = 1:N
-    DebugLog('%.4f ', Coeff3(k, 1));
+    DebugLog(DebugCfg.Global, '%.4f ', Coeff3(k, 1));
 end
-DebugLog('\n')
-% % 
+DebugLog(DebugCfg.Global, '\n')
+% 
 [v_0, a_0]  = CalcVAJ_v5(ctx, CurvStructs(1), Bl, Coeff3(:, 1), {1});
 [~, r1D]         = EvalCurvStruct(ctx, CurvStructs(1), 1);
 t_end            = r1D/MyNorm(r1D); % unit tangential vector

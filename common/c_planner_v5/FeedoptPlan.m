@@ -1,5 +1,4 @@
 function [ctx, optimized, opt_struct] = FeedoptPlan(ctx)
-global DebugActive
 %#codegen
 % See InitFeedoptPlan for information about the context variable ctx
 
@@ -26,6 +25,7 @@ switch ctx.op
 %         
     case Fopt.GCode
         status = int32(ReadGCode(ReadGCodeCmd.Load, ctx.cfg.source));
+        DebugLog(DebugCfg.Transitions, 'Reading G-code...\n');
         while status
             [status, CurvStruct] = ReadGCode(ReadGCodeCmd.Read, '');
             if status == 1 && CurvStruct.Type ~= 0
@@ -34,7 +34,8 @@ switch ctx.op
         end
         if ctx.q_gcode.isempty()
             ctx.op = Fopt.Finished;
-            fprintf('ERROR: Optimization failed, Gcode queue is empty\n');
+            DebugLog(DebugCfg.Warning, ...
+                'ERROR: Optimization failed, Gcode queue is empty\n');
             return;
         end
         last = ctx.q_gcode.rget(1);
@@ -73,7 +74,7 @@ switch ctx.op
         end
         ctx.op = Fopt.Opt;
         
-        if ctx.cfg.DebugOptimProgress
+        if IsEnabledDebugLog(DebugCfg.OptimProgress)
             fprintf('%4d/%u\n', ctx.k0, ctx.q_split.size);
         end
         
@@ -112,7 +113,7 @@ switch ctx.op
                 ctx.v_1 = 0;
                 
                 nopt = 0;
-                DebugLog('============= FEEDRATE PLANNING ================\n')
+                DebugLog(DebugCfg.Global, 'FEEDRATE PLANNING...\n')
                 kend = ctx.k0;
                 for k = ctx.k0:k1
                     NextCurv = ctx.q_split.get(k);
@@ -132,17 +133,19 @@ switch ctx.op
                         nopt = nopt + 1;
                         OptSegment(nopt) = NextCurv;
                         
-                        if DebugActive
+                        if IsEnabledDebugLog(DebugCfg.Global)
                             PrintCurvStruct(ctx, OptSegment(k-ctx.k0+1))
                         end
                         if k < k1
-                            DebugLog('-----------------------------------\n')
+                            DebugLog(DebugCfg.Global, ...
+                                '-----------------------------------\n')
                         end
                     else
                         error('Wrong ZspdMode');
                     end
                 end
-                DebugLog('================================================\n')
+                DebugLog(DebugCfg.Global, ...
+                    '================================================\n')
                 
                 Retry = 0;
                 success = false;
@@ -154,14 +157,14 @@ switch ctx.op
                         ctx.Bl, ctx.u_vec, min(ctx.cfg.NHorz, nopt));
 
                     if success == 0 && ctx.zero_start
-                        fprintf('ZeroStart at k = %d failed, halving jerk\n', ctx.k0-1);
+                        DebugLog(DebugCfg.Warning, 'ZeroStart at k = %d failed, halving jerk\n', ctx.k0-1);
                         [v_0, at_0] = CalcZeroStartConstraints(ctx, ctx.q_split.get(ctx.k0 - 1), 0.5^Retry);
                         ctx.v_0 = v_0;
                         ctx.at_0 = at_0;
                     end
                     
                     if success == 0 && ctx.zero_end
-                        fprintf('ZeroEnd at k = %d failed, halving jerk\n', kend);
+                        DebugLog(DebugCfg.Warning, 'ZeroEnd at k = %d failed, halving jerk\n', kend);
                         [v_0, at_0] = CalcZeroStartConstraints(ctx, ctx.q_split.get(kend), 0.5^Retry);
                         ctx.at_1 = -at_0;
                         ctx.v_1 = v_0;
@@ -180,14 +183,14 @@ switch ctx.op
                 ctx.Coeff = Coeff;
                 if success == 0
                     for nprint = 1:ctx.cfg.NHorz
-                        if DebugActive
+                        if IsEnabledDebugLog(DebugCfg.Global)
                             PrintCurvStruct(ctx, OptSegment(1));
                         end
                     end
                     if coder.target('MATLAB')
                         error('OPTIMIZATION FAILED')
                     else
-                        fprintf('OPTIMIZATION FAILED!\n');
+                        DebugLog(DebugCfg.Global, 'OPTIMIZATION FAILED!\n');
                         ctx.errcode = FeedoptPlanError.OptimizationFailed;
                     end
                     ctx.op = Fopt.Finished;
@@ -215,7 +218,7 @@ switch ctx.op
         ctx.op = Fopt.Finished;
         
     otherwise
-        fprintf('FEEDOPT: WRONG STATE\n')
+        DebugLog(DebugCfg.Global, 'FEEDOPT: WRONG STATE\n')
         ctx.op = Fopt.Finished;
         
 end

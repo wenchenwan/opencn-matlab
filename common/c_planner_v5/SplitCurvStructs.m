@@ -6,6 +6,8 @@ end
 
 N = ctx.q_smooth.size;
 
+DebugLog(DebugCfg.Transitions, 'Splitting...\n');
+
 for k = 1:N
     ctx = SplitCurvStruct(ctx, ctx.q_smooth.get(k));
 end

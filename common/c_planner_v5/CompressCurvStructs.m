@@ -14,7 +14,7 @@ Ncrv = ctx.q_gcode.size;
 CumulatedLength = 0;
 Length_Threshold = ctx.cfg.LThreshold; % [mm]
 
-DebugLog('Compressing ...\n');
+DebugLog(DebugCfg.Transitions, 'Compressing...\n');
 spindle_speed = 75000;
 
 % Satisfy coder
@@ -57,8 +57,6 @@ while k <= Ncrv
                 spline.gcode_source_line = Curv.gcode_source_line;
                 spline.sp_index = int32(spline_index);
                 spline_index = spline_index + 1;
-                spline.SpindleSpeed = spindle_speed;
-                spindle_speed = 75000;
                 ctx.q_compress.push(spline);
                 if Curv.zspdmode == ZSpdMode.NZ
                     [CurvStruct1_C, CurvStruct2_C] = CutZeroEnd(ctx, Curv, k);
@@ -99,7 +97,6 @@ while k <= Ncrv
         CumulatedLength = CumulatedLength + LengthCurv(ctx, Curv, 0, 1);
         P1 = EvalCurvStruct(ctx, Curv, 1);
         pvec = [pvec P1];
-        spindle_speed = min(spindle_speed, Curv.SpindleSpeed);
     end
     k = k + 1;
 end
