@@ -5,7 +5,7 @@
 // File: sinspace.cpp
 //
 // MATLAB Coder version            : 5.0
-// C/C++ source code generated on  : 25-Sep-2020 10:33:29
+// C/C++ source code generated on  : 25-Sep-2020 17:18:12
 //
 
 // Include Files
@@ -20885,7 +20885,7 @@ namespace ocn
     //
     void sinspace_initialize()
     {
-        DebugConfig = 2.0;
+        DebugConfig = 0.0;
         sin_calls = 0.0;
         cos_calls = 0.0;
         sqrt_calls = 0.0;
