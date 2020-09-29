@@ -1,4 +1,4 @@
-function PlotResampled(ctx, dt)
+function timevec = PlotResampled(ctx, dt)
 
 % fprintf('Skipped %d segments\n', ctx.Skipped);
 
@@ -8,7 +8,7 @@ function PlotResampled(ctx, dt)
 %     error('NO OPTIMIZED CURVES')
 % end
 
-close all
+% close all
 
 uvec = zeros(200000, 1);
 pvec = zeros(200000, 3);
@@ -21,22 +21,37 @@ jvec = zeros(200000, 3);
 fvec = zeros(200000, 1);
 cfvec = zeros(200000, 1);
 
+timevec1 = zeros(200000, 1);
+timevec2 = zeros(200000, 1);
+
 ktick = 1;
 
 state = ResampleState(dt);
 N = ctx.q_opt.size();
 fprintf('Resampling ...\n');
+global sin_calls cos_calls cot_calls sqrt_calls
+sin_calls = 0;
+cos_calls = 0;
+cot_calls = 0;
+sqrt_calls = 0;
+
 for k = 1:N
     DebugLog(DebugCfg.OptimProgress, '%4d/%d\n', k, N);
     Curv = ctx.q_opt.get(k);
     SplineCurv = ctx.q_splines.get(Curv.sp_index);
     Curv.MaxConstantFeedRate = GetCurvMaxFeedrate(ctx, Curv);
     
+    tstart = tic;
     state = ResampleNoCtx(state, ctx.Bl, Curv);
+    timevec1(ktick) = toc(tstart);
+    
     while ~state.go_next
-        state.dt = dt;    
+        state.dt = dt;  
+        tstart = tic;
         r0D = EvalPosition(Curv, SplineCurv, state.u);
+        timevec2(ktick) = toc(tstart);
         [Vnorm, Acc, Jerk] = CalcVAJ(ctx, Curv, ctx.Bl, state.u);
+        
         pvec(ktick, :) = r0D;
         uvec(ktick) = state.u + double(k) - 1;
         kvec(ktick) = k;
@@ -47,7 +62,9 @@ for k = 1:N
         cfvec(ktick, :) = Curv.MaxConstantFeedRate*60;
         gvec(ktick, :) = Curv.gcode_source_line;
         ktick = ktick + 1;
+        tstart = tic;
         state = ResampleNoCtx(state, ctx.Bl, ctx.q_opt.get(k));
+        timevec1(ktick) = toc(tstart);
     end
     
     state.go_next = false;
@@ -59,6 +76,20 @@ end
 
 ktick = ktick - 1;
 
+fprintf('Function calls (%d samples):\n', ktick)
+fprintf('Name Total PerSample\n')
+fprintf('sin : %d (%.1f)\n', sin_calls, sin_calls/ktick)
+fprintf('cos : %d (%.1f)\n', cos_calls, cos_calls/ktick)
+fprintf('cot : %d (%.1f)\n', cot_calls, cot_calls/ktick)
+fprintf('sqrt: %d (%.1f)\n', sqrt_calls, sqrt_calls/ktick)
+
+calls_per_sample = (sin_calls+cos_calls+cot_calls+sqrt_calls)/ktick;
+function_t = 1e6/(calls_per_sample*10000);
+
+fprintf('Assuming the same exec time, for 10Khz:\n')
+fprintf('t = us in s/(calls_per_sample * freq) = ')
+fprintf('1e6/(%.1f*10000) = %.1f us\n', calls_per_sample, function_t)
+
 uvec = uvec(1:ktick);
 vvec = vvec(1:ktick, :);
 jvec = jvec(1:ktick, :);
@@ -67,6 +98,8 @@ pvec = pvec(1:ktick, :);
 fvec = fvec(1:ktick);
 kvec = kvec(1:ktick);
 cfvec = cfvec(1:ktick);
+timevec1 = timevec1(1:ktick);
+timevec2 = timevec2(1:ktick);
 
 avec = avec./ctx.cfg.amax;
 jvec = jvec./ctx.cfg.jmax;
@@ -150,6 +183,46 @@ grid
 linkaxes(ax, 'x');
 xlim([uvec(1) uvec(end)])
 
+figure
+subplot(2, 2, [1,3])
+plot(1:ktick, timevec1*1000, 1:ktick, timevec2*1000, [1, ktick], [dt*1000, dt*1000], '--r')
+legend('Resample', 'EvalPosition')
+grid
+xlabel('Sample')
+ylabel('Time [ms]')
+title('Time spent in functions')
+dcm_obj = datacursormode(gcf);
+set(dcm_obj,'UpdateFcn',{@benchupdatefcn,kvec})
+
+subplot(2, 2, 2)
+histogram(timevec1*1000)
+hold on
+plot([dt*1000, dt*1000], ylim, '--r')
+hold off
+grid
+xlabel('Time [ms]')
+ylabel('Count')
+title('Resample statistics')
+
+subplot(2, 2, 4)
+histogram(timevec2*1000)
+hold on
+plot([dt*1000, dt*1000], ylim, '--r')
+hold off
+grid
+xlabel('Time [ms]')
+ylabel('Count')
+title('EvalPosition statistics')
+
+sgtitle(ctx.cfg.source, 'Interpreter', 'None')
+end
+
+function txt = benchupdatefcn(~, event_obj, kvec)
+pos = get(event_obj, 'Position');
+I = get(event_obj, 'DataIndex');
+txt = {sprintf('Sample: %d', pos(1)),...
+       sprintf('Time  : %.1f [ms]', pos(2)),...
+       sprintf('Curve : %d', kvec(I))};
 end
 
 function txt = myupdatefcn(~, event_obj,ctx, data)
