@@ -3,3 +3,4 @@ addpath Tests/Full
 addpath Tests/Unit/CutStruct
 addpath Tests/Unit/ZSpdMode
 addpath Tests/Unit
+addpath Validate_OpenCN

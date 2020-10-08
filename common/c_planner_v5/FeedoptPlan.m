@@ -66,9 +66,11 @@ switch ctx.op
     case Fopt.Split
         ctx = SplitCurvStructs(ctx);
         ctx.op = Fopt.Opt;
+        DebugLog(DebugCfg.Transitions, 'Feedrate Planning...\n');
         
     case Fopt.Opt
         if ctx.q_split.isempty
+            DebugLog(DebugCfg.Transitions, 'Queue empty...\n');
             ctx.op = Fopt.Finished;
             return;
         end

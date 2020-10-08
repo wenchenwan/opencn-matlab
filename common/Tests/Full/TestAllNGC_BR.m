@@ -1,6 +1,6 @@
 function ctx = TestAllNGC_BR
 
-    clear; clc;
+    clear; clc; close all;
     
     global DebugConfig
     DebugConfig = 0;
@@ -15,14 +15,14 @@ function ctx = TestAllNGC_BR
     
     ngc_unit_list = string(fullfile('ngc_test/unit', {dir('ngc_test/unit/*.ngc').name}));
     ngc_full_list = string(fullfile('ngc_test/full', {dir('ngc_test/full/*.ngc').name}));
-    ngc_full_Montres_list = string(fullfile('ngc_test/full', {dir('ngc_test/full/013_Montre_V2.ngc').name}));
+    ngc_full_Montres_list = string(fullfile('ngc_test/full', {dir('ngc_test/full/021_Montre_V12.ngc').name}));
             
-    if coder.target('matlab')
-        diary ([cfg.LogFileName, '_', ...
-            datestr(now,'yyyy_mm_dd_HH_MM_SS'), ...
-            '.txt']);
-        diary on;
-    end
+%     if coder.target('matlab')
+%         diary ([cfg.LogFileName, '_', ...
+%             datestr(now,'yyyy_mm_dd_HH_MM_SS'), ...
+%             '.txt']);
+%         diary on;
+%     end
     
     EnableDebugLog(DebugCfg.OptimProgress);
     EnableDebugLog(DebugCfg.Transitions);
@@ -41,9 +41,9 @@ function ctx = TestAllNGC_BR
         
     end
     
-    if coder.target('matlab')
-        diary off;
-    end
+%     if coder.target('matlab')
+%         diary off;
+%     end
 
 end
 
