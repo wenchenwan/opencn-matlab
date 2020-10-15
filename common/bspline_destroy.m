@@ -7,6 +7,6 @@ function bspline_destroy(Bl) %#codegen
             coder.ceval('c_bspline_destroy', coder.rref(Bl.handle));
         end
     else
-        bspline_destroy_mex(Bl);
+        bspline_destroy_mex('bspline_destroy', Bl);
     end
 end

@@ -6,7 +6,6 @@ classdef queue_coder
     
     methods (Access = public)
         function this = queue_coder(value_type)
-%             fprintf('queue_coder::ctor\n');
             this.value_type = value_type;
             this.ptr = queue_new();
         end
@@ -40,7 +39,6 @@ classdef queue_coder
         end
         
         function delete(this)
-%             fprintf('queue_coder::dtor\n');
             queue_delete(this.ptr);
         end
     end

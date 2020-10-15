@@ -7,7 +7,7 @@ persistent n data using_mat
 if coder.target('mex')
     CurvStruct = ConstrLineStruct([1,2,3]', [4,5,6]', 0.2, ZSpdMode.NN);
     coder.updateBuildInfo('addDefines', '_POSIX_C_SOURCE=199309L')
-    coder.updateBuildInfo('addDefines', 'DEBUG_RS274')
+    % coder.updateBuildInfo('addDefines', 'DEBUG_RS274')
     coder.updateBuildInfo('addDefines', 'MEX_READGCODE')
     coder.updateBuildInfo('addCompileFlags', '-fdiagnostics-color=always')
     coder.updateBuildInfo('addSourceFiles','cpp_interp.cpp', '$(START_DIR)/../common/src');
