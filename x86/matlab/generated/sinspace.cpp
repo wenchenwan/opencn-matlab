@@ -5,7 +5,7 @@
 // File: sinspace.cpp
 //
 // MATLAB Coder version            : 5.1
-// C/C++ source code generated on  : 08-Oct-2020 13:35:40
+// C/C++ source code generated on  : 19-Oct-2020 11:45:13
 //
 
 // Include Files
@@ -1029,7 +1029,6 @@ namespace ocn
     //
     void queue_coder::init(const CurvStruct *b_value_type)
     {
-        //              fprintf('queue_coder::ctor\n');
         this->value_type = *b_value_type;
         this->ptr = c_queue_new();
     }

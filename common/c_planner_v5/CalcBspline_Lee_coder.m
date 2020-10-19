@@ -17,12 +17,12 @@ for k = 1:N+2                               % evaluate basis functions at the kn
     coef(:, k)     = 1;
     %     sp             = spmak(knots, coef);
     %     BasisVal(:, k) = spval(sp, u);          % tridiagonal matrix
-    BasisVal(:, k) = bspline_eval_vec(Bl, coef', u);
+    BasisVal(:, k) = bspline_eval_vec(Bl, coef, u);
     
 %     sp2D           = fnder(sp, 2);          % evaluate 2nd derivative of basis functions @u=0,1
     
-    [~, ~, BasisValDD0(k)] = bspline_eval(Bl, coef', 0);
-    [~, ~, BasisValDD1(k)] = bspline_eval(Bl, coef', 1);
+    [~, ~, BasisValDD0(k)] = bspline_eval(Bl, coef, 0);
+    [~, ~, BasisValDD1(k)] = bspline_eval(Bl, coef, 1);
 %     BasisValDD0(k) = spval(sp2D, 0);
 %     BasisValDD1(k) = spval(sp2D, 1);
 end

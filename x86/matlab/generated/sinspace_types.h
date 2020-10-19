@@ -5,7 +5,7 @@
 // File: sinspace_types.h
 //
 // MATLAB Coder version            : 5.1
-// C/C++ source code generated on  : 08-Oct-2020 13:35:40
+// C/C++ source code generated on  : 19-Oct-2020 11:45:13
 //
 #ifndef SINSPACE_TYPES_H
 #define SINSPACE_TYPES_H
