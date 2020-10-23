@@ -167,27 +167,27 @@ else
         'Lines: %d, %d\n\n', CurvStruct1.gcode_source_line, ...
         CurvStruct2.gcode_source_line);
     
-    if coder.target('matlab')
-
-        figure;
-        PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct2]);
-        hold on;
-        plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
-        hold on;
-        plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
-        hold on;
-        plot3(r0D0_1(1), r0D0_1(2), r0D0_1(3), 'xc', 'LineWidth', 3);
-        hold on;
-        plot3(r0D0_2(1), r0D0_2(2), r0D0_2(3), 'xc', 'LineWidth', 3);
-        hold on;
-        plot3(r1D0_1(1), r1D0_1(2), r1D0_1(3), 'xc', 'LineWidth', 3);
-        hold on;
-        plot3(r1D0_2(1), r1D0_2(2), r1D0_2(3), 'xc', 'LineWidth', 3);
-        title({ctx.cfg.source, 'No solution'}, 'Interpreter', 'none');
-        axis equal;
-        camproj('perspective');
-
-    end
+%     if coder.target('matlab')
+% 
+%         figure;
+%         PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct2]);
+%         hold on;
+%         plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
+%         hold on;
+%         plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
+%         hold on;
+%         plot3(r0D0_1(1), r0D0_1(2), r0D0_1(3), 'xc', 'LineWidth', 3);
+%         hold on;
+%         plot3(r0D0_2(1), r0D0_2(2), r0D0_2(3), 'xc', 'LineWidth', 3);
+%         hold on;
+%         plot3(r1D0_1(1), r1D0_1(2), r1D0_1(3), 'xc', 'LineWidth', 3);
+%         hold on;
+%         plot3(r1D0_2(1), r1D0_2(2), r1D0_2(3), 'xc', 'LineWidth', 3);
+%         title({ctx.cfg.source, 'No solution'}, 'Interpreter', 'none');
+%         axis equal;
+%         camproj('perspective');
+% 
+%     end
             
 end
 

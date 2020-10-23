@@ -5,7 +5,6 @@ if ctx.q_compress.isempty()
     return;
 end
 
-
 if coder.target('rtw')
     NextCurv = ctx.q_compress.get(1); % to satisfy the coder
 end
@@ -40,12 +39,19 @@ if Ncrv > 1
                 [CurvStruct3_C, CurvStruct4_C] = CutZeroStart(ctx, NextCurv, k);
                 ctx.q_smooth.push(CurvStruct1_C);
                 ctx.q_smooth.push(CurvStruct2_C);
-                ctx.q_smooth.push(CurvStruct3_C);
-                
+                ctx.q_smooth.push(CurvStruct3_C);                
                 CurvStruct1 = CurvStruct4_C;
+                
+                ctx.forced_stop = ctx.forced_stop + 1;
             end
             k = k + 1;
         else
+            
+            if (CurvStruct1.zspdmode == ZSpdMode.NZ || CurvStruct1.zspdmode == ZSpdMode.ZZ) ...
+                    && (NextCurv.zspdmode == ZSpdMode.ZN || NextCurv.zspdmode == ZSpdMode.ZZ)
+                ctx.programmed_stop = ctx.programmed_stop + 1;
+            end
+            
             ctx.q_smooth.push(CurvStruct1);
             CurvStruct1 = NextCurv;
             k = k + 1;

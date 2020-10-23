@@ -53,6 +53,9 @@ function ctx = InitFeedoptPlan(cfg)
     ctx.zero_start = false;
     ctx.zero_end = false;
     
+    ctx.forced_stop = int32(0);
+    ctx.programmed_stop = int32(0);
+    
     if ~coder.target('matlab')
         coder.varsize('ctx.BasisVal', [Inf, Inf], [1, 1]);
         coder.varsize('ctx.BasisValD', [Inf, Inf], [1, 1]);
