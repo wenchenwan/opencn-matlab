@@ -1,14 +1,17 @@
 clc; clear; close all;
 
+d         = datestr(datetime('now'));
+homeDir = '/home/rozanov/opencn/agency/usr/matlab/common/Validate_OpenCN';
+cd(homeDir);
+
 %% Choose directory with G-code validation files
 fs         = filesep; % file separation character according to Win/Linux
 % Gdir       = uigetdir('.', 'Choose directory with G-code validation files');
-Gdir       = '/home/rozanov/opencn/agency/usr/matlab/common/ngc_test/full';
+Gdir       = '/home/rozanov/opencn/agency/usr/matlab/common/ngc_test/utility_test_gcodes';
 dircontent = dir([Gdir, fs, '*.ngc']);
-dircontent = dircontent(1:4);
 NGcodes    = length(dircontent);
 Str        = sprintf('%d G-code files found', NGcodes);
-uiwait(msgbox(Str,'','modal'));
+% uiwait(msgbox(Str,'','modal'));
 
 %% Initialization
 Ok         = 1;
@@ -27,21 +30,73 @@ cfg.NDiscr = 20;
 cfg.NBreak = 10;
 cfg.NHorz = 5;
 
-%% Config INI file reading with params to sweep
+%% Reading params to sweep from INI file
 PfileName = 'config.ini';
 ini = IniConfig(); % class got from Mathworks community
 ini.ReadFile(PfileName);
-% reading keys list from section
-[keys, count_keys] = ini.GetKeys('Extreme values');
+% reading keys list from sections
+[keys1, count_keys1] = ini.GetKeys('Extreme values');
+[keys2, count_keys2] = ini.GetKeys('Max constrains tolerances');
+[keys3, count_keys3] = ini.GetKeys('Time optimality tolerance');
 % getting key values
-values = ini.GetValues('Extreme values', keys);
+values1 = ini.GetValues('Extreme values', keys1);
+values2 = ini.GetValues('Max constrains tolerances', keys2);
+values3 = ini.GetValues('Time optimality tolerance', keys3);
+
+Str = sprintf('%d different parameter settings',...
+    length(keys1)+length(keys2)+length(keys2));
+% uiwait(msgbox(Str,'','modal'));
+
+%% Preparing for profiling
+
+DirProfileAll = [homeDir, fs, 'profile_results'];
+
+if exist(DirProfileAll, 'dir') == 7
+   status = rmdir(DirProfileAll, 's');
+   assert(status==1, [sprintf('Impossible to delete folder:\n %s\n',...
+       [homeDir, fs, DirProfileAll]), 'Do it manually']);
+end
+
+mkdir(DirProfileAll);
+addpath(DirProfileAll);
+
+param = ...
+    {'Date';...
+    '';...
+    'G-code';...
+    'amax[mm/s²]';...
+    'jmax[mm/s³]';...
+    'CutOff[mm]';...
+    '';...
+    'vmax_norm_tol[%]';...
+    'amax_xyz_tol[%]';...
+    'jmax_xyz_tol[%]';...
+    'TimeOpt_tol[%]';...
+    '';...
+    'FeedoptPlanRun';...
+    'ReadGCode';...
+    'CheckCurvStructs';...
+    'CompressCurvStructs';...
+    'SmoothCurvStructs';...
+    'SplitCurvStructs';...
+    'FeedratePlanning_v4';...
+    'ResampleNoCtx';...
+    '';...
+    'Forced Stops';...
+    'Programmed Stops'};
+
+Number = [1:length(param)];
+
+% table preallocation
+T = table('Size', [Number(end), 4],...
+    'VariableTypes', {'uint16', 'string', 'double', 'double'},...
+    'VariableNames', {'Number', 'Param', 'Value', 'TotalTime'});
+
+for k=1:Number(end)
+    T.Param(k)=param(k);
+end
 
 %% Params sweep
-Str = sprintf('%d different parameter settings', length(keys));
-uiwait(msgbox(Str,'','modal'));
-
-DirProfileAll = 'profile_results';
-mkdir(DirProfileAll);
 
 % Main loop
 for k = 1:NGcodes
@@ -50,34 +105,38 @@ for k = 1:NGcodes
 
     % all params combinations are tested
     for a=1:2   
-        cfg.amax(1:3) = str2double(values{a});
+        cfg.amax(1:3) = str2double(values1{a});
         for j=3:4
-            cfg.jmax(1:3) = str2double(values{j});
+            cfg.jmax(1:3) = str2double(values1{j});
             for co=5:6
-                cfg.CutOff = values{co};
+                cfg.CutOff = values1{co};
                 ctx = InitFeedoptPlan(cfg);
                 try
                     profile on
-                    ctx = FeedoptPlanRun(ctx);
+                    ctx = FeedoptPlanRun(ctx);                % q(u)            
+                    uvec = PlotResampled_BR(ctx, ctx.cfg.dt); % u(t)
+                    profile off
+                   
+                    conf = {k, keys1{a}, keys1{j}, keys1{co}};
+                   
+                    [~, T] = SaveProfileInfo(DirProfileAll, conf, T);
                     
-                    % Saving profiling info for current params combination
-                    % in project folder
-                    % in html format
-                    DirProfile = [DirProfileAll, fs, sprintf('profile_results_%d_%s_%s_%s',...
-                        k, keys{a}, keys{j}, keys{co})];
-                    mkdir(DirProfile);
-                    profsave(profile('info'), DirProfile);
                     
-                    if ctx.forced_stop ~= 0
-                        Ok = 0;
-                    end
+%                     T.Param
+                    
+                    [v_norm, acc, jerk] = CalcVAJ(ctx, CurvStruct, Bl, u_vec);
+                    
+%                     if ctx.forced_stop ~= 0 ||
+%                         max(vnorm) > 
+%                         Ok = 0;
+%                     end
                     
                 catch ME % here an assert is detected
                     profile off
                     Ok       = 0;
                     AssertErrorCtr = AssertErrorCtr + 1;
                     Str = sprintf('%s did not work with parameters combination: %s, %s, %s',...
-                        dircontent(k).name, keys{a}, keys{j}, keys{co});
+                        dircontent(k).name, keys1{a}, keys1{j}, keys1{co});
                     ErrorStr{AssertErrorCtr} = Str;
                     MEcell{AssertErrorCtr}   = ME;
                 end
@@ -88,76 +147,79 @@ for k = 1:NGcodes
     
 end
 
-d         = datestr(datetime('now'));
-Cd        = cd;
+%% Make directory and copy all relevant info
 GdirSplit = regexp(Gdir, fs, 'split');
 GdirEnd   = GdirSplit{end};
 
-%% Make directory and copy all relevant info
-if Ok == 1
-    DirName = [Cd, fs, 'Val_', GdirEnd, '_', 'OK'];
-else
-    DirName = [Cd, fs, 'Val_', GdirEnd, '_', 'FAILED'];
+DirNameGen = [homeDir, fs, 'Val_', GdirEnd, '_'];
+DirNameOK = [DirNameGen, 'OK'];
+DirNameFAILED = [DirNameGen, 'FAILED'];
+
+if exist(DirNameOK, 'dir') == 7 || exist(DirNameFAILED, 'dir') == 7
+   status = rmdir('Val_*', 's');
+   assert(status==1, [sprintf('Impossible to delete folder:\n %s\n',...
+       [DirNameGen, '*']), 'Do it manually']);
 end
-%
-if exist(DirName, 'dir') == 7
-   rmdir(DirName, 's');   % sometimes this line throws an error
+
+if Ok == 1
+    DirName = DirNameOK;
+else
+    DirName = DirNameFAILED;
 end
 
 mkdir(DirName);
+addpath(DirName);
 SubGDir = [DirName, fs, GdirEnd];
+
+if exist(SubGDir, 'dir') == 7
+   status = rmdir(SubGDir, 's');
+   assert(status==1, [sprintf('Impossible to delete folder:\n %s\n',...
+       SubGDir), 'Do it manually']);
+end
+
 mkdir(SubGDir);
+addpath(SubGDir);
 SubProfileDir = [DirName, fs, 'profile_results'];
 mkdir(SubProfileDir);
+addpath(SubProfileDir);
 
-copyfile(PfileName, DirName);                         % copy selected parameter file
-copyfile('Validate_OpenCN.m', DirName);               % copy this .m source file
+copyfile(PfileName, DirName);                   % copy selected parameter file
+copyfile('Validate_OpenCN.m', DirName);         % copy this .m source file
 
+status = 1; % Success default
 for k=1:NGcodes
     % copy all G-code files
     copyfile([dircontent(k).folder, fs, dircontent(k).name], SubGDir);
     
     % copy all profiling info relevant to this G-code file
-    SubGDir_k = [SubProfileDir, fs, sprintf('profile_results_%d', k)];
+    % .html files
+    SubGDir_k = [SubProfileDir, fs, sprintf('%d_profile_results', k)];
     mkdir(SubGDir_k);
+    addpath(SubGDir_k);
     
     % move profiling info safely
-    status = copyfile([DirProfileAll, fs,...
-        sprintf('profile_results_%d_*', k)], SubGDir_k);            
-    if status == 1
-        rmdir(sprintf('profile_results_%d_*', k), 's');
+    ret = copyfile([DirProfileAll, fs,...
+        sprintf('%d_*', k)], SubGDir_k);            
+    if ret ~= 1
+        status = 0;
     end
       
 end
 
-%% Report text file editing
-sep = '--------------------';
-fileID = fopen('OpenCN_report.txt','w');
-
-fprintf(fileID,'Date:\n');
-fprintf(fileID,'%s\n%s\n',d,sep);
-
-fprintf(fileID,'Forced stops:\n');
-fprintf(fileID,'%d\n%s\n', ctx.forced_stop, sep);
-fprintf(fileID,'Programmed stops:\n');
-fprintf(fileID,'%d\n%s\n', ctx.programmed_stop, sep);
-
-fclose(fileID);
-
-status = copyfile('OpenCN_report.txt', DirName);
+% No more need profile info folder here...
 if status == 1
-    delete('OpenCN_report.txt'); 
+    rmdir(DirProfileAll, 's');
 end
 
 
-%% Last commit of Matlab submodule recorded in textfile, with git-diff
-cd '~/opencn/agency/usr/matlab/common';
-% No need for terminal
-[status, CommitStr] = system('TERM=ansi git log -1 -p > commit_info.txt');
+%% Last commit of Matlab submodule recorded in textfile
+
+% Linux command
+[status, CommitStr] = system('git log -1 > commit_info.txt');
 
 if status == 0
-    copyfile('commit_info.txt', DirName);
+    status = copyfile([homeDir, fs, 'commit_info.txt'], DirName);
     if status == 1
-        delete('commit_info.txt');
+        delete([homeDir, fs, 'commit_info.txt']);
     end
 end
