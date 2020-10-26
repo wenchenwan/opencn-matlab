@@ -94,7 +94,7 @@ ktick = ktick - 1;
 % fprintf('t = us in s/(calls_per_sample * freq) = ')
 % fprintf('1e6/(%.1f*10000) = %.1f us\n', calls_per_sample, function_t)
 
-uvec = [0 uvec(1:ktick)];
+uvec = [0; uvec(1:ktick)];
 % vvec = vvec(1:ktick, :);
 % jvec = jvec(1:ktick, :);
 % avec = avec(1:ktick, :);

@@ -43,6 +43,13 @@ values1 = ini.GetValues('Extreme values', keys1);
 values2 = ini.GetValues('Max constrains tolerances', keys2);
 values3 = ini.GetValues('Time optimality tolerance', keys3);
 
+vmax_norm_tol = values2{1};
+amax_xyz_tol = values2{2};
+jmax_xyz_tol = values2{3};
+
+TimeOpt_tol = values3{1};
+
+
 Str = sprintf('%d different parameter settings',...
     length(keys1)+length(keys2)+length(keys2));
 % uiwait(msgbox(Str,'','modal'));
@@ -58,7 +65,7 @@ if exist(DirProfileAll, 'dir') == 7
 end
 
 mkdir(DirProfileAll);
-addpath(DirProfileAll);
+% addpath(DirProfileAll);
 
 param = ...
     {'Date';...
@@ -119,12 +126,23 @@ for k = 1:NGcodes
                    
                     conf = {k, keys1{a}, keys1{j}, keys1{co}};
                    
-                    [~, T] = SaveProfileInfo(DirProfileAll, conf, T);
+%                     [~, T] = SaveProfileInfo(DirProfileAll, conf, T);
                     
+                    Idx = 1;
+                    u = uvec(Idx); % u=0;
+                    i = 1; % first CurvStruct
+                    sz = ctx.q_opt.size();
+                    while i <= sz
+                        while u <= i
+                            [v_norm, acc, jerk] =...
+                                CalcVAJ(ctx, ctx.q_opt.get(i), ctx.Bl, u);
+                            Idx = Idx + 1;
+                            u = uvec(Idx);
+                        end
+                        i = ceil(u);
+                    end
                     
-%                     T.Param
-                    
-                    [v_norm, acc, jerk] = CalcVAJ(ctx, CurvStruct, Bl, u_vec);
+                    [status, tv, ta, tj] = TolVerif();
                     
 %                     if ctx.forced_stop ~= 0 ||
 %                         max(vnorm) > 
@@ -140,6 +158,8 @@ for k = 1:NGcodes
                     ErrorStr{AssertErrorCtr} = Str;
                     MEcell{AssertErrorCtr}   = ME;
                 end
+                
+                DestroyContext(ctx);
 
             end
         end
@@ -168,7 +188,7 @@ else
 end
 
 mkdir(DirName);
-addpath(DirName);
+% addpath(DirName);
 SubGDir = [DirName, fs, GdirEnd];
 
 if exist(SubGDir, 'dir') == 7
@@ -178,10 +198,10 @@ if exist(SubGDir, 'dir') == 7
 end
 
 mkdir(SubGDir);
-addpath(SubGDir);
+% addpath(SubGDir);
 SubProfileDir = [DirName, fs, 'profile_results'];
 mkdir(SubProfileDir);
-addpath(SubProfileDir);
+% addpath(SubProfileDir);
 
 copyfile(PfileName, DirName);                   % copy selected parameter file
 copyfile('Validate_OpenCN.m', DirName);         % copy this .m source file
@@ -195,7 +215,7 @@ for k=1:NGcodes
     % .html files
     SubGDir_k = [SubProfileDir, fs, sprintf('%d_profile_results', k)];
     mkdir(SubGDir_k);
-    addpath(SubGDir_k);
+%     addpath(SubGDir_k);
     
     % move profiling info safely
     ret = copyfile([DirProfileAll, fs,...

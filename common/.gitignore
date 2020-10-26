@@ -1,2 +1,12 @@
 gen_mex/**
 *.mexa64
+*.html
+*.var
+*.bak
+
+Validate_OpenCN/Val_utility_test_gcodes_FAILED
+Validate_OpenCN/Val_utility_test_gcodes_OK
+Validate_OpenCN/profile_results/**
+Validate_OpenCN/utility_test_gcodes/**
+
+**/iniconfig/**

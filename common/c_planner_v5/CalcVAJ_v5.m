@@ -49,7 +49,7 @@ for k = 1:1
         elseif CurvStructs.zspdmode==ZSpdMode.ZZ
             error('Should not get here');
         else %% ZSpdMode.NN
-            [v1, v2, v3] = bspline_eval(Bl, Coeff(:, k), u_vec(iu));
+            [v1, v2, v3] = bspline_eval(Bl, Coeff(:, k)', u_vec(iu));
             q_val(iu) = v1;
             qD_val(iu) = v2;
             qDD_val(iu) = v3;

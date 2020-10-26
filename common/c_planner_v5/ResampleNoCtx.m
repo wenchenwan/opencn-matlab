@@ -67,7 +67,7 @@ function [ukp1, qk, dk] = ResampleNN(CurOptStruct, Bl, u, dt)
 c_assert(~CurOptStruct.UseConstJerk, 'NN is using jerk');
 
 uk = u;
-[qk, dk, ~] = bspline_eval(Bl, CurOptStruct.Coeff, uk);
+[qk, dk, ~] = bspline_eval(Bl, CurOptStruct.Coeff', uk);
 ukp1 = uk + dk*dt^2/4 + mysqrt(qk)*dt;
 end
 

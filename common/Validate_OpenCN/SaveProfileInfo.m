@@ -12,7 +12,6 @@ fs = filesep; % file separator
 DirProfile = [DirProfileAll, fs, sprintf('%d_%s_%s_%s',...
     conf{1}, conf{2}, conf{3}, conf{4})];
 mkdir(DirProfile);
-addpath
 p = profile('info');
 profsaveNoWeb(p, DirProfile);
 
