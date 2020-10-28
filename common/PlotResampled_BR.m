@@ -70,7 +70,7 @@ for k = 1:N
         state = ResampleNoCtx(state, ctx.Bl, ctx.q_opt.get(k));
 %         timevec1(ktick) = toc(tstart);
     end
-    
+
     state.go_next = false;
     if ktick > ktick_max
         warning('Breaking because ktick > %d', ktick_max)

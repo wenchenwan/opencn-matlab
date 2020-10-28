@@ -1,5 +1,8 @@
 function [v_norm, acc, jerk] = CalcVAJ(ctx, CurvStruct, Bl, u_vec)
 %
+
+assert(u_vec(end)<=1, 'u_vec too long!!');
+
 [~, r1D, r2D, r3D] = EvalCurvStruct(ctx, CurvStruct, u_vec);
 r1D_norm             = mysqrt(sum(r1D.^2));  % norm
 
@@ -12,7 +15,7 @@ qDD_val = zeros(size(u_vec));
 
 if ~CurvStruct.UseConstJerk
     for iu = 1:numel(u_vec)
-        [v1, v2, v3] = bspline_eval(Bl, CurvStruct.Coeff, u_vec(iu));
+        [v1, v2, v3] = bspline_eval(Bl, CurvStruct.Coeff', u_vec(iu));
         q_val(iu) = v1;
         qD_val(iu) = v2;
         qDD_val(iu) = v3;

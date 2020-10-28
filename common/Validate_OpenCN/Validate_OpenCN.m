@@ -123,31 +123,6 @@ for k = 1:NGcodes
                     ctx = FeedoptPlanRun(ctx);                % q(u)            
                     uvec = PlotResampled_BR(ctx, ctx.cfg.dt); % u(t)
                     profile off
-                   
-                    conf = {k, keys1{a}, keys1{j}, keys1{co}};
-                   
-%                     [~, T] = SaveProfileInfo(DirProfileAll, conf, T);
-                    
-                    Idx = 1;
-                    u = uvec(Idx); % u=0;
-                    i = 1; % first CurvStruct
-                    sz = ctx.q_opt.size();
-                    while i <= sz
-                        while u <= i
-                            [v_norm, acc, jerk] =...
-                                CalcVAJ(ctx, ctx.q_opt.get(i), ctx.Bl, u);
-                            Idx = Idx + 1;
-                            u = uvec(Idx);
-                        end
-                        i = ceil(u);
-                    end
-                    
-                    [status, tv, ta, tj] = TolVerif();
-                    
-%                     if ctx.forced_stop ~= 0 ||
-%                         max(vnorm) > 
-%                         Ok = 0;
-%                     end
                     
                 catch ME % here an assert is detected
                     profile off
@@ -158,6 +133,38 @@ for k = 1:NGcodes
                     ErrorStr{AssertErrorCtr} = Str;
                     MEcell{AssertErrorCtr}   = ME;
                 end
+                   
+                    conf = {k, keys1{a}, keys1{j}, keys1{co}};
+                   
+%                     [~, T] = SaveProfileInfo(DirProfileAll, conf, T);
+                    
+
+                    Idx = 1;
+                    CurvStructNbr = 1; % first CurvStruct
+                    ucum = 0; % cumulative u
+                    QOptSize = ctx.q_opt.size();
+                    while CurvStructNbr <= QOptSize
+                        
+                        while ucum <= CurvStructNbr && Idx <= size(uvec,2)
+                            ucum = uvec(Idx);
+                            u = ucum - floor(ucum);
+                            [v_norm, acc, jerk] =...
+                                CalcVAJ(ctx, ctx.q_opt.get(i), ctx.Bl, u);
+                            Idx = Idx + 1;
+                        end
+                        CurvStructNbr = ceil(ucum);
+                        
+                    end
+                    
+                    
+                    [status, tv, ta, tj] = TolVerif();
+                    
+%                     if ctx.forced_stop ~= 0 ||
+%                         max(vnorm) > 
+%                         Ok = 0;
+%                     end
+                    
+                
                 
                 DestroyContext(ctx);
 
