@@ -20,22 +20,28 @@ for k=2:size(uvec, 1)
             CalcVAJ(ctx, Curv, ctx.Bl, u);
      
      % constraints respect verif
-     if (v_norm > vmax+vmax*v_tol) ||...
-        any(abs(acc') > ctx.cfg.amax+ctx.cfg.amax*a_tol) ||...
-        any(abs(jerk') > ctx.cfg.jmax+ctx.cfg.jmax*j_tol)
+     if (v_norm > vmax*(1-v_tol)) ||...
+        any(abs(acc') > ctx.cfg.amax*(1-a_tol)) ||...
+        any(abs(jerk') > ctx.cfg.jmax*(1-j_tol))
         
         status = 0;
     
      end
      
      % time-optimality verif
-     condv = (v_norm > vmax - vmax*v_tol) && (v_norm < vmax + vmax*v_tol);
-       
-     conda = any((abs(acc') > ctx.cfg.amax - ctx.cfg.amax*a_tol) &...
-         (abs(acc') < ctx.cfg.amax + ctx.cfg.amax*a_tol));
+%      condv = (v_norm > vmax - vmax*v_tol) && (v_norm < vmax + vmax*v_tol);
+%        
+%      conda = any((abs(acc') > ctx.cfg.amax - ctx.cfg.amax*a_tol) &...
+%          (abs(acc') < ctx.cfg.amax + ctx.cfg.amax*a_tol));
+%      
+%      condj = any((abs(jerk') > ctx.cfg.jmax - ctx.cfg.jmax*j_tol) &...
+%          (abs(jerk') < ctx.cfg.jmax + ctx.cfg.jmax*j_tol));
      
-     condj = any((abs(jerk') > ctx.cfg.jmax - ctx.cfg.jmax*j_tol) &...
-         (abs(jerk') < ctx.cfg.jmax + ctx.cfg.jmax*j_tol));
+     condv = v_norm > vmax*(1-v_tol);
+       
+     conda = any(abs(acc') > ctx.cfg.amax*(1-a_tol));
+     
+     condj = any(abs(jerk') > ctx.cfg.jmax*(1-j_tol));
      
      if any([condv, conda, condj])
          t_max = t_max + ctx.cfg.dt;

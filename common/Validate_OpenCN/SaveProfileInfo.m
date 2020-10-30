@@ -1,4 +1,4 @@
-function [status, T] = SaveProfileInfo(dir, pcell)
+function status = SaveProfileInfo(dir, pcell)
 % Record all profile info
 % Called from Validate_OpenCN
 
