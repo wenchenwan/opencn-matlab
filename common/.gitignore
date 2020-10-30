@@ -4,9 +4,7 @@ gen_mex/**
 *.var
 *.bak
 
-Validate_OpenCN/Val_utility_test_gcodes_FAILED
-Validate_OpenCN/Val_utility_test_gcodes_OK
-Validate_OpenCN/profile_results/**
-Validate_OpenCN/utility_test_gcodes/**
-
 **/iniconfig/**
+
+Validate_OpenCN/Val_a558728d_FAILED
+Validate_OpenCN/Val_a558728d_OK

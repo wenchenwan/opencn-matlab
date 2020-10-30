@@ -1,11 +1,10 @@
 clc; clear; close all;
 
 d         = datestr(datetime('now'));
-homeDir = '/home/rozanov/opencn/agency/usr/matlab/common/Validate_OpenCN';
-cd(homeDir);
+Cd        = cd;                             % current folder
 
 %% Choose directory with G-code validation files
-fs         = filesep; % file separation character according to Win/Linux
+fs         = filesep; % file separation character
 % Gdir       = uigetdir('.', 'Choose directory with G-code validation files');
 Gdir       = '/home/rozanov/opencn/agency/usr/matlab/common/ngc_test/utility_test_gcodes';
 dircontent = dir([Gdir, fs, '*.ngc']);
@@ -13,15 +12,33 @@ NGcodes    = length(dircontent);
 Str        = sprintf('%d G-code files found', NGcodes);
 % uiwait(msgbox(Str,'','modal'));
 
-%% Initialization
-Ok         = 1;
-ErrorStr   = {};
-MEcell     = {};
-ProfilCell = {};
-AssertErrorCtr   = 0;
-NCtr       = 0;
+%% Choose parameter file
+[Pfile, Ppath] = uigetfile('*.m');
+PfileName      = [Ppath, Pfile];
+run(PfileName);
 
-%% Config
+%% Form all params combinations to test
+Ncomb = 0;
+for line_a = 1:size(amax, 1)
+    for line_j = 1:size(jmax, 1)
+        for co = 1:size(CutOff, 2)
+            Ncomb = Ncomb + 1;
+            Comb(Ncomb).a_max = amax(line_a, :);
+            Comb(Ncomb).j_max = jmax(line_j, :);
+            Comb(Ncomb).Cut_Off = CutOff(co);
+        end
+    end
+end
+
+Str = [sprintf('%d different parameter settings\n', Ncomb),...
+            'will be tested with each g-code'];
+        
+uiwait(msgbox(Str,'','modal'));
+
+%% setup wait bar
+fw = waitbar(0, '');
+
+%% Feedopt config
 global DebugConfig
 DebugConfig = 0;
 
@@ -30,77 +47,24 @@ cfg.NDiscr = 20;
 cfg.NBreak = 10;
 cfg.NHorz = 5;
 
-%% Reading params to sweep from INI file
-PfileName = 'config.ini';
-ini = IniConfig(); % class got from Mathworks community
-ini.ReadFile(PfileName);
-% reading keys list from sections
-[keys1, count_keys1] = ini.GetKeys('Extreme values');
-[keys2, count_keys2] = ini.GetKeys('Max constrains tolerances');
-[keys3, count_keys3] = ini.GetKeys('Time optimality tolerance');
-% getting key values
-values1 = ini.GetValues('Extreme values', keys1);
-values2 = ini.GetValues('Max constrains tolerances', keys2);
-values3 = ini.GetValues('Time optimality tolerance', keys3);
+%% Initialization
+OK               = 1;
+MEcell           = cell(NGcodes, Ncomb);
+ProfilCell       = cell(NGcodes, Ncomb);
+AssertErrorCtr   = 0;
+NCtr             = 0;
 
-vmax_norm_tol = values2{1};
-amax_xyz_tol = values2{2};
-jmax_xyz_tol = values2{3};
-
-TimeOpt_tol = values3{1};
-
-
-Str = sprintf('%d different parameter settings',...
-    length(keys1)+length(keys2)+length(keys2));
-% uiwait(msgbox(Str,'','modal'));
-
-%% Preparing for profiling
-
-DirProfileAll = [homeDir, fs, 'profile_results'];
-
-if exist(DirProfileAll, 'dir') == 7
-   status = rmdir(DirProfileAll, 's');
-   assert(status==1, [sprintf('Impossible to delete folder:\n %s\n',...
-       [homeDir, fs, DirProfileAll]), 'Do it manually']);
-end
-
-mkdir(DirProfileAll);
-% addpath(DirProfileAll);
-
-param = ...
-    {'Date';...
-    '';...
-    'G-code';...
-    'amax[mm/s²]';...
-    'jmax[mm/s³]';...
-    'CutOff[mm]';...
-    '';...
-    'vmax_norm_tol[%]';...
-    'amax_xyz_tol[%]';...
-    'jmax_xyz_tol[%]';...
-    'TimeOpt_tol[%]';...
-    '';...
-    'FeedoptPlanRun';...
-    'ReadGCode';...
-    'CheckCurvStructs';...
-    'CompressCurvStructs';...
-    'SmoothCurvStructs';...
-    'SplitCurvStructs';...
-    'FeedratePlanning_v4';...
-    'ResampleNoCtx';...
-    '';...
-    'Forced Stops';...
-    'Programmed Stops'};
-
-Number = [1:length(param)];
-
-% table preallocation
-T = table('Size', [Number(end), 4],...
-    'VariableTypes', {'uint16', 'string', 'double', 'double'},...
-    'VariableNames', {'Number', 'Param', 'Value', 'TotalTime'});
-
-for k=1:Number(end)
-    T.Param(k)=param(k);
+% Report struct init
+for k=1:NGcodes
+    for i=1:Ncomb
+        Report.ExactStopsNbr(k, i).forced = 0;
+        Report.ExactStopsNbr(k, i).programmed = 0;
+        
+        for m=1:size(ProfiledFcts, 1)
+            Report.Profiling(k, i).Function(m).Name = ProfiledFcts{m};
+            Report.Profiling(k, i).Function(m).TotalTime = 0;
+        end
+    end
 end
 
 %% Params sweep
@@ -111,142 +75,176 @@ for k = 1:NGcodes
     cfg.source = [dircontent(k).folder, fs, dircontent(k).name];
 
     % all params combinations are tested
-    for a=1:2   
-        cfg.amax(1:3) = str2double(values1{a});
-        for j=3:4
-            cfg.jmax(1:3) = str2double(values1{j});
-            for co=5:6
-                cfg.CutOff = values1{co};
-                ctx = InitFeedoptPlan(cfg);
-                try
-                    profile on
-                    ctx = FeedoptPlanRun(ctx);                % q(u)            
-                    uvec = PlotResampled_BR(ctx, ctx.cfg.dt); % u(t)
-                    profile off
-                    
-                catch ME % here an assert is detected
-                    profile off
-                    Ok       = 0;
-                    AssertErrorCtr = AssertErrorCtr + 1;
-                    Str = sprintf('%s did not work with parameters combination: %s, %s, %s',...
-                        dircontent(k).name, keys1{a}, keys1{j}, keys1{co});
-                    ErrorStr{AssertErrorCtr} = Str;
-                    MEcell{AssertErrorCtr}   = ME;
-                end
-                   
-                    conf = {k, keys1{a}, keys1{j}, keys1{co}};
-                   
-%                     [~, T] = SaveProfileInfo(DirProfileAll, conf, T);
-                    
+    for i = 1:Ncomb
+        
+        cfg.amax = Comb(i).a_max;
+        cfg.jmax = Comb(i).j_max;
+        cfg.CutOff = Comb(i).Cut_Off;
+        ctx = InitFeedoptPlan(cfg);
 
-                    Idx = 1;
-                    CurvStructNbr = 1; % first CurvStruct
-                    ucum = 0; % cumulative u
-                    QOptSize = ctx.q_opt.size();
-                    while CurvStructNbr <= QOptSize
+        try
+            
+            NCtr = NCtr + 1;
+            Str  = sprintf('processing G-code file %s, parameter setting %d',...
+                dircontent(k).name(5:end), i);
+            waitbar(NCtr/Ncomb, fw, Str); % update waitbar 
+            
+            profile on
+            ctx = FeedoptPlanRun(ctx);                % q(u)            
+            uvec = PlotResampled_BR(ctx, ctx.cfg.dt); % u(t)
+            profile off
                         
-                        while ucum <= CurvStructNbr && Idx <= size(uvec,2)
-                            ucum = uvec(Idx);
-                            u = ucum - floor(ucum);
-                            [v_norm, acc, jerk] =...
-                                CalcVAJ(ctx, ctx.q_opt.get(i), ctx.Bl, u);
-                            Idx = Idx + 1;
-                        end
-                        CurvStructNbr = ceil(ucum);
-                        
-                    end
-                    
-                    
-                    [status, tv, ta, tj] = TolVerif();
-                    
-%                     if ctx.forced_stop ~= 0 ||
-%                         max(vnorm) > 
-%                         Ok = 0;
-%                     end
-                    
-                
-                
-                DestroyContext(ctx);
-
+            ProfilCell{k, i} = profile('info');
+            
+            Report.ExactStopsNbr(k, i).forced = ctx.forced_stop;
+            if Report.ExactStopsNbr(k, i).forced ~= 0
+                OK = 0;
             end
+            
+            Report.ExactStopsNbr(k, i).programmed = ctx.programmed_stop;
+            
+            % Check constraints and time-optimality respect
+            [status, ratioTOpt] = FoptVerif(ctx, uvec, vmax_norm_tol, amax_xyz_tol,...
+                jmax_xyz_tol, TOpt_tol);
+            if status ~= 1
+                OK = 0;
+            end
+            Report.RatioTOpt(k, i) = ratioTOpt;
+           
+        catch ME % here an assert is detected
+            
+            profile off
+            OK       = 0;
+            AssertErrorCtr = AssertErrorCtr + 1;
+            MEcell{AssertErrorCtr}   = ME;
+            
         end
-    end
+        
+        DestroyContext(ctx);
     
+    end
+
 end
 
-%% Make directory and copy all relevant info
-GdirSplit = regexp(Gdir, fs, 'split');
-GdirEnd   = GdirSplit{end};
+% close waitbar
+close(fw);
 
-DirNameGen = [homeDir, fs, 'Val_', GdirEnd, '_'];
+%% Last commit hex number (first 8 digits) of Matlab submodule recorded in textfile
+
+% Linux command
+status = system('git log -1 -p > commit_info.txt');
+
+% Relevant info is on the 1-st line
+fid = fopen('commit_info.txt', 'r');
+lineStr = fgetl(fid);
+fclose(fid);
+
+lineStrSplit = regexp(lineStr, ' ', 'split');
+commitNbrStr = lineStrSplit{2}(1:8);
+
+%% Make directory and copy all relevant info
+
+% Remove test results folder, if any
+DirNameGen = [Cd, fs, 'Val_', commitNbrStr, '_'];
 DirNameOK = [DirNameGen, 'OK'];
 DirNameFAILED = [DirNameGen, 'FAILED'];
 
 if exist(DirNameOK, 'dir') == 7 || exist(DirNameFAILED, 'dir') == 7
    status = rmdir('Val_*', 's');
+   pause(0.2);
    assert(status==1, [sprintf('Impossible to delete folder:\n %s\n',...
        [DirNameGen, '*']), 'Do it manually']);
 end
 
-if Ok == 1
+% Dir to copy results
+if OK == 1
     DirName = DirNameOK;
 else
     DirName = DirNameFAILED;
 end
-
 mkdir(DirName);
-% addpath(DirName);
+
+% Subdir to copy g-codes tested
+GdirSplit = regexp(Gdir, fs, 'split');
+GdirEnd   = GdirSplit{end};
 SubGDir = [DirName, fs, GdirEnd];
 
+% Eventually remove existing subfolder
 if exist(SubGDir, 'dir') == 7
    status = rmdir(SubGDir, 's');
+   pause(0.2);
    assert(status==1, [sprintf('Impossible to delete folder:\n %s\n',...
        SubGDir), 'Do it manually']);
 end
 
+% Copy all g-files to the folder
 mkdir(SubGDir);
-% addpath(SubGDir);
-SubProfileDir = [DirName, fs, 'profile_results'];
-mkdir(SubProfileDir);
-% addpath(SubProfileDir);
+copyfile(Gdir, SubGDir);
+
+% Copy commit info text file
+status = copyfile([Cd, fs, 'commit_info.txt'], DirName);
+if status == 1
+    delete([Cd, fs, 'commit_info.txt']);
+end
 
 copyfile(PfileName, DirName);                   % copy selected parameter file
 copyfile('Validate_OpenCN.m', DirName);         % copy this .m source file
 
-status = 1; % Success default
+% Ask user whether to save profiling results 
+answer = questdlg('Save profiling info in html format?', ...
+	'Profiling', ...
+	'Yes','No','No');
+
+% Handle response
+switch answer
+    
+    case 'Yes'
+        
+        DirProfile = [DirName, fs, 'profile_results'];
+
+        if exist(DirProfile, 'dir') == 7
+           status = rmdir(DirProfile, 's');
+           assert(status==1, [sprintf('Impossible to delete folder:\n %s\n',...
+               DirProfile), 'Do it manually']);
+        end
+
+        status = mkdir(DirProfile);
+        
+        if status ==1
+            SaveProfileInfo(DirProfile, ProfilCell);
+        end
+               
+    case 'No'
+        
+        % Do nothing
+        
+end
+
+% Profiling report save for chosen fcts
 for k=1:NGcodes
-    % copy all G-code files
-    copyfile([dircontent(k).folder, fs, dircontent(k).name], SubGDir);
-    
-    % copy all profiling info relevant to this G-code file
-    % .html files
-    SubGDir_k = [SubProfileDir, fs, sprintf('%d_profile_results', k)];
-    mkdir(SubGDir_k);
-%     addpath(SubGDir_k);
-    
-    % move profiling info safely
-    ret = copyfile([DirProfileAll, fs,...
-        sprintf('%d_*', k)], SubGDir_k);            
-    if ret ~= 1
-        status = 0;
+    for i=1:Ncomb
+        for m=1:size(ProfilCell{k, i}.FunctionTable, 1)
+            for l=1:size(ProfiledFcts, 1)
+                if strcmp(ProfilCell{k, i}.FunctionTable(m).FunctionName,...
+                        ProfiledFcts{l})
+                    Report.Profiling(k, i).Function(l).TotalTime =...
+                        ProfilCell{k, i}.FunctionTable(m).TotalTime;
+                end
+            end
+        end
     end
-      
 end
 
-% No more need profile info folder here...
+%% Saving relevant info in .mat file
+fname = [DirName, '_status.mat'];
+save(fname, 'd', 'MEcell', 'ProfilCell', 'Report');
+
+status = copyfile(fname, DirName);
 if status == 1
-    rmdir(DirProfileAll, 's');
+    delete(fname);
 end
 
 
-%% Last commit of Matlab submodule recorded in textfile
 
-% Linux command
-[status, CommitStr] = system('git log -1 > commit_info.txt');
 
-if status == 0
-    status = copyfile([homeDir, fs, 'commit_info.txt'], DirName);
-    if status == 1
-        delete([homeDir, fs, 'commit_info.txt']);
-    end
-end
+

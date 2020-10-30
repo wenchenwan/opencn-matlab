@@ -1,48 +1,39 @@
-function [status, T] = SaveProfileInfo(DirProfileAll, conf, T)
+function [status, T] = SaveProfileInfo(dir, pcell)
 % Record all profile info
 % Called from Validate_OpenCN
 
-status = 1; % Success by default
+status = 1;     % success default
 
-fs = filesep; % file separator
+fs = filesep;   % file separation character
 
-% Saving profiling info for current params combination
-% in project folder, then in subfolder
-% in html format
-DirProfile = [DirProfileAll, fs, sprintf('%d_%s_%s_%s',...
-    conf{1}, conf{2}, conf{3}, conf{4})];
-mkdir(DirProfile);
-p = profile('info');
-profsaveNoWeb(p, DirProfile);
+NGcodes = size(pcell,1);
+Ncomb = size(pcell,2);
 
-% Renaming all .html files in profiling directory
-% with <profiled function name>_<fct nbr>.html
-% Default output of profsave(): file<nbr>.html
+for k = 1:NGcodes
 
-% The first file file0.html is renamed as: list.html
-ret = movefile([DirProfile, fs, 'file0.html'],...
-    [DirProfile, fs, 'list.html']);
-if ret ~= 1
-    status = 0;
-end
-
-for k=1:size(p.FunctionTable, 1)
+    dir_k = [dir, fs, sprintf('%d_profile_results', k)];
+    status = mkdir(dir_k);
     
-    HtmlFullFileName = [DirProfile, fs, sprintf('file%d.html', k)];
-    NewFullFileName = [DirProfile, fs, ...
-        sprintf('%d_%s.html', k, p.FunctionTable(k).FunctionName)];
-    ret = movefile(HtmlFullFileName, NewFullFileName);
-    if ret ~= 1
-        status = 0;
-    end     
-    
-    for i=1:length(T.Param)
-        if T.Param(i) == p.FunctionTable(k).FunctionName
-            T.TotalTime(i) = p.FunctionTable(k).TotalTime;
-            T.Number(i) = k;
-            break;
-        end
+    if status ~= 1
+        continue;
     end
-   
+
+    for i = 1:Ncomb
+        
+        dir_k_i = [dir_k, fs, sprintf('%d_%d_profile_results', k, i)];
+        status = mkdir(dir_k_i);
+
+        if status ~= 1
+            continue;
+        end
+
+        p = pcell{k, i};
+        profsaveNoWeb(p, dir_k_i);
+
+
+    end
+
+end
+    
 end
 
