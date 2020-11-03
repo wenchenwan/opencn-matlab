@@ -5,16 +5,17 @@ Cd        = cd;                             % current folder
 
 %% Choose directory with G-code validation files
 fs         = filesep; % file separation character
-Gdir       = uigetdir('.', 'Choose directory with G-code validation files');
-% Gdir       = '/home/rozanov/opencn/agency/usr/matlab/common/ngc_test/utility_test_gcodes';
+% Gdir       = uigetdir('.', 'Choose directory with G-code validation files');
+Gdir       = '/home/rozanov/opencn/agency/usr/matlab/common/ngc_test/utility_test_gcodes';
 dircontent = dir([Gdir, fs, '*.ngc']);
 NGcodes    = length(dircontent);
 Str        = sprintf('%d G-code files found', NGcodes);
-uiwait(msgbox(Str,'','modal'));
+% uiwait(msgbox(Str,'','modal'));
 
 %% Choose parameter file
-[Pfile, Ppath] = uigetfile('*.m');
-PfileName      = [Ppath, Pfile];
+% [Pfile, Ppath] = uigetfile('*.m');
+% PfileName      = [Ppath, Pfile];
+PfileName = '/home/rozanov/opencn/agency/usr/matlab/common/Validate_OpenCN/params.m';
 run(PfileName);
 
 %% Form all params combinations to test

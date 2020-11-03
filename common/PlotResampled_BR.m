@@ -12,17 +12,18 @@ function uvec = PlotResampled_BR(ctx, dt)
 
 t_mach_max = 20*60; % [s]
 
-ktick_max = t_mach_max/dt;
+ktick_max = round(t_mach_max/dt);
 
 uvec = zeros(ktick_max, 1);
-% pvec = zeros(200000, 3);
-% kvec = zeros(200000, 1);
+pvec = zeros(ktick_max, 3);
+kvec = zeros(ktick_max, 1);
+
+vvec = zeros(ktick_max, 1);
+avec = zeros(ktick_max, 3);
+jvec = zeros(ktick_max, 3);
 % 
-% vvec = zeros(200000, 1);
-% avec = zeros(200000, 3);
-% jvec = zeros(200000, 3);
-% 
-% fvec = zeros(200000, 1);
+fvec = zeros(ktick_max, 1);
+tvec = zeros(ktick_max, 1);
 % cfvec = zeros(200000, 1);
 % 
 % timevec1 = zeros(200000, 1);
@@ -39,6 +40,8 @@ DebugLog(DebugCfg.Global, 'Resampling ...\n');
 % cot_calls = 0;
 % sqrt_calls = 0;
 
+t = 0;
+
 for k = 1:N
     DebugLog(DebugCfg.OptimProgress, '%4d/%d\n', k, N);
     Curv = ctx.q_opt.get(k);
@@ -52,17 +55,19 @@ for k = 1:N
     while ~state.go_next
         state.dt = dt;  
 %         tstart = tic;
-%         r0D = EvalPosition(Curv, SplineCurv, state.u);
+        r0D = EvalPosition(Curv, SplineCurv, state.u);
 %         timevec2(ktick) = toc(tstart);
-%         [Vnorm, Acc, Jerk] = CalcVAJ(ctx, Curv, ctx.Bl, state.u);
+        [Vnorm, Acc, Jerk] = CalcVAJ(ctx, Curv, ctx.Bl, state.u);
 %         
-%         pvec(ktick, :) = r0D;
+        pvec(ktick, :) = r0D;
         uvec(ktick) = state.u + double(k) - 1;
 %         kvec(ktick) = k;
-%         vvec(ktick) = Vnorm;
-%         avec(ktick, :) = Acc;
-%         jvec(ktick, :) = Jerk;
-%         fvec(ktick, :) = Curv.FeedRate*60;
+        vvec(ktick) = Vnorm;
+        avec(ktick, :) = Acc;
+        jvec(ktick, :) = Jerk;
+        fvec(ktick, :) = Curv.FeedRate*60;
+        t = t + dt;
+        tvec(ktick, :) = t;
 %         cfvec(ktick, :) = Curv.MaxConstantFeedRate*60;
 %         gvec(ktick, :) = Curv.gcode_source_line;
         ktick = ktick + 1;
@@ -94,19 +99,30 @@ ktick = ktick - 1;
 % fprintf('t = us in s/(calls_per_sample * freq) = ')
 % fprintf('1e6/(%.1f*10000) = %.1f us\n', calls_per_sample, function_t)
 
+tvec = [0; tvec(1:ktick)];
 uvec = [0; uvec(1:ktick)];
-% vvec = vvec(1:ktick, :);
-% jvec = jvec(1:ktick, :);
-% avec = avec(1:ktick, :);
-% pvec = pvec(1:ktick, :);
-% fvec = fvec(1:ktick);
+vvec = [0; vvec(1:ktick, :)];
+jvec = [0 0 0; jvec(1:ktick, :)];
+avec = [0 0 0; avec(1:ktick, :)];
+pvec = [0 0 0; pvec(1:ktick, :)];
+fvec = [0; fvec(1:ktick)];
+
+Curv = ctx.q_opt.get(1);
+SplineCurv = ctx.q_splines.get(Curv.sp_index);
+pvec(1, :) = EvalPosition(Curv, SplineCurv, 0);
+[Vnorm, Acc, Jerk] = CalcVAJ(ctx, Curv, ctx.Bl, 0);
+vvec(1) = Vnorm;
+avec(1, :) = Acc;
+jvec(1, :) = Jerk;
+fvec(1, :) = Curv.FeedRate*60;
+
 % kvec = kvec(1:ktick);
 % cfvec = cfvec(1:ktick);
 % timevec1 = timevec1(1:ktick);
 % timevec2 = timevec2(1:ktick);
 
-% avec = avec./ctx.cfg.amax;
-% jvec = jvec./ctx.cfg.jmax;
+avec = avec./ctx.cfg.amax;
+jvec = jvec./ctx.cfg.jmax;
 % 
 % data = table(uvec, kvec, pvec, vvec, avec, jvec, fvec, cfvec);
 
@@ -150,14 +166,14 @@ uvec = [0; uvec(1:ktick)];
 % zlabel('z')
 % colorbar
 % 
-% dcm_obj = datacursormode(gcf);
-% set(dcm_obj,'UpdateFcn',{@myupdatefcn,ctx, data})
+% % dcm_obj = datacursormode(gcf);
+% % set(dcm_obj,'UpdateFcn',{@myupdatefcn,ctx, data})
 % 
 % ax(1) = subplot(2,4,3);
-% plot(uvec, vvec*60, 'b', uvec, fvec, 'r', uvec, cfvec, 'm')
+% plot(uvec, vvec*60, 'b', uvec, fvec, 'r')
 % title('Velocity in mm/min')
 % xlabel('Cumulative u')
-% legend('norm', 'Specified Feedrate', 'Max Constant Feedrate')
+% legend('norm', 'Specified Feedrate')
 % grid
 % 
 % ax(2) = subplot(2,4,4);
@@ -167,7 +183,7 @@ uvec = [0; uvec(1:ktick)];
 % legend('x', 'y', 'z')
 % ylim([-1.2 1.2])
 % grid
-% 
+
 % ax(3) = subplot(2,4,7);
 % plot(uvec, pvec)
 % title('Position')
@@ -175,7 +191,7 @@ uvec = [0; uvec(1:ktick)];
 % legend('x', 'y', 'z')
 % grid
 % 
-% ax(4) = subplot(2,4,8);
+% ax(3) = subplot(2,4,8);
 % plot(uvec, jvec)
 % title('Normalized jerk in mm/s^3')
 % xlabel('Cumulative u')
@@ -247,4 +263,18 @@ uvec = [0; uvec(1:ktick)];
 %        sprintf('L = %5.3f', LengthCurv(ctx, Curve, 0, 1)),...
 %        sprintf('GCode line: %d', Curve.gcode_source_line)};
 % end
+
+figure
+plot(tvec, vvec*60./fvec)
+hold on
+plot(tvec, abs(avec))
+hold on
+plot(tvec, abs(jvec))
+title('Nomalized vnorm, a, j')
+xlabel('Cumulative u')
+xlim([0 tvec(end)]);
+ylim([-0.2 1.2])
+legend('vnorm', 'ax', 'ay', 'az', 'jx', 'jy', 'jz')
+grid
+
 end
