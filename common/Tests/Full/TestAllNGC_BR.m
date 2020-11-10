@@ -13,17 +13,18 @@ cfg.DebugOptimProgress = true;
 
 ngc_unit_list = string(fullfile('ngc_test/unit', {dir('ngc_test/unit/*.ngc').name}));
 ngc_full_list = string(fullfile('ngc_test/full', {dir('ngc_test/full/*.ngc').name}));
-ngc_full_Montres_list = string(fullfile('ngc_test/full', {dir('ngc_test/full/021_Montre_V12.ngc').name}));
+ngc_full_Montres_list = string(fullfile('ngc_test/full', {dir('ngc_test/full/*.ngc').name}));
 
-%     if coder.target('matlab')
-%         diary ([cfg.LogFileName, '_', ...
-%             datestr(now,'yyyy_mm_dd_HH_MM_SS'), ...
-%             '.txt']);
-%         diary on;
-%     end
+if coder.target('matlab')
+    diary ([cfg.LogFileName, '_', ...
+        datestr(now,'yyyy_mm_dd_HH_MM_SS'), ...
+        '.txt']);
+    diary on;
+end
 
-EnableDebugLog(DebugCfg.OptimProgress);
 EnableDebugLog(DebugCfg.Transitions);
+EnableDebugLog(DebugCfg.Error);
+
 
 for k=1:numel(ngc_full_Montres_list)
 
@@ -31,6 +32,7 @@ for k=1:numel(ngc_full_Montres_list)
     DebugLog(DebugCfg.Transitions, [cfg.source, '\n']);
     ctx = InitFeedoptPlan(cfg);
     ctx = FeedoptPlanRun(ctx);
+    
 %         figure;
 %         PlotCurvStructsBR_2(ctx, ctx.q_split.getall());
 %         title(ngc_full_Montres_list(k), 'Interpreter', 'none');
@@ -41,7 +43,6 @@ for k=1:numel(ngc_full_Montres_list)
 
 end
 
-%     if coder.target('matlab')
-%         diary off;
-%     end
-
+if coder.target('matlab')
+    diary off;
+end

@@ -1,4 +1,4 @@
-function uvec = PlotResampled_BR(ctx, dt)
+function uvec = PlotResampled_BR(ctx, t_max, dt)
 
 % fprintf('Skipped %d segments\n', ctx.Skipped);
 
@@ -10,13 +10,18 @@ function uvec = PlotResampled_BR(ctx, dt)
 
 % close all
 
-t_mach_max = 20*60; % [s]
+uvec = [];
 
-ktick_max = round(t_mach_max/dt);
+if ctx.q_opt.isempty()
+    return;
+end
+
+t_mach_max_s = t_max*60; % [s]
+
+ktick_max = round(t_mach_max_s/dt);
 
 uvec = zeros(ktick_max, 1);
 pvec = zeros(ktick_max, 3);
-kvec = zeros(ktick_max, 1);
 
 vvec = zeros(ktick_max, 1);
 avec = zeros(ktick_max, 3);
@@ -33,7 +38,7 @@ ktick = 1;
 
 state = ResampleState(dt);
 N = ctx.q_opt.size();
-DebugLog(DebugCfg.Global, 'Resampling ...\n');
+DebugLog(DebugCfg.Transitions, 'Resampling ...\n');
 % global sin_calls cos_calls cot_calls sqrt_calls
 % sin_calls = 0;
 % cos_calls = 0;
@@ -121,8 +126,6 @@ fvec(1, :) = Curv.FeedRate*60;
 % timevec1 = timevec1(1:ktick);
 % timevec2 = timevec2(1:ktick);
 
-avec = avec./ctx.cfg.amax;
-jvec = jvec./ctx.cfg.jmax;
 % 
 % data = table(uvec, kvec, pvec, vvec, avec, jvec, fvec, cfvec);
 
@@ -154,17 +157,9 @@ jvec = jvec./ctx.cfg.jmax;
 % v = [[0,0,0]; diff(pvec, 1, 1)];
 % v = vecnorm(v, 2, 2)/dt;
 
-% figure
-% subplot(2,4,[1,2,5,6])
-% scatter3(pvec(:, 1), pvec(:, 2), pvec(:, 3), 1, vvec*60, 'o')
-% colormap jet
-% set(gca, 'Projection','orthographic')
-% % axis vis3d
-% % equal
-% xlabel('x')
-% ylabel('y')
-% zlabel('z')
-% colorbar
+% max_plot(ctx, pvec, vvec, fvec, avec, jvec);
+% max_time_plot(ctx, tvec, vvec, fvec, avec, jvec);
+
 % 
 % % dcm_obj = datacursormode(gcf);
 % % set(dcm_obj,'UpdateFcn',{@myupdatefcn,ctx, data})
@@ -263,18 +258,5 @@ jvec = jvec./ctx.cfg.jmax;
 %        sprintf('L = %5.3f', LengthCurv(ctx, Curve, 0, 1)),...
 %        sprintf('GCode line: %d', Curve.gcode_source_line)};
 % end
-
-figure
-plot(tvec, vvec*60./fvec)
-hold on
-plot(tvec, abs(avec))
-hold on
-plot(tvec, abs(jvec))
-title('Nomalized vnorm, a, j')
-xlabel('Cumulative u')
-xlim([0 tvec(end)]);
-ylim([-0.2 1.2])
-legend('vnorm', 'ax', 'ay', 'az', 'jx', 'jy', 'jz')
-grid
 
 end

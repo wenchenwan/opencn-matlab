@@ -1,12 +1,16 @@
 clc; clear; close all;
 
+cd ~/opencn/agency/usr/matlab/common
+startup
+cd Validate_OpenCN
+
 d         = datestr(datetime('now'));
 Cd        = cd;                             % current folder
 
 %% Choose directory with G-code validation files
 fs         = filesep; % file separation character
 % Gdir       = uigetdir('.', 'Choose directory with G-code validation files');
-Gdir       = '/home/rozanov/opencn/agency/usr/matlab/common/ngc_test/utility_test_gcodes';
+Gdir       = '/home/rozanov/opencn/agency/usr/matlab/common/ngc_test/full';
 dircontent = dir([Gdir, fs, '*.ngc']);
 NGcodes    = length(dircontent);
 Str        = sprintf('%d G-code files found', NGcodes);
@@ -34,10 +38,10 @@ end
 Str = [sprintf('%d different parameter settings\n', Ncomb),...
             'will be tested with each g-code'];
         
-uiwait(msgbox(Str,'','modal'));
+% uiwait(msgbox(Str,'','modal'));
 
 %% setup wait bar
-fw = waitbar(0, '');
+% fw = waitbar(0, '');
 
 %% Feedopt config
 global DebugConfig
@@ -55,6 +59,7 @@ ProfilCell       = cell(NGcodes, Ncomb);
 AssertErrorCtr   = 0;
 NCtr             = 0;
 
+
 % Report struct init
 for k=1:NGcodes
     for i=1:Ncomb
@@ -65,8 +70,32 @@ for k=1:NGcodes
             Report.Profiling(k, i).Function(m).Name = ProfiledFcts{m};
             Report.Profiling(k, i).Function(m).TotalTime = 0;
         end
+        
+        Report.MaxConstraints(k, i).Exceeded = 0;
+        Report.MaxConstraints(k, i).vnorm = 0;
+        Report.MaxConstraints(k, i).acc = 0;
+        Report.MaxConstraints(k, i).jerk = 0;
+        Report.NotTimeOptimal(k, i) = 0;
+        Report.RatioTOpt(k, i) = 0;
     end
 end
+
+if exist('logs', 'dir') == 7
+   status = rmdir('logs', 's');
+   pause(0.2);
+   assert(status==1, [sprintf('Impossible to delete folder:\n %s\n',...
+       'logs'), 'Do it manually']);
+end
+mkdir('logs');
+
+diary ([cfg.LogFileName, '_', ...
+        datestr(now,'yyyy_mm_dd_HH_MM_SS'), ...
+        '.txt']);
+diary on;
+
+EnableDebugLog(DebugCfg.OptimProgress);
+EnableDebugLog(DebugCfg.Transitions);
+EnableDebugLog(DebugCfg.Error);
 
 %% Params sweep
 
@@ -82,19 +111,29 @@ for k = 1:NGcodes
         cfg.jmax = Comb(i).j_max;
         cfg.CutOff = Comb(i).Cut_Off;
         ctx = InitFeedoptPlan(cfg);
+        
+        DebugLog(DebugCfg.Transitions, [cfg.source, '\n']);
+        DebugLog(DebugCfg.Transitions, 'amax x: %.2e, y: %.2e, z: %.2e\n',...
+            cfg.amax(1), cfg.amax(2), cfg.amax(3));
+        DebugLog(DebugCfg.Transitions, 'jmax x: %.2e, y: %.2e, z: %.2e\n',...
+            cfg.jmax(1), cfg.jmax(2), cfg.jmax(3));
+        DebugLog(DebugCfg.Transitions, 'CutOff: %.3f\n', cfg.CutOff);
 
         try
             
             NCtr = NCtr + 1;
             Str  = sprintf('processing G-code file %s, parameter setting %d',...
                 dircontent(k).name(5:end), i);
-            waitbar(NCtr/Ncomb, fw, Str); % update waitbar 
+%             waitbar(NCtr/Ncomb, fw, Str); % update waitbar 
             
             profile on
-            ctx = FeedoptPlanRun(ctx);                % q(u)            
-            uvec = PlotResampled_BR(ctx, ctx.cfg.dt); % u(t)
+            ctx = FeedoptPlanRun(ctx);                          % q(u)   
+            diary on;
+%             uvec = PlotResampled_BR(ctx, max_time, ctx.cfg.dt); % u(t)
             profile off
-                        
+            
+            DebugLog(DebugCfg.Transitions, 'End.\n');
+
             ProfilCell{k, i} = profile('info');
             
             Report.ExactStopsNbr(k, i).forced = ctx.forced_stop;
@@ -107,9 +146,27 @@ for k = 1:NGcodes
             % Check constraints and time-optimality respect
             [status, ratioTOpt] = FoptVerif(ctx, uvec, vmax_norm_tol, amax_xyz_tol,...
                 jmax_xyz_tol, TOpt_tol);
-            if status ~= 1
+            
+            constr = bitand(status, 7);
+            if constr ~= 0
                 OK = 0;
+                Report.MaxConstraints(k, i).Exceeded = 1;
+                if bitget(constr, 1)
+                    Report.MaxConstraints(k, i).vnorm = 1;
+                end
+                if bitget(constr, 2)
+                    Report.MaxConstraints(k, i).acc = 1;
+                end
+                if bitget(constr, 3)
+                    Report.MaxConstraints(k, i).jerk = 1;
+                end
             end
+            
+            if bitand(status, 8) ~= 0
+                OK = 0;
+                Report.NotTimeOptimal(k, i) = 1;
+            end
+ 
             Report.RatioTOpt(k, i) = ratioTOpt;
            
         catch ME % here an assert is detected
@@ -128,12 +185,12 @@ for k = 1:NGcodes
 end
 
 % close waitbar
-close(fw);
+% close(fw);
 
 %% Last commit hex number (first 8 digits) of Matlab submodule recorded in textfile
 
 % Linux command
-status = system('git log -1 -p > commit_info.txt');
+system('git log -1 -p > commit_info.txt');
 
 % Relevant info is on the 1-st line
 fid = fopen('commit_info.txt', 'r');
@@ -186,6 +243,13 @@ copyfile(Gdir, SubGDir);
 status = copyfile([Cd, fs, 'commit_info.txt'], DirName);
 if status == 1
     delete([Cd, fs, 'commit_info.txt']);
+end
+
+% Copy logs
+mkdir([DirName, fs, 'logs']);
+status = copyfile('logs', [DirName, fs, 'logs']);
+if status == 1
+    rmdir('logs', 's');
 end
 
 copyfile(PfileName, DirName);                   % copy selected parameter file
@@ -244,6 +308,8 @@ status = copyfile(fname, DirName);
 if status == 1
     delete(fname);
 end
+
+diary off;
 
 
 

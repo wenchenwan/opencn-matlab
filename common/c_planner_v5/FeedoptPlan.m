@@ -67,9 +67,15 @@ switch ctx.op
         ctx = SplitCurvStructs(ctx);
         ctx.op = Fopt.Opt;
         DebugLog(DebugCfg.Transitions, 'Feedrate Planning...\n');
-        
+        if coder.target('matlab')
+            diary off;
+        end
+                
     case Fopt.Opt
         if ctx.q_split.isempty
+            if coder.target('matlab')
+                diary on;
+            end
             DebugLog(DebugCfg.Transitions, 'Queue empty...\n');
             ctx.op = Fopt.Finished;
             return;

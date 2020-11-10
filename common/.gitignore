@@ -3,3 +3,9 @@ gen_mex/**
 *.html
 *.var
 *.bak
+*.zip
+*.fig
+*.ngc
+
+Validate_OpenCN/Val_**
+iniconfig/

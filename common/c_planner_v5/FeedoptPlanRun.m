@@ -9,5 +9,5 @@ while ctx.op ~= Fopt.Finished
         ctx.q_opt.push(opt_curv);
     end
 end
-    DebugLog(DebugCfg.Transitions, 'End.\n');
+%     DebugLog(DebugCfg.Transitions, 'End.\n');
 end
