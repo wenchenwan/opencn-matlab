@@ -58,7 +58,7 @@ function TestWithCurvStruct(ctx, gcode)
     jt = abs(r3dt.'./cfg.jmax);
     at = abs(r2dt.'./cfg.amax);
     vt = abs(r1dt.'./gcode.FeedRate);
-    norm_vt = sqrt(sum(vt.^2, 2));
+    norm_vt = mysqrt(sum(vt.^2, 2));
     
     max_jt = max(jt, [], 2);
     max_at = max(at, [], 2);

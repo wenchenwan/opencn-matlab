@@ -1,16 +1,17 @@
-amax = [1e4 1e4 1e4];...
-%         3e4 3e4 3e4];       % [mm/s²]
+amax = [1e4 1e4 1e4;...
+        3e4 3e4 3e4];       % [mm/s²]
     
-jmax = [1e6 1e6 1e6];...
-%         2e6 2e6 2e6];       % [mm/s³]
+jmax = [1e6 1e6 1e6;...
+        2e6 2e6 2e6];       % [mm/s³]
     
-CutOff = [0.1 0.05 0.15];     % [mm]      
+CutOff = [0.1 0.05 0.15];     % [mm]   
 
-vmax_norm_tol = 0.10;
+vmax_norm_tol = 0.10;         % ratios
 amax_xyz_tol  = 0.10;
 jmax_xyz_tol  = 0.10;
 
-TOpt_tol      = 0.20;       % bang-bang
+tol_opt       = 0.10;
+TOpt_tol      = 0.40;       % bang-bang tolerances
 
 ProfiledFcts = {'FeedoptPlanRun';...
                 'ReadGCode';...
