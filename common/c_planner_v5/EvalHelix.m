@@ -30,7 +30,7 @@ end
 %     end
 % end
 %
-C           = CurvStruct.HelixCenter;
+C           = CurvStruct.CorrectedHelixCenter;
 CP0         = P0 - C;
 phi_vec     = theta*u_vec;
 EcrCP0      = cross(evec, CP0);

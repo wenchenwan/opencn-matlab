@@ -14,7 +14,7 @@ Gdir       = '/home/rozanov/opencn/agency/usr/matlab/common/ngc_test/full';
 dircontent = dir([Gdir, fs, '*.ngc']);
 NGcodes    = length(dircontent);
 Str        = sprintf('%d G-code files found', NGcodes);
-% uiwait(msgbox(Str,'','modal'));
+uiwait(msgbox(Str,'','modal'));
 
 %% Choose parameter file
 % [Pfile, Ppath] = uigetfile('*.m');
@@ -38,18 +38,22 @@ end
 Str = [sprintf('%d different parameter settings\n', Ncomb),...
             'will be tested with each g-code'];
         
-% uiwait(msgbox(Str,'','modal'));
+uiwait(msgbox(Str,'','modal'));
+
+%% Tolerance struct
+tol.v_tol = vmax_norm_tol;
+tol.a_tol = amax_xyz_tol;
+tol.j_tol = jmax_xyz_tol;
+tol.tol_opt = tol_opt;
+tol.TOpt_tol = TOpt_tol;
 
 %% setup wait bar
-% fw = waitbar(0, '');
+fw = waitbar(0, '');
 
 %% Feedopt config
-global DebugConfig
-DebugConfig = 0;
-
 cfg = FeedoptDefaultConfig;
-cfg.NDiscr = 20;
-cfg.NBreak = 10;
+cfg.NDiscr = 100;
+cfg.NBreak = 50;
 cfg.NHorz = 5;
 
 %% Initialization
@@ -58,7 +62,6 @@ MEcell           = cell(NGcodes, Ncomb);
 ProfilCell       = cell(NGcodes, Ncomb);
 AssertErrorCtr   = 0;
 NCtr             = 0;
-
 
 % Report struct init
 for k=1:NGcodes
@@ -80,6 +83,7 @@ for k=1:NGcodes
     end
 end
 
+% logs init
 if exist('logs', 'dir') == 7
    status = rmdir('logs', 's');
    pause(0.2);
@@ -92,10 +96,16 @@ diary ([cfg.LogFileName, '_', ...
         datestr(now,'yyyy_mm_dd_HH_MM_SS'), ...
         '.txt']);
 diary on;
+tic
 
-EnableDebugLog(DebugCfg.OptimProgress);
+% debug config init
+global DebugConfig
+DebugConfig = 0;
+
+% EnableDebugLog(DebugCfg.OptimProgress);
 EnableDebugLog(DebugCfg.Transitions);
 EnableDebugLog(DebugCfg.Error);
+% EnableDebugLog(DebugCfg.Plots);
 
 %% Params sweep
 
@@ -124,12 +134,16 @@ for k = 1:NGcodes
             NCtr = NCtr + 1;
             Str  = sprintf('processing G-code file %s, parameter setting %d',...
                 dircontent(k).name(5:end), i);
-%             waitbar(NCtr/Ncomb, fw, Str); % update waitbar 
+            waitbar(NCtr/Ncomb, fw, Str); % update waitbar 
             
             profile on
+            
             ctx = FeedoptPlanRun(ctx);                          % q(u)   
             diary on;
-%             uvec = PlotResampled_BR(ctx, max_time, ctx.cfg.dt); % u(t)
+            uvec = PlotResampled_BR(ctx, ...
+                max_time, ctx.cfg.dt);                          % u(t)
+            diary on;
+            
             profile off
             
             DebugLog(DebugCfg.Transitions, 'End.\n');
@@ -144,8 +158,7 @@ for k = 1:NGcodes
             Report.ExactStopsNbr(k, i).programmed = ctx.programmed_stop;
             
             % Check constraints and time-optimality respect
-            [status, ratioTOpt] = FoptVerif(ctx, uvec, vmax_norm_tol, amax_xyz_tol,...
-                jmax_xyz_tol, TOpt_tol);
+            [status, ratioTOpt] = FoptVerif(ctx, uvec, tol);
             
             constr = bitand(status, 7);
             if constr ~= 0
@@ -166,7 +179,7 @@ for k = 1:NGcodes
                 OK = 0;
                 Report.NotTimeOptimal(k, i) = 1;
             end
- 
+            
             Report.RatioTOpt(k, i) = ratioTOpt;
            
         catch ME % here an assert is detected
@@ -184,8 +197,7 @@ for k = 1:NGcodes
 
 end
 
-% close waitbar
-% close(fw);
+close(fw);
 
 %% Last commit hex number (first 8 digits) of Matlab submodule recorded in textfile
 
@@ -288,6 +300,9 @@ end
 % Profiling report save for chosen fcts
 for k=1:NGcodes
     for i=1:Ncomb
+        if isempty(ProfilCell{k, i})
+            break;
+        end
         for m=1:size(ProfilCell{k, i}.FunctionTable, 1)
             for l=1:size(ProfiledFcts, 1)
                 if strcmp(ProfilCell{k, i}.FunctionTable(m).FunctionName,...
@@ -309,9 +324,10 @@ if status == 1
     delete(fname);
 end
 
+endTime_s = toc;
+endTime_h = floor(endTime_s/3600);
+endTime_m = floor((endTime_s - endTime_h * 3600)/60);
+endTime_s = endTime_s - endTime_h * 3600 - endTime_m *60;
+
+fprintf('Elapsed time: %.0d:%.0d:%.0d\n', endTime_h, endTime_m, endTime_s);
 diary off;
-
-
-
-
-
