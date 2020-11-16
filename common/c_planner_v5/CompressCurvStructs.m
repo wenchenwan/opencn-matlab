@@ -26,11 +26,29 @@ if coder.target('rtw') || coder.target('mex')
 end
 % -------------
 
+%  ||...
+%             (CumulatedLength > 0 && ~CurvCollinear(ctx, ctx.q_gcode.get(k-1), Curv, ctx.cfg.Compressing.MaxCollinearityDegrees)) 
+
 k=1;
 while k <= Ncrv
     Curv = ctx.q_gcode.get(k);
-    if (LengthCurv(ctx, Curv, 0, 1)>=Length_Threshold) || (Curv.zspdmode~=ZSpdMode.NN)
+    % If the next curve segment is too long for compressing or it is not an NN,
+    % we need to stop growing the compressing list and create the spline
+    Collinear = false;
+    if k > 1
+        Collinear = CurvCollinear(ctx, ctx.q_gcode.get(k-1), Curv, ctx.cfg.Compressing.ColTol);
+    end
+    
+    if (LengthCurv(ctx, Curv, 0, 1)>=Length_Threshold) || ...
+            (Curv.zspdmode~=ZSpdMode.NN) ||...
+            (CumulatedLength == 0 && ~Collinear)
+
+        % If the cumulated length is zero, no compressing is on-going and we can
+        % treat the segment individually 
         if CumulatedLength == 0
+            
+            % If the segment is not a normal one (Nonzero, Nonzero), it needs
+            % to be split
             if Curv.zspdmode == ZSpdMode.ZN
                 [CurvStruct1_C, CurvStruct2_C] = CutZeroStart(ctx, Curv, k);
                 ctx.q_compress.push(CurvStruct1_C);
@@ -45,10 +63,17 @@ while k <= Ncrv
                 ctx.q_compress.push(CurvStruct1_C);
                 ctx.q_compress.push(CurvStruct2_C);
                 ctx.q_compress.push(CurvStruct3_C);
+
+            % If the segment is normal, (Nonzero, Nonzero), it can be pushed
+            % as-is into the output list
             else
                 ctx.q_compress.push(Curv);
             end
-        else                
+
+        % If there was an on-going compression
+        else           
+            % We have more than 2 points, thus constructing a spline 
+            % is warranted     
             if size(pvec, 2) > 2
                 SplineCurve = ConstrCurvStructType;
                 SplineCurve.sp=CalcBspline_Lee(ctx.cfg, pvec);
@@ -67,6 +92,7 @@ while k <= Ncrv
                 else
                     ctx.q_compress.push(Curv);
                 end
+            % With only two points, construct a line
             else
                 C = ctx.q_gcode.get(k-1);
                 ctx.q_compress.push(C);
@@ -81,6 +107,8 @@ while k <= Ncrv
             end
             CumulatedLength = 0;
         end
+    % If this is the last segment and we have something in the
+    % compression list, construct the spline
     elseif (k==Ncrv) && (CumulatedLength ~= 0)
         SplineCurve = ConstrCurvStructType;
         SplineCurve.sp=CalcBspline_Lee(ctx.cfg, pvec);
@@ -90,8 +118,13 @@ while k <= Ncrv
         spline.sp_index = int32(spline_index);
         spline.SpindleSpeed = spindle_speed;
         ctx.q_compress.push(spline);
+    
+    % If this is the first (and elligible) WHAT
     elseif k==1
         ctx.q_compress.push(Curv);
+    
+    % In the general case with an elligible segment, add it to the
+    % compression list
     else
         if CumulatedLength == 0
             P0 = EvalCurvStruct(ctx, Curv, 0);
