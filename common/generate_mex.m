@@ -1,7 +1,5 @@
 clear; clc;
 
-cd ~/opencn/agency/usr/matlab/common
-
 GenerateGCodeInterpreter = true;
 GenerateSimplex = true;
 GenerateFeedoptPlanRun = false;
