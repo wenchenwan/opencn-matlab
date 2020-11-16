@@ -5,7 +5,7 @@
 // File: sinspace.h
 //
 // MATLAB Coder version            : 5.0
-// C/C++ source code generated on  : 25-Sep-2020 17:18:12
+// C/C++ source code generated on  : 16-Nov-2020 12:36:43
 //
 #ifndef SINSPACE_H
 #define SINSPACE_H
@@ -37,15 +37,17 @@ namespace ocn
     extern void ConfigSetSource(FeedoptConfig *cfg, const char filename_data[], const int
         filename_size[2]);
     extern void ConstrCurvStructType(CurvStruct *C);
-    extern void ConstrHelixStruct(const double P0[3], const double P1[3], const double C[3], const
-        double evec[3], double theta, double pitch, double FeedRate, ZSpdMode b_ZSpdMode, CurvStruct
-        *b_CurvStruct);
+    extern void ConstrHelixStruct(const double P0[3], const double P1[3], const double Cprim[3],
+        const double evec[3], double theta, double pitch, double FeedRate, ZSpdMode b_ZSpdMode,
+        CurvStruct *b_CurvStruct);
     extern void ConstrHelixStructFromArcFeed(double p0x, double p0y, double p0z, double p1x, double
         p1y, double p1z, double cx, double cy, double cz, double rotation, const double evec[3],
         CurvStruct *b_CurvStruct);
     extern void ConstrLineStruct(const double P0[3], const double P1[3], double FeedRate, ZSpdMode
         b_ZSpdMode, CurvStruct *b_CurvStruct);
     extern void CopyCurvStruct(const CurvStruct *Curv, CurvStruct *Copy);
+    extern void DisableDebugLog(DebugCfg cfg);
+    extern void EnableDebugLog(DebugCfg cfg);
     extern void EvalCurvStruct(const FeedoptContext *ctx, const CurvStruct *b_CurvStruct, coder::
         array<double, 2U> &u_vec, coder::array<double, 2U> &r0D, coder::array<double, 2U> &r1D,
         coder::array<double, 2U> &r2D, coder::array<double, 2U> &r3D);
