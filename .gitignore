@@ -1,0 +1,8 @@
+arm/**/*.mat
+arm/**/*.dmr
+
+x86/**/*.mat
+x86/**/*.dmr
+
+arm/**/interface
+x86/**/interface
