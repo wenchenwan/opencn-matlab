@@ -36,7 +36,7 @@ while k <= Ncrv
     % we need to stop growing the compressing list and create the spline
     Collinear = false;
     if k > 1
-        Collinear = CurvCollinear(ctx, ctx.q_gcode.get(k-1), Curv, ctx.cfg.Compressing.ColTol);
+        Collinear = CurvCollinear(ctx, ctx.q_gcode.get(k-1), Curv, ctx.cfg.Compressing.ColTolDeg);
     end
     
     if (LengthCurv(ctx, Curv, 0, 1)>=Length_Threshold) || ...

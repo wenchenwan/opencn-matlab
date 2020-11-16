@@ -37,13 +37,18 @@ int cpp_interp_read(ocn::CurvStruct* curv_struct) {
     curv.Type = ocn::CurveType_None;
     int status = 0;
     status = interp.read();
-    if (status > INTERP_MIN_ERROR || status == INTERP_ENDFILE || status == INTERP_EXIT) {
-        fprintf(stderr, "ERRROR(read): %s\n", interp.getSavedError());
+
+    if (status == INTERP_ENDFILE || status == INTERP_EXIT) {
         return 0;
     }
+    else if (status > INTERP_MIN_ERROR) {
+        fprintf(stderr, "ERROR(read): %s\n", interp.getSavedError());
+        return 0;
+    }
+
 	status = interp.execute();
     if (status > INTERP_MIN_ERROR) {
-        fprintf(stderr, "ERRROR(execute): %s\n", interp.getSavedError());
+        fprintf(stderr, "ERROR(execute): %s\n", interp.getSavedError());
         return 0;
     }
     ocn::CopyCurvStruct(&curv, curv_struct);
