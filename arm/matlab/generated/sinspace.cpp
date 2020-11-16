@@ -5,7 +5,7 @@
 // File: sinspace.cpp
 //
 // MATLAB Coder version            : 5.0
-// C/C++ source code generated on  : 25-Sep-2020 17:18:12
+// C/C++ source code generated on  : 16-Nov-2020 12:36:43
 //
 
 // Include Files
@@ -122,9 +122,9 @@ namespace ocn
     static void CalcFrenet(const double rD1[3], const double rD2[3], double t[3], double n[3],
                            double *kappa);
     static void CalcZeroStartConstraints(const queue_coder *ctx_q_splines, CurveType Curv_Type,
-        const double Curv_P0[3], const double Curv_P1[3], const double Curv_HelixCenter[3], const
-        double Curv_evec[3], double Curv_theta, double Curv_pitch, const double Curv_CoeffP5[6][3],
-        int Curv_sp_index, bool Curv_UseConstJerk, double Curv_ConstJerk, double Curv_a_param,
+        const double Curv_P0[3], const double Curv_P1[3], const double Curv_CorrectedHelixCenter[3],
+        const double Curv_evec[3], double Curv_theta, double Curv_pitch, const double Curv_CoeffP5[6]
+        [3], int Curv_sp_index, bool Curv_UseConstJerk, double Curv_ConstJerk, double Curv_a_param,
         double Curv_b_param, double JerkScale, double *v_0, double *at_0);
     static void Calc_beta0_beta1(double alpha0, double alpha1, const double in3[3], const double
         in4[3], const double in5[3], double kappa0, const double in7[3], const double in8[3], const
@@ -136,10 +136,16 @@ namespace ocn
                             double kappa1, double CoefPS[16]);
     static void CompressCurvStructs(const FeedoptContext *ctx);
     static void ConstrCurvStruct(CurveType Type, ZSpdMode b_ZSpdMode, const double P0[3], const
-        double P1[3], const double C[3], const double evec[3], double theta, double pitch, const
+        double P1[3], const double Cprim[3], const double evec[3], double theta, double pitch, const
         double CoeffP5[6][3], double FeedRate, CurvStruct *CStrct);
     static void ConstrTransP5Struct(const double CoeffP5[6][3], double FeedRate, CurvStruct
         *b_CurvStruct);
+    static double CorrectArcCenter(const double P0[2], const double P1[2], double C[2]);
+    static bool CurvCollinear(const queue_coder *ctx_q_splines, CurveType Curv1_Type, const double
+        Curv1_P0[3], const double Curv1_P1[3], const double Curv1_CorrectedHelixCenter[3], const
+        double Curv1_evec[3], double Curv1_theta, double Curv1_pitch, const double Curv1_CoeffP5[6]
+        [3], int Curv1_sp_index, double Curv1_a_param, double Curv1_b_param, const CurvStruct *Curv2,
+        double ToleranceDeg);
     static void CutCurvStruct(const queue_coder *ctx_q_splines, double ctx_cfg_NGridLengthSpline,
         CurvStruct *b_CurvStruct, double d1);
     static void CutZeroEnd(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splines, int
@@ -162,10 +168,10 @@ namespace ocn
         double in5[3], const double in6[3], const double in7[3], double kappa0, const double in9[3],
         const double in10[3], const double in11[3], double kappa1);
     static void EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3], const double
-                          CurvStruct_HelixCenter[3], const double CurvStruct_evec[3], double
-                          CurvStruct_theta, double CurvStruct_pitch, const coder::array<double, 2U>
-                          &u_vec, coder::array<double, 2U> &r0D, coder::array<double, 2U> &r1D,
-                          coder::array<double, 2U> &r2D, coder::array<double, 2U> &r3D);
+                          CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3],
+                          double CurvStruct_theta, double CurvStruct_pitch, const coder::array<
+                          double, 2U> &u_vec, coder::array<double, 2U> &r0D, coder::array<double, 2U>
+                          &r1D, coder::array<double, 2U> &r2D, coder::array<double, 2U> &r3D);
     static void EvalLine(const double CurvStruct_P0[3], const double CurvStruct_P1[3], const coder::
                          array<double, 2U> &u_vec, coder::array<double, 2U> &r0D, coder::array<
                          double, 2U> &r1D, coder::array<double, 2U> &r2D, coder::array<double, 2U>
@@ -185,26 +191,30 @@ namespace ocn
         int *status, double *alpha0, double *alpha1);
     static double GetCurvMaxFeedrate(const queue_coder *ctx_q_splines, const double ctx_cfg_amax[3],
         const double ctx_cfg_jmax[3], CurveType CurvStruct_Type, const double CurvStruct_P0[3],
-        const double CurvStruct_P1[3], const double CurvStruct_HelixCenter[3], const double
+        const double CurvStruct_P1[3], const double CurvStruct_CorrectedHelixCenter[3], const double
         CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch, const double
         CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_FeedRate, double
         CurvStruct_a_param, double CurvStruct_b_param);
     static double LengthCurv(const queue_coder *ctx_q_splines, double ctx_cfg_NGridLengthSpline,
         CurveType Curv_Type, const double Curv_P0[3], const double Curv_P1[3], const double
-        Curv_HelixCenter[3], const double Curv_evec[3], double Curv_theta, double Curv_pitch, const
-        double Curv_CoeffP5[6][3], int Curv_sp_index, double Curv_a_param, double Curv_b_param);
+        Curv_CorrectedHelixCenter[3], const double Curv_evec[3], double Curv_theta, double
+        Curv_pitch, const double Curv_CoeffP5[6][3], int Curv_sp_index, double Curv_a_param, double
+        Curv_b_param);
     static unsigned int MultiWord2uLong(const unsigned int u[]);
     static void MultiWordAdd(const unsigned int u1[], const unsigned int u2[], unsigned int y[], int
         n);
     static void MultiWordAnd(const unsigned int u1[], const unsigned int u2[], unsigned int y[], int
         n);
+    static void MultiWordIor(const unsigned int u1[], const unsigned int u2[], unsigned int y[], int
+        n);
+    static void MultiWordNot(const unsigned int u1[], unsigned int y[], int n);
     static void MultiWordSub(const unsigned int u1[], const unsigned int u2[], unsigned int y[], int
         n);
     static void Resample(ZSpdMode CurOptStruct_zspdmode, bool CurOptStruct_UseConstJerk, double
                          CurOptStruct_ConstJerk, const coder::array<double, 1U> &CurOptStruct_Coeff,
                          const uint64m_T Bl_handle, double u, double dt, double *ukp1, double *qk,
                          double *dk);
-    static void SmoothCurvStructs(const FeedoptContext *ctx);
+    static void SmoothCurvStructs(FeedoptContext *ctx);
     static double SplineLengthApprox(const queue_coder *ctx_q_splines, double
         ctx_cfg_NGridLengthSpline, int Curv_sp_index, double u0_tilda, double u1_tilda);
     static void SplitCurvStructs(const FeedoptContext *ctx);
@@ -225,14 +235,14 @@ namespace ocn
         ctx_cfg_ZeroStartVelLimit, bool ctx_cfg_DebugCutZero, double ctx_cfg_NGridLengthSpline,
         const CurvStruct *b_CurvStruct, CurvStruct *CurvStruct1, CurvStruct *CurvStruct2);
     static void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
-        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
-        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_b_param,
-        double r0D[3]);
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double
+        CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3], double CurvStruct_theta,
+        double CurvStruct_pitch, const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index,
+        double CurvStruct_b_param, double r0D[3]);
     static void b_EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3], const
-                            double CurvStruct_HelixCenter[3], const double CurvStruct_evec[3],
-                            double CurvStruct_theta, double CurvStruct_pitch, double u_vec, double
-                            r0D[3], double r1D[3], double r2D[3], double r3D[3]);
+                            double CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec
+                            [3], double CurvStruct_theta, double CurvStruct_pitch, double u_vec,
+                            double r0D[3], double r1D[3], double r2D[3], double r3D[3]);
     static void b_EvalLine(const double CurvStruct_P0[3], const double CurvStruct_P1[3], double
                            u_vec, double r0D[3], double r1D[3]);
     static void b_EvalTransP5(const double CurvStruct_CoeffP5[6][3], double u_vec, double r_0D[3],
@@ -244,13 +254,12 @@ namespace ocn
         u0_tilda_size[2], double u1_tilda);
     static void b_bspline_create(int degree, const coder::array<double, 2U> &breakpoints, int
         *Bl_ncoeff, coder::array<double, 2U> &Bl_breakpoints, uint64m_T *Bl_handle, int *Bl_degree);
-    static void b_bspline_eval(const uint64m_T Bl_handle, const coder::array<double, 1U> &coeffs,
+    static void b_bspline_eval(const uint64m_T Bl_handle, const coder::array<double, 2U> &coeffs,
         double *x, double *xd, double *xdd);
     static void b_bspline_eval_vec(const uint64m_T Bl_handle, const coder::array<double, 2U> &coeffs,
         double u, double *x, double *xd, double *xdd, double *xddd);
     static void b_bsxfun(const coder::array<double, 1U> &a, const coder::array<double, 2U> &b, coder::
                          array<double, 2U> &c);
-    static void b_cosd(double *x);
     static void b_eml_find(const coder::array<bool, 2U> &x, int i_data[], int i_size[2]);
     static void b_eml_float_colon(double a, double d, coder::array<double, 2U> &y);
     static void b_linspace(int n1, coder::array<double, 2U> &y);
@@ -265,15 +274,15 @@ namespace ocn
     static void bsxfun(const coder::array<double, 2U> &a, const coder::array<double, 2U> &b, coder::
                        array<double, 2U> &c);
     static void c_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
-        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
-        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
-        double CurvStruct_b_param, double r0D[3]);
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double
+        CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3], double CurvStruct_theta,
+        double CurvStruct_pitch, const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index,
+        double CurvStruct_a_param, double CurvStruct_b_param, double r0D[3]);
     static void c_EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3], const
-                            double CurvStruct_HelixCenter[3], const double CurvStruct_evec[3],
-                            double CurvStruct_theta, double CurvStruct_pitch, const double u_vec[10],
-                            double r0D[10][3], double r1D[10][3], double r2D[10][3], double r3D[10]
-                            [3]);
+                            double CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec
+                            [3], double CurvStruct_theta, double CurvStruct_pitch, const double
+                            u_vec[10], double r0D[10][3], double r1D[10][3], double r2D[10][3],
+                            double r3D[10][3]);
     static void c_EvalLine(const double CurvStruct_P0[3], const double CurvStruct_P1[3], const
                            double u_vec[10], double r0D[10][3], double r1D[10][3]);
     static void c_EvalTransP5(const double CurvStruct_CoeffP5[6][3], const double u_vec[10], double
@@ -292,10 +301,11 @@ namespace ocn
                           *status);
     static bool collinear(const double u[3], const double v[3], double tol_angle_d);
     static void d_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
-        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
-        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
-        double CurvStruct_b_param, double r0D[3], double r1D[3], double r2D[3]);
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double
+        CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3], double CurvStruct_theta,
+        double CurvStruct_pitch, const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index,
+        double CurvStruct_a_param, double CurvStruct_b_param, double r0D[3], double r1D[3], double
+        r2D[3]);
     static void d_SplineLengthApprox(const queue_coder *ctx_q_splines, double
         ctx_cfg_NGridLengthSpline, int Curv_sp_index, double u0_tilda, double u1_tilda, double *L,
         coder::array<double, 2U> &Integrand, coder::array<double, 2U> &u_mid_tilda, coder::array<
@@ -305,40 +315,42 @@ namespace ocn
     static void diff(const coder::array<double, 2U> &x, coder::array<double, 2U> &y);
     static int div_s32_floor(int numerator, int denominator);
     static void e_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
-        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
-        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
-        double CurvStruct_b_param, double r0D[3], double r1D[3]);
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double
+        CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3], double CurvStruct_theta,
+        double CurvStruct_pitch, const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index,
+        double CurvStruct_a_param, double CurvStruct_b_param, double r0D[3], double r1D[3]);
     static void eml_find(const coder::array<bool, 2U> &x, int i_data[], int i_size[2]);
     static void eml_float_colon(double d, double b, coder::array<double, 2U> &y);
     static void f_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
-        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
-        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
-        double CurvStruct_b_param, double r0D[3], double r1D[3]);
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double
+        CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3], double CurvStruct_theta,
+        double CurvStruct_pitch, const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index,
+        double CurvStruct_a_param, double CurvStruct_b_param, double r0D[3], double r1D[3]);
     static void g_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
-        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
-        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
-        double CurvStruct_b_param, double r0D[3], double r1D[3], double r2D[3]);
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double
+        CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3], double CurvStruct_theta,
+        double CurvStruct_pitch, const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index,
+        double CurvStruct_a_param, double CurvStruct_b_param, double r0D[3], double r1D[3], double
+        r2D[3]);
     static void h_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
-        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
-        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
-        double CurvStruct_b_param, coder::array<double, 2U> &u_vec, coder::array<double, 2U> &r0D,
-        coder::array<double, 2U> &r1D, coder::array<double, 2U> &r2D, coder::array<double, 2U> &r3D);
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double
+        CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3], double CurvStruct_theta,
+        double CurvStruct_pitch, const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index,
+        double CurvStruct_a_param, double CurvStruct_b_param, coder::array<double, 2U> &u_vec, coder::
+        array<double, 2U> &r0D, coder::array<double, 2U> &r1D, coder::array<double, 2U> &r2D, coder::
+        array<double, 2U> &r3D);
     static void i_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
-        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
-        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
-        double CurvStruct_b_param, double r0D[10][3], double r1D[10][3], double r2D[10][3], double
-        r3D[10][3]);
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double
+        CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3], double CurvStruct_theta,
+        double CurvStruct_pitch, const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index,
+        double CurvStruct_a_param, double CurvStruct_b_param, double r0D[10][3], double r1D[10][3],
+        double r2D[10][3], double r3D[10][3]);
     static void j_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
-        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
-        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
-        double CurvStruct_b_param, coder::array<double, 2U> &u_vec, coder::array<double, 2U> &r0D,
-        coder::array<double, 2U> &r1D, coder::array<double, 2U> &r2D);
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double
+        CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3], double CurvStruct_theta,
+        double CurvStruct_pitch, const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index,
+        double CurvStruct_a_param, double CurvStruct_b_param, coder::array<double, 2U> &u_vec, coder::
+        array<double, 2U> &r0D, coder::array<double, 2U> &r1D, coder::array<double, 2U> &r2D);
     static void minimum(const double x_data[], const int x_size[1], double *ex, int *idx);
     static void mldiv(const coder::array<double, 2U> &A, const coder::array<double, 1U> &B, coder::
                       array<double, 1U> &Y);
@@ -419,6 +431,32 @@ namespace ocn
     }
 
     //
+    // Arguments    : const uint64m_T b_index
+    //                CurvStruct *value
+    // Return Type  : void
+    //
+    void queue_coder::get(const uint64m_T b_index, CurvStruct *value) const
+    {
+        *value = this->value_type;
+
+        // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
+        c_queue_get(this->ptr, MultiWord2uLong((unsigned int *)&b_index.chunks[0U]), value);
+    }
+
+    //
+    // Arguments    : unsigned int b_index
+    //                CurvStruct *value
+    // Return Type  : void
+    //
+    void queue_coder::get(unsigned int b_index, CurvStruct *value) const
+    {
+        *value = this->value_type;
+
+        // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
+        c_queue_get(this->ptr, b_index, value);
+    }
+
+    //
     // Arguments    : int b_index
     //                CurvStruct *value
     // Return Type  : void
@@ -458,29 +496,61 @@ namespace ocn
     }
 
     //
-    // Arguments    : unsigned int b_index
-    //                CurvStruct *value
+    // Arguments    : double ridx
+    //                double cidx
     // Return Type  : void
     //
-    void queue_coder::get(unsigned int b_index, CurvStruct *value) const
+    void coder_internal_sparse::init(double ridx, double cidx)
     {
-        *value = this->value_type;
+        int this_tmp;
+        int loop_ub;
+        this->m = static_cast<int>(ridx);
+        this_tmp = static_cast<int>(cidx);
+        this->n = this_tmp;
+        this->d.set_size(1);
+        this->d[0] = 0.0;
+        loop_ub = this_tmp + 1;
+        this->colidx.set_size(loop_ub);
+        for (int i = 0; i < loop_ub; i++) {
+            this->colidx[i] = 1;
+        }
 
-        // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
-        c_queue_get(this->ptr, b_index, value);
+        this->rowidx.set_size(1);
+        this->rowidx[0] = 1;
+        this->maxnz = 1;
     }
 
     //
-    // Arguments    : const uint64m_T b_index
-    //                CurvStruct *value
+    // Arguments    : double b_dt
     // Return Type  : void
     //
-    void queue_coder::get(const uint64m_T b_index, CurvStruct *value) const
+    void ResampleStateClass::init(double b_dt)
     {
-        *value = this->value_type;
+        this->set_u();
+        this->set_go_next();
+        this->set_dt(b_dt);
+    }
 
-        // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
-        c_queue_get(this->ptr, MultiWord2uLong((unsigned int *)&b_index.chunks[0U]), value);
+    //
+    // Arguments    : void
+    // Return Type  : void
+    //
+    void rtString::init()
+    {
+        this->Value.size[0] = 1;
+        this->Value.size[1] = 2;
+        this->Value.data[0] = 'N';
+        this->Value.data[1] = 'N';
+    }
+
+    //
+    // Arguments    : const CurvStruct *b_value_type
+    // Return Type  : void
+    //
+    void queue_coder::init(const CurvStruct *b_value_type)
+    {
+        this->value_type = *b_value_type;
+        this->ptr = c_queue_new();
     }
 
     //
@@ -521,65 +591,6 @@ namespace ocn
         }
 
         this->colidx[this->colidx.size(0) - 1] = 1;
-    }
-
-    //
-    // Arguments    : const CurvStruct *b_value_type
-    // Return Type  : void
-    //
-    void queue_coder::init(const CurvStruct *b_value_type)
-    {
-        //              fprintf('queue_coder::ctor\n');
-        this->value_type = *b_value_type;
-        this->ptr = c_queue_new();
-    }
-
-    //
-    // Arguments    : double b_dt
-    // Return Type  : void
-    //
-    void ResampleStateClass::init(double b_dt)
-    {
-        this->set_u();
-        this->set_go_next();
-        this->set_dt(b_dt);
-    }
-
-    //
-    // Arguments    : double ridx
-    //                double cidx
-    // Return Type  : void
-    //
-    void coder_internal_sparse::init(double ridx, double cidx)
-    {
-        int this_tmp;
-        int loop_ub;
-        this->m = static_cast<int>(ridx);
-        this_tmp = static_cast<int>(cidx);
-        this->n = this_tmp;
-        this->d.set_size(1);
-        this->d[0] = 0.0;
-        loop_ub = this_tmp + 1;
-        this->colidx.set_size(loop_ub);
-        for (int i = 0; i < loop_ub; i++) {
-            this->colidx[i] = 1;
-        }
-
-        this->rowidx.set_size(1);
-        this->rowidx[0] = 1;
-        this->maxnz = 1;
-    }
-
-    //
-    // Arguments    : void
-    // Return Type  : void
-    //
-    void rtString::init()
-    {
-        this->Value.size[0] = 1;
-        this->Value.size[1] = 2;
-        this->Value.data[0] = 'N';
-        this->Value.data[1] = 'N';
     }
 
     //
@@ -1284,10 +1295,10 @@ namespace ocn
         }
 
         h_EvalCurvStruct(ctx_q_splines, CurvStructs[0].Type, CurvStructs[0].P0, CurvStructs[0].P1,
-                         CurvStructs[0].HelixCenter, CurvStructs[0].evec, CurvStructs[0].theta,
-                         CurvStructs[0].pitch, CurvStructs[0].CoeffP5, CurvStructs[0].sp_index,
-                         CurvStructs[0].a_param, CurvStructs[0].b_param, b_u_vec, unusedU0, r1D, r2D,
-                         r3D);
+                         CurvStructs[0].CorrectedHelixCenter, CurvStructs[0].evec, CurvStructs[0].
+                         theta, CurvStructs[0].pitch, CurvStructs[0].CoeffP5, CurvStructs[0].
+                         sp_index, CurvStructs[0].a_param, CurvStructs[0].b_param, b_u_vec, unusedU0,
+                         r1D, r2D, r3D);
 
         //
         y.set_size(q_val.size(0));
@@ -1723,7 +1734,7 @@ namespace ocn
             }
 
             h_EvalCurvStruct(ctx_q_splines, CurvStructs[e_k + 1].Type, CurvStructs[e_k + 1].P0,
-                             CurvStructs[e_k + 1].P1, CurvStructs[e_k + 1].HelixCenter,
+                             CurvStructs[e_k + 1].P1, CurvStructs[e_k + 1].CorrectedHelixCenter,
                              CurvStructs[e_k + 1].evec, CurvStructs[e_k + 1].theta, CurvStructs[e_k
                              + 1].pitch, CurvStructs[e_k + 1].CoeffP5, CurvStructs[e_k + 1].sp_index,
                              CurvStructs[e_k + 1].a_param, CurvStructs[e_k + 1].b_param, c_u_vec,
@@ -2261,10 +2272,10 @@ namespace ocn
         if (ctx_cfg_UseDynamicBreakpoints) {
             double varargin_1;
             varargin_1 = LengthCurv(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStructs[0].Type,
-                                    CurvStructs[0].P0, CurvStructs[0].P1, CurvStructs[0].HelixCenter,
-                                    CurvStructs[0].evec, CurvStructs[0].theta, CurvStructs[0].pitch,
-                                    CurvStructs[0].CoeffP5, CurvStructs[0].sp_index, CurvStructs[0].
-                                    a_param, CurvStructs[0].b_param) /
+                                    CurvStructs[0].P0, CurvStructs[0].P1, CurvStructs[0].
+                                    CorrectedHelixCenter, CurvStructs[0].evec, CurvStructs[0].theta,
+                                    CurvStructs[0].pitch, CurvStructs[0].CoeffP5, CurvStructs[0].
+                                    sp_index, CurvStructs[0].a_param, CurvStructs[0].b_param) /
                 c_ctx_cfg_DynamicBreakpointsDis;
             if (ctx_cfg_UseLinearBreakpoints) {
                 double delta1;
@@ -2338,9 +2349,10 @@ namespace ocn
         }
 
         j_EvalCurvStruct(ctx_q_splines, CurvStructs[0].Type, CurvStructs[0].P0, CurvStructs[0].P1,
-                         CurvStructs[0].HelixCenter, CurvStructs[0].evec, CurvStructs[0].theta,
-                         CurvStructs[0].pitch, CurvStructs[0].CoeffP5, CurvStructs[0].sp_index,
-                         CurvStructs[0].a_param, CurvStructs[0].b_param, b_u_vec, unusedU0, r1D, r2D);
+                         CurvStructs[0].CorrectedHelixCenter, CurvStructs[0].evec, CurvStructs[0].
+                         theta, CurvStructs[0].pitch, CurvStructs[0].CoeffP5, CurvStructs[0].
+                         sp_index, CurvStructs[0].a_param, CurvStructs[0].b_param, b_u_vec, unusedU0,
+                         r1D, r2D);
         power(r1D, r4);
         sum(r4, r1D_sqnorm);
 
@@ -2845,11 +2857,11 @@ namespace ocn
                 double varargin_2;
                 varargin_2 = LengthCurv(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStructs[b_k +
                                         1].Type, CurvStructs[b_k + 1].P0, CurvStructs[b_k + 1].P1,
-                                        CurvStructs[b_k + 1].HelixCenter, CurvStructs[b_k + 1].evec,
-                                        CurvStructs[b_k + 1].theta, CurvStructs[b_k + 1].pitch,
-                                        CurvStructs[b_k + 1].CoeffP5, CurvStructs[b_k + 1].sp_index,
-                                        CurvStructs[b_k + 1].a_param, CurvStructs[b_k + 1].b_param) /
-                    c_ctx_cfg_DynamicBreakpointsDis;
+                                        CurvStructs[b_k + 1].CorrectedHelixCenter, CurvStructs[b_k +
+                                        1].evec, CurvStructs[b_k + 1].theta, CurvStructs[b_k + 1].
+                                        pitch, CurvStructs[b_k + 1].CoeffP5, CurvStructs[b_k + 1].
+                                        sp_index, CurvStructs[b_k + 1].a_param, CurvStructs[b_k + 1]
+                                        .b_param) / c_ctx_cfg_DynamicBreakpointsDis;
                 if (ctx_cfg_UseLinearBreakpoints) {
                     int i61;
                     double b_delta1;
@@ -2889,7 +2901,7 @@ namespace ocn
             int d_r1D;
             double d2;
             j_EvalCurvStruct(ctx_q_splines, CurvStructs[b_k + 1].Type, CurvStructs[b_k + 1].P0,
-                             CurvStructs[b_k + 1].P1, CurvStructs[b_k + 1].HelixCenter,
+                             CurvStructs[b_k + 1].P1, CurvStructs[b_k + 1].CorrectedHelixCenter,
                              CurvStructs[b_k + 1].evec, CurvStructs[b_k + 1].theta, CurvStructs[b_k
                              + 1].pitch, CurvStructs[b_k + 1].CoeffP5, CurvStructs[b_k + 1].sp_index,
                              CurvStructs[b_k + 1].a_param, CurvStructs[b_k + 1].b_param, c_u_vec,
@@ -3523,6 +3535,7 @@ namespace ocn
     }
 
     //
+    // if coder.target('rtw') || coder.target('mex')
     // Arguments    : int cfg_SplineDegree
     //                const coder::array<double, 2U> &points
     //                coder::array<double, 2U> &sp3D_CoeffX
@@ -3567,26 +3580,22 @@ namespace ocn
         coder::array<double, 2U> BasisValDD1;
         int j_loop_ub;
         int i13;
-        int i14;
-        unsigned int unnamed_idx_1;
-        int k_loop_ub;
-        int l_loop_ub;
-        coder::array<signed char, 2U> coef;
+        coder::array<double, 2U> coef;
         int input_sizes_idx_0;
         coder::array<double, 2U> A;
+        int l_loop_ub;
         int m_loop_ub;
-        coder::array<double, 1U> coeffs;
-        int n_loop_ub;
-        int p_loop_ub;
         coder::array<double, 2U> b_r;
+        int o_loop_ub;
+        coder::array<double, 2U> xd;
+        coder::array<double, 2U> xdd;
+        coder::array<double, 2U> xddd;
+        int t_loop_ub;
+        coder::array<double, 1U> r1;
         double unusedU1;
-        coder::array<double, 1U> b_coef;
-        double X[4];
         double unusedU2;
         double unusedU3;
         double unusedU4;
-        int t_loop_ub;
-        coder::array<double, 1U> r1;
         coder::array<double, 1U> r2;
         int u_loop_ub;
         int v_loop_ub;
@@ -3755,88 +3764,71 @@ namespace ocn
         //  preallocation
         //
         i13 = points.size(1) + 1;
-        if (0 <= points.size(1) + 1) {
-            i14 = u.size(1);
-            unnamed_idx_1 = static_cast<unsigned int>(u.size(1));
-        }
-
-        if (0 <= i13) {
-            k_loop_ub = N + 2;
-            l_loop_ub = static_cast<int>(unnamed_idx_1);
-        }
-
         for (int f_k = 0; f_k <= i13; f_k++) {
-            int o_loop_ub;
+            int k_loop_ub;
+            unsigned int unnamed_idx_1;
+            int n_loop_ub;
+            int p_loop_ub;
             int q_loop_ub;
             int r_loop_ub;
+            int i24;
             int s_loop_ub;
 
             //  evaluate basis functions at the knots
             coef.set_size(1, (N + 2));
-            for (int i15 = 0; i15 < k_loop_ub; i15++) {
-                coef[i15] = 0;
+            k_loop_ub = N + 2;
+            for (int i14 = 0; i14 < k_loop_ub; i14++) {
+                coef[i14] = 0.0;
             }
 
-            coef[f_k] = 1;
+            coef[f_k] = 1.0;
 
             //      sp             = spmak(knots, coef);
             //      BasisVal(:, k) = spval(sp, u);          % tridiagonal matrix
-            coeffs.set_size(coef.size(1));
-            o_loop_ub = coef.size(1);
-            for (int i18 = 0; i18 < o_loop_ub; i18++) {
-                coeffs[i18] = coef[i18];
-            }
-
+            unnamed_idx_1 = static_cast<unsigned int>(u.size(1));
             b_r.set_size(1, (static_cast<int>(unnamed_idx_1)));
-            for (int i21 = 0; i21 < l_loop_ub; i21++) {
-                b_r[i21] = 0.0;
+            n_loop_ub = static_cast<int>(unnamed_idx_1);
+            for (int i18 = 0; i18 < n_loop_ub; i18++) {
+                b_r[i18] = 0.0;
             }
 
-            for (int g_k = 0; g_k < i14; g_k++) {
-                double d;
-                double xk;
-                d = u[g_k];
-                xk = d;
-
-                //  void c_bspline_eval(uint64_t *handle, const double *c, double x, double X[3]);
-                if (d < 0.0) {
-                    printf("ERROR: C_BSPLINE_EVAL: X < 0 (%f)\n", d);
-                    fflush(stdout);
-                    xk = 0.0;
-                } else {
-                    if (d > 1.0) {
-                        printf("ERROR: C_BSPLINE_EVAL: X > 1 (%f)\n", d);
-                        fflush(stdout);
-                        xk = 1.0;
-                    }
-                }
-
-                c_bspline_eval(&Bl_handle, &(coeffs.data())[0], xk, &X[0]);
-                b_r[g_k] = X[0];
+            unnamed_idx_1 = static_cast<unsigned int>(u.size(1));
+            xd.set_size(1, (static_cast<int>(unnamed_idx_1)));
+            p_loop_ub = static_cast<int>(unnamed_idx_1);
+            for (int i21 = 0; i21 < p_loop_ub; i21++) {
+                xd[i21] = 0.0;
             }
 
-            q_loop_ub = BasisVal.size(0);
-            for (int i23 = 0; i23 < q_loop_ub; i23++) {
-                BasisVal[i23 + BasisVal.size(0) * f_k] = b_r[i23];
+            unnamed_idx_1 = static_cast<unsigned int>(u.size(1));
+            xdd.set_size(1, (static_cast<int>(unnamed_idx_1)));
+            q_loop_ub = static_cast<int>(unnamed_idx_1);
+            for (int i22 = 0; i22 < q_loop_ub; i22++) {
+                xdd[i22] = 0.0;
+            }
+
+            unnamed_idx_1 = static_cast<unsigned int>(u.size(1));
+            xddd.set_size(1, (static_cast<int>(unnamed_idx_1)));
+            r_loop_ub = static_cast<int>(unnamed_idx_1);
+            for (int i23 = 0; i23 < r_loop_ub; i23++) {
+                xddd[i23] = 0.0;
+            }
+
+            i24 = u.size(1);
+            for (int g_k = 0; g_k < i24; g_k++) {
+                b_r[g_k] = u[g_k];
+                bspline_eval(Bl_handle, coef, &b_r[g_k], &xd[g_k], &xdd[g_k], &xddd[g_k]);
+            }
+
+            s_loop_ub = BasisVal.size(0);
+            for (int i25 = 0; i25 < s_loop_ub; i25++) {
+                BasisVal[i25 + BasisVal.size(0) * f_k] = b_r[i25];
             }
 
             //      sp2D           = fnder(sp, 2);          % evaluate 2nd derivative of basis functions @u=0,1 
             unusedU1 = 0.0;
-            b_coef.set_size(coef.size(1));
-            r_loop_ub = coef.size(1);
-            for (int i24 = 0; i24 < r_loop_ub; i24++) {
-                b_coef[i24] = coef[i24];
-            }
-
-            b_bspline_eval(Bl_handle, b_coef, &unusedU1, &unusedU2, &BasisValDD0[f_k]);
+            b_bspline_eval(Bl_handle, coef, &unusedU1, &unusedU2, &BasisValDD0[f_k]);
             unusedU3 = 1.0;
-            b_coef.set_size(coef.size(1));
-            s_loop_ub = coef.size(1);
-            for (int i25 = 0; i25 < s_loop_ub; i25++) {
-                b_coef[i25] = coef[i25];
-            }
-
-            b_bspline_eval(Bl_handle, b_coef, &unusedU3, &unusedU4, &BasisValDD1[f_k]);
+            b_bspline_eval(Bl_handle, coef, &unusedU3, &unusedU4, &BasisValDD1[f_k]);
 
             //      BasisValDD0(k) = spval(sp2D, 0);
             //      BasisValDD1(k) = spval(sp2D, 1);
@@ -3850,22 +3842,22 @@ namespace ocn
         }
 
         A.set_size((input_sizes_idx_0 + 2), BasisValDD0.size(1));
-        m_loop_ub = BasisValDD0.size(1);
-        for (int i16 = 0; i16 < m_loop_ub; i16++) {
-            A[A.size(0) * i16] = BasisValDD0[i16];
+        l_loop_ub = BasisValDD0.size(1);
+        for (int i15 = 0; i15 < l_loop_ub; i15++) {
+            A[A.size(0) * i15] = BasisValDD0[i15];
         }
 
-        n_loop_ub = BasisValDD0.size(1);
-        for (int i17 = 0; i17 < n_loop_ub; i17++) {
-            for (int i19 = 0; i19 < input_sizes_idx_0; i19++) {
-                A[(i19 + A.size(0) * i17) + 1] = BasisVal[i19 + input_sizes_idx_0 * i17];
+        m_loop_ub = BasisValDD0.size(1);
+        for (int i16 = 0; i16 < m_loop_ub; i16++) {
+            for (int i17 = 0; i17 < input_sizes_idx_0; i17++) {
+                A[(i17 + A.size(0) * i16) + 1] = BasisVal[i17 + input_sizes_idx_0 * i16];
             }
         }
 
-        p_loop_ub = BasisValDD0.size(1);
-        for (int i20 = 0; i20 < p_loop_ub; i20++) {
-            for (int i22 = 0; i22 < 1; i22++) {
-                A[(input_sizes_idx_0 + A.size(0) * i20) + 1] = BasisValDD1[i20];
+        o_loop_ub = BasisValDD0.size(1);
+        for (int i19 = 0; i19 < o_loop_ub; i19++) {
+            for (int i20 = 0; i20 < 1; i20++) {
+                A[(input_sizes_idx_0 + A.size(0) * i19) + 1] = BasisValDD1[i19];
             }
         }
 
@@ -3941,6 +3933,10 @@ namespace ocn
         }
 
         *sp3D_Bl_handle = Bl_handle;
+
+        //  else
+        //      sp3D = CalcBspline_Lee_matlab(points);
+        //  end
         *sp3D_Bl_ncoeff = b_sp3D_Bl_ncoeff;
         *sp3D_Bl_degree = cfg_SplineDegree;
     }
@@ -4019,7 +4015,7 @@ namespace ocn
     //                CurveType Curv_Type
     //                const double Curv_P0[3]
     //                const double Curv_P1[3]
-    //                const double Curv_HelixCenter[3]
+    //                const double Curv_CorrectedHelixCenter[3]
     //                const double Curv_evec[3]
     //                double Curv_theta
     //                double Curv_pitch
@@ -4035,9 +4031,9 @@ namespace ocn
     // Return Type  : void
     //
     static void CalcZeroStartConstraints(const queue_coder *ctx_q_splines, CurveType Curv_Type,
-        const double Curv_P0[3], const double Curv_P1[3], const double Curv_HelixCenter[3], const
-        double Curv_evec[3], double Curv_theta, double Curv_pitch, const double Curv_CoeffP5[6][3],
-        int Curv_sp_index, bool Curv_UseConstJerk, double Curv_ConstJerk, double Curv_a_param,
+        const double Curv_P0[3], const double Curv_P1[3], const double Curv_CorrectedHelixCenter[3],
+        const double Curv_evec[3], double Curv_theta, double Curv_pitch, const double Curv_CoeffP5[6]
+        [3], int Curv_sp_index, bool Curv_UseConstJerk, double Curv_ConstJerk, double Curv_a_param,
         double Curv_b_param, double JerkScale, double *v_0, double *at_0)
     {
         double jps;
@@ -4070,9 +4066,9 @@ namespace ocn
         t = std::pow(6.0 / jps, 0.33333333333333331);
         d1uk = jps * std::pow(t, 2.0) / 2.0;
         b = jps * t;
-        d_EvalCurvStruct(ctx_q_splines, Curv_Type, Curv_P0, Curv_P1, Curv_HelixCenter, Curv_evec,
-                         Curv_theta, Curv_pitch, Curv_CoeffP5, Curv_sp_index, Curv_a_param,
-                         Curv_b_param, unusedU0, r1D, r2D);
+        d_EvalCurvStruct(ctx_q_splines, Curv_Type, Curv_P0, Curv_P1, Curv_CorrectedHelixCenter,
+                         Curv_evec, Curv_theta, Curv_pitch, Curv_CoeffP5, Curv_sp_index,
+                         Curv_a_param, Curv_b_param, unusedU0, r1D, r2D);
         b_b = std::pow(d1uk, 2.0);
         *v_0 = std::sqrt((std::pow(r1D[0] * d1uk, 2.0) + std::pow(r1D[1] * d1uk, 2.0)) + std::pow
                          (r1D[2] * d1uk, 2.0));
@@ -4973,9 +4969,9 @@ namespace ocn
         double r0D1[3];
         double unusedU1[3];
         double r1D1[3];
+        double x;
         double y;
         double b_y;
-        double d;
         N = ctx->q_gcode.size();
 
         //  1 -> stdout
@@ -4990,20 +4986,56 @@ namespace ocn
 
         i = static_cast<int>(N - 1U);
         for (int k = 0; k < i; k++) {
+            double absx;
+            signed char n;
             double scale;
             double b_scale;
             double absxk;
             double t;
             double b_absxk;
             double b_t;
+            double b_n;
             ctx->q_gcode.get((k + 1U), (&Curv1));
             ctx->q_gcode.get((k - 4294967294U), (&Curv2));
-            e_EvalCurvStruct(&ctx->q_splines, Curv1.Type, Curv1.P0, Curv1.P1, Curv1.HelixCenter,
-                             Curv1.evec, Curv1.theta, Curv1.pitch, Curv1.CoeffP5, Curv1.sp_index,
-                             Curv1.a_param, Curv1.b_param, unusedU0, r0D1);
-            f_EvalCurvStruct(&ctx->q_splines, Curv2.Type, Curv2.P0, Curv2.P1, Curv2.HelixCenter,
-                             Curv2.evec, Curv2.theta, Curv2.pitch, Curv2.CoeffP5, Curv2.sp_index,
-                             Curv2.a_param, Curv2.b_param, unusedU1, r1D1);
+            f_EvalCurvStruct(&ctx->q_splines, Curv1.Type, Curv1.P0, Curv1.P1,
+                             Curv1.CorrectedHelixCenter, Curv1.evec, Curv1.theta, Curv1.pitch,
+                             Curv1.CoeffP5, Curv1.sp_index, Curv1.a_param, Curv1.b_param, unusedU0,
+                             r0D1);
+            e_EvalCurvStruct(&ctx->q_splines, Curv2.Type, Curv2.P0, Curv2.P1,
+                             Curv2.CorrectedHelixCenter, Curv2.evec, Curv2.theta, Curv2.pitch,
+                             Curv2.CoeffP5, Curv2.sp_index, Curv2.a_param, Curv2.b_param, unusedU1,
+                             r1D1);
+            x = rt_remd(180.0 - ctx->cfg.CuspThreshold, 360.0);
+            absx = std::abs(x);
+            if (absx > 180.0) {
+                if (x > 0.0) {
+                    x -= 360.0;
+                } else {
+                    x += 360.0;
+                }
+
+                absx = std::abs(x);
+            }
+
+            if (absx <= 45.0) {
+                x *= 0.017453292519943295;
+                n = 0;
+            } else if (absx <= 135.0) {
+                if (x > 0.0) {
+                    x = 0.017453292519943295 * (x - 90.0);
+                    n = 1;
+                } else {
+                    x = 0.017453292519943295 * (x + 90.0);
+                    n = -1;
+                }
+            } else if (x > 0.0) {
+                x = 0.017453292519943295 * (x - 180.0);
+                n = 2;
+            } else {
+                x = 0.017453292519943295 * (x + 180.0);
+                n = -2;
+            }
+
             scale = 3.3121686421112381E-170;
             b_scale = 3.3121686421112381E-170;
             absxk = std::abs(r0D1[0]);
@@ -5066,9 +5098,17 @@ namespace ocn
 
             y = scale * std::sqrt(y);
             b_y = b_scale * std::sqrt(b_y);
-            d = 180.0 - ctx->cfg.CuspThreshold;
-            b_cosd(&d);
-            if (((r0D1[0] * r1D1[0] + r0D1[1] * r1D1[1]) + r0D1[2] * r1D1[2]) / (y * b_y) < d) {
+            if (n == 0) {
+                b_n = std::cos(x);
+            } else if (n == 1) {
+                b_n = -std::sin(x);
+            } else if (n == -1) {
+                b_n = std::sin(x);
+            } else {
+                b_n = -std::cos(x);
+            }
+
+            if (((r0D1[0] * r1D1[0] + r0D1[1] * r1D1[1]) + r0D1[2] * r1D1[2]) / (y * b_y) < b_n) {
                 switch (Curv1.zspdmode) {
                   case ZSpdMode_NN:
                     Curv1.zspdmode = ZSpdMode_NZ;
@@ -5956,22 +5996,29 @@ namespace ocn
         coder::array<double, 2U> pvec;
         CurvStruct b_ctx;
         CurvStruct Curv;
+        CurvStruct expl_temp;
+        double t0_P0[3];
+        double t0_P1[3];
         CurvStruct SplineCurve;
-        CurvStruct C;
-        CurvStruct CurvStruct1_C;
-        CurvStruct CurvStruct2_C;
+        double t0_CorrectedHelixCenter[3];
+        double t0_evec[3];
         double P0[3];
         double P1[3];
         double dv[3];
+        coder::array<double, 2U> c_pvec;
+        double dv1[3];
+        CurvStruct C;
+        CurvStruct CurvStruct1_C;
+        CurvStruct CurvStruct2_C;
         CurvStruct b_CurvStruct2_C;
         CurvStruct CurvStruct3_C;
-        coder::array<double, 2U> d_pvec;
-        double dv1[3];
         double dv2[6][3];
         CurvStruct spline;
+        double t0_CoeffP5[6][3];
         if (!ctx->q_gcode.isempty()) {
             unsigned int spline_index;
             unsigned int Ncrv;
+            double spindle_speed;
             spline_index = ctx->q_splines.size() + 1U;
             Ncrv = ctx->q_gcode.size();
             CumulatedLength = 0.0;
@@ -5987,19 +6034,59 @@ namespace ocn
                 fflush(stdout);
             }
 
+            spindle_speed = 75000.0;
+
             //  Satisfy coder
             //  -------------
             pvec.set_size(3, 0);
             ctx->q_gcode.get(1.0, (&b_ctx));
 
             //  -------------
+            //   ||...
+            //              (CumulatedLength > 0 && ~CurvCollinear(ctx, ctx.q_gcode.get(k-1), Curv, ctx.cfg.Compressing.MaxCollinearityDegrees))  
             for (double k = 1.0; k <= Ncrv; k++) {
+                bool Collinear;
                 ctx->q_gcode.get(k, (&Curv));
+
+                //  If the next curve segment is too long for compressing or it is not an NN,
+                //  we need to stop growing the compressing list and create the spline
+                Collinear = false;
+                if (k > 1.0) {
+                    ctx->q_gcode.get((k - 1.0), (&expl_temp));
+                    t0_P0[0] = expl_temp.P0[0];
+                    t0_P1[0] = expl_temp.P1[0];
+                    t0_CorrectedHelixCenter[0] = expl_temp.CorrectedHelixCenter[0];
+                    t0_evec[0] = expl_temp.evec[0];
+                    t0_P0[1] = expl_temp.P0[1];
+                    t0_P1[1] = expl_temp.P1[1];
+                    t0_CorrectedHelixCenter[1] = expl_temp.CorrectedHelixCenter[1];
+                    t0_evec[1] = expl_temp.evec[1];
+                    t0_P0[2] = expl_temp.P0[2];
+                    t0_P1[2] = expl_temp.P1[2];
+                    t0_CorrectedHelixCenter[2] = expl_temp.CorrectedHelixCenter[2];
+                    t0_evec[2] = expl_temp.evec[2];
+                    for (int i2 = 0; i2 < 6; i2++) {
+                        t0_CoeffP5[i2][0] = expl_temp.CoeffP5[i2][0];
+                        t0_CoeffP5[i2][1] = expl_temp.CoeffP5[i2][1];
+                        t0_CoeffP5[i2][2] = expl_temp.CoeffP5[i2][2];
+                    }
+
+                    Collinear = CurvCollinear(&ctx->q_splines, expl_temp.Type, t0_P0, t0_P1,
+                        t0_CorrectedHelixCenter, t0_evec, expl_temp.theta, expl_temp.pitch,
+                        t0_CoeffP5, expl_temp.sp_index, expl_temp.a_param, expl_temp.b_param, &Curv,
+                        ctx->cfg.Compressing.ColTolDeg);
+                }
+
                 if ((LengthCurv(&ctx->q_splines, ctx->cfg.NGridLengthSpline, Curv.Type, Curv.P0,
-                                Curv.P1, Curv.HelixCenter, Curv.evec, Curv.theta, Curv.pitch,
-                                Curv.CoeffP5, Curv.sp_index, Curv.a_param, Curv.b_param) >=
-                        ctx->cfg.LThreshold) || (Curv.zspdmode != ZSpdMode_NN)) {
+                                Curv.P1, Curv.CorrectedHelixCenter, Curv.evec, Curv.theta,
+                                Curv.pitch, Curv.CoeffP5, Curv.sp_index, Curv.a_param, Curv.b_param)
+                     >= ctx->cfg.LThreshold) || (Curv.zspdmode != ZSpdMode_NN) || ((CumulatedLength ==
+                      0.0) && (!Collinear))) {
+                    //  If the cumulated length is zero, no compressing is on-going and we can
+                    //  treat the segment individually
                     if (CumulatedLength == 0.0) {
+                        //  If the segment is not a normal one (Nonzero, Nonzero), it needs
+                        //  to be split
                         if (Curv.zspdmode == ZSpdMode_ZN) {
                             CutZeroStart(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz,
                                          ctx->cfg.amax, ctx->cfg.jmax, ctx->cfg.dt,
@@ -6032,12 +6119,19 @@ namespace ocn
                             ctx->q_compress.push((&CurvStruct1_C));
                             ctx->q_compress.push((&b_CurvStruct2_C));
                             ctx->q_compress.push((&CurvStruct3_C));
+
+                            //  If the segment is normal, (Nonzero, Nonzero), it can be pushed
+                            //  as-is into the output list
                         } else {
                             ctx->q_compress.push((&Curv));
                         }
+
+                        //  If there was an on-going compression
                     } else {
+                        //  We have more than 2 points, thus constructing a spline
+                        //  is warranted
                         if (pvec.size(1) > 2) {
-                            int c_pvec;
+                            int d_pvec;
                             ConstrCurvStructType(&SplineCurve);
                             CalcBspline_Lee(ctx->cfg.SplineDegree, pvec, SplineCurve.sp.CoeffX,
                                             SplineCurve.sp.CoeffY, SplineCurve.sp.CoeffZ,
@@ -6045,25 +6139,27 @@ namespace ocn
                                             &SplineCurve.sp.Bl.handle, &SplineCurve.sp.Bl.degree,
                                             SplineCurve.sp.knots);
                             ctx->q_splines.push((&SplineCurve));
-                            c_pvec = pvec.size(1);
+                            d_pvec = pvec.size(1);
                             dv[0] = 0.0;
                             dv1[0] = 0.0;
                             dv[1] = 0.0;
                             dv1[1] = 0.0;
                             dv[2] = 0.0;
                             dv1[2] = 0.0;
-                            for (int i2 = 0; i2 < 6; i2++) {
-                                dv2[i2][0] = 0.0;
-                                dv2[i2][1] = 0.0;
-                                dv2[i2][2] = 0.0;
+                            for (int i4 = 0; i4 < 6; i4++) {
+                                dv2[i4][0] = 0.0;
+                                dv2[i4][1] = 0.0;
+                                dv2[i4][2] = 0.0;
                             }
 
                             ConstrCurvStruct(CurveType_Spline, ZSpdMode_NN, *(double (*)[3])&pvec[0],
-                                             *(double (*)[3])&pvec[3 * (c_pvec - 1)], dv, dv1, 0.0,
+                                             *(double (*)[3])&pvec[3 * (d_pvec - 1)], dv, dv1, 0.0,
                                              0.0, dv2, Curv.FeedRate, &spline);
                             spline.gcode_source_line = Curv.gcode_source_line;
                             spline.sp_index = static_cast<int>(spline_index);
                             spline_index++;
+                            spline.SpindleSpeed = spindle_speed;
+                            spindle_speed = 75000.0;
                             ctx->q_compress.push((&spline));
                             if (Curv.zspdmode == ZSpdMode_NZ) {
                                 CutZeroEnd(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz,
@@ -6076,6 +6172,8 @@ namespace ocn
                             } else {
                                 ctx->q_compress.push((&Curv));
                             }
+
+                            //  With only two points, construct a line
                         } else {
                             ctx->q_gcode.get((k - 1.0), (&C));
                             ctx->q_compress.push((&C));
@@ -6094,6 +6192,9 @@ namespace ocn
 
                         CumulatedLength = 0.0;
                     }
+
+                    //  If this is the last segment and we have something in the
+                    //  compression list, construct the spline
                 } else if ((static_cast<unsigned int>(k) == Ncrv) && (CumulatedLength != 0.0)) {
                     int b_pvec;
                     ConstrCurvStructType(&SplineCurve);
@@ -6121,46 +6222,56 @@ namespace ocn
                                      Curv.FeedRate, &spline);
                     spline.gcode_source_line = Curv.gcode_source_line;
                     spline.sp_index = static_cast<int>(spline_index);
+                    spline.SpindleSpeed = spindle_speed;
                     ctx->q_compress.push((&spline));
+
+                    //  If this is the first (and elligible) WHAT
                 } else if (k == 1.0) {
                     ctx->q_compress.push((&Curv));
+
+                    //  In the general case with an elligible segment, add it to the
+                    //  compression list
                 } else {
                     int loop_ub;
                     int b_loop_ub;
                     if (CumulatedLength == 0.0) {
                         b_EvalCurvStruct(&ctx->q_splines, Curv.Type, Curv.P0, Curv.P1,
-                                         Curv.HelixCenter, Curv.evec, Curv.theta, Curv.pitch,
-                                         Curv.CoeffP5, Curv.sp_index, Curv.b_param, P0);
+                                         Curv.CorrectedHelixCenter, Curv.evec, Curv.theta,
+                                         Curv.pitch, Curv.CoeffP5, Curv.sp_index, Curv.b_param, P0);
                         pvec.set_size(3, 1);
                         pvec[0] = P0[0];
                         pvec[1] = P0[1];
                         pvec[2] = P0[2];
+                        spindle_speed = Curv.SpindleSpeed;
                     }
 
                     CumulatedLength += LengthCurv(&ctx->q_splines, ctx->cfg.NGridLengthSpline,
-                        Curv.Type, Curv.P0, Curv.P1, Curv.HelixCenter, Curv.evec, Curv.theta,
-                        Curv.pitch, Curv.CoeffP5, Curv.sp_index, Curv.a_param, Curv.b_param);
-                    c_EvalCurvStruct(&ctx->q_splines, Curv.Type, Curv.P0, Curv.P1, Curv.HelixCenter,
-                                     Curv.evec, Curv.theta, Curv.pitch, Curv.CoeffP5, Curv.sp_index,
-                                     Curv.a_param, Curv.b_param, P1);
-                    d_pvec.set_size(3, (pvec.size(1) + 1));
+                        Curv.Type, Curv.P0, Curv.P1, Curv.CorrectedHelixCenter, Curv.evec,
+                        Curv.theta, Curv.pitch, Curv.CoeffP5, Curv.sp_index, Curv.a_param,
+                        Curv.b_param);
+                    c_EvalCurvStruct(&ctx->q_splines, Curv.Type, Curv.P0, Curv.P1,
+                                     Curv.CorrectedHelixCenter, Curv.evec, Curv.theta, Curv.pitch,
+                                     Curv.CoeffP5, Curv.sp_index, Curv.a_param, Curv.b_param, P1);
+                    c_pvec.set_size(3, (pvec.size(1) + 1));
                     loop_ub = pvec.size(1);
                     for (int i = 0; i < loop_ub; i++) {
-                        d_pvec[3 * i] = pvec[3 * i];
-                        d_pvec[3 * i + 1] = pvec[3 * i + 1];
-                        d_pvec[3 * i + 2] = pvec[3 * i + 2];
+                        c_pvec[3 * i] = pvec[3 * i];
+                        c_pvec[3 * i + 1] = pvec[3 * i + 1];
+                        c_pvec[3 * i + 2] = pvec[3 * i + 2];
                     }
 
-                    d_pvec[3 * pvec.size(1)] = P1[0];
-                    d_pvec[3 * pvec.size(1) + 1] = P1[1];
-                    d_pvec[3 * pvec.size(1) + 2] = P1[2];
-                    pvec.set_size(3, d_pvec.size(1));
-                    b_loop_ub = d_pvec.size(1);
+                    c_pvec[3 * pvec.size(1)] = P1[0];
+                    c_pvec[3 * pvec.size(1) + 1] = P1[1];
+                    c_pvec[3 * pvec.size(1) + 2] = P1[2];
+                    pvec.set_size(3, c_pvec.size(1));
+                    b_loop_ub = c_pvec.size(1);
                     for (int i3 = 0; i3 < b_loop_ub; i3++) {
-                        pvec[3 * i3] = d_pvec[3 * i3];
-                        pvec[3 * i3 + 1] = d_pvec[3 * i3 + 1];
-                        pvec[3 * i3 + 2] = d_pvec[3 * i3 + 2];
+                        pvec[3 * i3] = c_pvec[3 * i3];
+                        pvec[3 * i3 + 1] = c_pvec[3 * i3 + 1];
+                        pvec[3 * i3 + 2] = c_pvec[3 * i3 + 2];
                     }
+
+                    spindle_speed = std::fmin(spindle_speed, Curv.SpindleSpeed);
                 }
             }
         }
@@ -6172,7 +6283,7 @@ namespace ocn
     //                ZSpdMode b_ZSpdMode
     //                const double P0[3]
     //                const double P1[3]
-    //                const double C[3]
+    //                const double Cprim[3]
     //                const double evec[3]
     //                double theta
     //                double pitch
@@ -6182,7 +6293,7 @@ namespace ocn
     // Return Type  : void
     //
     static void ConstrCurvStruct(CurveType Type, ZSpdMode b_ZSpdMode, const double P0[3], const
-        double P1[3], const double C[3], const double evec[3], double theta, double pitch, const
+        double P1[3], const double Cprim[3], const double evec[3], double theta, double pitch, const
         double CoeffP5[6][3], double FeedRate, CurvStruct *CStrct)
     {
         static const uint64m_T r = { { 0U, 0U }// chunks
@@ -6192,15 +6303,15 @@ namespace ocn
         CStrct->zspdmode = b_ZSpdMode;
         CStrct->P0[0] = P0[0];
         CStrct->P1[0] = P1[0];
-        CStrct->HelixCenter[0] = C[0];
+        CStrct->CorrectedHelixCenter[0] = Cprim[0];
         CStrct->evec[0] = evec[0];
         CStrct->P0[1] = P0[1];
         CStrct->P1[1] = P1[1];
-        CStrct->HelixCenter[1] = C[1];
+        CStrct->CorrectedHelixCenter[1] = Cprim[1];
         CStrct->evec[1] = evec[1];
         CStrct->P0[2] = P0[2];
         CStrct->P1[2] = P1[2];
-        CStrct->HelixCenter[2] = C[2];
+        CStrct->CorrectedHelixCenter[2] = Cprim[2];
         CStrct->evec[2] = evec[2];
         CStrct->theta = theta;
         CStrct->pitch = pitch;
@@ -6295,6 +6406,144 @@ namespace ocn
     }
 
     //
+    // Arguments    : const double P0[2]
+    //                const double P1[2]
+    //                double C[2]
+    // Return Type  : double
+    //
+    static double CorrectArcCenter(const double P0[2], const double P1[2], double C[2])
+    {
+        double R;
+        double P1P0_idx_0;
+        double P1P0_idx_1;
+        double z1_idx_1_tmp_tmp;
+        double d;
+        char message[31];
+        static const char b_message[31] = { 'H', 'e', 'l', 'i', 'x', ' ', 'c', 'e', 'n', 't', 'e',
+            'r', ' ', 'c', 'o', 'r', 'r', 'e', 'c', 't', 'i', 'o', 'n', ' ', 'e', 'r', 'r', 'o', 'r',
+            ' ', '!' };
+
+        //  [R, Cprim] = CorrectArcCenter(P0, P1, C)
+        //  recalculate the center point Cprim of an arc in the plane passing by P0 and P1,
+        //  C being the approximate center point
+        sqrt_calls++;
+        P1P0_idx_0 = P1[0] - P0[0];
+        P1P0_idx_1 = P1[1] - P0[1];
+        sqrt_calls++;
+        R = 0.5 * (std::sqrt(std::pow(C[0] - P0[0], 2.0) + std::pow(C[1] - P0[1], 2.0)) + std::sqrt
+                   (std::pow(C[0] - P1[0], 2.0) + std::pow(C[1] - P1[1], 2.0)));
+
+        //  mean value of radius
+        //
+        z1_idx_1_tmp_tmp = std::pow(P1P0_idx_1, 2.0);
+        sqrt_calls++;
+        d = std::sqrt(std::pow(P1P0_idx_0, 2.0) + z1_idx_1_tmp_tmp);
+        if (d >= 1.0E-30) {
+            double d1;
+            double n;
+            double a;
+            double d2;
+            double d3;
+            double d4;
+            double Cprim1_idx_0;
+            double d5;
+            double Cprim2_idx_0;
+            double z1_idx_0;
+            double b_z1_idx_0;
+            sqrt_calls++;
+            d1 = R - d / 2.0;
+            if (d1 <= -1.0E-9) {
+                for (int i = 0; i < 31; i++) {
+                    message[i] = b_message[i];
+                }
+
+                c_assert_(&message[0]);
+            }
+
+            //  bisecting line (90° rotation)
+            n = std::sqrt(z1_idx_1_tmp_tmp + std::pow(-P1P0_idx_0, 2.0));
+            sqrt_calls++;
+
+            //  unit vector on bisecting line
+            //  dealing with limit cases...
+            if (d1 < 0.0) {
+                a = 0.0;
+            } else {
+                a = std::sqrt(std::pow(R, 2.0) - std::pow(d / 2.0, 2.0));
+                sqrt_calls++;
+            }
+
+            //  midpoint
+            //  two choices for the center point
+            //
+            sqrt_calls++;
+            d2 = 0.5 * (P0[0] + P1[0]);
+            d3 = a * (P1P0_idx_1 / n);
+            d4 = d2 + d3;
+            Cprim1_idx_0 = d4;
+            d5 = d2 - d3;
+            Cprim2_idx_0 = d5;
+            z1_idx_0 = std::pow(C[0] - d4, 2.0);
+            b_z1_idx_0 = std::pow(C[0] - d5, 2.0);
+            d2 = 0.5 * (P0[1] + P1[1]);
+            d3 = a * (-P1P0_idx_0 / n);
+            d4 = d2 + d3;
+            d5 = d2 - d3;
+            sqrt_calls++;
+            if (std::sqrt(z1_idx_0 + std::pow(C[1] - d4, 2.0)) < std::sqrt(b_z1_idx_0 + std::pow(C[1]
+                  - d5, 2.0))) {
+                //  determine on which side the center point lies
+                C[0] = Cprim1_idx_0;
+                C[1] = d4;
+            } else {
+                C[0] = Cprim2_idx_0;
+                C[1] = d5;
+            }
+        } else {
+            //  do nothing if P0 and P1 are extremely close
+        }
+
+        return R;
+    }
+
+    //
+    // Arguments    : const queue_coder *ctx_q_splines
+    //                CurveType Curv1_Type
+    //                const double Curv1_P0[3]
+    //                const double Curv1_P1[3]
+    //                const double Curv1_CorrectedHelixCenter[3]
+    //                const double Curv1_evec[3]
+    //                double Curv1_theta
+    //                double Curv1_pitch
+    //                const double Curv1_CoeffP5[6][3]
+    //                int Curv1_sp_index
+    //                double Curv1_a_param
+    //                double Curv1_b_param
+    //                const CurvStruct *Curv2
+    //                double ToleranceDeg
+    // Return Type  : bool
+    //
+    static bool CurvCollinear(const queue_coder *ctx_q_splines, CurveType Curv1_Type, const double
+        Curv1_P0[3], const double Curv1_P1[3], const double Curv1_CorrectedHelixCenter[3], const
+        double Curv1_evec[3], double Curv1_theta, double Curv1_pitch, const double Curv1_CoeffP5[6]
+        [3], int Curv1_sp_index, double Curv1_a_param, double Curv1_b_param, const CurvStruct *Curv2,
+        double ToleranceDeg)
+    {
+        double unusedU0[3];
+        double V0[3];
+        double unusedU1[3];
+        double V1[3];
+        f_EvalCurvStruct(ctx_q_splines, Curv1_Type, Curv1_P0, Curv1_P1, Curv1_CorrectedHelixCenter,
+                         Curv1_evec, Curv1_theta, Curv1_pitch, Curv1_CoeffP5, Curv1_sp_index,
+                         Curv1_a_param, Curv1_b_param, unusedU0, V0);
+        e_EvalCurvStruct(ctx_q_splines, Curv2->Type, Curv2->P0, Curv2->P1,
+                         Curv2->CorrectedHelixCenter, Curv2->evec, Curv2->theta, Curv2->pitch,
+                         Curv2->CoeffP5, Curv2->sp_index, Curv2->a_param, Curv2->b_param, unusedU1,
+                         V1);
+        return collinear(V0, V1, ToleranceDeg);
+    }
+
+    //
     // We cut d0 [mm] in the beginning and d1 [mm] in the end of the segment
     //  We determine a new value of the parameter u_tilda
     // Arguments    : const queue_coder *ctx_q_splines
@@ -6350,14 +6599,16 @@ namespace ocn
             //  In case of helix and line, ||r'(u)||=const,
             //  for 0 < u < 1
             //  r1D0 and r1D1 are with respect to u
-            f_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                             b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
-                             b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
-                             b_CurvStruct->a_param, b_CurvStruct->b_param, unusedU0, r1D0);
             e_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                             b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
-                             b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
-                             b_CurvStruct->a_param, b_CurvStruct->b_param, unusedU1, r1D1);
+                             b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec,
+                             b_CurvStruct->theta, b_CurvStruct->pitch, b_CurvStruct->CoeffP5,
+                             b_CurvStruct->sp_index, b_CurvStruct->a_param, b_CurvStruct->b_param,
+                             unusedU0, r1D0);
+            f_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
+                             b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec,
+                             b_CurvStruct->theta, b_CurvStruct->pitch, b_CurvStruct->CoeffP5,
+                             b_CurvStruct->sp_index, b_CurvStruct->a_param, b_CurvStruct->b_param,
+                             unusedU1, r1D1);
 
             //  d0 = Integral_0_u0 ||r'(u)||du
             //  d1 = Integral_u1_1 ||r'(u)||du
@@ -6458,7 +6709,7 @@ namespace ocn
         int c_N;
         double TmpCurv_P0[3];
         double TmpCurv_P1[3];
-        double TmpCurv_HelixCenter[3];
+        double TmpCurv_CorrectedHelixCenter[3];
         coder::array<double, 2U> c;
         double TmpCurv_evec[3];
         coder::array<double, 2U> r10;
@@ -6505,8 +6756,8 @@ namespace ocn
         int c_ex;
         int cut_index;
         double L;
-        f_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                         b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
+        e_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
+                         b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
                          b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
                          b_CurvStruct->a_param, b_CurvStruct->b_param, unusedU0, r1D);
         ex = ctx_cfg_jmax[0];
@@ -6583,7 +6834,7 @@ namespace ocn
         }
 
         h_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                         b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
+                         b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
                          b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
                          b_CurvStruct->a_param, b_CurvStruct->b_param, b_uk, unusedU1, b_r1D, r2D,
                          r3D);
@@ -6649,15 +6900,15 @@ namespace ocn
             ctx_q_gcode->get(c_k, (&expl_temp));
             TmpCurv_P0[0] = expl_temp.P0[0];
             TmpCurv_P1[0] = expl_temp.P1[0];
-            TmpCurv_HelixCenter[0] = expl_temp.HelixCenter[0];
+            TmpCurv_CorrectedHelixCenter[0] = expl_temp.CorrectedHelixCenter[0];
             TmpCurv_evec[0] = expl_temp.evec[0];
             TmpCurv_P0[1] = expl_temp.P0[1];
             TmpCurv_P1[1] = expl_temp.P1[1];
-            TmpCurv_HelixCenter[1] = expl_temp.HelixCenter[1];
+            TmpCurv_CorrectedHelixCenter[1] = expl_temp.CorrectedHelixCenter[1];
             TmpCurv_evec[1] = expl_temp.evec[1];
             TmpCurv_P0[2] = expl_temp.P0[2];
             TmpCurv_P1[2] = expl_temp.P1[2];
-            TmpCurv_HelixCenter[2] = expl_temp.HelixCenter[2];
+            TmpCurv_CorrectedHelixCenter[2] = expl_temp.CorrectedHelixCenter[2];
             TmpCurv_evec[2] = expl_temp.evec[2];
             for (int i7 = 0; i7 < 6; i7++) {
                 TmpCurv_CoeffP5[i7][0] = expl_temp.CoeffP5[i7][0];
@@ -6667,7 +6918,7 @@ namespace ocn
 
             double b_y;
             b_y = GetCurvMaxFeedrate(ctx_q_splines, ctx_cfg_amax, ctx_cfg_jmax, expl_temp.Type,
-                TmpCurv_P0, TmpCurv_P1, TmpCurv_HelixCenter, TmpCurv_evec, expl_temp.theta,
+                TmpCurv_P0, TmpCurv_P1, TmpCurv_CorrectedHelixCenter, TmpCurv_evec, expl_temp.theta,
                 expl_temp.pitch, TmpCurv_CoeffP5, expl_temp.sp_index, expl_temp.FeedRate,
                 expl_temp.a_param, expl_temp.b_param);
             b_vmax = std::fmin(b_vmax, b_y);
@@ -6966,7 +7217,7 @@ namespace ocn
         //      actual_jps = jps;
         //      cut_index = N + 1 - cut_index;
         L = LengthCurv(ctx_q_splines, ctx_cfg_NGridLengthSpline, b_CurvStruct->Type,
-                       b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->HelixCenter,
+                       b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->CorrectedHelixCenter,
                        b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->pitch,
                        b_CurvStruct->CoeffP5, b_CurvStruct->sp_index, b_CurvStruct->a_param,
                        b_CurvStruct->b_param);
@@ -7042,7 +7293,7 @@ namespace ocn
         int c_N;
         double TmpCurv_P0[3];
         double TmpCurv_P1[3];
-        double TmpCurv_HelixCenter[3];
+        double TmpCurv_CorrectedHelixCenter[3];
         coder::array<double, 2U> c;
         double TmpCurv_evec[3];
         coder::array<double, 2U> r1;
@@ -7096,8 +7347,8 @@ namespace ocn
         int u1;
         int cut_index;
         double L;
-        f_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                         b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
+        e_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
+                         b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
                          b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
                          b_CurvStruct->a_param, b_CurvStruct->b_param, unusedU0, r1D);
         ex = ctx_cfg_jmax[0];
@@ -7174,7 +7425,7 @@ namespace ocn
         }
 
         h_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                         b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
+                         b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
                          b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
                          b_CurvStruct->a_param, b_CurvStruct->b_param, b_uk, unusedU1, b_r1D, r2D,
                          r3D);
@@ -7195,15 +7446,15 @@ namespace ocn
             ctx_q_gcode->get(c_k, (&expl_temp));
             TmpCurv_P0[0] = expl_temp.P0[0];
             TmpCurv_P1[0] = expl_temp.P1[0];
-            TmpCurv_HelixCenter[0] = expl_temp.HelixCenter[0];
+            TmpCurv_CorrectedHelixCenter[0] = expl_temp.CorrectedHelixCenter[0];
             TmpCurv_evec[0] = expl_temp.evec[0];
             TmpCurv_P0[1] = expl_temp.P0[1];
             TmpCurv_P1[1] = expl_temp.P1[1];
-            TmpCurv_HelixCenter[1] = expl_temp.HelixCenter[1];
+            TmpCurv_CorrectedHelixCenter[1] = expl_temp.CorrectedHelixCenter[1];
             TmpCurv_evec[1] = expl_temp.evec[1];
             TmpCurv_P0[2] = expl_temp.P0[2];
             TmpCurv_P1[2] = expl_temp.P1[2];
-            TmpCurv_HelixCenter[2] = expl_temp.HelixCenter[2];
+            TmpCurv_CorrectedHelixCenter[2] = expl_temp.CorrectedHelixCenter[2];
             TmpCurv_evec[2] = expl_temp.evec[2];
             for (int i7 = 0; i7 < 6; i7++) {
                 TmpCurv_CoeffP5[i7][0] = expl_temp.CoeffP5[i7][0];
@@ -7213,7 +7464,7 @@ namespace ocn
 
             double b_y;
             b_y = GetCurvMaxFeedrate(ctx_q_splines, ctx_cfg_amax, ctx_cfg_jmax, expl_temp.Type,
-                TmpCurv_P0, TmpCurv_P1, TmpCurv_HelixCenter, TmpCurv_evec, expl_temp.theta,
+                TmpCurv_P0, TmpCurv_P1, TmpCurv_CorrectedHelixCenter, TmpCurv_evec, expl_temp.theta,
                 expl_temp.pitch, TmpCurv_CoeffP5, expl_temp.sp_index, expl_temp.FeedRate,
                 expl_temp.a_param, expl_temp.b_param);
             b_vmax = std::fmin(b_vmax, b_y);
@@ -7526,7 +7777,7 @@ namespace ocn
         }
 
         L = LengthCurv(ctx_q_splines, ctx_cfg_NGridLengthSpline, b_CurvStruct->Type,
-                       b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->HelixCenter,
+                       b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->CorrectedHelixCenter,
                        b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->pitch,
                        b_CurvStruct->CoeffP5, b_CurvStruct->sp_index, b_CurvStruct->a_param,
                        b_CurvStruct->b_param);
@@ -7816,7 +8067,7 @@ namespace ocn
     //
     // Arguments    : const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
-    //                const double CurvStruct_HelixCenter[3]
+    //                const double CurvStruct_CorrectedHelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
     //                double CurvStruct_pitch
@@ -7828,10 +8079,10 @@ namespace ocn
     // Return Type  : void
     //
     static void EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3], const double
-                          CurvStruct_HelixCenter[3], const double CurvStruct_evec[3], double
-                          CurvStruct_theta, double CurvStruct_pitch, const coder::array<double, 2U>
-                          &u_vec, coder::array<double, 2U> &r0D, coder::array<double, 2U> &r1D,
-                          coder::array<double, 2U> &r2D, coder::array<double, 2U> &r3D)
+                          CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3],
+                          double CurvStruct_theta, double CurvStruct_pitch, const coder::array<
+                          double, 2U> &u_vec, coder::array<double, 2U> &r0D, coder::array<double, 2U>
+                          &r1D, coder::array<double, 2U> &r2D, coder::array<double, 2U> &r3D)
     {
         double P0P1_idx_0;
         double P0P1_idx_1;
@@ -7933,9 +8184,9 @@ namespace ocn
             //      end
             //  end
             //
-            CP0_idx_0 = CurvStruct_P0[0] - CurvStruct_HelixCenter[0];
-            CP0_idx_1 = CurvStruct_P0[1] - CurvStruct_HelixCenter[1];
-            CP0_idx_2 = CurvStruct_P0[2] - CurvStruct_HelixCenter[2];
+            CP0_idx_0 = CurvStruct_P0[0] - CurvStruct_CorrectedHelixCenter[0];
+            CP0_idx_1 = CurvStruct_P0[1] - CurvStruct_CorrectedHelixCenter[1];
+            CP0_idx_2 = CurvStruct_P0[2] - CurvStruct_CorrectedHelixCenter[2];
             phi_vec.set_size(1, u_vec.size(1));
             e_loop_ub = u_vec.size(1);
             for (int i5 = 0; i5 < e_loop_ub; i5++) {
@@ -8025,9 +8276,9 @@ namespace ocn
                 for (int c_k = 0; c_k <= i15; c_k++) {
                     int varargin_3;
                     varargin_3 = bcoef * c_k;
-                    r0D[3 * c_k] = CurvStruct_HelixCenter[0] + b[3 * varargin_3];
-                    r0D[3 * c_k + 1] = CurvStruct_HelixCenter[1] + b[3 * varargin_3 + 1];
-                    r0D[3 * c_k + 2] = CurvStruct_HelixCenter[2] + b[3 * varargin_3 + 2];
+                    r0D[3 * c_k] = CurvStruct_CorrectedHelixCenter[0] + b[3 * varargin_3];
+                    r0D[3 * c_k + 1] = CurvStruct_CorrectedHelixCenter[1] + b[3 * varargin_3 + 1];
+                    r0D[3 * c_k + 2] = CurvStruct_CorrectedHelixCenter[2] + b[3 * varargin_3 + 2];
                 }
             }
 
@@ -8593,8 +8844,8 @@ namespace ocn
         double r2D[3];
         double unusedU0[3];
         double r3D[3];
-        CurvStruct expl_temp;
         char message[30];
+        CurvStruct expl_temp;
         coder::array<double, 2U> Spline_sp_CoeffX;
         coder::array<double, 2U> Spline_sp_CoeffY;
         coder::array<double, 2U> Spline_sp_CoeffZ;
@@ -8612,7 +8863,7 @@ namespace ocn
         double r3Dz;
         double q_val;
         double qD_val;
-        coder::array<double, 1U> b_Coeff2;
+        coder::array<double, 2U> b_Coeff2;
         double v3;
         double unusedU1[3];
         if (1 > N_Hor) {
@@ -9041,9 +9292,9 @@ namespace ocn
 
                   case CurveType_Helix:
                     //  arc of circle / helix (G02, G03)
-                    b_EvalHelix(CurvStructs0[0].P0, CurvStructs0[0].P1, CurvStructs0[0].HelixCenter,
-                                CurvStructs0[0].evec, CurvStructs0[0].theta, CurvStructs0[0].pitch,
-                                u_vec_tilda, unusedU0, r1D, r2D, r3D);
+                    b_EvalHelix(CurvStructs0[0].P0, CurvStructs0[0].P1, CurvStructs0[0].
+                                CorrectedHelixCenter, CurvStructs0[0].evec, CurvStructs0[0].theta,
+                                CurvStructs0[0].pitch, u_vec_tilda, unusedU0, r1D, r2D, r3D);
                     break;
 
                   case CurveType_TransP5:
@@ -9058,6 +9309,7 @@ namespace ocn
                         int k_loop_ub;
 
                         //  BSpline
+                        //  if coder.target('rtw') || coder.target('mex')
                         ctx->q_splines.get(CurvStructs0[0].sp_index, (&expl_temp));
                         Spline_sp_CoeffX.set_size(1, expl_temp.sp.CoeffX.size(1));
                         i_loop_ub = expl_temp.sp.CoeffX.size(1);
@@ -9089,6 +9341,21 @@ namespace ocn
                         r2D[0] = r2Dx;
                         r2D[1] = r2Dy;
                         r2D[2] = r2Dz;
+
+                        //  else
+                        //      Spline=ctx.q_splines.get(CurvStruct.sp_index);
+                        //      sp = Spline.sp;
+                        //      r0D = spval(sp, uvec);
+                        //
+                        //      sp1D = fnder(sp, 1);
+                        //      r1D = spval(sp1D, uvec);
+                        //
+                        //      sp2D = fnder(sp, 2);
+                        //      r2D = spval(sp2D, uvec);
+                        //
+                        //      sp3D = fnder(sp, 3);
+                        //      r3D = spval(sp3D, uvec);
+                        //  end
                     }
                     break;
 
@@ -9138,7 +9405,7 @@ namespace ocn
                         //  ZSpdMode.NN
                         q_val = 1.0;
                         l_loop_ub = BasisVal.size(1);
-                        b_Coeff2.set_size(BasisVal.size(1));
+                        b_Coeff2.set_size(1, BasisVal.size(1));
                         for (int i20 = 0; i20 < l_loop_ub; i20++) {
                             b_Coeff2[i20] = Coeff2[i20];
                         }
@@ -9154,11 +9421,11 @@ namespace ocn
                 sqrt_calls++;
 
                 // zeros(3, size(tmp2, 2));
-                e_EvalCurvStruct(&ctx->q_splines, CurvStructs0[0].Type, CurvStructs0[0].P0,
-                                 CurvStructs0[0].P1, CurvStructs0[0].HelixCenter, CurvStructs0[0].
-                                 evec, CurvStructs0[0].theta, CurvStructs0[0].pitch, CurvStructs0[0]
-                                 .CoeffP5, CurvStructs0[0].sp_index, CurvStructs0[0].a_param,
-                                 CurvStructs0[0].b_param, unusedU1, r1D);
+                f_EvalCurvStruct(&ctx->q_splines, CurvStructs0[0].Type, CurvStructs0[0].P0,
+                                 CurvStructs0[0].P1, CurvStructs0[0].CorrectedHelixCenter,
+                                 CurvStructs0[0].evec, CurvStructs0[0].theta, CurvStructs0[0].pitch,
+                                 CurvStructs0[0].CoeffP5, CurvStructs0[0].sp_index, CurvStructs0[0].
+                                 a_param, CurvStructs0[0].b_param, unusedU1, r1D);
                 n = std::sqrt((std::pow(r1D[0], 2.0) + std::pow(r1D[1], 2.0)) + std::pow(r1D[2], 2.0));
                 sqrt_calls++;
 
@@ -9839,7 +10106,7 @@ namespace ocn
     //                CurveType CurvStruct_Type
     //                const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
-    //                const double CurvStruct_HelixCenter[3]
+    //                const double CurvStruct_CorrectedHelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
     //                double CurvStruct_pitch
@@ -9852,7 +10119,7 @@ namespace ocn
     //
     static double GetCurvMaxFeedrate(const queue_coder *ctx_q_splines, const double ctx_cfg_amax[3],
         const double ctx_cfg_jmax[3], CurveType CurvStruct_Type, const double CurvStruct_P0[3],
-        const double CurvStruct_P1[3], const double CurvStruct_HelixCenter[3], const double
+        const double CurvStruct_P1[3], const double CurvStruct_CorrectedHelixCenter[3], const double
         CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch, const double
         CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_FeedRate, double
         CurvStruct_a_param, double CurvStruct_b_param)
@@ -9888,9 +10155,9 @@ namespace ocn
         //  rdot'*rdot = r1D'*r1D * u1d
         //  ConstantFeedrate = r1D'*r1D * u1d     (1)
         i_EvalCurvStruct(ctx_q_splines, CurvStruct_Type, CurvStruct_P0, CurvStruct_P1,
-                         CurvStruct_HelixCenter, CurvStruct_evec, CurvStruct_theta, CurvStruct_pitch,
-                         CurvStruct_CoeffP5, CurvStruct_sp_index, CurvStruct_a_param,
-                         CurvStruct_b_param, unusedU0, r1D, r2D, r3D);
+                         CurvStruct_CorrectedHelixCenter, CurvStruct_evec, CurvStruct_theta,
+                         CurvStruct_pitch, CurvStruct_CoeffP5, CurvStruct_sp_index,
+                         CurvStruct_a_param, CurvStruct_b_param, unusedU0, r1D, r2D, r3D);
 
         //  from (1):
         for (int k = 0; k < 10; k++) {
@@ -10136,7 +10403,7 @@ namespace ocn
     //                CurveType Curv_Type
     //                const double Curv_P0[3]
     //                const double Curv_P1[3]
-    //                const double Curv_HelixCenter[3]
+    //                const double Curv_CorrectedHelixCenter[3]
     //                const double Curv_evec[3]
     //                double Curv_theta
     //                double Curv_pitch
@@ -10148,8 +10415,9 @@ namespace ocn
     //
     static double LengthCurv(const queue_coder *ctx_q_splines, double ctx_cfg_NGridLengthSpline,
         CurveType Curv_Type, const double Curv_P0[3], const double Curv_P1[3], const double
-        Curv_HelixCenter[3], const double Curv_evec[3], double Curv_theta, double Curv_pitch, const
-        double Curv_CoeffP5[6][3], int Curv_sp_index, double Curv_a_param, double Curv_b_param)
+        Curv_CorrectedHelixCenter[3], const double Curv_evec[3], double Curv_theta, double
+        Curv_pitch, const double Curv_CoeffP5[6][3], int Curv_sp_index, double Curv_a_param, double
+        Curv_b_param)
     {
         double L;
         char message[29];
@@ -10180,8 +10448,8 @@ namespace ocn
                 b_EvalLine(Curv_P0, Curv_P1, Curv_b_param, unusedU0, r1D);
             } else {
                 //  arc of circle / helix (G02, G03)
-                b_EvalHelix(Curv_P0, Curv_P1, Curv_HelixCenter, Curv_evec, Curv_theta, Curv_pitch,
-                            Curv_b_param, unusedU0, r1D, unusedU1, unusedU2);
+                b_EvalHelix(Curv_P0, Curv_P1, Curv_CorrectedHelixCenter, Curv_evec, Curv_theta,
+                            Curv_pitch, Curv_b_param, unusedU0, r1D, unusedU1, unusedU2);
             }
 
             L = std::sqrt((std::pow(Curv_a_param * r1D[0], 2.0) + std::pow(Curv_a_param * r1D[1],
@@ -10330,6 +10598,34 @@ namespace ocn
     //                int n
     // Return Type  : void
     //
+    static void MultiWordIor(const unsigned int u1[], const unsigned int u2[], unsigned int y[], int
+        n)
+    {
+        for (int i = 0; i < n; i++) {
+            y[i] = u1[i] | u2[i];
+        }
+    }
+
+    //
+    // Arguments    : const unsigned int u1[]
+    //                unsigned int y[]
+    //                int n
+    // Return Type  : void
+    //
+    static void MultiWordNot(const unsigned int u1[], unsigned int y[], int n)
+    {
+        for (int i = 0; i < n; i++) {
+            y[i] = ~u1[i];
+        }
+    }
+
+    //
+    // Arguments    : const unsigned int u1[]
+    //                const unsigned int u2[]
+    //                unsigned int y[]
+    //                int n
+    // Return Type  : void
+    //
     static void MultiWordSub(const unsigned int u1[], const unsigned int u2[], unsigned int y[], int
         n)
     {
@@ -10371,8 +10667,7 @@ namespace ocn
         static const char b_message[26] = { 'Z', 'N', ' ', 'i', 's', ' ', 'n', 'o', 't', ' ', 'u',
             's', 'i', 'n', 'g', ' ', 'c', 'o', 'n', 's', 't', ' ', 'j', 'e', 'r', 'k' };
 
-        double b_dk;
-        double unusedU3;
+        coder::array<double, 2U> b_CurOptStruct_Coeff;
         char c_message[16];
         static const char d_message[16] = { 'N', 'N', ' ', 'i', 's', ' ', 'u', 's', 'i', 'n', 'g',
             ' ', 'j', 'e', 'r', 'k' };
@@ -10380,6 +10675,8 @@ namespace ocn
         static const char e_message[26] = { 'N', 'Z', ' ', 'i', 's', ' ', 'n', 'o', 't', ' ', 'u',
             's', 'i', 'n', 'g', ' ', 'c', 'o', 'n', 's', 't', ' ', 'j', 'e', 'r', 'k' };
 
+        double b_dk;
+        double unusedU3;
         if (CurOptStruct_zspdmode == ZSpdMode_ZN) {
             double t;
             if (!CurOptStruct_UseConstJerk) {
@@ -10399,6 +10696,7 @@ namespace ocn
             *dk = 2.0 * CurOptStruct_ConstJerk * t;
             *ukp1 = CurOptStruct_ConstJerk * std::pow(t + dt, 3.0) / 6.0;
         } else if (CurOptStruct_zspdmode == ZSpdMode_NN) {
+            int loop_ub;
             if (CurOptStruct_UseConstJerk) {
                 for (int i1 = 0; i1 < 16; i1++) {
                     c_message[i1] = d_message[i1];
@@ -10408,7 +10706,13 @@ namespace ocn
             }
 
             b_qk = u;
-            b_bspline_eval(Bl_handle, CurOptStruct_Coeff, &b_qk, &b_dk, &unusedU3);
+            b_CurOptStruct_Coeff.set_size(1, CurOptStruct_Coeff.size(0));
+            loop_ub = CurOptStruct_Coeff.size(0);
+            for (int i3 = 0; i3 < loop_ub; i3++) {
+                b_CurOptStruct_Coeff[i3] = CurOptStruct_Coeff[i3];
+            }
+
+            b_bspline_eval(Bl_handle, b_CurOptStruct_Coeff, &b_qk, &b_dk, &unusedU3);
             *qk = b_qk;
             *dk = b_dk;
             sqrt_calls++;
@@ -10434,10 +10738,10 @@ namespace ocn
 
     //
     // Optimal transitions calculation between segments whith G2 continuity
-    // Arguments    : const FeedoptContext *ctx
+    // Arguments    : FeedoptContext *ctx
     // Return Type  : void
     //
-    static void SmoothCurvStructs(const FeedoptContext *ctx)
+    static void SmoothCurvStructs(FeedoptContext *ctx)
     {
         CurvStruct b_ctx;
         uint64m_T r;
@@ -10515,10 +10819,17 @@ namespace ocn
                             ctx->q_smooth.push((&CurvStruct1_C));
                             ctx->q_smooth.push((&CurvStruct2_C));
                             ctx->q_smooth.push((&CurvStruct3_C));
+                            ctx->forced_stop++;
                         }
 
                         k++;
                     } else {
+                        if (((CurvStruct1.zspdmode == ZSpdMode_NZ) || (CurvStruct1.zspdmode ==
+                                ZSpdMode_ZZ)) && ((NextCurv.zspdmode == ZSpdMode_ZN) ||
+                                                  (NextCurv.zspdmode == ZSpdMode_ZZ))) {
+                            ctx->programmed_stop++;
+                        }
+
                         ctx->q_smooth.push((&CurvStruct1));
                         CurvStruct1 = NextCurv;
                         k++;
@@ -10649,6 +10960,12 @@ namespace ocn
         //  u=0 corresponds to the first lift-off point
         //  u=1 corresponds to the second lift-off point
         //  u is NOT used in this function
+        //  if coder.target('matlab')
+        //      % derivative whith respect to u_tilda !!!
+        //      sp1D      = fnder(sp);
+        //      Knots     = sp1D.knots;
+        //  else
+        //  end
         x.set_size(1, Spline_sp_knots.size(1));
         e_loop_ub = Spline_sp_knots.size(1);
         for (int i4 = 0; i4 < e_loop_ub; i4++) {
@@ -10774,10 +11091,14 @@ namespace ocn
         //  midpoint values
         //  parametric derivative calculation at each midpoint value
         //  with respect to u_tilda
+        //  if coder.target('rtw') || coder.target('mex')
         c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffX, u_mid_tilda, unusedU0, r1Dx);
         c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffY, u_mid_tilda, unusedU1, r1Dy);
         c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffZ, u_mid_tilda, unusedU2, r1Dz);
 
+        //  else
+        //      r1D = spval(sp1D, u_mid_tilda);
+        //  end
         //  length (between u0_tilda and u1_tilda) calculation by rectangles method
         a.set_size(3, r1Dx.size(1));
         j_loop_ub = r1Dx.size(1);
@@ -10903,9 +11224,9 @@ namespace ocn
                         d = Curv.a_param;
                         d1 = Curv.b_param;
                         L = LengthCurv(&ctx->q_splines, ctx->cfg.NGridLengthSpline, Curv.Type,
-                                       Curv.P0, Curv.P1, Curv.HelixCenter, Curv.evec, Curv.theta,
-                                       Curv.pitch, Curv.CoeffP5, Curv.sp_index, Curv.a_param,
-                                       Curv.b_param);
+                                       Curv.P0, Curv.P1, Curv.CorrectedHelixCenter, Curv.evec,
+                                       Curv.theta, Curv.pitch, Curv.CoeffP5, Curv.sp_index,
+                                       Curv.a_param, Curv.b_param);
                         if (L < 2.0 * ctx->cfg.LSplit) {
                             ctx->q_split.push((&Curv));
                         } else {
@@ -11094,30 +11415,27 @@ namespace ocn
         double d;
         uint64m_T r;
         uint64m_T r1;
-        static const uint64m_T r2 = { { 1U, 0U }// chunks
+        static const uint64m_T r2 = { { 8U, 0U }// chunks
         };
 
         uint64m_T r3;
         static const uint64m_T r4 = { { 0U, 0U }// chunks
         };
 
-        uint64m_T r5;
-        uint64m_T r6;
-        uint64m_T r7;
-        uint64m_T r8;
-        static const uint64m_T r9 = { { 8U, 0U }// chunks
-        };
-
-        double unusedU0[3];
+        double r0D0_1[3];
         double r0D1_1[3];
-        double unusedU1[3];
+        double r0D0_2[3];
+        double r0D1_2[3];
+        double r1D0_1[3];
         double r1D1_1[3];
+        double r1D0_2[3];
+        double r1D1_2[3];
         TransitionResult b_status;
         CurvStruct expl_temp;
         coder::array<double, 2U> Spline_sp_knots;
-        uint64m_T r10;
+        uint64m_T r5;
         coder::array<bool, 2U> b_x;
-        uint64m_T r12;
+        uint64m_T r7;
         double r0D0[3];
         double r0D1[3];
         double r0D2[3];
@@ -11125,50 +11443,36 @@ namespace ocn
         double r1D1[3];
         double r1D2[3];
         double p5[6][3];
-        int c_status;
-        double alpha0;
-        double alpha1;
+        int ret;
+        double unusedU0;
+        double unusedU1;
         int ii_data[1];
         int Spline_sp_knots_size[2];
-        uint64m_T r14;
+        uint64m_T r9;
         double Spline_sp_knots_data[1];
+        static const uint64m_T r11 = { { 32U, 0U }// chunks
+        };
+
+        uint64m_T r12;
+        static const uint64m_T r14 = { { 16U, 0U }// chunks
+        };
+
+        uint64m_T r15;
         uint64m_T r16;
         uint64m_T r18;
-        uint64m_T r19;
+        uint64m_T r20;
         uint64m_T r21;
-        uint64m_T r23;
-        uint64m_T r24;
         CutOff = ctx_cfg_CutOff;
         Length_Threshold = 3.0 * ctx_cfg_CutOff;
 
-        //  1 -> stdout
-        //  2 -> stderr
+        //  DebugLog(DebugCfg.Transitions, ...
+        //      '========== CalcTransition ==========\n')
         d = std::round(DebugConfig);
         Double2MultiWord(d, (unsigned int *)&r.chunks[0U], 2);
         r1 = r2;
         MultiWordAnd((unsigned int *)&r.chunks[0U], (unsigned int *)&r2.chunks[0U], (unsigned int *)
                      &r3.chunks[0U], 2);
         if (uMultiWordNe((unsigned int *)&r3.chunks[0U], (unsigned int *)&r4.chunks[0U], 2)) {
-            printf("========== CalcTransition ==========\n");
-            fflush(stdout);
-        }
-
-        //  1 -> stdout
-        //  2 -> stderr
-        Double2MultiWord(d, (unsigned int *)&r5.chunks[0U], 2);
-        r6 = r2;
-        MultiWordAnd((unsigned int *)&r5.chunks[0U], (unsigned int *)&r2.chunks[0U], (unsigned int *)
-                     &r1.chunks[0U], 2);
-        if (uMultiWordNe((unsigned int *)&r1.chunks[0U], (unsigned int *)&r4.chunks[0U], 2)) {
-            printf("CutOff = %.3f\n", ctx_cfg_CutOff);
-            fflush(stdout);
-        }
-
-        Double2MultiWord(d, (unsigned int *)&r7.chunks[0U], 2);
-        r8 = r9;
-        MultiWordAnd((unsigned int *)&r7.chunks[0U], (unsigned int *)&r9.chunks[0U], (unsigned int *)
-                     &r6.chunks[0U], 2);
-        if (uMultiWordNe((unsigned int *)&r6.chunks[0U], (unsigned int *)&r4.chunks[0U], 2)) {
             b_PrintCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct1);
             b_PrintCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct2);
         }
@@ -11177,17 +11481,25 @@ namespace ocn
 
         // default value
         e_EvalCurvStruct(ctx_q_splines, CurvStruct1->Type, CurvStruct1->P0, CurvStruct1->P1,
-                         CurvStruct1->HelixCenter, CurvStruct1->evec, CurvStruct1->theta,
+                         CurvStruct1->CorrectedHelixCenter, CurvStruct1->evec, CurvStruct1->theta,
                          CurvStruct1->pitch, CurvStruct1->CoeffP5, CurvStruct1->sp_index,
-                         CurvStruct1->a_param, CurvStruct1->b_param, unusedU0, r0D1_1);
-        f_EvalCurvStruct(ctx_q_splines, CurvStruct2->Type, CurvStruct2->P0, CurvStruct2->P1,
-                         CurvStruct2->HelixCenter, CurvStruct2->evec, CurvStruct2->theta,
+                         CurvStruct1->a_param, CurvStruct1->b_param, r0D0_1, r0D1_1);
+        f_EvalCurvStruct(ctx_q_splines, CurvStruct1->Type, CurvStruct1->P0, CurvStruct1->P1,
+                         CurvStruct1->CorrectedHelixCenter, CurvStruct1->evec, CurvStruct1->theta,
+                         CurvStruct1->pitch, CurvStruct1->CoeffP5, CurvStruct1->sp_index,
+                         CurvStruct1->a_param, CurvStruct1->b_param, r0D0_2, r0D1_2);
+        e_EvalCurvStruct(ctx_q_splines, CurvStruct2->Type, CurvStruct2->P0, CurvStruct2->P1,
+                         CurvStruct2->CorrectedHelixCenter, CurvStruct2->evec, CurvStruct2->theta,
                          CurvStruct2->pitch, CurvStruct2->CoeffP5, CurvStruct2->sp_index,
-                         CurvStruct2->a_param, CurvStruct2->b_param, unusedU1, r1D1_1);
+                         CurvStruct2->a_param, CurvStruct2->b_param, r1D0_1, r1D1_1);
+        f_EvalCurvStruct(ctx_q_splines, CurvStruct2->Type, CurvStruct2->P0, CurvStruct2->P1,
+                         CurvStruct2->CorrectedHelixCenter, CurvStruct2->evec, CurvStruct2->theta,
+                         CurvStruct2->pitch, CurvStruct2->CoeffP5, CurvStruct2->sp_index,
+                         CurvStruct2->a_param, CurvStruct2->b_param, r1D0_2, r1D1_2);
 
         //  colinearity test
         if ((CurvStruct1->Type != CurveType_Helix) && (CurvStruct2->Type != CurveType_Helix) &&
-                collinear(r0D1_1, r1D1_1, ctx_cfg_CollTolDeg)) {
+                collinear(r0D1_2, r1D1_1, ctx_cfg_CollTolDeg)) {
             //  && norm(r0D2 - r1D2) < 10*eps && collinear(r0D2, r1D2, 1e-2)
             b_status = TransitionResult_Collinear;
             *CurvStruct1_C = *CurvStruct1;
@@ -11195,15 +11507,15 @@ namespace ocn
         } else {
             double L1;
             double L2;
-            uint64m_T r11;
-            uint64m_T r13;
+            uint64m_T r6;
+            uint64m_T r8;
             L1 = LengthCurv(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct1->Type,
-                            CurvStruct1->P0, CurvStruct1->P1, CurvStruct1->HelixCenter,
+                            CurvStruct1->P0, CurvStruct1->P1, CurvStruct1->CorrectedHelixCenter,
                             CurvStruct1->evec, CurvStruct1->theta, CurvStruct1->pitch,
                             CurvStruct1->CoeffP5, CurvStruct1->sp_index, CurvStruct1->a_param,
                             CurvStruct1->b_param);
             L2 = LengthCurv(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct2->Type,
-                            CurvStruct2->P0, CurvStruct2->P1, CurvStruct2->HelixCenter,
+                            CurvStruct2->P0, CurvStruct2->P1, CurvStruct2->CorrectedHelixCenter,
                             CurvStruct2->evec, CurvStruct2->theta, CurvStruct2->pitch,
                             CurvStruct2->CoeffP5, CurvStruct2->sp_index, CurvStruct2->a_param,
                             CurvStruct2->b_param);
@@ -11353,6 +11665,8 @@ namespace ocn
                 CutOff = std::fmin(x, y);
             }
 
+            //  DebugLog(DebugCfg.Transitions, ...
+            //      'CutOff = %.3f\n', CutOff)
             *CurvStruct1_C = *CurvStruct1;
             CutCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct1_C, CutOff);
             *CurvStruct2_C = *CurvStruct2;
@@ -11360,46 +11674,46 @@ namespace ocn
 
             //  1 -> stdout
             //  2 -> stderr
-            Double2MultiWord(d, (unsigned int *)&r10.chunks[0U], 2);
-            r11 = r9;
-            MultiWordAnd((unsigned int *)&r10.chunks[0U], (unsigned int *)&r9.chunks[0U], (unsigned
-                          int *)&r8.chunks[0U], 2);
-            if (uMultiWordNe((unsigned int *)&r8.chunks[0U], (unsigned int *)&r4.chunks[0U], 2)) {
+            Double2MultiWord(d, (unsigned int *)&r5.chunks[0U], 2);
+            r6 = r2;
+            MultiWordAnd((unsigned int *)&r5.chunks[0U], (unsigned int *)&r2.chunks[0U], (unsigned
+                          int *)&r1.chunks[0U], 2);
+            if (uMultiWordNe((unsigned int *)&r1.chunks[0U], (unsigned int *)&r4.chunks[0U], 2)) {
                 printf("========== AFTER CUTTING \n");
                 fflush(stdout);
             }
 
-            Double2MultiWord(d, (unsigned int *)&r12.chunks[0U], 2);
-            r13 = r9;
-            MultiWordAnd((unsigned int *)&r12.chunks[0U], (unsigned int *)&r9.chunks[0U], (unsigned
-                          int *)&r11.chunks[0U], 2);
-            if (uMultiWordNe((unsigned int *)&r11.chunks[0U], (unsigned int *)&r4.chunks[0U], 2)) {
+            Double2MultiWord(d, (unsigned int *)&r7.chunks[0U], 2);
+            r8 = r2;
+            MultiWordAnd((unsigned int *)&r7.chunks[0U], (unsigned int *)&r2.chunks[0U], (unsigned
+                          int *)&r6.chunks[0U], 2);
+            if (uMultiWordNe((unsigned int *)&r6.chunks[0U], (unsigned int *)&r4.chunks[0U], 2)) {
                 b_PrintCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct1_C);
                 b_PrintCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct2_C);
             }
 
             d_EvalCurvStruct(ctx_q_splines, CurvStruct1_C->Type, CurvStruct1_C->P0,
-                             CurvStruct1_C->P1, CurvStruct1_C->HelixCenter, CurvStruct1_C->evec,
-                             CurvStruct1_C->theta, CurvStruct1_C->pitch, CurvStruct1_C->CoeffP5,
-                             CurvStruct1_C->sp_index, CurvStruct1_C->a_param, CurvStruct1_C->b_param,
-                             r0D0, r0D1, r0D2);
+                             CurvStruct1_C->P1, CurvStruct1_C->CorrectedHelixCenter,
+                             CurvStruct1_C->evec, CurvStruct1_C->theta, CurvStruct1_C->pitch,
+                             CurvStruct1_C->CoeffP5, CurvStruct1_C->sp_index, CurvStruct1_C->a_param,
+                             CurvStruct1_C->b_param, r0D0, r0D1, r0D2);
             g_EvalCurvStruct(ctx_q_splines, CurvStruct2_C->Type, CurvStruct2_C->P0,
-                             CurvStruct2_C->P1, CurvStruct2_C->HelixCenter, CurvStruct2_C->evec,
-                             CurvStruct2_C->theta, CurvStruct2_C->pitch, CurvStruct2_C->CoeffP5,
-                             CurvStruct2_C->sp_index, CurvStruct2_C->a_param, CurvStruct2_C->b_param,
-                             r1D0, r1D1, r1D2);
+                             CurvStruct2_C->P1, CurvStruct2_C->CorrectedHelixCenter,
+                             CurvStruct2_C->evec, CurvStruct2_C->theta, CurvStruct2_C->pitch,
+                             CurvStruct2_C->CoeffP5, CurvStruct2_C->sp_index, CurvStruct2_C->a_param,
+                             CurvStruct2_C->b_param, r1D0, r1D1, r1D2);
 
             //  G2 transition calculation
-            G2_Hermite_Interpolation(r0D0, r0D1, r0D2, r1D0, r1D1, r1D2, p5, &c_status, &alpha0,
-                &alpha1);
-            if (c_status == 1) {
+            G2_Hermite_Interpolation(r0D0, r0D1, r0D2, r1D0, r1D1, r1D2, p5, &ret, &unusedU0,
+                &unusedU1);
+            if (ret == 1) {
                 //  standard case
                 //  transition CurvStruct calculation
                 ConstrTransP5Struct(p5, CurvStruct1->FeedRate, CurvStruct_T);
                 b_status = TransitionResult_Ok;
-            } else if (c_status == 6) {
-                uint64m_T r17;
-                uint64m_T r22;
+            } else if (ret == 6) {
+                uint64m_T r13;
+                uint64m_T r19;
 
                 //  TODO: decide in the future...
                 //  Now we ignore and construct the transition curve anyway
@@ -11408,11 +11722,11 @@ namespace ocn
 
                 //  1 -> stdout
                 //  2 -> stderr
-                Double2MultiWord(d, (unsigned int *)&r16.chunks[0U], 2);
-                r17 = r2;
-                MultiWordAnd((unsigned int *)&r16.chunks[0U], (unsigned int *)&r2.chunks[0U],
-                             (unsigned int *)&r18.chunks[0U], 2);
-                if (uMultiWordNe((unsigned int *)&r18.chunks[0U], (unsigned int *)&r4.chunks[0U], 2))
+                Double2MultiWord(d, (unsigned int *)&r12.chunks[0U], 2);
+                r13 = r14;
+                MultiWordAnd((unsigned int *)&r12.chunks[0U], (unsigned int *)&r14.chunks[0U],
+                             (unsigned int *)&r15.chunks[0U], 2);
+                if (uMultiWordNe((unsigned int *)&r15.chunks[0U], (unsigned int *)&r4.chunks[0U], 2))
                 {
                     printf("========== CalcTransition ==========\n");
                     fflush(stdout);
@@ -11420,11 +11734,11 @@ namespace ocn
 
                 //  1 -> stdout
                 //  2 -> stderr
-                Double2MultiWord(d, (unsigned int *)&r21.chunks[0U], 2);
-                r22 = r2;
-                MultiWordAnd((unsigned int *)&r21.chunks[0U], (unsigned int *)&r2.chunks[0U],
-                             (unsigned int *)&r17.chunks[0U], 2);
-                if (uMultiWordNe((unsigned int *)&r17.chunks[0U], (unsigned int *)&r4.chunks[0U], 2))
+                Double2MultiWord(d, (unsigned int *)&r18.chunks[0U], 2);
+                r19 = r14;
+                MultiWordAnd((unsigned int *)&r18.chunks[0U], (unsigned int *)&r14.chunks[0U],
+                             (unsigned int *)&r13.chunks[0U], 2);
+                if (uMultiWordNe((unsigned int *)&r13.chunks[0U], (unsigned int *)&r4.chunks[0U], 2))
                 {
                     printf("=========== status = 6 ==========\n");
                     fflush(stdout);
@@ -11432,27 +11746,41 @@ namespace ocn
 
                 //  1 -> stdout
                 //  2 -> stderr
-                Double2MultiWord(d, (unsigned int *)&r24.chunks[0U], 2);
-                MultiWordAnd((unsigned int *)&r24.chunks[0U], (unsigned int *)&r2.chunks[0U],
-                             (unsigned int *)&r22.chunks[0U], 2);
-                if (uMultiWordNe((unsigned int *)&r22.chunks[0U], (unsigned int *)&r4.chunks[0U], 2))
+                Double2MultiWord(d, (unsigned int *)&r21.chunks[0U], 2);
+                MultiWordAnd((unsigned int *)&r21.chunks[0U], (unsigned int *)&r14.chunks[0U],
+                             (unsigned int *)&r19.chunks[0U], 2);
+                if (uMultiWordNe((unsigned int *)&r19.chunks[0U], (unsigned int *)&r4.chunks[0U], 2))
                 {
                     printf("Lines: %d, %d\n\n", CurvStruct1->gcode_source_line,
                            CurvStruct2->gcode_source_line);
                     fflush(stdout);
                 }
+
+                //      if coder.target('matlab')
+                //
+                //          figure;
+                //          PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct_T CurvStruct2]);
+                //          hold on;
+                //          plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
+                //          hold on;
+                //          plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
+                //          title({ctx.cfg.source, 'status_G2_Hermite=6'}, 'Interpreter', 'none');
+                //          axis equal;
+                //          camproj('perspective');
+                //
+                //      end
             } else {
-                uint64m_T r15;
-                uint64m_T r20;
+                uint64m_T r10;
+                uint64m_T r17;
                 b_status = TransitionResult_NoSolution;
 
                 //  1 -> stdout
                 //  2 -> stderr
-                Double2MultiWord(d, (unsigned int *)&r14.chunks[0U], 2);
-                r15 = r2;
-                MultiWordAnd((unsigned int *)&r14.chunks[0U], (unsigned int *)&r2.chunks[0U],
-                             (unsigned int *)&r13.chunks[0U], 2);
-                if (uMultiWordNe((unsigned int *)&r13.chunks[0U], (unsigned int *)&r4.chunks[0U], 2))
+                Double2MultiWord(d, (unsigned int *)&r9.chunks[0U], 2);
+                r10 = r11;
+                MultiWordAnd((unsigned int *)&r9.chunks[0U], (unsigned int *)&r11.chunks[0U],
+                             (unsigned int *)&r8.chunks[0U], 2);
+                if (uMultiWordNe((unsigned int *)&r8.chunks[0U], (unsigned int *)&r4.chunks[0U], 2))
                 {
                     printf("========== CalcTransition ==========\n");
                     fflush(stdout);
@@ -11460,11 +11788,11 @@ namespace ocn
 
                 //  1 -> stdout
                 //  2 -> stderr
-                Double2MultiWord(d, (unsigned int *)&r19.chunks[0U], 2);
-                r20 = r2;
-                MultiWordAnd((unsigned int *)&r19.chunks[0U], (unsigned int *)&r2.chunks[0U],
-                             (unsigned int *)&r15.chunks[0U], 2);
-                if (uMultiWordNe((unsigned int *)&r15.chunks[0U], (unsigned int *)&r4.chunks[0U], 2))
+                Double2MultiWord(d, (unsigned int *)&r16.chunks[0U], 2);
+                r17 = r11;
+                MultiWordAnd((unsigned int *)&r16.chunks[0U], (unsigned int *)&r11.chunks[0U],
+                             (unsigned int *)&r10.chunks[0U], 2);
+                if (uMultiWordNe((unsigned int *)&r10.chunks[0U], (unsigned int *)&r4.chunks[0U], 2))
                 {
                     printf("=========== No Solution ==========\n");
                     fflush(stdout);
@@ -11472,15 +11800,37 @@ namespace ocn
 
                 //  1 -> stdout
                 //  2 -> stderr
-                Double2MultiWord(d, (unsigned int *)&r23.chunks[0U], 2);
-                MultiWordAnd((unsigned int *)&r23.chunks[0U], (unsigned int *)&r2.chunks[0U],
-                             (unsigned int *)&r20.chunks[0U], 2);
-                if (uMultiWordNe((unsigned int *)&r20.chunks[0U], (unsigned int *)&r4.chunks[0U], 2))
+                Double2MultiWord(d, (unsigned int *)&r20.chunks[0U], 2);
+                MultiWordAnd((unsigned int *)&r20.chunks[0U], (unsigned int *)&r11.chunks[0U],
+                             (unsigned int *)&r17.chunks[0U], 2);
+                if (uMultiWordNe((unsigned int *)&r17.chunks[0U], (unsigned int *)&r4.chunks[0U], 2))
                 {
                     printf("Lines: %d, %d\n\n", CurvStruct1->gcode_source_line,
                            CurvStruct2->gcode_source_line);
                     fflush(stdout);
                 }
+
+                //      if coder.target('matlab')
+                //
+                //          figure;
+                //          PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct2]);
+                //          hold on;
+                //          plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
+                //          hold on;
+                //          plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
+                //          hold on;
+                //          plot3(r0D0_1(1), r0D0_1(2), r0D0_1(3), 'xc', 'LineWidth', 3);
+                //          hold on;
+                //          plot3(r0D0_2(1), r0D0_2(2), r0D0_2(3), 'xc', 'LineWidth', 3);
+                //          hold on;
+                //          plot3(r1D0_1(1), r1D0_1(2), r1D0_1(3), 'xc', 'LineWidth', 3);
+                //          hold on;
+                //          plot3(r1D0_2(1), r1D0_2(2), r1D0_2(3), 'xc', 'LineWidth', 3);
+                //          title({ctx.cfg.source, 'No solution'}, 'Interpreter', 'none');
+                //          axis equal;
+                //          camproj('perspective');
+                //
+                //      end
             }
 
             CurvStruct1_C->gcode_source_line = CurvStruct1->gcode_source_line;
@@ -11552,14 +11902,16 @@ namespace ocn
             //  In case of helix and line, ||r'(u)||=const,
             //  for 0 < u < 1
             //  r1D0 and r1D1 are with respect to u
-            f_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                             b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
-                             b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
-                             b_CurvStruct->a_param, b_CurvStruct->b_param, unusedU0, r1D0);
             e_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                             b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
-                             b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
-                             b_CurvStruct->a_param, b_CurvStruct->b_param, unusedU1, r1D1);
+                             b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec,
+                             b_CurvStruct->theta, b_CurvStruct->pitch, b_CurvStruct->CoeffP5,
+                             b_CurvStruct->sp_index, b_CurvStruct->a_param, b_CurvStruct->b_param,
+                             unusedU0, r1D0);
+            f_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
+                             b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec,
+                             b_CurvStruct->theta, b_CurvStruct->pitch, b_CurvStruct->CoeffP5,
+                             b_CurvStruct->sp_index, b_CurvStruct->a_param, b_CurvStruct->b_param,
+                             unusedU1, r1D1);
 
             //  d0 = Integral_0_u0 ||r'(u)||du
             //  d1 = Integral_u1_1 ||r'(u)||du
@@ -11643,7 +11995,7 @@ namespace ocn
         int c_N;
         double TmpCurv_P0[3];
         double TmpCurv_P1[3];
-        double TmpCurv_HelixCenter[3];
+        double TmpCurv_CorrectedHelixCenter[3];
         coder::array<double, 2U> c;
         double TmpCurv_evec[3];
         coder::array<double, 2U> r5;
@@ -11690,8 +12042,8 @@ namespace ocn
         int c_ex;
         int cut_index;
         double L;
-        f_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                         b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
+        e_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
+                         b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
                          b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
                          b_CurvStruct->a_param, b_CurvStruct->b_param, unusedU0, r1D);
         ex = ctx_cfg_jmax[0];
@@ -11770,7 +12122,7 @@ namespace ocn
         uint64m_T r;
         double DBLMAXFLINT;
         h_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                         b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
+                         b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
                          b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
                          b_CurvStruct->a_param, b_CurvStruct->b_param, b_uk, unusedU1, b_r1D, r2D,
                          r3D);
@@ -11807,15 +12159,15 @@ namespace ocn
             ctx_q_gcode->get(c_k, (&expl_temp));
             TmpCurv_P0[0] = expl_temp.P0[0];
             TmpCurv_P1[0] = expl_temp.P1[0];
-            TmpCurv_HelixCenter[0] = expl_temp.HelixCenter[0];
+            TmpCurv_CorrectedHelixCenter[0] = expl_temp.CorrectedHelixCenter[0];
             TmpCurv_evec[0] = expl_temp.evec[0];
             TmpCurv_P0[1] = expl_temp.P0[1];
             TmpCurv_P1[1] = expl_temp.P1[1];
-            TmpCurv_HelixCenter[1] = expl_temp.HelixCenter[1];
+            TmpCurv_CorrectedHelixCenter[1] = expl_temp.CorrectedHelixCenter[1];
             TmpCurv_evec[1] = expl_temp.evec[1];
             TmpCurv_P0[2] = expl_temp.P0[2];
             TmpCurv_P1[2] = expl_temp.P1[2];
-            TmpCurv_HelixCenter[2] = expl_temp.HelixCenter[2];
+            TmpCurv_CorrectedHelixCenter[2] = expl_temp.CorrectedHelixCenter[2];
             TmpCurv_evec[2] = expl_temp.evec[2];
             for (int i7 = 0; i7 < 6; i7++) {
                 TmpCurv_CoeffP5[i7][0] = expl_temp.CoeffP5[i7][0];
@@ -11825,8 +12177,8 @@ namespace ocn
 
             double y;
             y = GetCurvMaxFeedrate(ctx_q_splines, ctx_cfg_amax, ctx_cfg_jmax, expl_temp.Type,
-                                   TmpCurv_P0, TmpCurv_P1, TmpCurv_HelixCenter, TmpCurv_evec,
-                                   expl_temp.theta, expl_temp.pitch, TmpCurv_CoeffP5,
+                                   TmpCurv_P0, TmpCurv_P1, TmpCurv_CorrectedHelixCenter,
+                                   TmpCurv_evec, expl_temp.theta, expl_temp.pitch, TmpCurv_CoeffP5,
                                    expl_temp.sp_index, expl_temp.FeedRate, expl_temp.a_param,
                                    expl_temp.b_param);
             b_vmax = std::fmin(b_vmax, y);
@@ -12125,7 +12477,7 @@ namespace ocn
         //      actual_jps = jps;
         //      cut_index = N + 1 - cut_index;
         L = LengthCurv(ctx_q_splines, ctx_cfg_NGridLengthSpline, b_CurvStruct->Type,
-                       b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->HelixCenter,
+                       b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->CorrectedHelixCenter,
                        b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->pitch,
                        b_CurvStruct->CoeffP5, b_CurvStruct->sp_index, b_CurvStruct->a_param,
                        b_CurvStruct->b_param);
@@ -12203,7 +12555,7 @@ namespace ocn
         int c_N;
         double TmpCurv_P0[3];
         double TmpCurv_P1[3];
-        double TmpCurv_HelixCenter[3];
+        double TmpCurv_CorrectedHelixCenter[3];
         coder::array<double, 2U> c;
         double TmpCurv_evec[3];
         coder::array<double, 2U> r2;
@@ -12254,8 +12606,8 @@ namespace ocn
         int u1;
         int cut_index;
         double L;
-        f_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                         b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
+        e_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
+                         b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
                          b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
                          b_CurvStruct->a_param, b_CurvStruct->b_param, unusedU0, r1D);
         ex = ctx_cfg_jmax[0];
@@ -12332,7 +12684,7 @@ namespace ocn
         }
 
         h_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                         b_CurvStruct->HelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
+                         b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
                          b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
                          b_CurvStruct->a_param, b_CurvStruct->b_param, b_uk, unusedU1, b_r1D, r2D,
                          r3D);
@@ -12352,15 +12704,15 @@ namespace ocn
             ctx_q_gcode->get(c_k, (&expl_temp));
             TmpCurv_P0[0] = expl_temp.P0[0];
             TmpCurv_P1[0] = expl_temp.P1[0];
-            TmpCurv_HelixCenter[0] = expl_temp.HelixCenter[0];
+            TmpCurv_CorrectedHelixCenter[0] = expl_temp.CorrectedHelixCenter[0];
             TmpCurv_evec[0] = expl_temp.evec[0];
             TmpCurv_P0[1] = expl_temp.P0[1];
             TmpCurv_P1[1] = expl_temp.P1[1];
-            TmpCurv_HelixCenter[1] = expl_temp.HelixCenter[1];
+            TmpCurv_CorrectedHelixCenter[1] = expl_temp.CorrectedHelixCenter[1];
             TmpCurv_evec[1] = expl_temp.evec[1];
             TmpCurv_P0[2] = expl_temp.P0[2];
             TmpCurv_P1[2] = expl_temp.P1[2];
-            TmpCurv_HelixCenter[2] = expl_temp.HelixCenter[2];
+            TmpCurv_CorrectedHelixCenter[2] = expl_temp.CorrectedHelixCenter[2];
             TmpCurv_evec[2] = expl_temp.evec[2];
             for (int i7 = 0; i7 < 6; i7++) {
                 TmpCurv_CoeffP5[i7][0] = expl_temp.CoeffP5[i7][0];
@@ -12370,7 +12722,7 @@ namespace ocn
 
             double b_y;
             b_y = GetCurvMaxFeedrate(ctx_q_splines, ctx_cfg_amax, ctx_cfg_jmax, expl_temp.Type,
-                TmpCurv_P0, TmpCurv_P1, TmpCurv_HelixCenter, TmpCurv_evec, expl_temp.theta,
+                TmpCurv_P0, TmpCurv_P1, TmpCurv_CorrectedHelixCenter, TmpCurv_evec, expl_temp.theta,
                 expl_temp.pitch, TmpCurv_CoeffP5, expl_temp.sp_index, expl_temp.FeedRate,
                 expl_temp.a_param, expl_temp.b_param);
             b_vmax = std::fmin(b_vmax, b_y);
@@ -12683,7 +13035,7 @@ namespace ocn
         }
 
         L = LengthCurv(ctx_q_splines, ctx_cfg_NGridLengthSpline, b_CurvStruct->Type,
-                       b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->HelixCenter,
+                       b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->CorrectedHelixCenter,
                        b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->pitch,
                        b_CurvStruct->CoeffP5, b_CurvStruct->sp_index, b_CurvStruct->a_param,
                        b_CurvStruct->b_param);
@@ -12724,7 +13076,7 @@ namespace ocn
     //                CurveType CurvStruct_Type
     //                const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
-    //                const double CurvStruct_HelixCenter[3]
+    //                const double CurvStruct_CorrectedHelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
     //                double CurvStruct_pitch
@@ -12735,16 +13087,16 @@ namespace ocn
     // Return Type  : void
     //
     static void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
-        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
-        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_b_param,
-        double r0D[3])
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double
+        CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3], double CurvStruct_theta,
+        double CurvStruct_pitch, const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index,
+        double CurvStruct_b_param, double r0D[3])
     {
         double r1D[3];
         double r2D[3];
         double r3D[3];
-        CurvStruct expl_temp;
         char message[30];
+        CurvStruct expl_temp;
         coder::array<double, 2U> Spline_sp_CoeffX;
         coder::array<double, 2U> Spline_sp_CoeffY;
         coder::array<double, 2U> Spline_sp_CoeffZ;
@@ -12774,8 +13126,9 @@ namespace ocn
 
           case CurveType_Helix:
             //  arc of circle / helix (G02, G03)
-            b_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_HelixCenter, CurvStruct_evec,
-                        CurvStruct_theta, CurvStruct_pitch, CurvStruct_b_param, r0D, r1D, r2D, r3D);
+            b_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_CorrectedHelixCenter,
+                        CurvStruct_evec, CurvStruct_theta, CurvStruct_pitch, CurvStruct_b_param, r0D,
+                        r1D, r2D, r3D);
             break;
 
           case CurveType_TransP5:
@@ -12790,6 +13143,7 @@ namespace ocn
                 int c_loop_ub;
 
                 //  BSpline
+                //  if coder.target('rtw') || coder.target('mex')
                 ctx_q_splines->get(CurvStruct_sp_index, (&expl_temp));
                 Spline_sp_CoeffX.set_size(1, expl_temp.sp.CoeffX.size(1));
                 loop_ub = expl_temp.sp.CoeffX.size(1);
@@ -12818,6 +13172,21 @@ namespace ocn
                 r0D[0] = r0Dx;
                 r0D[1] = r0Dy;
                 r0D[2] = r0Dz;
+
+                //  else
+                //      Spline=ctx.q_splines.get(CurvStruct.sp_index);
+                //      sp = Spline.sp;
+                //      r0D = spval(sp, uvec);
+                //
+                //      sp1D = fnder(sp, 1);
+                //      r1D = spval(sp1D, uvec);
+                //
+                //      sp2D = fnder(sp, 2);
+                //      r2D = spval(sp2D, uvec);
+                //
+                //      sp3D = fnder(sp, 3);
+                //      r3D = spval(sp3D, uvec);
+                //  end
             }
             break;
 
@@ -12834,7 +13203,7 @@ namespace ocn
     //
     // Arguments    : const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
-    //                const double CurvStruct_HelixCenter[3]
+    //                const double CurvStruct_CorrectedHelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
     //                double CurvStruct_pitch
@@ -12846,9 +13215,9 @@ namespace ocn
     // Return Type  : void
     //
     static void b_EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3], const
-                            double CurvStruct_HelixCenter[3], const double CurvStruct_evec[3],
-                            double CurvStruct_theta, double CurvStruct_pitch, double u_vec, double
-                            r0D[3], double r1D[3], double r2D[3], double r3D[3])
+                            double CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec
+                            [3], double CurvStruct_theta, double CurvStruct_pitch, double u_vec,
+                            double r0D[3], double r1D[3], double r2D[3], double r3D[3])
     {
         double P0P1_idx_0;
         double P0P1_idx_1;
@@ -12919,15 +13288,15 @@ namespace ocn
             sin_calls++;
 
             //
-            d = CurvStruct_P0[0] - CurvStruct_HelixCenter[0];
+            d = CurvStruct_P0[0] - CurvStruct_CorrectedHelixCenter[0];
             CP0_idx_0 = d;
             cphiTCP0_idx_0 = d * cphi;
             sphiTCP0_idx_0 = d * sphi;
-            d = CurvStruct_P0[1] - CurvStruct_HelixCenter[1];
+            d = CurvStruct_P0[1] - CurvStruct_CorrectedHelixCenter[1];
             CP0_idx_1 = d;
             cphiTCP0_idx_1 = d * cphi;
             sphiTCP0_idx_1 = d * sphi;
-            d = CurvStruct_P0[2] - CurvStruct_HelixCenter[2];
+            d = CurvStruct_P0[2] - CurvStruct_CorrectedHelixCenter[2];
             cphiTCP0_idx_2 = d * cphi;
             sphiTCP0_idx_2 = d * sphi;
             EcrCP0_idx_0 = CurvStruct_evec[1] * d - CurvStruct_evec[2] * CP0_idx_1;
@@ -12941,24 +13310,24 @@ namespace ocn
             b_a_tmp = std::pow(CurvStruct_theta, 3.0);
             d1 = EcrCP0_idx_0 * cphi;
             d2 = EcrCP0_idx_0 * sphi;
-            r0D[0] = CurvStruct_HelixCenter[0] + ((cphiTCP0_idx_0 + d2) + a * CurvStruct_evec[0] *
-                phi_vec);
+            r0D[0] = CurvStruct_CorrectedHelixCenter[0] + ((cphiTCP0_idx_0 + d2) + a *
+                CurvStruct_evec[0] * phi_vec);
             r1D[0] = (-CurvStruct_theta * sphiTCP0_idx_0 + CurvStruct_theta * d1) + b_a *
                 CurvStruct_evec[0];
             r2D[0] = -a_tmp * cphiTCP0_idx_0 - a_tmp * d2;
             r3D[0] = b_a_tmp * sphiTCP0_idx_0 - b_a_tmp * d1;
             d1 = EcrCP0_idx_1 * cphi;
             d2 = EcrCP0_idx_1 * sphi;
-            r0D[1] = CurvStruct_HelixCenter[1] + ((cphiTCP0_idx_1 + d2) + a * CurvStruct_evec[1] *
-                phi_vec);
+            r0D[1] = CurvStruct_CorrectedHelixCenter[1] + ((cphiTCP0_idx_1 + d2) + a *
+                CurvStruct_evec[1] * phi_vec);
             r1D[1] = (-CurvStruct_theta * sphiTCP0_idx_1 + CurvStruct_theta * d1) + b_a *
                 CurvStruct_evec[1];
             r2D[1] = -a_tmp * cphiTCP0_idx_1 - a_tmp * d2;
             r3D[1] = b_a_tmp * sphiTCP0_idx_1 - b_a_tmp * d1;
             d1 = EcrCP0_idx_2 * cphi;
             d2 = EcrCP0_idx_2 * sphi;
-            r0D[2] = CurvStruct_HelixCenter[2] + ((cphiTCP0_idx_2 + d2) + a * CurvStruct_evec[2] *
-                phi_vec);
+            r0D[2] = CurvStruct_CorrectedHelixCenter[2] + ((cphiTCP0_idx_2 + d2) + a *
+                CurvStruct_evec[2] * phi_vec);
             r1D[2] = (-CurvStruct_theta * sphiTCP0_idx_2 + CurvStruct_theta * d1) + b_a *
                 CurvStruct_evec[2];
             r2D[2] = -a_tmp * cphiTCP0_idx_2 - a_tmp * d2;
@@ -13264,16 +13633,16 @@ namespace ocn
             break;
         }
 
-        b_EvalCurvStruct(ctx_q_splines, S->Type, S->P0, S->P1, S->HelixCenter, S->evec, S->theta,
-                         S->pitch, S->CoeffP5, S->sp_index, S->b_param, P0);
-        c_EvalCurvStruct(ctx_q_splines, S->Type, S->P0, S->P1, S->HelixCenter, S->evec, S->theta,
-                         S->pitch, S->CoeffP5, S->sp_index, S->a_param, S->b_param, P1);
+        b_EvalCurvStruct(ctx_q_splines, S->Type, S->P0, S->P1, S->CorrectedHelixCenter, S->evec,
+                         S->theta, S->pitch, S->CoeffP5, S->sp_index, S->b_param, P0);
+        c_EvalCurvStruct(ctx_q_splines, S->Type, S->P0, S->P1, S->CorrectedHelixCenter, S->evec,
+                         S->theta, S->pitch, S->CoeffP5, S->sp_index, S->a_param, S->b_param, P1);
         printf("%10s: [%.4f %.4f %.4f] -> [%.4f %.4f %.4f]\n", "P", P0[0], P0[1], P0[2], P1[0], P1[1],
                P1[2]);
         fflush(stdout);
         validatedHoleFilling_f2 = LengthCurv(ctx_q_splines, ctx_cfg_NGridLengthSpline, S->Type,
-            S->P0, S->P1, S->HelixCenter, S->evec, S->theta, S->pitch, S->CoeffP5, S->sp_index,
-            S->a_param, S->b_param);
+            S->P0, S->P1, S->CorrectedHelixCenter, S->evec, S->theta, S->pitch, S->CoeffP5,
+            S->sp_index, S->a_param, S->b_param);
         printf("%10s: %e\n", "Length", validatedHoleFilling_f2);
         fflush(stdout);
         switch (S->zspdmode) {
@@ -13312,8 +13681,8 @@ namespace ocn
         printf("FeedRate: %.2f\n", S->FeedRate);
         fflush(stdout);
         if (S->UseConstJerk) {
-            CalcZeroStartConstraints(ctx_q_splines, S->Type, S->P0, S->P1, S->HelixCenter, S->evec,
-                S->theta, S->pitch, S->CoeffP5, S->sp_index, S->UseConstJerk, S->ConstJerk,
+            CalcZeroStartConstraints(ctx_q_splines, S->Type, S->P0, S->P1, S->CorrectedHelixCenter,
+                S->evec, S->theta, S->pitch, S->CoeffP5, S->sp_index, S->UseConstJerk, S->ConstJerk,
                 S->a_param, S->b_param, 1.0, &validatedHoleFilling_idx_0,
                 &b_validatedHoleFilling_idx_0);
             printf("ConstJerk: %e\n", S->ConstJerk);
@@ -13417,6 +13786,12 @@ namespace ocn
         //  u=0 corresponds to the first lift-off point
         //  u=1 corresponds to the second lift-off point
         //  u is NOT used in this function
+        //  if coder.target('matlab')
+        //      % derivative whith respect to u_tilda !!!
+        //      sp1D      = fnder(sp);
+        //      Knots     = sp1D.knots;
+        //  else
+        //  end
         x.set_size(1, Spline_sp_knots.size(1));
         e_loop_ub = Spline_sp_knots.size(1);
         for (int i4 = 0; i4 < e_loop_ub; i4++) {
@@ -13505,10 +13880,14 @@ namespace ocn
         //  midpoint values
         //  parametric derivative calculation at each midpoint value
         //  with respect to u_tilda
+        //  if coder.target('rtw') || coder.target('mex')
         c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffX, u_mid_tilda, unusedU0, r1Dx);
         c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffY, u_mid_tilda, unusedU1, r1Dy);
         c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffZ, u_mid_tilda, unusedU2, r1Dz);
 
+        //  else
+        //      r1D = spval(sp1D, u_mid_tilda);
+        //  end
         //  length (between u0_tilda and u1_tilda) calculation by rectangles method
         a.set_size(3, r1Dx.size(1));
         j_loop_ub = r1Dx.size(1);
@@ -13619,13 +13998,13 @@ namespace ocn
     //
     // void c_bspline_eval(uint64_t *handle, const double *c, double x, double X[3]);
     // Arguments    : const uint64m_T Bl_handle
-    //                const coder::array<double, 1U> &coeffs
+    //                const coder::array<double, 2U> &coeffs
     //                double *x
     //                double *xd
     //                double *xdd
     // Return Type  : void
     //
-    static void b_bspline_eval(const uint64m_T Bl_handle, const coder::array<double, 1U> &coeffs,
+    static void b_bspline_eval(const uint64m_T Bl_handle, const coder::array<double, 2U> &coeffs,
         double *x, double *xd, double *xdd)
     {
         double X[4];
@@ -13641,7 +14020,7 @@ namespace ocn
             }
         }
 
-        c_bspline_eval(&Bl_handle, &(((coder::array<double, 1U> *)&coeffs)->data())[0], *x, &X[0]);
+        c_bspline_eval(&Bl_handle, &coeffs[0], *x, &X[0]);
         *x = X[0];
         *xd = X[1];
         *xdd = X[2];
@@ -13737,57 +14116,6 @@ namespace ocn
                         varargin_3];
                 }
             }
-        }
-    }
-
-    //
-    // Arguments    : double *x
-    // Return Type  : void
-    //
-    static void b_cosd(double *x)
-    {
-        double b_x;
-        double absx;
-        signed char n;
-        b_x = rt_remd(*x, 360.0);
-        absx = std::abs(b_x);
-        if (absx > 180.0) {
-            if (b_x > 0.0) {
-                b_x -= 360.0;
-            } else {
-                b_x += 360.0;
-            }
-
-            absx = std::abs(b_x);
-        }
-
-        if (absx <= 45.0) {
-            b_x *= 0.017453292519943295;
-            n = 0;
-        } else if (absx <= 135.0) {
-            if (b_x > 0.0) {
-                b_x = 0.017453292519943295 * (b_x - 90.0);
-                n = 1;
-            } else {
-                b_x = 0.017453292519943295 * (b_x + 90.0);
-                n = -1;
-            }
-        } else if (b_x > 0.0) {
-            b_x = 0.017453292519943295 * (b_x - 180.0);
-            n = 2;
-        } else {
-            b_x = 0.017453292519943295 * (b_x + 180.0);
-            n = -2;
-        }
-
-        if (n == 0) {
-            *x = std::cos(b_x);
-        } else if (n == 1) {
-            *x = -std::sin(b_x);
-        } else if (n == -1) {
-            *x = std::sin(b_x);
-        } else {
-            *x = -std::cos(b_x);
         }
     }
 
@@ -14184,7 +14512,7 @@ namespace ocn
     //                CurveType CurvStruct_Type
     //                const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
-    //                const double CurvStruct_HelixCenter[3]
+    //                const double CurvStruct_CorrectedHelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
     //                double CurvStruct_pitch
@@ -14196,17 +14524,17 @@ namespace ocn
     // Return Type  : void
     //
     static void c_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
-        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
-        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
-        double CurvStruct_b_param, double r0D[3])
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double
+        CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3], double CurvStruct_theta,
+        double CurvStruct_pitch, const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index,
+        double CurvStruct_a_param, double CurvStruct_b_param, double r0D[3])
     {
         double u_vec_tilda;
         double r1D[3];
         double r2D[3];
         double r3D[3];
-        CurvStruct expl_temp;
         char message[30];
+        CurvStruct expl_temp;
         coder::array<double, 2U> Spline_sp_CoeffX;
         coder::array<double, 2U> Spline_sp_CoeffY;
         coder::array<double, 2U> Spline_sp_CoeffZ;
@@ -14237,8 +14565,9 @@ namespace ocn
 
           case CurveType_Helix:
             //  arc of circle / helix (G02, G03)
-            b_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_HelixCenter, CurvStruct_evec,
-                        CurvStruct_theta, CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
+            b_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_CorrectedHelixCenter,
+                        CurvStruct_evec, CurvStruct_theta, CurvStruct_pitch, u_vec_tilda, r0D, r1D,
+                        r2D, r3D);
             break;
 
           case CurveType_TransP5:
@@ -14253,6 +14582,7 @@ namespace ocn
                 int c_loop_ub;
 
                 //  BSpline
+                //  if coder.target('rtw') || coder.target('mex')
                 ctx_q_splines->get(CurvStruct_sp_index, (&expl_temp));
                 Spline_sp_CoeffX.set_size(1, expl_temp.sp.CoeffX.size(1));
                 loop_ub = expl_temp.sp.CoeffX.size(1);
@@ -14281,6 +14611,21 @@ namespace ocn
                 r0D[0] = r0Dx;
                 r0D[1] = r0Dy;
                 r0D[2] = r0Dz;
+
+                //  else
+                //      Spline=ctx.q_splines.get(CurvStruct.sp_index);
+                //      sp = Spline.sp;
+                //      r0D = spval(sp, uvec);
+                //
+                //      sp1D = fnder(sp, 1);
+                //      r1D = spval(sp1D, uvec);
+                //
+                //      sp2D = fnder(sp, 2);
+                //      r2D = spval(sp2D, uvec);
+                //
+                //      sp3D = fnder(sp, 3);
+                //      r3D = spval(sp3D, uvec);
+                //  end
             }
             break;
 
@@ -14297,7 +14642,7 @@ namespace ocn
     //
     // Arguments    : const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
-    //                const double CurvStruct_HelixCenter[3]
+    //                const double CurvStruct_CorrectedHelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
     //                double CurvStruct_pitch
@@ -14309,10 +14654,10 @@ namespace ocn
     // Return Type  : void
     //
     static void c_EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3], const
-                            double CurvStruct_HelixCenter[3], const double CurvStruct_evec[3],
-                            double CurvStruct_theta, double CurvStruct_pitch, const double u_vec[10],
-                            double r0D[10][3], double r1D[10][3], double r2D[10][3], double r3D[10]
-                            [3])
+                            double CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec
+                            [3], double CurvStruct_theta, double CurvStruct_pitch, const double
+                            u_vec[10], double r0D[10][3], double r1D[10][3], double r2D[10][3],
+                            double r3D[10][3])
     {
         double P0P1_idx_0;
         double P0P1_idx_1;
@@ -14371,9 +14716,9 @@ namespace ocn
             //      end
             //  end
             //
-            CP0_idx_0 = CurvStruct_P0[0] - CurvStruct_HelixCenter[0];
-            CP0_idx_1 = CurvStruct_P0[1] - CurvStruct_HelixCenter[1];
-            CP0_idx_2 = CurvStruct_P0[2] - CurvStruct_HelixCenter[2];
+            CP0_idx_0 = CurvStruct_P0[0] - CurvStruct_CorrectedHelixCenter[0];
+            CP0_idx_1 = CurvStruct_P0[1] - CurvStruct_CorrectedHelixCenter[1];
+            CP0_idx_2 = CurvStruct_P0[2] - CurvStruct_CorrectedHelixCenter[2];
             EcrCP0_idx_0 = CurvStruct_evec[1] * CP0_idx_2 - CurvStruct_evec[2] * CP0_idx_1;
             EcrCP0_idx_1 = CurvStruct_evec[2] * CP0_idx_0 - CurvStruct_evec[0] * CP0_idx_2;
             EcrCP0_idx_2 = CurvStruct_evec[0] * CP0_idx_1 - CurvStruct_evec[1] * CP0_idx_0;
@@ -14414,19 +14759,22 @@ namespace ocn
                 d6 = EcrCP0_idx_0 * d1;
                 d7 = EcrCP0_idx_0 * d2;
                 d8 = d7;
-                r0D[k][0] = CurvStruct_HelixCenter[0] + ((d3 + d7) + a * CurvStruct_evec[0] * d);
+                r0D[k][0] = CurvStruct_CorrectedHelixCenter[0] + ((d3 + d7) + a * CurvStruct_evec[0]
+                    * d);
                 d3 = CP0_idx_1 * d1;
                 d9 = d3;
                 d10 = CP0_idx_1 * d2;
                 d11 = EcrCP0_idx_1 * d1;
                 d7 = EcrCP0_idx_1 * d2;
                 d12 = d7;
-                r0D[k][1] = CurvStruct_HelixCenter[1] + ((d3 + d7) + a * CurvStruct_evec[1] * d);
+                r0D[k][1] = CurvStruct_CorrectedHelixCenter[1] + ((d3 + d7) + a * CurvStruct_evec[1]
+                    * d);
                 d3 = CP0_idx_2 * d1;
                 d13 = CP0_idx_2 * d2;
                 d14 = EcrCP0_idx_2 * d1;
                 d7 = EcrCP0_idx_2 * d2;
-                r0D[k][2] = CurvStruct_HelixCenter[2] + ((d3 + d7) + a * CurvStruct_evec[2] * d);
+                r0D[k][2] = CurvStruct_CorrectedHelixCenter[2] + ((d3 + d7) + a * CurvStruct_evec[2]
+                    * d);
                 r1D[k][0] = (-CurvStruct_theta * d5 + CurvStruct_theta * d6) + y_idx_0;
                 r2D[k][0] = -a_tmp * d4 - a_tmp * d8;
                 r3D[k][0] = b_a_tmp * d5 - b_a_tmp * d6;
@@ -14718,6 +15066,12 @@ namespace ocn
         //  u=0 corresponds to the first lift-off point
         //  u=1 corresponds to the second lift-off point
         //  u is NOT used in this function
+        //  if coder.target('matlab')
+        //      % derivative whith respect to u_tilda !!!
+        //      sp1D      = fnder(sp);
+        //      Knots     = sp1D.knots;
+        //  else
+        //  end
         x.set_size(1, Spline_sp_knots.size(1));
         e_loop_ub = Spline_sp_knots.size(1);
         for (int i4 = 0; i4 < e_loop_ub; i4++) {
@@ -14813,10 +15167,14 @@ namespace ocn
         //  midpoint values
         //  parametric derivative calculation at each midpoint value
         //  with respect to u_tilda
+        //  if coder.target('rtw') || coder.target('mex')
         c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffX, u_mid_tilda, unusedU0, r1Dx);
         c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffY, u_mid_tilda, unusedU1, r1Dy);
         c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffZ, u_mid_tilda, unusedU2, r1Dz);
 
+        //  else
+        //      r1D = spval(sp1D, u_mid_tilda);
+        //  end
         //  length (between u0_tilda and u1_tilda) calculation by rectangles method
         a.set_size(3, r1Dx.size(1));
         j_loop_ub = r1Dx.size(1);
@@ -15247,8 +15605,6 @@ namespace ocn
         double t;
         double d;
         double d1;
-        double d2;
-        double d3;
         scale = 3.3121686421112381E-170;
         absxk = std::abs(u[0]);
         if (absxk > 3.3121686421112381E-170) {
@@ -15320,12 +15676,8 @@ namespace ocn
             if (d1 < 2.2204460492503131E-16) {
                 value = true;
             } else {
-                d2 = 57.295779513082323 * std::acos(((u[0] * v[0] + u[1] * v[1]) + u[2] * v[2]) / (d
-                    * d1));
-                b_cosd(&d2);
-                d3 = tol_angle_d;
-                b_cosd(&d3);
-                value = (d2 > d3);
+                value = (std::abs(57.295779513082323 * std::acos(((u[0] * v[0] + u[1] * v[1]) + u[2]
+                            * v[2]) / (d * d1))) < std::abs(tol_angle_d));
             }
         }
 
@@ -15338,7 +15690,7 @@ namespace ocn
     //                CurveType CurvStruct_Type
     //                const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
-    //                const double CurvStruct_HelixCenter[3]
+    //                const double CurvStruct_CorrectedHelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
     //                double CurvStruct_pitch
@@ -15352,17 +15704,18 @@ namespace ocn
     // Return Type  : void
     //
     static void d_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
-        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
-        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
-        double CurvStruct_b_param, double r0D[3], double r1D[3], double r2D[3])
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double
+        CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3], double CurvStruct_theta,
+        double CurvStruct_pitch, const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index,
+        double CurvStruct_a_param, double CurvStruct_b_param, double r0D[3], double r1D[3], double
+        r2D[3])
     {
         double u_vec_tilda;
         double r3D[3];
-        CurvStruct expl_temp;
         char message[30];
-        coder::array<double, 2U> Spline_sp_CoeffX;
+        CurvStruct expl_temp;
         double c;
+        coder::array<double, 2U> Spline_sp_CoeffX;
         coder::array<double, 2U> Spline_sp_CoeffY;
         coder::array<double, 2U> Spline_sp_CoeffZ;
         double r0Dx;
@@ -15398,8 +15751,9 @@ namespace ocn
 
           case CurveType_Helix:
             //  arc of circle / helix (G02, G03)
-            b_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_HelixCenter, CurvStruct_evec,
-                        CurvStruct_theta, CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
+            b_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_CorrectedHelixCenter,
+                        CurvStruct_evec, CurvStruct_theta, CurvStruct_pitch, u_vec_tilda, r0D, r1D,
+                        r2D, r3D);
             break;
 
           case CurveType_TransP5:
@@ -15414,6 +15768,7 @@ namespace ocn
                 int c_loop_ub;
 
                 //  BSpline
+                //  if coder.target('rtw') || coder.target('mex')
                 ctx_q_splines->get(CurvStruct_sp_index, (&expl_temp));
                 Spline_sp_CoeffX.set_size(1, expl_temp.sp.CoeffX.size(1));
                 loop_ub = expl_temp.sp.CoeffX.size(1);
@@ -15448,6 +15803,21 @@ namespace ocn
                 r2D[0] = r2Dx;
                 r2D[1] = r2Dy;
                 r2D[2] = r2Dz;
+
+                //  else
+                //      Spline=ctx.q_splines.get(CurvStruct.sp_index);
+                //      sp = Spline.sp;
+                //      r0D = spval(sp, uvec);
+                //
+                //      sp1D = fnder(sp, 1);
+                //      r1D = spval(sp1D, uvec);
+                //
+                //      sp2D = fnder(sp, 2);
+                //      r2D = spval(sp2D, uvec);
+                //
+                //      sp3D = fnder(sp, 3);
+                //      r3D = spval(sp3D, uvec);
+                //  end
             }
             break;
 
@@ -15569,6 +15939,12 @@ namespace ocn
         //  u=0 corresponds to the first lift-off point
         //  u=1 corresponds to the second lift-off point
         //  u is NOT used in this function
+        //  if coder.target('matlab')
+        //      % derivative whith respect to u_tilda !!!
+        //      sp1D      = fnder(sp);
+        //      Knots     = sp1D.knots;
+        //  else
+        //  end
         x.set_size(1, Spline_sp_knots.size(1));
         e_loop_ub = Spline_sp_knots.size(1);
         for (int i4 = 0; i4 < e_loop_ub; i4++) {
@@ -15696,10 +16072,14 @@ namespace ocn
 
         //  parametric derivative calculation at each midpoint value
         //  with respect to u_tilda
+        //  if coder.target('rtw') || coder.target('mex')
         c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffX, u_mid_tilda, unusedU0, r1Dx);
         c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffY, u_mid_tilda, unusedU1, r1Dy);
         c_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffZ, u_mid_tilda, unusedU2, r1Dz);
 
+        //  else
+        //      r1D = spval(sp1D, u_mid_tilda);
+        //  end
         //  length (between u0_tilda and u1_tilda) calculation by rectangles method
         a.set_size(3, r1Dx.size(1));
         j_loop_ub = r1Dx.size(1);
@@ -15889,7 +16269,7 @@ namespace ocn
     //                CurveType CurvStruct_Type
     //                const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
-    //                const double CurvStruct_HelixCenter[3]
+    //                const double CurvStruct_CorrectedHelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
     //                double CurvStruct_pitch
@@ -15902,16 +16282,15 @@ namespace ocn
     // Return Type  : void
     //
     static void e_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
-        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
-        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
-        double CurvStruct_b_param, double r0D[3], double r1D[3])
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double
+        CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3], double CurvStruct_theta,
+        double CurvStruct_pitch, const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index,
+        double CurvStruct_a_param, double CurvStruct_b_param, double r0D[3], double r1D[3])
     {
-        double u_vec_tilda;
         double r2D[3];
         double r3D[3];
-        CurvStruct expl_temp;
         char message[30];
+        CurvStruct expl_temp;
         coder::array<double, 2U> Spline_sp_CoeffX;
         coder::array<double, 2U> Spline_sp_CoeffY;
         coder::array<double, 2U> Spline_sp_CoeffZ;
@@ -15936,22 +16315,22 @@ namespace ocn
         r1D[1] = 0.0;
         r0D[2] = 0.0;
         r1D[2] = 0.0;
-        u_vec_tilda = CurvStruct_a_param + CurvStruct_b_param;
         switch (CurvStruct_Type) {
           case CurveType_Line:
             //  line (G01)
-            b_EvalLine(CurvStruct_P0, CurvStruct_P1, u_vec_tilda, r0D, r1D);
+            b_EvalLine(CurvStruct_P0, CurvStruct_P1, CurvStruct_b_param, r0D, r1D);
             break;
 
           case CurveType_Helix:
             //  arc of circle / helix (G02, G03)
-            b_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_HelixCenter, CurvStruct_evec,
-                        CurvStruct_theta, CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
+            b_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_CorrectedHelixCenter,
+                        CurvStruct_evec, CurvStruct_theta, CurvStruct_pitch, CurvStruct_b_param, r0D,
+                        r1D, r2D, r3D);
             break;
 
           case CurveType_TransP5:
             //  polynomial transition
-            b_EvalTransP5(CurvStruct_CoeffP5, u_vec_tilda, r0D, r1D, r2D, r3D);
+            b_EvalTransP5(CurvStruct_CoeffP5, CurvStruct_b_param, r0D, r1D, r2D, r3D);
             break;
 
           case CurveType_Spline:
@@ -15961,6 +16340,7 @@ namespace ocn
                 int c_loop_ub;
 
                 //  BSpline
+                //  if coder.target('rtw') || coder.target('mex')
                 ctx_q_splines->get(CurvStruct_sp_index, (&expl_temp));
                 Spline_sp_CoeffX.set_size(1, expl_temp.sp.CoeffX.size(1));
                 loop_ub = expl_temp.sp.CoeffX.size(1);
@@ -15980,18 +16360,33 @@ namespace ocn
                     Spline_sp_CoeffZ[i3] = expl_temp.sp.CoeffZ[i3];
                 }
 
-                b_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffX, u_vec_tilda, &r0Dx,
-                                   &r1Dx, &r2Dx, &r3Dx);
-                b_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffY, u_vec_tilda, &r0Dy,
-                                   &r1Dy, &r2Dy, &r3Dy);
-                b_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffZ, u_vec_tilda, &r0Dz,
-                                   &r1Dz, &r2Dz, &r3Dz);
+                b_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffX, CurvStruct_b_param,
+                                   &r0Dx, &r1Dx, &r2Dx, &r3Dx);
+                b_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffY, CurvStruct_b_param,
+                                   &r0Dy, &r1Dy, &r2Dy, &r3Dy);
+                b_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffZ, CurvStruct_b_param,
+                                   &r0Dz, &r1Dz, &r2Dz, &r3Dz);
                 r0D[0] = r0Dx;
                 r0D[1] = r0Dy;
                 r0D[2] = r0Dz;
                 r1D[0] = r1Dx;
                 r1D[1] = r1Dy;
                 r1D[2] = r1Dz;
+
+                //  else
+                //      Spline=ctx.q_splines.get(CurvStruct.sp_index);
+                //      sp = Spline.sp;
+                //      r0D = spval(sp, uvec);
+                //
+                //      sp1D = fnder(sp, 1);
+                //      r1D = spval(sp1D, uvec);
+                //
+                //      sp2D = fnder(sp, 2);
+                //      r2D = spval(sp2D, uvec);
+                //
+                //      sp3D = fnder(sp, 3);
+                //      r3D = spval(sp3D, uvec);
+                //  end
             }
             break;
 
@@ -16115,7 +16510,7 @@ namespace ocn
     //                CurveType CurvStruct_Type
     //                const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
-    //                const double CurvStruct_HelixCenter[3]
+    //                const double CurvStruct_CorrectedHelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
     //                double CurvStruct_pitch
@@ -16128,15 +16523,16 @@ namespace ocn
     // Return Type  : void
     //
     static void f_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
-        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
-        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
-        double CurvStruct_b_param, double r0D[3], double r1D[3])
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double
+        CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3], double CurvStruct_theta,
+        double CurvStruct_pitch, const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index,
+        double CurvStruct_a_param, double CurvStruct_b_param, double r0D[3], double r1D[3])
     {
+        double u_vec_tilda;
         double r2D[3];
         double r3D[3];
-        CurvStruct expl_temp;
         char message[30];
+        CurvStruct expl_temp;
         coder::array<double, 2U> Spline_sp_CoeffX;
         coder::array<double, 2U> Spline_sp_CoeffY;
         coder::array<double, 2U> Spline_sp_CoeffZ;
@@ -16161,21 +16557,23 @@ namespace ocn
         r1D[1] = 0.0;
         r0D[2] = 0.0;
         r1D[2] = 0.0;
+        u_vec_tilda = CurvStruct_a_param + CurvStruct_b_param;
         switch (CurvStruct_Type) {
           case CurveType_Line:
             //  line (G01)
-            b_EvalLine(CurvStruct_P0, CurvStruct_P1, CurvStruct_b_param, r0D, r1D);
+            b_EvalLine(CurvStruct_P0, CurvStruct_P1, u_vec_tilda, r0D, r1D);
             break;
 
           case CurveType_Helix:
             //  arc of circle / helix (G02, G03)
-            b_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_HelixCenter, CurvStruct_evec,
-                        CurvStruct_theta, CurvStruct_pitch, CurvStruct_b_param, r0D, r1D, r2D, r3D);
+            b_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_CorrectedHelixCenter,
+                        CurvStruct_evec, CurvStruct_theta, CurvStruct_pitch, u_vec_tilda, r0D, r1D,
+                        r2D, r3D);
             break;
 
           case CurveType_TransP5:
             //  polynomial transition
-            b_EvalTransP5(CurvStruct_CoeffP5, CurvStruct_b_param, r0D, r1D, r2D, r3D);
+            b_EvalTransP5(CurvStruct_CoeffP5, u_vec_tilda, r0D, r1D, r2D, r3D);
             break;
 
           case CurveType_Spline:
@@ -16185,6 +16583,7 @@ namespace ocn
                 int c_loop_ub;
 
                 //  BSpline
+                //  if coder.target('rtw') || coder.target('mex')
                 ctx_q_splines->get(CurvStruct_sp_index, (&expl_temp));
                 Spline_sp_CoeffX.set_size(1, expl_temp.sp.CoeffX.size(1));
                 loop_ub = expl_temp.sp.CoeffX.size(1);
@@ -16204,18 +16603,33 @@ namespace ocn
                     Spline_sp_CoeffZ[i3] = expl_temp.sp.CoeffZ[i3];
                 }
 
-                b_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffX, CurvStruct_b_param,
-                                   &r0Dx, &r1Dx, &r2Dx, &r3Dx);
-                b_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffY, CurvStruct_b_param,
-                                   &r0Dy, &r1Dy, &r2Dy, &r3Dy);
-                b_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffZ, CurvStruct_b_param,
-                                   &r0Dz, &r1Dz, &r2Dz, &r3Dz);
+                b_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffX, u_vec_tilda, &r0Dx,
+                                   &r1Dx, &r2Dx, &r3Dx);
+                b_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffY, u_vec_tilda, &r0Dy,
+                                   &r1Dy, &r2Dy, &r3Dy);
+                b_bspline_eval_vec(expl_temp.sp.Bl.handle, Spline_sp_CoeffZ, u_vec_tilda, &r0Dz,
+                                   &r1Dz, &r2Dz, &r3Dz);
                 r0D[0] = r0Dx;
                 r0D[1] = r0Dy;
                 r0D[2] = r0Dz;
                 r1D[0] = r1Dx;
                 r1D[1] = r1Dy;
                 r1D[2] = r1Dz;
+
+                //  else
+                //      Spline=ctx.q_splines.get(CurvStruct.sp_index);
+                //      sp = Spline.sp;
+                //      r0D = spval(sp, uvec);
+                //
+                //      sp1D = fnder(sp, 1);
+                //      r1D = spval(sp1D, uvec);
+                //
+                //      sp2D = fnder(sp, 2);
+                //      r2D = spval(sp2D, uvec);
+                //
+                //      sp3D = fnder(sp, 3);
+                //      r3D = spval(sp3D, uvec);
+                //  end
             }
             break;
 
@@ -16239,7 +16653,7 @@ namespace ocn
     //                CurveType CurvStruct_Type
     //                const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
-    //                const double CurvStruct_HelixCenter[3]
+    //                const double CurvStruct_CorrectedHelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
     //                double CurvStruct_pitch
@@ -16253,16 +16667,17 @@ namespace ocn
     // Return Type  : void
     //
     static void g_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
-        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
-        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
-        double CurvStruct_b_param, double r0D[3], double r1D[3], double r2D[3])
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double
+        CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3], double CurvStruct_theta,
+        double CurvStruct_pitch, const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index,
+        double CurvStruct_a_param, double CurvStruct_b_param, double r0D[3], double r1D[3], double
+        r2D[3])
     {
         double r3D[3];
-        CurvStruct expl_temp;
         char message[30];
-        coder::array<double, 2U> Spline_sp_CoeffX;
+        CurvStruct expl_temp;
         double c;
+        coder::array<double, 2U> Spline_sp_CoeffX;
         coder::array<double, 2U> Spline_sp_CoeffY;
         coder::array<double, 2U> Spline_sp_CoeffZ;
         double r0Dx;
@@ -16297,8 +16712,9 @@ namespace ocn
 
           case CurveType_Helix:
             //  arc of circle / helix (G02, G03)
-            b_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_HelixCenter, CurvStruct_evec,
-                        CurvStruct_theta, CurvStruct_pitch, CurvStruct_b_param, r0D, r1D, r2D, r3D);
+            b_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_CorrectedHelixCenter,
+                        CurvStruct_evec, CurvStruct_theta, CurvStruct_pitch, CurvStruct_b_param, r0D,
+                        r1D, r2D, r3D);
             break;
 
           case CurveType_TransP5:
@@ -16313,6 +16729,7 @@ namespace ocn
                 int c_loop_ub;
 
                 //  BSpline
+                //  if coder.target('rtw') || coder.target('mex')
                 ctx_q_splines->get(CurvStruct_sp_index, (&expl_temp));
                 Spline_sp_CoeffX.set_size(1, expl_temp.sp.CoeffX.size(1));
                 loop_ub = expl_temp.sp.CoeffX.size(1);
@@ -16347,6 +16764,21 @@ namespace ocn
                 r2D[0] = r2Dx;
                 r2D[1] = r2Dy;
                 r2D[2] = r2Dz;
+
+                //  else
+                //      Spline=ctx.q_splines.get(CurvStruct.sp_index);
+                //      sp = Spline.sp;
+                //      r0D = spval(sp, uvec);
+                //
+                //      sp1D = fnder(sp, 1);
+                //      r1D = spval(sp1D, uvec);
+                //
+                //      sp2D = fnder(sp, 2);
+                //      r2D = spval(sp2D, uvec);
+                //
+                //      sp3D = fnder(sp, 3);
+                //      r3D = spval(sp3D, uvec);
+                //  end
             }
             break;
 
@@ -16374,7 +16806,7 @@ namespace ocn
     //                CurveType CurvStruct_Type
     //                const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
-    //                const double CurvStruct_HelixCenter[3]
+    //                const double CurvStruct_CorrectedHelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
     //                double CurvStruct_pitch
@@ -16390,11 +16822,12 @@ namespace ocn
     // Return Type  : void
     //
     static void h_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
-        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
-        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
-        double CurvStruct_b_param, coder::array<double, 2U> &u_vec, coder::array<double, 2U> &r0D,
-        coder::array<double, 2U> &r1D, coder::array<double, 2U> &r2D, coder::array<double, 2U> &r3D)
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double
+        CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3], double CurvStruct_theta,
+        double CurvStruct_pitch, const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index,
+        double CurvStruct_a_param, double CurvStruct_b_param, coder::array<double, 2U> &u_vec, coder::
+        array<double, 2U> &r0D, coder::array<double, 2U> &r1D, coder::array<double, 2U> &r2D, coder::
+        array<double, 2U> &r3D)
     {
         coder::array<bool, 2U> x;
         int loop_ub;
@@ -16410,12 +16843,12 @@ namespace ocn
         int f_loop_ub;
         coder::array<double, 2U> u_vec_tilda;
         int g_loop_ub;
-        CurvStruct expl_temp;
         char message[30];
+        CurvStruct expl_temp;
         coder::array<double, 2U> Spline_sp_CoeffX;
-        int i_loop_ub;
-        coder::array<double, 2U> Spline_sp_CoeffY;
+        int h_loop_ub;
         double c;
+        coder::array<double, 2U> Spline_sp_CoeffY;
         int k_loop_ub;
         coder::array<double, 2U> Spline_sp_CoeffZ;
         double b_c;
@@ -16540,7 +16973,7 @@ namespace ocn
 
           case CurveType_Helix:
             //  arc of circle / helix (G02, G03)
-            EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_HelixCenter, CurvStruct_evec,
+            EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_CorrectedHelixCenter, CurvStruct_evec,
                       CurvStruct_theta, CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
             break;
 
@@ -16551,7 +16984,7 @@ namespace ocn
 
           case CurveType_Spline:
             {
-                int h_loop_ub;
+                int i_loop_ub;
                 int j_loop_ub;
                 int l_loop_ub;
                 int n_loop_ub;
@@ -16568,11 +17001,12 @@ namespace ocn
                 int y_loop_ub;
 
                 //  BSpline
+                //  if coder.target('rtw') || coder.target('mex')
                 ctx_q_splines->get(CurvStruct_sp_index, (&expl_temp));
                 Spline_sp_CoeffX.set_size(1, expl_temp.sp.CoeffX.size(1));
-                h_loop_ub = expl_temp.sp.CoeffX.size(1);
-                for (int i8 = 0; i8 < h_loop_ub; i8++) {
-                    Spline_sp_CoeffX[i8] = expl_temp.sp.CoeffX[i8];
+                i_loop_ub = expl_temp.sp.CoeffX.size(1);
+                for (int i9 = 0; i9 < i_loop_ub; i9++) {
+                    Spline_sp_CoeffX[i9] = expl_temp.sp.CoeffX[i9];
                 }
 
                 Spline_sp_CoeffY.set_size(1, expl_temp.sp.CoeffY.size(1));
@@ -16656,6 +17090,21 @@ namespace ocn
                 for (int i25 = 0; i25 < y_loop_ub; i25++) {
                     r3D[3 * i25 + 2] = r3Dz[i25];
                 }
+
+                //  else
+                //      Spline=ctx.q_splines.get(CurvStruct.sp_index);
+                //      sp = Spline.sp;
+                //      r0D = spval(sp, uvec);
+                //
+                //      sp1D = fnder(sp, 1);
+                //      r1D = spval(sp1D, uvec);
+                //
+                //      sp2D = fnder(sp, 2);
+                //      r2D = spval(sp2D, uvec);
+                //
+                //      sp3D = fnder(sp, 3);
+                //      r3D = spval(sp3D, uvec);
+                //  end
             }
             break;
 
@@ -16669,11 +17118,11 @@ namespace ocn
         }
 
         r1D.set_size(3, r1D.size(1));
-        i_loop_ub = r1D.size(1);
-        for (int i9 = 0; i9 < i_loop_ub; i9++) {
-            r1D[3 * i9] = CurvStruct_a_param * r1D[3 * i9];
-            r1D[3 * i9 + 1] = CurvStruct_a_param * r1D[3 * i9 + 1];
-            r1D[3 * i9 + 2] = CurvStruct_a_param * r1D[3 * i9 + 2];
+        h_loop_ub = r1D.size(1);
+        for (int i8 = 0; i8 < h_loop_ub; i8++) {
+            r1D[3 * i8] = CurvStruct_a_param * r1D[3 * i8];
+            r1D[3 * i8 + 1] = CurvStruct_a_param * r1D[3 * i8 + 1];
+            r1D[3 * i8 + 2] = CurvStruct_a_param * r1D[3 * i8 + 2];
         }
 
         c = std::pow(CurvStruct_a_param, 2.0);
@@ -16701,7 +17150,7 @@ namespace ocn
     //                CurveType CurvStruct_Type
     //                const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
-    //                const double CurvStruct_HelixCenter[3]
+    //                const double CurvStruct_CorrectedHelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
     //                double CurvStruct_pitch
@@ -16716,17 +17165,17 @@ namespace ocn
     // Return Type  : void
     //
     static void i_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
-        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
-        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
-        double CurvStruct_b_param, double r0D[10][3], double r1D[10][3], double r2D[10][3], double
-        r3D[10][3])
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double
+        CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3], double CurvStruct_theta,
+        double CurvStruct_pitch, const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index,
+        double CurvStruct_a_param, double CurvStruct_b_param, double r0D[10][3], double r1D[10][3],
+        double r2D[10][3], double r3D[10][3])
     {
         double u_vec_tilda[10];
-        CurvStruct expl_temp;
         char message[30];
-        coder::array<double, 2U> Spline_sp_CoeffX;
+        CurvStruct expl_temp;
         double c;
+        coder::array<double, 2U> Spline_sp_CoeffX;
         double b_c;
         coder::array<double, 2U> Spline_sp_CoeffY;
         coder::array<double, 2U> Spline_sp_CoeffZ;
@@ -16770,8 +17219,9 @@ namespace ocn
 
           case CurveType_Helix:
             //  arc of circle / helix (G02, G03)
-            c_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_HelixCenter, CurvStruct_evec,
-                        CurvStruct_theta, CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
+            c_EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_CorrectedHelixCenter,
+                        CurvStruct_evec, CurvStruct_theta, CurvStruct_pitch, u_vec_tilda, r0D, r1D,
+                        r2D, r3D);
             break;
 
           case CurveType_TransP5:
@@ -16786,11 +17236,12 @@ namespace ocn
                 int c_loop_ub;
 
                 //  BSpline
+                //  if coder.target('rtw') || coder.target('mex')
                 ctx_q_splines->get(CurvStruct_sp_index, (&expl_temp));
                 Spline_sp_CoeffX.set_size(1, expl_temp.sp.CoeffX.size(1));
                 loop_ub = expl_temp.sp.CoeffX.size(1);
-                for (int i2 = 0; i2 < loop_ub; i2++) {
-                    Spline_sp_CoeffX[i2] = expl_temp.sp.CoeffX[i2];
+                for (int i3 = 0; i3 < loop_ub; i3++) {
+                    Spline_sp_CoeffX[i3] = expl_temp.sp.CoeffX[i3];
                 }
 
                 Spline_sp_CoeffY.set_size(1, expl_temp.sp.CoeffY.size(1));
@@ -16825,6 +17276,21 @@ namespace ocn
                     r3D[i6][1] = r3Dy[i6];
                     r3D[i6][2] = r3Dz[i6];
                 }
+
+                //  else
+                //      Spline=ctx.q_splines.get(CurvStruct.sp_index);
+                //      sp = Spline.sp;
+                //      r0D = spval(sp, uvec);
+                //
+                //      sp1D = fnder(sp, 1);
+                //      r1D = spval(sp1D, uvec);
+                //
+                //      sp2D = fnder(sp, 2);
+                //      r2D = spval(sp2D, uvec);
+                //
+                //      sp3D = fnder(sp, 3);
+                //      r3D = spval(sp3D, uvec);
+                //  end
             }
             break;
 
@@ -16839,16 +17305,16 @@ namespace ocn
 
         c = std::pow(CurvStruct_a_param, 2.0);
         b_c = std::pow(CurvStruct_a_param, 3.0);
-        for (int i3 = 0; i3 < 10; i3++) {
-            r1D[i3][0] *= CurvStruct_a_param;
-            r2D[i3][0] *= c;
-            r3D[i3][0] *= b_c;
-            r1D[i3][1] *= CurvStruct_a_param;
-            r2D[i3][1] *= c;
-            r3D[i3][1] *= b_c;
-            r1D[i3][2] *= CurvStruct_a_param;
-            r2D[i3][2] *= c;
-            r3D[i3][2] *= b_c;
+        for (int i2 = 0; i2 < 10; i2++) {
+            r1D[i2][0] *= CurvStruct_a_param;
+            r2D[i2][0] *= c;
+            r3D[i2][0] *= b_c;
+            r1D[i2][1] *= CurvStruct_a_param;
+            r2D[i2][1] *= c;
+            r3D[i2][1] *= b_c;
+            r1D[i2][2] *= CurvStruct_a_param;
+            r2D[i2][2] *= c;
+            r3D[i2][2] *= b_c;
         }
     }
 
@@ -16858,7 +17324,7 @@ namespace ocn
     //                CurveType CurvStruct_Type
     //                const double CurvStruct_P0[3]
     //                const double CurvStruct_P1[3]
-    //                const double CurvStruct_HelixCenter[3]
+    //                const double CurvStruct_CorrectedHelixCenter[3]
     //                const double CurvStruct_evec[3]
     //                double CurvStruct_theta
     //                double CurvStruct_pitch
@@ -16873,11 +17339,11 @@ namespace ocn
     // Return Type  : void
     //
     static void j_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type, const
-        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double CurvStruct_HelixCenter
-        [3], const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
-        const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index, double CurvStruct_a_param,
-        double CurvStruct_b_param, coder::array<double, 2U> &u_vec, coder::array<double, 2U> &r0D,
-        coder::array<double, 2U> &r1D, coder::array<double, 2U> &r2D)
+        double CurvStruct_P0[3], const double CurvStruct_P1[3], const double
+        CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3], double CurvStruct_theta,
+        double CurvStruct_pitch, const double CurvStruct_CoeffP5[6][3], int CurvStruct_sp_index,
+        double CurvStruct_a_param, double CurvStruct_b_param, coder::array<double, 2U> &u_vec, coder::
+        array<double, 2U> &r0D, coder::array<double, 2U> &r1D, coder::array<double, 2U> &r2D)
     {
         coder::array<bool, 2U> x;
         int loop_ub;
@@ -16893,12 +17359,12 @@ namespace ocn
         coder::array<double, 2U> u_vec_tilda;
         int f_loop_ub;
         coder::array<double, 2U> r3D;
-        CurvStruct expl_temp;
         char message[30];
+        CurvStruct expl_temp;
         coder::array<double, 2U> Spline_sp_CoeffX;
-        int h_loop_ub;
-        coder::array<double, 2U> Spline_sp_CoeffY;
+        int g_loop_ub;
         double c;
+        coder::array<double, 2U> Spline_sp_CoeffY;
         int j_loop_ub;
         coder::array<double, 2U> Spline_sp_CoeffZ;
         coder::array<double, 2U> r0Dx;
@@ -17013,7 +17479,7 @@ namespace ocn
 
           case CurveType_Helix:
             //  arc of circle / helix (G02, G03)
-            EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_HelixCenter, CurvStruct_evec,
+            EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_CorrectedHelixCenter, CurvStruct_evec,
                       CurvStruct_theta, CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
             break;
 
@@ -17024,7 +17490,7 @@ namespace ocn
 
           case CurveType_Spline:
             {
-                int g_loop_ub;
+                int h_loop_ub;
                 int i_loop_ub;
                 int k_loop_ub;
                 int l_loop_ub;
@@ -17038,11 +17504,12 @@ namespace ocn
                 int t_loop_ub;
 
                 //  BSpline
+                //  if coder.target('rtw') || coder.target('mex')
                 ctx_q_splines->get(CurvStruct_sp_index, (&expl_temp));
                 Spline_sp_CoeffX.set_size(1, expl_temp.sp.CoeffX.size(1));
-                g_loop_ub = expl_temp.sp.CoeffX.size(1);
-                for (int i7 = 0; i7 < g_loop_ub; i7++) {
-                    Spline_sp_CoeffX[i7] = expl_temp.sp.CoeffX[i7];
+                h_loop_ub = expl_temp.sp.CoeffX.size(1);
+                for (int i8 = 0; i8 < h_loop_ub; i8++) {
+                    Spline_sp_CoeffX[i8] = expl_temp.sp.CoeffX[i8];
                 }
 
                 Spline_sp_CoeffY.set_size(1, expl_temp.sp.CoeffY.size(1));
@@ -17110,6 +17577,21 @@ namespace ocn
                 for (int i20 = 0; i20 < t_loop_ub; i20++) {
                     r2D[3 * i20 + 2] = r2Dz[i20];
                 }
+
+                //  else
+                //      Spline=ctx.q_splines.get(CurvStruct.sp_index);
+                //      sp = Spline.sp;
+                //      r0D = spval(sp, uvec);
+                //
+                //      sp1D = fnder(sp, 1);
+                //      r1D = spval(sp1D, uvec);
+                //
+                //      sp2D = fnder(sp, 2);
+                //      r2D = spval(sp2D, uvec);
+                //
+                //      sp3D = fnder(sp, 3);
+                //      r3D = spval(sp3D, uvec);
+                //  end
             }
             break;
 
@@ -17123,11 +17605,11 @@ namespace ocn
         }
 
         r1D.set_size(3, r1D.size(1));
-        h_loop_ub = r1D.size(1);
-        for (int i8 = 0; i8 < h_loop_ub; i8++) {
-            r1D[3 * i8] = CurvStruct_a_param * r1D[3 * i8];
-            r1D[3 * i8 + 1] = CurvStruct_a_param * r1D[3 * i8 + 1];
-            r1D[3 * i8 + 2] = CurvStruct_a_param * r1D[3 * i8 + 2];
+        g_loop_ub = r1D.size(1);
+        for (int i7 = 0; i7 < g_loop_ub; i7++) {
+            r1D[3 * i7] = CurvStruct_a_param * r1D[3 * i7];
+            r1D[3 * i7 + 1] = CurvStruct_a_param * r1D[3 * i7 + 1];
+            r1D[3 * i7 + 2] = CurvStruct_a_param * r1D[3 * i7 + 2];
         }
 
         c = std::pow(CurvStruct_a_param, 2.0);
@@ -18385,30 +18867,27 @@ namespace ocn
         double d;
         uint64m_T r;
         uint64m_T r1;
-        static const uint64m_T r2 = { { 1U, 0U }// chunks
+        static const uint64m_T r2 = { { 8U, 0U }// chunks
         };
 
         uint64m_T r3;
         static const uint64m_T r4 = { { 0U, 0U }// chunks
         };
 
-        uint64m_T r5;
-        uint64m_T r6;
-        uint64m_T r7;
-        uint64m_T r8;
-        static const uint64m_T r9 = { { 8U, 0U }// chunks
-        };
-
-        double unusedU0[3];
+        double r0D0_1[3];
         double r0D1_1[3];
-        double unusedU1[3];
+        double r0D0_2[3];
+        double r0D1_2[3];
+        double r1D0_1[3];
         double r1D1_1[3];
+        double r1D0_2[3];
+        double r1D1_2[3];
         TransitionResult b_status;
         CurvStruct expl_temp;
         coder::array<double, 2U> Spline_sp_knots;
-        uint64m_T r10;
+        uint64m_T r5;
         coder::array<bool, 2U> b_x;
-        uint64m_T r12;
+        uint64m_T r7;
         double r0D0[3];
         double r0D1[3];
         double r0D2[3];
@@ -18416,19 +18895,25 @@ namespace ocn
         double r1D1[3];
         double r1D2[3];
         double p5[6][3];
-        int c_status;
-        double alpha0;
-        double alpha1;
+        int ret;
+        double unusedU0;
+        double unusedU1;
         int ii_data[1];
         int Spline_sp_knots_size[2];
-        uint64m_T r14;
+        uint64m_T r9;
         double Spline_sp_knots_data[1];
+        static const uint64m_T r11 = { { 32U, 0U }// chunks
+        };
+
+        uint64m_T r12;
+        static const uint64m_T r14 = { { 16U, 0U }// chunks
+        };
+
+        uint64m_T r15;
         uint64m_T r16;
         uint64m_T r18;
-        uint64m_T r19;
+        uint64m_T r20;
         uint64m_T r21;
-        uint64m_T r23;
-        uint64m_T r24;
         if (!isInitialized_sinspace) {
             sinspace_initialize();
         }
@@ -18436,34 +18921,14 @@ namespace ocn
         CutOff = ctx->cfg.CutOff;
         Length_Threshold = 3.0 * ctx->cfg.CutOff;
 
-        //  1 -> stdout
-        //  2 -> stderr
+        //  DebugLog(DebugCfg.Transitions, ...
+        //      '========== CalcTransition ==========\n')
         d = std::round(DebugConfig);
         Double2MultiWord(d, (unsigned int *)&r.chunks[0U], 2);
         r1 = r2;
         MultiWordAnd((unsigned int *)&r.chunks[0U], (unsigned int *)&r2.chunks[0U], (unsigned int *)
                      &r3.chunks[0U], 2);
         if (uMultiWordNe((unsigned int *)&r3.chunks[0U], (unsigned int *)&r4.chunks[0U], 2)) {
-            printf("========== CalcTransition ==========\n");
-            fflush(stdout);
-        }
-
-        //  1 -> stdout
-        //  2 -> stderr
-        Double2MultiWord(d, (unsigned int *)&r5.chunks[0U], 2);
-        r6 = r2;
-        MultiWordAnd((unsigned int *)&r5.chunks[0U], (unsigned int *)&r2.chunks[0U], (unsigned int *)
-                     &r1.chunks[0U], 2);
-        if (uMultiWordNe((unsigned int *)&r1.chunks[0U], (unsigned int *)&r4.chunks[0U], 2)) {
-            printf("CutOff = %.3f\n", ctx->cfg.CutOff);
-            fflush(stdout);
-        }
-
-        Double2MultiWord(d, (unsigned int *)&r7.chunks[0U], 2);
-        r8 = r9;
-        MultiWordAnd((unsigned int *)&r7.chunks[0U], (unsigned int *)&r9.chunks[0U], (unsigned int *)
-                     &r6.chunks[0U], 2);
-        if (uMultiWordNe((unsigned int *)&r6.chunks[0U], (unsigned int *)&r4.chunks[0U], 2)) {
             b_PrintCurvStruct(&ctx->q_splines, ctx->cfg.NGridLengthSpline, CurvStruct1);
             b_PrintCurvStruct(&ctx->q_splines, ctx->cfg.NGridLengthSpline, CurvStruct2);
         }
@@ -18472,17 +18937,25 @@ namespace ocn
 
         // default value
         e_EvalCurvStruct(&ctx->q_splines, CurvStruct1->Type, CurvStruct1->P0, CurvStruct1->P1,
-                         CurvStruct1->HelixCenter, CurvStruct1->evec, CurvStruct1->theta,
+                         CurvStruct1->CorrectedHelixCenter, CurvStruct1->evec, CurvStruct1->theta,
                          CurvStruct1->pitch, CurvStruct1->CoeffP5, CurvStruct1->sp_index,
-                         CurvStruct1->a_param, CurvStruct1->b_param, unusedU0, r0D1_1);
-        f_EvalCurvStruct(&ctx->q_splines, CurvStruct2->Type, CurvStruct2->P0, CurvStruct2->P1,
-                         CurvStruct2->HelixCenter, CurvStruct2->evec, CurvStruct2->theta,
+                         CurvStruct1->a_param, CurvStruct1->b_param, r0D0_1, r0D1_1);
+        f_EvalCurvStruct(&ctx->q_splines, CurvStruct1->Type, CurvStruct1->P0, CurvStruct1->P1,
+                         CurvStruct1->CorrectedHelixCenter, CurvStruct1->evec, CurvStruct1->theta,
+                         CurvStruct1->pitch, CurvStruct1->CoeffP5, CurvStruct1->sp_index,
+                         CurvStruct1->a_param, CurvStruct1->b_param, r0D0_2, r0D1_2);
+        e_EvalCurvStruct(&ctx->q_splines, CurvStruct2->Type, CurvStruct2->P0, CurvStruct2->P1,
+                         CurvStruct2->CorrectedHelixCenter, CurvStruct2->evec, CurvStruct2->theta,
                          CurvStruct2->pitch, CurvStruct2->CoeffP5, CurvStruct2->sp_index,
-                         CurvStruct2->a_param, CurvStruct2->b_param, unusedU1, r1D1_1);
+                         CurvStruct2->a_param, CurvStruct2->b_param, r1D0_1, r1D1_1);
+        f_EvalCurvStruct(&ctx->q_splines, CurvStruct2->Type, CurvStruct2->P0, CurvStruct2->P1,
+                         CurvStruct2->CorrectedHelixCenter, CurvStruct2->evec, CurvStruct2->theta,
+                         CurvStruct2->pitch, CurvStruct2->CoeffP5, CurvStruct2->sp_index,
+                         CurvStruct2->a_param, CurvStruct2->b_param, r1D0_2, r1D1_2);
 
         //  colinearity test
         if ((CurvStruct1->Type != CurveType_Helix) && (CurvStruct2->Type != CurveType_Helix) &&
-                collinear(r0D1_1, r1D1_1, ctx->cfg.CollTolDeg)) {
+                collinear(r0D1_2, r1D1_1, ctx->cfg.CollTolDeg)) {
             //  && norm(r0D2 - r1D2) < 10*eps && collinear(r0D2, r1D2, 1e-2)
             b_status = TransitionResult_Collinear;
             *CurvStruct1_C = *CurvStruct1;
@@ -18490,15 +18963,15 @@ namespace ocn
         } else {
             double L1;
             double L2;
-            uint64m_T r11;
-            uint64m_T r13;
+            uint64m_T r6;
+            uint64m_T r8;
             L1 = LengthCurv(&ctx->q_splines, ctx->cfg.NGridLengthSpline, CurvStruct1->Type,
-                            CurvStruct1->P0, CurvStruct1->P1, CurvStruct1->HelixCenter,
+                            CurvStruct1->P0, CurvStruct1->P1, CurvStruct1->CorrectedHelixCenter,
                             CurvStruct1->evec, CurvStruct1->theta, CurvStruct1->pitch,
                             CurvStruct1->CoeffP5, CurvStruct1->sp_index, CurvStruct1->a_param,
                             CurvStruct1->b_param);
             L2 = LengthCurv(&ctx->q_splines, ctx->cfg.NGridLengthSpline, CurvStruct2->Type,
-                            CurvStruct2->P0, CurvStruct2->P1, CurvStruct2->HelixCenter,
+                            CurvStruct2->P0, CurvStruct2->P1, CurvStruct2->CorrectedHelixCenter,
                             CurvStruct2->evec, CurvStruct2->theta, CurvStruct2->pitch,
                             CurvStruct2->CoeffP5, CurvStruct2->sp_index, CurvStruct2->a_param,
                             CurvStruct2->b_param);
@@ -18648,6 +19121,8 @@ namespace ocn
                 CutOff = std::fmin(x, y);
             }
 
+            //  DebugLog(DebugCfg.Transitions, ...
+            //      'CutOff = %.3f\n', CutOff)
             *CurvStruct1_C = *CurvStruct1;
             CutCurvStruct(&ctx->q_splines, ctx->cfg.NGridLengthSpline, CurvStruct1_C, CutOff);
             *CurvStruct2_C = *CurvStruct2;
@@ -18655,46 +19130,46 @@ namespace ocn
 
             //  1 -> stdout
             //  2 -> stderr
-            Double2MultiWord(d, (unsigned int *)&r10.chunks[0U], 2);
-            r11 = r9;
-            MultiWordAnd((unsigned int *)&r10.chunks[0U], (unsigned int *)&r9.chunks[0U], (unsigned
-                          int *)&r8.chunks[0U], 2);
-            if (uMultiWordNe((unsigned int *)&r8.chunks[0U], (unsigned int *)&r4.chunks[0U], 2)) {
+            Double2MultiWord(d, (unsigned int *)&r5.chunks[0U], 2);
+            r6 = r2;
+            MultiWordAnd((unsigned int *)&r5.chunks[0U], (unsigned int *)&r2.chunks[0U], (unsigned
+                          int *)&r1.chunks[0U], 2);
+            if (uMultiWordNe((unsigned int *)&r1.chunks[0U], (unsigned int *)&r4.chunks[0U], 2)) {
                 printf("========== AFTER CUTTING \n");
                 fflush(stdout);
             }
 
-            Double2MultiWord(d, (unsigned int *)&r12.chunks[0U], 2);
-            r13 = r9;
-            MultiWordAnd((unsigned int *)&r12.chunks[0U], (unsigned int *)&r9.chunks[0U], (unsigned
-                          int *)&r11.chunks[0U], 2);
-            if (uMultiWordNe((unsigned int *)&r11.chunks[0U], (unsigned int *)&r4.chunks[0U], 2)) {
+            Double2MultiWord(d, (unsigned int *)&r7.chunks[0U], 2);
+            r8 = r2;
+            MultiWordAnd((unsigned int *)&r7.chunks[0U], (unsigned int *)&r2.chunks[0U], (unsigned
+                          int *)&r6.chunks[0U], 2);
+            if (uMultiWordNe((unsigned int *)&r6.chunks[0U], (unsigned int *)&r4.chunks[0U], 2)) {
                 b_PrintCurvStruct(&ctx->q_splines, ctx->cfg.NGridLengthSpline, CurvStruct1_C);
                 b_PrintCurvStruct(&ctx->q_splines, ctx->cfg.NGridLengthSpline, CurvStruct2_C);
             }
 
             d_EvalCurvStruct(&ctx->q_splines, CurvStruct1_C->Type, CurvStruct1_C->P0,
-                             CurvStruct1_C->P1, CurvStruct1_C->HelixCenter, CurvStruct1_C->evec,
-                             CurvStruct1_C->theta, CurvStruct1_C->pitch, CurvStruct1_C->CoeffP5,
-                             CurvStruct1_C->sp_index, CurvStruct1_C->a_param, CurvStruct1_C->b_param,
-                             r0D0, r0D1, r0D2);
+                             CurvStruct1_C->P1, CurvStruct1_C->CorrectedHelixCenter,
+                             CurvStruct1_C->evec, CurvStruct1_C->theta, CurvStruct1_C->pitch,
+                             CurvStruct1_C->CoeffP5, CurvStruct1_C->sp_index, CurvStruct1_C->a_param,
+                             CurvStruct1_C->b_param, r0D0, r0D1, r0D2);
             g_EvalCurvStruct(&ctx->q_splines, CurvStruct2_C->Type, CurvStruct2_C->P0,
-                             CurvStruct2_C->P1, CurvStruct2_C->HelixCenter, CurvStruct2_C->evec,
-                             CurvStruct2_C->theta, CurvStruct2_C->pitch, CurvStruct2_C->CoeffP5,
-                             CurvStruct2_C->sp_index, CurvStruct2_C->a_param, CurvStruct2_C->b_param,
-                             r1D0, r1D1, r1D2);
+                             CurvStruct2_C->P1, CurvStruct2_C->CorrectedHelixCenter,
+                             CurvStruct2_C->evec, CurvStruct2_C->theta, CurvStruct2_C->pitch,
+                             CurvStruct2_C->CoeffP5, CurvStruct2_C->sp_index, CurvStruct2_C->a_param,
+                             CurvStruct2_C->b_param, r1D0, r1D1, r1D2);
 
             //  G2 transition calculation
-            G2_Hermite_Interpolation(r0D0, r0D1, r0D2, r1D0, r1D1, r1D2, p5, &c_status, &alpha0,
-                &alpha1);
-            if (c_status == 1) {
+            G2_Hermite_Interpolation(r0D0, r0D1, r0D2, r1D0, r1D1, r1D2, p5, &ret, &unusedU0,
+                &unusedU1);
+            if (ret == 1) {
                 //  standard case
                 //  transition CurvStruct calculation
                 ConstrTransP5Struct(p5, CurvStruct1->FeedRate, CurvStruct_T);
                 b_status = TransitionResult_Ok;
-            } else if (c_status == 6) {
-                uint64m_T r17;
-                uint64m_T r22;
+            } else if (ret == 6) {
+                uint64m_T r13;
+                uint64m_T r19;
 
                 //  TODO: decide in the future...
                 //  Now we ignore and construct the transition curve anyway
@@ -18703,11 +19178,11 @@ namespace ocn
 
                 //  1 -> stdout
                 //  2 -> stderr
-                Double2MultiWord(d, (unsigned int *)&r16.chunks[0U], 2);
-                r17 = r2;
-                MultiWordAnd((unsigned int *)&r16.chunks[0U], (unsigned int *)&r2.chunks[0U],
-                             (unsigned int *)&r18.chunks[0U], 2);
-                if (uMultiWordNe((unsigned int *)&r18.chunks[0U], (unsigned int *)&r4.chunks[0U], 2))
+                Double2MultiWord(d, (unsigned int *)&r12.chunks[0U], 2);
+                r13 = r14;
+                MultiWordAnd((unsigned int *)&r12.chunks[0U], (unsigned int *)&r14.chunks[0U],
+                             (unsigned int *)&r15.chunks[0U], 2);
+                if (uMultiWordNe((unsigned int *)&r15.chunks[0U], (unsigned int *)&r4.chunks[0U], 2))
                 {
                     printf("========== CalcTransition ==========\n");
                     fflush(stdout);
@@ -18715,11 +19190,11 @@ namespace ocn
 
                 //  1 -> stdout
                 //  2 -> stderr
-                Double2MultiWord(d, (unsigned int *)&r21.chunks[0U], 2);
-                r22 = r2;
-                MultiWordAnd((unsigned int *)&r21.chunks[0U], (unsigned int *)&r2.chunks[0U],
-                             (unsigned int *)&r17.chunks[0U], 2);
-                if (uMultiWordNe((unsigned int *)&r17.chunks[0U], (unsigned int *)&r4.chunks[0U], 2))
+                Double2MultiWord(d, (unsigned int *)&r18.chunks[0U], 2);
+                r19 = r14;
+                MultiWordAnd((unsigned int *)&r18.chunks[0U], (unsigned int *)&r14.chunks[0U],
+                             (unsigned int *)&r13.chunks[0U], 2);
+                if (uMultiWordNe((unsigned int *)&r13.chunks[0U], (unsigned int *)&r4.chunks[0U], 2))
                 {
                     printf("=========== status = 6 ==========\n");
                     fflush(stdout);
@@ -18727,27 +19202,41 @@ namespace ocn
 
                 //  1 -> stdout
                 //  2 -> stderr
-                Double2MultiWord(d, (unsigned int *)&r24.chunks[0U], 2);
-                MultiWordAnd((unsigned int *)&r24.chunks[0U], (unsigned int *)&r2.chunks[0U],
-                             (unsigned int *)&r22.chunks[0U], 2);
-                if (uMultiWordNe((unsigned int *)&r22.chunks[0U], (unsigned int *)&r4.chunks[0U], 2))
+                Double2MultiWord(d, (unsigned int *)&r21.chunks[0U], 2);
+                MultiWordAnd((unsigned int *)&r21.chunks[0U], (unsigned int *)&r14.chunks[0U],
+                             (unsigned int *)&r19.chunks[0U], 2);
+                if (uMultiWordNe((unsigned int *)&r19.chunks[0U], (unsigned int *)&r4.chunks[0U], 2))
                 {
                     printf("Lines: %d, %d\n\n", CurvStruct1->gcode_source_line,
                            CurvStruct2->gcode_source_line);
                     fflush(stdout);
                 }
+
+                //      if coder.target('matlab')
+                //
+                //          figure;
+                //          PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct_T CurvStruct2]);
+                //          hold on;
+                //          plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
+                //          hold on;
+                //          plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
+                //          title({ctx.cfg.source, 'status_G2_Hermite=6'}, 'Interpreter', 'none');
+                //          axis equal;
+                //          camproj('perspective');
+                //
+                //      end
             } else {
-                uint64m_T r15;
-                uint64m_T r20;
+                uint64m_T r10;
+                uint64m_T r17;
                 b_status = TransitionResult_NoSolution;
 
                 //  1 -> stdout
                 //  2 -> stderr
-                Double2MultiWord(d, (unsigned int *)&r14.chunks[0U], 2);
-                r15 = r2;
-                MultiWordAnd((unsigned int *)&r14.chunks[0U], (unsigned int *)&r2.chunks[0U],
-                             (unsigned int *)&r13.chunks[0U], 2);
-                if (uMultiWordNe((unsigned int *)&r13.chunks[0U], (unsigned int *)&r4.chunks[0U], 2))
+                Double2MultiWord(d, (unsigned int *)&r9.chunks[0U], 2);
+                r10 = r11;
+                MultiWordAnd((unsigned int *)&r9.chunks[0U], (unsigned int *)&r11.chunks[0U],
+                             (unsigned int *)&r8.chunks[0U], 2);
+                if (uMultiWordNe((unsigned int *)&r8.chunks[0U], (unsigned int *)&r4.chunks[0U], 2))
                 {
                     printf("========== CalcTransition ==========\n");
                     fflush(stdout);
@@ -18755,11 +19244,11 @@ namespace ocn
 
                 //  1 -> stdout
                 //  2 -> stderr
-                Double2MultiWord(d, (unsigned int *)&r19.chunks[0U], 2);
-                r20 = r2;
-                MultiWordAnd((unsigned int *)&r19.chunks[0U], (unsigned int *)&r2.chunks[0U],
-                             (unsigned int *)&r15.chunks[0U], 2);
-                if (uMultiWordNe((unsigned int *)&r15.chunks[0U], (unsigned int *)&r4.chunks[0U], 2))
+                Double2MultiWord(d, (unsigned int *)&r16.chunks[0U], 2);
+                r17 = r11;
+                MultiWordAnd((unsigned int *)&r16.chunks[0U], (unsigned int *)&r11.chunks[0U],
+                             (unsigned int *)&r10.chunks[0U], 2);
+                if (uMultiWordNe((unsigned int *)&r10.chunks[0U], (unsigned int *)&r4.chunks[0U], 2))
                 {
                     printf("=========== No Solution ==========\n");
                     fflush(stdout);
@@ -18767,15 +19256,37 @@ namespace ocn
 
                 //  1 -> stdout
                 //  2 -> stderr
-                Double2MultiWord(d, (unsigned int *)&r23.chunks[0U], 2);
-                MultiWordAnd((unsigned int *)&r23.chunks[0U], (unsigned int *)&r2.chunks[0U],
-                             (unsigned int *)&r20.chunks[0U], 2);
-                if (uMultiWordNe((unsigned int *)&r20.chunks[0U], (unsigned int *)&r4.chunks[0U], 2))
+                Double2MultiWord(d, (unsigned int *)&r20.chunks[0U], 2);
+                MultiWordAnd((unsigned int *)&r20.chunks[0U], (unsigned int *)&r11.chunks[0U],
+                             (unsigned int *)&r17.chunks[0U], 2);
+                if (uMultiWordNe((unsigned int *)&r17.chunks[0U], (unsigned int *)&r4.chunks[0U], 2))
                 {
                     printf("Lines: %d, %d\n\n", CurvStruct1->gcode_source_line,
                            CurvStruct2->gcode_source_line);
                     fflush(stdout);
                 }
+
+                //      if coder.target('matlab')
+                //
+                //          figure;
+                //          PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct2]);
+                //          hold on;
+                //          plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
+                //          hold on;
+                //          plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
+                //          hold on;
+                //          plot3(r0D0_1(1), r0D0_1(2), r0D0_1(3), 'xc', 'LineWidth', 3);
+                //          hold on;
+                //          plot3(r0D0_2(1), r0D0_2(2), r0D0_2(3), 'xc', 'LineWidth', 3);
+                //          hold on;
+                //          plot3(r1D0_1(1), r1D0_1(2), r1D0_1(3), 'xc', 'LineWidth', 3);
+                //          hold on;
+                //          plot3(r1D0_2(1), r1D0_2(2), r1D0_2(3), 'xc', 'LineWidth', 3);
+                //          title({ctx.cfg.source, 'No solution'}, 'Interpreter', 'none');
+                //          axis equal;
+                //          camproj('perspective');
+                //
+                //      end
             }
 
             CurvStruct1_C->gcode_source_line = CurvStruct1->gcode_source_line;
@@ -18854,7 +19365,7 @@ namespace ocn
     //
     // Arguments    : const double P0[3]
     //                const double P1[3]
-    //                const double C[3]
+    //                const double Cprim[3]
     //                const double evec[3]
     //                double theta
     //                double pitch
@@ -18863,9 +19374,9 @@ namespace ocn
     //                CurvStruct *b_CurvStruct
     // Return Type  : void
     //
-    void ConstrHelixStruct(const double P0[3], const double P1[3], const double C[3], const double
-                           evec[3], double theta, double pitch, double FeedRate, ZSpdMode b_ZSpdMode,
-                           CurvStruct *b_CurvStruct)
+    void ConstrHelixStruct(const double P0[3], const double P1[3], const double Cprim[3], const
+                           double evec[3], double theta, double pitch, double FeedRate, ZSpdMode
+                           b_ZSpdMode, CurvStruct *b_CurvStruct)
     {
         double dv[6][3];
         if (!isInitialized_sinspace) {
@@ -18878,8 +19389,8 @@ namespace ocn
             dv[i][2] = 0.0;
         }
 
-        ConstrCurvStruct(CurveType_Helix, b_ZSpdMode, P0, P1, C, evec, theta, pitch, dv, FeedRate,
-                         b_CurvStruct);
+        ConstrCurvStruct(CurveType_Helix, b_ZSpdMode, P0, P1, Cprim, evec, theta, pitch, dv,
+                         FeedRate, b_CurvStruct);
     }
 
     //
@@ -18903,16 +19414,10 @@ namespace ocn
     {
         double P0[3];
         double P1[3];
-        double C[3];
-        double b_idx_0;
-        double b_idx_1;
-        double b_idx_2;
-        double R0_idx_0;
-        double R0_idx_1;
-        double R0_idx_2;
-        double R1_idx_0;
-        double R1_idx_1;
-        double R1_idx_2;
+        double Cprim[2];
+        double b_P0[2];
+        double b_P1[2];
+        double b_Cprim[3];
         double phi0;
         double phi1;
         double theta;
@@ -18926,32 +19431,75 @@ namespace ocn
         P1[0] = p1x;
         P1[1] = p1y;
         P1[2] = p1z;
-        C[0] = cx;
-        C[1] = cy;
-        C[2] = cz;
-        b_idx_0 = p0x - cx;
-        b_idx_1 = p0y - cy;
-        b_idx_2 = p0z - cz;
-        R0_idx_0 = evec[1] * b_idx_2 - evec[2] * b_idx_1;
-        R0_idx_1 = evec[2] * b_idx_0 - evec[0] * b_idx_2;
-        R0_idx_2 = evec[0] * b_idx_1 - evec[1] * b_idx_0;
-        b_idx_0 = p1x - cx;
-        b_idx_1 = p1y - cy;
-        b_idx_2 = p1z - cz;
-        R1_idx_0 = evec[1] * b_idx_2 - evec[2] * b_idx_1;
-        R1_idx_1 = evec[2] * b_idx_0 - evec[0] * b_idx_2;
-        R1_idx_2 = evec[0] * b_idx_1 - evec[1] * b_idx_0;
         if (evec[0] > 0.5) {
-            phi0 = atan2(R0_idx_2, R0_idx_1);
-            phi1 = atan2(R1_idx_2, R1_idx_1);
-        } else if (evec[1] > 0.5) {
-            phi1 = atan2(R0_idx_2, R0_idx_0);
-            phi0 = atan2(R1_idx_2, R1_idx_0);
+            double b_idx_0;
+            double R0_idx_1;
+            double R0_idx_2;
 
-            //      rotation = -rotation;
+            //  YZ
+            Cprim[0] = cy;
+            Cprim[1] = cz;
+            b_P0[0] = p0y;
+            b_P0[1] = p0z;
+            b_P1[0] = p1y;
+            b_P1[1] = p1z;
+            CorrectArcCenter(b_P0, b_P1, Cprim);
+            b_Cprim[0] = cx;
+            b_Cprim[1] = Cprim[0];
+            b_Cprim[2] = Cprim[1];
+            b_idx_0 = p0x - cx;
+            R0_idx_1 = evec[2] * b_idx_0 - evec[0] * (p0z - Cprim[1]);
+            R0_idx_2 = evec[0] * (p0y - Cprim[0]) - evec[1] * b_idx_0;
+            b_idx_0 = p1x - cx;
+            phi0 = atan2(R0_idx_2, R0_idx_1);
+            phi1 = atan2(evec[0] * (p1y - Cprim[0]) - evec[1] * b_idx_0, evec[2] * b_idx_0 - evec[0]
+                         * (p1z - Cprim[1]));
+        } else if (evec[1] > 0.5) {
+            double b_idx_1;
+            double R0_idx_0;
+            double R0_idx_2;
+
+            //  ZX
+            Cprim[0] = cz;
+            Cprim[1] = cx;
+            b_P0[0] = p0z;
+            b_P0[1] = p0x;
+            b_P1[0] = p1z;
+            b_P1[1] = p1x;
+            CorrectArcCenter(b_P0, b_P1, Cprim);
+            b_Cprim[0] = Cprim[1];
+            b_Cprim[1] = cy;
+            b_Cprim[2] = Cprim[0];
+            b_idx_1 = p0y - cy;
+            R0_idx_0 = evec[1] * (p0z - Cprim[0]) - evec[2] * b_idx_1;
+            R0_idx_2 = evec[0] * b_idx_1 - evec[1] * (p0x - Cprim[1]);
+            b_idx_1 = p1y - cy;
+            phi1 = atan2(R0_idx_2, R0_idx_0);
+            phi0 = atan2(evec[0] * b_idx_1 - evec[1] * (p1x - Cprim[1]), evec[1] * (p1z - Cprim[0])
+                         - evec[2] * b_idx_1);
         } else {
+            double b_idx_2;
+            double R0_idx_1;
+            double R0_idx_0;
+
+            //  XY
+            Cprim[0] = cx;
+            Cprim[1] = cy;
+            b_P0[0] = p0x;
+            b_P0[1] = p0y;
+            b_P1[0] = p1x;
+            b_P1[1] = p1y;
+            CorrectArcCenter(b_P0, b_P1, Cprim);
+            b_Cprim[0] = Cprim[0];
+            b_Cprim[1] = Cprim[1];
+            b_Cprim[2] = cz;
+            b_idx_2 = p0z - cz;
+            R0_idx_0 = evec[1] * b_idx_2 - evec[2] * (p0y - Cprim[1]);
+            R0_idx_1 = evec[2] * (p0x - Cprim[0]) - evec[0] * b_idx_2;
+            b_idx_2 = p1z - cz;
             phi0 = atan2(R0_idx_1, R0_idx_0);
-            phi1 = atan2(R1_idx_1, R1_idx_0);
+            phi1 = atan2(evec[2] * (p1x - Cprim[0]) - evec[0] * b_idx_2, evec[1] * b_idx_2 - evec[2]
+                         * (p1y - Cprim[1]));
         }
 
         theta = phi1 - phi0;
@@ -18969,8 +19517,8 @@ namespace ocn
             theta += (rotation + 1.0) * 2.0 * 3.1415926535897931;
         }
 
-        ConstrHelixStruct(P0, P1, C, evec, theta, (((evec[0] * p1x + evec[1] * p1y) + evec[2] * p1z)
-                           - ((evec[0] * p0x + evec[1] * p0y) + evec[2] * p0z)) / theta * 2.0 *
+        ConstrHelixStruct(P0, P1, b_Cprim, evec, theta, (((evec[0] * p1x + evec[1] * p1y) + evec[2] *
+                            p1z) - ((evec[0] * p0x + evec[1] * p0y) + evec[2] * p0z)) / theta * 2.0 *
                           3.1415926535897931, 1.0, ZSpdMode_NN, b_CurvStruct);
     }
 
@@ -19023,6 +19571,56 @@ namespace ocn
     }
 
     //
+    // Arguments    : DebugCfg cfg
+    // Return Type  : void
+    //
+    void DisableDebugLog(DebugCfg cfg)
+    {
+        uint64m_T r;
+        static const uint64m_T r1 = { { 1U, 0U }// chunks
+        };
+
+        uint64m_T r2;
+        uint64m_T r3;
+        uint64m_T r4;
+        if (!isInitialized_sinspace) {
+            sinspace_initialize();
+        }
+
+        Double2MultiWord(std::round(DebugConfig), (unsigned int *)&r.chunks[0U], 2);
+        uMultiWordShl((unsigned int *)&r1.chunks[0U], 2, static_cast<unsigned int>(static_cast<int>
+                       (cfg) - 1), (unsigned int *)&r2.chunks[0U], 2);
+        MultiWordNot((unsigned int *)&r2.chunks[0U], (unsigned int *)&r3.chunks[0U], 2);
+        MultiWordAnd((unsigned int *)&r.chunks[0U], (unsigned int *)&r3.chunks[0U], (unsigned int *)
+                     &r4.chunks[0U], 2);
+        DebugConfig = uMultiWord2Double((unsigned int *)&r4.chunks[0U], 2, 0);
+    }
+
+    //
+    // Arguments    : DebugCfg cfg
+    // Return Type  : void
+    //
+    void EnableDebugLog(DebugCfg cfg)
+    {
+        uint64m_T r;
+        static const uint64m_T r1 = { { 1U, 0U }// chunks
+        };
+
+        uint64m_T r2;
+        uint64m_T r3;
+        if (!isInitialized_sinspace) {
+            sinspace_initialize();
+        }
+
+        Double2MultiWord(std::round(DebugConfig), (unsigned int *)&r.chunks[0U], 2);
+        uMultiWordShl((unsigned int *)&r1.chunks[0U], 2, static_cast<unsigned int>(static_cast<int>
+                       (cfg) - 1), (unsigned int *)&r2.chunks[0U], 2);
+        MultiWordIor((unsigned int *)&r.chunks[0U], (unsigned int *)&r2.chunks[0U], (unsigned int *)
+                     &r3.chunks[0U], 2);
+        DebugConfig = uMultiWord2Double((unsigned int *)&r3.chunks[0U], 2, 0);
+    }
+
+    //
     // coder.cstructname(CurvStruct, 'CurvStruct')
     // Arguments    : const FeedoptContext *ctx
     //                const CurvStruct *b_CurvStruct
@@ -19051,12 +19649,12 @@ namespace ocn
         int f_loop_ub;
         coder::array<double, 2U> u_vec_tilda;
         int g_loop_ub;
-        CurvStruct expl_temp;
         char message[30];
+        CurvStruct expl_temp;
         coder::array<double, 2U> Spline_sp_CoeffX;
-        int i_loop_ub;
-        coder::array<double, 2U> Spline_sp_CoeffY;
+        int h_loop_ub;
         double c;
+        coder::array<double, 2U> Spline_sp_CoeffY;
         int k_loop_ub;
         coder::array<double, 2U> Spline_sp_CoeffZ;
         double b_c;
@@ -19185,7 +19783,7 @@ namespace ocn
 
           case CurveType_Helix:
             //  arc of circle / helix (G02, G03)
-            EvalHelix(b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->HelixCenter,
+            EvalHelix(b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->CorrectedHelixCenter,
                       b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->pitch, u_vec_tilda, r0D,
                       r1D, r2D, r3D);
             break;
@@ -19197,7 +19795,7 @@ namespace ocn
 
           case CurveType_Spline:
             {
-                int h_loop_ub;
+                int i_loop_ub;
                 int j_loop_ub;
                 int l_loop_ub;
                 int n_loop_ub;
@@ -19214,11 +19812,12 @@ namespace ocn
                 int y_loop_ub;
 
                 //  BSpline
+                //  if coder.target('rtw') || coder.target('mex')
                 ctx->q_splines.get(b_CurvStruct->sp_index, (&expl_temp));
                 Spline_sp_CoeffX.set_size(1, expl_temp.sp.CoeffX.size(1));
-                h_loop_ub = expl_temp.sp.CoeffX.size(1);
-                for (int i8 = 0; i8 < h_loop_ub; i8++) {
-                    Spline_sp_CoeffX[i8] = expl_temp.sp.CoeffX[i8];
+                i_loop_ub = expl_temp.sp.CoeffX.size(1);
+                for (int i9 = 0; i9 < i_loop_ub; i9++) {
+                    Spline_sp_CoeffX[i9] = expl_temp.sp.CoeffX[i9];
                 }
 
                 Spline_sp_CoeffY.set_size(1, expl_temp.sp.CoeffY.size(1));
@@ -19302,6 +19901,21 @@ namespace ocn
                 for (int i25 = 0; i25 < y_loop_ub; i25++) {
                     r3D[3 * i25 + 2] = r3Dz[i25];
                 }
+
+                //  else
+                //      Spline=ctx.q_splines.get(CurvStruct.sp_index);
+                //      sp = Spline.sp;
+                //      r0D = spval(sp, uvec);
+                //
+                //      sp1D = fnder(sp, 1);
+                //      r1D = spval(sp1D, uvec);
+                //
+                //      sp2D = fnder(sp, 2);
+                //      r2D = spval(sp2D, uvec);
+                //
+                //      sp3D = fnder(sp, 3);
+                //      r3D = spval(sp3D, uvec);
+                //  end
             }
             break;
 
@@ -19315,11 +19929,11 @@ namespace ocn
         }
 
         r1D.set_size(3, r1D.size(1));
-        i_loop_ub = r1D.size(1);
-        for (int i9 = 0; i9 < i_loop_ub; i9++) {
-            r1D[3 * i9] = b_CurvStruct->a_param * r1D[3 * i9];
-            r1D[3 * i9 + 1] = b_CurvStruct->a_param * r1D[3 * i9 + 1];
-            r1D[3 * i9 + 2] = b_CurvStruct->a_param * r1D[3 * i9 + 2];
+        h_loop_ub = r1D.size(1);
+        for (int i8 = 0; i8 < h_loop_ub; i8++) {
+            r1D[3 * i8] = b_CurvStruct->a_param * r1D[3 * i8];
+            r1D[3 * i8 + 1] = b_CurvStruct->a_param * r1D[3 * i8 + 1];
+            r1D[3 * i8 + 2] = b_CurvStruct->a_param * r1D[3 * i8 + 2];
         }
 
         c = std::pow(b_CurvStruct->a_param, 2.0);
@@ -19395,8 +20009,8 @@ namespace ocn
 
           case CurveType_Helix:
             //  arc of circle / helix (G02, G03)
-            b_EvalHelix(Curv->P0, Curv->P1, Curv->HelixCenter, Curv->evec, Curv->theta, Curv->pitch,
-                        u_vec_tilda, r0D, r1D, r2D, r3D);
+            b_EvalHelix(Curv->P0, Curv->P1, Curv->CorrectedHelixCenter, Curv->evec, Curv->theta,
+                        Curv->pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
             break;
 
           case CurveType_TransP5:
@@ -19463,7 +20077,8 @@ namespace ocn
         cfg->ZeroStartVelLimit = 0.5;
         std::memset(&cfg->source[0], 0, 1024U * sizeof(char));
         cfg->DebugCutZero = false;
-        cfg->SkipCompressing = false;
+        cfg->Compressing.Skip = false;
+        cfg->Compressing.ColTolDeg = 5.0;
         cfg->CollTolDeg = 1.0E-6;
         cfg->NGridLengthSpline = 10.0;
         for (int i = 0; i < 9; i++) {
@@ -19501,62 +20116,66 @@ namespace ocn
 
         uint64m_T r2;
         uint64m_T r3;
-        static const uint64m_T r4 = { { 0U, 0U }// chunks
+        uint64m_T r4;
+        static const uint64m_T r5 = { { 0U, 0U }// chunks
         };
 
-        static const uint64m_T r6 = { { 2U, 0U }// chunks
+        uint64m_T r6;
+        static const uint64m_T r8 = { { 2U, 0U }// chunks
         };
 
-        uint64m_T r7;
+        static const uint64m_T r9 = { { 1U, 0U }// chunks
+        };
+
+        uint64m_T r10;
+        uint64m_T r11;
+        uint64m_T r12;
         CurvStruct b_CurvStruct;
         char b_cv[1025];
         CurvStruct a;
-        uint64m_T r8;
+        uint64m_T r13;
         coder::array<CurvStruct, 2U> OptSegment;
-        static const uint64m_T r10 = { { 1U, 0U }// chunks
-        };
-
-        uint64m_T r11;
+        uint64m_T r15;
         CurvStruct first;
         coder::array<double, 2U> c_ctx;
         queue_coder d_ctx;
         CurvStruct last;
-        uint64m_T r12;
-        static const uint64m_T r13 = { { 16U, 0U }// chunks
+        uint64m_T r16;
+        static const uint64m_T r17 = { { 16U, 0U }// chunks
         };
 
-        uint64m_T r14;
-        CurvStruct NextCurv;
-        uint64m_T r16;
         uint64m_T r18;
-        uint64m_T r19;
+        CurvStruct NextCurv;
+        uint64m_T r20;
+        uint64m_T r22;
+        uint64m_T r23;
         queue_coder e_ctx;
         double at_0;
         coder::array<double, 2U> Coeff;
         double dv2[3];
         double dv3[3];
-        uint64m_T r21;
-        coder::array<double, 2U> r22;
-        uint64m_T r23;
-        coder::array<double, 2U> r24;
         uint64m_T r25;
-        uint64m_T r26;
-        coder::array<double, 2U> r27;
-        coder::array<double, 1U> r28;
-        coder::array<double, 2U> r29;
+        coder::array<double, 2U> r26;
+        uint64m_T r27;
+        coder::array<double, 2U> r28;
+        uint64m_T r29;
+        uint64m_T r30;
+        coder::array<double, 2U> r31;
+        coder::array<double, 1U> r32;
+        coder::array<double, 2U> r33;
         int unusedU0;
         bool b_success;
-        uint64m_T r30;
-        uint64m_T r31;
-        uint64m_T r32;
-        uint64m_T r33;
+        uint64m_T r34;
+        uint64m_T r35;
+        uint64m_T r36;
+        uint64m_T r37;
         CurvStruct expl_temp;
-        double t0_P0[3];
-        double t0_P1[3];
-        double t0_HelixCenter[3];
-        double t0_evec[3];
+        double t1_P0[3];
+        double t1_P1[3];
+        double t1_CorrectedHelixCenter[3];
+        double t1_evec[3];
         queue_coder g_ctx;
-        double t0_CoeffP5[6][3];
+        double t1_CoeffP5[6][3];
         queue_coder h_ctx;
         double b_at_0;
         if (!isInitialized_sinspace) {
@@ -19598,7 +20217,7 @@ namespace ocn
             {
                 int status;
                 double d1;
-                uint64m_T r9;
+                uint64m_T r14;
 
                 //  coder.extrinsic('ReadGCode_mex');
                 //  Wrapper for pulling the next gcode line from the interpreter
@@ -19616,11 +20235,11 @@ namespace ocn
                 //  1 -> stdout
                 //  2 -> stderr
                 d1 = std::round(DebugConfig);
-                Double2MultiWord(d1, (unsigned int *)&r8.chunks[0U], 2);
-                r9 = r10;
-                MultiWordAnd((unsigned int *)&r8.chunks[0U], (unsigned int *)&r10.chunks[0U],
-                             (unsigned int *)&r11.chunks[0U], 2);
-                if (uMultiWordNe((unsigned int *)&r11.chunks[0U], (unsigned int *)&r4.chunks[0U], 2))
+                Double2MultiWord(d1, (unsigned int *)&r13.chunks[0U], 2);
+                r14 = r9;
+                MultiWordAnd((unsigned int *)&r13.chunks[0U], (unsigned int *)&r9.chunks[0U],
+                             (unsigned int *)&r15.chunks[0U], 2);
+                if (uMultiWordNe((unsigned int *)&r15.chunks[0U], (unsigned int *)&r5.chunks[0U], 2))
                 {
                     printf("Reading G-code...\n");
                     fflush(stdout);
@@ -19653,10 +20272,10 @@ namespace ocn
 
                     //  1 -> stdout
                     //  2 -> stderr
-                    Double2MultiWord(d1, (unsigned int *)&r12.chunks[0U], 2);
-                    MultiWordAnd((unsigned int *)&r12.chunks[0U], (unsigned int *)&r13.chunks[0U],
-                                 (unsigned int *)&r9.chunks[0U], 2);
-                    if (uMultiWordNe((unsigned int *)&r9.chunks[0U], (unsigned int *)&r4.chunks[0U],
+                    Double2MultiWord(d1, (unsigned int *)&r16.chunks[0U], 2);
+                    MultiWordAnd((unsigned int *)&r16.chunks[0U], (unsigned int *)&r17.chunks[0U],
+                                 (unsigned int *)&r14.chunks[0U], 2);
+                    if (uMultiWordNe((unsigned int *)&r14.chunks[0U], (unsigned int *)&r5.chunks[0U],
                                      2)) {
                         printf("ERROR: Optimization failed, Gcode queue is empty\n");
                         fflush(stdout);
@@ -19683,7 +20302,7 @@ namespace ocn
             break;
 
           case Fopt_Compress:
-            if (ctx->cfg.SkipCompressing) {
+            if (ctx->cfg.Compressing.Skip) {
                 ExpandZeroStructs(ctx);
             } else {
                 CompressCurvStructs(ctx);
@@ -19700,22 +20319,43 @@ namespace ocn
           case Fopt_Split:
             SplitCurvStructs(ctx);
             ctx->op = Fopt_Opt;
+
+            //  1 -> stdout
+            //  2 -> stderr
+            Double2MultiWord(std::round(DebugConfig), (unsigned int *)&r6.chunks[0U], 2);
+            MultiWordAnd((unsigned int *)&r6.chunks[0U], (unsigned int *)&r9.chunks[0U], (unsigned
+                          int *)&r11.chunks[0U], 2);
+            if (uMultiWordNe((unsigned int *)&r11.chunks[0U], (unsigned int *)&r5.chunks[0U], 2)) {
+                printf("Feedrate Planning...\n");
+                fflush(stdout);
+            }
             break;
 
           case Fopt_Opt:
             {
                 if (ctx->q_split.isempty()) {
+                    //  1 -> stdout
+                    //  2 -> stderr
+                    Double2MultiWord(std::round(DebugConfig), (unsigned int *)&r4.chunks[0U], 2);
+                    MultiWordAnd((unsigned int *)&r4.chunks[0U], (unsigned int *)&r9.chunks[0U],
+                                 (unsigned int *)&r10.chunks[0U], 2);
+                    if (uMultiWordNe((unsigned int *)&r10.chunks[0U], (unsigned int *)&r5.chunks[0U],
+                                     2)) {
+                        printf("Queue empty...\n");
+                        fflush(stdout);
+                    }
+
                     ctx->op = Fopt_Finished;
                 } else {
                     double d;
-                    uint64m_T r5;
+                    uint64m_T r7;
                     ctx->op = Fopt_Opt;
                     d = std::round(DebugConfig);
                     Double2MultiWord(d, (unsigned int *)&r3.chunks[0U], 2);
-                    r5 = r6;
-                    MultiWordAnd((unsigned int *)&r3.chunks[0U], (unsigned int *)&r6.chunks[0U],
-                                 (unsigned int *)&r7.chunks[0U], 2);
-                    if (uMultiWordNe((unsigned int *)&r7.chunks[0U], (unsigned int *)&r4.chunks[0U],
+                    r7 = r8;
+                    MultiWordAnd((unsigned int *)&r3.chunks[0U], (unsigned int *)&r8.chunks[0U],
+                                 (unsigned int *)&r12.chunks[0U], 2);
+                    if (uMultiWordNe((unsigned int *)&r12.chunks[0U], (unsigned int *)&r5.chunks[0U],
                                      2)) {
                         unsigned int validatedHoleFilling_f2;
                         validatedHoleFilling_f2 = ctx->q_split.size();
@@ -19747,7 +20387,7 @@ namespace ocn
                                 b_optimized = true;
                                 d_ctx = ctx->q_splines;
                                 CalcZeroStartConstraints(&d_ctx, first.Type, first.P0, first.P1,
-                                    first.HelixCenter, first.evec, first.theta, first.pitch,
+                                    first.CorrectedHelixCenter, first.evec, first.theta, first.pitch,
                                     first.CoeffP5, first.sp_index, first.UseConstJerk,
                                     first.ConstJerk, first.a_param, first.b_param, 1.0, &ctx->v_0,
                                     &ctx->at_0);
@@ -19756,11 +20396,11 @@ namespace ocn
                                 int k1temp;
                                 int k1;
                                 unsigned int nopt;
-                                uint64m_T r15;
+                                uint64m_T r19;
                                 int kend;
                                 int k;
                                 bool exitg1;
-                                uint64m_T r17;
+                                uint64m_T r21;
                                 int Retry;
                                 bool success;
                                 int e_loop_ub;
@@ -19778,12 +20418,12 @@ namespace ocn
 
                                 //  1 -> stdout
                                 //  2 -> stderr
-                                Double2MultiWord(d, (unsigned int *)&r14.chunks[0U], 2);
-                                r15 = r1;
-                                MultiWordAnd((unsigned int *)&r14.chunks[0U], (unsigned int *)
-                                             &r1.chunks[0U], (unsigned int *)&r5.chunks[0U], 2);
-                                if (uMultiWordNe((unsigned int *)&r5.chunks[0U], (unsigned int *)
-                                                 &r4.chunks[0U], 2)) {
+                                Double2MultiWord(d, (unsigned int *)&r18.chunks[0U], 2);
+                                r19 = r1;
+                                MultiWordAnd((unsigned int *)&r18.chunks[0U], (unsigned int *)
+                                             &r1.chunks[0U], (unsigned int *)&r7.chunks[0U], 2);
+                                if (uMultiWordNe((unsigned int *)&r7.chunks[0U], (unsigned int *)
+                                                 &r5.chunks[0U], 2)) {
                                     printf("FEEDRATE PLANNING...\n");
                                     fflush(stdout);
                                 }
@@ -19800,11 +20440,12 @@ namespace ocn
                                         //  end of all segments
                                         e_ctx = ctx->q_splines;
                                         CalcZeroStartConstraints(&e_ctx, NextCurv.Type, NextCurv.P0,
-                                            NextCurv.P1, NextCurv.HelixCenter, NextCurv.evec,
-                                            NextCurv.theta, NextCurv.pitch, NextCurv.CoeffP5,
-                                            NextCurv.sp_index, NextCurv.UseConstJerk,
-                                            NextCurv.ConstJerk, NextCurv.a_param, NextCurv.b_param,
-                                            1.0, &ctx->v_1, &at_0);
+                                            NextCurv.P1, NextCurv.CorrectedHelixCenter,
+                                            NextCurv.evec, NextCurv.theta, NextCurv.pitch,
+                                            NextCurv.CoeffP5, NextCurv.sp_index,
+                                            NextCurv.UseConstJerk, NextCurv.ConstJerk,
+                                            NextCurv.a_param, NextCurv.b_param, 1.0, &ctx->v_1,
+                                            &at_0);
                                         ctx->at_1 = -at_0;
                                         ctx->zero_end = true;
                                         ctx->reached_end = true;
@@ -19812,17 +20453,17 @@ namespace ocn
                                         exitg1 = true;
                                     } else {
                                         if (NextCurv.zspdmode == ZSpdMode_NN) {
-                                            uint64m_T r20;
+                                            uint64m_T r24;
                                             nopt++;
                                             OptSegment[static_cast<int>(nopt) - 1] = NextCurv;
-                                            Double2MultiWord(d, (unsigned int *)&r19.chunks[0U], 2);
-                                            r20 = r1;
-                                            MultiWordAnd((unsigned int *)&r19.chunks[0U], (unsigned
+                                            Double2MultiWord(d, (unsigned int *)&r23.chunks[0U], 2);
+                                            r24 = r1;
+                                            MultiWordAnd((unsigned int *)&r23.chunks[0U], (unsigned
                                                           int *)&r1.chunks[0U], (unsigned int *)
-                                                         &r15.chunks[0U], 2);
-                                            r19 = r4;
-                                            if (uMultiWordNe((unsigned int *)&r15.chunks[0U],
-                                                             (unsigned int *)&r4.chunks[0U], 2)) {
+                                                         &r19.chunks[0U], 2);
+                                            r23 = r5;
+                                            if (uMultiWordNe((unsigned int *)&r19.chunks[0U],
+                                                             (unsigned int *)&r5.chunks[0U], 2)) {
                                                 b_PrintCurvStruct(&ctx->q_splines,
                                                                   ctx->cfg.NGridLengthSpline,
                                                                   &OptSegment[k - ctx->k0]);
@@ -19831,15 +20472,15 @@ namespace ocn
                                             if (k < k1) {
                                                 //  1 -> stdout
                                                 //  2 -> stderr
-                                                Double2MultiWord(d, (unsigned int *)&r21.chunks[0U],
+                                                Double2MultiWord(d, (unsigned int *)&r25.chunks[0U],
                                                                  2);
-                                                r18 = r1;
-                                                MultiWordAnd((unsigned int *)&r21.chunks[0U],
+                                                r22 = r1;
+                                                MultiWordAnd((unsigned int *)&r25.chunks[0U],
                                                              (unsigned int *)&r1.chunks[0U],
-                                                             (unsigned int *)&r20.chunks[0U], 2);
-                                                r21 = r4;
-                                                if (uMultiWordNe((unsigned int *)&r20.chunks[0U],
-                                                                 (unsigned int *)&r4.chunks[0U], 2))
+                                                             (unsigned int *)&r24.chunks[0U], 2);
+                                                r25 = r5;
+                                                if (uMultiWordNe((unsigned int *)&r24.chunks[0U],
+                                                                 (unsigned int *)&r5.chunks[0U], 2))
                                                 {
                                                     printf("-----------------------------------\n");
                                                     fflush(stdout);
@@ -19853,12 +20494,12 @@ namespace ocn
 
                                 //  1 -> stdout
                                 //  2 -> stderr
-                                Double2MultiWord(d, (unsigned int *)&r16.chunks[0U], 2);
-                                r17 = r1;
-                                MultiWordAnd((unsigned int *)&r16.chunks[0U], (unsigned int *)
-                                             &r1.chunks[0U], (unsigned int *)&r18.chunks[0U], 2);
-                                if (uMultiWordNe((unsigned int *)&r18.chunks[0U], (unsigned int *)
-                                                 &r4.chunks[0U], 2)) {
+                                Double2MultiWord(d, (unsigned int *)&r20.chunks[0U], 2);
+                                r21 = r1;
+                                MultiWordAnd((unsigned int *)&r20.chunks[0U], (unsigned int *)
+                                             &r1.chunks[0U], (unsigned int *)&r22.chunks[0U], 2);
+                                if (uMultiWordNe((unsigned int *)&r22.chunks[0U], (unsigned int *)
+                                                 &r5.chunks[0U], 2)) {
                                     printf("================================================\n");
                                     fflush(stdout);
                                 }
@@ -19879,49 +20520,49 @@ namespace ocn
                                     dv3[1] = ctx->cfg.jmax[1];
                                     dv2[2] = ctx->cfg.amax[2];
                                     dv3[2] = ctx->cfg.jmax[2];
-                                    r22.set_size(ctx->BasisVal.size(0), ctx->BasisVal.size(1));
+                                    r26.set_size(ctx->BasisVal.size(0), ctx->BasisVal.size(1));
                                     g_loop_ub = ctx->BasisVal.size(1);
                                     for (int i12 = 0; i12 < g_loop_ub; i12++) {
                                         int h_loop_ub;
                                         h_loop_ub = ctx->BasisVal.size(0);
                                         for (int i13 = 0; i13 < h_loop_ub; i13++) {
-                                            r22[i13 + r22.size(0) * i12] = ctx->BasisVal[i13 +
+                                            r26[i13 + r26.size(0) * i12] = ctx->BasisVal[i13 +
                                                 ctx->BasisVal.size(0) * i12];
                                         }
                                     }
 
-                                    r24.set_size(ctx->BasisValD.size(0), ctx->BasisValD.size(1));
+                                    r28.set_size(ctx->BasisValD.size(0), ctx->BasisValD.size(1));
                                     i_loop_ub = ctx->BasisValD.size(1);
                                     for (int i14 = 0; i14 < i_loop_ub; i14++) {
                                         int j_loop_ub;
                                         j_loop_ub = ctx->BasisValD.size(0);
                                         for (int i15 = 0; i15 < j_loop_ub; i15++) {
-                                            r24[i15 + r24.size(0) * i14] = ctx->BasisValD[i15 +
+                                            r28[i15 + r28.size(0) * i14] = ctx->BasisValD[i15 +
                                                 ctx->BasisValD.size(0) * i14];
                                         }
                                     }
 
-                                    r27.set_size(ctx->BasisValDD.size(0), ctx->BasisValDD.size(1));
+                                    r31.set_size(ctx->BasisValDD.size(0), ctx->BasisValDD.size(1));
                                     k_loop_ub = ctx->BasisValDD.size(1);
                                     for (int i16 = 0; i16 < k_loop_ub; i16++) {
                                         int l_loop_ub;
                                         l_loop_ub = ctx->BasisValDD.size(0);
                                         for (int i17 = 0; i17 < l_loop_ub; i17++) {
-                                            r27[i17 + r27.size(0) * i16] = ctx->BasisValDD[i17 +
+                                            r31[i17 + r31.size(0) * i16] = ctx->BasisValDD[i17 +
                                                 ctx->BasisValDD.size(0) * i16];
                                         }
                                     }
 
-                                    r28.set_size(ctx->BasisIntegr.size(0));
+                                    r32.set_size(ctx->BasisIntegr.size(0));
                                     m_loop_ub = ctx->BasisIntegr.size(0);
                                     for (int i18 = 0; i18 < m_loop_ub; i18++) {
-                                        r28[i18] = ctx->BasisIntegr[i18];
+                                        r32[i18] = ctx->BasisIntegr[i18];
                                     }
 
-                                    r29.set_size(1, ctx->u_vec.size(1));
+                                    r33.set_size(1, ctx->u_vec.size(1));
                                     n_loop_ub = ctx->u_vec.size(1);
                                     for (int i19 = 0; i19 < n_loop_ub; i19++) {
-                                        r29[i19] = ctx->u_vec[i19];
+                                        r33[i19] = ctx->u_vec[i19];
                                     }
 
                                     if (ctx->cfg.NHorz > static_cast<int>(nopt)) {
@@ -19930,49 +20571,52 @@ namespace ocn
                                         f_ctx = ctx->cfg.NHorz;
                                     }
 
-                                    FeedratePlanning_v4(ctx, OptSegment, dv2, dv3, r22, r24, r27,
-                                                        r28, ctx->Bl.handle, r29, f_ctx, Coeff,
+                                    FeedratePlanning_v4(ctx, OptSegment, dv2, dv3, r26, r28, r31,
+                                                        r32, ctx->Bl.handle, r33, f_ctx, Coeff,
                                                         &unusedU0, &b_success);
                                     success = b_success;
                                     if ((!b_success) && ctx->zero_start) {
                                         //  1 -> stdout
                                         //  2 -> stderr
-                                        Double2MultiWord(d, (unsigned int *)&r30.chunks[0U], 2);
-                                        r31 = r13;
-                                        MultiWordAnd((unsigned int *)&r30.chunks[0U], (unsigned int *)
-                                                     &r13.chunks[0U], (unsigned int *)&r33.chunks[0U],
+                                        Double2MultiWord(d, (unsigned int *)&r34.chunks[0U], 2);
+                                        r35 = r17;
+                                        MultiWordAnd((unsigned int *)&r34.chunks[0U], (unsigned int *)
+                                                     &r17.chunks[0U], (unsigned int *)&r37.chunks[0U],
                                                      2);
-                                        r30 = r4;
-                                        if (uMultiWordNe((unsigned int *)&r33.chunks[0U], (unsigned
-                                                int *)&r4.chunks[0U], 2)) {
+                                        r34 = r5;
+                                        if (uMultiWordNe((unsigned int *)&r37.chunks[0U], (unsigned
+                                                int *)&r5.chunks[0U], 2)) {
                                             printf("ZeroStart at k = %d failed, halving jerk\n",
                                                    ctx->k0 - 1);
                                             fflush(stdout);
                                         }
 
                                         ctx->q_split.get((ctx->k0 - 1), (&expl_temp));
-                                        t0_P0[0] = expl_temp.P0[0];
-                                        t0_P1[0] = expl_temp.P1[0];
-                                        t0_HelixCenter[0] = expl_temp.HelixCenter[0];
-                                        t0_evec[0] = expl_temp.evec[0];
-                                        t0_P0[1] = expl_temp.P0[1];
-                                        t0_P1[1] = expl_temp.P1[1];
-                                        t0_HelixCenter[1] = expl_temp.HelixCenter[1];
-                                        t0_evec[1] = expl_temp.evec[1];
-                                        t0_P0[2] = expl_temp.P0[2];
-                                        t0_P1[2] = expl_temp.P1[2];
-                                        t0_HelixCenter[2] = expl_temp.HelixCenter[2];
-                                        t0_evec[2] = expl_temp.evec[2];
+                                        t1_P0[0] = expl_temp.P0[0];
+                                        t1_P1[0] = expl_temp.P1[0];
+                                        t1_CorrectedHelixCenter[0] = expl_temp.CorrectedHelixCenter
+                                            [0];
+                                        t1_evec[0] = expl_temp.evec[0];
+                                        t1_P0[1] = expl_temp.P0[1];
+                                        t1_P1[1] = expl_temp.P1[1];
+                                        t1_CorrectedHelixCenter[1] = expl_temp.CorrectedHelixCenter
+                                            [1];
+                                        t1_evec[1] = expl_temp.evec[1];
+                                        t1_P0[2] = expl_temp.P0[2];
+                                        t1_P1[2] = expl_temp.P1[2];
+                                        t1_CorrectedHelixCenter[2] = expl_temp.CorrectedHelixCenter
+                                            [2];
+                                        t1_evec[2] = expl_temp.evec[2];
                                         for (int i20 = 0; i20 < 6; i20++) {
-                                            t0_CoeffP5[i20][0] = expl_temp.CoeffP5[i20][0];
-                                            t0_CoeffP5[i20][1] = expl_temp.CoeffP5[i20][1];
-                                            t0_CoeffP5[i20][2] = expl_temp.CoeffP5[i20][2];
+                                            t1_CoeffP5[i20][0] = expl_temp.CoeffP5[i20][0];
+                                            t1_CoeffP5[i20][1] = expl_temp.CoeffP5[i20][1];
+                                            t1_CoeffP5[i20][2] = expl_temp.CoeffP5[i20][2];
                                         }
 
                                         g_ctx = ctx->q_splines;
-                                        CalcZeroStartConstraints(&g_ctx, expl_temp.Type, t0_P0,
-                                            t0_P1, t0_HelixCenter, t0_evec, expl_temp.theta,
-                                            expl_temp.pitch, t0_CoeffP5, expl_temp.sp_index,
+                                        CalcZeroStartConstraints(&g_ctx, expl_temp.Type, t1_P0,
+                                            t1_P1, t1_CorrectedHelixCenter, t1_evec, expl_temp.theta,
+                                            expl_temp.pitch, t1_CoeffP5, expl_temp.sp_index,
                                             expl_temp.UseConstJerk, expl_temp.ConstJerk,
                                             expl_temp.a_param, expl_temp.b_param, std::pow(0.5,
                                             static_cast<double>(Retry)), &ctx->v_0, &ctx->at_0);
@@ -19981,40 +20625,43 @@ namespace ocn
                                     if ((!b_success) && ctx->zero_end) {
                                         //  1 -> stdout
                                         //  2 -> stderr
-                                        Double2MultiWord(d, (unsigned int *)&r32.chunks[0U], 2);
-                                        MultiWordAnd((unsigned int *)&r32.chunks[0U], (unsigned int *)
-                                                     &r13.chunks[0U], (unsigned int *)&r31.chunks[0U],
+                                        Double2MultiWord(d, (unsigned int *)&r36.chunks[0U], 2);
+                                        MultiWordAnd((unsigned int *)&r36.chunks[0U], (unsigned int *)
+                                                     &r17.chunks[0U], (unsigned int *)&r35.chunks[0U],
                                                      2);
-                                        r32 = r4;
-                                        if (uMultiWordNe((unsigned int *)&r31.chunks[0U], (unsigned
-                                                int *)&r4.chunks[0U], 2)) {
+                                        r36 = r5;
+                                        if (uMultiWordNe((unsigned int *)&r35.chunks[0U], (unsigned
+                                                int *)&r5.chunks[0U], 2)) {
                                             printf("ZeroEnd at k = %d failed, halving jerk\n", kend);
                                             fflush(stdout);
                                         }
 
                                         ctx->q_split.get(kend, (&expl_temp));
-                                        t0_P0[0] = expl_temp.P0[0];
-                                        t0_P1[0] = expl_temp.P1[0];
-                                        t0_HelixCenter[0] = expl_temp.HelixCenter[0];
-                                        t0_evec[0] = expl_temp.evec[0];
-                                        t0_P0[1] = expl_temp.P0[1];
-                                        t0_P1[1] = expl_temp.P1[1];
-                                        t0_HelixCenter[1] = expl_temp.HelixCenter[1];
-                                        t0_evec[1] = expl_temp.evec[1];
-                                        t0_P0[2] = expl_temp.P0[2];
-                                        t0_P1[2] = expl_temp.P1[2];
-                                        t0_HelixCenter[2] = expl_temp.HelixCenter[2];
-                                        t0_evec[2] = expl_temp.evec[2];
+                                        t1_P0[0] = expl_temp.P0[0];
+                                        t1_P1[0] = expl_temp.P1[0];
+                                        t1_CorrectedHelixCenter[0] = expl_temp.CorrectedHelixCenter
+                                            [0];
+                                        t1_evec[0] = expl_temp.evec[0];
+                                        t1_P0[1] = expl_temp.P0[1];
+                                        t1_P1[1] = expl_temp.P1[1];
+                                        t1_CorrectedHelixCenter[1] = expl_temp.CorrectedHelixCenter
+                                            [1];
+                                        t1_evec[1] = expl_temp.evec[1];
+                                        t1_P0[2] = expl_temp.P0[2];
+                                        t1_P1[2] = expl_temp.P1[2];
+                                        t1_CorrectedHelixCenter[2] = expl_temp.CorrectedHelixCenter
+                                            [2];
+                                        t1_evec[2] = expl_temp.evec[2];
                                         for (int i21 = 0; i21 < 6; i21++) {
-                                            t0_CoeffP5[i21][0] = expl_temp.CoeffP5[i21][0];
-                                            t0_CoeffP5[i21][1] = expl_temp.CoeffP5[i21][1];
-                                            t0_CoeffP5[i21][2] = expl_temp.CoeffP5[i21][2];
+                                            t1_CoeffP5[i21][0] = expl_temp.CoeffP5[i21][0];
+                                            t1_CoeffP5[i21][1] = expl_temp.CoeffP5[i21][1];
+                                            t1_CoeffP5[i21][2] = expl_temp.CoeffP5[i21][2];
                                         }
 
                                         h_ctx = ctx->q_splines;
-                                        CalcZeroStartConstraints(&h_ctx, expl_temp.Type, t0_P0,
-                                            t0_P1, t0_HelixCenter, t0_evec, expl_temp.theta,
-                                            expl_temp.pitch, t0_CoeffP5, expl_temp.sp_index,
+                                        CalcZeroStartConstraints(&h_ctx, expl_temp.Type, t1_P0,
+                                            t1_P1, t1_CorrectedHelixCenter, t1_evec, expl_temp.theta,
+                                            expl_temp.pitch, t1_CoeffP5, expl_temp.sp_index,
                                             expl_temp.UseConstJerk, expl_temp.ConstJerk,
                                             expl_temp.a_param, expl_temp.b_param, std::pow(0.5,
                                             static_cast<double>(Retry)), &ctx->v_1, &b_at_0);
@@ -20041,17 +20688,17 @@ namespace ocn
                                     int i10;
                                     i10 = ctx->cfg.NHorz;
                                     if (0 <= i10 - 1) {
-                                        r23 = r1;
+                                        r27 = r1;
                                     }
 
                                     for (int nprint = 0; nprint < i10; nprint++) {
-                                        Double2MultiWord(d, (unsigned int *)&r25.chunks[0U], 2);
-                                        MultiWordAnd((unsigned int *)&r25.chunks[0U], (unsigned int *)
-                                                     &r1.chunks[0U], (unsigned int *)&r17.chunks[0U],
+                                        Double2MultiWord(d, (unsigned int *)&r29.chunks[0U], 2);
+                                        MultiWordAnd((unsigned int *)&r29.chunks[0U], (unsigned int *)
+                                                     &r1.chunks[0U], (unsigned int *)&r21.chunks[0U],
                                                      2);
-                                        r25 = r4;
-                                        if (uMultiWordNe((unsigned int *)&r17.chunks[0U], (unsigned
-                                                int *)&r4.chunks[0U], 2)) {
+                                        r29 = r5;
+                                        if (uMultiWordNe((unsigned int *)&r21.chunks[0U], (unsigned
+                                                int *)&r5.chunks[0U], 2)) {
                                             b_PrintCurvStruct(&ctx->q_splines,
                                                               ctx->cfg.NGridLengthSpline,
                                                               &OptSegment[0]);
@@ -20060,11 +20707,11 @@ namespace ocn
 
                                     //  1 -> stdout
                                     //  2 -> stderr
-                                    Double2MultiWord(d, (unsigned int *)&r26.chunks[0U], 2);
-                                    MultiWordAnd((unsigned int *)&r26.chunks[0U], (unsigned int *)
-                                                 &r1.chunks[0U], (unsigned int *)&r23.chunks[0U], 2);
-                                    if (uMultiWordNe((unsigned int *)&r23.chunks[0U], (unsigned int *)
-                                                     &r4.chunks[0U], 2)) {
+                                    Double2MultiWord(d, (unsigned int *)&r30.chunks[0U], 2);
+                                    MultiWordAnd((unsigned int *)&r30.chunks[0U], (unsigned int *)
+                                                 &r1.chunks[0U], (unsigned int *)&r27.chunks[0U], 2);
+                                    if (uMultiWordNe((unsigned int *)&r27.chunks[0U], (unsigned int *)
+                                                     &r5.chunks[0U], 2)) {
                                         printf("OPTIMIZATION FAILED!\n");
                                         fflush(stdout);
                                     }
@@ -20131,7 +20778,7 @@ namespace ocn
             Double2MultiWord(std::round(DebugConfig), (unsigned int *)&r.chunks[0U], 2);
             MultiWordAnd((unsigned int *)&r.chunks[0U], (unsigned int *)&r1.chunks[0U], (unsigned
                           int *)&r2.chunks[0U], 2);
-            if (uMultiWordNe((unsigned int *)&r2.chunks[0U], (unsigned int *)&r4.chunks[0U], 2)) {
+            if (uMultiWordNe((unsigned int *)&r2.chunks[0U], (unsigned int *)&r5.chunks[0U], 2)) {
                 printf("FEEDOPT: WRONG STATE\n");
                 fflush(stdout);
             }
@@ -20191,6 +20838,29 @@ namespace ocn
         double dv[3];
         double dv1[3];
         CurvStruct Curv;
+        double u_idx_0;
+        double u_idx_1;
+        double Spline_knots[8];
+        double b_breakpoints[2];
+        uint64m_T b_Bl_handle;
+        coder::array<double, 2U> b_Bl_breakpoints;
+        double coef[4];
+        double X[4];
+        double A[4][4];
+        double BasisValDD0[4];
+        double b_BasisVal[4][2];
+        double B[4];
+        int c_i;
+        double BasisValDD1[4];
+        static const signed char bx[4] = { 0, 0, 1, 0 };
+
+        signed char ipiv[4];
+        int d_i;
+        int jy;
+        int jA;
+        double b_x[4][4];
+        int c_ix;
+        int iy;
         int m_loop_ub;
         int n_loop_ub;
         int o_loop_ub;
@@ -20336,6 +21006,9 @@ namespace ocn
             ctx->BasisIntegr[i11] = 0.0;
         }
 
+        double d;
+        double d1;
+
         // ,
         c_bspline_base_eval(&Bl_handle, u_vec.size(1), &u_vec[0], &BasisVal[0], &BasisValD[0],
                             &BasisValDD[0], &unusedU0[0], &(ctx->BasisIntegr.data())[0]);
@@ -20347,7 +21020,289 @@ namespace ocn
         dv1[2] = 0.0;
         ConstrLineStruct(dv, dv1, 1.0, ZSpdMode_NN, &Curv);
 
-        //      Spline = CalcBspline_Lee(cfg, [[0,0,0]', [1,1,1]']);
+        //  if coder.target('rtw') || coder.target('mex')
+        //  number of points in 3D space
+        d = std::pow(1.0, 2.0);
+        d1 = std::pow((d + d) + d, 0.25);
+        u_idx_0 = 0.0 / d1;
+        u_idx_1 = d1 / d1;
+
+        //  normalize knots to interval [0...1]
+        Spline_knots[0] = 0.0;
+        Spline_knots[1] = 0.0;
+        Spline_knots[2] = 0.0;
+        Spline_knots[3] = u_idx_0;
+        Spline_knots[4] = u_idx_1;
+        Spline_knots[5] = 1.0;
+        Spline_knots[6] = 1.0;
+        Spline_knots[7] = 1.0;
+        b_breakpoints[0] = u_idx_0;
+        b_breakpoints[1] = u_idx_1;
+        c_bspline_create_with_breakpoints(&b_Bl_handle, cfg.SplineDegree, &b_breakpoints[0], 2);
+        b_Bl_breakpoints.set_size(1, 2);
+        b_Bl_breakpoints[0] = u_idx_0;
+        b_Bl_breakpoints[1] = u_idx_1;
+
+        //  preallocation
+        //  preallocation
+        //  preallocation
+        //
+        for (int d_k = 0; d_k < 4; d_k++) {
+            double x_idx_0;
+            double xk;
+
+            //  evaluate basis functions at the knots
+            coef[0] = 0.0;
+            coef[1] = 0.0;
+            coef[2] = 0.0;
+            coef[3] = 0.0;
+            coef[d_k] = 1.0;
+
+            //      sp             = spmak(knots, coef);
+            //      BasisVal(:, k) = spval(sp, u);          % tridiagonal matrix
+            //  void c_bspline_eval(uint64_t *handle, const double *c, double x, double X[3]);
+            c_bspline_eval(&b_Bl_handle, &coef[0], u_idx_0, &X[0]);
+            x_idx_0 = X[0];
+            xk = u_idx_1;
+
+            //  void c_bspline_eval(uint64_t *handle, const double *c, double x, double X[3]);
+            if (u_idx_1 < 0.0) {
+                printf("ERROR: C_BSPLINE_EVAL: X < 0 (%f)\n", u_idx_1);
+                fflush(stdout);
+                xk = 0.0;
+            } else {
+                if (u_idx_1 > 1.0) {
+                    printf("ERROR: C_BSPLINE_EVAL: X > 1 (%f)\n", u_idx_1);
+                    fflush(stdout);
+                    xk = 1.0;
+                }
+            }
+
+            c_bspline_eval(&b_Bl_handle, &coef[0], xk, &X[0]);
+            b_BasisVal[d_k][0] = x_idx_0;
+            b_BasisVal[d_k][1] = X[0];
+
+            //      sp2D           = fnder(sp, 2);          % evaluate 2nd derivative of basis functions @u=0,1 
+            //  void c_bspline_eval(uint64_t *handle, const double *c, double x, double X[3]);
+            c_bspline_eval(&b_Bl_handle, &coef[0], 0.0, &X[0]);
+            BasisValDD0[d_k] = X[2];
+
+            //  void c_bspline_eval(uint64_t *handle, const double *c, double x, double X[3]);
+            c_bspline_eval(&b_Bl_handle, &coef[0], 1.0, &X[0]);
+            BasisValDD1[d_k] = X[2];
+
+            //      BasisValDD0(k) = spval(sp2D, 0);
+            //      BasisValDD1(k) = spval(sp2D, 1);
+        }
+
+        //
+        //  warning('NOT using a sparse matrix here because it pulled the CXSparse project into generation') 
+        //  A = sparse(A);
+        //  figure;
+        //  spy(A)
+        //
+        //
+        //  mmdflag = spparms('autommd'); % protect current spparms setting
+        //  spparms('autommd',0);         % suppress pivoting
+        //
+        // tic
+        for (int b_i = 0; b_i < 4; b_i++) {
+            A[b_i][0] = BasisValDD0[b_i];
+            A[b_i][1] = b_BasisVal[b_i][0];
+            A[b_i][2] = b_BasisVal[b_i][1];
+            A[b_i][3] = BasisValDD1[b_i];
+            B[b_i] = bx[b_i];
+            ipiv[b_i] = static_cast<signed char>(b_i + 1);
+        }
+
+        for (int j = 0; j < 3; j++) {
+            int mmj_tmp;
+            int b;
+            int jj;
+            int jp1j;
+            int n;
+            int a;
+            int ix;
+            double smax;
+            mmj_tmp = 2 - j;
+            b = j * 5;
+            jj = j * 5;
+            jp1j = b + 2;
+            n = 4 - j;
+            a = 0;
+            ix = b;
+            smax = std::abs((&A[0][0])[jj]);
+            for (int e_k = 2; e_k <= n; e_k++) {
+                double s;
+                ix++;
+                s = std::abs((&A[0][0])[ix]);
+                if (s > smax) {
+                    a = e_k - 1;
+                    smax = s;
+                }
+            }
+
+            if ((&A[0][0])[jj + a] != 0.0) {
+                int i16;
+                if (a != 0) {
+                    int ipiv_tmp;
+                    ipiv_tmp = j + a;
+                    ipiv[j] = static_cast<signed char>(ipiv_tmp + 1);
+                    for (int i17 = 0; i17 < 4; i17++) {
+                        b_x[i17][0] = A[i17][0];
+                        b_x[i17][1] = A[i17][1];
+                        b_x[i17][2] = A[i17][2];
+                        b_x[i17][3] = A[i17][3];
+                    }
+
+                    double temp;
+                    temp = (&b_x[0][0])[j];
+                    (&b_x[0][0])[j] = (&b_x[0][0])[ipiv_tmp];
+                    (&b_x[0][0])[ipiv_tmp] = temp;
+                    c_ix = j + 4;
+                    iy = ipiv_tmp + 4;
+                    temp = (&b_x[0][0])[c_ix];
+                    (&b_x[0][0])[c_ix] = (&b_x[0][0])[iy];
+                    (&b_x[0][0])[iy] = temp;
+                    c_ix += 4;
+                    iy += 4;
+                    temp = (&b_x[0][0])[c_ix];
+                    (&b_x[0][0])[c_ix] = (&b_x[0][0])[iy];
+                    (&b_x[0][0])[iy] = temp;
+                    c_ix += 4;
+                    iy += 4;
+                    temp = (&b_x[0][0])[c_ix];
+                    (&b_x[0][0])[c_ix] = (&b_x[0][0])[iy];
+                    (&b_x[0][0])[iy] = temp;
+                    for (int i20 = 0; i20 < 4; i20++) {
+                        A[i20][0] = b_x[i20][0];
+                        A[i20][1] = b_x[i20][1];
+                        A[i20][2] = b_x[i20][2];
+                        A[i20][3] = b_x[i20][3];
+                    }
+                }
+
+                i16 = (jj - j) + 4;
+                for (int e_i = jp1j; e_i <= i16; e_i++) {
+                    (&A[0][0])[e_i - 1] /= (&A[0][0])[jj];
+                }
+            }
+
+            jy = b + 4;
+            jA = jj;
+            for (int b_j = 0; b_j <= mmj_tmp; b_j++) {
+                double yjy;
+                yjy = (&A[0][0])[jy];
+                if ((&A[0][0])[jy] != 0.0) {
+                    int b_ix;
+                    int i18;
+                    int i19;
+                    b_ix = jj + 1;
+                    i18 = jA + 6;
+                    i19 = (jA - j) + 8;
+                    for (int ijA = i18; ijA <= i19; ijA++) {
+                        (&A[0][0])[ijA - 1] += (&A[0][0])[b_ix] * -yjy;
+                        b_ix++;
+                    }
+                }
+
+                jy += 4;
+                jA += 4;
+            }
+
+            if (ipiv[j] != j + 1) {
+                int b_temp;
+                int B_tmp;
+                b_temp = static_cast<int>(B[j]);
+                B_tmp = ipiv[j] - 1;
+                B[j] = B[B_tmp];
+                B[B_tmp] = b_temp;
+            }
+        }
+
+        if (B[0] != 0.0) {
+            for (c_i = 2; c_i < 5; c_i++) {
+                B[c_i - 1] -= (&A[0][0])[c_i - 1];
+            }
+        }
+
+        if (B[1] != 0.0) {
+            for (c_i = 3; c_i < 5; c_i++) {
+                B[c_i - 1] -= B[1] * (&A[0][0])[c_i + 3];
+            }
+        }
+
+        if (B[2] != 0.0) {
+            for (c_i = 4; c_i < 5; c_i++) {
+                B[3] -= B[2] * (&A[0][0])[11];
+            }
+        }
+
+        if (B[3] != 0.0) {
+            B[3] /= (&A[0][0])[15];
+            for (d_i = 0; d_i < 3; d_i++) {
+                B[d_i] -= B[3] * (&A[0][0])[d_i + 12];
+            }
+        }
+
+        if (B[2] != 0.0) {
+            B[2] /= (&A[0][0])[10];
+            for (d_i = 0; d_i < 2; d_i++) {
+                B[d_i] -= B[2] * (&A[0][0])[d_i + 8];
+            }
+        }
+
+        if (B[1] != 0.0) {
+            B[1] /= (&A[0][0])[5];
+            for (d_i = 0; d_i < 1; d_i++) {
+                B[0] -= B[1] * (&A[0][0])[4];
+            }
+        }
+
+        if (B[0] != 0.0) {
+            B[0] /= (&A[0][0])[0];
+        }
+
+        //  solve sparse banded linear system
+        //  solve sparse banded linear system
+        //  solve sparse banded linear system
+        // toc
+        //
+        //  spparms('autommd',mmdflag);   % restore spparms setting
+        //
+        //  sp3D = spmak(knots, [cx'; cy'; cz']);
+        //  coder.varsize('cx', 'cy', 'cz', [1, Inf], [0, 1]);
+        //  else
+        //      sp3D = CalcBspline_Lee_matlab(points);
+        //  end
+        Curv.sp.CoeffX.set_size(1, 4);
+        Curv.sp.CoeffY.set_size(1, 4);
+        Curv.sp.CoeffZ.set_size(1, 4);
+        Curv.sp.CoeffX[0] = B[0];
+        Curv.sp.CoeffY[0] = B[0];
+        Curv.sp.CoeffZ[0] = B[0];
+        Curv.sp.CoeffX[1] = B[1];
+        Curv.sp.CoeffY[1] = B[1];
+        Curv.sp.CoeffZ[1] = B[1];
+        Curv.sp.CoeffX[2] = B[2];
+        Curv.sp.CoeffY[2] = B[2];
+        Curv.sp.CoeffZ[2] = B[2];
+        Curv.sp.CoeffX[3] = B[3];
+        Curv.sp.CoeffY[3] = B[3];
+        Curv.sp.CoeffZ[3] = B[3];
+        Curv.sp.Bl.ncoeff = cfg.SplineDegree;
+        Curv.sp.Bl.breakpoints.set_size(1, 2);
+        for (int i21 = 0; i21 < 2; i21++) {
+            Curv.sp.Bl.breakpoints[i21] = b_Bl_breakpoints[i21];
+        }
+
+        Curv.sp.Bl.handle = b_Bl_handle;
+        Curv.sp.Bl.degree = cfg.SplineDegree;
+        Curv.sp.knots.set_size(1, 8);
+        for (int i22 = 0; i22 < 8; i22++) {
+            Curv.sp.knots[i22] = Spline_knots[i22];
+        }
+
         ctx->op = Fopt_Init;
         ctx->go_next = false;
         ctx->q_gcode.init((&Curv));
@@ -20368,52 +21323,54 @@ namespace ocn
         ctx->Bl.ncoeff = Bl_ncoeff;
         ctx->Bl.breakpoints.set_size(1, Bl_breakpoints.size(1));
         m_loop_ub = Bl_breakpoints.size(1);
-        for (int i16 = 0; i16 < m_loop_ub; i16++) {
-            ctx->Bl.breakpoints[i16] = Bl_breakpoints[i16];
+        for (int i23 = 0; i23 < m_loop_ub; i23++) {
+            ctx->Bl.breakpoints[i23] = Bl_breakpoints[i23];
         }
 
         ctx->Bl.handle = Bl_handle;
         ctx->Bl.degree = Bl_degree;
         ctx->u_vec.set_size(1, u_vec.size(1));
         n_loop_ub = u_vec.size(1);
-        for (int i17 = 0; i17 < n_loop_ub; i17++) {
-            ctx->u_vec[i17] = u_vec[i17];
+        for (int i24 = 0; i24 < n_loop_ub; i24++) {
+            ctx->u_vec[i24] = u_vec[i24];
         }
 
         ctx->errcode = FeedoptPlanError_Success;
         ctx->jmax_increase_count = 0;
         ctx->zero_start = false;
         ctx->zero_end = false;
+        ctx->forced_stop = 0;
+        ctx->programmed_stop = 0;
         ctx->BasisVal.set_size(BasisVal.size(0), BasisVal.size(1));
         o_loop_ub = BasisVal.size(1);
-        for (int i18 = 0; i18 < o_loop_ub; i18++) {
+        for (int i25 = 0; i25 < o_loop_ub; i25++) {
             int p_loop_ub;
             p_loop_ub = BasisVal.size(0);
-            for (int i19 = 0; i19 < p_loop_ub; i19++) {
-                ctx->BasisVal[i19 + ctx->BasisVal.size(0) * i18] = BasisVal[i19 + BasisVal.size(0) *
-                    i18];
+            for (int i26 = 0; i26 < p_loop_ub; i26++) {
+                ctx->BasisVal[i26 + ctx->BasisVal.size(0) * i25] = BasisVal[i26 + BasisVal.size(0) *
+                    i25];
             }
         }
 
         ctx->BasisValD.set_size(BasisValD.size(0), BasisValD.size(1));
         q_loop_ub = BasisValD.size(1);
-        for (int i20 = 0; i20 < q_loop_ub; i20++) {
+        for (int i27 = 0; i27 < q_loop_ub; i27++) {
             int r_loop_ub;
             r_loop_ub = BasisValD.size(0);
-            for (int i21 = 0; i21 < r_loop_ub; i21++) {
-                ctx->BasisValD[i21 + ctx->BasisValD.size(0) * i20] = BasisValD[i21 + BasisValD.size
-                    (0) * i20];
+            for (int i28 = 0; i28 < r_loop_ub; i28++) {
+                ctx->BasisValD[i28 + ctx->BasisValD.size(0) * i27] = BasisValD[i28 + BasisValD.size
+                    (0) * i27];
             }
         }
 
         ctx->BasisValDD.set_size(BasisValDD.size(0), BasisValDD.size(1));
         s_loop_ub = BasisValDD.size(1);
-        for (int i22 = 0; i22 < s_loop_ub; i22++) {
+        for (int i29 = 0; i29 < s_loop_ub; i29++) {
             int t_loop_ub;
             t_loop_ub = BasisValDD.size(0);
-            for (int i23 = 0; i23 < t_loop_ub; i23++) {
-                ctx->BasisValDD[i23 + ctx->BasisValDD.size(0) * i22] = BasisValDD[i23 +
-                    BasisValDD.size(0) * i22];
+            for (int i30 = 0; i30 < t_loop_ub; i30++) {
+                ctx->BasisValDD[i30 + ctx->BasisValDD.size(0) * i29] = BasisValDD[i30 +
+                    BasisValDD.size(0) * i29];
             }
         }
 
@@ -20562,16 +21519,16 @@ namespace ocn
             break;
         }
 
-        b_EvalCurvStruct(&ctx->q_splines, S->Type, S->P0, S->P1, S->HelixCenter, S->evec, S->theta,
-                         S->pitch, S->CoeffP5, S->sp_index, S->b_param, P0);
-        c_EvalCurvStruct(&ctx->q_splines, S->Type, S->P0, S->P1, S->HelixCenter, S->evec, S->theta,
-                         S->pitch, S->CoeffP5, S->sp_index, S->a_param, S->b_param, P1);
+        b_EvalCurvStruct(&ctx->q_splines, S->Type, S->P0, S->P1, S->CorrectedHelixCenter, S->evec,
+                         S->theta, S->pitch, S->CoeffP5, S->sp_index, S->b_param, P0);
+        c_EvalCurvStruct(&ctx->q_splines, S->Type, S->P0, S->P1, S->CorrectedHelixCenter, S->evec,
+                         S->theta, S->pitch, S->CoeffP5, S->sp_index, S->a_param, S->b_param, P1);
         printf("%10s: [%.4f %.4f %.4f] -> [%.4f %.4f %.4f]\n", "P", P0[0], P0[1], P0[2], P1[0], P1[1],
                P1[2]);
         fflush(stdout);
         validatedHoleFilling_f2 = LengthCurv(&ctx->q_splines, ctx->cfg.NGridLengthSpline, S->Type,
-            S->P0, S->P1, S->HelixCenter, S->evec, S->theta, S->pitch, S->CoeffP5, S->sp_index,
-            S->a_param, S->b_param);
+            S->P0, S->P1, S->CorrectedHelixCenter, S->evec, S->theta, S->pitch, S->CoeffP5,
+            S->sp_index, S->a_param, S->b_param);
         printf("%10s: %e\n", "Length", validatedHoleFilling_f2);
         fflush(stdout);
         switch (S->zspdmode) {
@@ -20610,8 +21567,8 @@ namespace ocn
         printf("FeedRate: %.2f\n", S->FeedRate);
         fflush(stdout);
         if (S->UseConstJerk) {
-            CalcZeroStartConstraints(&ctx->q_splines, S->Type, S->P0, S->P1, S->HelixCenter, S->evec,
-                S->theta, S->pitch, S->CoeffP5, S->sp_index, S->UseConstJerk, S->ConstJerk,
+            CalcZeroStartConstraints(&ctx->q_splines, S->Type, S->P0, S->P1, S->CorrectedHelixCenter,
+                S->evec, S->theta, S->pitch, S->CoeffP5, S->sp_index, S->UseConstJerk, S->ConstJerk,
                 S->a_param, S->b_param, 1.0, &validatedHoleFilling_idx_0,
                 &b_validatedHoleFilling_idx_0);
             printf("ConstJerk: %e\n", S->ConstJerk);

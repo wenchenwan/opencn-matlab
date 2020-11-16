@@ -5,7 +5,7 @@
 // File: sinspace_types.h
 //
 // MATLAB Coder version            : 5.0
-// C/C++ source code generated on  : 25-Sep-2020 17:18:12
+// C/C++ source code generated on  : 16-Nov-2020 12:36:43
 //
 #ifndef SINSPACE_TYPES_H
 #define SINSPACE_TYPES_H
@@ -30,6 +30,17 @@ namespace ocn
         CurveType_Helix,
         CurveType_Spline,
         CurveType_TransP5
+    };
+
+    enum DebugCfg
+    {
+        DebugCfg_Transitions = 1,      // Default value
+        DebugCfg_OptimProgress,
+        DebugCfg_FeedratePlanning,
+        DebugCfg_Global,
+        DebugCfg_Warning,
+        DebugCfg_Error,
+        DebugCfg_Plots
     };
 
     enum FeedoptPlanError
@@ -109,7 +120,7 @@ namespace ocn
         ZSpdMode zspdmode;
         double P0[3];
         double P1[3];
-        double HelixCenter[3];
+        double CorrectedHelixCenter[3];
         double evec[3];
         double theta;
         double pitch;
@@ -154,6 +165,12 @@ namespace ocn
         CurvStruct value_type;
     };
 
+    struct struct0_T
+    {
+        bool Skip;
+        double ColTolDeg;
+    };
+
     struct FeedoptConfig
     {
         int NDiscr;
@@ -180,7 +197,7 @@ namespace ocn
         double ZeroStartVelLimit;
         char source[1024];
         bool DebugCutZero;
-        bool SkipCompressing;
+        struct0_T Compressing;
         double CollTolDeg;
         double NGridLengthSpline;
         char LogFileName[9];
@@ -211,6 +228,8 @@ namespace ocn
         int jmax_increase_count;
         bool zero_start;
         bool zero_end;
+        int forced_stop;
+        int programmed_stop;
         coder::array<double, 2U> BasisVal;
         coder::array<double, 2U> BasisValD;
         coder::array<double, 2U> BasisValDD;
