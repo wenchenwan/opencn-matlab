@@ -52,7 +52,7 @@ switch ctx.op
         ctx.op = Fopt.Compress;
 
     case Fopt.Compress
-        if ctx.cfg.SkipCompressing
+        if ctx.cfg.Compressing.Skip
             ctx = ExpandZeroStructs(ctx);
         else
             ctx = CompressCurvStructs(ctx);

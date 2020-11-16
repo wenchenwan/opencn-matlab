@@ -3,6 +3,8 @@ coder.inline('never')
 if coder.target('rtw') || coder.target('mex')
     coder.cinclude('common/tracy/Tracy.hpp');
     coder.ceval('ZoneScopedN', coder.opaque('const char*', '"EvalBSpline"'));
+end
+
     Spline=CurvSpline;
     sp = Spline.sp;
     Bl = sp.Bl;
@@ -14,19 +16,6 @@ if coder.target('rtw') || coder.target('mex')
     r1D = [r1Dx; r1Dy; r1Dz];
     r2D = [r2Dx; r2Dy; r2Dz];
     r3D = [r3Dx; r3Dy; r3Dz];
-else
-    Spline=CurvSpline;
-    sp = Spline.sp;
-    r0D = spval(sp, uvec);
 
-    sp1D = fnder(sp, 1);
-    r1D = spval(sp1D, uvec);
-
-    sp2D = fnder(sp, 2);
-    r2D = spval(sp2D, uvec);
-
-    sp3D = fnder(sp, 3);
-    r3D = spval(sp3D, uvec);
-end
 
 end
