@@ -1,6 +1,6 @@
 function EnableDebugLog(cfg)
 global DebugConfig
 
-    DebugConfig = bitset(DebugConfig, cfg);  
+    DebugConfig = bitset(DebugConfig, int32(cfg));  
 
 end
