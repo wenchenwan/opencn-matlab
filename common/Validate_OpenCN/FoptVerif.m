@@ -68,9 +68,9 @@ for k=1:size(uvec, 1)
     end
     
     % time-optimatity verif
-    condv = vvec_norm(k, :) > 1-tol.tol_opt;
-    conda = any(avec(k, :) > 1-tol.tol_opt);
-    condj = any(jvec(k, :) > 1-tol.tol_opt);
+    condv = vvec_norm(k, :) > 1-tol.tol_opt_v;
+    conda = any(avec(k, :) > 1-tol.tol_opt_a);
+    condj = any(jvec(k, :) > 1-tol.tol_opt_j);
     
     if any([condv, conda, condj])
         t_max = t_max + ctx.cfg.dt;
@@ -106,7 +106,7 @@ if IsEnabledDebugLog(DebugCfg.Plots)
 
     % Max plot
     figure
-    scatter3(pvec(:, 1), pvec(:, 2), pvec(:, 3), 1, max_vec_logic, 'o')
+    scatter(pvec(:, 1), pvec(:, 2), 1, max_vec_logic, 'o')
     map = [1 0 0; ... % red
            0 1 0];    % green
     colormap(map)

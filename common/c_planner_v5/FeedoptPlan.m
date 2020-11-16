@@ -25,7 +25,7 @@ switch ctx.op
 %         
     case Fopt.GCode
         status = int32(ReadGCode(ReadGCodeCmd.Load, ctx.cfg.source));
-        DebugLog(DebugCfg.Transitions, 'Reading G-code...\n');
+        DebugLog(DebugCfg.Validate, 'Reading G-code...\n');
         while status
             [status, CurvStruct] = ReadGCode(ReadGCodeCmd.Read, '');
             if status == 1 && CurvStruct.Type ~= 0
@@ -66,7 +66,7 @@ switch ctx.op
     case Fopt.Split
         ctx = SplitCurvStructs(ctx);
         ctx.op = Fopt.Opt;
-        DebugLog(DebugCfg.Transitions, 'Feedrate Planning...\n');
+        DebugLog(DebugCfg.Validate, 'Feedrate Planning...\n');
         if coder.target('matlab')
             diary off;
         end
@@ -76,7 +76,7 @@ switch ctx.op
             if coder.target('matlab')
                 diary on;
             end
-            DebugLog(DebugCfg.Transitions, 'Queue empty...\n');
+            DebugLog(DebugCfg.Validate, 'Queue empty...\n');
             ctx.op = Fopt.Finished;
             return;
         end
@@ -182,7 +182,7 @@ switch ctx.op
                 end
                 
                 if coder.target('matlab')
-                    assert(success == 1);
+                    c_assert(success == 1,'Feedopt not successfull after 100 retrys!');
                 end
                 
                 ctx.zero_start = false;
@@ -196,7 +196,7 @@ switch ctx.op
                         end
                     end
                     if coder.target('MATLAB')
-                        error('OPTIMIZATION FAILED')
+                        c_assert('OPTIMIZATION FAILED');
                     else
                         DebugLog(DebugCfg.Global, 'OPTIMIZATION FAILED!\n');
                         ctx.errcode = FeedoptPlanError.OptimizationFailed;

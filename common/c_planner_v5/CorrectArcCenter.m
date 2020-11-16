@@ -6,7 +6,7 @@ function [R, Cprim] = CorrectArcCenter(P0, P1, C)
 P1P0   = P1 - P0;
 R      = 0.5*(MyNorm(C-P0) + MyNorm(C-P1)); % mean value of radius
 %
-if MyNorm(P1P0) < 1e-30
+if MyNorm(P1P0) < 1e-6
     Cprim = C;                         % do nothing if P0 and P1 are extremely close
 else
     l      = MyNorm(P1P0);

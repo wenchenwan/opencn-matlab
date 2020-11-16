@@ -14,7 +14,7 @@ Ncrv = ctx.q_gcode.size;
 CumulatedLength = 0;
 Length_Threshold = ctx.cfg.LThreshold; % [mm]
 
-DebugLog(DebugCfg.Transitions, 'Compressing...\n');
+DebugLog(DebugCfg.Validate, 'Compressing...\n');
 spindle_speed = 75000;
 
 % Satisfy coder
