@@ -1,16 +1,14 @@
 clc; clear; close all;
 
-cd ~/opencn/agency/usr/matlab/common
-startup
-cd Validate_OpenCN
-
 d         = datestr(datetime('now'));
 Cd        = cd;                             % current folder
 
 %% Choose directory with G-code validation files
 fs         = filesep; % file separation character
 % Gdir       = uigetdir('.', 'Choose directory with G-code validation files');
-Gdir       = '/home/rozanov/opencn/agency/usr/matlab/common/ngc_test/full';
+
+% temporary line!
+Gdir       = '/home/rozanov/opencn/agency/usr/matlab/common/ngc_test/utility_test_gcodes';
 dircontent = dir([Gdir, fs, '*.ngc']);
 NGcodes    = length(dircontent);
 Str        = sprintf('%d G-code files found', NGcodes);
@@ -19,6 +17,8 @@ uiwait(msgbox(Str,'','modal'));
 %% Choose parameter file
 % [Pfile, Ppath] = uigetfile('*.m');
 % PfileName      = [Ppath, Pfile];
+
+% temporary line!
 PfileName = '/home/rozanov/opencn/agency/usr/matlab/common/Validate_OpenCN/params.m';
 run(PfileName);
 
@@ -44,7 +44,9 @@ uiwait(msgbox(Str,'','modal'));
 tol.v_tol = vmax_norm_tol;
 tol.a_tol = amax_xyz_tol;
 tol.j_tol = jmax_xyz_tol;
-tol.tol_opt = tol_opt;
+tol.tol_opt_v = tol_opt_vnorm;
+tol.tol_opt_a = tol_opt_a;
+tol.tol_opt_j = tol_opt_j;
 tol.TOpt_tol = TOpt_tol;
 
 %% setup wait bar
@@ -52,9 +54,6 @@ fw = waitbar(0, '');
 
 %% Feedopt config
 cfg = FeedoptDefaultConfig;
-cfg.NDiscr = 100;
-cfg.NBreak = 50;
-cfg.NHorz = 5;
 
 %% Initialization
 OK               = 1;
@@ -102,10 +101,10 @@ tic
 global DebugConfig
 DebugConfig = 0;
 
-% EnableDebugLog(DebugCfg.OptimProgress);
-EnableDebugLog(DebugCfg.Transitions);
+EnableDebugLog(DebugCfg.OptimProgress);
+EnableDebugLog(DebugCfg.Validate);
 EnableDebugLog(DebugCfg.Error);
-% EnableDebugLog(DebugCfg.Plots);
+EnableDebugLog(DebugCfg.Plots);
 
 %% Params sweep
 
@@ -122,12 +121,25 @@ for k = 1:NGcodes
         cfg.CutOff = Comb(i).Cut_Off;
         ctx = InitFeedoptPlan(cfg);
         
-        DebugLog(DebugCfg.Transitions, [cfg.source, '\n']);
-        DebugLog(DebugCfg.Transitions, 'amax x: %.2e, y: %.2e, z: %.2e\n',...
+        % Log file header
+        DebugLog(DebugCfg.Validate, [cfg.source, '\n']);
+        DebugLog(DebugCfg.Validate, 'amax x: %.2e, y: %.2e, z: %.2e\n',...
             cfg.amax(1), cfg.amax(2), cfg.amax(3));
-        DebugLog(DebugCfg.Transitions, 'jmax x: %.2e, y: %.2e, z: %.2e\n',...
+        DebugLog(DebugCfg.Validate, 'jmax x: %.2e, y: %.2e, z: %.2e\n',...
             cfg.jmax(1), cfg.jmax(2), cfg.jmax(3));
-        DebugLog(DebugCfg.Transitions, 'CutOff: %.3f\n', cfg.CutOff);
+        DebugLog(DebugCfg.Validate, 'CutOff: %.3f\n', cfg.CutOff);
+        DebugLog(DebugCfg.Validate,...
+            'Tol opt V: %.0f%%\n', tol.tol_opt_v*100);
+        DebugLog(DebugCfg.Validate,...
+            'Tol opt A: %.0f%%\n', tol.tol_opt_a*100);
+        DebugLog(DebugCfg.Validate,...
+            'Tol opt J: %.0f%%\n', tol.tol_opt_j*100);
+        DebugLog(DebugCfg.Validate,...
+            'Tol max V: %.0f%%\n', tol.v_tol*100);
+        DebugLog(DebugCfg.Validate,...
+            'Tol max A: %.0f%%\n', tol.a_tol*100);
+        DebugLog(DebugCfg.Validate,...
+            'Tol max J: %.0f%%\n', tol.j_tol*100);
 
         try
             
@@ -146,8 +158,6 @@ for k = 1:NGcodes
             
             profile off
             
-            DebugLog(DebugCfg.Transitions, 'End.\n');
-
             ProfilCell{k, i} = profile('info');
             
             Report.ExactStopsNbr(k, i).forced = ctx.forced_stop;
@@ -166,32 +176,49 @@ for k = 1:NGcodes
                 Report.MaxConstraints(k, i).Exceeded = 1;
                 if bitget(constr, 1)
                     Report.MaxConstraints(k, i).vnorm = 1;
+                    DebugLog(DebugCfg.Validate, 'V max exceeded!.\n');
                 end
                 if bitget(constr, 2)
                     Report.MaxConstraints(k, i).acc = 1;
+                    DebugLog(DebugCfg.Validate, 'A max exceeded!.\n');
                 end
                 if bitget(constr, 3)
                     Report.MaxConstraints(k, i).jerk = 1;
+                    DebugLog(DebugCfg.Validate, 'J max exceeded!.\n');
                 end
             end
             
             if bitand(status, 8) ~= 0
                 OK = 0;
                 Report.NotTimeOptimal(k, i) = 1;
+                DebugLog(DebugCfg.Validate, 'Not time optimal!.\n');
             end
             
+            DebugLog(DebugCfg.Validate,...
+                'Time optimality ratio: %.1f%%\n', ratioTOpt*100);
             Report.RatioTOpt(k, i) = ratioTOpt;
-           
+            
         catch ME % here an assert is detected
             
             profile off
             OK       = 0;
             AssertErrorCtr = AssertErrorCtr + 1;
             MEcell{AssertErrorCtr}   = ME;
+            diary on
+            DebugLog(DebugCfg.Validate,...
+                'Assert detected:\n');
+            DebugLog(DebugCfg.Validate,...
+                '  Message: %s\n', ME.message);
+            DebugLog(DebugCfg.Validate,...
+                '  Function: %s\n', ME.stack(2).name);
+            DebugLog(DebugCfg.Validate,...
+                '  Line: %d\n', ME.stack(2).line);
             
         end
         
         DestroyContext(ctx);
+        
+        DebugLog(DebugCfg.Validate, 'End.\n');
     
     end
 
@@ -257,13 +284,6 @@ if status == 1
     delete([Cd, fs, 'commit_info.txt']);
 end
 
-% Copy logs
-mkdir([DirName, fs, 'logs']);
-status = copyfile('logs', [DirName, fs, 'logs']);
-if status == 1
-    rmdir('logs', 's');
-end
-
 copyfile(PfileName, DirName);                   % copy selected parameter file
 copyfile('Validate_OpenCN.m', DirName);         % copy this .m source file
 
@@ -317,17 +337,26 @@ end
 
 %% Saving relevant info in .mat file
 fname = [DirName, '_status.mat'];
-save(fname, 'd', 'MEcell', 'ProfilCell', 'Report');
+save(fname, 'd', 'MEcell', 'ProfilCell', 'Report', '-v7.3');
 
 status = copyfile(fname, DirName);
 if status == 1
     delete(fname);
 end
 
+%% Finalizing logs
 endTime_s = toc;
 endTime_h = floor(endTime_s/3600);
 endTime_m = floor((endTime_s - endTime_h * 3600)/60);
 endTime_s = endTime_s - endTime_h * 3600 - endTime_m *60;
 
-fprintf('Elapsed time: %.0d:%.0d:%.0d\n', endTime_h, endTime_m, endTime_s);
+fprintf('Elapsed time (HH:MM:SS.S): %02.0f:%02.0f:%02.1f\n',...
+    endTime_h, endTime_m, endTime_s);
 diary off;
+
+% Copy logs
+mkdir([DirName, fs, 'logs']);
+status = copyfile('logs', [DirName, fs, 'logs']);
+if status == 1
+    rmdir('logs', 's');
+end

@@ -10,7 +10,7 @@ if coder.target('rtw')
 end
 Ncrv = ctx.q_compress.size;
 
-DebugLog(DebugCfg.Transitions, 'Smoothing...\n');
+DebugLog(DebugCfg.Validate, 'Smoothing...\n');
 
 k = 1;
 
@@ -70,7 +70,7 @@ elseif Ncrv==1
         ctx.q_smooth.push(CurvStruct2_C);
         ctx.q_smooth.push(CurvStruct3_C);
     else
-        error('Single CurvStruct was not ZZ')
+        c_assert(false, 'Single CurvStruct was not ZZ');
     end
 else
     c_assert(false, 'Compressing queue is empty!');
