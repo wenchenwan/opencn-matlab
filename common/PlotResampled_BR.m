@@ -16,15 +16,16 @@ ktick = 1;
 
 state = ResampleState(dt);
 N = ctx.q_opt.size();
-DebugLog(DebugCfg.Transitions, 'Resampling ...\n');
+DebugLog(DebugCfg.Validate, 'Resampling ...\n');
+
+if coder.target('matlab')
+    diary off;
+end
 
 t = 0;
 
 for k = 1:N
     
-    if coder.target('matlab')
-        diary off;
-    end
     DebugLog(DebugCfg.OptimProgress, '%4d/%d\n', k, N);
     Curv = ctx.q_opt.get(k);
     Curv.MaxConstantFeedRate = GetCurvMaxFeedrate(ctx, Curv);
@@ -39,7 +40,7 @@ for k = 1:N
 
     state.go_next = false;
     if ktick > ktick_max
-        warning('Breaking because ktick > %d', ktick_max)
+        DebugLog(DebugCfg.Warning, 'Breaking because ktick > %d', ktick_max);
         break;
     end
 end

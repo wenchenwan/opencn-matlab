@@ -104,7 +104,7 @@ DebugConfig = 0;
 EnableDebugLog(DebugCfg.OptimProgress);
 EnableDebugLog(DebugCfg.Validate);
 EnableDebugLog(DebugCfg.Error);
-EnableDebugLog(DebugCfg.Plots);
+% EnableDebugLog(DebugCfg.Plots);
 
 %% Params sweep
 
@@ -170,6 +170,7 @@ for k = 1:NGcodes
             % Check constraints and time-optimality respect
             [status, ratioTOpt] = FoptVerif(ctx, uvec, tol);
             
+            diary on;
             constr = bitand(status, 7);
             if constr ~= 0
                 OK = 0;

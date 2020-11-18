@@ -9,6 +9,8 @@ if isempty(uvec)
     return;
 end
 
+DebugLog(DebugCfg.Validate, 'Fopt Verif...\n');
+
 t = -ctx.cfg.dt;
 t_max = 0;
 
@@ -23,7 +25,11 @@ avec = zeros(k_max, 3);
 jvec = zeros(k_max, 3);
 max_vec_logic = zeros(k_max, 1);
 
-for k=1:size(uvec, 1)
+diary off;
+
+for k=1:k_max
+    
+    DebugLog(DebugCfg.OptimProgress, '%4d/%d\n', k, k_max);
     
     ucum = uvec(k);
     u = ucum - floor(ucum);
