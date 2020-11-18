@@ -6,6 +6,8 @@ evec        = zeros(3, 1);
 theta       = 0;
 pitch       = 0;
 
+c_assert(size(pvec,2) > 2, 'Not enough points');
+
 CoeffP5     = zeros(3, 6);
 
 CurvStruct  = ConstrCurvStruct(CurveType.Spline, zspdmode, P0, P1, [0,0,0]', evec, theta, pitch, CoeffP5, FeedRate);

@@ -6,7 +6,10 @@ void c_opt_geom(double *X, double *Y) {}
 void c_roots(double *coeffs, creal_T *roots, int n) {
     double *roots_as_double = (double *)roots;
     gsl_poly_complex_workspace *ws = gsl_poly_complex_workspace_alloc(n);
-    gsl_poly_complex_solve(coeffs, n, ws, roots_as_double);
+    int status = gsl_poly_complex_solve(coeffs, n, ws, roots_as_double);
+	if (status != GSL_SUCCESS) {
+		fprintf(stderr, "c_roots: poly_complex_solve failed\n");
+	}
     gsl_poly_complex_workspace_free(ws);
 }
 

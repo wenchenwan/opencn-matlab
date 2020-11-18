@@ -5,7 +5,9 @@ function [ctx, Coeff, NCoeff, success, status] = FeedratePlanning_v4(ctx, CurvSt
 %
 c_prof_in(mfilename);
 CurvStructs = CurvStructs0(1:N_Hor);
-coder.varsize('CurvStructs', [1, Inf], [0,1]);
+if ~coder.target('MATLAB')
+    coder.varsize('CurvStructs', [1, Inf], [0,1]);
+end
 Ncrv   = length(CurvStructs);
 [~, N] = size(BasisVal);
 
@@ -54,7 +56,9 @@ end
 [A, b, Aeq, beq] = BuildConstr_v4(ctx, CurvStructs, amax, ctx.v_0, ctx.at_0, ctx.v_1, ctx.at_1, ...
                                   BasisVal, BasisValD, u_vec);
 
-coder.varsize('f', [Inf, Inf], [1, 1]);
+if ~coder.target('MATLAB')                              
+    coder.varsize('f', [Inf, Inf], [1, 1]);
+end
 [Coeff0, success, status] = c_simplex(f, A, b, Aeq, beq);
 
 
