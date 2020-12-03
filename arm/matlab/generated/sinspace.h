@@ -5,7 +5,7 @@
 // File: sinspace.h
 //
 // MATLAB Coder version            : 5.0
-// C/C++ source code generated on  : 16-Nov-2020 12:36:43
+// C/C++ source code generated on  : 03-Dec-2020 10:47:48
 //
 #ifndef SINSPACE_H
 #define SINSPACE_H
@@ -38,8 +38,8 @@ namespace ocn
         filename_size[2]);
     extern void ConstrCurvStructType(CurvStruct *C);
     extern void ConstrHelixStruct(const double P0[3], const double P1[3], const double Cprim[3],
-        const double evec[3], double theta, double pitch, double FeedRate, ZSpdMode b_ZSpdMode,
-        CurvStruct *b_CurvStruct);
+        double delta, const double evec[3], double theta, double pitch, double FeedRate, ZSpdMode
+        b_ZSpdMode, CurvStruct *b_CurvStruct);
     extern void ConstrHelixStructFromArcFeed(double p0x, double p0y, double p0z, double p1x, double
         p1y, double p1z, double cx, double cy, double cz, double rotation, const double evec[3],
         CurvStruct *b_CurvStruct);

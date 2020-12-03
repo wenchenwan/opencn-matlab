@@ -5,7 +5,7 @@
 // File: sinspace_types.h
 //
 // MATLAB Coder version            : 5.0
-// C/C++ source code generated on  : 16-Nov-2020 12:36:43
+// C/C++ source code generated on  : 03-Dec-2020 10:47:48
 //
 #ifndef SINSPACE_TYPES_H
 #define SINSPACE_TYPES_H
@@ -40,7 +40,8 @@ namespace ocn
         DebugCfg_Global,
         DebugCfg_Warning,
         DebugCfg_Error,
-        DebugCfg_Plots
+        DebugCfg_Plots,
+        DebugCfg_Validate
     };
 
     enum FeedoptPlanError
@@ -121,6 +122,7 @@ namespace ocn
         double P0[3];
         double P1[3];
         double CorrectedHelixCenter[3];
+        double delta;
         double evec[3];
         double theta;
         double pitch;

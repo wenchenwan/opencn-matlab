@@ -5,7 +5,7 @@
 // File: sinspace.cpp
 //
 // MATLAB Coder version            : 5.0
-// C/C++ source code generated on  : 16-Nov-2020 12:36:43
+// C/C++ source code generated on  : 03-Dec-2020 10:47:48
 //
 
 // Include Files
@@ -45,11 +45,6 @@ namespace ocn
         int maxnz;
     };
 
-    struct cell_wrap_3
-    {
-        coder::array<double, 2U> f1;
-    };
-
     struct emxArray_char_T_1x10
     {
         char data[10];
@@ -59,6 +54,11 @@ namespace ocn
     struct cell_wrap_9
     {
         emxArray_char_T_1x10 f1;
+    };
+
+    struct cell_wrap_3
+    {
+        coder::array<double, 2U> f1;
     };
 
     struct emxArray_char_T_1x9
@@ -135,12 +135,15 @@ namespace ocn
                             kappa0, const double in5[3], const double in6[3], const double in7[3],
                             double kappa1, double CoefPS[16]);
     static void CompressCurvStructs(const FeedoptContext *ctx);
+    static void ConstrBSplineStruct(const coder::array<double, 2U> &pvec, double FeedRate,
+        CurvStruct *b_CurvStruct);
     static void ConstrCurvStruct(CurveType Type, ZSpdMode b_ZSpdMode, const double P0[3], const
-        double P1[3], const double Cprim[3], const double evec[3], double theta, double pitch, const
-        double CoeffP5[6][3], double FeedRate, CurvStruct *CStrct);
+        double P1[3], const double Cprim[3], double delta, const double evec[3], double theta,
+        double pitch, const double CoeffP5[6][3], double FeedRate, CurvStruct *CStrct);
     static void ConstrTransP5Struct(const double CoeffP5[6][3], double FeedRate, CurvStruct
         *b_CurvStruct);
-    static double CorrectArcCenter(const double P0[2], const double P1[2], double C[2]);
+    static void CorrectArcCenter(const double P0[2], const double P1[2], double C[2], double *R,
+        double *delta);
     static bool CurvCollinear(const queue_coder *ctx_q_splines, CurveType Curv1_Type, const double
         Curv1_P0[3], const double Curv1_P1[3], const double Curv1_CorrectedHelixCenter[3], const
         double Curv1_evec[3], double Curv1_theta, double Curv1_pitch, const double Curv1_CoeffP5[6]
@@ -431,11 +434,37 @@ namespace ocn
     }
 
     //
+    // Arguments    : double b_index
+    //                CurvStruct *value
+    // Return Type  : void
+    //
+    void queue_coder::get(double b_index, CurvStruct *value) const
+    {
+        *value = this->value_type;
+
+        // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
+        c_queue_get(this->ptr, static_cast<unsigned int>(std::round(b_index)), value);
+    }
+
+    //
     // Arguments    : const uint64m_T b_index
     //                CurvStruct *value
     // Return Type  : void
     //
     void queue_coder::get(const uint64m_T b_index, CurvStruct *value) const
+    {
+        *value = this->value_type;
+
+        // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
+        c_queue_get(this->ptr, MultiWord2uLong((unsigned int *)&b_index.chunks[0U]), value);
+    }
+
+    //
+    // Arguments    : const int64m_T b_index
+    //                CurvStruct *value
+    // Return Type  : void
+    //
+    void queue_coder::get(const int64m_T b_index, CurvStruct *value) const
     {
         *value = this->value_type;
 
@@ -467,90 +496,6 @@ namespace ocn
 
         // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
         c_queue_get(this->ptr, static_cast<unsigned int>(b_index), value);
-    }
-
-    //
-    // Arguments    : const int64m_T b_index
-    //                CurvStruct *value
-    // Return Type  : void
-    //
-    void queue_coder::get(const int64m_T b_index, CurvStruct *value) const
-    {
-        *value = this->value_type;
-
-        // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
-        c_queue_get(this->ptr, MultiWord2uLong((unsigned int *)&b_index.chunks[0U]), value);
-    }
-
-    //
-    // Arguments    : double b_index
-    //                CurvStruct *value
-    // Return Type  : void
-    //
-    void queue_coder::get(double b_index, CurvStruct *value) const
-    {
-        *value = this->value_type;
-
-        // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
-        c_queue_get(this->ptr, static_cast<unsigned int>(std::round(b_index)), value);
-    }
-
-    //
-    // Arguments    : double ridx
-    //                double cidx
-    // Return Type  : void
-    //
-    void coder_internal_sparse::init(double ridx, double cidx)
-    {
-        int this_tmp;
-        int loop_ub;
-        this->m = static_cast<int>(ridx);
-        this_tmp = static_cast<int>(cidx);
-        this->n = this_tmp;
-        this->d.set_size(1);
-        this->d[0] = 0.0;
-        loop_ub = this_tmp + 1;
-        this->colidx.set_size(loop_ub);
-        for (int i = 0; i < loop_ub; i++) {
-            this->colidx[i] = 1;
-        }
-
-        this->rowidx.set_size(1);
-        this->rowidx[0] = 1;
-        this->maxnz = 1;
-    }
-
-    //
-    // Arguments    : double b_dt
-    // Return Type  : void
-    //
-    void ResampleStateClass::init(double b_dt)
-    {
-        this->set_u();
-        this->set_go_next();
-        this->set_dt(b_dt);
-    }
-
-    //
-    // Arguments    : void
-    // Return Type  : void
-    //
-    void rtString::init()
-    {
-        this->Value.size[0] = 1;
-        this->Value.size[1] = 2;
-        this->Value.data[0] = 'N';
-        this->Value.data[1] = 'N';
-    }
-
-    //
-    // Arguments    : const CurvStruct *b_value_type
-    // Return Type  : void
-    //
-    void queue_coder::init(const CurvStruct *b_value_type)
-    {
-        this->value_type = *b_value_type;
-        this->ptr = c_queue_new();
     }
 
     //
@@ -591,6 +536,64 @@ namespace ocn
         }
 
         this->colidx[this->colidx.size(0) - 1] = 1;
+    }
+
+    //
+    // Arguments    : void
+    // Return Type  : void
+    //
+    void rtString::init()
+    {
+        this->Value.size[0] = 1;
+        this->Value.size[1] = 2;
+        this->Value.data[0] = 'N';
+        this->Value.data[1] = 'N';
+    }
+
+    //
+    // Arguments    : double ridx
+    //                double cidx
+    // Return Type  : void
+    //
+    void coder_internal_sparse::init(double ridx, double cidx)
+    {
+        int this_tmp;
+        int loop_ub;
+        this->m = static_cast<int>(ridx);
+        this_tmp = static_cast<int>(cidx);
+        this->n = this_tmp;
+        this->d.set_size(1);
+        this->d[0] = 0.0;
+        loop_ub = this_tmp + 1;
+        this->colidx.set_size(loop_ub);
+        for (int i = 0; i < loop_ub; i++) {
+            this->colidx[i] = 1;
+        }
+
+        this->rowidx.set_size(1);
+        this->rowidx[0] = 1;
+        this->maxnz = 1;
+    }
+
+    //
+    // Arguments    : double b_dt
+    // Return Type  : void
+    //
+    void ResampleStateClass::init(double b_dt)
+    {
+        this->set_u();
+        this->set_go_next();
+        this->set_dt(b_dt);
+    }
+
+    //
+    // Arguments    : const CurvStruct *b_value_type
+    // Return Type  : void
+    //
+    void queue_coder::init(const CurvStruct *b_value_type)
+    {
+        this->value_type = *b_value_type;
+        this->ptr = c_queue_new();
     }
 
     //
@@ -979,6 +982,86 @@ namespace ocn
     }
 
     //
+    // Arguments    : const coder_internal_sparse *varargin_2
+    //                coder_internal_sparse *c
+    // Return Type  : void
+    //
+    void coder_internal_sparse::vertcat(const coder_internal_sparse *varargin_2,
+        coder_internal_sparse *c) const
+    {
+        int cnfixeddim;
+        bool isAcceptableEmpty_tmp_tmp;
+        bool b_isAcceptableEmpty_tmp_tmp;
+        bool allEmpty;
+        int cnnz;
+        int cnvardim;
+        int nzCount;
+        int i;
+        cnfixeddim = this->n;
+        isAcceptableEmpty_tmp_tmp = this->isempty();
+        b_isAcceptableEmpty_tmp_tmp = varargin_2->isempty();
+        allEmpty = (isAcceptableEmpty_tmp_tmp && b_isAcceptableEmpty_tmp_tmp);
+        if ((!b_isAcceptableEmpty_tmp_tmp) && isAcceptableEmpty_tmp_tmp) {
+            cnfixeddim = varargin_2->n;
+        }
+
+        cnnz = 0;
+        cnvardim = 0;
+        if (allEmpty || (!isAcceptableEmpty_tmp_tmp)) {
+            cnnz = this->nnzInt();
+            cnvardim = this->m;
+        }
+
+        if (allEmpty || (!b_isAcceptableEmpty_tmp_tmp)) {
+            cnnz += varargin_2->nnzInt();
+            cnvardim += varargin_2->m;
+        }
+
+        coder_internal_sparse::spallocLike((cnvardim), (cnfixeddim), (cnnz), (c));
+        nzCount = -1;
+        i = c->n;
+        for (int ccol = 0; ccol < i; ccol++) {
+            int crowoffs;
+            int cidx;
+            int kpstart;
+            int kpend;
+            crowoffs = 0;
+            if (!isAcceptableEmpty_tmp_tmp) {
+                int kpend_tmp;
+                cidx = nzCount;
+                kpstart = this->colidx[ccol];
+                kpend_tmp = this->colidx[ccol + 1];
+                kpend = kpend_tmp - 1;
+                for (int kp = kpstart; kp <= kpend; kp++) {
+                    cidx++;
+                    c->rowidx[cidx] = this->rowidx[kp - 1];
+                    c->d[cidx] = this->d[kp - 1];
+                }
+
+                nzCount = (nzCount + kpend_tmp) - this->colidx[ccol];
+                crowoffs = this->m;
+            }
+
+            if (!b_isAcceptableEmpty_tmp_tmp) {
+                int b_kpend_tmp;
+                cidx = nzCount;
+                kpstart = varargin_2->colidx[ccol];
+                b_kpend_tmp = varargin_2->colidx[ccol + 1];
+                kpend = b_kpend_tmp - 1;
+                for (int b_kp = kpstart; b_kp <= kpend; b_kp++) {
+                    cidx++;
+                    c->rowidx[cidx] = varargin_2->rowidx[b_kp - 1] + crowoffs;
+                    c->d[cidx] = varargin_2->d[b_kp - 1];
+                }
+
+                nzCount = (nzCount + b_kpend_tmp) - varargin_2->colidx[ccol];
+            }
+
+            c->colidx[ccol + 1] = nzCount + 2;
+        }
+    }
+
+    //
     // Arguments    : const coder::array<double, 2U> &varargin_2
     //                coder_internal_sparse *c
     // Return Type  : void
@@ -1066,86 +1149,6 @@ namespace ocn
                 }
 
                 nzCount = cidx;
-            }
-
-            c->colidx[ccol + 1] = nzCount + 2;
-        }
-    }
-
-    //
-    // Arguments    : const coder_internal_sparse *varargin_2
-    //                coder_internal_sparse *c
-    // Return Type  : void
-    //
-    void coder_internal_sparse::vertcat(const coder_internal_sparse *varargin_2,
-        coder_internal_sparse *c) const
-    {
-        int cnfixeddim;
-        bool isAcceptableEmpty_tmp_tmp;
-        bool b_isAcceptableEmpty_tmp_tmp;
-        bool allEmpty;
-        int cnnz;
-        int cnvardim;
-        int nzCount;
-        int i;
-        cnfixeddim = this->n;
-        isAcceptableEmpty_tmp_tmp = this->isempty();
-        b_isAcceptableEmpty_tmp_tmp = varargin_2->isempty();
-        allEmpty = (isAcceptableEmpty_tmp_tmp && b_isAcceptableEmpty_tmp_tmp);
-        if ((!b_isAcceptableEmpty_tmp_tmp) && isAcceptableEmpty_tmp_tmp) {
-            cnfixeddim = varargin_2->n;
-        }
-
-        cnnz = 0;
-        cnvardim = 0;
-        if (allEmpty || (!isAcceptableEmpty_tmp_tmp)) {
-            cnnz = this->nnzInt();
-            cnvardim = this->m;
-        }
-
-        if (allEmpty || (!b_isAcceptableEmpty_tmp_tmp)) {
-            cnnz += varargin_2->nnzInt();
-            cnvardim += varargin_2->m;
-        }
-
-        coder_internal_sparse::spallocLike((cnvardim), (cnfixeddim), (cnnz), (c));
-        nzCount = -1;
-        i = c->n;
-        for (int ccol = 0; ccol < i; ccol++) {
-            int crowoffs;
-            int cidx;
-            int kpstart;
-            int kpend;
-            crowoffs = 0;
-            if (!isAcceptableEmpty_tmp_tmp) {
-                int kpend_tmp;
-                cidx = nzCount;
-                kpstart = this->colidx[ccol];
-                kpend_tmp = this->colidx[ccol + 1];
-                kpend = kpend_tmp - 1;
-                for (int kp = kpstart; kp <= kpend; kp++) {
-                    cidx++;
-                    c->rowidx[cidx] = this->rowidx[kp - 1];
-                    c->d[cidx] = this->d[kp - 1];
-                }
-
-                nzCount = (nzCount + kpend_tmp) - this->colidx[ccol];
-                crowoffs = this->m;
-            }
-
-            if (!b_isAcceptableEmpty_tmp_tmp) {
-                int b_kpend_tmp;
-                cidx = nzCount;
-                kpstart = varargin_2->colidx[ccol];
-                b_kpend_tmp = varargin_2->colidx[ccol + 1];
-                kpend = b_kpend_tmp - 1;
-                for (int b_kp = kpstart; b_kp <= kpend; b_kp++) {
-                    cidx++;
-                    c->rowidx[cidx] = varargin_2->rowidx[b_kp - 1] + crowoffs;
-                    c->d[cidx] = varargin_2->d[b_kp - 1];
-                }
-
-                nzCount = (nzCount + b_kpend_tmp) - varargin_2->colidx[ccol];
             }
 
             c->colidx[ccol + 1] = nzCount + 2;
@@ -4955,7 +4958,7 @@ namespace ocn
     {
         unsigned int N;
         uint64m_T r;
-        static const uint64m_T r1 = { { 1U, 0U }// chunks
+        static const uint64m_T r1 = { { 128U, 0U }// chunks
         };
 
         uint64m_T r2;
@@ -5986,7 +5989,7 @@ namespace ocn
     {
         double CumulatedLength;
         uint64m_T r;
-        static const uint64m_T r1 = { { 1U, 0U }// chunks
+        static const uint64m_T r1 = { { 128U, 0U }// chunks
         };
 
         uint64m_T r2;
@@ -6003,17 +6006,14 @@ namespace ocn
         double t0_CorrectedHelixCenter[3];
         double t0_evec[3];
         double P0[3];
+        CurvStruct spline;
         double P1[3];
-        double dv[3];
-        coder::array<double, 2U> c_pvec;
-        double dv1[3];
+        coder::array<double, 2U> b_pvec;
         CurvStruct C;
         CurvStruct CurvStruct1_C;
         CurvStruct CurvStruct2_C;
         CurvStruct b_CurvStruct2_C;
         CurvStruct CurvStruct3_C;
-        double dv2[6][3];
-        CurvStruct spline;
         double t0_CoeffP5[6][3];
         if (!ctx->q_gcode.isempty()) {
             unsigned int spline_index;
@@ -6065,10 +6065,10 @@ namespace ocn
                     t0_P1[2] = expl_temp.P1[2];
                     t0_CorrectedHelixCenter[2] = expl_temp.CorrectedHelixCenter[2];
                     t0_evec[2] = expl_temp.evec[2];
-                    for (int i2 = 0; i2 < 6; i2++) {
-                        t0_CoeffP5[i2][0] = expl_temp.CoeffP5[i2][0];
-                        t0_CoeffP5[i2][1] = expl_temp.CoeffP5[i2][1];
-                        t0_CoeffP5[i2][2] = expl_temp.CoeffP5[i2][2];
+                    for (int i1 = 0; i1 < 6; i1++) {
+                        t0_CoeffP5[i1][0] = expl_temp.CoeffP5[i1][0];
+                        t0_CoeffP5[i1][1] = expl_temp.CoeffP5[i1][1];
+                        t0_CoeffP5[i1][2] = expl_temp.CoeffP5[i1][2];
                     }
 
                     Collinear = CurvCollinear(&ctx->q_splines, expl_temp.Type, t0_P0, t0_P1,
@@ -6131,7 +6131,6 @@ namespace ocn
                         //  We have more than 2 points, thus constructing a spline
                         //  is warranted
                         if (pvec.size(1) > 2) {
-                            int d_pvec;
                             ConstrCurvStructType(&SplineCurve);
                             CalcBspline_Lee(ctx->cfg.SplineDegree, pvec, SplineCurve.sp.CoeffX,
                                             SplineCurve.sp.CoeffY, SplineCurve.sp.CoeffZ,
@@ -6139,22 +6138,7 @@ namespace ocn
                                             &SplineCurve.sp.Bl.handle, &SplineCurve.sp.Bl.degree,
                                             SplineCurve.sp.knots);
                             ctx->q_splines.push((&SplineCurve));
-                            d_pvec = pvec.size(1);
-                            dv[0] = 0.0;
-                            dv1[0] = 0.0;
-                            dv[1] = 0.0;
-                            dv1[1] = 0.0;
-                            dv[2] = 0.0;
-                            dv1[2] = 0.0;
-                            for (int i4 = 0; i4 < 6; i4++) {
-                                dv2[i4][0] = 0.0;
-                                dv2[i4][1] = 0.0;
-                                dv2[i4][2] = 0.0;
-                            }
-
-                            ConstrCurvStruct(CurveType_Spline, ZSpdMode_NN, *(double (*)[3])&pvec[0],
-                                             *(double (*)[3])&pvec[3 * (d_pvec - 1)], dv, dv1, 0.0,
-                                             0.0, dv2, Curv.FeedRate, &spline);
+                            ConstrBSplineStruct(pvec, Curv.FeedRate, &spline);
                             spline.gcode_source_line = Curv.gcode_source_line;
                             spline.sp_index = static_cast<int>(spline_index);
                             spline_index++;
@@ -6196,7 +6180,6 @@ namespace ocn
                     //  If this is the last segment and we have something in the
                     //  compression list, construct the spline
                 } else if ((static_cast<unsigned int>(k) == Ncrv) && (CumulatedLength != 0.0)) {
-                    int b_pvec;
                     ConstrCurvStructType(&SplineCurve);
                     CalcBspline_Lee(ctx->cfg.SplineDegree, pvec, SplineCurve.sp.CoeffX,
                                     SplineCurve.sp.CoeffY, SplineCurve.sp.CoeffZ,
@@ -6204,22 +6187,7 @@ namespace ocn
                                     &SplineCurve.sp.Bl.handle, &SplineCurve.sp.Bl.degree,
                                     SplineCurve.sp.knots);
                     ctx->q_splines.push((&SplineCurve));
-                    b_pvec = pvec.size(1);
-                    dv[0] = 0.0;
-                    dv1[0] = 0.0;
-                    dv[1] = 0.0;
-                    dv1[1] = 0.0;
-                    dv[2] = 0.0;
-                    dv1[2] = 0.0;
-                    for (int i1 = 0; i1 < 6; i1++) {
-                        dv2[i1][0] = 0.0;
-                        dv2[i1][1] = 0.0;
-                        dv2[i1][2] = 0.0;
-                    }
-
-                    ConstrCurvStruct(CurveType_Spline, ZSpdMode_NN, *(double (*)[3])&pvec[0],
-                                     *(double (*)[3])&pvec[3 * (b_pvec - 1)], dv, dv1, 0.0, 0.0, dv2,
-                                     Curv.FeedRate, &spline);
+                    ConstrBSplineStruct(pvec, Curv.FeedRate, &spline);
                     spline.gcode_source_line = Curv.gcode_source_line;
                     spline.sp_index = static_cast<int>(spline_index);
                     spline.SpindleSpeed = spindle_speed;
@@ -6252,23 +6220,23 @@ namespace ocn
                     c_EvalCurvStruct(&ctx->q_splines, Curv.Type, Curv.P0, Curv.P1,
                                      Curv.CorrectedHelixCenter, Curv.evec, Curv.theta, Curv.pitch,
                                      Curv.CoeffP5, Curv.sp_index, Curv.a_param, Curv.b_param, P1);
-                    c_pvec.set_size(3, (pvec.size(1) + 1));
+                    b_pvec.set_size(3, (pvec.size(1) + 1));
                     loop_ub = pvec.size(1);
                     for (int i = 0; i < loop_ub; i++) {
-                        c_pvec[3 * i] = pvec[3 * i];
-                        c_pvec[3 * i + 1] = pvec[3 * i + 1];
-                        c_pvec[3 * i + 2] = pvec[3 * i + 2];
+                        b_pvec[3 * i] = pvec[3 * i];
+                        b_pvec[3 * i + 1] = pvec[3 * i + 1];
+                        b_pvec[3 * i + 2] = pvec[3 * i + 2];
                     }
 
-                    c_pvec[3 * pvec.size(1)] = P1[0];
-                    c_pvec[3 * pvec.size(1) + 1] = P1[1];
-                    c_pvec[3 * pvec.size(1) + 2] = P1[2];
-                    pvec.set_size(3, c_pvec.size(1));
-                    b_loop_ub = c_pvec.size(1);
-                    for (int i3 = 0; i3 < b_loop_ub; i3++) {
-                        pvec[3 * i3] = c_pvec[3 * i3];
-                        pvec[3 * i3 + 1] = c_pvec[3 * i3 + 1];
-                        pvec[3 * i3 + 2] = c_pvec[3 * i3 + 2];
+                    b_pvec[3 * pvec.size(1)] = P1[0];
+                    b_pvec[3 * pvec.size(1) + 1] = P1[1];
+                    b_pvec[3 * pvec.size(1) + 2] = P1[2];
+                    pvec.set_size(3, b_pvec.size(1));
+                    b_loop_ub = b_pvec.size(1);
+                    for (int i2 = 0; i2 < b_loop_ub; i2++) {
+                        pvec[3 * i2] = b_pvec[3 * i2];
+                        pvec[3 * i2 + 1] = b_pvec[3 * i2 + 1];
+                        pvec[3 * i2 + 2] = b_pvec[3 * i2 + 2];
                     }
 
                     spindle_speed = std::fmin(spindle_speed, Curv.SpindleSpeed);
@@ -6278,12 +6246,55 @@ namespace ocn
     }
 
     //
+    // Arguments    : const coder::array<double, 2U> &pvec
+    //                double FeedRate
+    //                CurvStruct *b_CurvStruct
+    // Return Type  : void
+    //
+    static void ConstrBSplineStruct(const coder::array<double, 2U> &pvec, double FeedRate,
+        CurvStruct *b_CurvStruct)
+    {
+        int b_pvec;
+        double dv[3];
+        char message[17];
+        static const char b_message[17] = { 'N', 'o', 't', ' ', 'e', 'n', 'o', 'u', 'g', 'h', ' ',
+            'p', 'o', 'i', 'n', 't', 's' };
+
+        double dv1[3];
+        double dv2[6][3];
+        if (pvec.size(1) <= 2) {
+            for (int i = 0; i < 17; i++) {
+                message[i] = b_message[i];
+            }
+
+            c_assert_(&message[0]);
+        }
+
+        b_pvec = pvec.size(1);
+        dv[0] = 0.0;
+        dv1[0] = 0.0;
+        dv[1] = 0.0;
+        dv1[1] = 0.0;
+        dv[2] = 0.0;
+        dv1[2] = 0.0;
+        for (int i1 = 0; i1 < 6; i1++) {
+            dv2[i1][0] = 0.0;
+            dv2[i1][1] = 0.0;
+            dv2[i1][2] = 0.0;
+        }
+
+        ConstrCurvStruct(CurveType_Spline, ZSpdMode_NN, *(double (*)[3])&pvec[0], *(double (*)[3])&
+                         pvec[3 * (b_pvec - 1)], dv, 0.0, dv1, 0.0, 0.0, dv2, FeedRate, b_CurvStruct);
+    }
+
+    //
     // ctxType = coder.OutputType('InitFeedoptPlan');
     // Arguments    : CurveType Type
     //                ZSpdMode b_ZSpdMode
     //                const double P0[3]
     //                const double P1[3]
     //                const double Cprim[3]
+    //                double delta
     //                const double evec[3]
     //                double theta
     //                double pitch
@@ -6293,14 +6304,15 @@ namespace ocn
     // Return Type  : void
     //
     static void ConstrCurvStruct(CurveType Type, ZSpdMode b_ZSpdMode, const double P0[3], const
-        double P1[3], const double Cprim[3], const double evec[3], double theta, double pitch, const
-        double CoeffP5[6][3], double FeedRate, CurvStruct *CStrct)
+        double P1[3], const double Cprim[3], double delta, const double evec[3], double theta,
+        double pitch, const double CoeffP5[6][3], double FeedRate, CurvStruct *CStrct)
     {
         static const uint64m_T r = { { 0U, 0U }// chunks
         };
 
         CStrct->Type = Type;
         CStrct->zspdmode = b_ZSpdMode;
+        CStrct->delta = delta;
         CStrct->P0[0] = P0[0];
         CStrct->P1[0] = P1[0];
         CStrct->CorrectedHelixCenter[0] = Cprim[0];
@@ -6401,7 +6413,7 @@ namespace ocn
         dv1[1] = 0.0;
         dv[2] = 0.0;
         dv1[2] = 0.0;
-        ConstrCurvStruct(CurveType_TransP5, ZSpdMode_NN, P0, P1, dv, dv1, 0.0, 0.0, CoeffP5,
+        ConstrCurvStruct(CurveType_TransP5, ZSpdMode_NN, P0, P1, dv, 0.0, dv1, 0.0, 0.0, CoeffP5,
                          FeedRate, b_CurvStruct);
     }
 
@@ -6409,19 +6421,17 @@ namespace ocn
     // Arguments    : const double P0[2]
     //                const double P1[2]
     //                double C[2]
-    // Return Type  : double
+    //                double *R
+    //                double *delta
+    // Return Type  : void
     //
-    static double CorrectArcCenter(const double P0[2], const double P1[2], double C[2])
+    static void CorrectArcCenter(const double P0[2], const double P1[2], double C[2], double *R,
+        double *delta)
     {
-        double R;
         double P1P0_idx_0;
         double P1P0_idx_1;
         double z1_idx_1_tmp_tmp;
         double d;
-        char message[31];
-        static const char b_message[31] = { 'H', 'e', 'l', 'i', 'x', ' ', 'c', 'e', 'n', 't', 'e',
-            'r', ' ', 'c', 'o', 'r', 'r', 'e', 'c', 't', 'i', 'o', 'n', ' ', 'e', 'r', 'r', 'o', 'r',
-            ' ', '!' };
 
         //  [R, Cprim] = CorrectArcCenter(P0, P1, C)
         //  recalculate the center point Cprim of an arc in the plane passing by P0 and P1,
@@ -6430,35 +6440,30 @@ namespace ocn
         P1P0_idx_0 = P1[0] - P0[0];
         P1P0_idx_1 = P1[1] - P0[1];
         sqrt_calls++;
-        R = 0.5 * (std::sqrt(std::pow(C[0] - P0[0], 2.0) + std::pow(C[1] - P0[1], 2.0)) + std::sqrt
-                   (std::pow(C[0] - P1[0], 2.0) + std::pow(C[1] - P1[1], 2.0)));
+        *R = 0.5 * (std::sqrt(std::pow(C[0] - P0[0], 2.0) + std::pow(C[1] - P0[1], 2.0)) + std::sqrt
+                    (std::pow(C[0] - P1[0], 2.0) + std::pow(C[1] - P1[1], 2.0)));
 
         //  mean value of radius
         //
         z1_idx_1_tmp_tmp = std::pow(P1P0_idx_1, 2.0);
         sqrt_calls++;
         d = std::sqrt(std::pow(P1P0_idx_0, 2.0) + z1_idx_1_tmp_tmp);
-        if (d >= 1.0E-30) {
-            double d1;
+        if (d < 1.0E-6) {
+            //  do nothing if P0 and P1 are extremely close
+            *delta = 0.0;
+        } else {
             double n;
             double a;
+            double b_a;
+            double d1;
             double d2;
             double d3;
-            double d4;
             double Cprim1_idx_0;
-            double d5;
+            double d4;
             double Cprim2_idx_0;
             double z1_idx_0;
             double b_z1_idx_0;
             sqrt_calls++;
-            d1 = R - d / 2.0;
-            if (d1 <= -1.0E-9) {
-                for (int i = 0; i < 31; i++) {
-                    message[i] = b_message[i];
-                }
-
-                c_assert_(&message[0]);
-            }
 
             //  bisecting line (90° rotation)
             n = std::sqrt(z1_idx_1_tmp_tmp + std::pow(-P1P0_idx_0, 2.0));
@@ -6466,44 +6471,43 @@ namespace ocn
 
             //  unit vector on bisecting line
             //  dealing with limit cases...
-            if (d1 < 0.0) {
-                a = 0.0;
+            a = std::pow(*R, 2.0) - std::pow(d / 2.0, 2.0);
+            if (a <= 0.0) {
+                b_a = 0.0;
             } else {
-                a = std::sqrt(std::pow(R, 2.0) - std::pow(d / 2.0, 2.0));
+                b_a = std::sqrt(a);
                 sqrt_calls++;
             }
+
+            *delta = a;
 
             //  midpoint
             //  two choices for the center point
             //
             sqrt_calls++;
-            d2 = 0.5 * (P0[0] + P1[0]);
-            d3 = a * (P1P0_idx_1 / n);
-            d4 = d2 + d3;
-            Cprim1_idx_0 = d4;
-            d5 = d2 - d3;
-            Cprim2_idx_0 = d5;
-            z1_idx_0 = std::pow(C[0] - d4, 2.0);
-            b_z1_idx_0 = std::pow(C[0] - d5, 2.0);
-            d2 = 0.5 * (P0[1] + P1[1]);
-            d3 = a * (-P1P0_idx_0 / n);
-            d4 = d2 + d3;
-            d5 = d2 - d3;
+            d1 = 0.5 * (P0[0] + P1[0]);
+            d2 = b_a * (P1P0_idx_1 / n);
+            d3 = d1 + d2;
+            Cprim1_idx_0 = d3;
+            d4 = d1 - d2;
+            Cprim2_idx_0 = d4;
+            z1_idx_0 = std::pow(C[0] - d3, 2.0);
+            b_z1_idx_0 = std::pow(C[0] - d4, 2.0);
+            d1 = 0.5 * (P0[1] + P1[1]);
+            d2 = b_a * (-P1P0_idx_0 / n);
+            d3 = d1 + d2;
+            d4 = d1 - d2;
             sqrt_calls++;
-            if (std::sqrt(z1_idx_0 + std::pow(C[1] - d4, 2.0)) < std::sqrt(b_z1_idx_0 + std::pow(C[1]
-                  - d5, 2.0))) {
+            if (std::sqrt(z1_idx_0 + std::pow(C[1] - d3, 2.0)) < std::sqrt(b_z1_idx_0 + std::pow(C[1]
+                  - d4, 2.0))) {
                 //  determine on which side the center point lies
                 C[0] = Cprim1_idx_0;
-                C[1] = d4;
+                C[1] = d3;
             } else {
                 C[0] = Cprim2_idx_0;
-                C[1] = d5;
+                C[1] = d4;
             }
-        } else {
-            //  do nothing if P0 and P1 are extremely close
         }
-
-        return R;
     }
 
     //
@@ -10745,7 +10749,7 @@ namespace ocn
     {
         CurvStruct b_ctx;
         uint64m_T r;
-        static const uint64m_T r1 = { { 1U, 0U }// chunks
+        static const uint64m_T r1 = { { 128U, 0U }// chunks
         };
 
         uint64m_T r2;
@@ -10762,6 +10766,10 @@ namespace ocn
         CurvStruct NextCurv;
         CurvStruct b_CurvStruct2_C;
         CurvStruct CurvStruct3_C;
+        char c_message[28];
+        static const char d_message[28] = { 'S', 'i', 'n', 'g', 'l', 'e', ' ', 'C', 'u', 'r', 'v',
+            'S', 't', 'r', 'u', 'c', 't', ' ', 'w', 'a', 's', ' ', 'n', 'o', 't', ' ', 'Z', 'Z' };
+
         CurvStruct CurvStruct_T;
         TransitionResult status;
         if (!ctx->q_compress.isempty()) {
@@ -10853,6 +10861,12 @@ namespace ocn
                     ctx->q_smooth.push((&CurvStruct1_C));
                     ctx->q_smooth.push((&b_CurvStruct2_C));
                     ctx->q_smooth.push((&CurvStruct3_C));
+                } else {
+                    for (int i1 = 0; i1 < 28; i1++) {
+                        c_message[i1] = d_message[i1];
+                    }
+
+                    c_assert_(&c_message[0]);
                 }
             } else {
                 for (int i = 0; i < 27; i++) {
@@ -11179,7 +11193,7 @@ namespace ocn
     static void SplitCurvStructs(const FeedoptContext *ctx)
     {
         uint64m_T r;
-        static const uint64m_T r1 = { { 1U, 0U }// chunks
+        static const uint64m_T r1 = { { 128U, 0U }// chunks
         };
 
         uint64m_T r2;
@@ -19366,6 +19380,7 @@ namespace ocn
     // Arguments    : const double P0[3]
     //                const double P1[3]
     //                const double Cprim[3]
+    //                double delta
     //                const double evec[3]
     //                double theta
     //                double pitch
@@ -19374,9 +19389,9 @@ namespace ocn
     //                CurvStruct *b_CurvStruct
     // Return Type  : void
     //
-    void ConstrHelixStruct(const double P0[3], const double P1[3], const double Cprim[3], const
-                           double evec[3], double theta, double pitch, double FeedRate, ZSpdMode
-                           b_ZSpdMode, CurvStruct *b_CurvStruct)
+    void ConstrHelixStruct(const double P0[3], const double P1[3], const double Cprim[3], double
+                           delta, const double evec[3], double theta, double pitch, double FeedRate,
+                           ZSpdMode b_ZSpdMode, CurvStruct *b_CurvStruct)
     {
         double dv[6][3];
         if (!isInitialized_sinspace) {
@@ -19389,7 +19404,7 @@ namespace ocn
             dv[i][2] = 0.0;
         }
 
-        ConstrCurvStruct(CurveType_Helix, b_ZSpdMode, P0, P1, Cprim, evec, theta, pitch, dv,
+        ConstrCurvStruct(CurveType_Helix, b_ZSpdMode, P0, P1, Cprim, delta, evec, theta, pitch, dv,
                          FeedRate, b_CurvStruct);
     }
 
@@ -19417,6 +19432,10 @@ namespace ocn
         double Cprim[2];
         double b_P0[2];
         double b_P1[2];
+        double unusedU0;
+        double delta;
+        double unusedU2;
+        double unusedU1;
         double b_Cprim[3];
         double phi0;
         double phi1;
@@ -19443,7 +19462,7 @@ namespace ocn
             b_P0[1] = p0z;
             b_P1[0] = p1y;
             b_P1[1] = p1z;
-            CorrectArcCenter(b_P0, b_P1, Cprim);
+            CorrectArcCenter(b_P0, b_P1, Cprim, &unusedU0, &delta);
             b_Cprim[0] = cx;
             b_Cprim[1] = Cprim[0];
             b_Cprim[2] = Cprim[1];
@@ -19466,7 +19485,7 @@ namespace ocn
             b_P0[1] = p0x;
             b_P1[0] = p1z;
             b_P1[1] = p1x;
-            CorrectArcCenter(b_P0, b_P1, Cprim);
+            CorrectArcCenter(b_P0, b_P1, Cprim, &unusedU1, &delta);
             b_Cprim[0] = Cprim[1];
             b_Cprim[1] = cy;
             b_Cprim[2] = Cprim[0];
@@ -19489,7 +19508,7 @@ namespace ocn
             b_P0[1] = p0y;
             b_P1[0] = p1x;
             b_P1[1] = p1y;
-            CorrectArcCenter(b_P0, b_P1, Cprim);
+            CorrectArcCenter(b_P0, b_P1, Cprim, &unusedU2, &delta);
             b_Cprim[0] = Cprim[0];
             b_Cprim[1] = Cprim[1];
             b_Cprim[2] = cz;
@@ -19517,9 +19536,9 @@ namespace ocn
             theta += (rotation + 1.0) * 2.0 * 3.1415926535897931;
         }
 
-        ConstrHelixStruct(P0, P1, b_Cprim, evec, theta, (((evec[0] * p1x + evec[1] * p1y) + evec[2] *
-                            p1z) - ((evec[0] * p0x + evec[1] * p0y) + evec[2] * p0z)) / theta * 2.0 *
-                          3.1415926535897931, 1.0, ZSpdMode_NN, b_CurvStruct);
+        ConstrHelixStruct(P0, P1, b_Cprim, delta, evec, theta, (((evec[0] * p1x + evec[1] * p1y) +
+                            evec[2] * p1z) - ((evec[0] * p0x + evec[1] * p0y) + evec[2] * p0z)) /
+                          theta * 2.0 * 3.1415926535897931, 1.0, ZSpdMode_NN, b_CurvStruct);
     }
 
     //
@@ -19552,7 +19571,7 @@ namespace ocn
             dv2[i][2] = 0.0;
         }
 
-        ConstrCurvStruct(CurveType_Line, b_ZSpdMode, P0, P1, dv, dv1, 0.0, 0.0, dv2, FeedRate,
+        ConstrCurvStruct(CurveType_Line, b_ZSpdMode, P0, P1, dv, 0.0, dv1, 0.0, 0.0, dv2, FeedRate,
                          b_CurvStruct);
     }
 
@@ -20124,7 +20143,7 @@ namespace ocn
         static const uint64m_T r8 = { { 2U, 0U }// chunks
         };
 
-        static const uint64m_T r9 = { { 1U, 0U }// chunks
+        static const uint64m_T r9 = { { 128U, 0U }// chunks
         };
 
         uint64m_T r10;
