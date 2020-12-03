@@ -11,19 +11,19 @@ if MyNorm(P1P0) < 1e-6
     delta = 0;
 else
     l      = MyNorm(P1P0);
-    delta = R^2 - (l/2)^2;
-    c_assert(R-l/2 > -1e-9, 'Helix center correction error !');
     
     ep     = [P1P0(2);
              -P1P0(1)];                % bisecting line (90° rotation)
     ep     = ep/MyNorm(ep);              % unit vector on bisecting line
     
     % dealing with limit cases...
-    if R-l/2 < 0
+    a = R.^2 - (l/2).^2;
+    if  a <= 0
         d = 0;
     else
-        d = mysqrt(R^2 - (l/2)^2);
+        d = mysqrt(a);
     end
+    delta = a;
     
     M      = 0.5*(P0+P1);              % midpoint
     Cprim1 = M + d*ep;                 % two choices for the center point
