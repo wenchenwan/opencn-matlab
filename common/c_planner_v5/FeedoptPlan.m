@@ -30,10 +30,6 @@ switch ctx.op
             [status, CurvStruct] = ReadGCode(ReadGCodeCmd.Read, '');
             if status == 1 && CurvStruct.Type ~= 0
                 ctx.q_gcode.push(CurvStruct);
-                if CurvStruct.gcode_source_line == 33
-                    ctx.op = Fopt.Finished;
-                    return;
-                end
             end
         end
         if ctx.q_gcode.isempty()
