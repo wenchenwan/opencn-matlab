@@ -1,0 +1,6 @@
+ 
+004: Check feedrate with jerk=100000, oscillations can be observed
+
+005:
+« gsl : bspline.c :648 : ERROR : x outside of knot inteval
+Default GSL error handler invoked. »
