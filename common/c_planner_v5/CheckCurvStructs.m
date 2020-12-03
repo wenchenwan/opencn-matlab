@@ -2,7 +2,7 @@ function ctx = CheckCurvStructs(ctx)
 
 N = ctx.q_gcode.size;
 
-DebugLog(DebugCfg.Transitions, 'Checking for cusps...\n');
+DebugLog(DebugCfg.Validate, 'Checking for cusps...\n');
 
 for k = 1:N-1
     Curv1 = ctx.q_gcode.get(k);

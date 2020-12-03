@@ -11,16 +11,34 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #endif /* __KERNEL__ */
 
 #include "c_spline.h"
 
 static const int nderiv = 3;
 
+static void handler (const char * reason,
+              const char * file,
+              int line,
+              int gsl_errno)
+{
+    fprintf(stderr, "========= GSL ERROR ===========\n"
+            "  reason: %s\n"
+            "  file  : %s\n"
+            "  line  : %d\n"
+            "  errno : %d\n",
+            reason, file, line, gsl_errno);
+    assert(0);
+}
+
+
 void c_bspline_create(void *handle_, double x0, double x1, int32_t degree, int32_t nbreak)
 {
 	size_t* handle = handle_;
     size_t ncoeffs;
+    gsl_set_error_handler_off();
+
 #ifdef __KERNEL__
     bspline_t *bs = (bspline_t *)kmalloc(sizeof(bspline_t), GFP_ATOMIC);
 #else
@@ -43,6 +61,7 @@ void c_bspline_create_with_breakpoints(void *handle_, int32_t degree, double* br
 {
 	size_t* handle = handle_;
     size_t ncoeffs;
+    gsl_set_error_handler_off();
 #ifdef __KERNEL__
     bspline_t *bs = (bspline_t *)kmalloc(sizeof(bspline_t), GFP_ATOMIC);
 #else
@@ -91,7 +110,22 @@ void c_bspline_base_eval(const void *handle_, int32_t N, const double *xvec,
     /* for each sample */
     for (k = 0; k < N; k++) {
         /* for each basis function */
-        gsl_bspline_deriv_eval(xvec[k], nderiv, bs->dB, bs->ws);
+		double x = xvec[k];
+		if (x < 0.0) {
+			fprintf(stderr, "c_bspline_base_eval: xvec[%d] = %f, using 0\n", k, xvec[k]);
+			x = 0.0;
+		}
+		if (x > 1.0) {
+			fprintf(stderr, "c_bspline_base_eval: xvec[%d] = %f, using 1\n", k, xvec[k]);
+			x = 1.0;
+		}
+		
+		// Check for NaN
+		if (x != x) {
+			fprintf(stderr, "c_bspline_base_eval: xvec[%d] = %f\n", k, xvec[k]);
+		}
+
+        gsl_bspline_deriv_eval(x, nderiv, bs->dB, bs->ws);
         for (i = 0; i < ncoeffs; i++) {
             BasisVal[i * N + k] = gsl_matrix_get(bs->dB, i, 0);
             BasisValD[i * N + k] = gsl_matrix_get(bs->dB, i, 1);
@@ -124,13 +158,17 @@ void c_bspline_eval(const void *handle_, const double *c, double x, double X[4])
     }
 #else
     if (x < 0.0) {
-        printf("c_bspline_eval: x < 0\n");
+        fprintf(stderr, "c_bspline_eval: x < 0\n");
         x = 0.0;
     }
     if (x > 1.0) {
-        printf("c_bspline_eval: x > 1\n");
+        fprintf(stderr, "c_bspline_eval: x > 1\n");
         x = 1.0;
     }
+	// Check for NaN
+	if (x != x) {
+		fprintf(stderr, "c_bspline_eval: x = %f\n", x);
+	}
 #endif
    
     gsl_bspline_deriv_eval_nonzero(x, nderiv, bs->dBNonZero, &istart, &iend, bs->ws);
@@ -169,15 +207,3 @@ int32_t c_bspline_ncoeff(const void *handle_)
     return gsl_bspline_ncoeffs(bs->ws);
 }
 
-void handler (const char * reason,
-              const char * file,
-              int line,
-              int gsl_errno)
-{
-    fprintf(stderr, "========= GSL ERROR ===========\n"
-            "  reason: %s\n"
-            "  file  : %s\n"
-            "  line  : %d\n"
-            "  errno : %d\n",
-            reason, file, line, gsl_errno);
-}

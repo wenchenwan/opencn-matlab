@@ -28,7 +28,9 @@ Idx2      = find(Knots < u1_tilda, 1, 'last');
 
 u_vec_tilda     = [u0_tilda, Knots(Idx1(1):Idx2(1)), u1_tilda];
 u_tilda=zeros(1, 0);
-coder.varsize('u_tilda', [1, Inf], [0, 1]);
+if ~coder.target('MATLAB')
+    coder.varsize('u_tilda', [1, Inf], [0, 1]);
+end
 
 % N equally spaced u_tilda values between each pair of knots
 % from u0_tilda until u1_tilda

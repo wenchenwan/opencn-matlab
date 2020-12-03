@@ -5,7 +5,9 @@ classdef DebugCfg < int32
         FeedratePlanning(3),
         Global(4),
         Warning(5),
-        Error(6)
+        Error(6),
+        Plots(7),
+        Validate(8)
     end
     
     methods(Static)

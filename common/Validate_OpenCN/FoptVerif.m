@@ -1,69 +1,128 @@
-function [status, ratioTOpt] = FoptVerif(ctx, uvec, v_tol, a_tol, j_tol, TOpt_tol)
+function [status, ratioTOpt, pvec, max_vec_logic] = FoptVerif(ctx, uvec, tol)
 
 status = 0;         % Success default
 ratioTOpt = 0;
 
+% uvec will be empty if q_opt is empty
 if isempty(uvec)
     bitset(status, 5);
     return;
 end
 
-% machining time
-t_tot = (size(uvec, 1)-1)*ctx.cfg.dt;
+DebugLog(DebugCfg.Validate, 'Fopt Verif...\n');
 
+t = -ctx.cfg.dt;
 t_max = 0;
 
-for k=2:size(uvec, 1)
+k_max = size(uvec, 1);
+
+tvec = zeros(k_max, 1);
+pvec = zeros(k_max, 3);
+vvec = zeros(k_max, 1);
+vvec_norm = zeros(k_max, 1);
+fvec = zeros(k_max, 1);
+avec = zeros(k_max, 3);
+jvec = zeros(k_max, 3);
+max_vec_logic = zeros(k_max, 1);
+
+diary off;
+
+for k=1:k_max
+    
+    DebugLog(DebugCfg.OptimProgress, '%4d/%d\n', k, k_max);
     
     ucum = uvec(k);
     u = ucum - floor(ucum);
     
-    Curv = ctx.q_opt.get(ceil(ucum));
+    if k == 1
+        Curv = ctx.q_opt.get(1);
+    else
+        Curv = ctx.q_opt.get(ceil(ucum));
+    end
+            
+    SplineCurv = ctx.q_splines.get(Curv.sp_index);
     
-    vmax = Curv.FeedRate;
+    pvec(k, :) = EvalPosition(Curv, SplineCurv, u);
     
-     [v_norm, acc, jerk] =...
-            CalcVAJ(ctx, Curv, ctx.Bl, u);
-     
-        
-     % constraints respect verif
-     if v_norm/vmax > 1+v_tol
-         
-         bitset(status, 1);
-         
-     end
-     
-     if any(abs(acc'./ctx.cfg.amax) > 1+a_tol)
-         
-         bitset(status, 2);
-         
-     end
-     
-     if any(abs(jerk'./ctx.cfg.jmax) > 1+j_tol)
-         
-         bitset(status, 3);
-         
-     end
-     
-     
-     % time-optimality verif     
-     condv = v_norm/vmax > 1-v_tol;
-       
-     conda = any(abs(acc'./ctx.cfg.amax) > 1-a_tol);
-     
-     condj = any(abs(jerk'./ctx.cfg.jmax) > 1-j_tol);
-     
-     if any([condv, conda, condj])
-         
+    [vvec(k, :), avec(k, :), jvec(k, :)] =...
+        CalcVAJ(ctx, Curv, ctx.Bl, u);
+    
+    fvec(k, :) = Curv.FeedRate*60;     
+    
+    t = t + ctx.cfg.dt;
+    
+    tvec(k) = t;
+    
+    % vvec in [mm/s], fvec in [mm/min]
+    % fvec - specified feedrate (F code in gcode file)
+    % vvec_norm - normalized feedrate
+    vvec_norm(k, :) = vvec(k, :)*60./fvec(k, :);
+    avec(k, :) = abs(avec(k, :)./ctx.cfg.amax); % abs normalized
+    jvec(k, :) = abs(jvec(k, :)./ctx.cfg.jmax); % abs normalized
+    
+    % max constraints respect verif
+    if any(vvec_norm(k, :) > 1+tol.v_tol)
+        bitset(status, 1);
+    end
+    
+    if any(avec(k, :) > 1+tol.a_tol)
+        bitset(status, 2);
+    end
+    
+    if any(jvec(k, :) > 1+tol.j_tol)
+        bitset(status, 3);
+    end
+    
+    % time-optimatity verif
+    condv = vvec_norm(k, :) > 1-tol.tol_opt_v;
+    conda = any(avec(k, :) > 1-tol.tol_opt_a);
+    condj = any(jvec(k, :) > 1-tol.tol_opt_j);
+    
+    if any([condv, conda, condj])
         t_max = t_max + ctx.cfg.dt;
-        
-     end
+        max_vec_logic(k) = 1;
+    end
+
      
 end
 
-    ratioTOpt = t_max/t_tot;
-    if ratioTOpt < TOpt_tol
-        bitset(status, 4);
-    end
+ratioTOpt = t_max/tvec(end);
 
+if ratioTOpt < tol.TOpt_tol
+    bitset(status, 4);
+end
+
+%% Plots
+
+if IsEnabledDebugLog(DebugCfg.Plots)
+    
+    % Max time plot
+    figure
+    plot(tvec, vvec_norm)
+    hold on
+    plot(tvec, avec)
+    hold on
+    plot(tvec, jvec)
+    title('Nomalized absolute vnorm, axyz, jxyz')
+    xlabel('time [s]')
+    xlim([0 tvec(end)]);
+    ylim([-0.2 1.2])
+    legend('vnorm', 'ax', 'ay', 'az', 'jx', 'jy', 'jz')
+    grid
+
+    % Max plot
+    figure
+    scatter(pvec(:, 1), pvec(:, 2), 1, max_vec_logic, 'o')
+    map = [1 0 0; ... % red
+           0 1 0];    % green
+    colormap(map)
+    title('Maximum parameter, absolute value, normalized')
+    xlabel('x')
+    ylabel('y')
+    zlabel('z')
+    grid
+
+    
+end
+   
 end
