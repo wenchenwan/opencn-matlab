@@ -97,17 +97,17 @@ void c_bspline_base_eval(const void *handle_, int32_t N, const double *xvec,
         /* for each basis function */
 		double x = xvec[k];
 		if (x < 0.0) {
-			fprintf(stderr, "c_bspline_base_eval: xvec[%lu] = %f, using 0\n", k, xvec[k]);
+			fprintf(stderr, "c_bspline_base_eval: xvec[%lu] = %f, using 0\n", (long unsigned) k, xvec[k]);
 			x = 0.0;
 		}
 		if (x > 1.0) {
-			fprintf(stderr, "c_bspline_base_eval: xvec[%lu] = %f, using 1\n", k, xvec[k]);
+			fprintf(stderr, "c_bspline_base_eval: xvec[%lu] = %f, using 1\n", (long unsigned) k, xvec[k]);
 			x = 1.0;
 		}
 		
 		// Check for NaN
 		if (x != x) {
-			fprintf(stderr, "c_bspline_base_eval: xvec[%lu] = %f\n", k, xvec[k]);
+			fprintf(stderr, "c_bspline_base_eval: xvec[%lu] = %f\n", (long unsigned) k, xvec[k]);
 		}
 
         gsl_bspline_deriv_eval(x, nderiv, bs->dB, bs->ws);
