@@ -2,14 +2,14 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: sinspace.h
+// File: c_simplex.h
 //
 // MATLAB Coder version            : 5.2
 // C/C++ source code generated on  : 14-Jul-2021 15:10:03
 //
 
-#ifndef SINSPACE_H
-#define SINSPACE_H
+#ifndef C_SIMPLEX_H
+#define C_SIMPLEX_H
 
 // Include Files
 #include "rtwtypes.h"
@@ -19,15 +19,26 @@
 
 // Custom Header Code
 #include "functions.h"
+// Type Declarations
+namespace ocn {
+namespace coder {
+class sparse;
+
+}
+} // namespace ocn
+
 // Function Declarations
 namespace ocn {
-extern void sinspace(double x0, double x1, int N, ::coder::array<double, 2U> &x);
+void c_simplex(const ::coder::array<double, 2U> &f, const coder::sparse *A,
+               ::coder::array<double, 2U> &b, const ::coder::array<double, 2U> &Aeq,
+               const ::coder::array<double, 2U> &beq, ::coder::array<double, 2U> &C, bool *success,
+               int *status);
 
 }
 
 #endif
 //
-// File trailer for sinspace.h
+// File trailer for c_simplex.h
 //
 // [EOF]
 //

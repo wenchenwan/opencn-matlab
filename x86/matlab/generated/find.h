@@ -2,14 +2,14 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: sinspace.h
+// File: find.h
 //
 // MATLAB Coder version            : 5.2
 // C/C++ source code generated on  : 14-Jul-2021 15:10:03
 //
 
-#ifndef SINSPACE_H
-#define SINSPACE_H
+#ifndef FIND_H
+#define FIND_H
 
 // Include Files
 #include "rtwtypes.h"
@@ -21,13 +21,19 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-extern void sinspace(double x0, double x1, int N, ::coder::array<double, 2U> &x);
+namespace coder {
+void b_eml_find(const ::coder::array<bool, 2U> &x, int i_data[], int i_size[2]);
 
-}
+void c_eml_find(const bool x_data[], int x_size, int i_data[], int *i_size);
+
+void eml_find(const ::coder::array<bool, 2U> &x, int i_data[], int i_size[2]);
+
+} // namespace coder
+} // namespace ocn
 
 #endif
 //
-// File trailer for sinspace.h
+// File trailer for find.h
 //
 // [EOF]
 //

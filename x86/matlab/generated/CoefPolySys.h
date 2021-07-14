@@ -2,18 +2,17 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: sinspace.h
+// File: CoefPolySys.h
 //
 // MATLAB Coder version            : 5.2
 // C/C++ source code generated on  : 14-Jul-2021 15:10:03
 //
 
-#ifndef SINSPACE_H
-#define SINSPACE_H
+#ifndef COEFPOLYSYS_H
+#define COEFPOLYSYS_H
 
 // Include Files
 #include "rtwtypes.h"
-#include "coder_array.h"
 #include <cstddef>
 #include <cstdlib>
 
@@ -21,13 +20,15 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-extern void sinspace(double x0, double x1, int N, ::coder::array<double, 2U> &x);
+void CoefPolySys(const double in1[3], const double in2[3], const double in3[3], double kappa0,
+                 const double in5[3], const double in6[3], const double in7[3], double kappa1,
+                 double CoefPS[16]);
 
 }
 
 #endif
 //
-// File trailer for sinspace.h
+// File trailer for CoefPolySys.h
 //
 // [EOF]
 //

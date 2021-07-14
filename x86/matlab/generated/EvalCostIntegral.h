@@ -2,18 +2,17 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: sinspace.h
+// File: EvalCostIntegral.h
 //
 // MATLAB Coder version            : 5.2
 // C/C++ source code generated on  : 14-Jul-2021 15:10:03
 //
 
-#ifndef SINSPACE_H
-#define SINSPACE_H
+#ifndef EVALCOSTINTEGRAL_H
+#define EVALCOSTINTEGRAL_H
 
 // Include Files
 #include "rtwtypes.h"
-#include "coder_array.h"
 #include <cstddef>
 #include <cstdlib>
 
@@ -21,13 +20,16 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-extern void sinspace(double x0, double x1, int N, ::coder::array<double, 2U> &x);
+double EvalCostIntegral(double alpha0, double beta0, double alpha1, double beta1,
+                        const double in5[3], const double in6[3], const double in7[3],
+                        double kappa0, const double in9[3], const double in10[3],
+                        const double in11[3], double kappa1);
 
 }
 
 #endif
 //
-// File trailer for sinspace.h
+// File trailer for EvalCostIntegral.h
 //
 // [EOF]
 //

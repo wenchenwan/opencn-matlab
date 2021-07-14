@@ -2,32 +2,37 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: sinspace.h
+// File: sinspace_data.h
 //
 // MATLAB Coder version            : 5.2
 // C/C++ source code generated on  : 14-Jul-2021 15:10:03
 //
 
-#ifndef SINSPACE_H
-#define SINSPACE_H
+#ifndef SINSPACE_DATA_H
+#define SINSPACE_DATA_H
 
 // Include Files
+#include "queue_coder.h"
 #include "rtwtypes.h"
-#include "coder_array.h"
+#include "sinspace_types.h"
 #include <cstddef>
 #include <cstdlib>
 
 // Custom Header Code
 #include "functions.h"
-// Function Declarations
+// Variable Declarations
 namespace ocn {
-extern void sinspace(double x0, double x1, int N, ::coder::array<double, 2U> &x);
-
-}
+extern double sqrt_calls;
+extern double cos_calls;
+extern double sin_calls;
+extern double DebugConfig;
+extern const char cv[30];
+extern bool isInitialized_sinspace;
+} // namespace ocn
 
 #endif
 //
-// File trailer for sinspace.h
+// File trailer for sinspace_data.h
 //
 // [EOF]
 //
