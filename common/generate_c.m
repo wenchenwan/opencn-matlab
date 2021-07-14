@@ -7,7 +7,8 @@ cfg.IndentSize = 4;
 cfg.BuildConfiguration = 'Faster Runs';
 cfg.ColumnLimit = 100;
 cfg.GenCodeOnly = true;
-cfg.FilePartitionMethod = 'SingleFile';
+% cfg.FilePartitionMethod = 'SingleFile';
+cfg.InlineBetweenUserFunctions = 'Readability';
 cfg.PreserveArrayDimensions = true;
 cfg.GenerateReport = false;
 cfg.GenerateCodeMetricsReport = false;
@@ -25,10 +26,10 @@ if ~generate_for_arm
 %     cfg.CodeReplacementLibrary = 'None';
     output_root = '../x86/matlab/generated';
 else
-    cfg.HardwareImplementation.TargetHWDeviceType = 'ARM Compatible->ARM Cortex';
-    cfg.HardwareImplementation.ProdHWDeviceType = 'ARM Compatible->ARM Cortex';
+    cfg.HardwareImplementation.TargetHWDeviceType = 'ARM Compatible->ARM 64-bit (LP64)';
+    cfg.HardwareImplementation.ProdHWDeviceType = 'ARM Compatible->ARM 64-bit (LP64)';
 %     cfg.CodeReplacementLibrary = 'rpi4';
-    output_root = '../arm/matlab/generated';
+    output_root = '../arm64/matlab/generated';
 end
 
 cfg.CppNamespace = 'ocn';
