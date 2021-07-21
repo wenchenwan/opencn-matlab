@@ -11,13 +11,19 @@
 #include <stdio.h>
 #include <gsl/gsl_poly.h>
 #include <assert.h>
-#include "sinspace.h"
+// #include "sinspace.h"
+#include "rtwtypes.h"
 #endif
 
 #if defined(MATLAB_MEX_FILE)
 #include "../gen_mex/readgcode/ReadGCode_mex_types.h"
 #endif
 
+namespace ocn {
+
+struct CurvStruct;
+
+}
 
 
 void c_opt_geom(double *X, double *Y);

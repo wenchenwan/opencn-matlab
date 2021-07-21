@@ -1,5 +1,6 @@
 function [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec)
 if ~coder.target('MATLAB')
+coder.cinclude('common/tracy/Tracy.hpp');
 coder.inline('never')
 coder.ceval('ZoneScopedN', coder.opaque('const char*', '"EvalLine"'));
 end

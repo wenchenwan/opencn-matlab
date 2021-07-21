@@ -1,5 +1,6 @@
 function [r_0D, r_1D, r_2D, r_3D] = EvalTransP5(CurvStruct, u_vec)
 if ~coder.target('MATLAB')
+coder.cinclude('common/tracy/Tracy.hpp');
 coder.inline('never')
 coder.ceval('ZoneScopedN', coder.opaque('const char*', '"EvalTransP5"'));
 end
