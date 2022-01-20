@@ -104,7 +104,7 @@ DebugConfig = 0;
 EnableDebugLog(DebugCfg.OptimProgress);
 EnableDebugLog(DebugCfg.Validate);
 EnableDebugLog(DebugCfg.Error);
-% EnableDebugLog(DebugCfg.Plots);
+EnableDebugLog(DebugCfg.Plots);
 
 %% Params sweep
 
