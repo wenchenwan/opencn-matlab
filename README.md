@@ -1,8 +1,7 @@
-# Installation :
-**************
-This installation procedure is required by any developers interested either in modifying the provided trajectory planning algorithms implemented with Matlab or in the customization of the generated C/C++ code.
+# 1.Installation :
+This installation procedure is required by any developers interested either in modifying the provided trajectory planning algorithms implemented with Matlab or in generating custom C/C++ code.
 
-**Note** : To use directly a functional application of opencn please look at the [User guide] (https://mecatronyx.gitlab.io/opencnc/opencn/user_guide.html#)
+**Note** : To use directly the release of opencn please have a look at the [User guide](https://mecatronyx.gitlab.io/opencnc/opencn/user_guide.html#)
 
 ## Minimum requirements :
 
@@ -51,3 +50,8 @@ $ git submodule update
 ```shell
 >> run basic_example.m
 ```
+
+# 2. Complements
+- The path planning algorithms are described in details in [chapter 5](https://mecatronyx.gitlab.io/opencnc/opencn/CNC_Path_Planning_Algorithms/CNC_Path_Planning_Algorithms.html) of the documentation.
+
+- A guide for the utilisation of the Maltab coder in *opencn-matlab* is provided in [chapter 4.3](https://mecatronyx.gitlab.io/opencnc/opencn/components/feedopt.html) of the documentation.
