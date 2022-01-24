@@ -17,7 +17,7 @@ This installation procedure is required by any developers interested either in m
 2. Install the libraries of the linear programming solver COIN-OR LP (CLP). 
 
 ```shell
-$ sudo apt install coinor-clp coinor-libclp-dev 
+$ sudo apt install coinor-libclp1 coinor-clp coinor-libclp-dev 
 ```
 
 3. Install the libraries of the GSL - GNU Scientific Library
