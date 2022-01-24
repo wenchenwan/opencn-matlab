@@ -12,49 +12,16 @@ if CurvStruct.Type == CurveType.Spline
     u0_tilda = a*0+b;
     u1_tilda = a*1+b;
     
-    % discretizing along the total spline
-    % from u=0 to u=1
-    [L_tot, Integrand, u_mid_tilda, du_tilda]  = ...
-        SplineLengthApprox(ctx, CurvStruct, u0_tilda, u1_tilda);
-
-    if d0 ~= 0
-                 
-        % spline-long length calculation by rectangles method
-        % beginning from u=0
-        % until d0 is reached
-        L = 0;
-        k = 1;
-        while (L < d0) && (k <= length(du_tilda))
-            L = L + Integrand(k)*du_tilda(k);
-            k = k + 1;
-        end
-        
-        u0_tilda = u_mid_tilda(k);
-    
+    if d0 ~= 0        
+        u0_tilda  = SplineLengthFindU_up(ctx, CurvStruct, d0, u0_tilda); % RHG
     else
-        
         u0_tilda = a*0+b;
-        
     end
     
     if d1 ~= 0
-                
-        % spline-long length calculation by rectangles method
-        % beginning from u=0
-        % until L_tot-d1 is reached
-        L = 0;
-        k = 1;
-        while (L < L_tot-d1) && (k <= length(du_tilda))
-            L = L + Integrand(k)*du_tilda(k);
-            k = k + 1;
-        end
-               
-        u1_tilda = u_mid_tilda(k);
-        
+        u1_tilda  = SplineLengthFindU_down(ctx, CurvStruct, d1, u1_tilda); % RHG
     else
-
         u1_tilda = a*1+b; 
-        
     end
 
 else

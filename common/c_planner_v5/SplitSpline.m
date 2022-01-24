@@ -11,34 +11,11 @@ b=Curv.b_param;
 u0_tilda = a*0+b;
 u1_tilda = a*1+b;
 
-knots = sp.knots(4:end-3);
+ux_tilda  = SplineLengthFindU_up(ctx, Curv, L_split, u0_tilda);
 
-Idx1 = find(knots>u0_tilda, 1);
-Idx2 = find(knots<u1_tilda, 1, 'last');
-
-knots = [u0_tilda knots(Idx1(1):Idx2(1)) u1_tilda];
-
-L=0;
-k=1;
-
-while k<length(knots)
-    
-    i=k;
-    
-    while L<L_split && k<length(knots)
-        delta_L = SplineLengthApprox(ctx, Curv, knots(k), knots(k+1));
-        L=L+delta_L;
-        k=k+1;
-    end
-
-    Curv.a_param = knots(k)-knots(i);
-    Curv.b_param = knots(i);
-
-    ctx.q_split.push(Curv);
-
-    L=0;
-    
+if ux_tilda ~= -1 % if spline is not too short
+    Curv.a_param = ux_tilda - u0_tilda;   
 end
-
+ctx.q_split.push(Curv);
 
 end

@@ -6,3 +6,4 @@ addpath Tests/Unit/ZSpdMode
 addpath Tests/Unit
 addpath Validate_OpenCN
 addpath arc_center
+addpath Tests

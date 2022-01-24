@@ -10,10 +10,12 @@ function ctx = InitFeedoptPlan(cfg)
 
     if cfg.UseLinearBreakpoints
         Bl = bspline_create(cfg.SplineDegree, linspace(0, 1, cfg.NBreak));
+        u_vec = linspace(0, 1, cfg.NDiscr);
     else
         Bl = bspline_create(cfg.SplineDegree, sinspace(0, 1, cfg.NBreak));
+        u_vec = sinspace(0, 1, cfg.NDiscr);
     end
-    u_vec = sinspace(0, 1, cfg.NDiscr);
+    
     
     if ~coder.target('matlab')
         coder.varsize('BasisVal', [Inf, Inf], [1, 1]);
@@ -28,6 +30,8 @@ function ctx = InitFeedoptPlan(cfg)
     Curv = ConstrLineStruct([0,0,0]', [0,0,0]', 1, ZSpdMode.NN);
     Spline = CalcBspline_Lee(cfg, [[0,0,0]', [1,1,1]']);
     Curv.sp = Spline;
+    Curv.sp.Ltot = 0;
+    Curv.sp.Lk = 0;
     
     ctx.op = Fopt.Init;
     ctx.go_next = false;
@@ -52,9 +56,11 @@ function ctx = InitFeedoptPlan(cfg)
     ctx.jmax_increase_count = int32(0);
     ctx.zero_start = false;
     ctx.zero_end = false;
+    ctx.simplex_calls = int32(0);
     
     ctx.forced_stop = int32(0);
     ctx.programmed_stop = int32(0);
+
     
     if ~coder.target('matlab')
         coder.varsize('ctx.BasisVal', [Inf, Inf], [1, 1]);

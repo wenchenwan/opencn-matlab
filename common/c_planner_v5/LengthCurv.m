@@ -8,7 +8,7 @@ elseif Curv.Type == CurveType.Spline
     b = Curv.b_param;
     u0_tilda = a*u0+b;
     u1_tilda = a*u1+b;
-    L = SplineLengthApprox(ctx, Curv, u0_tilda, u1_tilda);
+    L = SplineLengthApproxGL_bounds(ctx, Curv, u0_tilda, u1_tilda); % RHG
 elseif Curv.Type == CurveType.TransP5
     L = TransP5LengthApprox(Curv);
 else

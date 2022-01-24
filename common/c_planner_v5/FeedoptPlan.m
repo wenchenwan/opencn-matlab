@@ -6,7 +6,6 @@ c_assert(ctx.errcode == FeedoptPlanError.Success, 'FeedoptPlan: error code was n
 
 
 optimized = false;
-end_flag = false;
 
 % opt_struct = struct('Coeff', zeros(ctx.cfg.MaxNCoeff, 1),...
 %     'CurvStruct', ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN));
@@ -26,6 +25,7 @@ switch ctx.op
     case Fopt.GCode
         status = int32(ReadGCode(ReadGCodeCmd.Load, ctx.cfg.source));
         DebugLog(DebugCfg.Validate, 'Reading G-code...\n');
+        DebugLog(DebugCfg.OptimProgress, 'Reading G-code...\n');
         while status
             [status, CurvStruct] = ReadGCode(ReadGCodeCmd.Read, '');
             if status == 1 && CurvStruct.Type ~= 0
@@ -82,7 +82,7 @@ switch ctx.op
         end
         ctx.op = Fopt.Opt;
         
-        if IsEnabledDebugLog(DebugCfg.OptimProgress)
+        if IsEnabledDebugLog(DebugCfg.Validate) || IsEnabledDebugLog(DebugCfg.OptimProgress)
             fprintf('%4d/%u\n', ctx.k0, ctx.q_split.size);
         end
         
