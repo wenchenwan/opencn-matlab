@@ -6,9 +6,7 @@ a = CurvStruct.a_param;
 b = CurvStruct.b_param;
 
 if CurvStruct.Type == CurveType.Spline
-    
-    Spline=ctx.q_splines.get(CurvStruct.sp_index);
-    
+        
     u0_tilda = a*0+b;
     u1_tilda = a*1+b;
     

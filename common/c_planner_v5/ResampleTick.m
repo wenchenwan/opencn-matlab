@@ -1,6 +1,7 @@
 function [ctx, again, again_t] = ResampleTick(ctx, dt)
 again = false;
 again_t = 0;
+
 if ctx.resample_end || ctx.q_opt.size < ctx.resample_k
     ctx.resample_end = true;
     return;
@@ -11,7 +12,7 @@ k = ctx.resample_k;
 
 CurOptStruct = ctx.q_opt.get(k);
 
-[ukp1, qk, dk] = Resample(CurOptStruct, ctx.Bl, uk, dt);
+[ukp1, qk, ~] = Resample(CurOptStruct, ctx.Bl, uk, dt);
 
 % Don't get stuck on numerical precision
 if ukp1 - uk < eps
@@ -23,22 +24,12 @@ if ukp1 < 1
 else
     ukp1      = 1;
 
-    [~, qkp1, dkp1] = Resample(CurOptStruct, ctx.Bl, ukp1, dt);
+    [~, qkp1, ~] = Resample(CurOptStruct, ctx.Bl, ukp1, dt);
     Trest     = 2*(ukp1 - uk) / (mysqrt(qkp1) + mysqrt(qk));
-%     Trest = (-mysqrt(qk) + mysqrt(qk + dk*(1 - uk)))/dk*0.5;
-%     Trest = EstimateT(CurOptStruct, ctx.Bl, uk, 1, dt/10000);
     
     if Trest > dt
-        % ctx.resample_u = uk + dk*dt^2/4 + mysqrt(qk)*dt;
-%         Trest = (-mysqrt(qk) + mysqrt(qk + dk*(1 - uk)))/dk*0.5;
-%         if coder.target('matlab')
-%             warning('!!! Trest > dt !!!\n')
-%         else
-%             fprintf('!!! Trest > dt !!!\n')
-%         end
         dt_begin = 0;
     else
-        %
         dt_begin  = dt - Trest;
     end
     
@@ -47,9 +38,6 @@ else
     
     again = true;
     again_t = dt_begin;
-    % This recursive call was replaced by the 'again' output params
-    % Callers should make sure to use them
-%    ctx = ResampleTick(ctx, dt_begin);
 end
 
 end
@@ -75,7 +63,6 @@ function [ukp1,  qk, dk] = ResampleZN(CurOptStruct, u, dt)
     end
     qk = CurOptStruct.ConstJerk*t.^2/2;
     dk = 2*CurOptStruct.ConstJerk*t;
-%     uk = u; %CurOptStruct.ConstJerk.*t.^3/6;
 
     ukp1 = CurOptStruct.ConstJerk.*(t+dt).^3/6;
 end
@@ -92,12 +79,9 @@ function [ukp1, qk, dk] = ResampleNZ(CurOptStruct, u, dt)
     c_assert(CurOptStruct.UseConstJerk, 'NZ is not using const jerk');
 
     t = (6*(1-u)/CurOptStruct.ConstJerk)^(1/3);
-%     t = round(t/dt)*dt;
     
-%         t = (double(CurOptStruct.ConstJerkMaxIterations) - k - 1)*dt;
     qk = CurOptStruct.ConstJerk*t.^2/2;
     dk = -2*CurOptStruct.ConstJerk*t;
-%     uk = u; %1 - CurOptStruct.ConstJerk.*t.^3/6;
 
     ukp1 = 1 - CurOptStruct.ConstJerk.*(t-dt).^3/6;
 end

@@ -31,7 +31,7 @@ end
 %  ||...
 %             (CumulatedLength > 0 && ~CurvCollinear(ctx, ctx.q_gcode.get(k-1), Curv, ctx.cfg.Compressing.MaxCollinearityDegrees)) 
 
-k=1;
+k = 1;
 while k <= Ncrv
     Curv = ctx.q_gcode.get(k);
     % If the next curve segment is too long for compressing or it is not an NN,

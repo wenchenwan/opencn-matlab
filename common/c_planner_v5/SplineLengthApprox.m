@@ -14,13 +14,7 @@ N = ctx.cfg.NGridLengthSpline;
 % u=1 corresponds to the second lift-off point
 % u is NOT used in this function
 
-% if coder.target('matlab')
-%     % derivative whith respect to u_tilda !!!
-%     sp1D      = fnder(sp);
-%     Knots     = sp1D.knots;
-% else
-    Knots = sp.knots;
-% end
+Knots = sp.knots;
 
 Idx1      = find(Knots > u0_tilda, 1);
 Idx2      = find(Knots < u1_tilda, 1, 'last');
@@ -50,14 +44,10 @@ du_tilda        = diff(u_tilda);
 
 % parametric derivative calculation at each midpoint value
 % with respect to u_tilda
-% if coder.target('rtw') || coder.target('mex')
-    [~, r1Dx] = bspline_eval_vec(sp.Bl, sp.CoeffX, u_mid_tilda);
-    [~, r1Dy] = bspline_eval_vec(sp.Bl, sp.CoeffY, u_mid_tilda);
-    [~, r1Dz] = bspline_eval_vec(sp.Bl, sp.CoeffZ, u_mid_tilda);
-    r1D = [r1Dx; r1Dy; r1Dz];
-% else
-%     r1D = spval(sp1D, u_mid_tilda);
-% end
+[~, r1Dx] = bspline_eval_vec(sp.Bl, sp.CoeffX, u_mid_tilda);
+[~, r1Dy] = bspline_eval_vec(sp.Bl, sp.CoeffY, u_mid_tilda);
+[~, r1Dz] = bspline_eval_vec(sp.Bl, sp.CoeffZ, u_mid_tilda);
+r1D = [r1Dx; r1Dy; r1Dz];
 
 % length (between u0_tilda and u1_tilda) calculation by rectangles method
 Integrand = MyNorm(r1D);
