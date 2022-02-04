@@ -1,5 +1,7 @@
 function [CurvStruct1_C, CurvStruct_T, CurvStruct2_C, status]  = ...
     CalcTransition(ctx, CurvStruct1, CurvStruct2)
+    
+coder.inline("never");
 
 CutOff=ctx.cfg.CutOff;
 CollTolDeg=ctx.cfg.CollTolDeg;

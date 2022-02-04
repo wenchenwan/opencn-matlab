@@ -1,5 +1,6 @@
 function CurvStruct = ConstrHelixStructFromArcFeed(p0x, p0y, p0z, p1x, p1y, p1z, cx, cy, cz, rotation, evec)
 %#codegen
+coder.inline("never");
 
 P0 = [p0x, p0y, p0z]';
 P1 = [p1x, p1y, p1z]';
