@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: SmoothCurvStructs.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:36:47
 //
 
 // Include Files
@@ -17,6 +17,8 @@
 #include "queue_coder.h"
 #include "sinspace_data.h"
 #include "sinspace_types.h"
+#include "sinspace_types1.h"
+#include "sinspace_types2.h"
 
 // Function Definitions
 //
@@ -51,16 +53,18 @@ void SmoothCurvStructs(FeedoptContext *ctx)
         ctx->q_compress.get(static_cast<double>(1.0), &b_ctx);
         //  to satisfy the coder
         Ncrv = ctx->q_compress.size();
-        k_DebugLog();
+        n_DebugLog();
+        o_DebugLog();
         k = 1U;
         if (Ncrv > 1U) {
             ctx->q_compress.get(static_cast<double>(1.0), &CurvStruct1);
             while (k < Ncrv) {
                 ctx->q_compress.get(static_cast<double>(k) + 1.0, &NextCurv);
                 if ((CurvStruct1.zspdmode == ZSpdMode_NN) && (NextCurv.zspdmode == ZSpdMode_NN)) {
-                    b_CalcTransition(&ctx->q_splines, ctx->cfg.CutOff, ctx->cfg.CollTolDeg,
-                                     ctx->cfg.NGridLengthSpline, &CurvStruct1, &NextCurv,
-                                     &CurvStruct1_C, &CurvStruct_T, &CurvStruct2_C, &status);
+                    b_CalcTransition(&ctx->q_splines, ctx->cfg.CutOff, ctx->cfg.ColTolCos,
+                                     ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW, &CurvStruct1,
+                                     &NextCurv, &CurvStruct1_C, &CurvStruct_T, &CurvStruct2_C,
+                                     &status);
                     if (status == TransitionResult_Ok) {
                         ctx->q_smooth.push(&CurvStruct1_C);
                         ctx->q_smooth.push(&CurvStruct_T);
@@ -76,13 +80,14 @@ void SmoothCurvStructs(FeedoptContext *ctx)
                         CutZeroEnd(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz, ctx->cfg.amax,
                                    ctx->cfg.jmax, ctx->cfg.dt, ctx->cfg.ZeroStartAccLimit,
                                    ctx->cfg.ZeroStartJerkLimit, ctx->cfg.ZeroStartVelLimit,
-                                   ctx->cfg.NGridLengthSpline, &CurvStruct1, static_cast<double>(k),
-                                   &CurvStruct1_C, &CurvStruct2_C);
+                                   ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW, &CurvStruct1,
+                                   static_cast<double>(k), &CurvStruct1_C, &CurvStruct2_C);
                         CutZeroStart(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz, ctx->cfg.amax,
                                      ctx->cfg.jmax, ctx->cfg.dt, ctx->cfg.ZeroStartAccLimit,
                                      ctx->cfg.ZeroStartJerkLimit, ctx->cfg.ZeroStartVelLimit,
-                                     ctx->cfg.DebugCutZero, ctx->cfg.NGridLengthSpline, &NextCurv,
-                                     static_cast<double>(k), &CurvStruct3_C, &CurvStruct1);
+                                     ctx->cfg.DebugCutZero, ctx->cfg.GaussLegendreX,
+                                     ctx->cfg.GaussLegendreW, &NextCurv, static_cast<double>(k),
+                                     &CurvStruct3_C, &CurvStruct1);
                         ctx->q_smooth.push(&CurvStruct1_C);
                         ctx->q_smooth.push(&CurvStruct2_C);
                         ctx->q_smooth.push(&CurvStruct3_C);
@@ -105,16 +110,16 @@ void SmoothCurvStructs(FeedoptContext *ctx)
         } else if (static_cast<int>(Ncrv) == 1) {
             ctx->q_compress.get(static_cast<double>(1.0), &CurvStruct1);
             if (CurvStruct1.zspdmode == ZSpdMode_ZZ) {
-                b_CutZeroStart(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz, ctx->cfg.amax,
-                               ctx->cfg.jmax, ctx->cfg.dt, ctx->cfg.ZeroStartAccLimit,
-                               ctx->cfg.ZeroStartJerkLimit, ctx->cfg.ZeroStartVelLimit,
-                               ctx->cfg.DebugCutZero, ctx->cfg.NGridLengthSpline, &CurvStruct1,
-                               &CurvStruct1_C, &CurvStruct2_C);
+                b_CutZeroStart(
+                    &ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz, ctx->cfg.amax, ctx->cfg.jmax,
+                    ctx->cfg.dt, ctx->cfg.ZeroStartAccLimit, ctx->cfg.ZeroStartJerkLimit,
+                    ctx->cfg.ZeroStartVelLimit, ctx->cfg.DebugCutZero, ctx->cfg.GaussLegendreX,
+                    ctx->cfg.GaussLegendreW, &CurvStruct1, &CurvStruct1_C, &CurvStruct2_C);
                 CutZeroEnd(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz, ctx->cfg.amax,
                            ctx->cfg.jmax, ctx->cfg.dt, ctx->cfg.ZeroStartAccLimit,
                            ctx->cfg.ZeroStartJerkLimit, ctx->cfg.ZeroStartVelLimit,
-                           ctx->cfg.NGridLengthSpline, &CurvStruct2_C, &b_CurvStruct2_C,
-                           &CurvStruct3_C);
+                           ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW, &CurvStruct2_C,
+                           &b_CurvStruct2_C, &CurvStruct3_C);
                 ctx->q_smooth.push(&CurvStruct1_C);
                 ctx->q_smooth.push(&b_CurvStruct2_C);
                 ctx->q_smooth.push(&CurvStruct3_C);

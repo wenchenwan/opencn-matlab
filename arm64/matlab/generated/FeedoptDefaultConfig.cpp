@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: FeedoptDefaultConfig.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:36:47
 //
 
 // Include Files
@@ -23,10 +23,27 @@
 namespace ocn {
 void FeedoptDefaultConfig(FeedoptConfig *cfg)
 {
-    static const char b_cv[9]{'l', 'o', 'g', 's', '/', 'l', 'o', 'g', 's'};
+    static const double GaussLegendreW[5]{0.23692688505618911, 0.47862867049936625,
+                                          0.56888888888888889, 0.47862867049936625,
+                                          0.23692688505618911};
+    static const double dv[5]{0.90617984593866385, 0.538469310105683, 0.0, -0.538469310105683,
+                              -0.90617984593866385};
     if (!isInitialized_sinspace) {
         sinspace_initialize();
     }
+    //  Computation of Gauss-Legendre knots and weights for numerical integration
+    //  number of evaluation points
+    //  normalized to integration interval [-1, 1]
+    for (int i{0}; i < 5; i++) {
+        cfg->GaussLegendreX[i] = dv[i];
+    }
+    double xtmp;
+    xtmp = cfg->GaussLegendreX[0];
+    cfg->GaussLegendreX[0] = cfg->GaussLegendreX[4];
+    cfg->GaussLegendreX[4] = xtmp;
+    xtmp = cfg->GaussLegendreX[1];
+    cfg->GaussLegendreX[1] = cfg->GaussLegendreX[3];
+    cfg->GaussLegendreX[3] = xtmp;
     cfg->NDiscr = 20;
     cfg->NBreak = 10;
     cfg->UseDynamicBreakpoints = false;
@@ -56,15 +73,24 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     std::memset(&cfg->source[0], 0, 1024U * sizeof(char));
     cfg->DebugCutZero = false;
     cfg->Compressing.Skip = false;
-    cfg->Compressing.ColTolDeg = 5.0;
-    cfg->CollTolDeg = 1.0E-6;
-    cfg->NGridLengthSpline = 10.0;
-    for (int i{0}; i < 9; i++) {
-        cfg->LogFileName[i] = b_cv[i];
+    cfg->Compressing.ColTolCos = 0.9999999847691291;
+    cfg->ColTolCos = 0.9999999847691291;
+    cfg->GaussLegendreN = 5.0;
+    for (int b_i{0}; b_i < 5; b_i++) {
+        cfg->GaussLegendreW[b_i] = GaussLegendreW[b_i];
     }
+    cfg->LogFileName[0] = 'l';
+    cfg->Simplex_params[0] = 1.0E-6;
+    cfg->LogFileName[1] = 'o';
+    cfg->Simplex_params[1] = 1.0E-6;
+    cfg->LogFileName[2] = 'g';
+    cfg->Simplex_params[2] = 1.0;
+    cfg->LogFileName[3] = 's';
+    cfg->Simplex_params[3] = 1.0E-6;
     //  % Use a variable number of breakpoints for different lengths
     //    % Use a linear distribution of breakpoints (else sinspace)
     //  % Distance between two breakpoints in mm
+    //  1: Dual; 2: Barrier; 3: Primal
     //      coder.varsize('cfg.source', [1024, 1], [0,1]);;
     //          'MaxNHorz', FeedoptLimits.MaxNHorz,...
     //          'MaxNDiscr', FeedoptLimits.MaxNDiscr,...

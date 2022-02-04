@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: CalcZeroStartConstraints.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:36:47
 //
 
 // Include Files
@@ -14,6 +14,7 @@
 #include "c_assert.h"
 #include "queue_coder.h"
 #include "sinspace_data.h"
+#include "sinspace_types2.h"
 #include <cmath>
 
 // Function Definitions
@@ -58,7 +59,7 @@ void CalcZeroStartConstraints(const queue_coder *ctx_q_splines, CurveType Curv_T
     double n;
     double scale;
     double t;
-    b_c_assert(Curv_UseConstJerk);
+    e_c_assert(Curv_UseConstJerk);
     jps = Curv_ConstJerk * JerkScale;
     t = std::pow(6.0 / jps, 0.33333333333333331);
     d1uk = jps * std::pow(t, 2.0) / 2.0;

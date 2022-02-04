@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: c_assert.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:36:47
 //
 
 // Include Files
@@ -19,13 +19,12 @@
 namespace ocn {
 void b_c_assert(bool condition)
 {
-    static const char b_message[50]{'C', 'a', 'l', 'c', 'Z', 'e', 'r', 'o', 'S', 't', 'a', 'r', 't',
-                                    'C', 'o', 'n', 's', 't', 'r', 'a', 'i', 'n', 't', 's', ':', ' ',
-                                    'C', 'a', 'l', 'l', 'e', 'd', ' ', 'o', 'n', ' ', 'n', 'o', 'n',
-                                    '-', 'c', 'o', 'n', 's', 't', ' ', 'j', 'e', 'r', 'k'};
-    char message[50];
+    static const char b_message[26]{'u', '2', ' ', 'm', 'u', 's', 't', ' ', 'b',
+                                    'e', ' ', 'g', 'r', 'e', 'a', 't', 'e', 'r',
+                                    ' ', 't', 'h', 'a', 'n', ' ', 'u', '1'};
+    char message[26];
     if (!condition) {
-        for (int i{0}; i < 50; i++) {
+        for (int i{0}; i < 26; i++) {
             message[i] = b_message[i];
         }
         c_assert_(&message[0]);
@@ -56,6 +55,82 @@ bool c_assert(bool condition)
 //
 void c_c_assert(bool condition)
 {
+    static const char b_message[54]{
+        'u', '1', ' ', 'm', 'u', 's', 't', ' ', 'b', 'e', ' ', 'g', 'r', 'e', 'a', 't', 'e', 'r',
+        ' ', 'o', 'r', ' ', 'e', 'q', 'u', 'a', 'l', ' ', 't', 'h', 'a', 'n', ' ', 't', 'h', 'e',
+        ' ', 'f', 'i', 'r', 's', 't', ' ', 's', 'p', 'l', 'i', 'n', 'e', ' ', 'k', 'n', 'o', 't'};
+    char message[54];
+    if (!condition) {
+        for (int i{0}; i < 54; i++) {
+            message[i] = b_message[i];
+        }
+        c_assert_(&message[0]);
+    }
+}
+
+//
+// Arguments    : bool condition
+// Return Type  : void
+//
+void d_c_assert(bool condition)
+{
+    static const char b_message[53]{
+        'u', '2', ' ', 'm', 'u', 's', 't', ' ', 'b', 'e', ' ', 's', 'm', 'a', 'l', 'l', 'e', 'r',
+        ' ', 'o', 'r', ' ', 'e', 'q', 'u', 'a', 'l', ' ', 't', 'h', 'a', 'n', ' ', 't', 'h', 'e',
+        ' ', 'l', 'a', 's', 't', ' ', 's', 'p', 'l', 'i', 'n', 'e', ' ', 'k', 'n', 'o', 't'};
+    char message[53];
+    if (!condition) {
+        for (int i{0}; i < 53; i++) {
+            message[i] = b_message[i];
+        }
+        c_assert_(&message[0]);
+    }
+}
+
+//
+// Arguments    : bool condition
+// Return Type  : void
+//
+void e_c_assert(bool condition)
+{
+    static const char b_message[50]{'C', 'a', 'l', 'c', 'Z', 'e', 'r', 'o', 'S', 't', 'a', 'r', 't',
+                                    'C', 'o', 'n', 's', 't', 'r', 'a', 'i', 'n', 't', 's', ':', ' ',
+                                    'C', 'a', 'l', 'l', 'e', 'd', ' ', 'o', 'n', ' ', 'n', 'o', 'n',
+                                    '-', 'c', 'o', 'n', 's', 't', ' ', 'j', 'e', 'r', 'k'};
+    char message[50];
+    if (!condition) {
+        for (int i{0}; i < 50; i++) {
+            message[i] = b_message[i];
+        }
+        c_assert_(&message[0]);
+    }
+}
+
+//
+// Arguments    : bool condition
+// Return Type  : void
+//
+void f_c_assert(bool condition)
+{
+    static const char b_message[53]{
+        'u', '1', ' ', 'm', 'u', 's', 't', ' ', 'b', 'e', ' ', 's', 'm', 'a', 'l', 'l', 'e', 'r',
+        ' ', 'o', 'r', ' ', 'e', 'q', 'u', 'a', 'l', ' ', 't', 'h', 'a', 'n', ' ', 't', 'h', 'e',
+        ' ', 'l', 'a', 's', 't', ' ', 's', 'p', 'l', 'i', 'n', 'e', ' ', 'k', 'n', 'o', 't'};
+    char message[53];
+    if (!condition) {
+        for (int i{0}; i < 53; i++) {
+            message[i] = b_message[i];
+        }
+        c_assert_(&message[0]);
+    }
+}
+
+//
+// Arguments    : bool condition
+// Return Type  : void
+//
+void g_c_assert(bool condition)
+{
     static const char b_message[39]{'F', 'e', 'e', 'd', 'o', 'p', 't', 'P', 'l', 'a',
                                     'n', ':', ' ', 'e', 'r', 'r', 'o', 'r', ' ', 'c',
                                     'o', 'd', 'e', ' ', 'w', 'a', 's', ' ', 'n', 'o',
@@ -73,7 +148,7 @@ void c_c_assert(bool condition)
 // Arguments    : bool condition
 // Return Type  : void
 //
-void d_c_assert(bool condition)
+void h_c_assert(bool condition)
 {
     static const char b_message[17]{'N', 'o', 't', ' ', 'e', 'n', 'o', 'u', 'g',
                                     'h', ' ', 'p', 'o', 'i', 'n', 't', 's'};
@@ -90,7 +165,7 @@ void d_c_assert(bool condition)
 // Arguments    : bool condition
 // Return Type  : void
 //
-void e_c_assert(bool condition)
+void i_c_assert(bool condition)
 {
     static const char b_message[26]{'Z', 'N', ' ', 'i', 's', ' ', 'n', 'o', 't',
                                     ' ', 'u', 's', 'i', 'n', 'g', ' ', 'c', 'o',
@@ -108,7 +183,7 @@ void e_c_assert(bool condition)
 // Arguments    : bool condition
 // Return Type  : void
 //
-void f_c_assert(bool condition)
+void j_c_assert(bool condition)
 {
     static const char b_message[16]{'N', 'N', ' ', 'i', 's', ' ', 'u', 's',
                                     'i', 'n', 'g', ' ', 'j', 'e', 'r', 'k'};
@@ -125,7 +200,7 @@ void f_c_assert(bool condition)
 // Arguments    : bool condition
 // Return Type  : void
 //
-void g_c_assert(bool condition)
+void k_c_assert(bool condition)
 {
     static const char b_message[26]{'N', 'Z', ' ', 'i', 's', ' ', 'n', 'o', 't',
                                     ' ', 'u', 's', 'i', 'n', 'g', ' ', 'c', 'o',

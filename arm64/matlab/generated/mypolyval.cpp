@@ -4,15 +4,84 @@
 // government, commercial, or other organizational use.
 // File: mypolyval.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:36:47
 //
 
 // Include Files
 #include "mypolyval.h"
 #include "coder_array.h"
 
+// Function Declarations
+namespace ocn {
+static void binary_expand_op(::coder::array<double, 2U> &y, const ::coder::array<double, 2U> &r1,
+                             const ::coder::array<double, 2U> &b);
+
+}
+
 // Function Definitions
+//
+// Arguments    : ::coder::array<double, 2U> &y
+//                const ::coder::array<double, 2U> &r1
+//                const ::coder::array<double, 2U> &b
+// Return Type  : void
+//
+namespace ocn {
+static void binary_expand_op(::coder::array<double, 2U> &y, const ::coder::array<double, 2U> &r1,
+                             const ::coder::array<double, 2U> &b)
+{
+    ::coder::array<double, 2U> r;
+    int aux_0_1;
+    int aux_1_1;
+    int aux_2_1;
+    int b_loop_ub;
+    int i;
+    int loop_ub;
+    int stride_0_1;
+    int stride_1_1;
+    int stride_2_1;
+    if (b.size(1) == 1) {
+        if (y.size(1) == 1) {
+            i = r1.size(1);
+        } else {
+            i = y.size(1);
+        }
+    } else {
+        i = b.size(1);
+    }
+    r.set_size(3, i);
+    stride_0_1 = (r1.size(1) != 1);
+    stride_1_1 = (y.size(1) != 1);
+    stride_2_1 = (b.size(1) != 1);
+    aux_0_1 = 0;
+    aux_1_1 = 0;
+    aux_2_1 = 0;
+    if (b.size(1) == 1) {
+        if (y.size(1) == 1) {
+            loop_ub = r1.size(1);
+        } else {
+            loop_ub = y.size(1);
+        }
+    } else {
+        loop_ub = b.size(1);
+    }
+    for (int i1{0}; i1 < loop_ub; i1++) {
+        r[3 * i1] = r1[3 * aux_0_1] * y[3 * aux_1_1] + b[3 * aux_2_1];
+        r[3 * i1 + 1] = r1[3 * aux_0_1 + 1] * y[3 * aux_1_1 + 1] + b[3 * aux_2_1 + 1];
+        r[3 * i1 + 2] = r1[3 * aux_0_1 + 2] * y[3 * aux_1_1 + 2] + b[3 * aux_2_1 + 2];
+        aux_2_1 += stride_2_1;
+        aux_1_1 += stride_1_1;
+        aux_0_1 += stride_0_1;
+    }
+    y.set_size(3, r.size(1));
+    b_loop_ub = r.size(1);
+    for (int i2{0}; i2 < b_loop_ub; i2++) {
+        y[3 * i2] = r[3 * i2];
+        y[3 * i2 + 1] = r[3 * i2 + 1];
+        y[3 * i2 + 2] = r[3 * i2 + 2];
+    }
+}
+
 //
 // POLYVAL Evaluate array of polynomials with same degree.
 //
@@ -21,7 +90,6 @@
 //                double y[3]
 // Return Type  : void
 //
-namespace ocn {
 void b_mypolyval(const double p[6][3], double y[3])
 {
     double d;
@@ -110,7 +178,7 @@ void b_mypolyval(const double p[5][3], const ::coder::array<double, 2U> &x,
         }
     }
     for (int b_i{0}; b_i < 4; b_i++) {
-        int loop_ub;
+        int i2;
         r.set_size(3, x.size(1));
         if (x.size(1) != 0) {
             int na;
@@ -131,12 +199,22 @@ void b_mypolyval(const double p[5][3], const ::coder::array<double, 2U> &x,
                 b[3 * b_t + 2] = p[b_i + 1][2];
             }
         }
-        y.set_size(3, r.size(1));
-        loop_ub = r.size(1);
-        for (int i2{0}; i2 < loop_ub; i2++) {
-            y[3 * i2] = r[3 * i2] * y[3 * i2] + b[3 * i2];
-            y[3 * i2 + 1] = r[3 * i2 + 1] * y[3 * i2 + 1] + b[3 * i2 + 1];
-            y[3 * i2 + 2] = r[3 * i2 + 2] * y[3 * i2 + 2] + b[3 * i2 + 2];
+        if (r.size(1) == 1) {
+            i2 = y.size(1);
+        } else {
+            i2 = r.size(1);
+        }
+        if ((r.size(1) == y.size(1)) && (i2 == b.size(1))) {
+            int loop_ub;
+            y.set_size(3, r.size(1));
+            loop_ub = r.size(1);
+            for (int i3{0}; i3 < loop_ub; i3++) {
+                y[3 * i3] = r[3 * i3] * y[3 * i3] + b[3 * i3];
+                y[3 * i3 + 1] = r[3 * i3 + 1] * y[3 * i3 + 1] + b[3 * i3 + 1];
+                y[3 * i3 + 2] = r[3 * i3 + 2] * y[3 * i3 + 2] + b[3 * i3 + 2];
+            }
+        } else {
+            binary_expand_op(y, r, b);
         }
     }
 }
@@ -238,7 +316,7 @@ void c_mypolyval(const double p[4][3], const ::coder::array<double, 2U> &x,
         }
     }
     for (int b_i{0}; b_i < 3; b_i++) {
-        int loop_ub;
+        int i2;
         r.set_size(3, x.size(1));
         if (x.size(1) != 0) {
             int na;
@@ -259,12 +337,22 @@ void c_mypolyval(const double p[4][3], const ::coder::array<double, 2U> &x,
                 b[3 * b_t + 2] = p[b_i + 1][2];
             }
         }
-        y.set_size(3, r.size(1));
-        loop_ub = r.size(1);
-        for (int i2{0}; i2 < loop_ub; i2++) {
-            y[3 * i2] = r[3 * i2] * y[3 * i2] + b[3 * i2];
-            y[3 * i2 + 1] = r[3 * i2 + 1] * y[3 * i2 + 1] + b[3 * i2 + 1];
-            y[3 * i2 + 2] = r[3 * i2 + 2] * y[3 * i2 + 2] + b[3 * i2 + 2];
+        if (r.size(1) == 1) {
+            i2 = y.size(1);
+        } else {
+            i2 = r.size(1);
+        }
+        if ((r.size(1) == y.size(1)) && (i2 == b.size(1))) {
+            int loop_ub;
+            y.set_size(3, r.size(1));
+            loop_ub = r.size(1);
+            for (int i3{0}; i3 < loop_ub; i3++) {
+                y[3 * i3] = r[3 * i3] * y[3 * i3] + b[3 * i3];
+                y[3 * i3 + 1] = r[3 * i3 + 1] * y[3 * i3 + 1] + b[3 * i3 + 1];
+                y[3 * i3 + 2] = r[3 * i3 + 2] * y[3 * i3 + 2] + b[3 * i3 + 2];
+            }
+        } else {
+            binary_expand_op(y, r, b);
         }
     }
 }
@@ -366,7 +454,7 @@ void d_mypolyval(const double p[3][3], const ::coder::array<double, 2U> &x,
         }
     }
     for (int b_i{0}; b_i < 2; b_i++) {
-        int loop_ub;
+        int i2;
         r.set_size(3, x.size(1));
         if (x.size(1) != 0) {
             int na;
@@ -387,12 +475,22 @@ void d_mypolyval(const double p[3][3], const ::coder::array<double, 2U> &x,
                 b[3 * b_t + 2] = p[b_i + 1][2];
             }
         }
-        y.set_size(3, r.size(1));
-        loop_ub = r.size(1);
-        for (int i2{0}; i2 < loop_ub; i2++) {
-            y[3 * i2] = r[3 * i2] * y[3 * i2] + b[3 * i2];
-            y[3 * i2 + 1] = r[3 * i2 + 1] * y[3 * i2 + 1] + b[3 * i2 + 1];
-            y[3 * i2 + 2] = r[3 * i2 + 2] * y[3 * i2 + 2] + b[3 * i2 + 2];
+        if (r.size(1) == 1) {
+            i2 = y.size(1);
+        } else {
+            i2 = r.size(1);
+        }
+        if ((r.size(1) == y.size(1)) && (i2 == b.size(1))) {
+            int loop_ub;
+            y.set_size(3, r.size(1));
+            loop_ub = r.size(1);
+            for (int i3{0}; i3 < loop_ub; i3++) {
+                y[3 * i3] = r[3 * i3] * y[3 * i3] + b[3 * i3];
+                y[3 * i3 + 1] = r[3 * i3 + 1] * y[3 * i3 + 1] + b[3 * i3 + 1];
+                y[3 * i3 + 2] = r[3 * i3 + 2] * y[3 * i3 + 2] + b[3 * i3 + 2];
+            }
+        } else {
+            binary_expand_op(y, r, b);
         }
     }
 }
@@ -537,7 +635,7 @@ void mypolyval(const double p[6][3], const ::coder::array<double, 2U> &x,
         }
     }
     for (int b_i{0}; b_i < 5; b_i++) {
-        int loop_ub;
+        int i2;
         r.set_size(3, x.size(1));
         if (x.size(1) != 0) {
             int na;
@@ -558,12 +656,22 @@ void mypolyval(const double p[6][3], const ::coder::array<double, 2U> &x,
                 b[3 * b_t + 2] = p[b_i + 1][2];
             }
         }
-        y.set_size(3, r.size(1));
-        loop_ub = r.size(1);
-        for (int i2{0}; i2 < loop_ub; i2++) {
-            y[3 * i2] = r[3 * i2] * y[3 * i2] + b[3 * i2];
-            y[3 * i2 + 1] = r[3 * i2 + 1] * y[3 * i2 + 1] + b[3 * i2 + 1];
-            y[3 * i2 + 2] = r[3 * i2 + 2] * y[3 * i2 + 2] + b[3 * i2 + 2];
+        if (r.size(1) == 1) {
+            i2 = y.size(1);
+        } else {
+            i2 = r.size(1);
+        }
+        if ((r.size(1) == y.size(1)) && (i2 == b.size(1))) {
+            int loop_ub;
+            y.set_size(3, r.size(1));
+            loop_ub = r.size(1);
+            for (int i3{0}; i3 < loop_ub; i3++) {
+                y[3 * i3] = r[3 * i3] * y[3 * i3] + b[3 * i3];
+                y[3 * i3 + 1] = r[3 * i3 + 1] * y[3 * i3 + 1] + b[3 * i3 + 1];
+                y[3 * i3 + 2] = r[3 * i3 + 2] * y[3 * i3 + 2] + b[3 * i3 + 2];
+            }
+        } else {
+            binary_expand_op(y, r, b);
         }
     }
 }

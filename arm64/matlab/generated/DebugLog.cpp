@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: DebugLog.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:36:47
 //
 
 // Include Files
@@ -14,22 +14,6 @@
 #include <stdio.h>
 
 // Function Definitions
-//
-// 1 -> stdout
-//  2 -> stderr
-//
-// Arguments    : double varargin_2
-// Return Type  : void
-//
-namespace ocn {
-void DebugLog(double varargin_2)
-{
-    if ((static_cast<unsigned long>(DebugConfig) & 4UL) != 0UL) {
-        printf("v_0  = %f\n", varargin_2);
-        fflush(stdout);
-    }
-}
-
 //
 // 1 -> stdout
 //  2 -> stderr
@@ -44,6 +28,7 @@ void DebugLog(double varargin_2)
 //                double varargin_9
 // Return Type  : void
 //
+namespace ocn {
 void DebugLog(int varargin_2, double varargin_3, double varargin_4, double varargin_5,
               double varargin_6, double varargin_7, double varargin_8, double varargin_9)
 {
@@ -52,6 +37,21 @@ void DebugLog(int varargin_2, double varargin_3, double varargin_4, double varar
                "at_1 = %f\n",
                varargin_2, varargin_3, varargin_4, varargin_5, varargin_6, varargin_7, varargin_8,
                varargin_9);
+        fflush(stdout);
+    }
+}
+
+//
+// 1 -> stdout
+//  2 -> stderr
+//
+// Arguments    : double varargin_2
+// Return Type  : void
+//
+void DebugLog(double varargin_2)
+{
+    if ((static_cast<unsigned long>(DebugConfig) & 4UL) != 0UL) {
+        printf("v_0  = %f\n", varargin_2);
         fflush(stdout);
     }
 }
@@ -93,13 +93,14 @@ void DebugLog(int varargin_2)
 // 1 -> stdout
 //  2 -> stderr
 //
-// Arguments    : void
+// Arguments    : int varargin_2
+//                int varargin_3
 // Return Type  : void
 //
-void DebugLog()
+void DebugLog(int varargin_2, int varargin_3)
 {
-    if ((static_cast<unsigned long>(DebugConfig) & 8UL) != 0UL) {
-        printf("========== AFTER CUTTING \n");
+    if ((static_cast<unsigned long>(DebugConfig) & 32UL) != 0UL) {
+        printf("Lines: %d, %d\n\n", varargin_2, varargin_3);
         fflush(stdout);
     }
 }
@@ -108,14 +109,28 @@ void DebugLog()
 // 1 -> stdout
 //  2 -> stderr
 //
-// Arguments    : int varargin_2
-//                int varargin_3
+// Arguments    : void
 // Return Type  : void
 //
-void DebugLog(int varargin_2, int varargin_3)
+void DebugLog()
 {
-    if ((static_cast<unsigned long>(DebugConfig) & 16UL) != 0UL) {
-        printf("Lines: %d, %d\n\n", varargin_2, varargin_3);
+    if ((static_cast<unsigned long>(DebugConfig) & 32UL) != 0UL) {
+        printf("========== CalcTransition ==========\n");
+        fflush(stdout);
+    }
+}
+
+//
+// 1 -> stdout
+//  2 -> stderr
+//
+// Arguments    : void
+// Return Type  : void
+//
+void ab_DebugLog()
+{
+    if ((static_cast<unsigned long>(DebugConfig) & 8UL) != 0UL) {
+        printf("\n");
         fflush(stdout);
     }
 }
@@ -154,13 +169,28 @@ void b_DebugLog(int varargin_2)
 // 1 -> stdout
 //  2 -> stderr
 //
+// Arguments    : void
+// Return Type  : void
+//
+void b_DebugLog()
+{
+    if ((static_cast<unsigned long>(DebugConfig) & 32UL) != 0UL) {
+        printf("=========== Badly Cond. Matrix in G2_Hermite() ==========\n");
+        fflush(stdout);
+    }
+}
+
+//
+// 1 -> stdout
+//  2 -> stderr
+//
 // Arguments    : int varargin_2
 //                int varargin_3
 // Return Type  : void
 //
 void b_DebugLog(int varargin_2, int varargin_3)
 {
-    if ((static_cast<unsigned long>(DebugConfig) & 32UL) != 0UL) {
+    if ((static_cast<unsigned long>(DebugConfig) & 16UL) != 0UL) {
         printf("Lines: %d, %d\n\n", varargin_2, varargin_3);
         fflush(stdout);
     }
@@ -173,10 +203,10 @@ void b_DebugLog(int varargin_2, int varargin_3)
 // Arguments    : void
 // Return Type  : void
 //
-void b_DebugLog()
+void bb_DebugLog()
 {
-    if ((static_cast<unsigned long>(DebugConfig) & 16UL) != 0UL) {
-        printf("========== CalcTransition ==========\n");
+    if ((static_cast<unsigned long>(DebugConfig) & 8UL) != 0UL) {
+        printf("Coeff3 = ");
         fflush(stdout);
     }
 }
@@ -206,6 +236,36 @@ void c_DebugLog(double varargin_2)
 void c_DebugLog()
 {
     if ((static_cast<unsigned long>(DebugConfig) & 16UL) != 0UL) {
+        printf("========== CalcTransition ==========\n");
+        fflush(stdout);
+    }
+}
+
+//
+// 1 -> stdout
+//  2 -> stderr
+//
+// Arguments    : void
+// Return Type  : void
+//
+void cb_DebugLog()
+{
+    if ((static_cast<unsigned long>(DebugConfig) & 8UL) != 0UL) {
+        printf("OPTIMIZATION FAILED!\n");
+        fflush(stdout);
+    }
+}
+
+//
+// 1 -> stdout
+//  2 -> stderr
+//
+// Arguments    : void
+// Return Type  : void
+//
+void d_DebugLog()
+{
+    if ((static_cast<unsigned long>(DebugConfig) & 16UL) != 0UL) {
         printf("=========== status = 6 ==========\n");
         fflush(stdout);
     }
@@ -233,10 +293,10 @@ void d_DebugLog(double varargin_2)
 // Arguments    : void
 // Return Type  : void
 //
-void d_DebugLog()
+void db_DebugLog()
 {
-    if ((static_cast<unsigned long>(DebugConfig) & 32UL) != 0UL) {
-        printf("========== CalcTransition ==========\n");
+    if ((static_cast<unsigned long>(DebugConfig) & 8UL) != 0UL) {
+        printf("FEEDOPT: WRONG STATE\n");
         fflush(stdout);
     }
 }
@@ -295,6 +355,21 @@ void f_DebugLog()
 //
 void g_DebugLog()
 {
+    if ((static_cast<unsigned long>(DebugConfig) & 2UL) != 0UL) {
+        printf("Reading G-code...\n");
+        fflush(stdout);
+    }
+}
+
+//
+// 1 -> stdout
+//  2 -> stderr
+//
+// Arguments    : void
+// Return Type  : void
+//
+void h_DebugLog()
+{
     if ((static_cast<unsigned long>(DebugConfig) & 16UL) != 0UL) {
         printf("ERROR: Optimization failed, Gcode queue is empty\n");
         fflush(stdout);
@@ -308,7 +383,7 @@ void g_DebugLog()
 // Arguments    : void
 // Return Type  : void
 //
-void h_DebugLog()
+void i_DebugLog()
 {
     if ((static_cast<unsigned long>(DebugConfig) & 128UL) != 0UL) {
         printf("Checking for cusps...\n");
@@ -323,7 +398,22 @@ void h_DebugLog()
 // Arguments    : void
 // Return Type  : void
 //
-void i_DebugLog()
+void j_DebugLog()
+{
+    if ((static_cast<unsigned long>(DebugConfig) & 2UL) != 0UL) {
+        printf("Checking for cusps...\n");
+        fflush(stdout);
+    }
+}
+
+//
+// 1 -> stdout
+//  2 -> stderr
+//
+// Arguments    : void
+// Return Type  : void
+//
+void k_DebugLog()
 {
     if ((static_cast<unsigned long>(DebugConfig) & 1UL) != 0UL) {
         printf("Expanding ...\n");
@@ -338,7 +428,7 @@ void i_DebugLog()
 // Arguments    : void
 // Return Type  : void
 //
-void j_DebugLog()
+void l_DebugLog()
 {
     if ((static_cast<unsigned long>(DebugConfig) & 128UL) != 0UL) {
         printf("Compressing...\n");
@@ -353,40 +443,10 @@ void j_DebugLog()
 // Arguments    : void
 // Return Type  : void
 //
-void k_DebugLog()
-{
-    if ((static_cast<unsigned long>(DebugConfig) & 128UL) != 0UL) {
-        printf("Smoothing...\n");
-        fflush(stdout);
-    }
-}
-
-//
-// 1 -> stdout
-//  2 -> stderr
-//
-// Arguments    : void
-// Return Type  : void
-//
-void l_DebugLog()
-{
-    if ((static_cast<unsigned long>(DebugConfig) & 128UL) != 0UL) {
-        printf("Splitting...\n");
-        fflush(stdout);
-    }
-}
-
-//
-// 1 -> stdout
-//  2 -> stderr
-//
-// Arguments    : void
-// Return Type  : void
-//
 void m_DebugLog()
 {
-    if ((static_cast<unsigned long>(DebugConfig) & 128UL) != 0UL) {
-        printf("Feedrate Planning...\n");
+    if ((static_cast<unsigned long>(DebugConfig) & 2UL) != 0UL) {
+        printf("Compressing...\n");
         fflush(stdout);
     }
 }
@@ -401,7 +461,7 @@ void m_DebugLog()
 void n_DebugLog()
 {
     if ((static_cast<unsigned long>(DebugConfig) & 128UL) != 0UL) {
-        printf("Queue empty...\n");
+        printf("Smoothing...\n");
         fflush(stdout);
     }
 }
@@ -415,8 +475,8 @@ void n_DebugLog()
 //
 void o_DebugLog()
 {
-    if ((static_cast<unsigned long>(DebugConfig) & 8UL) != 0UL) {
-        printf("FEEDRATE PLANNING...\n");
+    if ((static_cast<unsigned long>(DebugConfig) & 2UL) != 0UL) {
+        printf("Smoothing...\n");
         fflush(stdout);
     }
 }
@@ -430,8 +490,8 @@ void o_DebugLog()
 //
 void p_DebugLog()
 {
-    if ((static_cast<unsigned long>(DebugConfig) & 8UL) != 0UL) {
-        printf("-----------------------------------\n");
+    if ((static_cast<unsigned long>(DebugConfig) & 128UL) != 0UL) {
+        printf("Splitting...\n");
         fflush(stdout);
     }
 }
@@ -445,8 +505,8 @@ void p_DebugLog()
 //
 void q_DebugLog()
 {
-    if ((static_cast<unsigned long>(DebugConfig) & 8UL) != 0UL) {
-        printf("================================================\n");
+    if ((static_cast<unsigned long>(DebugConfig) & 2UL) != 0UL) {
+        printf("Splitting...\n");
         fflush(stdout);
     }
 }
@@ -460,8 +520,8 @@ void q_DebugLog()
 //
 void r_DebugLog()
 {
-    if ((static_cast<unsigned long>(DebugConfig) & 4UL) != 0UL) {
-        printf("===============================\n");
+    if ((static_cast<unsigned long>(DebugConfig) & 128UL) != 0UL) {
+        printf("Feedrate Planning...\n");
         fflush(stdout);
     }
 }
@@ -475,8 +535,8 @@ void r_DebugLog()
 //
 void s_DebugLog()
 {
-    if ((static_cast<unsigned long>(DebugConfig) & 4UL) != 0UL) {
-        printf("====== FEEDRATE PLANNING ======\n");
+    if ((static_cast<unsigned long>(DebugConfig) & 128UL) != 0UL) {
+        printf("Queue empty...\n");
         fflush(stdout);
     }
 }
@@ -491,7 +551,7 @@ void s_DebugLog()
 void t_DebugLog()
 {
     if ((static_cast<unsigned long>(DebugConfig) & 8UL) != 0UL) {
-        printf("Coeff1 = ");
+        printf("FEEDRATE PLANNING...\n");
         fflush(stdout);
     }
 }
@@ -506,7 +566,7 @@ void t_DebugLog()
 void u_DebugLog()
 {
     if ((static_cast<unsigned long>(DebugConfig) & 8UL) != 0UL) {
-        printf("\n");
+        printf("-----------------------------------\n");
         fflush(stdout);
     }
 }
@@ -521,7 +581,7 @@ void u_DebugLog()
 void v_DebugLog()
 {
     if ((static_cast<unsigned long>(DebugConfig) & 8UL) != 0UL) {
-        printf("Coeff3 = ");
+        printf("================================================\n");
         fflush(stdout);
     }
 }
@@ -535,8 +595,8 @@ void v_DebugLog()
 //
 void w_DebugLog()
 {
-    if ((static_cast<unsigned long>(DebugConfig) & 8UL) != 0UL) {
-        printf("OPTIMIZATION FAILED!\n");
+    if ((static_cast<unsigned long>(DebugConfig) & 4UL) != 0UL) {
+        printf("===============================\n");
         fflush(stdout);
     }
 }
@@ -550,8 +610,23 @@ void w_DebugLog()
 //
 void x_DebugLog()
 {
+    if ((static_cast<unsigned long>(DebugConfig) & 4UL) != 0UL) {
+        printf("====== FEEDRATE PLANNING ======\n");
+        fflush(stdout);
+    }
+}
+
+//
+// 1 -> stdout
+//  2 -> stderr
+//
+// Arguments    : void
+// Return Type  : void
+//
+void y_DebugLog()
+{
     if ((static_cast<unsigned long>(DebugConfig) & 8UL) != 0UL) {
-        printf("FEEDOPT: WRONG STATE\n");
+        printf("Coeff1 = ");
         fflush(stdout);
     }
 }

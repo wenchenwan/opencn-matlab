@@ -2,14 +2,14 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: diff.h
+// File: cat.h
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:36:47
 //
 
-#ifndef DIFF_H
-#define DIFF_H
+#ifndef CAT_H
+#define CAT_H
 
 // Include Files
 #include "rtwtypes.h"
@@ -21,15 +21,15 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-namespace coder {
-void diff(const ::coder::array<double, 2U> &x, ::coder::array<double, 2U> &y);
+void binary_expand_op(::coder::array<double, 2U> &r0D, const double CurvStruct_P1[3],
+                      const ::coder::array<double, 2U> &u_vec, const double CurvStruct_P0[3],
+                      const ::coder::array<double, 2U> &b_tmp);
 
 }
-} // namespace ocn
 
 #endif
 //
-// File trailer for diff.h
+// File trailer for cat.h
 //
 // [EOF]
 //

@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: EvalCurvStruct.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:36:47
 //
 
 // Include Files
@@ -18,6 +18,8 @@
 #include "sinspace_data.h"
 #include "sinspace_initialize.h"
 #include "sinspace_types.h"
+#include "sinspace_types1.h"
+#include "sinspace_types2.h"
 #include "coder_array.h"
 #include <cmath>
 #include <stdio.h>
@@ -73,11 +75,11 @@ void EvalCurvStruct(const FeedoptContext *ctx, const CurvStruct *b_CurvStruct,
     k = 0;
     exitg1 = false;
     while ((!exitg1) && (k <= x.size(1) - 1)) {
-        if (!x[k]) {
-            k++;
-        } else {
+        if (x[k]) {
             y = true;
             exitg1 = true;
+        } else {
+            k++;
         }
     }
     if (y) {
@@ -100,11 +102,11 @@ void EvalCurvStruct(const FeedoptContext *ctx, const CurvStruct *b_CurvStruct,
     b_k = 0;
     exitg1 = false;
     while ((!exitg1) && (b_k <= x.size(1) - 1)) {
-        if (!x[b_k]) {
-            b_k++;
-        } else {
+        if (x[b_k]) {
             b_y = true;
             exitg1 = true;
+        } else {
+            b_k++;
         }
     }
     if (b_y) {
@@ -118,7 +120,6 @@ void EvalCurvStruct(const FeedoptContext *ctx, const CurvStruct *b_CurvStruct,
             }
         }
     }
-    //
     //
     r0D.set_size(3, u_vec.size(1));
     c_loop_ub = u_vec.size(1);
@@ -186,7 +187,7 @@ void EvalCurvStruct(const FeedoptContext *ctx, const CurvStruct *b_CurvStruct,
         r1D[3 * i8 + 1] = b_CurvStruct->a_param * r1D[3 * i8 + 1];
         r1D[3 * i8 + 2] = b_CurvStruct->a_param * r1D[3 * i8 + 2];
     }
-    c = std::pow(b_CurvStruct->a_param, 2.0);
+    c = b_CurvStruct->a_param * b_CurvStruct->a_param;
     r2D.set_size(3, r2D.size(1));
     i_loop_ub = r2D.size(1);
     for (int i9{0}; i9 < i_loop_ub; i9++) {
@@ -238,7 +239,6 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     double c;
     char message[30];
     //
-    //
     for (int i{0}; i < 10; i++) {
         r0D[i][0] = 0.0;
         r1D[i][0] = 0.0;
@@ -280,7 +280,7 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         c_assert_(&message[0]);
         break;
     }
-    c = std::pow(CurvStruct_a_param, 2.0);
+    c = CurvStruct_a_param * CurvStruct_a_param;
     b_c = std::pow(CurvStruct_a_param, 3.0);
     for (int i2{0}; i2 < 10; i2++) {
         r1D[i2][0] *= CurvStruct_a_param;
@@ -325,7 +325,6 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     double r2D[3];
     double r3D[3];
     char message[30];
-    //
     //
     r0D[0] = 0.0;
     r1D[0] = 0.0;
@@ -392,7 +391,6 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     double r3D[3];
     char message[30];
     //
-    //
     r0D[0] = 0.0;
     r0D[1] = 0.0;
     r0D[2] = 0.0;
@@ -455,7 +453,6 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     double u_vec_tilda;
     char message[30];
     //
-    //
     r0D[0] = 0.0;
     r0D[1] = 0.0;
     r0D[2] = 0.0;
@@ -515,7 +512,6 @@ void b_EvalCurvStruct(CurveType CurvStruct_Type, const double CurvStruct_P0[3],
     double b_c;
     double c;
     //
-    //
     if (CurvStruct_Type == CurveType_Line) {
         //  line (G01)
         EvalLine(CurvStruct_P0, CurvStruct_P1, CurvStruct_b_param, r0D, r1D, r2D, r3D);
@@ -524,7 +520,7 @@ void b_EvalCurvStruct(CurveType CurvStruct_Type, const double CurvStruct_P0[3],
         EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_CorrectedHelixCenter, CurvStruct_evec,
                   CurvStruct_theta, CurvStruct_pitch, CurvStruct_b_param, r0D, r1D, r2D, r3D);
     }
-    c = std::pow(CurvStruct_a_param, 2.0);
+    c = CurvStruct_a_param * CurvStruct_a_param;
     b_c = std::pow(CurvStruct_a_param, 3.0);
     r1D[0] *= CurvStruct_a_param;
     r2D[0] *= c;
@@ -594,11 +590,11 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     k = 0;
     exitg1 = false;
     while ((!exitg1) && (k <= x.size(1) - 1)) {
-        if (!x[k]) {
-            k++;
-        } else {
+        if (x[k]) {
             y = true;
             exitg1 = true;
+        } else {
+            k++;
         }
     }
     if (y) {
@@ -621,11 +617,11 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     b_k = 0;
     exitg1 = false;
     while ((!exitg1) && (b_k <= x.size(1) - 1)) {
-        if (!x[b_k]) {
-            b_k++;
-        } else {
+        if (x[b_k]) {
             b_y = true;
             exitg1 = true;
+        } else {
+            b_k++;
         }
     }
     if (b_y) {
@@ -639,7 +635,6 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
             }
         }
     }
-    //
     //
     r0D.set_size(3, u_vec.size(1));
     c_loop_ub = u_vec.size(1);
@@ -699,7 +694,7 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         r1D[3 * i7 + 1] = CurvStruct_a_param * r1D[3 * i7 + 1];
         r1D[3 * i7 + 2] = CurvStruct_a_param * r1D[3 * i7 + 2];
     }
-    c = std::pow(CurvStruct_a_param, 2.0);
+    c = CurvStruct_a_param * CurvStruct_a_param;
     r2D.set_size(3, r2D.size(1));
     h_loop_ub = r2D.size(1);
     for (int i8{0}; i8 < h_loop_ub; i8++) {
@@ -770,11 +765,11 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     k = 0;
     exitg1 = false;
     while ((!exitg1) && (k <= x.size(1) - 1)) {
-        if (!x[k]) {
-            k++;
-        } else {
+        if (x[k]) {
             y = true;
             exitg1 = true;
+        } else {
+            k++;
         }
     }
     if (y) {
@@ -797,11 +792,11 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     b_k = 0;
     exitg1 = false;
     while ((!exitg1) && (b_k <= x.size(1) - 1)) {
-        if (!x[b_k]) {
-            b_k++;
-        } else {
+        if (x[b_k]) {
             b_y = true;
             exitg1 = true;
+        } else {
+            b_k++;
         }
     }
     if (b_y) {
@@ -815,7 +810,6 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
             }
         }
     }
-    //
     //
     r0D.set_size(3, u_vec.size(1));
     c_loop_ub = u_vec.size(1);
@@ -882,7 +876,7 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         r1D[3 * i8 + 1] = CurvStruct_a_param * r1D[3 * i8 + 1];
         r1D[3 * i8 + 2] = CurvStruct_a_param * r1D[3 * i8 + 2];
     }
-    c = std::pow(CurvStruct_a_param, 2.0);
+    c = CurvStruct_a_param * CurvStruct_a_param;
     r2D.set_size(3, r2D.size(1));
     i_loop_ub = r2D.size(1);
     for (int i9{0}; i9 < i_loop_ub; i9++) {
@@ -933,7 +927,6 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     double u_vec_tilda;
     char message[30];
     //
-    //
     r0D[0] = 0.0;
     r1D[0] = 0.0;
     r2D[0] = 0.0;
@@ -969,7 +962,7 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         c_assert_(&message[0]);
         break;
     }
-    c = std::pow(CurvStruct_a_param, 2.0);
+    c = CurvStruct_a_param * CurvStruct_a_param;
     r1D[0] *= CurvStruct_a_param;
     r2D[0] *= c;
     r1D[1] *= CurvStruct_a_param;
@@ -1010,7 +1003,6 @@ void c_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     double c;
     char message[30];
     //
-    //
     r0D[0] = 0.0;
     r1D[0] = 0.0;
     r2D[0] = 0.0;
@@ -1045,7 +1037,7 @@ void c_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         c_assert_(&message[0]);
         break;
     }
-    c = std::pow(CurvStruct_a_param, 2.0);
+    c = CurvStruct_a_param * CurvStruct_a_param;
     r1D[0] *= CurvStruct_a_param;
     r2D[0] *= c;
     r1D[1] *= CurvStruct_a_param;
@@ -1088,7 +1080,6 @@ void c_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     double u_vec_tilda;
     char message[30];
     //
-    //
     r0D[0] = 0.0;
     r1D[0] = 0.0;
     r2D[0] = 0.0;
@@ -1127,7 +1118,7 @@ void c_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         c_assert_(&message[0]);
         break;
     }
-    c = std::pow(CurvStruct_a_param, 2.0);
+    c = CurvStruct_a_param * CurvStruct_a_param;
     b_c = std::pow(CurvStruct_a_param, 3.0);
     r1D[0] *= CurvStruct_a_param;
     r2D[0] *= c;
@@ -1171,7 +1162,6 @@ void c_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     double r3D[3];
     double u_vec_tilda;
     char message[30];
-    //
     //
     r0D[0] = 0.0;
     r1D[0] = 0.0;

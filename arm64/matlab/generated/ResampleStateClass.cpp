@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: ResampleStateClass.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:36:47
 //
 
 // Include Files
@@ -19,7 +19,7 @@
 namespace ocn {
 void ResampleStateClass::set_go_next()
 {
-    this->go_next = false;
+    go_next = false;
 }
 
 //
@@ -44,7 +44,7 @@ ResampleStateClass::~ResampleStateClass()
 //
 void ResampleStateClass::b_set_go_next()
 {
-    this->go_next = true;
+    go_next = true;
 }
 
 //
@@ -53,9 +53,9 @@ void ResampleStateClass::b_set_go_next()
 //
 void ResampleStateClass::init(double b_dt)
 {
-    this->set_u();
-    this->set_go_next();
-    this->set_dt(b_dt);
+    set_u();
+    set_go_next();
+    set_dt(b_dt);
 }
 
 //
@@ -64,7 +64,7 @@ void ResampleStateClass::init(double b_dt)
 //
 void ResampleStateClass::set_dt(double val)
 {
-    this->dt = val;
+    dt = val;
 }
 
 //
@@ -73,7 +73,7 @@ void ResampleStateClass::set_dt(double val)
 //
 void ResampleStateClass::set_u(double val)
 {
-    this->u = val;
+    u = val;
 }
 
 //
@@ -82,7 +82,7 @@ void ResampleStateClass::set_u(double val)
 //
 void ResampleStateClass::set_u()
 {
-    this->u = 0.0;
+    u = 0.0;
 }
 
 } // namespace ocn

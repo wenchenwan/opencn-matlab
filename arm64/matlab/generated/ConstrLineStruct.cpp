@@ -4,16 +4,17 @@
 // government, commercial, or other organizational use.
 // File: ConstrLineStruct.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:36:47
 //
 
 // Include Files
 #include "ConstrLineStruct.h"
 #include "ConstrCurvStruct.h"
-#include "queue_coder.h"
 #include "sinspace_data.h"
 #include "sinspace_initialize.h"
+#include "sinspace_types1.h"
+#include "sinspace_types2.h"
 
 // Function Definitions
 //
