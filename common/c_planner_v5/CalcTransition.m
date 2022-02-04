@@ -222,18 +222,8 @@ else
         camproj('perspective');
     end
     end
-
-    ctx.q_bug.push(CurvStruct1);
-    ctx.q_bug.push(CurvStruct2);
-            
+    
 end
-
-%     CurvStruct1_C.gcode_source_line = line1;
-    CurvStruct_T.gcode_source_line = line2;
-%     CurvStruct2_C.gcode_source_line = line2;
-    
-%     CurvStruct1_C.SpindleSpeed = CurvStruct1.SpindleSpeed;
-    CurvStruct_T.SpindleSpeed = min(CurvStruct1.SpindleSpeed, CurvStruct2.SpindleSpeed);
-%     CurvStruct2_C.SpindleSpeed = CurvStruct2.SpindleSpeed;
-    
+    CurvStruct_T.gcode_source_line = line2;    
+    CurvStruct_T.SpindleSpeed = min(CurvStruct1.SpindleSpeed, CurvStruct2.SpindleSpeed);    
 end
