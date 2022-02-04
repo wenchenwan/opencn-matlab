@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: bspline_eval_vec.h
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:47:09
 //
 
 #ifndef BSPLINE_EVAL_VEC_H
@@ -26,10 +26,6 @@ void bspline_eval_vec(unsigned long Bl_handle, const double coeffs[4], const dou
 
 void bspline_eval_vec(unsigned long Bl_handle, const ::coder::array<double, 2U> &coeffs,
                       const ::coder::array<double, 2U> &u, ::coder::array<double, 2U> &x);
-
-void bspline_eval_vec(unsigned long Bl_handle, const ::coder::array<double, 2U> &coeffs,
-                      const ::coder::array<double, 2U> &u, ::coder::array<double, 2U> &x,
-                      ::coder::array<double, 2U> &xd);
 
 void bspline_eval_vec(unsigned long Bl_handle, const ::coder::array<double, 2U> &coeffs,
                       const ::coder::array<double, 2U> &u, ::coder::array<double, 2U> &x,

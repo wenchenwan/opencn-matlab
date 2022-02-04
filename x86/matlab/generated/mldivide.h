@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: mldivide.h
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:47:09
 //
 
 #ifndef MLDIVIDE_H
@@ -22,12 +22,10 @@
 // Function Declarations
 namespace ocn {
 namespace coder {
-void mldivide(const double A[4][4], const double B[4], double Y[4]);
-
 void mldivide(const ::coder::array<double, 2U> &A, const ::coder::array<double, 1U> &B,
               ::coder::array<double, 1U> &Y);
 
-} // namespace coder
+}
 } // namespace ocn
 
 #endif

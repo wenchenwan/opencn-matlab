@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: SplitLineHelix.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:47:09
 //
 
 // Include Files
@@ -13,6 +13,8 @@
 #include "LengthCurv.h"
 #include "queue_coder.h"
 #include "sinspace_types.h"
+#include "sinspace_types1.h"
+#include "sinspace_types2.h"
 #include <cmath>
 
 // Function Definitions
@@ -29,9 +31,9 @@ void SplitLineHelix(const FeedoptContext *ctx, CurvStruct *Curv)
     double b;
     a = Curv->a_param;
     b = Curv->b_param;
-    L = LengthCurv(&ctx->q_splines, ctx->cfg.NGridLengthSpline, Curv->Type, Curv->P0, Curv->P1,
-                   Curv->CorrectedHelixCenter, Curv->evec, Curv->theta, Curv->pitch, Curv->CoeffP5,
-                   Curv->sp_index, Curv->a_param, Curv->b_param);
+    L = LengthCurv(&ctx->q_splines, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW, Curv->Type,
+                   Curv->P0, Curv->P1, Curv->CorrectedHelixCenter, Curv->evec, Curv->theta,
+                   Curv->pitch, Curv->CoeffP5, Curv->sp_index, Curv->a_param, Curv->b_param);
     if (L < 2.0 * ctx->cfg.LSplit) {
         ctx->q_split.push(Curv);
     } else {

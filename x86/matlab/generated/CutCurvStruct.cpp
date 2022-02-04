@@ -4,17 +4,19 @@
 // government, commercial, or other organizational use.
 // File: CutCurvStruct.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:47:09
 //
 
 // Include Files
 #include "CutCurvStruct.h"
 #include "EvalCurvStruct.h"
-#include "SplineLengthApprox.h"
+#include "SplineLengthFindU_down.h"
+#include "SplineLengthFindU_up.h"
 #include "queue_coder.h"
 #include "sinspace_data.h"
-#include "coder_array.h"
+#include "sinspace_types1.h"
+#include "sinspace_types2.h"
 #include <cmath>
 
 // Function Definitions
@@ -23,47 +25,29 @@
 //  We determine a new value of the parameter u_tilda
 //
 // Arguments    : const queue_coder *ctx_q_splines
-//                double ctx_cfg_NGridLengthSpline
+//                const double ctx_cfg_GaussLegendreX[5]
+//                const double ctx_cfg_GaussLegendreW[5]
 //                CurvStruct *b_CurvStruct
 //                double d1
 // Return Type  : void
 //
 namespace ocn {
-void CutCurvStruct(const queue_coder *ctx_q_splines, double ctx_cfg_NGridLengthSpline,
-                   CurvStruct *b_CurvStruct, double d1)
+void CutCurvStruct(const queue_coder *ctx_q_splines, const double ctx_cfg_GaussLegendreX[5],
+                   const double ctx_cfg_GaussLegendreW[5], CurvStruct *b_CurvStruct, double d1)
 {
-    ::coder::array<double, 2U> Integrand;
-    ::coder::array<double, 2U> du_tilda;
-    ::coder::array<double, 2U> u_mid_tilda;
-    CurvStruct b_ctx_q_splines;
     double a__1[3];
     double a__2[3];
     double r1D0[3];
     double r1D1[3];
-    double L_tot;
     double u0_tilda;
     double u1_tilda;
     if (b_CurvStruct->Type == CurveType_Spline) {
-        ctx_q_splines->get(b_CurvStruct->sp_index, &b_ctx_q_splines);
-        //  discretizing along the total spline
-        //  from u=0 to u=1
-        SplineLengthApprox(ctx_q_splines, ctx_cfg_NGridLengthSpline, b_CurvStruct->sp_index,
-                           b_CurvStruct->b_param, b_CurvStruct->a_param + b_CurvStruct->b_param,
-                           &L_tot, Integrand, u_mid_tilda, du_tilda);
         u0_tilda = b_CurvStruct->b_param;
         if (d1 != 0.0) {
-            double L;
-            unsigned int k;
-            //  spline-long length calculation by rectangles method
-            //  beginning from u=0
-            //  until L_tot-d1 is reached
-            L = 0.0;
-            k = 1U;
-            while ((L < L_tot - d1) && (k <= static_cast<unsigned int>(du_tilda.size(1)))) {
-                L += Integrand[static_cast<int>(k) - 1] * du_tilda[static_cast<int>(k) - 1];
-                k++;
-            }
-            u1_tilda = u_mid_tilda[static_cast<int>(k) - 1];
+            u1_tilda = SplineLengthFindU_down(ctx_q_splines, ctx_cfg_GaussLegendreX,
+                                              ctx_cfg_GaussLegendreW, b_CurvStruct->sp_index, d1,
+                                              b_CurvStruct->a_param + b_CurvStruct->b_param);
+            //  RHG
         } else {
             u1_tilda = b_CurvStruct->a_param + b_CurvStruct->b_param;
         }
@@ -104,45 +88,27 @@ void CutCurvStruct(const queue_coder *ctx_q_splines, double ctx_cfg_NGridLengthS
 //  We determine a new value of the parameter u_tilda
 //
 // Arguments    : const queue_coder *ctx_q_splines
-//                double ctx_cfg_NGridLengthSpline
+//                const double ctx_cfg_GaussLegendreX[5]
+//                const double ctx_cfg_GaussLegendreW[5]
 //                CurvStruct *b_CurvStruct
 //                double d0
 // Return Type  : void
 //
-void b_CutCurvStruct(const queue_coder *ctx_q_splines, double ctx_cfg_NGridLengthSpline,
-                     CurvStruct *b_CurvStruct, double d0)
+void b_CutCurvStruct(const queue_coder *ctx_q_splines, const double ctx_cfg_GaussLegendreX[5],
+                     const double ctx_cfg_GaussLegendreW[5], CurvStruct *b_CurvStruct, double d0)
 {
-    ::coder::array<double, 2U> Integrand;
-    ::coder::array<double, 2U> du_tilda;
-    ::coder::array<double, 2U> u_mid_tilda;
-    CurvStruct b_ctx_q_splines;
     double a__1[3];
     double a__2[3];
     double r1D0[3];
     double r1D1[3];
-    double L_tot;
     double u0_tilda;
     double u1_tilda;
     if (b_CurvStruct->Type == CurveType_Spline) {
-        ctx_q_splines->get(b_CurvStruct->sp_index, &b_ctx_q_splines);
-        //  discretizing along the total spline
-        //  from u=0 to u=1
-        SplineLengthApprox(ctx_q_splines, ctx_cfg_NGridLengthSpline, b_CurvStruct->sp_index,
-                           b_CurvStruct->b_param, b_CurvStruct->a_param + b_CurvStruct->b_param,
-                           &L_tot, Integrand, u_mid_tilda, du_tilda);
         if (d0 != 0.0) {
-            double L;
-            unsigned int k;
-            //  spline-long length calculation by rectangles method
-            //  beginning from u=0
-            //  until d0 is reached
-            L = 0.0;
-            k = 1U;
-            while ((L < d0) && (k <= static_cast<unsigned int>(du_tilda.size(1)))) {
-                L += Integrand[static_cast<int>(k) - 1] * du_tilda[static_cast<int>(k) - 1];
-                k++;
-            }
-            u0_tilda = u_mid_tilda[static_cast<int>(k) - 1];
+            u0_tilda =
+                SplineLengthFindU_up(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
+                                     b_CurvStruct->sp_index, d0, b_CurvStruct->b_param);
+            //  RHG
         } else {
             u0_tilda = b_CurvStruct->b_param;
         }

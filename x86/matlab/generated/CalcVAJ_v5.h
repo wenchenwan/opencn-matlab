@@ -4,22 +4,28 @@
 // government, commercial, or other organizational use.
 // File: CalcVAJ_v5.h
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:47:09
 //
 
 #ifndef CALCVAJ_V5_H
 #define CALCVAJ_V5_H
 
 // Include Files
-#include "queue_coder.h"
 #include "rtwtypes.h"
+#include "sinspace_types2.h"
 #include "coder_array.h"
 #include <cstddef>
 #include <cstdlib>
 
 // Custom Header Code
 #include "functions.h"
+// Type Declarations
+namespace ocn {
+class queue_coder;
+
+}
+
 // Function Declarations
 namespace ocn {
 void CalcVAJ_v5(const queue_coder *ctx_q_splines, CurveType CurvStructs_Type,

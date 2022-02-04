@@ -2,14 +2,14 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: diff.h
+// File: sinspace_types3.h
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:47:09
 //
 
-#ifndef DIFF_H
-#define DIFF_H
+#ifndef SINSPACE_TYPES3_H
+#define SINSPACE_TYPES3_H
 
 // Include Files
 #include "rtwtypes.h"
@@ -19,17 +19,20 @@
 
 // Custom Header Code
 #include "functions.h"
-// Function Declarations
+// Type Definitions
 namespace ocn {
-namespace coder {
-void diff(const ::coder::array<double, 2U> &x, ::coder::array<double, 2U> &y);
+struct SplineBase {
+    int ncoeff;
+    ::coder::array<double, 2U> breakpoints;
+    unsigned long handle;
+    int degree;
+};
 
-}
 } // namespace ocn
 
 #endif
 //
-// File trailer for diff.h
+// File trailer for sinspace_types3.h
 //
 // [EOF]
 //

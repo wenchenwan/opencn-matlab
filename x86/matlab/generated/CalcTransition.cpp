@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: CalcTransition.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:47:09
 //
 
 // Include Files
@@ -17,13 +17,14 @@
 #include "G2_Hermite_Interpolation.h"
 #include "LengthCurv.h"
 #include "PrintCurvStruct.h"
-#include "SplineLengthApprox.h"
+#include "SplineLengthApproxGL_bounds.h"
 #include "collinear.h"
-#include "find.h"
 #include "queue_coder.h"
 #include "sinspace_data.h"
 #include "sinspace_initialize.h"
 #include "sinspace_types.h"
+#include "sinspace_types1.h"
+#include "sinspace_types2.h"
 #include "coder_array.h"
 #include <cmath>
 
@@ -43,7 +44,6 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
                     const CurvStruct *CurvStruct2, CurvStruct *CurvStruct1_C,
                     CurvStruct *CurvStruct_T, CurvStruct *CurvStruct2_C, TransitionResult *status)
 {
-    ::coder::array<bool, 2U> c_expl_temp;
     CurvStruct b_expl_temp;
     CurvStruct expl_temp;
     double p5[6][3];
@@ -66,23 +66,19 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
     double Length_Threshold;
     double a__1;
     double a__2;
-    double expl_temp_data;
-    int expl_temp_size[2];
-    int tmp_size[2];
     int ret;
-    int tmp_data;
     TransitionResult b_status;
     if (!isInitialized_sinspace) {
         sinspace_initialize();
     }
     CutOff_tmp = ctx->cfg.CutOff;
     CutOff = CutOff_tmp;
-    Length_Threshold = 3.0 * ctx->cfg.CutOff;
-    //  DebugLog(DebugCfg.Transitions, ...
-    //      '========== CalcTransition ==========\n')
+    Length_Threshold = 3.0 * CutOff_tmp;
     if ((static_cast<unsigned long>(DebugConfig) & 8UL) != 0UL) {
-        b_PrintCurvStruct(&ctx->q_splines, ctx->cfg.NGridLengthSpline, CurvStruct1);
-        b_PrintCurvStruct(&ctx->q_splines, ctx->cfg.NGridLengthSpline, CurvStruct2);
+        b_PrintCurvStruct(&ctx->q_splines, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW,
+                          CurvStruct1);
+        b_PrintCurvStruct(&ctx->q_splines, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW,
+                          CurvStruct2);
     }
     *CurvStruct_T = *CurvStruct1;
     // default value
@@ -104,24 +100,23 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
                      CurvStruct2->a_param, CurvStruct2->b_param, r1D0_2, r1D1_2);
     //  colinearity test
     if ((CurvStruct1->Type != CurveType_Helix) && (CurvStruct2->Type != CurveType_Helix) &&
-        collinear(r0D1_2, r1D1_1, ctx->cfg.CollTolDeg)) {
-        //  && norm(r0D2 - r1D2) < 10*eps && collinear(r0D2, r1D2, 1e-2)
+        collinear(r0D1_2, r1D1_1, ctx->cfg.ColTolCos)) {
         b_status = TransitionResult_Collinear;
         *CurvStruct1_C = *CurvStruct1;
         *CurvStruct2_C = *CurvStruct2;
     } else {
         double L1;
         double L2;
-        L1 = LengthCurv(&ctx->q_splines, ctx->cfg.NGridLengthSpline, CurvStruct1->Type,
-                        CurvStruct1->P0, CurvStruct1->P1, CurvStruct1->CorrectedHelixCenter,
-                        CurvStruct1->evec, CurvStruct1->theta, CurvStruct1->pitch,
-                        CurvStruct1->CoeffP5, CurvStruct1->sp_index, CurvStruct1->a_param,
-                        CurvStruct1->b_param);
-        L2 = LengthCurv(&ctx->q_splines, ctx->cfg.NGridLengthSpline, CurvStruct2->Type,
-                        CurvStruct2->P0, CurvStruct2->P1, CurvStruct2->CorrectedHelixCenter,
-                        CurvStruct2->evec, CurvStruct2->theta, CurvStruct2->pitch,
-                        CurvStruct2->CoeffP5, CurvStruct2->sp_index, CurvStruct2->a_param,
-                        CurvStruct2->b_param);
+        L1 = LengthCurv(&ctx->q_splines, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW,
+                        CurvStruct1->Type, CurvStruct1->P0, CurvStruct1->P1,
+                        CurvStruct1->CorrectedHelixCenter, CurvStruct1->evec, CurvStruct1->theta,
+                        CurvStruct1->pitch, CurvStruct1->CoeffP5, CurvStruct1->sp_index,
+                        CurvStruct1->a_param, CurvStruct1->b_param);
+        L2 = LengthCurv(&ctx->q_splines, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW,
+                        CurvStruct2->Type, CurvStruct2->P0, CurvStruct2->P1,
+                        CurvStruct2->CorrectedHelixCenter, CurvStruct2->evec, CurvStruct2->theta,
+                        CurvStruct2->pitch, CurvStruct2->CoeffP5, CurvStruct2->sp_index,
+                        CurvStruct2->a_param, CurvStruct2->b_param);
         //  CutOff calculation
         if ((CurvStruct1->Type != CurveType_Spline) && (CurvStruct2->Type != CurveType_Spline)) {
             if ((L1 < Length_Threshold) || (L2 < Length_Threshold)) {
@@ -130,10 +125,9 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
         } else {
             double x;
             double y;
+            unsigned int k;
             if (CurvStruct1->Type == CurveType_Spline) {
                 double u1_tilda;
-                int b_loop_ub;
-                int c_loop_ub;
                 ctx->q_splines.get(CurvStruct1->sp_index, &expl_temp);
                 //  In a very general case we may cut a spline several times
                 //  at the end;
@@ -143,21 +137,15 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
                 //  This value will be different from 1 in this special case
                 u1_tilda = CurvStruct1->a_param + CurvStruct1->b_param;
                 //  We need to find the previous spline knot u0_tilda...
-                c_expl_temp.set_size(1, expl_temp.sp.knots.size(1));
-                b_loop_ub = expl_temp.sp.knots.size(1);
-                for (int i1{0}; i1 < b_loop_ub; i1++) {
-                    c_expl_temp[i1] = (expl_temp.sp.knots[i1] < u1_tilda);
+                //
+                for (k = static_cast<unsigned int>(expl_temp.sp.knots.size(1));
+                     expl_temp.sp.knots[static_cast<int>(k) - 1] >= u1_tilda;
+                     k = static_cast<unsigned int>(static_cast<int>(k) - 1)) {
                 }
-                coder::b_eml_find(c_expl_temp, (int *)&tmp_data, tmp_size);
-                expl_temp_size[0] = 1;
-                expl_temp_size[1] = tmp_size[1];
-                c_loop_ub = tmp_size[1];
-                for (int i2{0}; i2 < c_loop_ub; i2++) {
-                    expl_temp_data = expl_temp.sp.knots[tmp_data - 1];
-                }
-                x = SplineLengthApprox(&ctx->q_splines, ctx->cfg.NGridLengthSpline,
-                                       CurvStruct1->sp_index, (double *)&expl_temp_data,
-                                       expl_temp_size, u1_tilda) /
+                x = SplineLengthApproxGL_bounds(&ctx->q_splines, ctx->cfg.GaussLegendreX,
+                                                ctx->cfg.GaussLegendreW, CurvStruct1->sp_index,
+                                                expl_temp.sp.knots[static_cast<int>(k) - 1],
+                                                u1_tilda) /
                     2.0;
             } else if (L1 < Length_Threshold) {
                 x = L1 / 3.0;
@@ -165,8 +153,6 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
                 x = CutOff_tmp;
             }
             if (CurvStruct2->Type == CurveType_Spline) {
-                int d_loop_ub;
-                int e_loop_ub;
                 int loop_ub;
                 ctx->q_splines.get(CurvStruct2->sp_index, &b_expl_temp);
                 expl_temp.sp.knots.set_size(1, b_expl_temp.sp.knots.size(1));
@@ -181,21 +167,14 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
                 //  native spline parameter (u0_tilda) value
                 //  This value will be different from 0 in this special case
                 //  We need to find the next spline knot u1_tilda...
-                c_expl_temp.set_size(1, expl_temp.sp.knots.size(1));
-                d_loop_ub = expl_temp.sp.knots.size(1);
-                for (int i3{0}; i3 < d_loop_ub; i3++) {
-                    c_expl_temp[i3] = (expl_temp.sp.knots[i3] > CurvStruct2->b_param);
+                //
+                for (k = 1U; expl_temp.sp.knots[static_cast<int>(k) - 1] <= CurvStruct2->b_param;
+                     k++) {
                 }
-                coder::eml_find(c_expl_temp, (int *)&tmp_data, tmp_size);
-                expl_temp_size[0] = 1;
-                expl_temp_size[1] = tmp_size[1];
-                e_loop_ub = tmp_size[1];
-                for (int i4{0}; i4 < e_loop_ub; i4++) {
-                    expl_temp_data = expl_temp.sp.knots[tmp_data - 1];
-                }
-                y = SplineLengthApprox(&ctx->q_splines, ctx->cfg.NGridLengthSpline,
-                                       CurvStruct2->sp_index, CurvStruct2->b_param,
-                                       (double *)&expl_temp_data, expl_temp_size) /
+                y = SplineLengthApproxGL_bounds(&ctx->q_splines, ctx->cfg.GaussLegendreX,
+                                                ctx->cfg.GaussLegendreW, CurvStruct2->sp_index,
+                                                CurvStruct2->b_param,
+                                                expl_temp.sp.knots[static_cast<int>(k) - 1]) /
                     2.0;
             } else if (L2 < Length_Threshold) {
                 y = L2 / 3.0;
@@ -204,16 +183,17 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
             }
             CutOff = std::fmin(x, y);
         }
-        //  DebugLog(DebugCfg.Transitions, ...
-        //      'CutOff = %.3f\n', CutOff)
         *CurvStruct1_C = *CurvStruct1;
-        CutCurvStruct(&ctx->q_splines, ctx->cfg.NGridLengthSpline, CurvStruct1_C, CutOff);
+        CutCurvStruct(&ctx->q_splines, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW,
+                      CurvStruct1_C, CutOff);
         *CurvStruct2_C = *CurvStruct2;
-        b_CutCurvStruct(&ctx->q_splines, ctx->cfg.NGridLengthSpline, CurvStruct2_C, CutOff);
-        DebugLog();
+        b_CutCurvStruct(&ctx->q_splines, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW,
+                        CurvStruct2_C, CutOff);
         if ((static_cast<unsigned long>(DebugConfig) & 8UL) != 0UL) {
-            b_PrintCurvStruct(&ctx->q_splines, ctx->cfg.NGridLengthSpline, CurvStruct1_C);
-            b_PrintCurvStruct(&ctx->q_splines, ctx->cfg.NGridLengthSpline, CurvStruct2_C);
+            b_PrintCurvStruct(&ctx->q_splines, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW,
+                              CurvStruct1_C);
+            b_PrintCurvStruct(&ctx->q_splines, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW,
+                              CurvStruct2_C);
         }
         b_EvalCurvStruct(&ctx->q_splines, CurvStruct1_C->Type, CurvStruct1_C->P0, CurvStruct1_C->P1,
                          CurvStruct1_C->CorrectedHelixCenter, CurvStruct1_C->evec,
@@ -232,61 +212,29 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
             //  transition CurvStruct calculation
             ConstrTransP5Struct(p5, CurvStruct1->FeedRate, CurvStruct_T);
             b_status = TransitionResult_Ok;
+        } else if (ret == 2) {
+            //  badly conditioned matrix in G2_Hermite()
+            b_status = TransitionResult_NoSolution;
+            DebugLog();
+            b_DebugLog();
+            DebugLog(CurvStruct1->gcode_source_line, CurvStruct2->gcode_source_line);
         } else if (ret == 6) {
             //  TODO: decide in the future...
             //  Now we ignore and construct the transition curve anyway
             ConstrTransP5Struct(p5, CurvStruct1->FeedRate, CurvStruct_T);
             b_status = TransitionResult_Ok;
-            b_DebugLog();
             c_DebugLog();
-            DebugLog(CurvStruct1->gcode_source_line, CurvStruct2->gcode_source_line);
-            //      if coder.target('matlab')
-            //
-            //          figure;
-            //          PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct_T CurvStruct2]);
-            //          hold on;
-            //          plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
-            //          hold on;
-            //          plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
-            //          title({ctx.cfg.source, 'status_G2_Hermite=6'}, 'Interpreter', 'none');
-            //          axis equal;
-            //          camproj('perspective');
-            //
-            //      end
+            d_DebugLog();
+            b_DebugLog(CurvStruct1->gcode_source_line, CurvStruct2->gcode_source_line);
         } else {
             b_status = TransitionResult_NoSolution;
-            d_DebugLog();
+            DebugLog();
             e_DebugLog();
-            b_DebugLog(CurvStruct1->gcode_source_line, CurvStruct2->gcode_source_line);
-            //      if coder.target('matlab')
-            //
-            //          figure;
-            //          PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct2]);
-            //          hold on;
-            //          plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
-            //          hold on;
-            //          plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
-            //          hold on;
-            //          plot3(r0D0_1(1), r0D0_1(2), r0D0_1(3), 'xc', 'LineWidth', 3);
-            //          hold on;
-            //          plot3(r0D0_2(1), r0D0_2(2), r0D0_2(3), 'xc', 'LineWidth', 3);
-            //          hold on;
-            //          plot3(r1D0_1(1), r1D0_1(2), r1D0_1(3), 'xc', 'LineWidth', 3);
-            //          hold on;
-            //          plot3(r1D0_2(1), r1D0_2(2), r1D0_2(3), 'xc', 'LineWidth', 3);
-            //          title({ctx.cfg.source, 'No solution'}, 'Interpreter', 'none');
-            //          axis equal;
-            //          camproj('perspective');
-            //
-            //      end
+            DebugLog(CurvStruct1->gcode_source_line, CurvStruct2->gcode_source_line);
         }
-        CurvStruct1_C->gcode_source_line = CurvStruct1->gcode_source_line;
         CurvStruct_T->gcode_source_line = CurvStruct2->gcode_source_line;
-        CurvStruct2_C->gcode_source_line = CurvStruct2->gcode_source_line;
-        CurvStruct1_C->SpindleSpeed = CurvStruct1->SpindleSpeed;
         CurvStruct_T->SpindleSpeed =
             std::fmin(CurvStruct1->SpindleSpeed, CurvStruct2->SpindleSpeed);
-        CurvStruct2_C->SpindleSpeed = CurvStruct2->SpindleSpeed;
     }
     *status = b_status;
 }
@@ -294,8 +242,9 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
 //
 // Arguments    : const queue_coder *ctx_q_splines
 //                double ctx_cfg_CutOff
-//                double ctx_cfg_CollTolDeg
-//                double ctx_cfg_NGridLengthSpline
+//                double ctx_cfg_ColTolCos
+//                const double ctx_cfg_GaussLegendreX[5]
+//                const double ctx_cfg_GaussLegendreW[5]
 //                const CurvStruct *CurvStruct1
 //                const CurvStruct *CurvStruct2
 //                CurvStruct *CurvStruct1_C
@@ -305,12 +254,11 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
 // Return Type  : void
 //
 void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
-                      double ctx_cfg_CollTolDeg, double ctx_cfg_NGridLengthSpline,
-                      const CurvStruct *CurvStruct1, const CurvStruct *CurvStruct2,
-                      CurvStruct *CurvStruct1_C, CurvStruct *CurvStruct_T,
-                      CurvStruct *CurvStruct2_C, TransitionResult *status)
+                      double ctx_cfg_ColTolCos, const double ctx_cfg_GaussLegendreX[5],
+                      const double ctx_cfg_GaussLegendreW[5], const CurvStruct *CurvStruct1,
+                      const CurvStruct *CurvStruct2, CurvStruct *CurvStruct1_C,
+                      CurvStruct *CurvStruct_T, CurvStruct *CurvStruct2_C, TransitionResult *status)
 {
-    ::coder::array<bool, 2U> c_expl_temp;
     CurvStruct b_expl_temp;
     CurvStruct expl_temp;
     double p5[6][3];
@@ -332,19 +280,15 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
     double Length_Threshold;
     double a__1;
     double a__2;
-    double expl_temp_data;
-    int expl_temp_size[2];
-    int tmp_size[2];
     int ret;
-    int tmp_data;
     TransitionResult b_status;
     CutOff = ctx_cfg_CutOff;
     Length_Threshold = 3.0 * ctx_cfg_CutOff;
-    //  DebugLog(DebugCfg.Transitions, ...
-    //      '========== CalcTransition ==========\n')
     if ((static_cast<unsigned long>(DebugConfig) & 8UL) != 0UL) {
-        b_PrintCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct1);
-        b_PrintCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct2);
+        b_PrintCurvStruct(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
+                          CurvStruct1);
+        b_PrintCurvStruct(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
+                          CurvStruct2);
     }
     *CurvStruct_T = *CurvStruct1;
     // default value
@@ -366,24 +310,23 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
                      CurvStruct2->a_param, CurvStruct2->b_param, r1D0_2, r1D1_2);
     //  colinearity test
     if ((CurvStruct1->Type != CurveType_Helix) && (CurvStruct2->Type != CurveType_Helix) &&
-        collinear(r0D1_2, r1D1_1, ctx_cfg_CollTolDeg)) {
-        //  && norm(r0D2 - r1D2) < 10*eps && collinear(r0D2, r1D2, 1e-2)
+        collinear(r0D1_2, r1D1_1, ctx_cfg_ColTolCos)) {
         b_status = TransitionResult_Collinear;
         *CurvStruct1_C = *CurvStruct1;
         *CurvStruct2_C = *CurvStruct2;
     } else {
         double L1;
         double L2;
-        L1 =
-            LengthCurv(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct1->Type, CurvStruct1->P0,
-                       CurvStruct1->P1, CurvStruct1->CorrectedHelixCenter, CurvStruct1->evec,
-                       CurvStruct1->theta, CurvStruct1->pitch, CurvStruct1->CoeffP5,
-                       CurvStruct1->sp_index, CurvStruct1->a_param, CurvStruct1->b_param);
-        L2 =
-            LengthCurv(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct2->Type, CurvStruct2->P0,
-                       CurvStruct2->P1, CurvStruct2->CorrectedHelixCenter, CurvStruct2->evec,
-                       CurvStruct2->theta, CurvStruct2->pitch, CurvStruct2->CoeffP5,
-                       CurvStruct2->sp_index, CurvStruct2->a_param, CurvStruct2->b_param);
+        L1 = LengthCurv(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
+                        CurvStruct1->Type, CurvStruct1->P0, CurvStruct1->P1,
+                        CurvStruct1->CorrectedHelixCenter, CurvStruct1->evec, CurvStruct1->theta,
+                        CurvStruct1->pitch, CurvStruct1->CoeffP5, CurvStruct1->sp_index,
+                        CurvStruct1->a_param, CurvStruct1->b_param);
+        L2 = LengthCurv(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
+                        CurvStruct2->Type, CurvStruct2->P0, CurvStruct2->P1,
+                        CurvStruct2->CorrectedHelixCenter, CurvStruct2->evec, CurvStruct2->theta,
+                        CurvStruct2->pitch, CurvStruct2->CoeffP5, CurvStruct2->sp_index,
+                        CurvStruct2->a_param, CurvStruct2->b_param);
         //  CutOff calculation
         if ((CurvStruct1->Type != CurveType_Spline) && (CurvStruct2->Type != CurveType_Spline)) {
             if ((L1 < Length_Threshold) || (L2 < Length_Threshold)) {
@@ -392,10 +335,9 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
         } else {
             double x;
             double y;
+            unsigned int k;
             if (CurvStruct1->Type == CurveType_Spline) {
                 double u1_tilda;
-                int b_loop_ub;
-                int c_loop_ub;
                 ctx_q_splines->get(CurvStruct1->sp_index, &expl_temp);
                 //  In a very general case we may cut a spline several times
                 //  at the end;
@@ -405,21 +347,15 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
                 //  This value will be different from 1 in this special case
                 u1_tilda = CurvStruct1->a_param + CurvStruct1->b_param;
                 //  We need to find the previous spline knot u0_tilda...
-                c_expl_temp.set_size(1, expl_temp.sp.knots.size(1));
-                b_loop_ub = expl_temp.sp.knots.size(1);
-                for (int i1{0}; i1 < b_loop_ub; i1++) {
-                    c_expl_temp[i1] = (expl_temp.sp.knots[i1] < u1_tilda);
+                //
+                for (k = static_cast<unsigned int>(expl_temp.sp.knots.size(1));
+                     expl_temp.sp.knots[static_cast<int>(k) - 1] >= u1_tilda;
+                     k = static_cast<unsigned int>(static_cast<int>(k) - 1)) {
                 }
-                coder::b_eml_find(c_expl_temp, (int *)&tmp_data, tmp_size);
-                expl_temp_size[0] = 1;
-                expl_temp_size[1] = tmp_size[1];
-                c_loop_ub = tmp_size[1];
-                for (int i2{0}; i2 < c_loop_ub; i2++) {
-                    expl_temp_data = expl_temp.sp.knots[tmp_data - 1];
-                }
-                x = SplineLengthApprox(ctx_q_splines, ctx_cfg_NGridLengthSpline,
-                                       CurvStruct1->sp_index, (double *)&expl_temp_data,
-                                       expl_temp_size, u1_tilda) /
+                x = SplineLengthApproxGL_bounds(ctx_q_splines, ctx_cfg_GaussLegendreX,
+                                                ctx_cfg_GaussLegendreW, CurvStruct1->sp_index,
+                                                expl_temp.sp.knots[static_cast<int>(k) - 1],
+                                                u1_tilda) /
                     2.0;
             } else if (L1 < Length_Threshold) {
                 x = L1 / 3.0;
@@ -427,8 +363,6 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
                 x = ctx_cfg_CutOff;
             }
             if (CurvStruct2->Type == CurveType_Spline) {
-                int d_loop_ub;
-                int e_loop_ub;
                 int loop_ub;
                 ctx_q_splines->get(CurvStruct2->sp_index, &b_expl_temp);
                 expl_temp.sp.knots.set_size(1, b_expl_temp.sp.knots.size(1));
@@ -443,21 +377,14 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
                 //  native spline parameter (u0_tilda) value
                 //  This value will be different from 0 in this special case
                 //  We need to find the next spline knot u1_tilda...
-                c_expl_temp.set_size(1, expl_temp.sp.knots.size(1));
-                d_loop_ub = expl_temp.sp.knots.size(1);
-                for (int i3{0}; i3 < d_loop_ub; i3++) {
-                    c_expl_temp[i3] = (expl_temp.sp.knots[i3] > CurvStruct2->b_param);
+                //
+                for (k = 1U; expl_temp.sp.knots[static_cast<int>(k) - 1] <= CurvStruct2->b_param;
+                     k++) {
                 }
-                coder::eml_find(c_expl_temp, (int *)&tmp_data, tmp_size);
-                expl_temp_size[0] = 1;
-                expl_temp_size[1] = tmp_size[1];
-                e_loop_ub = tmp_size[1];
-                for (int i4{0}; i4 < e_loop_ub; i4++) {
-                    expl_temp_data = expl_temp.sp.knots[tmp_data - 1];
-                }
-                y = SplineLengthApprox(ctx_q_splines, ctx_cfg_NGridLengthSpline,
-                                       CurvStruct2->sp_index, CurvStruct2->b_param,
-                                       (double *)&expl_temp_data, expl_temp_size) /
+                y = SplineLengthApproxGL_bounds(ctx_q_splines, ctx_cfg_GaussLegendreX,
+                                                ctx_cfg_GaussLegendreW, CurvStruct2->sp_index,
+                                                CurvStruct2->b_param,
+                                                expl_temp.sp.knots[static_cast<int>(k) - 1]) /
                     2.0;
             } else if (L2 < Length_Threshold) {
                 y = L2 / 3.0;
@@ -466,16 +393,17 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
             }
             CutOff = std::fmin(x, y);
         }
-        //  DebugLog(DebugCfg.Transitions, ...
-        //      'CutOff = %.3f\n', CutOff)
         *CurvStruct1_C = *CurvStruct1;
-        CutCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct1_C, CutOff);
+        CutCurvStruct(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, CurvStruct1_C,
+                      CutOff);
         *CurvStruct2_C = *CurvStruct2;
-        b_CutCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct2_C, CutOff);
-        DebugLog();
+        b_CutCurvStruct(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
+                        CurvStruct2_C, CutOff);
         if ((static_cast<unsigned long>(DebugConfig) & 8UL) != 0UL) {
-            b_PrintCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct1_C);
-            b_PrintCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct2_C);
+            b_PrintCurvStruct(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
+                              CurvStruct1_C);
+            b_PrintCurvStruct(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
+                              CurvStruct2_C);
         }
         b_EvalCurvStruct(ctx_q_splines, CurvStruct1_C->Type, CurvStruct1_C->P0, CurvStruct1_C->P1,
                          CurvStruct1_C->CorrectedHelixCenter, CurvStruct1_C->evec,
@@ -494,61 +422,29 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
             //  transition CurvStruct calculation
             ConstrTransP5Struct(p5, CurvStruct1->FeedRate, CurvStruct_T);
             b_status = TransitionResult_Ok;
+        } else if (ret == 2) {
+            //  badly conditioned matrix in G2_Hermite()
+            b_status = TransitionResult_NoSolution;
+            DebugLog();
+            b_DebugLog();
+            DebugLog(CurvStruct1->gcode_source_line, CurvStruct2->gcode_source_line);
         } else if (ret == 6) {
             //  TODO: decide in the future...
             //  Now we ignore and construct the transition curve anyway
             ConstrTransP5Struct(p5, CurvStruct1->FeedRate, CurvStruct_T);
             b_status = TransitionResult_Ok;
-            b_DebugLog();
             c_DebugLog();
-            DebugLog(CurvStruct1->gcode_source_line, CurvStruct2->gcode_source_line);
-            //      if coder.target('matlab')
-            //
-            //          figure;
-            //          PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct_T CurvStruct2]);
-            //          hold on;
-            //          plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
-            //          hold on;
-            //          plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
-            //          title({ctx.cfg.source, 'status_G2_Hermite=6'}, 'Interpreter', 'none');
-            //          axis equal;
-            //          camproj('perspective');
-            //
-            //      end
+            d_DebugLog();
+            b_DebugLog(CurvStruct1->gcode_source_line, CurvStruct2->gcode_source_line);
         } else {
             b_status = TransitionResult_NoSolution;
-            d_DebugLog();
+            DebugLog();
             e_DebugLog();
-            b_DebugLog(CurvStruct1->gcode_source_line, CurvStruct2->gcode_source_line);
-            //      if coder.target('matlab')
-            //
-            //          figure;
-            //          PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct2]);
-            //          hold on;
-            //          plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
-            //          hold on;
-            //          plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
-            //          hold on;
-            //          plot3(r0D0_1(1), r0D0_1(2), r0D0_1(3), 'xc', 'LineWidth', 3);
-            //          hold on;
-            //          plot3(r0D0_2(1), r0D0_2(2), r0D0_2(3), 'xc', 'LineWidth', 3);
-            //          hold on;
-            //          plot3(r1D0_1(1), r1D0_1(2), r1D0_1(3), 'xc', 'LineWidth', 3);
-            //          hold on;
-            //          plot3(r1D0_2(1), r1D0_2(2), r1D0_2(3), 'xc', 'LineWidth', 3);
-            //          title({ctx.cfg.source, 'No solution'}, 'Interpreter', 'none');
-            //          axis equal;
-            //          camproj('perspective');
-            //
-            //      end
+            DebugLog(CurvStruct1->gcode_source_line, CurvStruct2->gcode_source_line);
         }
-        CurvStruct1_C->gcode_source_line = CurvStruct1->gcode_source_line;
         CurvStruct_T->gcode_source_line = CurvStruct2->gcode_source_line;
-        CurvStruct2_C->gcode_source_line = CurvStruct2->gcode_source_line;
-        CurvStruct1_C->SpindleSpeed = CurvStruct1->SpindleSpeed;
         CurvStruct_T->SpindleSpeed =
             std::fmin(CurvStruct1->SpindleSpeed, CurvStruct2->SpindleSpeed);
-        CurvStruct2_C->SpindleSpeed = CurvStruct2->SpindleSpeed;
     }
     *status = b_status;
 }
