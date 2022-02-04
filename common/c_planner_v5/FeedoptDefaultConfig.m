@@ -1,5 +1,7 @@
 function cfg = FeedoptDefaultConfig()
 
+coder.inline("never");
+
 tol_col_compress_deg = 1e-2;
 tol_col_smooth_deg = 1e-2;
 
