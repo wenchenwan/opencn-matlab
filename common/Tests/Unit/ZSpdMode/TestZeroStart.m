@@ -5,8 +5,16 @@ ctx = InitFeedoptPlan(cfg);
 % cfg.NHorz = 5;
 cfg.LSplit = 30;
 N = 1;
-gcode1 = ConstrHelixStruct([0,0,0]', [1,1,1 + (N-1)*4]', [0,0,1]', (N-1)*pi+pi/2, 4, 15, ZSpdMode.ZN);
-gcode2 = ConstrLineStruct([1,1,1 + (N-1)*4]', [1,2,1 + (N-1)*4]', 15, ZSpdMode.NN);
+
+trafo = false;
+
+A0 = zeros(3,1); A1 = A0; U0 = A0; U1 = A1;
+
+gcode1 = ConstrHelixStruct(trafo, [0,0,0]', [1,1,1 + (N-1)*4]', A0, A1, ...
+                           U0, U1, [0,0,1]', (N-1)*pi+pi/2, [0,0,0]', 4, 15, ...
+                           ZSpdMode.ZN);
+gcode2 = ConstrLineStruct( trafo, [1,1,1 + (N-1)*4]', [1,2,1 + (N-1)*4]', ...
+                           A0, A1, U0, U1, 15, ZSpdMode.NN);
 % [CurvStruct1, CurvStruct2] = CutZeroStart(ctx, gcode);
 % 
 % cfg.v_0 = CurvStruct1.v_0;

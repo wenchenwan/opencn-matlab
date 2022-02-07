@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: find.h
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 #ifndef FIND_H
@@ -19,8 +19,20 @@
 
 // Custom Header Code
 #include "functions.h"
+// Type Declarations
+namespace ocn {
+struct CurvStruct;
+
+}
+
 // Function Declarations
 namespace ocn {
+void b_binary_expand_op(int Idx2_data[], int Idx2_size[2], const CurvStruct *expl_temp,
+                        const double u1_tilda_data[], const int u1_tilda_size[2]);
+
+void binary_expand_op(int Idx2_data[], int Idx2_size[2], const CurvStruct *expl_temp,
+                      const double u0_tilda_data[], const int u0_tilda_size[2]);
+
 namespace coder {
 void b_eml_find(const ::coder::array<bool, 2U> &x, int i_data[], int i_size[2]);
 

@@ -4,21 +4,27 @@
 // government, commercial, or other organizational use.
 // File: LengthCurv.h
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 #ifndef LENGTHCURV_H
 #define LENGTHCURV_H
 
 // Include Files
-#include "queue_coder.h"
 #include "rtwtypes.h"
+#include "sinspace_types2.h"
 #include <cstddef>
 #include <cstdlib>
 
 // Custom Header Code
 #include "functions.h"
+// Type Declarations
+namespace ocn {
+class queue_coder;
+
+}
+
 // Function Declarations
 namespace ocn {
 double LengthCurv(const queue_coder *ctx_q_splines, double ctx_cfg_NGridLengthSpline,

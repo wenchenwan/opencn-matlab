@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: _coder_sinspace_mex.h
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 #ifndef _CODER_SINSPACE_MEX_H
@@ -31,13 +31,13 @@ void unsafe_ConfigSetSource_mexFunction(int32_T nlhs, mxArray *plhs[1], int32_T 
 void unsafe_ConstrCurvStructType_mexFunction(int32_T nlhs, mxArray *plhs[1], int32_T nrhs);
 
 void unsafe_ConstrHelixStructFromArcFeed_mexFunction(int32_T nlhs, mxArray *plhs[1], int32_T nrhs,
-                                                     const mxArray *prhs[11]);
+                                                     const mxArray *prhs[16]);
 
 void unsafe_ConstrHelixStruct_mexFunction(int32_T nlhs, mxArray *plhs[1], int32_T nrhs,
-                                          const mxArray *prhs[9]);
+                                          const mxArray *prhs[14]);
 
 void unsafe_ConstrLineStruct_mexFunction(int32_T nlhs, mxArray *plhs[1], int32_T nrhs,
-                                         const mxArray *prhs[4]);
+                                         const mxArray *prhs[9]);
 
 void unsafe_CopyCurvStruct_mexFunction(int32_T nlhs, mxArray *plhs[1], int32_T nrhs,
                                        const mxArray *prhs[1]);

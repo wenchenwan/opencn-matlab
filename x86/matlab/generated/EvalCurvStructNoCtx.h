@@ -4,16 +4,16 @@
 // government, commercial, or other organizational use.
 // File: EvalCurvStructNoCtx.h
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 #ifndef EVALCURVSTRUCTNOCTX_H
 #define EVALCURVSTRUCTNOCTX_H
 
 // Include Files
-#include "queue_coder.h"
 #include "rtwtypes.h"
+#include "sinspace_types2.h"
 #include "coder_array.h"
 #include <cstddef>
 #include <cstdlib>

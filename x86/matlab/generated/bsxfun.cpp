@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: bsxfun.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 // Include Files
@@ -35,7 +35,7 @@ void bsxfun(const ::coder::array<double, 2U> &a, const ::coder::array<double, 2U
     int y;
     u0 = b.size(1);
     u1 = a.size(1);
-    if (u0 < u1) {
+    if (u0 <= u1) {
         y = u0;
     } else {
         y = u1;
@@ -51,7 +51,7 @@ void bsxfun(const ::coder::array<double, 2U> &a, const ::coder::array<double, 2U
     }
     b_u0 = b.size(1);
     b_u1 = a.size(1);
-    if (b_u0 < b_u1) {
+    if (b_u0 <= b_u1) {
         b_y = b_u0;
     } else {
         b_y = b_u1;
@@ -78,7 +78,7 @@ void bsxfun(const ::coder::array<double, 2U> &a, const ::coder::array<double, 2U
             int varargin_3;
             varargin_2 = acoef * k;
             varargin_3 = bcoef * k;
-            _mm_storeu_pd(&c[3 * k], _mm_mul_pd(_mm_loadu_pd((double *)&a[3 * varargin_2]),
+            _mm_storeu_pd(&c[3 * k], _mm_mul_pd(_mm_loadu_pd((const double *)&a[3 * varargin_2]),
                                                 _mm_set1_pd(b[varargin_3])));
             c[3 * k + 2] = b[varargin_3] * a[3 * varargin_2 + 2];
         }
@@ -104,7 +104,7 @@ void bsxfun(const ::coder::array<double, 1U> &a, const ::coder::array<double, 2U
     int y;
     u0 = b.size(0);
     u1 = a.size(0);
-    if (u0 < u1) {
+    if (u0 <= u1) {
         y = u0;
     } else {
         y = u1;
@@ -121,7 +121,7 @@ void bsxfun(const ::coder::array<double, 1U> &a, const ::coder::array<double, 2U
     c.set_size(i, b.size(1));
     b_u0 = b.size(0);
     b_u1 = a.size(0);
-    if (b_u0 < b_u1) {
+    if (b_u0 <= b_u1) {
         b_y = b_u0;
     } else {
         b_y = b_u1;
@@ -175,7 +175,7 @@ void bsxfun(const ::coder::array<double, 2U> &a, const ::coder::array<double, 1U
     int y;
     u0 = b.size(0);
     u1 = a.size(0);
-    if (u0 < u1) {
+    if (u0 <= u1) {
         y = u0;
     } else {
         y = u1;
@@ -192,7 +192,7 @@ void bsxfun(const ::coder::array<double, 2U> &a, const ::coder::array<double, 1U
     c.set_size(i, a.size(1));
     b_u0 = b.size(0);
     b_u1 = a.size(0);
-    if (b_u0 < b_u1) {
+    if (b_u0 <= b_u1) {
         b_y = b_u0;
     } else {
         b_y = b_u1;

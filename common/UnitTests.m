@@ -1,47 +1,64 @@
 clear;
 cfg = FeedoptDefaultConfig;
 
+trafo = false;
+A0 = zeros(3,1); A1 = A0; U0 = A0; U1 = A0;
 
 %% Test Helix 1/4 Circle matlab
-c = ConstrHelixStructFromArcFeed(0,0,0,... % p0
+c = ConstrHelixStructFromArcFeed(trafo, ...
+                                 0,0,0,... % p0
                                  1,1,0,... % p1
-                                 0,1,  ... % center
+                                 0,1,0,... % center
+                                 A0, A1, U0, U1,...
                                  1,    ... % rotation
-                                 0);       % pitch
+                                 0,    ... % pitch
+                                 [0,0,0]'); % evec
 assert(c.theta == pi/2);
 
 %% Test Helix 1/2 Circle matlab
-c = ConstrHelixStructFromArcFeed(0,0,0,... % p0
+c = ConstrHelixStructFromArcFeed(trafo, ...
+                                 0,0,0,... % p0
                                  0,2,0,... % p1
-                                 0,1,  ... % center
+                                 0,1,0,... % center
+                                 A0, A1, U0, U1,...
                                  1,    ... % rotation
-                                 0);       % pitch
+                                 0,    ... % pitch
+                                 [0,0,0]'); % evec
 assert(c.theta == pi);
 
 %% Test Helix Full Circle matlab
 % TODO: This test fails right now, the full circle in a plane is ambiguous
-c = ConstrHelixStructFromArcFeed(0,0,0,... % p0
+c = ConstrHelixStructFromArcFeed(trafo, ...
+                                 0,0,0,... % p0
                                  0,0,1,... % p1
-                                 0,1,  ... % center
+                                 0,1,0,... % center
+                                 A0, A1, U0, U1,...
                                  1,    ... % rotation
-                                 1);       % pitch
+                                 1,    ... % pitch
+                                 [0,0,0]'); % evec
 assert(c.theta == 2*pi);
 
 %% Test Helix 1/4 Circle Pitch1 matlab
-c = ConstrHelixStructFromArcFeed(0,0,0,... % p0
+c = ConstrHelixStructFromArcFeed(trafo, ...
+                                 0,0,0,... % p0
                                  1,1,1,... % p1
-                                 0,1,  ... % center
-                                 1,    ... % rotation
-                                 4);       % pitch
+                                 0,1,0,... % center
+                                 A0, A1, U0, U1,...
+                                 2,    ... % rotation
+                                 4,    ... % pitch
+                                 [0,0,0]'); % evec
 ctx = InitFeedoptPlan(cfg);
 assert_helix(ctx, c, pi/2);
 
 %% Test Helix 1 + 1/4 Circle Pitch1 matlab
-c = ConstrHelixStructFromArcFeed(0,0,0,... % p0
+c = ConstrHelixStructFromArcFeed(trafo, ...
+                                 0,0,0,... % p0
                                  1,1,5,... % p1
-                                 0,1,  ... % center
+                                 0,1,0,... % center
+                                 A0, A1, U0, U1,...
                                  2,    ... % rotation
-                                 4);       % pitch
+                                 4,    ... % pitch
+                                 [0,0,0]'); % evec
 ctx = InitFeedoptPlan(cfg);
 assert_helix(ctx, c, 2*pi + pi/2);
 

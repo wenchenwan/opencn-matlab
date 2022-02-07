@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: ConstrBSplineStruct.h
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 #ifndef CONSTRBSPLINESTRUCT_H
@@ -27,7 +27,8 @@ struct CurvStruct;
 
 // Function Declarations
 namespace ocn {
-void ConstrBSplineStruct(const ::coder::array<double, 2U> &pvec, double FeedRate,
+void ConstrBSplineStruct(bool trafo, const ::coder::array<double, 2U> &pvec,
+                         const double avec[2][3], const double uvec[2][3], double FeedRate,
                          CurvStruct *b_CurvStruct);
 
 }

@@ -4,14 +4,15 @@
 // government, commercial, or other organizational use.
 // File: GetCurvPeakAJ.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 // Include Files
 #include "GetCurvPeakAJ.h"
 #include "EvalCurvStruct.h"
 #include "queue_coder.h"
+#include "sinspace_types2.h"
 #include <cmath>
 #include <cstring>
 #include <emmintrin.h>

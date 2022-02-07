@@ -1,6 +1,9 @@
-function CurvStruct = ConstrHelixStruct(P0, P1, Cprim, delta, evec, theta, pitch, FeedRate, ZSpdMode)
+function CurvStruct = ConstrHelixStruct(trafo, P0, P1, A0, A1, U0, U1, ...
+                      Cprim, delta, evec, theta, pitch, FeedRate, ZSpdMode)
 %#codegen
 CoeffP5     = zeros(3, 6);
 
-CurvStruct  = ConstrCurvStruct(CurveType.Helix, ZSpdMode, P0, P1, Cprim, delta, evec, theta, pitch, CoeffP5, FeedRate);
+CurvStruct  = ConstrCurvStruct(CurveType.Helix, ZSpdMode, trafo, P0, P1, ...
+                      A0, A1, U0, U1, Cprim, delta, evec, theta, pitch, ...
+                      CoeffP5, FeedRate);
 coder.cstructname(CurvStruct, 'CurvStruct');

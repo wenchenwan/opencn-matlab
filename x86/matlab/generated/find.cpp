@@ -4,22 +4,94 @@
 // government, commercial, or other organizational use.
 // File: find.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 // Include Files
 #include "find.h"
+#include "sinspace_types1.h"
+#include "sinspace_types2.h"
 #include "coder_array.h"
 
 // Function Definitions
+//
+// Arguments    : int Idx2_data[]
+//                int Idx2_size[2]
+//                const CurvStruct *expl_temp
+//                const double u1_tilda_data[]
+//                const int u1_tilda_size[2]
+// Return Type  : void
+//
+namespace ocn {
+void b_binary_expand_op(int Idx2_data[], int Idx2_size[2], const CurvStruct *expl_temp,
+                        const double u1_tilda_data[], const int u1_tilda_size[2])
+{
+    ::coder::array<bool, 2U> b_expl_temp;
+    int b_u1_tilda_size;
+    int loop_ub;
+    int stride_0_1;
+    int stride_1_1;
+    if (u1_tilda_size[1] == 1) {
+        b_u1_tilda_size = expl_temp->sp.knots.size(1);
+    } else {
+        b_u1_tilda_size = u1_tilda_size[1];
+    }
+    b_expl_temp.set_size(1, b_u1_tilda_size);
+    stride_0_1 = (expl_temp->sp.knots.size(1) != 1);
+    stride_1_1 = (u1_tilda_size[1] != 1);
+    if (u1_tilda_size[1] == 1) {
+        loop_ub = expl_temp->sp.knots.size(1);
+    } else {
+        loop_ub = u1_tilda_size[1];
+    }
+    for (int i{0}; i < loop_ub; i++) {
+        b_expl_temp[i] = (expl_temp->sp.knots[i * stride_0_1] < u1_tilda_data[i * stride_1_1]);
+    }
+    coder::b_eml_find(b_expl_temp, Idx2_data, Idx2_size);
+}
+
+//
+// Arguments    : int Idx2_data[]
+//                int Idx2_size[2]
+//                const CurvStruct *expl_temp
+//                const double u0_tilda_data[]
+//                const int u0_tilda_size[2]
+// Return Type  : void
+//
+void binary_expand_op(int Idx2_data[], int Idx2_size[2], const CurvStruct *expl_temp,
+                      const double u0_tilda_data[], const int u0_tilda_size[2])
+{
+    ::coder::array<bool, 2U> b_expl_temp;
+    int b_u0_tilda_size;
+    int loop_ub;
+    int stride_0_1;
+    int stride_1_1;
+    if (u0_tilda_size[1] == 1) {
+        b_u0_tilda_size = expl_temp->sp.knots.size(1);
+    } else {
+        b_u0_tilda_size = u0_tilda_size[1];
+    }
+    b_expl_temp.set_size(1, b_u0_tilda_size);
+    stride_0_1 = (expl_temp->sp.knots.size(1) != 1);
+    stride_1_1 = (u0_tilda_size[1] != 1);
+    if (u0_tilda_size[1] == 1) {
+        loop_ub = expl_temp->sp.knots.size(1);
+    } else {
+        loop_ub = u0_tilda_size[1];
+    }
+    for (int i{0}; i < loop_ub; i++) {
+        b_expl_temp[i] = (expl_temp->sp.knots[i * stride_0_1] > u0_tilda_data[i * stride_1_1]);
+    }
+    coder::eml_find(b_expl_temp, Idx2_data, Idx2_size);
+}
+
 //
 // Arguments    : const ::coder::array<bool, 2U> &x
 //                int i_data[]
 //                int i_size[2]
 // Return Type  : void
 //
-namespace ocn {
 namespace coder {
 void b_eml_find(const ::coder::array<bool, 2U> &x, int i_data[], int i_size[2])
 {

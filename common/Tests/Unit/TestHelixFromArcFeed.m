@@ -8,10 +8,15 @@ phi0 = 0;
 phi1 = pi/2;
 rotation = -2;
 
+trafo = false;
+A0 = zeros(3,1); A1 = A0; U0 = A0; U1 = A0;
+
 Curv = ConstrHelixStructFromArcFeed(...
+    trafo,...
     cos(phi0),sin(phi0) + 1,0,... % P0
     cos(phi1),sin(phi1) + 1,-1,... % P1
     0,1,0,...   % Center
+    A0, A1, U0, U1,...
     rotation,...   % rotation
     [0,0,1]'); %evec
 

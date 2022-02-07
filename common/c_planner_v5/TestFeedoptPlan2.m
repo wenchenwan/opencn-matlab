@@ -114,7 +114,12 @@ function ws = FeedoptDynamicWorkspace(cfg)
     ws.v_1 = cfg.v_1;
     ws.at_0 = cfg.at_0;
     ws.at_1 = cfg.at_1;
-    ws.opt_curv = ConstrLineStruct([1,2,3]', [4,5,6]', 0.7, ZSpdMode.NN);
+    
+    trafo = false; 
+    A0 = zeros(3,1); A1 = A0; U0 = A0; U1 = A0;
+
+    ws.opt_curv = ConstrLineStruct(trafo, [1,2,3]', [4,5,6]', A0, A1, U0, ...
+                                    U1, 0.7, ZSpdMode.NN);
     ws.opt_curv.Type = 0;
     
     ws.n_split = 0;

@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: CutZeroStart.h
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 #ifndef CUTZEROSTART_H
@@ -13,6 +13,7 @@
 
 // Include Files
 #include "rtwtypes.h"
+#include "coder_array.h"
 #include <cstddef>
 #include <cstdlib>
 
@@ -43,6 +44,16 @@ void b_CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_spl
                     bool ctx_cfg_DebugCutZero, double ctx_cfg_NGridLengthSpline,
                     const CurvStruct *b_CurvStruct, CurvStruct *CurvStruct1,
                     CurvStruct *CurvStruct2);
+
+void b_binary_expand_op(::coder::array<double, 2U> &r, const ::coder::array<double, 2U> &r2D,
+                        const ::coder::array<double, 2U> &d1uk,
+                        const ::coder::array<double, 2U> &d2uk);
+
+void b_binary_expand_op(::coder::array<double, 2U> &a, const ::coder::array<double, 2U> &r,
+                        const ::coder::array<double, 2U> &r1);
+
+void binary_expand_op(::coder::array<double, 2U> &a, const ::coder::array<double, 2U> &r,
+                      const ::coder::array<double, 2U> &r1, const ::coder::array<double, 2U> &c);
 
 } // namespace ocn
 

@@ -78,7 +78,10 @@ while k <= Ncrv
                 SplineCurve = ConstrCurvStructType;
                 SplineCurve.sp=CalcBspline_Lee(ctx.cfg, pvec);
                 ctx.q_splines.push(SplineCurve);
-                spline = ConstrBSplineStruct(pvec, ZSpdMode.NN, Curv.FeedRate);
+                spline = ConstrBSplineStruct(Curv.TRAFO, pvec, ...
+                                            [Curv.A0,Curv.A1], ...
+                                            [Curv.U0,Curv.U1], ...
+                                            ZSpdMode.NN, Curv.FeedRate);
                 spline.gcode_source_line = Curv.gcode_source_line;
                 spline.sp_index = int32(spline_index);
                 spline_index = spline_index + 1;
@@ -113,7 +116,10 @@ while k <= Ncrv
         SplineCurve = ConstrCurvStructType;
         SplineCurve.sp=CalcBspline_Lee(ctx.cfg, pvec);
         ctx.q_splines.push(SplineCurve);
-        spline = ConstrBSplineStruct(pvec, ZSpdMode.NN, Curv.FeedRate);
+        spline = ConstrBSplineStruct(Curv.TRAFO, pvec, ...
+                                    [Curv.A0,Curv.A1], ...
+                                    [Curv.U0,Curv.U1], ...
+                                    ZSpdMode.NN, Curv.FeedRate);
         spline.gcode_source_line = Curv.gcode_source_line;
         spline.sp_index = int32(spline_index);
         spline.SpindleSpeed = spindle_speed;

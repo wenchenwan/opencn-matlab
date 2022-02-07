@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: diff.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 // Include Files
@@ -30,7 +30,7 @@ void diff(const ::coder::array<double, 2U> &x, ::coder::array<double, 2U> &y)
         int b_y;
         int u0;
         u0 = x.size(1) - 1;
-        if (u0 < 1) {
+        if (u0 <= 1) {
             b_y = u0;
         } else {
             b_y = 1;

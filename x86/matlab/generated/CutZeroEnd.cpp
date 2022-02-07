@@ -4,13 +4,14 @@
 // government, commercial, or other organizational use.
 // File: CutZeroEnd.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 // Include Files
 #include "CutZeroEnd.h"
 #include "CutCurvStruct.h"
+#include "CutZeroStart.h"
 #include "EvalCurvStruct.h"
 #include "GetCurvMaxFeedrate.h"
 #include "LengthCurv.h"
@@ -20,11 +21,12 @@
 #include "minOrMax.h"
 #include "queue_coder.h"
 #include "sinspace_data.h"
+#include "sinspace_types1.h"
+#include "sinspace_types2.h"
 #include "sum.h"
 #include "coder_array.h"
 #include <cmath>
 #include <emmintrin.h>
-#include <math.h>
 
 // Function Definitions
 //
@@ -53,24 +55,22 @@ void CutZeroEnd(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splines
     ::coder::array<double, 2U> a;
     ::coder::array<double, 2U> a__2;
     ::coder::array<double, 2U> at;
-    ::coder::array<double, 2U> b_a;
     ::coder::array<double, 2U> b_d1uk;
     ::coder::array<double, 2U> b_r1D;
     ::coder::array<double, 2U> b_uk;
     ::coder::array<double, 2U> b_x;
-    ::coder::array<double, 2U> b_z1;
     ::coder::array<double, 2U> c;
     ::coder::array<double, 2U> d1uk;
     ::coder::array<double, 2U> d2uk;
     ::coder::array<double, 2U> jt;
+    ::coder::array<double, 2U> r;
     ::coder::array<double, 2U> r2D;
-    ::coder::array<double, 2U> r3;
     ::coder::array<double, 2U> r3D;
-    ::coder::array<double, 2U> r7;
+    ::coder::array<double, 2U> r4;
+    ::coder::array<double, 2U> r6;
     ::coder::array<double, 2U> t;
     ::coder::array<double, 2U> uk;
     ::coder::array<double, 2U> x;
-    ::coder::array<double, 2U> z1;
     ::coder::array<double, 1U> max_at;
     ::coder::array<double, 1U> max_jt;
     ::coder::array<bool, 2U> b_max_at;
@@ -88,11 +88,9 @@ void CutZeroEnd(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splines
     double tmax;
     double z1_idx_1;
     double z1_idx_2;
-    unsigned long c_N;
-    unsigned long c_k;
+    unsigned long N;
+    unsigned long k;
     int value_size[2];
-    int N;
-    int b_N;
     int b_loop_ub;
     int b_m;
     int b_scalarLB;
@@ -104,31 +102,28 @@ void CutZeroEnd(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splines
     int c_value_data;
     int c_vectorUB;
     int cut_index;
-    int d_N;
     int d_loop_ub;
-    int d_scalarLB;
-    int d_vectorUB;
-    int e_N;
     int e_loop_ub;
     int e_scalarLB;
     int e_vectorUB;
-    int f_N;
     int f_loop_ub;
     int g_loop_ub;
-    int i1;
+    int h_loop_ub;
     int i2;
-    int i23;
-    int i3;
-    int i6;
-    int j_loop_ub;
-    int k_loop_ub;
+    int i29;
+    int i4;
+    int i5;
+    int i9;
+    int k_k;
     int l_loop_ub;
     int m;
-    int m_loop_ub;
-    int n_loop_ub;
     int o_loop_ub;
-    int p_k;
+    int p_loop_ub;
+    int q_loop_ub;
+    int r_loop_ub;
+    int s_loop_ub;
     int scalarLB;
+    int t_loop_ub;
     int value_data;
     int vectorUB;
     bool exitg1;
@@ -168,68 +163,72 @@ void CutZeroEnd(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splines
     } else {
         coder::b_eml_float_colon(tmax, -ctx_cfg_dt, t);
     }
-    z1.set_size(1, t.size(1));
-    N = t.size(1);
-    for (int k{0}; k < N; k++) {
-        z1[k] = std::pow(t[k], 3.0);
+    r.set_size(1, t.size(1));
+    b_loop_ub = t.size(1);
+    for (int i1{0}; i1 < b_loop_ub; i1++) {
+        double varargin_1;
+        varargin_1 = t[i1];
+        r[i1] = std::pow(varargin_1, 3.0);
     }
-    uk.set_size(1, z1.size(1));
-    b_loop_ub = z1.size(1);
-    scalarLB = (z1.size(1) / 2) << 1;
+    uk.set_size(1, r.size(1));
+    c_loop_ub = r.size(1);
+    scalarLB = (r.size(1) / 2) << 1;
     vectorUB = scalarLB - 2;
-    for (i1 = 0; i1 <= vectorUB; i1 += 2) {
-        __m128d r;
-        r = _mm_loadu_pd(&z1[i1]);
-        _mm_storeu_pd(&uk[i1], _mm_div_pd(_mm_mul_pd(_mm_set1_pd(jps), r), _mm_set1_pd(6.0)));
-    }
-    for (i1 = scalarLB; i1 < b_loop_ub; i1++) {
-        uk[i1] = jps * z1[i1] / 6.0;
-    }
-    z1.set_size(1, t.size(1));
-    b_N = t.size(1);
-    for (int b_k{0}; b_k < b_N; b_k++) {
-        z1[b_k] = std::pow(t[b_k], 2.0);
-    }
-    d1uk.set_size(1, z1.size(1));
-    c_loop_ub = z1.size(1);
-    b_scalarLB = (z1.size(1) / 2) << 1;
-    b_vectorUB = b_scalarLB - 2;
-    for (i2 = 0; i2 <= b_vectorUB; i2 += 2) {
+    for (i2 = 0; i2 <= vectorUB; i2 += 2) {
         __m128d r1;
-        r1 = _mm_loadu_pd(&z1[i2]);
-        _mm_storeu_pd(&d1uk[i2], _mm_div_pd(_mm_mul_pd(_mm_set1_pd(jps), r1), _mm_set1_pd(2.0)));
+        r1 = _mm_loadu_pd(&r[i2]);
+        _mm_storeu_pd(&uk[i2], _mm_div_pd(_mm_mul_pd(_mm_set1_pd(jps), r1), _mm_set1_pd(6.0)));
     }
-    for (i2 = b_scalarLB; i2 < c_loop_ub; i2++) {
-        d1uk[i2] = jps * z1[i2] / 2.0;
+    for (i2 = scalarLB; i2 < c_loop_ub; i2++) {
+        uk[i2] = jps * r[i2] / 6.0;
+    }
+    r.set_size(1, t.size(1));
+    d_loop_ub = t.size(1);
+    for (int i3{0}; i3 < d_loop_ub; i3++) {
+        double b_varargin_1;
+        b_varargin_1 = t[i3];
+        r[i3] = std::pow(b_varargin_1, 2.0);
+    }
+    d1uk.set_size(1, r.size(1));
+    e_loop_ub = r.size(1);
+    b_scalarLB = (r.size(1) / 2) << 1;
+    b_vectorUB = b_scalarLB - 2;
+    for (i4 = 0; i4 <= b_vectorUB; i4 += 2) {
+        __m128d r2;
+        r2 = _mm_loadu_pd(&r[i4]);
+        _mm_storeu_pd(&d1uk[i4], _mm_div_pd(_mm_mul_pd(_mm_set1_pd(jps), r2), _mm_set1_pd(2.0)));
+    }
+    for (i4 = b_scalarLB; i4 < e_loop_ub; i4++) {
+        d1uk[i4] = jps * r[i4] / 2.0;
     }
     d2uk.set_size(1, t.size(1));
-    d_loop_ub = t.size(1);
+    f_loop_ub = t.size(1);
     c_scalarLB = (t.size(1) / 2) << 1;
     c_vectorUB = c_scalarLB - 2;
-    for (i3 = 0; i3 <= c_vectorUB; i3 += 2) {
-        __m128d r2;
-        r2 = _mm_loadu_pd(&t[i3]);
-        _mm_storeu_pd(&d2uk[i3], _mm_mul_pd(_mm_set1_pd(jps), r2));
+    for (i5 = 0; i5 <= c_vectorUB; i5 += 2) {
+        __m128d r3;
+        r3 = _mm_loadu_pd(&t[i5]);
+        _mm_storeu_pd(&d2uk[i5], _mm_mul_pd(_mm_set1_pd(jps), r3));
     }
-    for (i3 = c_scalarLB; i3 < d_loop_ub; i3++) {
-        d2uk[i3] = jps * t[i3];
+    for (i5 = c_scalarLB; i5 < f_loop_ub; i5++) {
+        d2uk[i5] = jps * t[i5];
     }
     b_uk.set_size(1, uk.size(1));
-    e_loop_ub = uk.size(1) - 1;
-    for (int i4{0}; i4 <= e_loop_ub; i4++) {
-        b_uk[i4] = uk[i4];
+    g_loop_ub = uk.size(1) - 1;
+    for (int i6{0}; i6 <= g_loop_ub; i6++) {
+        b_uk[i6] = uk[i6];
     }
     b_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
                      b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
                      b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
                      b_CurvStruct->a_param, b_CurvStruct->b_param, b_uk, a__2, b_r1D, r2D, r3D);
     b_vmax = b_CurvStruct->FeedRate;
-    c_N = coder::internal::maximum2(2UL - ctx_cfg_NHorz);
-    c_k = 1UL;
+    N = coder::internal::maximum2(2UL - ctx_cfg_NHorz);
+    k = 1UL;
     exitg1 = false;
-    while ((!exitg1) && (c_k >= c_N)) {
+    while ((!exitg1) && (k >= N)) {
         double y;
-        ctx_q_gcode->get(c_k, &expl_temp);
+        ctx_q_gcode->get(k, &expl_temp);
         y = GetCurvMaxFeedrate(ctx_q_splines, ctx_cfg_amax, ctx_cfg_jmax, expl_temp.Type,
                                expl_temp.P0, expl_temp.P1, expl_temp.CorrectedHelixCenter,
                                expl_temp.evec, expl_temp.theta, expl_temp.pitch, expl_temp.CoeffP5,
@@ -239,123 +238,151 @@ void CutZeroEnd(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splines
         if (expl_temp.zspdmode == ZSpdMode_ZN) {
             exitg1 = true;
         } else {
-            c_k--;
+            k--;
         }
-    }
-    z1.set_size(1, d1uk.size(1));
-    d_N = d1uk.size(1);
-    for (int d_k{0}; d_k < d_N; d_k++) {
-        z1[d_k] = std::pow(d1uk[d_k], 3.0);
     }
     c.set_size(3, b_r1D.size(1));
     if (b_r1D.size(1) != 0) {
         int acoef;
-        int i5;
+        int i7;
         acoef = (b_r1D.size(1) != 1);
-        i5 = b_r1D.size(1) - 1;
-        for (int e_k{0}; e_k <= i5; e_k++) {
-            __m128d r4;
+        i7 = b_r1D.size(1) - 1;
+        for (int b_k{0}; b_k <= i7; b_k++) {
+            __m128d r5;
             int varargin_2;
-            varargin_2 = acoef * e_k;
-            r4 = _mm_loadu_pd(&b_r1D[3 * varargin_2]);
-            _mm_storeu_pd(&c[3 * e_k], _mm_mul_pd(r4, _mm_set1_pd(jps)));
-            c[3 * e_k + 2] = b_r1D[3 * varargin_2 + 2] * jps;
+            varargin_2 = acoef * b_k;
+            r5 = _mm_loadu_pd(&b_r1D[3 * varargin_2]);
+            _mm_storeu_pd(&c[3 * b_k], _mm_mul_pd(r5, _mm_set1_pd(jps)));
+            c[3 * b_k + 2] = b_r1D[3 * varargin_2 + 2] * jps;
         }
     }
-    coder::bsxfun(r3D, z1, r3);
-    b_d1uk.set_size(1, d1uk.size(1));
-    f_loop_ub = d1uk.size(1);
-    d_scalarLB = (d1uk.size(1) / 2) << 1;
-    d_vectorUB = d_scalarLB - 2;
-    for (i6 = 0; i6 <= d_vectorUB; i6 += 2) {
-        __m128d r5;
-        __m128d r6;
-        r5 = _mm_loadu_pd(&d1uk[i6]);
-        r6 = _mm_loadu_pd(&d2uk[i6]);
-        _mm_storeu_pd(&b_d1uk[i6], _mm_mul_pd(r5, r6));
+    r.set_size(1, d1uk.size(1));
+    h_loop_ub = d1uk.size(1);
+    for (int i8{0}; i8 < h_loop_ub; i8++) {
+        double c_varargin_1;
+        c_varargin_1 = d1uk[i8];
+        r[i8] = std::pow(c_varargin_1, 3.0);
     }
-    for (i6 = d_scalarLB; i6 < f_loop_ub; i6++) {
-        b_d1uk[i6] = d1uk[i6] * d2uk[i6];
-    }
-    coder::bsxfun(r2D, b_d1uk, r7);
-    a.set_size(r3.size(1), 3);
-    g_loop_ub = r3.size(1);
-    for (int i7{0}; i7 < 3; i7++) {
-        for (int i8{0}; i8 < g_loop_ub; i8++) {
-            a[i8 + a.size(0) * i7] = (r3[i7 + 3 * i8] + 3.0 * r7[i7 + 3 * i8]) + c[i7 + 3 * i8];
+    coder::bsxfun(r3D, r, r4);
+    if (d1uk.size(1) == d2uk.size(1)) {
+        int d_scalarLB;
+        int d_vectorUB;
+        int i10;
+        int i_loop_ub;
+        b_d1uk.set_size(1, d1uk.size(1));
+        i_loop_ub = d1uk.size(1);
+        d_scalarLB = (d1uk.size(1) / 2) << 1;
+        d_vectorUB = d_scalarLB - 2;
+        for (i10 = 0; i10 <= d_vectorUB; i10 += 2) {
+            __m128d r7;
+            __m128d r8;
+            r7 = _mm_loadu_pd(&d1uk[i10]);
+            r8 = _mm_loadu_pd(&d2uk[i10]);
+            _mm_storeu_pd(&b_d1uk[i10], _mm_mul_pd(r7, r8));
         }
+        for (i10 = d_scalarLB; i10 < i_loop_ub; i10++) {
+            b_d1uk[i10] = d1uk[i10] * d2uk[i10];
+        }
+        coder::bsxfun(r2D, b_d1uk, r6);
+    } else {
+        b_binary_expand_op(r6, r2D, d1uk, d2uk);
+    }
+    if (r4.size(1) == 1) {
+        i9 = r6.size(1);
+    } else {
+        i9 = r4.size(1);
+    }
+    if ((r4.size(1) == r6.size(1)) && (i9 == c.size(1))) {
+        int j_loop_ub;
+        a.set_size(r4.size(1), 3);
+        j_loop_ub = r4.size(1);
+        for (int i11{0}; i11 < 3; i11++) {
+            for (int i12{0}; i12 < j_loop_ub; i12++) {
+                a[i12 + a.size(0) * i11] =
+                    (r4[i11 + 3 * i12] + 3.0 * r6[i11 + 3 * i12]) + c[i11 + 3 * i12];
+            }
+        }
+    } else {
+        binary_expand_op(a, r4, r6, c);
     }
     x.set_size(a.size(0), 3);
     if (a.size(0) != 0) {
         int b_acoef;
         b_acoef = (a.size(0) != 1);
-        for (int f_k{0}; f_k < 3; f_k++) {
-            int i9;
-            i9 = x.size(0) - 1;
-            for (int g_k{0}; g_k <= i9; g_k++) {
-                x[g_k + x.size(0) * f_k] = a[b_acoef * g_k + a.size(0) * f_k] / ctx_cfg_jmax[f_k];
+        for (int c_k{0}; c_k < 3; c_k++) {
+            int i13;
+            i13 = x.size(0) - 1;
+            for (int d_k{0}; d_k <= i13; d_k++) {
+                x[d_k + x.size(0) * c_k] = a[b_acoef * d_k + a.size(0) * c_k] / ctx_cfg_jmax[c_k];
             }
         }
     }
     jt.set_size(x.size(0), 3);
     if (x.size(0) != 0) {
-        int h_loop_ub;
-        int i_loop_ub;
+        int k_loop_ub;
+        int m_loop_ub;
         at.set_size(x.size(0), 3);
-        h_loop_ub = x.size(0);
-        for (int i10{0}; i10 < 3; i10++) {
-            for (int i11{0}; i11 < h_loop_ub; i11++) {
-                at[i11 + at.size(0) * i10] = jt[i11 + jt.size(0) * i10];
+        k_loop_ub = x.size(0);
+        for (int i14{0}; i14 < 3; i14++) {
+            for (int i16{0}; i16 < k_loop_ub; i16++) {
+                at[i16 + at.size(0) * i14] = jt[i16 + jt.size(0) * i14];
             }
         }
-        for (int i_k{0}; i_k < 3; i_k++) {
-            int i12;
-            i12 = at.size(0);
-            for (int j_k{0}; j_k < i12; j_k++) {
-                at[j_k + at.size(0) * i_k] = std::abs(x[j_k + x.size(0) * i_k]);
+        for (int e_k{0}; e_k < 3; e_k++) {
+            int i17;
+            i17 = at.size(0);
+            for (int f_k{0}; f_k < i17; f_k++) {
+                at[f_k + at.size(0) * e_k] = std::abs(x[f_k + x.size(0) * e_k]);
             }
         }
         jt.set_size(at.size(0), 3);
-        i_loop_ub = at.size(0);
-        for (int i13{0}; i13 < 3; i13++) {
-            for (int i15{0}; i15 < i_loop_ub; i15++) {
-                jt[i15 + jt.size(0) * i13] = at[i15 + at.size(0) * i13];
+        m_loop_ub = at.size(0);
+        for (int i18{0}; i18 < 3; i18++) {
+            for (int i20{0}; i20 < m_loop_ub; i20++) {
+                jt[i20 + jt.size(0) * i18] = at[i20 + at.size(0) * i18];
             }
         }
     }
-    z1.set_size(1, d1uk.size(1));
-    e_N = d1uk.size(1);
-    for (int h_k{0}; h_k < e_N; h_k++) {
-        z1[h_k] = std::pow(d1uk[h_k], 2.0);
+    r.set_size(1, d1uk.size(1));
+    l_loop_ub = d1uk.size(1);
+    for (int i15{0}; i15 < l_loop_ub; i15++) {
+        double d_varargin_1;
+        d_varargin_1 = d1uk[i15];
+        r[i15] = std::pow(d_varargin_1, 2.0);
     }
-    coder::bsxfun(r2D, z1, r3);
-    coder::bsxfun(b_r1D, d2uk, r7);
-    a.set_size(r3.size(1), 3);
-    j_loop_ub = r3.size(1);
-    for (int i14{0}; i14 < 3; i14++) {
-        for (int i16{0}; i16 < j_loop_ub; i16++) {
-            a[i16 + a.size(0) * i14] = r3[i14 + 3 * i16] + r7[i14 + 3 * i16];
+    coder::bsxfun(r2D, r, r4);
+    coder::bsxfun(b_r1D, d2uk, r6);
+    if (r4.size(1) == r6.size(1)) {
+        int n_loop_ub;
+        a.set_size(r4.size(1), 3);
+        n_loop_ub = r4.size(1);
+        for (int i19{0}; i19 < 3; i19++) {
+            for (int i21{0}; i21 < n_loop_ub; i21++) {
+                a[i21 + a.size(0) * i19] = r4[i19 + 3 * i21] + r6[i19 + 3 * i21];
+            }
         }
+    } else {
+        b_binary_expand_op(a, r4, r6);
     }
     x.set_size(a.size(0), 3);
     if (a.size(0) != 0) {
         int c_acoef;
         c_acoef = (a.size(0) != 1);
-        for (int k_k{0}; k_k < 3; k_k++) {
-            int i17;
-            i17 = x.size(0) - 1;
-            for (int m_k{0}; m_k <= i17; m_k++) {
-                x[m_k + x.size(0) * k_k] = a[c_acoef * m_k + a.size(0) * k_k] / ctx_cfg_amax[k_k];
+        for (int g_k{0}; g_k < 3; g_k++) {
+            int i22;
+            i22 = x.size(0) - 1;
+            for (int i_k{0}; i_k <= i22; i_k++) {
+                x[i_k + x.size(0) * g_k] = a[c_acoef * i_k + a.size(0) * g_k] / ctx_cfg_amax[g_k];
             }
         }
     }
     at.set_size(x.size(0), 3);
     if (x.size(0) != 0) {
-        for (int l_k{0}; l_k < 3; l_k++) {
-            int i18;
-            i18 = at.size(0);
-            for (int n_k{0}; n_k < i18; n_k++) {
-                at[n_k + at.size(0) * l_k] = std::abs(x[n_k + x.size(0) * l_k]);
+        for (int h_k{0}; h_k < 3; h_k++) {
+            int i23;
+            i23 = at.size(0);
+            for (int j_k{0}; j_k < i23; j_k++) {
+                at[j_k + at.size(0) * h_k] = std::abs(x[j_k + x.size(0) * h_k]);
             }
         }
     }
@@ -393,55 +420,61 @@ void CutZeroEnd(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splines
         }
     }
     b_max_at.set_size(1, max_at.size(0));
-    k_loop_ub = max_at.size(0);
-    for (int i19{0}; i19 < k_loop_ub; i19++) {
-        b_max_at[i19] = (max_at[i19] > ctx_cfg_ZeroStartAccLimit);
+    o_loop_ub = max_at.size(0);
+    for (int i24{0}; i24 < o_loop_ub; i24++) {
+        b_max_at[i24] = (max_at[i24] > ctx_cfg_ZeroStartAccLimit);
     }
     coder::b_eml_find(b_max_at, (int *)&value_data, value_size);
-    l_loop_ub = value_size[1];
-    for (int i20{0}; i20 < l_loop_ub; i20++) {
+    p_loop_ub = value_size[1];
+    for (int i25{0}; i25 < p_loop_ub; i25++) {
         b_value_data = value_data;
     }
     if (value_size[1] == 0) {
         b_value_data = 1;
     }
     b_max_jt.set_size(1, max_jt.size(0));
-    m_loop_ub = max_jt.size(0);
-    for (int i21{0}; i21 < m_loop_ub; i21++) {
-        b_max_jt[i21] = (max_jt[i21] > ctx_cfg_ZeroStartJerkLimit);
+    q_loop_ub = max_jt.size(0);
+    for (int i26{0}; i26 < q_loop_ub; i26++) {
+        b_max_jt[i26] = (max_jt[i26] > ctx_cfg_ZeroStartJerkLimit);
     }
     coder::b_eml_find(b_max_jt, (int *)&value_data, value_size);
-    n_loop_ub = value_size[1];
-    for (int i22{0}; i22 < n_loop_ub; i22++) {
+    r_loop_ub = value_size[1];
+    for (int i27{0}; i27 < r_loop_ub; i27++) {
         c_value_data = value_data;
     }
     if (value_size[1] == 0) {
         c_value_data = 1;
     }
-    coder::bsxfun(b_r1D, d1uk, b_a);
-    b_z1.set_size(3, b_a.size(1));
-    f_N = b_a.size(1);
-    for (int o_k{0}; o_k < f_N; o_k++) {
-        b_z1[3 * o_k] = std::pow(b_a[3 * o_k], 2.0);
-        b_z1[3 * o_k + 1] = std::pow(b_a[3 * o_k + 1], 2.0);
-        b_z1[3 * o_k + 2] = std::pow(b_a[3 * o_k + 2], 2.0);
+    coder::bsxfun(b_r1D, d1uk, r4);
+    r4.set_size(3, r4.size(1));
+    s_loop_ub = r4.size(1);
+    for (int i28{0}; i28 < s_loop_ub; i28++) {
+        double e_varargin_1;
+        double f_varargin_1;
+        double g_varargin_1;
+        e_varargin_1 = r4[3 * i28];
+        r4[3 * i28] = std::pow(e_varargin_1, 2.0);
+        f_varargin_1 = r4[3 * i28 + 1];
+        r4[3 * i28 + 1] = std::pow(f_varargin_1, 2.0);
+        g_varargin_1 = r4[3 * i28 + 2];
+        r4[3 * i28 + 2] = std::pow(g_varargin_1, 2.0);
     }
-    coder::sum(b_z1, b_x);
-    i23 = b_x.size(1);
+    coder::sum(r4, b_x);
+    i29 = b_x.size(1);
     e_scalarLB = (b_x.size(1) / 2) << 1;
     e_vectorUB = e_scalarLB - 2;
-    for (p_k = 0; p_k <= e_vectorUB; p_k += 2) {
-        __m128d r8;
-        r8 = _mm_loadu_pd(&b_x[p_k]);
-        _mm_storeu_pd(&b_x[p_k], _mm_sqrt_pd(r8));
+    for (k_k = 0; k_k <= e_vectorUB; k_k += 2) {
+        __m128d r9;
+        r9 = _mm_loadu_pd(&b_x[k_k]);
+        _mm_storeu_pd(&b_x[k_k], _mm_sqrt_pd(r9));
     }
-    for (p_k = e_scalarLB; p_k < i23; p_k++) {
-        b_x[p_k] = std::sqrt(b_x[p_k]);
+    for (k_k = e_scalarLB; k_k < i29; k_k++) {
+        b_x[k_k] = std::sqrt(b_x[k_k]);
     }
     c_x.set_size(1, b_x.size(1));
-    o_loop_ub = b_x.size(1);
-    for (int i24{0}; i24 < o_loop_ub; i24++) {
-        c_x[i24] = (b_x[i24] / b_vmax > ctx_cfg_ZeroStartVelLimit);
+    t_loop_ub = b_x.size(1);
+    for (int i30{0}; i30 < t_loop_ub; i30++) {
+        c_x[i30] = (b_x[i30] / b_vmax > ctx_cfg_ZeroStartVelLimit);
     }
     coder::b_eml_find(c_x, (int *)&value_data, value_size);
     if (value_size[1] == 0) {
@@ -505,24 +538,22 @@ void CutZeroEnd(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splines
     ::coder::array<double, 2U> a;
     ::coder::array<double, 2U> a__2;
     ::coder::array<double, 2U> at;
-    ::coder::array<double, 2U> b_a;
     ::coder::array<double, 2U> b_d1uk;
     ::coder::array<double, 2U> b_r1D;
     ::coder::array<double, 2U> b_uk;
     ::coder::array<double, 2U> b_x;
-    ::coder::array<double, 2U> b_z1;
     ::coder::array<double, 2U> c;
     ::coder::array<double, 2U> d1uk;
     ::coder::array<double, 2U> d2uk;
     ::coder::array<double, 2U> jt;
+    ::coder::array<double, 2U> r;
     ::coder::array<double, 2U> r2D;
-    ::coder::array<double, 2U> r3;
     ::coder::array<double, 2U> r3D;
-    ::coder::array<double, 2U> r7;
+    ::coder::array<double, 2U> r4;
+    ::coder::array<double, 2U> r6;
     ::coder::array<double, 2U> t;
     ::coder::array<double, 2U> uk;
     ::coder::array<double, 2U> x;
-    ::coder::array<double, 2U> z1;
     ::coder::array<double, 1U> max_at;
     ::coder::array<double, 1U> max_jt;
     ::coder::array<bool, 2U> b_max_at;
@@ -540,13 +571,9 @@ void CutZeroEnd(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splines
     double tmax;
     double z1_idx_1;
     double z1_idx_2;
-    unsigned long c_N;
-    unsigned long c_k;
-    unsigned long z;
+    unsigned long N;
+    unsigned long k;
     int value_size[2];
-    int N;
-    int b_N;
-    int b_exp;
     int b_loop_ub;
     int b_m;
     int b_scalarLB;
@@ -558,31 +585,28 @@ void CutZeroEnd(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splines
     int c_value_data;
     int c_vectorUB;
     int cut_index;
-    int d_N;
     int d_loop_ub;
-    int d_scalarLB;
-    int d_vectorUB;
-    int e_N;
     int e_loop_ub;
     int e_scalarLB;
     int e_vectorUB;
-    int f_N;
     int f_loop_ub;
     int g_loop_ub;
-    int i1;
+    int h_loop_ub;
     int i2;
-    int i23;
-    int i3;
-    int i6;
-    int j_loop_ub;
-    int k_loop_ub;
+    int i29;
+    int i4;
+    int i5;
+    int i9;
+    int k_k;
     int l_loop_ub;
     int m;
-    int m_loop_ub;
-    int n_loop_ub;
     int o_loop_ub;
-    int p_k;
+    int p_loop_ub;
+    int q_loop_ub;
+    int r_loop_ub;
+    int s_loop_ub;
     int scalarLB;
+    int t_loop_ub;
     int value_data;
     int vectorUB;
     bool exitg1;
@@ -622,85 +646,72 @@ void CutZeroEnd(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splines
     } else {
         coder::b_eml_float_colon(tmax, -ctx_cfg_dt, t);
     }
-    z1.set_size(1, t.size(1));
-    N = t.size(1);
-    for (int k{0}; k < N; k++) {
-        z1[k] = std::pow(t[k], 3.0);
+    r.set_size(1, t.size(1));
+    b_loop_ub = t.size(1);
+    for (int i1{0}; i1 < b_loop_ub; i1++) {
+        double varargin_1;
+        varargin_1 = t[i1];
+        r[i1] = std::pow(varargin_1, 3.0);
     }
-    uk.set_size(1, z1.size(1));
-    b_loop_ub = z1.size(1);
-    scalarLB = (z1.size(1) / 2) << 1;
+    uk.set_size(1, r.size(1));
+    c_loop_ub = r.size(1);
+    scalarLB = (r.size(1) / 2) << 1;
     vectorUB = scalarLB - 2;
-    for (i1 = 0; i1 <= vectorUB; i1 += 2) {
-        __m128d r;
-        r = _mm_loadu_pd(&z1[i1]);
-        _mm_storeu_pd(&uk[i1], _mm_div_pd(_mm_mul_pd(_mm_set1_pd(jps), r), _mm_set1_pd(6.0)));
-    }
-    for (i1 = scalarLB; i1 < b_loop_ub; i1++) {
-        uk[i1] = jps * z1[i1] / 6.0;
-    }
-    z1.set_size(1, t.size(1));
-    b_N = t.size(1);
-    for (int b_k{0}; b_k < b_N; b_k++) {
-        z1[b_k] = std::pow(t[b_k], 2.0);
-    }
-    d1uk.set_size(1, z1.size(1));
-    c_loop_ub = z1.size(1);
-    b_scalarLB = (z1.size(1) / 2) << 1;
-    b_vectorUB = b_scalarLB - 2;
-    for (i2 = 0; i2 <= b_vectorUB; i2 += 2) {
+    for (i2 = 0; i2 <= vectorUB; i2 += 2) {
         __m128d r1;
-        r1 = _mm_loadu_pd(&z1[i2]);
-        _mm_storeu_pd(&d1uk[i2], _mm_div_pd(_mm_mul_pd(_mm_set1_pd(jps), r1), _mm_set1_pd(2.0)));
+        r1 = _mm_loadu_pd(&r[i2]);
+        _mm_storeu_pd(&uk[i2], _mm_div_pd(_mm_mul_pd(_mm_set1_pd(jps), r1), _mm_set1_pd(6.0)));
     }
-    for (i2 = b_scalarLB; i2 < c_loop_ub; i2++) {
-        d1uk[i2] = jps * z1[i2] / 2.0;
+    for (i2 = scalarLB; i2 < c_loop_ub; i2++) {
+        uk[i2] = jps * r[i2] / 6.0;
+    }
+    r.set_size(1, t.size(1));
+    d_loop_ub = t.size(1);
+    for (int i3{0}; i3 < d_loop_ub; i3++) {
+        double b_varargin_1;
+        b_varargin_1 = t[i3];
+        r[i3] = std::pow(b_varargin_1, 2.0);
+    }
+    d1uk.set_size(1, r.size(1));
+    e_loop_ub = r.size(1);
+    b_scalarLB = (r.size(1) / 2) << 1;
+    b_vectorUB = b_scalarLB - 2;
+    for (i4 = 0; i4 <= b_vectorUB; i4 += 2) {
+        __m128d r2;
+        r2 = _mm_loadu_pd(&r[i4]);
+        _mm_storeu_pd(&d1uk[i4], _mm_div_pd(_mm_mul_pd(_mm_set1_pd(jps), r2), _mm_set1_pd(2.0)));
+    }
+    for (i4 = b_scalarLB; i4 < e_loop_ub; i4++) {
+        d1uk[i4] = jps * r[i4] / 2.0;
     }
     d2uk.set_size(1, t.size(1));
-    d_loop_ub = t.size(1);
+    f_loop_ub = t.size(1);
     c_scalarLB = (t.size(1) / 2) << 1;
     c_vectorUB = c_scalarLB - 2;
-    for (i3 = 0; i3 <= c_vectorUB; i3 += 2) {
-        __m128d r2;
-        r2 = _mm_loadu_pd(&t[i3]);
-        _mm_storeu_pd(&d2uk[i3], _mm_mul_pd(_mm_set1_pd(jps), r2));
+    for (i5 = 0; i5 <= c_vectorUB; i5 += 2) {
+        __m128d r3;
+        r3 = _mm_loadu_pd(&t[i5]);
+        _mm_storeu_pd(&d2uk[i5], _mm_mul_pd(_mm_set1_pd(jps), r3));
     }
-    for (i3 = c_scalarLB; i3 < d_loop_ub; i3++) {
-        d2uk[i3] = jps * t[i3];
+    for (i5 = c_scalarLB; i5 < f_loop_ub; i5++) {
+        d2uk[i5] = jps * t[i5];
     }
     b_uk.set_size(1, uk.size(1));
-    e_loop_ub = uk.size(1) - 1;
-    for (int i4{0}; i4 <= e_loop_ub; i4++) {
-        b_uk[i4] = uk[i4];
+    g_loop_ub = uk.size(1) - 1;
+    for (int i6{0}; i6 <= g_loop_ub; i6++) {
+        b_uk[i6] = uk[i6];
     }
     b_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
                      b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
                      b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
                      b_CurvStruct->a_param, b_CurvStruct->b_param, b_uk, a__2, b_r1D, r2D, r3D);
     b_vmax = b_CurvStruct->FeedRate;
-    if ((0.0 <= k0) && (k0 < 1.8446744073709552E+19)) {
-        z = static_cast<unsigned long>(k0) - ctx_cfg_NHorz;
-    } else {
-        double xd;
-        unsigned long dif;
-        xd = frexp(k0, &b_exp);
-        dif = static_cast<unsigned long>(std::ldexp(xd, 64)) -
-              (static_cast<unsigned long>(ctx_cfg_NHorz) >> 1);
-        if ((dif & 9223372036854775808UL) > 0UL) {
-            z = MAX_uint64_T;
-        } else {
-            z = dif << 1;
-            if ((ctx_cfg_NHorz & 1UL) == 1UL) {
-                z--;
-            }
-        }
-    }
-    c_N = coder::internal::maximum2(z + 1UL);
-    c_k = static_cast<unsigned long>(std::round(k0));
+    N = coder::internal::maximum2((static_cast<unsigned long>(k0) - ctx_cfg_NHorz) + 1UL);
+    k = static_cast<unsigned long>(std::round(k0));
     exitg1 = false;
-    while ((!exitg1) && (c_k >= c_N)) {
+    while ((!exitg1) && (k >= N)) {
         double y;
-        ctx_q_gcode->get(c_k, &expl_temp);
+        ctx_q_gcode->get(k, &expl_temp);
         y = GetCurvMaxFeedrate(ctx_q_splines, ctx_cfg_amax, ctx_cfg_jmax, expl_temp.Type,
                                expl_temp.P0, expl_temp.P1, expl_temp.CorrectedHelixCenter,
                                expl_temp.evec, expl_temp.theta, expl_temp.pitch, expl_temp.CoeffP5,
@@ -710,123 +721,151 @@ void CutZeroEnd(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splines
         if (expl_temp.zspdmode == ZSpdMode_ZN) {
             exitg1 = true;
         } else {
-            c_k--;
+            k--;
         }
-    }
-    z1.set_size(1, d1uk.size(1));
-    d_N = d1uk.size(1);
-    for (int d_k{0}; d_k < d_N; d_k++) {
-        z1[d_k] = std::pow(d1uk[d_k], 3.0);
     }
     c.set_size(3, b_r1D.size(1));
     if (b_r1D.size(1) != 0) {
         int acoef;
-        int i5;
+        int i7;
         acoef = (b_r1D.size(1) != 1);
-        i5 = b_r1D.size(1) - 1;
-        for (int e_k{0}; e_k <= i5; e_k++) {
-            __m128d r4;
+        i7 = b_r1D.size(1) - 1;
+        for (int b_k{0}; b_k <= i7; b_k++) {
+            __m128d r5;
             int varargin_2;
-            varargin_2 = acoef * e_k;
-            r4 = _mm_loadu_pd(&b_r1D[3 * varargin_2]);
-            _mm_storeu_pd(&c[3 * e_k], _mm_mul_pd(r4, _mm_set1_pd(jps)));
-            c[3 * e_k + 2] = b_r1D[3 * varargin_2 + 2] * jps;
+            varargin_2 = acoef * b_k;
+            r5 = _mm_loadu_pd(&b_r1D[3 * varargin_2]);
+            _mm_storeu_pd(&c[3 * b_k], _mm_mul_pd(r5, _mm_set1_pd(jps)));
+            c[3 * b_k + 2] = b_r1D[3 * varargin_2 + 2] * jps;
         }
     }
-    coder::bsxfun(r3D, z1, r3);
-    b_d1uk.set_size(1, d1uk.size(1));
-    f_loop_ub = d1uk.size(1);
-    d_scalarLB = (d1uk.size(1) / 2) << 1;
-    d_vectorUB = d_scalarLB - 2;
-    for (i6 = 0; i6 <= d_vectorUB; i6 += 2) {
-        __m128d r5;
-        __m128d r6;
-        r5 = _mm_loadu_pd(&d1uk[i6]);
-        r6 = _mm_loadu_pd(&d2uk[i6]);
-        _mm_storeu_pd(&b_d1uk[i6], _mm_mul_pd(r5, r6));
+    r.set_size(1, d1uk.size(1));
+    h_loop_ub = d1uk.size(1);
+    for (int i8{0}; i8 < h_loop_ub; i8++) {
+        double c_varargin_1;
+        c_varargin_1 = d1uk[i8];
+        r[i8] = std::pow(c_varargin_1, 3.0);
     }
-    for (i6 = d_scalarLB; i6 < f_loop_ub; i6++) {
-        b_d1uk[i6] = d1uk[i6] * d2uk[i6];
-    }
-    coder::bsxfun(r2D, b_d1uk, r7);
-    a.set_size(r3.size(1), 3);
-    g_loop_ub = r3.size(1);
-    for (int i7{0}; i7 < 3; i7++) {
-        for (int i8{0}; i8 < g_loop_ub; i8++) {
-            a[i8 + a.size(0) * i7] = (r3[i7 + 3 * i8] + 3.0 * r7[i7 + 3 * i8]) + c[i7 + 3 * i8];
+    coder::bsxfun(r3D, r, r4);
+    if (d1uk.size(1) == d2uk.size(1)) {
+        int d_scalarLB;
+        int d_vectorUB;
+        int i10;
+        int i_loop_ub;
+        b_d1uk.set_size(1, d1uk.size(1));
+        i_loop_ub = d1uk.size(1);
+        d_scalarLB = (d1uk.size(1) / 2) << 1;
+        d_vectorUB = d_scalarLB - 2;
+        for (i10 = 0; i10 <= d_vectorUB; i10 += 2) {
+            __m128d r7;
+            __m128d r8;
+            r7 = _mm_loadu_pd(&d1uk[i10]);
+            r8 = _mm_loadu_pd(&d2uk[i10]);
+            _mm_storeu_pd(&b_d1uk[i10], _mm_mul_pd(r7, r8));
         }
+        for (i10 = d_scalarLB; i10 < i_loop_ub; i10++) {
+            b_d1uk[i10] = d1uk[i10] * d2uk[i10];
+        }
+        coder::bsxfun(r2D, b_d1uk, r6);
+    } else {
+        b_binary_expand_op(r6, r2D, d1uk, d2uk);
+    }
+    if (r4.size(1) == 1) {
+        i9 = r6.size(1);
+    } else {
+        i9 = r4.size(1);
+    }
+    if ((r4.size(1) == r6.size(1)) && (i9 == c.size(1))) {
+        int j_loop_ub;
+        a.set_size(r4.size(1), 3);
+        j_loop_ub = r4.size(1);
+        for (int i11{0}; i11 < 3; i11++) {
+            for (int i12{0}; i12 < j_loop_ub; i12++) {
+                a[i12 + a.size(0) * i11] =
+                    (r4[i11 + 3 * i12] + 3.0 * r6[i11 + 3 * i12]) + c[i11 + 3 * i12];
+            }
+        }
+    } else {
+        binary_expand_op(a, r4, r6, c);
     }
     x.set_size(a.size(0), 3);
     if (a.size(0) != 0) {
         int b_acoef;
         b_acoef = (a.size(0) != 1);
-        for (int f_k{0}; f_k < 3; f_k++) {
-            int i9;
-            i9 = x.size(0) - 1;
-            for (int g_k{0}; g_k <= i9; g_k++) {
-                x[g_k + x.size(0) * f_k] = a[b_acoef * g_k + a.size(0) * f_k] / ctx_cfg_jmax[f_k];
+        for (int c_k{0}; c_k < 3; c_k++) {
+            int i13;
+            i13 = x.size(0) - 1;
+            for (int d_k{0}; d_k <= i13; d_k++) {
+                x[d_k + x.size(0) * c_k] = a[b_acoef * d_k + a.size(0) * c_k] / ctx_cfg_jmax[c_k];
             }
         }
     }
     jt.set_size(x.size(0), 3);
     if (x.size(0) != 0) {
-        int h_loop_ub;
-        int i_loop_ub;
+        int k_loop_ub;
+        int m_loop_ub;
         at.set_size(x.size(0), 3);
-        h_loop_ub = x.size(0);
-        for (int i10{0}; i10 < 3; i10++) {
-            for (int i11{0}; i11 < h_loop_ub; i11++) {
-                at[i11 + at.size(0) * i10] = jt[i11 + jt.size(0) * i10];
+        k_loop_ub = x.size(0);
+        for (int i14{0}; i14 < 3; i14++) {
+            for (int i16{0}; i16 < k_loop_ub; i16++) {
+                at[i16 + at.size(0) * i14] = jt[i16 + jt.size(0) * i14];
             }
         }
-        for (int i_k{0}; i_k < 3; i_k++) {
-            int i12;
-            i12 = at.size(0);
-            for (int j_k{0}; j_k < i12; j_k++) {
-                at[j_k + at.size(0) * i_k] = std::abs(x[j_k + x.size(0) * i_k]);
+        for (int e_k{0}; e_k < 3; e_k++) {
+            int i17;
+            i17 = at.size(0);
+            for (int f_k{0}; f_k < i17; f_k++) {
+                at[f_k + at.size(0) * e_k] = std::abs(x[f_k + x.size(0) * e_k]);
             }
         }
         jt.set_size(at.size(0), 3);
-        i_loop_ub = at.size(0);
-        for (int i13{0}; i13 < 3; i13++) {
-            for (int i15{0}; i15 < i_loop_ub; i15++) {
-                jt[i15 + jt.size(0) * i13] = at[i15 + at.size(0) * i13];
+        m_loop_ub = at.size(0);
+        for (int i18{0}; i18 < 3; i18++) {
+            for (int i20{0}; i20 < m_loop_ub; i20++) {
+                jt[i20 + jt.size(0) * i18] = at[i20 + at.size(0) * i18];
             }
         }
     }
-    z1.set_size(1, d1uk.size(1));
-    e_N = d1uk.size(1);
-    for (int h_k{0}; h_k < e_N; h_k++) {
-        z1[h_k] = std::pow(d1uk[h_k], 2.0);
+    r.set_size(1, d1uk.size(1));
+    l_loop_ub = d1uk.size(1);
+    for (int i15{0}; i15 < l_loop_ub; i15++) {
+        double d_varargin_1;
+        d_varargin_1 = d1uk[i15];
+        r[i15] = std::pow(d_varargin_1, 2.0);
     }
-    coder::bsxfun(r2D, z1, r3);
-    coder::bsxfun(b_r1D, d2uk, r7);
-    a.set_size(r3.size(1), 3);
-    j_loop_ub = r3.size(1);
-    for (int i14{0}; i14 < 3; i14++) {
-        for (int i16{0}; i16 < j_loop_ub; i16++) {
-            a[i16 + a.size(0) * i14] = r3[i14 + 3 * i16] + r7[i14 + 3 * i16];
+    coder::bsxfun(r2D, r, r4);
+    coder::bsxfun(b_r1D, d2uk, r6);
+    if (r4.size(1) == r6.size(1)) {
+        int n_loop_ub;
+        a.set_size(r4.size(1), 3);
+        n_loop_ub = r4.size(1);
+        for (int i19{0}; i19 < 3; i19++) {
+            for (int i21{0}; i21 < n_loop_ub; i21++) {
+                a[i21 + a.size(0) * i19] = r4[i19 + 3 * i21] + r6[i19 + 3 * i21];
+            }
         }
+    } else {
+        b_binary_expand_op(a, r4, r6);
     }
     x.set_size(a.size(0), 3);
     if (a.size(0) != 0) {
         int c_acoef;
         c_acoef = (a.size(0) != 1);
-        for (int k_k{0}; k_k < 3; k_k++) {
-            int i17;
-            i17 = x.size(0) - 1;
-            for (int m_k{0}; m_k <= i17; m_k++) {
-                x[m_k + x.size(0) * k_k] = a[c_acoef * m_k + a.size(0) * k_k] / ctx_cfg_amax[k_k];
+        for (int g_k{0}; g_k < 3; g_k++) {
+            int i22;
+            i22 = x.size(0) - 1;
+            for (int i_k{0}; i_k <= i22; i_k++) {
+                x[i_k + x.size(0) * g_k] = a[c_acoef * i_k + a.size(0) * g_k] / ctx_cfg_amax[g_k];
             }
         }
     }
     at.set_size(x.size(0), 3);
     if (x.size(0) != 0) {
-        for (int l_k{0}; l_k < 3; l_k++) {
-            int i18;
-            i18 = at.size(0);
-            for (int n_k{0}; n_k < i18; n_k++) {
-                at[n_k + at.size(0) * l_k] = std::abs(x[n_k + x.size(0) * l_k]);
+        for (int h_k{0}; h_k < 3; h_k++) {
+            int i23;
+            i23 = at.size(0);
+            for (int j_k{0}; j_k < i23; j_k++) {
+                at[j_k + at.size(0) * h_k] = std::abs(x[j_k + x.size(0) * h_k]);
             }
         }
     }
@@ -864,55 +903,61 @@ void CutZeroEnd(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splines
         }
     }
     b_max_at.set_size(1, max_at.size(0));
-    k_loop_ub = max_at.size(0);
-    for (int i19{0}; i19 < k_loop_ub; i19++) {
-        b_max_at[i19] = (max_at[i19] > ctx_cfg_ZeroStartAccLimit);
+    o_loop_ub = max_at.size(0);
+    for (int i24{0}; i24 < o_loop_ub; i24++) {
+        b_max_at[i24] = (max_at[i24] > ctx_cfg_ZeroStartAccLimit);
     }
     coder::b_eml_find(b_max_at, (int *)&value_data, value_size);
-    l_loop_ub = value_size[1];
-    for (int i20{0}; i20 < l_loop_ub; i20++) {
+    p_loop_ub = value_size[1];
+    for (int i25{0}; i25 < p_loop_ub; i25++) {
         b_value_data = value_data;
     }
     if (value_size[1] == 0) {
         b_value_data = 1;
     }
     b_max_jt.set_size(1, max_jt.size(0));
-    m_loop_ub = max_jt.size(0);
-    for (int i21{0}; i21 < m_loop_ub; i21++) {
-        b_max_jt[i21] = (max_jt[i21] > ctx_cfg_ZeroStartJerkLimit);
+    q_loop_ub = max_jt.size(0);
+    for (int i26{0}; i26 < q_loop_ub; i26++) {
+        b_max_jt[i26] = (max_jt[i26] > ctx_cfg_ZeroStartJerkLimit);
     }
     coder::b_eml_find(b_max_jt, (int *)&value_data, value_size);
-    n_loop_ub = value_size[1];
-    for (int i22{0}; i22 < n_loop_ub; i22++) {
+    r_loop_ub = value_size[1];
+    for (int i27{0}; i27 < r_loop_ub; i27++) {
         c_value_data = value_data;
     }
     if (value_size[1] == 0) {
         c_value_data = 1;
     }
-    coder::bsxfun(b_r1D, d1uk, b_a);
-    b_z1.set_size(3, b_a.size(1));
-    f_N = b_a.size(1);
-    for (int o_k{0}; o_k < f_N; o_k++) {
-        b_z1[3 * o_k] = std::pow(b_a[3 * o_k], 2.0);
-        b_z1[3 * o_k + 1] = std::pow(b_a[3 * o_k + 1], 2.0);
-        b_z1[3 * o_k + 2] = std::pow(b_a[3 * o_k + 2], 2.0);
+    coder::bsxfun(b_r1D, d1uk, r4);
+    r4.set_size(3, r4.size(1));
+    s_loop_ub = r4.size(1);
+    for (int i28{0}; i28 < s_loop_ub; i28++) {
+        double e_varargin_1;
+        double f_varargin_1;
+        double g_varargin_1;
+        e_varargin_1 = r4[3 * i28];
+        r4[3 * i28] = std::pow(e_varargin_1, 2.0);
+        f_varargin_1 = r4[3 * i28 + 1];
+        r4[3 * i28 + 1] = std::pow(f_varargin_1, 2.0);
+        g_varargin_1 = r4[3 * i28 + 2];
+        r4[3 * i28 + 2] = std::pow(g_varargin_1, 2.0);
     }
-    coder::sum(b_z1, b_x);
-    i23 = b_x.size(1);
+    coder::sum(r4, b_x);
+    i29 = b_x.size(1);
     e_scalarLB = (b_x.size(1) / 2) << 1;
     e_vectorUB = e_scalarLB - 2;
-    for (p_k = 0; p_k <= e_vectorUB; p_k += 2) {
-        __m128d r8;
-        r8 = _mm_loadu_pd(&b_x[p_k]);
-        _mm_storeu_pd(&b_x[p_k], _mm_sqrt_pd(r8));
+    for (k_k = 0; k_k <= e_vectorUB; k_k += 2) {
+        __m128d r9;
+        r9 = _mm_loadu_pd(&b_x[k_k]);
+        _mm_storeu_pd(&b_x[k_k], _mm_sqrt_pd(r9));
     }
-    for (p_k = e_scalarLB; p_k < i23; p_k++) {
-        b_x[p_k] = std::sqrt(b_x[p_k]);
+    for (k_k = e_scalarLB; k_k < i29; k_k++) {
+        b_x[k_k] = std::sqrt(b_x[k_k]);
     }
     c_x.set_size(1, b_x.size(1));
-    o_loop_ub = b_x.size(1);
-    for (int i24{0}; i24 < o_loop_ub; i24++) {
-        c_x[i24] = (b_x[i24] / b_vmax > ctx_cfg_ZeroStartVelLimit);
+    t_loop_ub = b_x.size(1);
+    for (int i30{0}; i30 < t_loop_ub; i30++) {
+        c_x[i30] = (b_x[i30] / b_vmax > ctx_cfg_ZeroStartVelLimit);
     }
     coder::b_eml_find(c_x, (int *)&value_data, value_size);
     if (value_size[1] == 0) {

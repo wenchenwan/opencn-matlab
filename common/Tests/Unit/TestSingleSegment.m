@@ -3,8 +3,12 @@ cfg.NDiscr = 10;
 cfg.NBreak = 5;
 ctx = InitFeedoptPlan(cfg);
 
-C1 = ConstrLineStruct([0,0,0]', [1,1,1]', 30, ZSpdMode.NN);
-C2 = ConstrLineStruct([1,1,1]', [2,2,2]', 2, ZSpdMode.NN);
+trafo = false; 
+
+A0 = zeros(3,1); A1 = A0; U0 = A0; U1 = A0;
+
+C1 = ConstrLineStruct(trafo, [0,0,0]', [1,1,1]', A0, A1, U0, U1, 30, ZSpdMode.NN);
+C2 = ConstrLineStruct(trafo, [1,1,1]', [2,2,2]', A0, A1, U0, U1, 2, ZSpdMode.NN);
 
 CurvStructs = [C1, C2];
 

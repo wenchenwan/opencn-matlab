@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: G2_Hermite_Interpolation.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 // Include Files
@@ -60,10 +60,10 @@ void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const 
     double CostInt_data[9];
     double alpha0_t_data[9];
     double alpha1_t_data[9];
-    double b_z1_data[9];
+    double b_tmp_data[9];
     double beta0_u_data[9];
     double beta1_u_data[9];
-    double z1_data[9];
+    double c_tmp_data[9];
     double A[2][2];
     double b_CoefPS[4];
     double e_a[3];
@@ -73,10 +73,10 @@ void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const 
     double t1[3];
     double B[2];
     double a;
-    double a__1;
-    double a__2;
-    double a__3;
     double b_a;
+    double b_ex;
+    double c_ex;
+    double ex;
     double kappa0;
     double kappa1;
     int Idx_data[9];
@@ -113,7 +113,6 @@ void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const 
     //      License along with this software; if not, write to the Free Software
     //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
     //
-    //
     //  [p5_3D, alpha0, alpha1] = G2_Hermite_Interpolation(r0D0, r0D1, r0D2, r1D0, r1D1, r1D2)
     //
     //  Compute an optimal trajectory in R^3, connecting the point r0 to r1 with
@@ -139,7 +138,6 @@ void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const 
     //
     //  compute CoefPS = [a1 a0 b1 b0 c3 c2 c1 c0 d1 d0 e1 e0 f3 f2 f1 f0]
     CoefPolySys(r0D0, t0, n0, kappa0, r1D0, t1, n1, kappa1, CoefPS);
-    //
     //
     guard1 = false;
     if ((kappa0 == 0.0) && (kappa1 == 0.0)) {
@@ -225,11 +223,11 @@ void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const 
             double e_CoefPS;
             double h_CoefPS;
             double l_CoefPS;
-            int i9;
+            int i15;
             int scalarLB;
             int vectorUB;
-            for (int d_k{0}; d_k < b_trueCount; d_k++) {
-                z1_data[d_k] = std::pow(alpha1_t_data[d_k], 2.0);
+            for (int i6{0}; i6 < b_trueCount; i6++) {
+                b_tmp_data[i6] = std::pow(alpha1_t_data[i6], 2.0);
             }
             c_CoefPS = CoefPS[9];
             e_CoefPS = CoefPS[11];
@@ -238,13 +236,13 @@ void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const 
             alpha0_t_size = b_trueCount;
             scalarLB = (b_trueCount / 2) << 1;
             vectorUB = scalarLB - 2;
-            for (i9 = 0; i9 <= vectorUB; i9 += 2) {
+            for (i15 = 0; i15 <= vectorUB; i15 += 2) {
                 __m128d r10;
                 __m128d r8;
-                r8 = _mm_loadu_pd(&z1_data[i9]);
-                r10 = _mm_loadu_pd(&alpha1_t_data[i9]);
+                r8 = _mm_loadu_pd(&b_tmp_data[i15]);
+                r10 = _mm_loadu_pd(&alpha1_t_data[i15]);
                 _mm_storeu_pd(
-                    &alpha0_t_data[i9],
+                    &alpha0_t_data[i15],
                     _mm_div_pd(
                         _mm_mul_pd(_mm_add_pd(_mm_add_pd(_mm_mul_pd(_mm_set1_pd(c_CoefPS), r8),
                                                          _mm_mul_pd(_mm_set1_pd(e_CoefPS), r10)),
@@ -252,9 +250,9 @@ void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const 
                                    _mm_set1_pd(-1.0)),
                         _mm_set1_pd(l_CoefPS)));
             }
-            for (i9 = scalarLB; i9 < b_trueCount; i9++) {
-                alpha0_t_data[i9] =
-                    -((c_CoefPS * z1_data[i9] + e_CoefPS * alpha1_t_data[i9]) + h_CoefPS) /
+            for (i15 = scalarLB; i15 < b_trueCount; i15++) {
+                alpha0_t_data[i15] =
+                    -((c_CoefPS * b_tmp_data[i15] + e_CoefPS * alpha1_t_data[i15]) + h_CoefPS) /
                     l_CoefPS;
             }
         } else {
@@ -266,12 +264,12 @@ void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const 
             double u_CoefPS;
             int c_scalarLB;
             int c_vectorUB;
-            int i12;
-            for (int c_k{0}; c_k < b_trueCount; c_k++) {
-                z1_data[c_k] = std::pow(alpha1_t_data[c_k], 3.0);
+            int i18;
+            for (int i5{0}; i5 < b_trueCount; i5++) {
+                b_tmp_data[i5] = std::pow(alpha1_t_data[i5], 3.0);
             }
-            for (int g_k{0}; g_k < b_trueCount; g_k++) {
-                b_z1_data[g_k] = std::pow(alpha1_t_data[g_k], 2.0);
+            for (int i11{0}; i11 < b_trueCount; i11++) {
+                c_tmp_data[i11] = std::pow(alpha1_t_data[i11], 2.0);
             }
             g_CoefPS = CoefPS[4];
             k_CoefPS = CoefPS[5];
@@ -282,15 +280,15 @@ void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const 
             alpha0_t_size = b_trueCount;
             c_scalarLB = (b_trueCount / 2) << 1;
             c_vectorUB = c_scalarLB - 2;
-            for (i12 = 0; i12 <= c_vectorUB; i12 += 2) {
+            for (i18 = 0; i18 <= c_vectorUB; i18 += 2) {
                 __m128d r14;
                 __m128d r16;
                 __m128d r19;
-                r14 = _mm_loadu_pd(&z1_data[i12]);
-                r16 = _mm_loadu_pd(&b_z1_data[i12]);
-                r19 = _mm_loadu_pd(&alpha1_t_data[i12]);
+                r14 = _mm_loadu_pd(&b_tmp_data[i18]);
+                r16 = _mm_loadu_pd(&c_tmp_data[i18]);
+                r19 = _mm_loadu_pd(&alpha1_t_data[i18]);
                 _mm_storeu_pd(
-                    &alpha0_t_data[i12],
+                    &alpha0_t_data[i18],
                     _mm_div_pd(
                         _mm_mul_pd(
                             _mm_add_pd(
@@ -301,17 +299,17 @@ void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const 
                             _mm_set1_pd(-1.0)),
                         _mm_add_pd(_mm_mul_pd(_mm_set1_pd(s_CoefPS), r19), _mm_set1_pd(u_CoefPS))));
             }
-            for (i12 = c_scalarLB; i12 < b_trueCount; i12++) {
+            for (i18 = c_scalarLB; i18 < b_trueCount; i18++) {
                 double d2;
-                d2 = alpha1_t_data[i12];
-                alpha0_t_data[i12] =
-                    -(((g_CoefPS * z1_data[i12] + k_CoefPS * b_z1_data[i12]) + o_CoefPS * d2) +
+                d2 = alpha1_t_data[i18];
+                alpha0_t_data[i18] =
+                    -(((g_CoefPS * b_tmp_data[i18] + k_CoefPS * c_tmp_data[i18]) + o_CoefPS * d2) +
                       q_CoefPS) /
                     (s_CoefPS * d2 + u_CoefPS);
             }
         }
-        for (int i14{0}; i14 < alpha0_t_size; i14++) {
-            c_alpha0_t_data[i14] = (alpha0_t_data[i14] > 0.0);
+        for (int i20{0}; i20 < alpha0_t_size; i20++) {
+            c_alpha0_t_data[i20] = (alpha0_t_data[i20] > 0.0);
         }
         coder::c_eml_find(c_alpha0_t_data, alpha0_t_size, Idx_data, &Idx_size);
         if (Idx_size <= 0) {
@@ -333,20 +331,20 @@ void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const 
                     std::memset(&beta1_u_data[0], 0, b_CostInt_size_tmp * sizeof(double));
                 }
                 //  preallocating
-                for (int i_k{0}; i_k < Idx_size; i_k++) {
-                    int i18;
-                    i18 = Idx_data[i_k];
-                    Calc_beta0_beta1(alpha0_t_data[i18 - 1], alpha1_t_data[i18 - 1], r0D0, t0, n0,
-                                     kappa0, r1D0, t1, n1, kappa1, &beta0_u_data[i_k],
-                                     &beta1_u_data[i_k]);
-                    CostInt_data[i_k] = EvalCostIntegral(
-                        alpha0_t_data[i18 - 1], beta0_u_data[i_k], alpha1_t_data[i18 - 1],
-                        beta1_u_data[i_k], r0D0, t0, n0, kappa0, r1D0, t1, n1, kappa1);
+                for (int c_k{0}; c_k < Idx_size; c_k++) {
+                    int i24;
+                    i24 = Idx_data[c_k];
+                    Calc_beta0_beta1(alpha0_t_data[i24 - 1], alpha1_t_data[i24 - 1], r0D0, t0, n0,
+                                     kappa0, r1D0, t1, n1, kappa1, &beta0_u_data[c_k],
+                                     &beta1_u_data[c_k]);
+                    CostInt_data[c_k] = EvalCostIntegral(
+                        alpha0_t_data[i24 - 1], beta0_u_data[c_k], alpha1_t_data[i24 - 1],
+                        beta1_u_data[c_k], r0D0, t0, n0, kappa0, r1D0, t1, n1, kappa1);
                 }
                 int b_alpha0_tmp;
                 coder::internal::minimum(CostInt_data,
                                          static_cast<int>(static_cast<signed char>(Idx_size)),
-                                         &a__1, &b_iindx);
+                                         &b_ex, &b_iindx);
                 b_alpha0_tmp = Idx_data[b_iindx - 1] - 1;
                 *alpha0 = alpha0_t_data[b_alpha0_tmp];
                 *alpha1 = alpha1_t_data[b_alpha0_tmp];
@@ -414,9 +412,9 @@ void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const 
             double n_CoefPS;
             int b_scalarLB;
             int b_vectorUB;
-            int i10;
-            for (int f_k{0}; f_k < c_trueCount; f_k++) {
-                z1_data[f_k] = std::pow(alpha0_t_data[f_k], 2.0);
+            int i16;
+            for (int i8{0}; i8 < c_trueCount; i8++) {
+                b_tmp_data[i8] = std::pow(alpha0_t_data[i8], 2.0);
             }
             d_CoefPS = CoefPS[1];
             f_CoefPS = CoefPS[3];
@@ -425,13 +423,13 @@ void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const 
             alpha1_t_size = c_trueCount;
             b_scalarLB = (c_trueCount / 2) << 1;
             b_vectorUB = b_scalarLB - 2;
-            for (i10 = 0; i10 <= b_vectorUB; i10 += 2) {
+            for (i16 = 0; i16 <= b_vectorUB; i16 += 2) {
                 __m128d r12;
                 __m128d r9;
-                r9 = _mm_loadu_pd(&z1_data[i10]);
-                r12 = _mm_loadu_pd(&alpha0_t_data[i10]);
+                r9 = _mm_loadu_pd(&b_tmp_data[i16]);
+                r12 = _mm_loadu_pd(&alpha0_t_data[i16]);
                 _mm_storeu_pd(
-                    &alpha1_t_data[i10],
+                    &alpha1_t_data[i16],
                     _mm_div_pd(
                         _mm_mul_pd(_mm_add_pd(_mm_add_pd(_mm_mul_pd(_mm_set1_pd(d_CoefPS), r9),
                                                          _mm_mul_pd(_mm_set1_pd(f_CoefPS), r12)),
@@ -439,9 +437,9 @@ void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const 
                                    _mm_set1_pd(-1.0)),
                         _mm_set1_pd(n_CoefPS)));
             }
-            for (i10 = b_scalarLB; i10 < c_trueCount; i10++) {
-                alpha1_t_data[i10] =
-                    -((d_CoefPS * z1_data[i10] + f_CoefPS * alpha0_t_data[i10]) + j_CoefPS) /
+            for (i16 = b_scalarLB; i16 < c_trueCount; i16++) {
+                alpha1_t_data[i16] =
+                    -((d_CoefPS * b_tmp_data[i16] + f_CoefPS * alpha0_t_data[i16]) + j_CoefPS) /
                     n_CoefPS;
             }
         } else {
@@ -453,12 +451,12 @@ void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const 
             double v_CoefPS;
             int d_scalarLB;
             int d_vectorUB;
-            int i13;
-            for (int e_k{0}; e_k < c_trueCount; e_k++) {
-                z1_data[e_k] = std::pow(alpha0_t_data[e_k], 3.0);
+            int i19;
+            for (int i7{0}; i7 < c_trueCount; i7++) {
+                b_tmp_data[i7] = std::pow(alpha0_t_data[i7], 3.0);
             }
-            for (int h_k{0}; h_k < c_trueCount; h_k++) {
-                b_z1_data[h_k] = std::pow(alpha0_t_data[h_k], 2.0);
+            for (int i12{0}; i12 < c_trueCount; i12++) {
+                c_tmp_data[i12] = std::pow(alpha0_t_data[i12], 2.0);
             }
             i_CoefPS = CoefPS[12];
             m_CoefPS = CoefPS[13];
@@ -469,15 +467,15 @@ void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const 
             alpha1_t_size = c_trueCount;
             d_scalarLB = (c_trueCount / 2) << 1;
             d_vectorUB = d_scalarLB - 2;
-            for (i13 = 0; i13 <= d_vectorUB; i13 += 2) {
+            for (i19 = 0; i19 <= d_vectorUB; i19 += 2) {
                 __m128d r15;
                 __m128d r18;
                 __m128d r21;
-                r15 = _mm_loadu_pd(&z1_data[i13]);
-                r18 = _mm_loadu_pd(&b_z1_data[i13]);
-                r21 = _mm_loadu_pd(&alpha0_t_data[i13]);
+                r15 = _mm_loadu_pd(&b_tmp_data[i19]);
+                r18 = _mm_loadu_pd(&c_tmp_data[i19]);
+                r21 = _mm_loadu_pd(&alpha0_t_data[i19]);
                 _mm_storeu_pd(
-                    &alpha1_t_data[i13],
+                    &alpha1_t_data[i19],
                     _mm_div_pd(
                         _mm_mul_pd(
                             _mm_add_pd(
@@ -488,17 +486,17 @@ void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const 
                             _mm_set1_pd(-1.0)),
                         _mm_add_pd(_mm_mul_pd(_mm_set1_pd(t_CoefPS), r21), _mm_set1_pd(v_CoefPS))));
             }
-            for (i13 = d_scalarLB; i13 < c_trueCount; i13++) {
+            for (i19 = d_scalarLB; i19 < c_trueCount; i19++) {
                 double d3;
-                d3 = alpha0_t_data[i13];
-                alpha1_t_data[i13] =
-                    -(((i_CoefPS * z1_data[i13] + m_CoefPS * b_z1_data[i13]) + p_CoefPS * d3) +
+                d3 = alpha0_t_data[i19];
+                alpha1_t_data[i19] =
+                    -(((i_CoefPS * b_tmp_data[i19] + m_CoefPS * c_tmp_data[i19]) + p_CoefPS * d3) +
                       r_CoefPS) /
                     (t_CoefPS * d3 + v_CoefPS);
             }
         }
-        for (int i16{0}; i16 < alpha1_t_size; i16++) {
-            b_alpha1_t_data[i16] = (alpha1_t_data[i16] > 0.0);
+        for (int i22{0}; i22 < alpha1_t_size; i22++) {
+            b_alpha1_t_data[i22] = (alpha1_t_data[i22] > 0.0);
         }
         coder::c_eml_find(b_alpha1_t_data, alpha1_t_size, Idx_data, &Idx_size);
         //
@@ -521,20 +519,20 @@ void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const 
                     std::memset(&beta1_u_data[0], 0, c_CostInt_size_tmp * sizeof(double));
                 }
                 //  preallocating
-                for (int j_k{0}; j_k < Idx_size; j_k++) {
-                    int i19;
-                    i19 = Idx_data[j_k];
-                    Calc_beta0_beta1(alpha0_t_data[i19 - 1], alpha1_t_data[i19 - 1], r0D0, t0, n0,
-                                     kappa0, r1D0, t1, n1, kappa1, &beta0_u_data[j_k],
-                                     &beta1_u_data[j_k]);
-                    CostInt_data[j_k] = EvalCostIntegral(
-                        alpha0_t_data[i19 - 1], beta0_u_data[j_k], alpha1_t_data[i19 - 1],
-                        beta1_u_data[j_k], r0D0, t0, n0, kappa0, r1D0, t1, n1, kappa1);
+                for (int d_k{0}; d_k < Idx_size; d_k++) {
+                    int i25;
+                    i25 = Idx_data[d_k];
+                    Calc_beta0_beta1(alpha0_t_data[i25 - 1], alpha1_t_data[i25 - 1], r0D0, t0, n0,
+                                     kappa0, r1D0, t1, n1, kappa1, &beta0_u_data[d_k],
+                                     &beta1_u_data[d_k]);
+                    CostInt_data[d_k] = EvalCostIntegral(
+                        alpha0_t_data[i25 - 1], beta0_u_data[d_k], alpha1_t_data[i25 - 1],
+                        beta1_u_data[d_k], r0D0, t0, n0, kappa0, r1D0, t1, n1, kappa1);
                 }
                 int c_alpha0_tmp;
                 coder::internal::minimum(CostInt_data,
                                          static_cast<int>(static_cast<signed char>(Idx_size)),
-                                         &a__2, &c_iindx);
+                                         &c_ex, &c_iindx);
                 c_alpha0_tmp = Idx_data[c_iindx - 1] - 1;
                 *alpha0 = alpha0_t_data[c_alpha0_tmp];
                 *alpha1 = alpha1_t_data[c_alpha0_tmp];
@@ -599,19 +597,19 @@ void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const 
                 }
                 //  preallocating
                 for (int b_k{0}; b_k < Idx_size; b_k++) {
-                    int i6;
-                    i6 = Idx_data[b_k];
-                    Calc_beta0_beta1(alpha0_t_data[i6 - 1], alpha1_t_data[i6 - 1], r0D0, t0, n0,
+                    int i10;
+                    i10 = Idx_data[b_k];
+                    Calc_beta0_beta1(alpha0_t_data[i10 - 1], alpha1_t_data[i10 - 1], r0D0, t0, n0,
                                      kappa0, r1D0, t1, n1, kappa1, &beta0_u_data[b_k],
                                      &beta1_u_data[b_k]);
                     CostInt_data[b_k] = EvalCostIntegral(
-                        alpha0_t_data[i6 - 1], beta0_u_data[b_k], alpha1_t_data[i6 - 1],
+                        alpha0_t_data[i10 - 1], beta0_u_data[b_k], alpha1_t_data[i10 - 1],
                         beta1_u_data[b_k], r0D0, t0, n0, kappa0, r1D0, t1, n1, kappa1);
                 }
                 int alpha0_tmp;
                 coder::internal::minimum(CostInt_data,
-                                         static_cast<int>(static_cast<signed char>(Idx_size)),
-                                         &a__3, &iindx);
+                                         static_cast<int>(static_cast<signed char>(Idx_size)), &ex,
+                                         &iindx);
                 alpha0_tmp = Idx_data[iindx - 1] - 1;
                 *alpha0 = alpha0_t_data[alpha0_tmp];
                 *alpha1 = alpha1_t_data[alpha0_tmp];
@@ -638,22 +636,22 @@ void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const 
         //
         //  Hermite basis
         //  evaluate coefficients as sum of basis functions
-        a_tmp = std::pow(*alpha0, 2.0);
+        a_tmp = *alpha0 * *alpha0;
         c_a = kappa0 * a_tmp;
-        b_a_tmp = std::pow(*alpha1, 2.0);
+        b_a_tmp = *alpha1 * *alpha1;
         d_a = kappa1 * b_a_tmp;
         r = _mm_loadu_pd(&t0[0]);
         for (int i4{0}; i4 < 6; i4++) {
-            int i5;
-            int i7;
-            i5 = b_b[i4];
-            _mm_storeu_pd(&b_r0D0[i4][0], _mm_mul_pd(_mm_loadu_pd((double *)&r0D0[0]),
-                                                     _mm_set1_pd(static_cast<double>(i5))));
-            i7 = c_b[i4];
+            int i13;
+            int i9;
+            i9 = b_b[i4];
+            _mm_storeu_pd(&b_r0D0[i4][0], _mm_mul_pd(_mm_loadu_pd((const double *)&r0D0[0]),
+                                                     _mm_set1_pd(static_cast<double>(i9))));
+            i13 = c_b[i4];
             _mm_storeu_pd(&b_alpha0[i4][0], _mm_mul_pd(_mm_mul_pd(_mm_set1_pd(*alpha0), r),
-                                                       _mm_set1_pd(static_cast<double>(i7))));
-            b_r0D0[i4][2] = r0D0[2] * static_cast<double>(i5);
-            b_alpha0[i4][2] = *alpha0 * t0[2] * static_cast<double>(i7);
+                                                       _mm_set1_pd(static_cast<double>(i13))));
+            b_r0D0[i4][2] = r0D0[2] * static_cast<double>(i9);
+            b_alpha0[i4][2] = *alpha0 * t0[2] * static_cast<double>(i13);
         }
         __m128d b_r1;
         __m128d b_r2;
@@ -663,22 +661,22 @@ void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const 
                                           _mm_mul_pd(_mm_set1_pd(c_a), b_r2)));
         e_a[2] = a * t0[2] + c_a * n0[2];
         r3 = _mm_loadu_pd(&e_a[0]);
-        for (int i8{0}; i8 < 6; i8++) {
+        for (int i14{0}; i14 < 6; i14++) {
             __m128d r5;
             __m128d r7;
             double d1;
-            int i11;
-            r5 = _mm_loadu_pd(&b_r0D0[i8][0]);
-            r7 = _mm_loadu_pd(&b_alpha0[i8][0]);
-            d1 = d_b[i8];
-            _mm_storeu_pd(&c_r0D0[i8][0], _mm_add_pd(_mm_add_pd(r5, r7),
-                                                     _mm_add_pd(_mm_set1_pd(0.0),
-                                                                _mm_mul_pd(r3, _mm_set1_pd(d1)))));
-            i11 = e_b[i8];
-            _mm_storeu_pd(&b_r1D0[i8][0], _mm_mul_pd(_mm_loadu_pd((double *)&r1D0[0]),
-                                                     _mm_set1_pd(static_cast<double>(i11))));
-            c_r0D0[i8][2] = (b_r0D0[i8][2] + b_alpha0[i8][2]) + e_a[2] * d1;
-            b_r1D0[i8][2] = r1D0[2] * static_cast<double>(i11);
+            int i17;
+            r5 = _mm_loadu_pd(&b_r0D0[i14][0]);
+            r7 = _mm_loadu_pd(&b_alpha0[i14][0]);
+            d1 = d_b[i14];
+            _mm_storeu_pd(&c_r0D0[i14][0], _mm_add_pd(_mm_add_pd(r5, r7),
+                                                      _mm_add_pd(_mm_set1_pd(0.0),
+                                                                 _mm_mul_pd(r3, _mm_set1_pd(d1)))));
+            i17 = e_b[i14];
+            _mm_storeu_pd(&b_r1D0[i14][0], _mm_mul_pd(_mm_loadu_pd((const double *)&r1D0[0]),
+                                                      _mm_set1_pd(static_cast<double>(i17))));
+            c_r0D0[i14][2] = (b_r0D0[i14][2] + b_alpha0[i14][2]) + e_a[2] * d1;
+            b_r1D0[i14][2] = r1D0[2] * static_cast<double>(i17);
         }
         __m128d r4;
         __m128d r6;
@@ -689,25 +687,25 @@ void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const 
         e_a[2] = b_a * t1[2] + d_a * n1[2];
         r11 = _mm_loadu_pd(&t1[0]);
         r13 = _mm_loadu_pd(&e_a[0]);
-        for (int i15{0}; i15 < 6; i15++) {
+        for (int i21{0}; i21 < 6; i21++) {
             __m128d r17;
             __m128d r20;
             double d4;
-            int i17;
-            r17 = _mm_loadu_pd(&c_r0D0[i15][0]);
-            r20 = _mm_loadu_pd(&b_r1D0[i15][0]);
-            i17 = f_b[i15];
-            d4 = g_b[i15];
+            int i23;
+            r17 = _mm_loadu_pd(&c_r0D0[i21][0]);
+            r20 = _mm_loadu_pd(&b_r1D0[i21][0]);
+            i23 = f_b[i21];
+            d4 = g_b[i21];
             _mm_storeu_pd(
-                &p5_3D[i15][0],
+                &p5_3D[i21][0],
                 _mm_add_pd(
                     _mm_add_pd(_mm_add_pd(r17, r20),
                                _mm_add_pd(_mm_set1_pd(0.0),
                                           _mm_mul_pd(_mm_mul_pd(_mm_set1_pd(*alpha1), r11),
-                                                     _mm_set1_pd(static_cast<double>(i17))))),
+                                                     _mm_set1_pd(static_cast<double>(i23))))),
                     _mm_mul_pd(r13, _mm_set1_pd(d4))));
-            p5_3D[i15][2] =
-                ((c_r0D0[i15][2] + b_r1D0[i15][2]) + *alpha1 * t1[2] * static_cast<double>(i17)) +
+            p5_3D[i21][2] =
+                ((c_r0D0[i21][2] + b_r1D0[i21][2]) + *alpha1 * t1[2] * static_cast<double>(i23)) +
                 e_a[2] * d4;
         }
         //  last cross check ...

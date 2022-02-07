@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: CompressCurvStructs.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 // Include Files
@@ -22,6 +22,9 @@
 #include "queue_coder.h"
 #include "sinspace_data.h"
 #include "sinspace_types.h"
+#include "sinspace_types1.h"
+#include "sinspace_types2.h"
+#include "sinspace_types3.h"
 #include "coder_array.h"
 #include <cmath>
 
@@ -48,6 +51,8 @@ void CompressCurvStructs(const FeedoptContext *ctx)
     CurvStruct b_ctx;
     CurvStruct expl_temp;
     CurvStruct spline;
+    double b_Curv[2][3];
+    double c_Curv[2][3];
     double P0[3];
     double P1[3];
     if (!ctx->q_gcode.isempty()) {
@@ -140,7 +145,20 @@ void CompressCurvStructs(const FeedoptContext *ctx)
                                         &SplineCurve.sp.Bl.handle, &SplineCurve.sp.Bl.degree,
                                         SplineCurve.sp.knots);
                         ctx->q_splines.push(&SplineCurve);
-                        ConstrBSplineStruct(pvec, Curv.FeedRate, &spline);
+                        b_Curv[0][0] = Curv.A0[0];
+                        b_Curv[1][0] = Curv.A1[0];
+                        c_Curv[0][0] = Curv.U0[0];
+                        c_Curv[1][0] = Curv.U1[0];
+                        b_Curv[0][1] = Curv.A0[1];
+                        b_Curv[1][1] = Curv.A1[1];
+                        c_Curv[0][1] = Curv.U0[1];
+                        c_Curv[1][1] = Curv.U1[1];
+                        b_Curv[0][2] = Curv.A0[2];
+                        b_Curv[1][2] = Curv.A1[2];
+                        c_Curv[0][2] = Curv.U0[2];
+                        c_Curv[1][2] = Curv.U1[2];
+                        ConstrBSplineStruct(Curv.TRAFO, pvec, b_Curv, c_Curv, Curv.FeedRate,
+                                            &spline);
                         spline.gcode_source_line = Curv.gcode_source_line;
                         spline.sp_index = static_cast<int>(spline_index);
                         spline_index++;
@@ -185,7 +203,19 @@ void CompressCurvStructs(const FeedoptContext *ctx)
                     SplineCurve.sp.CoeffZ, &SplineCurve.sp.Bl.ncoeff, SplineCurve.sp.Bl.breakpoints,
                     &SplineCurve.sp.Bl.handle, &SplineCurve.sp.Bl.degree, SplineCurve.sp.knots);
                 ctx->q_splines.push(&SplineCurve);
-                ConstrBSplineStruct(pvec, Curv.FeedRate, &spline);
+                b_Curv[0][0] = Curv.A0[0];
+                b_Curv[1][0] = Curv.A1[0];
+                c_Curv[0][0] = Curv.U0[0];
+                c_Curv[1][0] = Curv.U1[0];
+                b_Curv[0][1] = Curv.A0[1];
+                b_Curv[1][1] = Curv.A1[1];
+                c_Curv[0][1] = Curv.U0[1];
+                c_Curv[1][1] = Curv.U1[1];
+                b_Curv[0][2] = Curv.A0[2];
+                b_Curv[1][2] = Curv.A1[2];
+                c_Curv[0][2] = Curv.U0[2];
+                c_Curv[1][2] = Curv.U1[2];
+                ConstrBSplineStruct(Curv.TRAFO, pvec, b_Curv, c_Curv, Curv.FeedRate, &spline);
                 spline.gcode_source_line = Curv.gcode_source_line;
                 spline.sp_index = static_cast<int>(spline_index);
                 spline.SpindleSpeed = spindle_speed;

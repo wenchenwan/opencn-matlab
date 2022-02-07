@@ -5,7 +5,10 @@ function [status, CurvStruct] = ReadGCode(cmd, filename)
 persistent n data using_mat
 
 if coder.target('mex')
-    CurvStruct = ConstrLineStruct([1,2,3]', [4,5,6]', 0.2, ZSpdMode.NN);
+    trafo = false;
+    A0 = zeros(3,1); A1 = A0; U0 = A0; U1 = A0;
+    CurvStruct = ConstrLineStruct(trafo, [1,2,3]', [4,5,6]', A0, A1, U0, ...
+                                    U1, 0.2, ZSpdMode.NN);
     coder.updateBuildInfo('addDefines', '_POSIX_C_SOURCE=199309L')
     % coder.updateBuildInfo('addDefines', 'DEBUG_RS274')
     coder.updateBuildInfo('addDefines', 'MEX_READGCODE')
@@ -78,12 +81,16 @@ elseif coder.target('matlab')
         end
     end
 elseif coder.target('rtw')
+    trafo = false;
+    A0 = zeros(3,1); A1 = A0; U0 = A0; U1 = A0;
     if cmd == ReadGCodeCmd.Load
-        CurvStruct = ConstrLineStruct([1,2,3]', [4,5,6]', 0.2, ZSpdMode.NN);
+        CurvStruct = ConstrLineStruct(false, [1,2,3]', [4,5,6]', A0, A1, ...
+                                        U0, U1, 0.2, ZSpdMode.NN);
         status = int32(0);
         status = coder.ceval('c_open_gcode', [filename, 0], coder.ref(CurvStruct));
     elseif cmd == ReadGCodeCmd.Read
-        CurvStruct = ConstrLineStruct([1,2,3]', [4,5,6]', 0.2, ZSpdMode.NN);
+        CurvStruct = ConstrLineStruct(false, [1,2,3]', [4,5,6]', A0, A1, ...
+                                        U0, U1, 0.2, ZSpdMode.NN);
         status = int32(0);
         status = coder.ceval('c_read_and_exec_gcode', '', coder.ref(CurvStruct));
     end

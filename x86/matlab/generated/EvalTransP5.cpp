@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: EvalTransP5.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 // Include Files
@@ -38,8 +38,9 @@ void EvalTransP5(const double CurvStruct_CoeffP5[6][3], const double u_vec[10], 
     //
     // u  = u(:).';
     for (int k{0}; k < 5; k++) {
-        _mm_storeu_pd(&p5_1D[k][0], _mm_mul_pd(_mm_loadu_pd((double *)&CurvStruct_CoeffP5[k][0]),
-                                               _mm_set1_pd(5.0 - static_cast<double>(k))));
+        _mm_storeu_pd(&p5_1D[k][0],
+                      _mm_mul_pd(_mm_loadu_pd((const double *)&CurvStruct_CoeffP5[k][0]),
+                                 _mm_set1_pd(5.0 - static_cast<double>(k))));
         p5_1D[k][2] = CurvStruct_CoeffP5[k][2] * (5.0 - static_cast<double>(k));
     }
     __m128d r;
@@ -106,8 +107,9 @@ void EvalTransP5(const double CurvStruct_CoeffP5[6][3], const ::coder::array<dou
     //
     // u  = u(:).';
     for (int k{0}; k < 5; k++) {
-        _mm_storeu_pd(&p5_1D[k][0], _mm_mul_pd(_mm_loadu_pd((double *)&CurvStruct_CoeffP5[k][0]),
-                                               _mm_set1_pd(5.0 - static_cast<double>(k))));
+        _mm_storeu_pd(&p5_1D[k][0],
+                      _mm_mul_pd(_mm_loadu_pd((const double *)&CurvStruct_CoeffP5[k][0]),
+                                 _mm_set1_pd(5.0 - static_cast<double>(k))));
         p5_1D[k][2] = CurvStruct_CoeffP5[k][2] * (5.0 - static_cast<double>(k));
     }
     __m128d r;
@@ -173,8 +175,9 @@ void EvalTransP5(const double CurvStruct_CoeffP5[6][3], double u_vec, double r_0
     //
     // u  = u(:).';
     for (int k{0}; k < 5; k++) {
-        _mm_storeu_pd(&p5_1D[k][0], _mm_mul_pd(_mm_loadu_pd((double *)&CurvStruct_CoeffP5[k][0]),
-                                               _mm_set1_pd(5.0 - static_cast<double>(k))));
+        _mm_storeu_pd(&p5_1D[k][0],
+                      _mm_mul_pd(_mm_loadu_pd((const double *)&CurvStruct_CoeffP5[k][0]),
+                                 _mm_set1_pd(5.0 - static_cast<double>(k))));
         p5_1D[k][2] = CurvStruct_CoeffP5[k][2] * (5.0 - static_cast<double>(k));
     }
     __m128d r;

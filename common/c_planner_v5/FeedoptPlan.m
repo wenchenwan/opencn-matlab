@@ -12,7 +12,11 @@ end_flag = false;
 %     'CurvStruct', ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN));
 % coder.cstructname(opt_struct, 'OptCurvStruct');
 
-opt_struct = ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
+trafo = false;
+A0 = zeros(3,1); A1 = A0; U0 = A0; U1 = A0;
+
+opt_struct = ConstrLineStruct(trafo, [0,0,0]', [0,0,0]', A0, A1, U0, U1, ...
+                               0.2, ZSpdMode.NN);
 
 switch ctx.op
     case Fopt.Init

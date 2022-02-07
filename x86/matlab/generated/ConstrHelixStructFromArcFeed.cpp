@@ -4,23 +4,25 @@
 // government, commercial, or other organizational use.
 // File: ConstrHelixStructFromArcFeed.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 // Include Files
 #include "ConstrHelixStructFromArcFeed.h"
 #include "ConstrHelixStruct.h"
 #include "CorrectArcCenter.h"
-#include "queue_coder.h"
 #include "sinspace_data.h"
 #include "sinspace_initialize.h"
+#include "sinspace_types1.h"
+#include "sinspace_types2.h"
 #include <cmath>
 #include <emmintrin.h>
 
 // Function Definitions
 //
-// Arguments    : double p0x
+// Arguments    : bool trafo
+//                double p0x
 //                double p0y
 //                double p0z
 //                double p1x
@@ -29,15 +31,21 @@
 //                double cx
 //                double cy
 //                double cz
+//                const double A0[3]
+//                const double A1[3]
+//                const double U1[3]
+//                const double U0[3]
 //                double rotation
 //                const double evec[3]
 //                CurvStruct *b_CurvStruct
 // Return Type  : void
 //
 namespace ocn {
-void ConstrHelixStructFromArcFeed(double p0x, double p0y, double p0z, double p1x, double p1y,
-                                  double p1z, double cx, double cy, double cz, double rotation,
-                                  const double evec[3], CurvStruct *b_CurvStruct)
+void ConstrHelixStructFromArcFeed(bool trafo, double p0x, double p0y, double p0z, double p1x,
+                                  double p1y, double p1z, double cx, double cy, double cz,
+                                  const double A0[3], const double A1[3], const double U1[3],
+                                  const double U0[3], double rotation, const double evec[3],
+                                  CurvStruct *b_CurvStruct)
 {
     double P0[3];
     double P1[3];
@@ -163,7 +171,7 @@ void ConstrHelixStructFromArcFeed(double p0x, double p0y, double p0z, double p1x
         }
         theta += (rotation + 1.0) * 2.0 * 3.1415926535897931;
     }
-    ConstrHelixStruct(P0, P1, b_Cprim, delta, evec, theta,
+    ConstrHelixStruct(trafo, P0, P1, A0, A1, U0, U1, b_Cprim, delta, evec, theta,
                       (((evec[0] * p1x + evec[1] * p1y) + evec[2] * p1z) -
                        ((evec[0] * p0x + evec[1] * p0y) + evec[2] * p0z)) /
                           theta * 2.0 * 3.1415926535897931,

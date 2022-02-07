@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: _coder_sinspace_mex.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 // Include Files
@@ -247,11 +247,11 @@ void unsafe_ConstrCurvStructType_mexFunction(int32_T nlhs, mxArray *plhs[1], int
 // Arguments    : int32_T nlhs
 //                mxArray *plhs[1]
 //                int32_T nrhs
-//                const mxArray *prhs[11]
+//                const mxArray *prhs[16]
 // Return Type  : void
 //
 void unsafe_ConstrHelixStructFromArcFeed_mexFunction(int32_T nlhs, mxArray *plhs[1], int32_T nrhs,
-                                                     const mxArray *prhs[11])
+                                                     const mxArray *prhs[16])
 {
     emlrtStack st{
         nullptr, // site
@@ -261,8 +261,8 @@ void unsafe_ConstrHelixStructFromArcFeed_mexFunction(int32_T nlhs, mxArray *plhs
     const mxArray *outputs;
     st.tls = emlrtRootTLSGlobal;
     // Check for proper number of arguments.
-    if (nrhs != 11) {
-        emlrtErrMsgIdAndTxt(&st, "EMLRT:runTime:WrongNumberOfInputs", 5, 12, 11, 4, 28,
+    if (nrhs != 16) {
+        emlrtErrMsgIdAndTxt(&st, "EMLRT:runTime:WrongNumberOfInputs", 5, 12, 16, 4, 28,
                             "ConstrHelixStructFromArcFeed");
     }
     if (nlhs > 1) {
@@ -279,11 +279,11 @@ void unsafe_ConstrHelixStructFromArcFeed_mexFunction(int32_T nlhs, mxArray *plhs
 // Arguments    : int32_T nlhs
 //                mxArray *plhs[1]
 //                int32_T nrhs
-//                const mxArray *prhs[9]
+//                const mxArray *prhs[14]
 // Return Type  : void
 //
 void unsafe_ConstrHelixStruct_mexFunction(int32_T nlhs, mxArray *plhs[1], int32_T nrhs,
-                                          const mxArray *prhs[9])
+                                          const mxArray *prhs[14])
 {
     emlrtStack st{
         nullptr, // site
@@ -293,8 +293,8 @@ void unsafe_ConstrHelixStruct_mexFunction(int32_T nlhs, mxArray *plhs[1], int32_
     const mxArray *outputs;
     st.tls = emlrtRootTLSGlobal;
     // Check for proper number of arguments.
-    if (nrhs != 9) {
-        emlrtErrMsgIdAndTxt(&st, "EMLRT:runTime:WrongNumberOfInputs", 5, 12, 9, 4, 17,
+    if (nrhs != 14) {
+        emlrtErrMsgIdAndTxt(&st, "EMLRT:runTime:WrongNumberOfInputs", 5, 12, 14, 4, 17,
                             "ConstrHelixStruct");
     }
     if (nlhs > 1) {
@@ -311,11 +311,11 @@ void unsafe_ConstrHelixStruct_mexFunction(int32_T nlhs, mxArray *plhs[1], int32_
 // Arguments    : int32_T nlhs
 //                mxArray *plhs[1]
 //                int32_T nrhs
-//                const mxArray *prhs[4]
+//                const mxArray *prhs[9]
 // Return Type  : void
 //
 void unsafe_ConstrLineStruct_mexFunction(int32_T nlhs, mxArray *plhs[1], int32_T nrhs,
-                                         const mxArray *prhs[4])
+                                         const mxArray *prhs[9])
 {
     emlrtStack st{
         nullptr, // site
@@ -325,8 +325,8 @@ void unsafe_ConstrLineStruct_mexFunction(int32_T nlhs, mxArray *plhs[1], int32_T
     const mxArray *outputs;
     st.tls = emlrtRootTLSGlobal;
     // Check for proper number of arguments.
-    if (nrhs != 4) {
-        emlrtErrMsgIdAndTxt(&st, "EMLRT:runTime:WrongNumberOfInputs", 5, 12, 4, 4, 16,
+    if (nrhs != 9) {
+        emlrtErrMsgIdAndTxt(&st, "EMLRT:runTime:WrongNumberOfInputs", 5, 12, 9, 4, 16,
                             "ConstrLineStruct");
     }
     if (nlhs > 1) {

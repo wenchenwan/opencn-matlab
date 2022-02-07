@@ -4,29 +4,36 @@
 // government, commercial, or other organizational use.
 // File: ConstrLineStruct.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 // Include Files
 #include "ConstrLineStruct.h"
 #include "ConstrCurvStruct.h"
-#include "queue_coder.h"
 #include "sinspace_data.h"
 #include "sinspace_initialize.h"
+#include "sinspace_types1.h"
+#include "sinspace_types2.h"
 
 // Function Definitions
 //
-// Arguments    : const double P0[3]
+// Arguments    : bool trafo
+//                const double P0[3]
 //                const double P1[3]
+//                const double A0[3]
+//                const double A1[3]
+//                const double U0[3]
+//                const double U1[3]
 //                double FeedRate
 //                ZSpdMode b_ZSpdMode
 //                CurvStruct *b_CurvStruct
 // Return Type  : void
 //
 namespace ocn {
-void ConstrLineStruct(const double P0[3], const double P1[3], double FeedRate, ZSpdMode b_ZSpdMode,
-                      CurvStruct *b_CurvStruct)
+void ConstrLineStruct(bool trafo, const double P0[3], const double P1[3], const double A0[3],
+                      const double A1[3], const double U0[3], const double U1[3], double FeedRate,
+                      ZSpdMode b_ZSpdMode, CurvStruct *b_CurvStruct)
 {
     double dv2[6][3];
     double dv[3];
@@ -45,8 +52,8 @@ void ConstrLineStruct(const double P0[3], const double P1[3], double FeedRate, Z
         dv2[i][1] = 0.0;
         dv2[i][2] = 0.0;
     }
-    ConstrCurvStruct(CurveType_Line, b_ZSpdMode, P0, P1, dv, 0.0, dv1, 0.0, 0.0, dv2, FeedRate,
-                     b_CurvStruct);
+    ConstrCurvStruct(CurveType_Line, b_ZSpdMode, trafo, P0, P1, A0, A1, U0, U1, dv, 0.0, dv1, 0.0,
+                     0.0, dv2, FeedRate, b_CurvStruct);
 }
 
 } // namespace ocn

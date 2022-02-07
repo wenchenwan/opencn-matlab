@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: sinspace_types.h
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 #ifndef SINSPACE_TYPES_H
@@ -14,6 +14,7 @@
 // Include Files
 #include "queue_coder.h"
 #include "rtwtypes.h"
+#include "sinspace_types3.h"
 #include "coder_array.h"
 
 // Custom Header Code
@@ -56,7 +57,7 @@ struct FeedoptConfig {
     char LogFileName[9];
 };
 
-enum DebugCfg
+enum DebugCfg : int
 {
     DebugCfg_Transitions = 1, // Default value
     DebugCfg_OptimProgress,
@@ -68,7 +69,7 @@ enum DebugCfg
     DebugCfg_Validate
 };
 
-enum Fopt
+enum Fopt : int
 {
     Fopt_Init = 0, // Default value
     Fopt_GCode = 1,
@@ -80,7 +81,7 @@ enum Fopt
     Fopt_Finished = 67
 };
 
-enum FeedoptPlanError
+enum FeedoptPlanError : int
 {
     FeedoptPlanError_Success = 0, // Default value
     FeedoptPlanError_SmoothingFailed,
@@ -88,7 +89,7 @@ enum FeedoptPlanError
     FeedoptPlanError_OptimizationFailed
 };
 
-enum TransitionResult
+enum TransitionResult : int
 {
     TransitionResult_Ok = 0, // Default value
     TransitionResult_Collinear,

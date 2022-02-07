@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: mldivide.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 // Include Files
@@ -16,128 +16,13 @@
 
 // Function Definitions
 //
-// Arguments    : const double A[4][4]
-//                const double B[4]
-//                double Y[4]
-// Return Type  : void
-//
-namespace ocn {
-namespace coder {
-void mldivide(const double A[4][4], const double B[4], double Y[4])
-{
-    double b_A[4][4];
-    signed char ipiv[4];
-    for (int i{0}; i < 4; i++) {
-        Y[i] = B[i];
-        b_A[i][0] = A[i][0];
-        b_A[i][1] = A[i][1];
-        b_A[i][2] = A[i][2];
-        b_A[i][3] = A[i][3];
-        ipiv[i] = static_cast<signed char>(i + 1);
-    }
-    for (int j{0}; j < 3; j++) {
-        double smax;
-        int a;
-        int b_tmp;
-        int jA;
-        int jp1j;
-        int mmj_tmp;
-        int n;
-        signed char i2;
-        mmj_tmp = 2 - j;
-        b_tmp = j * 5;
-        jp1j = b_tmp + 2;
-        n = 4 - j;
-        a = 0;
-        smax = std::abs((&b_A[0][0])[b_tmp]);
-        for (int c_k{2}; c_k <= n; c_k++) {
-            double s;
-            s = std::abs((&b_A[0][0])[(b_tmp + c_k) - 1]);
-            if (s > smax) {
-                a = c_k - 1;
-                smax = s;
-            }
-        }
-        if ((&b_A[0][0])[b_tmp + a] != 0.0) {
-            int i1;
-            if (a != 0) {
-                double temp;
-                int ipiv_tmp;
-                ipiv_tmp = j + a;
-                ipiv[j] = static_cast<signed char>(ipiv_tmp + 1);
-                temp = (&b_A[0][0])[j];
-                (&b_A[0][0])[j] = (&b_A[0][0])[ipiv_tmp];
-                (&b_A[0][0])[ipiv_tmp] = temp;
-                temp = (&b_A[0][0])[j + 4];
-                (&b_A[0][0])[j + 4] = (&b_A[0][0])[ipiv_tmp + 4];
-                (&b_A[0][0])[ipiv_tmp + 4] = temp;
-                temp = (&b_A[0][0])[j + 8];
-                (&b_A[0][0])[j + 8] = (&b_A[0][0])[ipiv_tmp + 8];
-                (&b_A[0][0])[ipiv_tmp + 8] = temp;
-                temp = (&b_A[0][0])[j + 12];
-                (&b_A[0][0])[j + 12] = (&b_A[0][0])[ipiv_tmp + 12];
-                (&b_A[0][0])[ipiv_tmp + 12] = temp;
-            }
-            i1 = (b_tmp - j) + 4;
-            for (int e_i{jp1j}; e_i <= i1; e_i++) {
-                (&b_A[0][0])[e_i - 1] /= (&b_A[0][0])[b_tmp];
-            }
-        }
-        jA = b_tmp;
-        for (int b_j{0}; b_j <= mmj_tmp; b_j++) {
-            double yjy_tmp;
-            yjy_tmp = (&b_A[0][0])[(b_tmp + (b_j << 2)) + 4];
-            if (yjy_tmp != 0.0) {
-                int i3;
-                int i4;
-                i3 = jA + 6;
-                i4 = (jA - j) + 8;
-                for (int ijA{i3}; ijA <= i4; ijA++) {
-                    (&b_A[0][0])[ijA - 1] += (&b_A[0][0])[((b_tmp + ijA) - jA) - 5] * -yjy_tmp;
-                }
-            }
-            jA += 4;
-        }
-        i2 = ipiv[j];
-        if (i2 != j + 1) {
-            double b_temp;
-            b_temp = Y[j];
-            Y[j] = Y[i2 - 1];
-            Y[i2 - 1] = b_temp;
-        }
-    }
-    for (int k{0}; k < 4; k++) {
-        int kAcol;
-        kAcol = k << 2;
-        if (Y[k] != 0.0) {
-            int b_i;
-            b_i = k + 2;
-            for (int c_i{b_i}; c_i < 5; c_i++) {
-                Y[c_i - 1] -= Y[k] * (&b_A[0][0])[(c_i + kAcol) - 1];
-            }
-        }
-    }
-    for (int b_k{3}; b_k >= 0; b_k--) {
-        double d;
-        int b_kAcol;
-        b_kAcol = b_k << 2;
-        d = Y[b_k];
-        if (d != 0.0) {
-            d /= (&b_A[0][0])[b_k + b_kAcol];
-            Y[b_k] = d;
-            for (int d_i{0}; d_i < b_k; d_i++) {
-                Y[d_i] -= Y[b_k] * (&b_A[0][0])[d_i + b_kAcol];
-            }
-        }
-    }
-}
-
-//
 // Arguments    : const ::coder::array<double, 2U> &A
 //                const ::coder::array<double, 1U> &B
 //                ::coder::array<double, 1U> &Y
 // Return Type  : void
 //
+namespace ocn {
+namespace coder {
 void mldivide(const ::coder::array<double, 2U> &A, const ::coder::array<double, 1U> &B,
               ::coder::array<double, 1U> &Y)
 {
@@ -159,13 +44,13 @@ void mldivide(const ::coder::array<double, 2U> &A, const ::coder::array<double, 
         int yk;
         u0 = A.size(0);
         u1 = A.size(1);
-        if (u0 < u1) {
+        if (u0 <= u1) {
             y = u0;
         } else {
             y = u1;
         }
         b_u0 = B.size(0);
-        if (b_u0 < y) {
+        if (b_u0 <= y) {
             n = b_u0;
         } else {
             n = y;
@@ -189,7 +74,7 @@ void mldivide(const ::coder::array<double, 2U> &A, const ::coder::array<double, 
         }
         ldap1 = A.size(0);
         c_u0 = n - 1;
-        if (c_u0 < n) {
+        if (c_u0 <= n) {
             i2 = c_u0;
         } else {
             i2 = n;

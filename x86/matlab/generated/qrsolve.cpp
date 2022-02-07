@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: qrsolve.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 // Include Files
@@ -97,7 +97,7 @@ void qrsolve(const ::coder::array<double, 2U> &A, const ::coder::array<double, 1
     n = A.size(1);
     u0 = A.size(0);
     u1 = A.size(1);
-    if (u0 < u1) {
+    if (u0 <= u1) {
         minmana = u0;
     } else {
         minmana = u1;
@@ -114,10 +114,10 @@ void qrsolve(const ::coder::array<double, 2U> &A, const ::coder::array<double, 1
     scalarLB = (A.size(1) / 4) << 2;
     vectorUB = scalarLB - 4;
     for (k = 0; k <= vectorUB; k += 4) {
-        _mm_storeu_si128(
-            (__m128i *)&jpvt[k],
-            _mm_add_epi32(_mm_add_epi32(_mm_set1_epi32(k), _mm_loadu_si128((__m128i *)&offsets[0])),
-                          _mm_set1_epi32(1)));
+        _mm_storeu_si128((__m128i *)&jpvt[k],
+                         _mm_add_epi32(_mm_add_epi32(_mm_set1_epi32(k),
+                                                     _mm_loadu_si128((const __m128i *)&offsets[0])),
+                                       _mm_set1_epi32(1)));
     }
     for (k = scalarLB; k < n; k++) {
         jpvt[k] = k + 1;
@@ -134,7 +134,7 @@ void qrsolve(const ::coder::array<double, 2U> &A, const ::coder::array<double, 1
     ma = A.size(0);
     b_u0 = A.size(0);
     b_u1 = A.size(1);
-    if (b_u0 < b_u1) {
+    if (b_u0 <= b_u1) {
         minmn = b_u0;
     } else {
         minmn = b_u1;
@@ -415,7 +415,7 @@ void qrsolve(const ::coder::array<double, 2U> &A, const ::coder::array<double, 1
     b_m = b_A.size(0);
     c_u0 = b_A.size(0);
     c_u1 = b_A.size(1);
-    if (c_u0 < c_u1) {
+    if (c_u0 <= c_u1) {
         mn = c_u0;
     } else {
         mn = c_u1;

@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: FeedoptPlan.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 // Include Files
@@ -26,6 +26,9 @@
 #include "sinspace_data.h"
 #include "sinspace_initialize.h"
 #include "sinspace_types.h"
+#include "sinspace_types1.h"
+#include "sinspace_types2.h"
+#include "sinspace_types3.h"
 #include "coder_array.h"
 #include <cmath>
 #include <stdio.h>
@@ -42,10 +45,6 @@
 namespace ocn {
 void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
 {
-    queue_coder d_ctx;
-    queue_coder e_ctx;
-    queue_coder h_ctx;
-    queue_coder i_ctx;
     ::coder::array<CurvStruct, 2U> OptSegment;
     ::coder::array<double, 2U> Coeff;
     ::coder::array<double, 2U> c_ctx;
@@ -58,7 +57,11 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
     CurvStruct last;
     double dv[3];
     double dv1[3];
-    double g_ctx[3];
+    double dv2[3];
+    double dv3[3];
+    double dv4[3];
+    double dv5[3];
+    double e_ctx[3];
     double at_0;
     double b_at_0;
     int a__1;
@@ -75,11 +78,23 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
     //  coder.cstructname(opt_struct, 'OptCurvStruct');
     dv[0] = 0.0;
     dv1[0] = 0.0;
+    dv2[0] = 0.0;
+    dv3[0] = 0.0;
+    dv4[0] = 0.0;
+    dv5[0] = 0.0;
     dv[1] = 0.0;
     dv1[1] = 0.0;
+    dv2[1] = 0.0;
+    dv3[1] = 0.0;
+    dv4[1] = 0.0;
+    dv5[1] = 0.0;
     dv[2] = 0.0;
     dv1[2] = 0.0;
-    ConstrLineStruct(dv, dv1, 0.2, ZSpdMode_NN, opt_struct);
+    dv2[2] = 0.0;
+    dv3[2] = 0.0;
+    dv4[2] = 0.0;
+    dv5[2] = 0.0;
+    ConstrLineStruct(false, dv, dv1, dv2, dv3, dv4, dv5, 0.2, ZSpdMode_NN, opt_struct);
     guard1 = false;
     switch (ctx->op) {
     case Fopt_Init:
@@ -97,16 +112,28 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         if (status != 0) {
             dv[0] = 1.0;
             dv1[0] = 4.0;
+            dv2[0] = 0.0;
+            dv3[0] = 0.0;
+            dv4[0] = 0.0;
+            dv5[0] = 0.0;
             dv[1] = 2.0;
             dv1[1] = 5.0;
+            dv2[1] = 0.0;
+            dv3[1] = 0.0;
+            dv4[1] = 0.0;
+            dv5[1] = 0.0;
             dv[2] = 3.0;
             dv1[2] = 6.0;
+            dv2[2] = 0.0;
+            dv3[2] = 0.0;
+            dv4[2] = 0.0;
+            dv5[2] = 0.0;
         }
         while (status != 0) {
             int b_status;
             //  coder.extrinsic('ReadGCode_mex');
             //  Wrapper for pulling the next gcode line from the interpreter
-            ConstrLineStruct(dv, dv1, 0.2, ZSpdMode_NN, &b_CurvStruct);
+            ConstrLineStruct(false, dv, dv1, dv2, dv3, dv4, dv5, 0.2, ZSpdMode_NN, &b_CurvStruct);
             b_status = c_read_and_exec_gcode(nullptr, &b_CurvStruct);
             status = b_status;
             if ((b_status == 1) && (static_cast<int>(b_CurvStruct.Type) != 0)) {
@@ -180,13 +207,12 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                     if (b_first.zspdmode == ZSpdMode_ZN) {
                         *opt_struct = b_first;
                         b_optimized = true;
-                        d_ctx = ctx->q_splines;
-                        CalcZeroStartConstraints(&d_ctx, b_first.Type, b_first.P0, b_first.P1,
-                                                 b_first.CorrectedHelixCenter, b_first.evec,
-                                                 b_first.theta, b_first.pitch, b_first.CoeffP5,
-                                                 b_first.sp_index, b_first.UseConstJerk,
-                                                 b_first.ConstJerk, b_first.a_param,
-                                                 b_first.b_param, 1.0, &ctx->v_0, &ctx->at_0);
+                        CalcZeroStartConstraints(
+                            &ctx->q_splines, b_first.Type, b_first.P0, b_first.P1,
+                            b_first.CorrectedHelixCenter, b_first.evec, b_first.theta,
+                            b_first.pitch, b_first.CoeffP5, b_first.sp_index, b_first.UseConstJerk,
+                            b_first.ConstJerk, b_first.a_param, b_first.b_param, 1.0, &ctx->v_0,
+                            &ctx->at_0);
                         ctx->zero_start = true;
                     } else {
                         int Retry;
@@ -198,7 +224,7 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                         unsigned int nopt;
                         bool exitg1;
                         bool success;
-                        k1temp = (ctx->k0 + ctx->cfg.NHorz) - 1;
+                        k1temp = (ctx->k0 + outsize_idx_1_tmp_tmp) - 1;
                         if (static_cast<double>(k1temp) > ctx->q_split.size()) {
                             ctx->reached_end = true;
                             k1 = static_cast<int>(ctx->q_split.size());
@@ -219,9 +245,8 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                                 //  and tangent acceleration constraints to the ones
                                 //  specified by the segment, and pretend this is the
                                 //  end of all segments
-                                e_ctx = ctx->q_splines;
                                 CalcZeroStartConstraints(
-                                    &e_ctx, NextCurv.Type, NextCurv.P0, NextCurv.P1,
+                                    &ctx->q_splines, NextCurv.Type, NextCurv.P0, NextCurv.P1,
                                     NextCurv.CorrectedHelixCenter, NextCurv.evec, NextCurv.theta,
                                     NextCurv.pitch, NextCurv.CoeffP5, NextCurv.sp_index,
                                     NextCurv.UseConstJerk, NextCurv.ConstJerk, NextCurv.a_param,
@@ -252,26 +277,25 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                         success = false;
                         Coeff.set_size(0, 0);
                         while ((Retry < 100) && (!success)) {
-                            int f_ctx;
+                            int d_ctx;
                             if (ctx->cfg.NHorz > static_cast<int>(nopt)) {
-                                f_ctx = static_cast<int>(nopt);
+                                d_ctx = static_cast<int>(nopt);
                             } else {
-                                f_ctx = ctx->cfg.NHorz;
+                                d_ctx = ctx->cfg.NHorz;
                             }
-                            g_ctx[0] = ctx->cfg.jmax[0];
-                            g_ctx[1] = ctx->cfg.jmax[1];
-                            g_ctx[2] = ctx->cfg.jmax[2];
-                            FeedratePlanning_v4(ctx, OptSegment, ctx->cfg.amax, g_ctx,
+                            e_ctx[0] = ctx->cfg.jmax[0];
+                            e_ctx[1] = ctx->cfg.jmax[1];
+                            e_ctx[2] = ctx->cfg.jmax[2];
+                            FeedratePlanning_v4(ctx, OptSegment, ctx->cfg.amax, e_ctx,
                                                 ctx->BasisVal, ctx->BasisValD, ctx->BasisValDD,
-                                                ctx->BasisIntegr, ctx->Bl.handle, ctx->u_vec, f_ctx,
+                                                ctx->BasisIntegr, ctx->Bl.handle, ctx->u_vec, d_ctx,
                                                 Coeff, &a__1, &b_success);
                             success = b_success;
                             if ((!b_success) && ctx->zero_start) {
                                 DebugLog(ctx->k0 - 1);
                                 ctx->q_split.get(ctx->k0 - 1, &expl_temp);
-                                h_ctx = ctx->q_splines;
                                 CalcZeroStartConstraints(
-                                    &h_ctx, expl_temp.Type, expl_temp.P0, expl_temp.P1,
+                                    &ctx->q_splines, expl_temp.Type, expl_temp.P0, expl_temp.P1,
                                     expl_temp.CorrectedHelixCenter, expl_temp.evec, expl_temp.theta,
                                     expl_temp.pitch, expl_temp.CoeffP5, expl_temp.sp_index,
                                     expl_temp.UseConstJerk, expl_temp.ConstJerk, expl_temp.a_param,
@@ -301,9 +325,8 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                                     expl_temp.CoeffP5[i11][1] = b_expl_temp.CoeffP5[i11][1];
                                     expl_temp.CoeffP5[i11][2] = b_expl_temp.CoeffP5[i11][2];
                                 }
-                                i_ctx = ctx->q_splines;
                                 CalcZeroStartConstraints(
-                                    &i_ctx, b_expl_temp.Type, expl_temp.P0, expl_temp.P1,
+                                    &ctx->q_splines, b_expl_temp.Type, expl_temp.P0, expl_temp.P1,
                                     expl_temp.CorrectedHelixCenter, expl_temp.evec,
                                     b_expl_temp.theta, b_expl_temp.pitch, expl_temp.CoeffP5,
                                     b_expl_temp.sp_index, b_expl_temp.UseConstJerk,

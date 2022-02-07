@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: string1.h
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 #ifndef STRING1_H
@@ -13,7 +13,7 @@
 
 // Include Files
 #include "rtwtypes.h"
-#include "coder_bounded_array.h"
+#include "sinspace_internal_types.h"
 #include <cstddef>
 #include <cstdlib>
 
@@ -24,7 +24,7 @@ namespace ocn {
 namespace coder {
 class rtString {
   public:
-    ::coder::bounded_array<char, 9U, 2U> Value;
+    emxArray_char_T_1x9 Value;
 };
 
 } // namespace coder

@@ -25,7 +25,11 @@ function ctx = InitFeedoptPlan(cfg)
 
     Coeff = zeros(0, 0);
     
-    Curv = ConstrLineStruct([0,0,0]', [0,0,0]', 1, ZSpdMode.NN);
+    trafo = false;
+    A0 = zeros(3,1); A1 = A0; U0 = A0; U1 = A0;
+
+    Curv = ConstrLineStruct(trafo, [0,0,0]', [0,0,0]', A0, A1, U0, U1, ...
+                            1, ZSpdMode.NN);
     Spline = CalcBspline_Lee(cfg, [[0,0,0]', [1,1,1]']);
     Curv.sp = Spline;
     

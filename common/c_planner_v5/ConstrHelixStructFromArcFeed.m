@@ -1,4 +1,6 @@
-function CurvStruct = ConstrHelixStructFromArcFeed(p0x, p0y, p0z, p1x, p1y, p1z, cx, cy, cz, rotation, evec)
+function CurvStruct = ConstrHelixStructFromArcFeed(trafo, p0x, p0y, p0z, ...
+                      p1x, p1y, p1z, cx, cy, cz, A0, A1, U1, U0, rotation,...
+                      evec)
 %#codegen
 
 P0 = [p0x, p0y, p0z]';
@@ -50,6 +52,7 @@ else
 end
 
 pitch = devec/theta*2*pi;
-CurvStruct = ConstrHelixStruct(P0, P1, Cprim, delta, evec, theta, pitch, 1, ZSpdMode.NN);
+CurvStruct = ConstrHelixStruct(trafo, P0, P1, A0, A1, U0, U1, Cprim, delta,...
+                                evec, theta, pitch, 1, ZSpdMode.NN);
 
 end

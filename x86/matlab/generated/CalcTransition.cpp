@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: CalcTransition.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 // Include Files
@@ -24,6 +24,8 @@
 #include "sinspace_data.h"
 #include "sinspace_initialize.h"
 #include "sinspace_types.h"
+#include "sinspace_types1.h"
+#include "sinspace_types2.h"
 #include "coder_array.h"
 #include <cmath>
 
@@ -47,6 +49,8 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
     CurvStruct b_expl_temp;
     CurvStruct expl_temp;
     double p5[6][3];
+    double b_CurvStruct1[2][3];
+    double c_CurvStruct1[2][3];
     double r0D0[3];
     double r0D0_1[3];
     double r0D0_2[3];
@@ -77,7 +81,7 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
     }
     CutOff_tmp = ctx->cfg.CutOff;
     CutOff = CutOff_tmp;
-    Length_Threshold = 3.0 * ctx->cfg.CutOff;
+    Length_Threshold = 3.0 * CutOff_tmp;
     //  DebugLog(DebugCfg.Transitions, ...
     //      '========== CalcTransition ==========\n')
     if ((static_cast<unsigned long>(DebugConfig) & 8UL) != 0UL) {
@@ -230,12 +234,38 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
         if (ret == 1) {
             //  standard case
             //  transition CurvStruct calculation
-            ConstrTransP5Struct(p5, CurvStruct1->FeedRate, CurvStruct_T);
+            b_CurvStruct1[0][0] = CurvStruct1->A0[0];
+            b_CurvStruct1[1][0] = CurvStruct1->A1[0];
+            c_CurvStruct1[0][0] = CurvStruct1->U0[0];
+            c_CurvStruct1[1][0] = CurvStruct1->U1[0];
+            b_CurvStruct1[0][1] = CurvStruct1->A0[1];
+            b_CurvStruct1[1][1] = CurvStruct1->A1[1];
+            c_CurvStruct1[0][1] = CurvStruct1->U0[1];
+            c_CurvStruct1[1][1] = CurvStruct1->U1[1];
+            b_CurvStruct1[0][2] = CurvStruct1->A0[2];
+            b_CurvStruct1[1][2] = CurvStruct1->A1[2];
+            c_CurvStruct1[0][2] = CurvStruct1->U0[2];
+            c_CurvStruct1[1][2] = CurvStruct1->U1[2];
+            ConstrTransP5Struct(CurvStruct1->TRAFO, b_CurvStruct1, c_CurvStruct1, p5,
+                                CurvStruct1->FeedRate, CurvStruct_T);
             b_status = TransitionResult_Ok;
         } else if (ret == 6) {
             //  TODO: decide in the future...
             //  Now we ignore and construct the transition curve anyway
-            ConstrTransP5Struct(p5, CurvStruct1->FeedRate, CurvStruct_T);
+            b_CurvStruct1[0][0] = CurvStruct1->A0[0];
+            b_CurvStruct1[1][0] = CurvStruct1->A1[0];
+            c_CurvStruct1[0][0] = CurvStruct1->U0[0];
+            c_CurvStruct1[1][0] = CurvStruct1->U1[0];
+            b_CurvStruct1[0][1] = CurvStruct1->A0[1];
+            b_CurvStruct1[1][1] = CurvStruct1->A1[1];
+            c_CurvStruct1[0][1] = CurvStruct1->U0[1];
+            c_CurvStruct1[1][1] = CurvStruct1->U1[1];
+            b_CurvStruct1[0][2] = CurvStruct1->A0[2];
+            b_CurvStruct1[1][2] = CurvStruct1->A1[2];
+            c_CurvStruct1[0][2] = CurvStruct1->U0[2];
+            c_CurvStruct1[1][2] = CurvStruct1->U1[2];
+            ConstrTransP5Struct(CurvStruct1->TRAFO, b_CurvStruct1, c_CurvStruct1, p5,
+                                CurvStruct1->FeedRate, CurvStruct_T);
             b_status = TransitionResult_Ok;
             b_DebugLog();
             c_DebugLog();
@@ -314,6 +344,8 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
     CurvStruct b_expl_temp;
     CurvStruct expl_temp;
     double p5[6][3];
+    double b_CurvStruct1[2][3];
+    double c_CurvStruct1[2][3];
     double r0D0[3];
     double r0D0_1[3];
     double r0D0_2[3];
@@ -492,12 +524,38 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
         if (ret == 1) {
             //  standard case
             //  transition CurvStruct calculation
-            ConstrTransP5Struct(p5, CurvStruct1->FeedRate, CurvStruct_T);
+            b_CurvStruct1[0][0] = CurvStruct1->A0[0];
+            b_CurvStruct1[1][0] = CurvStruct1->A1[0];
+            c_CurvStruct1[0][0] = CurvStruct1->U0[0];
+            c_CurvStruct1[1][0] = CurvStruct1->U1[0];
+            b_CurvStruct1[0][1] = CurvStruct1->A0[1];
+            b_CurvStruct1[1][1] = CurvStruct1->A1[1];
+            c_CurvStruct1[0][1] = CurvStruct1->U0[1];
+            c_CurvStruct1[1][1] = CurvStruct1->U1[1];
+            b_CurvStruct1[0][2] = CurvStruct1->A0[2];
+            b_CurvStruct1[1][2] = CurvStruct1->A1[2];
+            c_CurvStruct1[0][2] = CurvStruct1->U0[2];
+            c_CurvStruct1[1][2] = CurvStruct1->U1[2];
+            ConstrTransP5Struct(CurvStruct1->TRAFO, b_CurvStruct1, c_CurvStruct1, p5,
+                                CurvStruct1->FeedRate, CurvStruct_T);
             b_status = TransitionResult_Ok;
         } else if (ret == 6) {
             //  TODO: decide in the future...
             //  Now we ignore and construct the transition curve anyway
-            ConstrTransP5Struct(p5, CurvStruct1->FeedRate, CurvStruct_T);
+            b_CurvStruct1[0][0] = CurvStruct1->A0[0];
+            b_CurvStruct1[1][0] = CurvStruct1->A1[0];
+            c_CurvStruct1[0][0] = CurvStruct1->U0[0];
+            c_CurvStruct1[1][0] = CurvStruct1->U1[0];
+            b_CurvStruct1[0][1] = CurvStruct1->A0[1];
+            b_CurvStruct1[1][1] = CurvStruct1->A1[1];
+            c_CurvStruct1[0][1] = CurvStruct1->U0[1];
+            c_CurvStruct1[1][1] = CurvStruct1->U1[1];
+            b_CurvStruct1[0][2] = CurvStruct1->A0[2];
+            b_CurvStruct1[1][2] = CurvStruct1->A1[2];
+            c_CurvStruct1[0][2] = CurvStruct1->U0[2];
+            c_CurvStruct1[1][2] = CurvStruct1->U1[2];
+            ConstrTransP5Struct(CurvStruct1->TRAFO, b_CurvStruct1, c_CurvStruct1, p5,
+                                CurvStruct1->FeedRate, CurvStruct_T);
             b_status = TransitionResult_Ok;
             b_DebugLog();
             c_DebugLog();

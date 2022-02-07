@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: ResampleNoCtx.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 // Include Files
@@ -13,9 +13,11 @@
 #include "ResampleStateClass.h"
 #include "bspline_eval.h"
 #include "c_assert.h"
-#include "queue_coder.h"
 #include "sinspace_data.h"
 #include "sinspace_initialize.h"
+#include "sinspace_types1.h"
+#include "sinspace_types2.h"
+#include "sinspace_types3.h"
 #include "coder_array.h"
 #include <cmath>
 
@@ -100,7 +102,7 @@ static void ResampleNN(bool CurOptStruct_UseConstJerk,
     *qk = b_qk;
     *dk = b_dk;
     sqrt_calls++;
-    *ukp1 = (u + b_dk * std::pow(dt, 2.0) / 4.0) + std::sqrt(b_qk) * dt;
+    *ukp1 = (u + b_dk * (dt * dt) / 4.0) + std::sqrt(b_qk) * dt;
 }
 
 //
@@ -116,10 +118,12 @@ static void ResampleNN(bool CurOptStruct_UseConstJerk,
 static void ResampleNZ(bool CurOptStruct_UseConstJerk, double CurOptStruct_ConstJerk, double u,
                        double dt, double *ukp1, double *qk, double *dk)
 {
+    double a;
     double t;
     g_c_assert(CurOptStruct_UseConstJerk);
     t = std::pow(6.0 * (1.0 - u) / CurOptStruct_ConstJerk, 0.33333333333333331);
-    *qk = std::pow(CurOptStruct_ConstJerk * std::pow(t, 2.0) / 2.0, 2.0);
+    a = CurOptStruct_ConstJerk * (t * t) / 2.0;
+    *qk = a * a;
     *dk = -2.0 * CurOptStruct_ConstJerk * t;
     *ukp1 = 1.0 - CurOptStruct_ConstJerk * std::pow(t - dt, 3.0) / 6.0;
 }
@@ -137,13 +141,15 @@ static void ResampleNZ(bool CurOptStruct_UseConstJerk, double CurOptStruct_Const
 static void ResampleZN(bool CurOptStruct_UseConstJerk, double CurOptStruct_ConstJerk, double u,
                        double dt, double *ukp1, double *qk, double *dk)
 {
+    double a;
     double t;
     e_c_assert(CurOptStruct_UseConstJerk);
     t = std::pow(6.0 * u / CurOptStruct_ConstJerk, 0.33333333333333331);
     if (dt > 0.0) {
         t = std::round(t / dt) * dt;
     }
-    *qk = std::pow(CurOptStruct_ConstJerk * std::pow(t, 2.0) / 2.0, 2.0);
+    a = CurOptStruct_ConstJerk * (t * t) / 2.0;
+    *qk = a * a;
     *dk = 2.0 * CurOptStruct_ConstJerk * t;
     *ukp1 = CurOptStruct_ConstJerk * std::pow(t + dt, 3.0) / 6.0;
 }

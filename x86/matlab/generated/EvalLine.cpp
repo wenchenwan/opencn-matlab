@@ -4,12 +4,13 @@
 // government, commercial, or other organizational use.
 // File: EvalLine.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 // Include Files
 #include "EvalLine.h"
+#include "cat.h"
 #include "coder_array.h"
 #include "common/tracy/Tracy.hpp"
 #include <emmintrin.h>
@@ -44,8 +45,8 @@ void EvalLine(const double CurvStruct_P0[3], const double CurvStruct_P1[3], cons
     //  parametrization of a straight line between P0 and P1
     //
     //
-    _mm_storeu_pd(&a[0], _mm_sub_pd(_mm_loadu_pd((double *)&CurvStruct_P1[0]),
-                                    _mm_loadu_pd((double *)&CurvStruct_P0[0])));
+    _mm_storeu_pd(&a[0], _mm_sub_pd(_mm_loadu_pd((const double *)&CurvStruct_P1[0]),
+                                    _mm_loadu_pd((const double *)&CurvStruct_P0[0])));
     //
     d = CurvStruct_P1[0];
     d1 = CurvStruct_P1[1];
@@ -91,9 +92,6 @@ void EvalLine(const double CurvStruct_P0[3], const double CurvStruct_P1[3],
 {
     ::coder::array<double, 2U> b_tmp;
     double a[3];
-    int b_loop_ub;
-    int c_loop_ub;
-    int d_loop_ub;
     int e_loop_ub;
     int f_loop_ub;
     int i;
@@ -109,33 +107,41 @@ void EvalLine(const double CurvStruct_P0[3], const double CurvStruct_P1[3],
     scalarLB = (u_vec.size(1) / 2) << 1;
     vectorUB = scalarLB - 2;
     for (i = 0; i <= vectorUB; i += 2) {
-        _mm_storeu_pd(&b_tmp[i], _mm_sub_pd(_mm_set1_pd(1.0), _mm_loadu_pd((double *)&u_vec[i])));
+        _mm_storeu_pd(&b_tmp[i],
+                      _mm_sub_pd(_mm_set1_pd(1.0), _mm_loadu_pd((const double *)&u_vec[i])));
     }
     for (i = scalarLB; i < loop_ub; i++) {
         b_tmp[i] = 1.0 - u_vec[i];
     }
-    r0D.set_size(3, u_vec.size(1));
-    b_loop_ub = u_vec.size(1);
-    for (int i1{0}; i1 < b_loop_ub; i1++) {
-        r0D[3 * i1] = CurvStruct_P1[0] * u_vec[i1] + CurvStruct_P0[0] * b_tmp[i1];
-    }
-    c_loop_ub = u_vec.size(1);
-    for (int i2{0}; i2 < c_loop_ub; i2++) {
-        r0D[3 * i2 + 1] = CurvStruct_P1[1] * u_vec[i2] + CurvStruct_P0[1] * b_tmp[i2];
-    }
-    d_loop_ub = u_vec.size(1);
-    for (int i3{0}; i3 < d_loop_ub; i3++) {
-        r0D[3 * i3 + 2] = CurvStruct_P1[2] * u_vec[i3] + CurvStruct_P0[2] * b_tmp[i3];
+    if (u_vec.size(1) == b_tmp.size(1)) {
+        int b_loop_ub;
+        int c_loop_ub;
+        int d_loop_ub;
+        r0D.set_size(3, u_vec.size(1));
+        b_loop_ub = u_vec.size(1);
+        for (int i1{0}; i1 < b_loop_ub; i1++) {
+            r0D[3 * i1] = CurvStruct_P1[0] * u_vec[i1] + CurvStruct_P0[0] * b_tmp[i1];
+        }
+        c_loop_ub = u_vec.size(1);
+        for (int i2{0}; i2 < c_loop_ub; i2++) {
+            r0D[3 * i2 + 1] = CurvStruct_P1[1] * u_vec[i2] + CurvStruct_P0[1] * b_tmp[i2];
+        }
+        d_loop_ub = u_vec.size(1);
+        for (int i4{0}; i4 < d_loop_ub; i4++) {
+            r0D[3 * i4 + 2] = CurvStruct_P1[2] * u_vec[i4] + CurvStruct_P0[2] * b_tmp[i4];
+        }
+    } else {
+        binary_expand_op(r0D, CurvStruct_P1, u_vec, CurvStruct_P0, b_tmp);
     }
     //
-    _mm_storeu_pd(&a[0], _mm_sub_pd(_mm_loadu_pd((double *)&CurvStruct_P1[0]),
-                                    _mm_loadu_pd((double *)&CurvStruct_P0[0])));
+    _mm_storeu_pd(&a[0], _mm_sub_pd(_mm_loadu_pd((const double *)&CurvStruct_P1[0]),
+                                    _mm_loadu_pd((const double *)&CurvStruct_P0[0])));
     a[2] = CurvStruct_P1[2] - CurvStruct_P0[2];
     r1D.set_size(3, u_vec.size(1));
     if (u_vec.size(1) != 0) {
-        int i4;
-        i4 = u_vec.size(1) - 1;
-        for (int t{0}; t <= i4; t++) {
+        int i3;
+        i3 = u_vec.size(1) - 1;
+        for (int t{0}; t <= i3; t++) {
             r1D[3 * t] = a[0];
             r1D[3 * t + 1] = a[1];
             r1D[3 * t + 2] = a[2];
@@ -181,8 +187,8 @@ void EvalLine(const double CurvStruct_P0[3], const double CurvStruct_P1[3], doub
     r0D[2] = CurvStruct_P1[2] * u_vec + CurvStruct_P0[2] * (1.0 - u_vec);
     //
     //
-    _mm_storeu_pd(&r1D[0], _mm_sub_pd(_mm_loadu_pd((double *)&CurvStruct_P1[0]),
-                                      _mm_loadu_pd((double *)&CurvStruct_P0[0])));
+    _mm_storeu_pd(&r1D[0], _mm_sub_pd(_mm_loadu_pd((const double *)&CurvStruct_P1[0]),
+                                      _mm_loadu_pd((const double *)&CurvStruct_P0[0])));
     r = _mm_set1_pd(0.0);
     _mm_storeu_pd(&r2D[0], r);
     _mm_storeu_pd(&r3D[0], r);

@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: InitFeedoptPlan.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 // Include Files
@@ -18,6 +18,9 @@
 #include "sinspace_data.h"
 #include "sinspace_initialize.h"
 #include "sinspace_types.h"
+#include "sinspace_types1.h"
+#include "sinspace_types2.h"
+#include "sinspace_types3.h"
 #include "coder_array.h"
 #include "src/c_spline.h"
 #include <cmath>
@@ -109,13 +112,11 @@ static void cast(const double t6_CoeffX[4], const double t6_CoeffY[4], const dou
 //
 void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
 {
-    static const double dv2[2][3]{{0.0, 0.0, 0.0}, {1.0, 1.0, 1.0}};
     ::coder::array<double, 2U> BasisVal;
     ::coder::array<double, 2U> BasisValD;
     ::coder::array<double, 2U> BasisValDD;
     ::coder::array<double, 2U> Spline_Bl_breakpoints;
     ::coder::array<double, 2U> a__1;
-    ::coder::array<double, 2U> b_ctx;
     ::coder::array<double, 2U> breakpoints;
     ::coder::array<double, 2U> r;
     ::coder::array<double, 2U> y;
@@ -126,6 +127,10 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     double Spline_CoeffZ[4];
     double dv[3];
     double dv1[3];
+    double dv2[3];
+    double dv3[3];
+    double dv4[3];
+    double dv5[3];
     unsigned long Bl_handle;
     unsigned long Spline_Bl_handle;
     int Bl_degree;
@@ -142,9 +147,8 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     int i6;
     int i8;
     int i9;
-    int i_loop_ub;
-    int k_loop_ub;
-    int m_loop_ub;
+    int j_loop_ub;
+    int l_loop_ub;
     if (!isInitialized_sinspace) {
         sinspace_initialize();
     }
@@ -268,21 +272,28 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     for (i9 = d_scalarLB; i9 < g_loop_ub; i9++) {
         ctx->u_vec[i9] = y[i9] * 0.5 + 0.5;
     }
-    b_ctx.set_size(1, ctx->u_vec.size(1));
-    h_loop_ub = ctx->u_vec.size(1) - 1;
-    for (int i10{0}; i10 <= h_loop_ub; i10++) {
-        b_ctx[i10] = ctx->u_vec[i10];
-    }
-    bspline_base_eval(Bl_ncoeff, Bl_handle, b_ctx, BasisVal, BasisValD, BasisValDD, a__1,
+    bspline_base_eval(Bl_ncoeff, Bl_handle, ctx->u_vec, BasisVal, BasisValD, BasisValDD, a__1,
                       ctx->BasisIntegr);
     dv[0] = 0.0;
     dv1[0] = 0.0;
+    dv2[0] = 0.0;
+    dv3[0] = 0.0;
+    dv4[0] = 0.0;
+    dv5[0] = 0.0;
     dv[1] = 0.0;
     dv1[1] = 0.0;
+    dv2[1] = 0.0;
+    dv3[1] = 0.0;
+    dv4[1] = 0.0;
+    dv5[1] = 0.0;
     dv[2] = 0.0;
     dv1[2] = 0.0;
-    ConstrLineStruct(dv, dv1, 1.0, ZSpdMode_NN, &Curv);
-    CalcBspline_Lee(cfg.SplineDegree, dv2, Spline_CoeffX, Spline_CoeffY, Spline_CoeffZ,
+    dv2[2] = 0.0;
+    dv3[2] = 0.0;
+    dv4[2] = 0.0;
+    dv5[2] = 0.0;
+    ConstrLineStruct(false, dv, dv1, dv2, dv3, dv4, dv5, 1.0, ZSpdMode_NN, &Curv);
+    CalcBspline_Lee(cfg.SplineDegree, Spline_CoeffX, Spline_CoeffY, Spline_CoeffZ,
                     &Spline_Bl_ncoeff, Spline_Bl_breakpoints, &Spline_Bl_handle, &Spline_Bl_degree,
                     Spline_knots);
     cast(Spline_CoeffX, Spline_CoeffY, Spline_CoeffZ, Spline_Bl_ncoeff, Spline_Bl_breakpoints,
@@ -316,33 +327,33 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     ctx->forced_stop = 0;
     ctx->programmed_stop = 0;
     ctx->BasisVal.set_size(BasisVal.size(0), BasisVal.size(1));
-    i_loop_ub = BasisVal.size(1);
-    for (int i11{0}; i11 < i_loop_ub; i11++) {
-        int j_loop_ub;
-        j_loop_ub = BasisVal.size(0);
-        for (int i12{0}; i12 < j_loop_ub; i12++) {
-            ctx->BasisVal[i12 + ctx->BasisVal.size(0) * i11] =
-                BasisVal[i12 + BasisVal.size(0) * i11];
+    h_loop_ub = BasisVal.size(1);
+    for (int i10{0}; i10 < h_loop_ub; i10++) {
+        int i_loop_ub;
+        i_loop_ub = BasisVal.size(0);
+        for (int i11{0}; i11 < i_loop_ub; i11++) {
+            ctx->BasisVal[i11 + ctx->BasisVal.size(0) * i10] =
+                BasisVal[i11 + BasisVal.size(0) * i10];
         }
     }
     ctx->BasisValD.set_size(BasisValD.size(0), BasisValD.size(1));
-    k_loop_ub = BasisValD.size(1);
-    for (int i13{0}; i13 < k_loop_ub; i13++) {
-        int l_loop_ub;
-        l_loop_ub = BasisValD.size(0);
-        for (int i14{0}; i14 < l_loop_ub; i14++) {
-            ctx->BasisValD[i14 + ctx->BasisValD.size(0) * i13] =
-                BasisValD[i14 + BasisValD.size(0) * i13];
+    j_loop_ub = BasisValD.size(1);
+    for (int i12{0}; i12 < j_loop_ub; i12++) {
+        int k_loop_ub;
+        k_loop_ub = BasisValD.size(0);
+        for (int i13{0}; i13 < k_loop_ub; i13++) {
+            ctx->BasisValD[i13 + ctx->BasisValD.size(0) * i12] =
+                BasisValD[i13 + BasisValD.size(0) * i12];
         }
     }
     ctx->BasisValDD.set_size(BasisValDD.size(0), BasisValDD.size(1));
-    m_loop_ub = BasisValDD.size(1);
-    for (int i15{0}; i15 < m_loop_ub; i15++) {
-        int n_loop_ub;
-        n_loop_ub = BasisValDD.size(0);
-        for (int i16{0}; i16 < n_loop_ub; i16++) {
-            ctx->BasisValDD[i16 + ctx->BasisValDD.size(0) * i15] =
-                BasisValDD[i16 + BasisValDD.size(0) * i15];
+    l_loop_ub = BasisValDD.size(1);
+    for (int i14{0}; i14 < l_loop_ub; i14++) {
+        int m_loop_ub;
+        m_loop_ub = BasisValDD.size(0);
+        for (int i15{0}; i15 < m_loop_ub; i15++) {
+            ctx->BasisValDD[i15 + ctx->BasisValDD.size(0) * i14] =
+                BasisValDD[i15 + BasisValDD.size(0) * i14];
         }
     }
     ctx->Coeff.set_size(0, 0);

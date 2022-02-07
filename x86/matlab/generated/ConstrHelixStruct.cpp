@@ -4,21 +4,27 @@
 // government, commercial, or other organizational use.
 // File: ConstrHelixStruct.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 // Include Files
 #include "ConstrHelixStruct.h"
 #include "ConstrCurvStruct.h"
-#include "queue_coder.h"
 #include "sinspace_data.h"
 #include "sinspace_initialize.h"
+#include "sinspace_types1.h"
+#include "sinspace_types2.h"
 
 // Function Definitions
 //
-// Arguments    : const double P0[3]
+// Arguments    : bool trafo
+//                const double P0[3]
 //                const double P1[3]
+//                const double A0[3]
+//                const double A1[3]
+//                const double U0[3]
+//                const double U1[3]
 //                const double Cprim[3]
 //                double delta
 //                const double evec[3]
@@ -30,9 +36,10 @@
 // Return Type  : void
 //
 namespace ocn {
-void ConstrHelixStruct(const double P0[3], const double P1[3], const double Cprim[3], double delta,
-                       const double evec[3], double theta, double pitch, double FeedRate,
-                       ZSpdMode b_ZSpdMode, CurvStruct *b_CurvStruct)
+void ConstrHelixStruct(bool trafo, const double P0[3], const double P1[3], const double A0[3],
+                       const double A1[3], const double U0[3], const double U1[3],
+                       const double Cprim[3], double delta, const double evec[3], double theta,
+                       double pitch, double FeedRate, ZSpdMode b_ZSpdMode, CurvStruct *b_CurvStruct)
 {
     double dv[6][3];
     if (!isInitialized_sinspace) {
@@ -43,8 +50,8 @@ void ConstrHelixStruct(const double P0[3], const double P1[3], const double Cpri
         dv[i][1] = 0.0;
         dv[i][2] = 0.0;
     }
-    ConstrCurvStruct(CurveType_Helix, b_ZSpdMode, P0, P1, Cprim, delta, evec, theta, pitch, dv,
-                     FeedRate, b_CurvStruct);
+    ConstrCurvStruct(CurveType_Helix, b_ZSpdMode, trafo, P0, P1, A0, A1, U0, U1, Cprim, delta, evec,
+                     theta, pitch, dv, FeedRate, b_CurvStruct);
 }
 
 } // namespace ocn

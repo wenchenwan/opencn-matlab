@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: Calc_beta0_beta1.h
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 07-Feb-2022 12:46:09
 //
 
 #ifndef CALC_BETA0_BETA1_H
