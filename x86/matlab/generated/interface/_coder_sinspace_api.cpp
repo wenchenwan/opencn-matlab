@@ -5,7 +5,7 @@
 // File: _coder_sinspace_api.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 07-Feb-2022 12:46:09
+// C/C++ source code generated on  : 08-Feb-2022 09:15:12
 //
 
 // Include Files
@@ -3030,13 +3030,13 @@ void ConstrHelixStructFromArcFeed_api(const mxArray *const prhs[16], const mxArr
     cz = emlrt_marshallIn(&st, emlrtAliasP(prhs[9]), "cz");
     A0 = d_emlrt_marshallIn(&st, emlrtAlias(prhs[10]), "A0");
     A1 = d_emlrt_marshallIn(&st, emlrtAlias(prhs[11]), "A1");
-    U1 = d_emlrt_marshallIn(&st, emlrtAlias(prhs[12]), "U1");
-    U0 = d_emlrt_marshallIn(&st, emlrtAlias(prhs[13]), "U0");
+    U0 = d_emlrt_marshallIn(&st, emlrtAlias(prhs[12]), "U0");
+    U1 = d_emlrt_marshallIn(&st, emlrtAlias(prhs[13]), "U1");
     rotation = emlrt_marshallIn(&st, emlrtAliasP(prhs[14]), "rotation");
     evec = d_emlrt_marshallIn(&st, emlrtAlias(prhs[15]), "evec");
     // Invoke the target function
-    ConstrHelixStructFromArcFeed(trafo, p0x, p0y, p0z, p1x, p1y, p1z, cx, cy, cz, *A0, *A1, *U1,
-                                 *U0, rotation, *evec, &b_CurvStruct);
+    ConstrHelixStructFromArcFeed(trafo, p0x, p0y, p0z, p1x, p1y, p1z, cx, cy, cz, *A0, *A1, *U0,
+                                 *U1, rotation, *evec, &b_CurvStruct);
     // Marshall function outputs
     *plhs = emlrt_marshallOut(&st, &b_CurvStruct);
     emlrtHeapReferenceStackLeaveFcnR2012b(&st);
