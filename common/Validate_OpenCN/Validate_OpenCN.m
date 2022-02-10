@@ -8,7 +8,7 @@ fs         = filesep; % file separation character
 % Gdir       = uigetdir('.', 'Choose directory with G-code validation files');
 
 % temporary line!
-Gdir       = '/home/rozanov/opencn/agency/usr/matlab/common/ngc_test/utility_test_gcodes';
+Gdir       = char(pwd + "/ngc_test");
 dircontent = dir([Gdir, fs, '*.ngc']);
 NGcodes    = length(dircontent);
 Str        = sprintf('%d G-code files found', NGcodes);
@@ -19,7 +19,7 @@ uiwait(msgbox(Str,'','modal'));
 % PfileName      = [Ppath, Pfile];
 
 % temporary line!
-PfileName = '/home/rozanov/opencn/agency/usr/matlab/common/Validate_OpenCN/params.m';
+PfileName = char(pwd + "/Validate_OpenCN/params.m");
 run(PfileName);
 
 %% Form all params combinations to test
@@ -104,7 +104,7 @@ DebugConfig = 0;
 EnableDebugLog(DebugCfg.OptimProgress);
 EnableDebugLog(DebugCfg.Validate);
 EnableDebugLog(DebugCfg.Error);
-% EnableDebugLog(DebugCfg.Plots);
+EnableDebugLog(DebugCfg.Plots);
 
 %% Params sweep
 
