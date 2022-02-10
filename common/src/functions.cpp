@@ -32,6 +32,7 @@ void c_assert_(const char *msg) {
 
 #ifdef __cplusplus
 #include <vector>
+#include <iostream>
 
 #include "rs274dev.h"
 #include "rs274ngc_interp.hh"
@@ -72,13 +73,22 @@ int c_read_and_exec_gcode(const char *, ocn::CurvStruct *value)
     Curv.Type = ocn::CurveType_None;
     int status = INTERP_OK;
     status = interp.read();
-    if (status > INTERP_MIN_ERROR || status == INTERP_ENDFILE || status == INTERP_EXIT) {
+
+    if (status > INTERP_MIN_ERROR) {
+        std::cout << "Error reading line [" << interp.line() << "] : " 
+                << interp.getSavedError() << std::endl;
+        return 0;
+    }
+
+    if (status == INTERP_ENDFILE || status == INTERP_EXIT) {
         return 0;
     }
 
     status = interp.execute();
 
     if (status > INTERP_MIN_ERROR) {
+        std::cout << "Error executing ine [" << interp.line() << "] : " 
+                << interp.getSavedError() << std::endl;
         return 0;
     }
 
