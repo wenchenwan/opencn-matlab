@@ -73,23 +73,28 @@ int c_read_and_exec_gcode(const char *, ocn::CurvStruct *value)
     Curv.Type = ocn::CurveType_None;
     int status = INTERP_OK;
     status = interp.read();
-
-    if (status > INTERP_MIN_ERROR) {
-        std::cout << "Error reading line [" << interp.line() << "] : " 
-                << interp.getSavedError() << std::endl;
-        return 0;
+    
+    if (status == INTERP_ENDFILE) {
+        return 1;
     }
-
-    if (status == INTERP_ENDFILE || status == INTERP_EXIT) {
+    if ((status != INTERP_OK) &&
+        (status != INTERP_EXECUTE_FINISH)) {
+        
+        std::cout << "\033[1,31m[ERROR]\033[0m"<< " Reading line " 
+                << interp.line() << " : " << interp.getSavedError() << std::endl;
         return 0;
     }
 
     status = interp.execute();
 
-    if (status > INTERP_MIN_ERROR) {
-        std::cout << "Error executing ine [" << interp.line() << "] : " 
-                << interp.getSavedError() << std::endl;
+    if ((status != INTERP_OK) &&
+        (status != INTERP_EXIT) &&
+        (status != INTERP_EXECUTE_FINISH)) {
+        std::cout << "\033[1,31m[ERROR]\033[0m" << " Executing line " 
+                << interp.line() << " : " << interp.getSavedError() << std::endl;
         return 0;
+    } else if (status == INTERP_EXIT) {
+        return 1;
     }
 
     *value = Curv;
