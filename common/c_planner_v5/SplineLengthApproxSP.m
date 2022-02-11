@@ -1,7 +1,7 @@
 function L = SplineLengthApproxSP(sp, u0, u1)
-% computes approximately the arc length of a parametric spline / RHG / BR
+% Computes approximately the arc length of a parametric spline
 
-sp1D      = fnder(sp); % derivative
+sp1D      = fnder(sp); % Derivative
 Knots     = sp1D.knots;
 Idx1      = find(Knots > u0, 1);
 Idx2      = find(Knots < u1, 1, 'last');
@@ -19,7 +19,7 @@ for k=1:length(u_vec)-1
     
 end
 
-u_mid     = 0.5*(u(1:end-1)+u(2:end)); % midpoint values
+u_mid     = 0.5*(u(1:end-1)+u(2:end)); % Midpoint values
 du        = diff(u);
 Integrand = mysqrt(sum(spval(sp1D, u_mid).^2));
 L         = sum(Integrand.*du);

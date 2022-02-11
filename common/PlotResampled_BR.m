@@ -1,4 +1,12 @@
-function uvec = PlotResampled_BR(ctx, t_max_min, dt)
+function uvec = PlotResampled_BR(ctx, t_max_min, dt, params)
+% PlotResample_BR : Do the resampling of the time continuous curves. The
+% plot can be disable with the param containers.
+%
+% ctx       : Context
+% t_max_min : Maximum time in minutes
+% dt        : Sampling time in seconds
+% params    : 
+%   - disablePlot = True / False (Default) : Disable the plot 
 
 uvec = [];
 
@@ -51,13 +59,15 @@ end
 ktick = ktick - 1;
 uvec = [0; uvec(1:ktick)];
 
-figure
-scatter3(pvec(:, 1), pvec(:, 2), pvec(:, 3), 1, vvec*60, 'o')
-colormap jet
-set(gca, 'Projection','orthographic')
-xlabel('x')
-ylabel('y')
-zlabel('z')
-colorbar
+if( nargin < 4 || ~params('disablePlot') )
+    figure
+    scatter3(pvec(:, 1), pvec(:, 2), pvec(:, 3), 1, vvec*60, 'o')
+    colormap jet
+    set(gca, 'Projection','orthographic')
+    xlabel('x')
+    ylabel('y')
+    zlabel('z')
+    colorbar
+end
 
 end

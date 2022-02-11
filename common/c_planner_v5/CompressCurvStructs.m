@@ -79,11 +79,11 @@ while k <= Ncrv
             if size(pvec, 2) > 2
                 SplineCurve = ConstrCurvStructType;
                 SplineCurve.sp=CalcBspline_Lee(ctx.cfg, pvec);
-                SplineCurve.sp.Ltot = 0; % satisfy coder, RHG
-                SplineCurve.sp.Lk = 0;   % satisfy coder, RHG
-                [Ltot, Lk]    = SplineLengthApproxGL_tot(ctx, SplineCurve);  % RHG
-                SplineCurve.sp.Ltot = Ltot;                                  % RHG
-                SplineCurve.sp.Lk   = Lk;                                    % RHG 
+                SplineCurve.sp.Ltot = 0; % satisfy coder
+                SplineCurve.sp.Lk = 0;   % satisfy coder
+                [Ltot, Lk]    = SplineLengthApproxGL_tot(ctx, SplineCurve);
+                SplineCurve.sp.Ltot = Ltot;                                 
+                SplineCurve.sp.Lk   = Lk;                                  
                 ctx.q_splines.push(SplineCurve);
                 spline = ConstrBSplineStruct(pvec, ZSpdMode.NN, Curv.FeedRate);
                 spline.gcode_source_line = Curv.gcode_source_line;
@@ -119,11 +119,11 @@ while k <= Ncrv
     elseif (k==Ncrv) && (CumulatedLength ~= 0)
         SplineCurve = ConstrCurvStructType;
         SplineCurve.sp=CalcBspline_Lee(ctx.cfg, pvec);
-        SplineCurve.sp.Ltot = 0; % satisfy coder, RHG
-        SplineCurve.sp.Lk = 0;   % satisfy coder, RHG
-        [Ltot, Lk]     = SplineLengthApproxGL_tot(ctx, SplineCurve); % RHG
-        SplineCurve.sp.Ltot = Ltot;                                  % RHG
-        SplineCurve.sp.Lk   = Lk;                                    % RHG
+        SplineCurve.sp.Ltot = 0; % satisfy coder
+        SplineCurve.sp.Lk = 0;   % satisfy coder
+        [Ltot, Lk]     = SplineLengthApproxGL_tot(ctx, SplineCurve);
+        SplineCurve.sp.Ltot = Ltot;                                 
+        SplineCurve.sp.Lk   = Lk;                                    
         ctx.q_splines.push(SplineCurve);
         spline = ConstrBSplineStruct(pvec, ZSpdMode.NN, Curv.FeedRate);
         spline.gcode_source_line = Curv.gcode_source_line;

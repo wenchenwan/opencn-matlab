@@ -11,13 +11,13 @@ if CurvStruct.Type == CurveType.Spline
     u1_tilda = a*1+b;
     
     if d0 ~= 0        
-        u0_tilda  = SplineLengthFindU_up(ctx, CurvStruct, d0, u0_tilda); % RHG
+        u0_tilda  = SplineLengthFindU_up(ctx, CurvStruct, d0, u0_tilda);
     else
         u0_tilda = a*0+b;
     end
     
     if d1 ~= 0
-        u1_tilda  = SplineLengthFindU_down(ctx, CurvStruct, d1, u1_tilda); % RHG
+        u1_tilda  = SplineLengthFindU_down(ctx, CurvStruct, d1, u1_tilda);
     else
         u1_tilda = a*1+b; 
     end

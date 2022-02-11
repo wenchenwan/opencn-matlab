@@ -4,17 +4,26 @@ function u  = SplineLengthFindU_up(ctx, Curv, L, u1)
 % This function takes usage of the precalculated arc lengths between knots.
 % The last integration interval is approximated by the trapezoidal rule.
 % u1 must satisfy 0 < u1 < 1.
-% In the normal case, u must satisfy u1 < u < 1. If L is too large, u is set to -1
-%
-% get the sp structure
+% In the normal case, u must satisfy u1 < u < 1. If L is too large, u is 
+% set to -1
+% Warning : This function works only for B-spline of degree 3
+
+DEFAULT_TOL_NR  = 1e-6;      % Default tolerance for Newton Raphson
+IND_KNOTS_MULT  = 4;         % Index used to remove multiple knots 
+%                              (ONLY TRUE FOR CUBIC SPLINE)
+
+% Get the sp structure
 Spline = ctx.q_splines.get(Curv.sp_index);
 sp     = Spline.sp;
-Knots  = sp.knots(4:end-3);  % eliminate multiplicities at the end points
+
+% Eliminate multiplicities at the end points
+Knots  = sp.knots( IND_KNOTS_MULT : end - IND_KNOTS_MULT + 1 ); 
 N      = length(Knots);
 Lk     = sp.Lk;
 %
-c_assert(u1 >= Knots(1),   'u1 must be greater or equal than the first spline knot');
-c_assert(u1 <= Knots(end), 'u1 must be smaller or equal than the last spline knot');
+C_ASSERT_MSG = 'u1 must be %s or equal than the first spline knot';
+c_assert( u1 >= Knots(1),   sprintf(C_ASSERT_MSG, 'greater') );
+c_assert( u1 <= Knots(end), sprintf(C_ASSERT_MSG, 'smaller') );
 %
 k = 1;
 %
@@ -22,14 +31,15 @@ while u1 > Knots(k)
     k = k + 1;
 end
 %
-Lcum = SplineLengthApprox_Interval1(ctx, Curv, u1, Knots(k)); % length to next break point
+% Length to next break point
+Lcum = SplineLengthApprox_Interval1(ctx, Curv, u1, Knots(k)); 
 %
 while Lcum < L
     if k > N-1
         u = -1;
         return;
     end
-    Lcum = Lcum + Lk(k);  % sum up precalculated length between knots
+    Lcum = Lcum + Lk(k);  % Sum up precalculated length between knots
     k = k + 1;
 end
 % undo last increment
@@ -38,14 +48,18 @@ Lcum      = Lcum - Lk(k);
 Lremain   = L - Lcum;
 %
 u0     = Knots(k);
-uk     = 0.5*(Knots(k) + Knots(k+1));  % initial guess for Newton Raphson iteration
-tol    = 1e-6;                         % tolerance for Newton Raphson
-uk_old = 2;                            % dummy value to ensure that while loop enters
+% Initial guess for Newton Raphson iteration
+uk     = 0.5*(Knots(k) + Knots(k+1));  
+% Dummy value to ensure that while loop enters
+uk_old = 2;                            
 
-while abs(uk - uk_old) > tol  % Iterate until new value of uk is close to old value
-    fk = SplineLengthApprox_Interval1(ctx, Curv, u0, uk) - Lremain; % evaluation of function which should become zero
+% Iterate until new value of uk is close to old value
+while abs(uk - uk_old) > DEFAULT_TOL_NR  
+    % Evaluation of function which should become zero
+    fk = SplineLengthApprox_Interval1(ctx, Curv, u0, uk) - Lremain;
     [~, r1D]  = EvalBSplineNoCtx(Spline, uk);
-    Dfk       = MyNorm(r1D);   % evaluation of the derivative of the function which should become zero
+    % Evaluation of the derivative of the function which should become zero
+    Dfk       = MyNorm(r1D);   
     %
     uk_old = uk;
     uk     = uk_old - fk/Dfk;  % Newton Raphson update

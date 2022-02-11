@@ -3,20 +3,26 @@ function L = SplineLengthExact(ctx, Curv, u0, u1, AbsTol, RelTol)
 % uses Matlab build-in function based on adaptive quadrature with error
 % bounds.
 % This function is ONLY for debugging purposes, not intended for code generation !
-%
-switch nargin   % define standard default parameters
-    case 4
-        AbsTol = 1e-10;
-        RelTol = 1e-6;
-    case 5
-        RelTol = 1e-6;
-    otherwise
+% 
+
+DEFAULT_ABS_TOL = 1e-10;     % Default absolute tolerance
+DEFAULT_RES_TOL = 1e-6;      % Default relative tolerance
+IND_KNOTS_MULT  = 4;         % Index used to remove multiple knots 
+%                              (ONLY TRUE FOR CUBIC SPLINE)
+                                    
+% Define standard default parameters if not passed in function call
+if( nargin < 4 )   
+    RelTol = DEFAULT_RES_TOL;
+elseif( nargin < 5 )
+    AbsTol = DEFAULT_ABS_TOL;
 end
-%            
+
 % get the sp structure
 Spline = ctx.q_splines.get(Curv.sp_index);
 sp     = Spline.sp;
-Knots  = sp.knots(4:end-3);  % eliminate multiplicities at the end points
+% Eliminate multiplicities at the end points
+Knots  = sp.knots(IND_KNOTS_MULT : end - IND_KNOTS_MULT + 1);  
+
 % for better numerical precision Waypoints are specified
 WayPoints = Knots;
 WayPoints = WayPoints(WayPoints > u0);
