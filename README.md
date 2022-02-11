@@ -57,3 +57,8 @@ $ git submodule update
 - The path planning algorithms are described in details in [chapter 5](https://mecatronyx.gitlab.io/opencnc/opencn/CNC_Path_Planning_Algorithms/CNC_Path_Planning_Algorithms.html) of the documentation.
 
 - A guide for the utilisation of the Matlab coder in *opencn-matlab* is provided in [chapter 4.3](https://mecatronyx.gitlab.io/opencnc/opencn/components/feedopt.html) of the documentation.
+
+# 3. Acknowledgements
+| **Matlab function(s)** | **Functionality**                           | **Citation**                                                                                                                                                                                                                             |
+|------------------------|---------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| lgwt.m                 | Legendre-Gauss Quadrature Weights and Nodes | Greg von Winckel (2022). [Legendre-Gauss Quadrature Weights and Nodes](https://www.mathworks.com/matlabcentral/fileexchange/4540-legendre-gauss-quadrature-weights-and-node), MATLAB Central File Exchange. Retrieved February 11, 2022. |
