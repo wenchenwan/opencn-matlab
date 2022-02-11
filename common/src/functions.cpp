@@ -80,7 +80,7 @@ int c_read_and_exec_gcode(const char *, ocn::CurvStruct *value)
     if ((status != INTERP_OK) &&
         (status != INTERP_EXECUTE_FINISH)) {
         
-        std::cout << "\033[1,31m[ERROR]\033[0m"<< " Reading line " 
+        std::cout << "\033[1;31m[ERROR]\033[0m"<< " Reading line " 
                 << interp.line() << " : " << interp.getSavedError() << std::endl;
         return 0;
     }
@@ -90,7 +90,7 @@ int c_read_and_exec_gcode(const char *, ocn::CurvStruct *value)
     if ((status != INTERP_OK) &&
         (status != INTERP_EXIT) &&
         (status != INTERP_EXECUTE_FINISH)) {
-        std::cout << "\033[1,31m[ERROR]\033[0m" << " Executing line " 
+        std::cout << "\033[1;31m[ERROR]\033[0m" << " Executing line " 
                 << interp.line() << " : " << interp.getSavedError() << std::endl;
         return 0;
     } else if (status == INTERP_EXIT) {
