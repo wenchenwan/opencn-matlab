@@ -4,23 +4,25 @@
 // government, commercial, or other organizational use.
 // File: LengthCurv.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:47:09
 //
 
 // Include Files
 #include "LengthCurv.h"
 #include "EvalCurvStruct.h"
-#include "SplineLengthApprox.h"
+#include "SplineLengthApproxGL_bounds.h"
 #include "TransP5LengthApprox.h"
 #include "queue_coder.h"
 #include "sinspace_data.h"
+#include "sinspace_types2.h"
 #include <cmath>
 
 // Function Definitions
 //
 // Arguments    : const queue_coder *ctx_q_splines
-//                double ctx_cfg_NGridLengthSpline
+//                const double ctx_cfg_GaussLegendreX[5]
+//                const double ctx_cfg_GaussLegendreW[5]
 //                CurveType Curv_Type
 //                const double Curv_P0[3]
 //                const double Curv_P1[3]
@@ -35,8 +37,9 @@
 // Return Type  : double
 //
 namespace ocn {
-double LengthCurv(const queue_coder *ctx_q_splines, double ctx_cfg_NGridLengthSpline,
-                  CurveType Curv_Type, const double Curv_P0[3], const double Curv_P1[3],
+double LengthCurv(const queue_coder *ctx_q_splines, const double ctx_cfg_GaussLegendreX[5],
+                  const double ctx_cfg_GaussLegendreW[5], CurveType Curv_Type,
+                  const double Curv_P0[3], const double Curv_P1[3],
                   const double Curv_CorrectedHelixCenter[3], const double Curv_evec[3],
                   double Curv_theta, double Curv_pitch, const double Curv_CoeffP5[6][3],
                   int Curv_sp_index, double Curv_a_param, double Curv_b_param)
@@ -56,8 +59,10 @@ double LengthCurv(const queue_coder *ctx_q_splines, double ctx_cfg_NGridLengthSp
         L = std::sqrt((std::pow(r1D[0], 2.0) + std::pow(r1D[1], 2.0)) + std::pow(r1D[2], 2.0));
         sqrt_calls++;
     } else if (Curv_Type == CurveType_Spline) {
-        L = SplineLengthApprox(ctx_q_splines, ctx_cfg_NGridLengthSpline, Curv_sp_index,
-                               Curv_b_param, Curv_a_param + Curv_b_param);
+        L = SplineLengthApproxGL_bounds(ctx_q_splines, ctx_cfg_GaussLegendreX,
+                                        ctx_cfg_GaussLegendreW, Curv_sp_index, Curv_b_param,
+                                        Curv_a_param + Curv_b_param);
+        //  RHG
     } else if (Curv_Type == CurveType_TransP5) {
         L = TransP5LengthApprox(Curv_CoeffP5);
     } else {

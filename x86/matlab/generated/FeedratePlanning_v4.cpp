@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: FeedratePlanning_v4.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:47:09
 //
 
 // Include Files
@@ -20,6 +20,9 @@
 #include "queue_coder.h"
 #include "sinspace_data.h"
 #include "sinspace_types.h"
+#include "sinspace_types1.h"
+#include "sinspace_types2.h"
+#include "sinspace_types3.h"
 #include "sparse1.h"
 #include "coder_array.h"
 #include <cmath>
@@ -92,20 +95,21 @@ void FeedratePlanning_v4(FeedoptContext *ctx, const ::coder::array<CurvStruct, 2
     } else {
         loop_ub = N_Hor;
     }
-    r_DebugLog();
-    s_DebugLog();
-    r_DebugLog();
+    w_DebugLog();
+    x_DebugLog();
+    w_DebugLog();
     DebugLog(ctx->v_0);
     b_DebugLog(ctx->at_0);
     c_DebugLog(ctx->v_1);
     d_DebugLog(ctx->at_1);
     if ((static_cast<unsigned long>(DebugConfig) & 4UL) != 0UL) {
         for (int k{0}; k < loop_ub; k++) {
-            b_PrintCurvStruct(&ctx->q_splines, ctx->cfg.NGridLengthSpline, &CurvStructs0[k]);
+            b_PrintCurvStruct(&ctx->q_splines, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW,
+                              &CurvStructs0[k]);
         }
     }
-    r_DebugLog();
-    r_DebugLog();
+    w_DebugLog();
+    w_DebugLog();
     //
     //  FIRST setup of Linear Program (LP) WITHOUT jerk constraint
     b.set_size(BasisIntegr.size(0), loop_ub);
@@ -168,9 +172,9 @@ void FeedratePlanning_v4(FeedoptContext *ctx, const ::coder::array<CurvStruct, 2
     int b_idx_0;
     BuildConstr_v4(&ctx->q_splines, ctx->cfg.UseDynamicBreakpoints, ctx->cfg.UseLinearBreakpoints,
                    ctx->cfg.DynamicBreakpointsDistance, ctx->cfg.SplineDegree,
-                   ctx->cfg.NGridLengthSpline, ctx->Bl.ncoeff, ctx->Bl.handle, b_CurvStructs0, amax,
-                   ctx->v_0, ctx->at_0, ctx->v_1, ctx->at_1, b_BasisVal, b_BasisValD, u_vec, &A,
-                   b_b, Aeq, beq);
+                   ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW, ctx->Bl.ncoeff, ctx->Bl.handle,
+                   b_CurvStructs0, amax, ctx->v_0, ctx->at_0, ctx->v_1, ctx->at_1, b_BasisVal,
+                   b_BasisValD, u_vec, &A, b_b, Aeq, beq);
     b_idx_0 = b_b.size(0);
     beq_idx_0 = beq.size(0);
     c_b.set_size(b_idx_0, 1);
@@ -193,12 +197,12 @@ void FeedratePlanning_v4(FeedoptContext *ctx, const ::coder::array<CurvStruct, 2
     } else {
         int i9;
         int max_increase;
-        t_DebugLog();
+        y_DebugLog();
         i9 = BasisVal.size(1);
         for (int c_k{0}; c_k < i9; c_k++) {
             e_DebugLog(Coeff0[c_k]);
         }
-        u_DebugLog();
+        ab_DebugLog();
         //  SECOND setup of Linear Program (LP) WITH jerk constraint
         c_success = false;
         max_increase = 20;
@@ -385,12 +389,12 @@ void FeedratePlanning_v4(FeedoptContext *ctx, const ::coder::array<CurvStruct, 2
             //  Coeff1 = linprog(f, Atot, btot, Aeq, beq, [], [], options);
             //  toc
             //
-            v_DebugLog();
+            bb_DebugLog();
             i13 = BasisVal.size(1);
             for (int d_k{0}; d_k < i13; d_k++) {
                 e_DebugLog(Coeff2[d_k]);
             }
-            u_DebugLog();
+            ab_DebugLog();
             //
             j_loop_ub = BasisVal.size(1);
             b_Coeff2.set_size(BasisVal.size(1));

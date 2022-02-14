@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: bsxfun.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:36:47
 //
 
 // Include Files
@@ -34,7 +34,7 @@ void bsxfun(const ::coder::array<double, 2U> &a, const ::coder::array<double, 2U
     int y;
     u0 = b.size(1);
     u1 = a.size(1);
-    if (u0 < u1) {
+    if (u0 <= u1) {
         y = u0;
     } else {
         y = u1;
@@ -50,7 +50,7 @@ void bsxfun(const ::coder::array<double, 2U> &a, const ::coder::array<double, 2U
     }
     b_u0 = b.size(1);
     b_u1 = a.size(1);
-    if (b_u0 < b_u1) {
+    if (b_u0 <= b_u1) {
         b_y = b_u0;
     } else {
         b_y = b_u1;
@@ -103,7 +103,7 @@ void bsxfun(const ::coder::array<double, 1U> &a, const ::coder::array<double, 2U
     int y;
     u0 = b.size(0);
     u1 = a.size(0);
-    if (u0 < u1) {
+    if (u0 <= u1) {
         y = u0;
     } else {
         y = u1;
@@ -120,7 +120,7 @@ void bsxfun(const ::coder::array<double, 1U> &a, const ::coder::array<double, 2U
     c.set_size(i, b.size(1));
     b_u0 = b.size(0);
     b_u1 = a.size(0);
-    if (b_u0 < b_u1) {
+    if (b_u0 <= b_u1) {
         b_y = b_u0;
     } else {
         b_y = b_u1;
@@ -174,7 +174,7 @@ void bsxfun(const ::coder::array<double, 2U> &a, const ::coder::array<double, 1U
     int y;
     u0 = b.size(0);
     u1 = a.size(0);
-    if (u0 < u1) {
+    if (u0 <= u1) {
         y = u0;
     } else {
         y = u1;
@@ -191,7 +191,7 @@ void bsxfun(const ::coder::array<double, 2U> &a, const ::coder::array<double, 1U
     c.set_size(i, a.size(1));
     b_u0 = b.size(0);
     b_u1 = a.size(0);
-    if (b_u0 < b_u1) {
+    if (b_u0 <= b_u1) {
         b_y = b_u0;
     } else {
         b_y = b_u1;

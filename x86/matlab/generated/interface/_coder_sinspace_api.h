@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: _coder_sinspace_api.h
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:47:09
 //
 
 #ifndef _CODER_SINSPACE_API_H
@@ -21,7 +21,7 @@
 // Type Definitions
 typedef struct {
     boolean_T Skip;
-    real_T ColTolDeg;
+    real_T ColTolCos;
 } struct0_T;
 
 struct ResampleStateClass_tag_0 {
@@ -57,9 +57,12 @@ typedef struct {
     char_T source[1024];
     boolean_T DebugCutZero;
     struct0_T Compressing;
-    real_T CollTolDeg;
-    real_T NGridLengthSpline;
-    char_T LogFileName[9];
+    real_T ColTolCos;
+    real_T GaussLegendreN;
+    real_T GaussLegendreX[5];
+    real_T GaussLegendreW[5];
+    char_T LogFileName[4];
+    real_T Simplex_params[4];
 } FeedoptConfig;
 
 typedef struct {
@@ -75,9 +78,11 @@ typedef struct {
     coder::array<real_T, 2U> CoeffZ;
     SplineBase Bl;
     coder::array<real_T, 2U> knots;
+    real_T Ltot;
+    coder::array<real_T, 2U> Lk;
 } SplineStruct;
 
-enum Fopt
+enum Fopt : int32_T
 {
     Fopt_Init = 0, // Default value
     Fopt_GCode = 1,
@@ -89,7 +94,7 @@ enum Fopt
     Fopt_Finished = 67
 };
 
-enum CurveType
+enum CurveType : int32_T
 {
     CurveType_None = 0, // Default value
     CurveType_Line,
@@ -98,7 +103,7 @@ enum CurveType
     CurveType_TransP5
 };
 
-enum ZSpdMode
+enum ZSpdMode : int32_T
 {
     ZSpdMode_NN = 0, // Default value
     ZSpdMode_ZN,
@@ -106,7 +111,7 @@ enum ZSpdMode
     ZSpdMode_ZZ
 };
 
-enum FeedoptPlanError
+enum FeedoptPlanError : int32_T
 {
     FeedoptPlanError_Success = 0, // Default value
     FeedoptPlanError_SmoothingFailed,
@@ -114,14 +119,14 @@ enum FeedoptPlanError
     FeedoptPlanError_OptimizationFailed
 };
 
-enum TransitionResult
+enum TransitionResult : int32_T
 {
     TransitionResult_Ok = 0, // Default value
     TransitionResult_Collinear,
     TransitionResult_NoSolution
 };
 
-enum DebugCfg
+enum DebugCfg : int32_T
 {
     DebugCfg_Transitions = 1, // Default value
     DebugCfg_OptimProgress,
@@ -191,6 +196,7 @@ typedef struct {
     int32_T jmax_increase_count;
     boolean_T zero_start;
     boolean_T zero_end;
+    int32_T simplex_calls;
     int32_T forced_stop;
     int32_T programmed_stop;
     coder::array<real_T, 2U> BasisVal;

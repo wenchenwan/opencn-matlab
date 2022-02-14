@@ -4,16 +4,16 @@
 // government, commercial, or other organizational use.
 // File: bspline_create.h
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:36:47
 //
 
 #ifndef BSPLINE_CREATE_H
 #define BSPLINE_CREATE_H
 
 // Include Files
-#include "queue_coder.h"
 #include "rtwtypes.h"
+#include "sinspace_types3.h"
 #include <cstddef>
 #include <cstdlib>
 

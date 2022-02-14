@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: sinspace_types.h
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:36:47
 //
 
 #ifndef SINSPACE_TYPES_H
@@ -14,6 +14,7 @@
 // Include Files
 #include "queue_coder.h"
 #include "rtwtypes.h"
+#include "sinspace_types3.h"
 #include "coder_array.h"
 
 // Custom Header Code
@@ -22,7 +23,7 @@
 namespace ocn {
 struct struct0_T {
     bool Skip;
-    double ColTolDeg;
+    double ColTolCos;
 };
 
 struct FeedoptConfig {
@@ -51,12 +52,15 @@ struct FeedoptConfig {
     char source[1024];
     bool DebugCutZero;
     struct0_T Compressing;
-    double CollTolDeg;
-    double NGridLengthSpline;
-    char LogFileName[9];
+    double ColTolCos;
+    double GaussLegendreN;
+    double GaussLegendreX[5];
+    double GaussLegendreW[5];
+    char LogFileName[4];
+    double Simplex_params[4];
 };
 
-enum DebugCfg
+enum DebugCfg : int
 {
     DebugCfg_Transitions = 1, // Default value
     DebugCfg_OptimProgress,
@@ -68,7 +72,7 @@ enum DebugCfg
     DebugCfg_Validate
 };
 
-enum Fopt
+enum Fopt : int
 {
     Fopt_Init = 0, // Default value
     Fopt_GCode = 1,
@@ -80,7 +84,7 @@ enum Fopt
     Fopt_Finished = 67
 };
 
-enum FeedoptPlanError
+enum FeedoptPlanError : int
 {
     FeedoptPlanError_Success = 0, // Default value
     FeedoptPlanError_SmoothingFailed,
@@ -88,7 +92,7 @@ enum FeedoptPlanError
     FeedoptPlanError_OptimizationFailed
 };
 
-enum TransitionResult
+enum TransitionResult : int
 {
     TransitionResult_Ok = 0, // Default value
     TransitionResult_Collinear,
@@ -119,6 +123,7 @@ struct FeedoptContext {
     int jmax_increase_count;
     bool zero_start;
     bool zero_end;
+    int simplex_calls;
     int forced_stop;
     int programmed_stop;
     ::coder::array<double, 2U> BasisVal;

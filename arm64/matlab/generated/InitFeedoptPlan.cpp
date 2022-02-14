@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: InitFeedoptPlan.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:36:47
 //
 
 // Include Files
@@ -18,79 +18,70 @@
 #include "sinspace_data.h"
 #include "sinspace_initialize.h"
 #include "sinspace_types.h"
+#include "sinspace_types1.h"
+#include "sinspace_types2.h"
+#include "sinspace_types3.h"
 #include "coder_array.h"
 #include "src/c_spline.h"
 #include <cmath>
 
 // Function Declarations
 namespace ocn {
-static void cast(const double t6_CoeffX[4], const double t6_CoeffY[4], const double t6_CoeffZ[4],
-                 int t6_Bl_ncoeff, const ::coder::array<double, 2U> &t6_Bl_breakpoints,
-                 unsigned long t6_Bl_handle, int t6_Bl_degree, const double t6_knots[8],
-                 ::coder::array<double, 2U> &t7_CoeffX, ::coder::array<double, 2U> &t7_CoeffY,
-                 ::coder::array<double, 2U> &t7_CoeffZ, int *t7_Bl_ncoeff,
-                 ::coder::array<double, 2U> &t7_Bl_breakpoints, unsigned long *t7_Bl_handle,
-                 int *t7_Bl_degree, ::coder::array<double, 2U> &t7_knots);
+static void cast(const double t7_CoeffX[4], const double t7_CoeffY[4], const double t7_CoeffZ[4],
+                 int t7_Bl_ncoeff, const ::coder::array<double, 2U> &t7_Bl_breakpoints,
+                 unsigned long t7_Bl_handle, int t7_Bl_degree, const double t7_knots[8],
+                 SplineStruct *r);
 
 }
 
 // Function Definitions
 //
-// Arguments    : const double t6_CoeffX[4]
-//                const double t6_CoeffY[4]
-//                const double t6_CoeffZ[4]
-//                int t6_Bl_ncoeff
-//                const ::coder::array<double, 2U> &t6_Bl_breakpoints
-//                unsigned long t6_Bl_handle
-//                int t6_Bl_degree
-//                const double t6_knots[8]
-//                ::coder::array<double, 2U> &t7_CoeffX
-//                ::coder::array<double, 2U> &t7_CoeffY
-//                ::coder::array<double, 2U> &t7_CoeffZ
-//                int *t7_Bl_ncoeff
-//                ::coder::array<double, 2U> &t7_Bl_breakpoints
-//                unsigned long *t7_Bl_handle
-//                int *t7_Bl_degree
-//                ::coder::array<double, 2U> &t7_knots
+// Arguments    : const double t7_CoeffX[4]
+//                const double t7_CoeffY[4]
+//                const double t7_CoeffZ[4]
+//                int t7_Bl_ncoeff
+//                const ::coder::array<double, 2U> &t7_Bl_breakpoints
+//                unsigned long t7_Bl_handle
+//                int t7_Bl_degree
+//                const double t7_knots[8]
+//                SplineStruct *r
 // Return Type  : void
 //
 namespace ocn {
-static void cast(const double t6_CoeffX[4], const double t6_CoeffY[4], const double t6_CoeffZ[4],
-                 int t6_Bl_ncoeff, const ::coder::array<double, 2U> &t6_Bl_breakpoints,
-                 unsigned long t6_Bl_handle, int t6_Bl_degree, const double t6_knots[8],
-                 ::coder::array<double, 2U> &t7_CoeffX, ::coder::array<double, 2U> &t7_CoeffY,
-                 ::coder::array<double, 2U> &t7_CoeffZ, int *t7_Bl_ncoeff,
-                 ::coder::array<double, 2U> &t7_Bl_breakpoints, unsigned long *t7_Bl_handle,
-                 int *t7_Bl_degree, ::coder::array<double, 2U> &t7_knots)
+static void cast(const double t7_CoeffX[4], const double t7_CoeffY[4], const double t7_CoeffZ[4],
+                 int t7_Bl_ncoeff, const ::coder::array<double, 2U> &t7_Bl_breakpoints,
+                 unsigned long t7_Bl_handle, int t7_Bl_degree, const double t7_knots[8],
+                 SplineStruct *r)
 {
     int loop_ub;
-    t7_CoeffX.set_size(1, 4);
-    t7_CoeffY.set_size(1, 4);
-    t7_CoeffZ.set_size(1, 4);
-    t7_CoeffX[0] = t6_CoeffX[0];
-    t7_CoeffY[0] = t6_CoeffY[0];
-    t7_CoeffZ[0] = t6_CoeffZ[0];
-    t7_CoeffX[1] = t6_CoeffX[1];
-    t7_CoeffY[1] = t6_CoeffY[1];
-    t7_CoeffZ[1] = t6_CoeffZ[1];
-    t7_CoeffX[2] = t6_CoeffX[2];
-    t7_CoeffY[2] = t6_CoeffY[2];
-    t7_CoeffZ[2] = t6_CoeffZ[2];
-    t7_CoeffX[3] = t6_CoeffX[3];
-    t7_CoeffY[3] = t6_CoeffY[3];
-    t7_CoeffZ[3] = t6_CoeffZ[3];
-    t7_Bl_breakpoints.set_size(1, t6_Bl_breakpoints.size(1));
-    loop_ub = t6_Bl_breakpoints.size(1);
+    r->CoeffX.set_size(1, 4);
+    r->CoeffY.set_size(1, 4);
+    r->CoeffZ.set_size(1, 4);
+    r->CoeffX[0] = t7_CoeffX[0];
+    r->CoeffY[0] = t7_CoeffY[0];
+    r->CoeffZ[0] = t7_CoeffZ[0];
+    r->CoeffX[1] = t7_CoeffX[1];
+    r->CoeffY[1] = t7_CoeffY[1];
+    r->CoeffZ[1] = t7_CoeffZ[1];
+    r->CoeffX[2] = t7_CoeffX[2];
+    r->CoeffY[2] = t7_CoeffY[2];
+    r->CoeffZ[2] = t7_CoeffZ[2];
+    r->CoeffX[3] = t7_CoeffX[3];
+    r->CoeffY[3] = t7_CoeffY[3];
+    r->CoeffZ[3] = t7_CoeffZ[3];
+    r->Bl.ncoeff = t7_Bl_ncoeff;
+    r->Bl.breakpoints.set_size(1, t7_Bl_breakpoints.size(1));
+    loop_ub = t7_Bl_breakpoints.size(1);
     for (int i{0}; i < loop_ub; i++) {
-        t7_Bl_breakpoints[i] = t6_Bl_breakpoints[i];
+        r->Bl.breakpoints[i] = t7_Bl_breakpoints[i];
     }
-    t7_knots.set_size(1, 8);
+    r->Bl.handle = t7_Bl_handle;
+    r->Bl.degree = t7_Bl_degree;
+    r->knots.set_size(1, 8);
     for (int i1{0}; i1 < 8; i1++) {
-        t7_knots[i1] = t6_knots[i1];
+        r->knots[i1] = t7_knots[i1];
     }
-    *t7_Bl_ncoeff = t6_Bl_ncoeff;
-    *t7_Bl_handle = t6_Bl_handle;
-    *t7_Bl_degree = t6_Bl_degree;
+    r->Lk.set_size(0, 0);
 }
 
 //
@@ -108,13 +99,11 @@ static void cast(const double t6_CoeffX[4], const double t6_CoeffY[4], const dou
 //
 void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
 {
-    static const double dv2[2][3]{{0.0, 0.0, 0.0}, {1.0, 1.0, 1.0}};
     ::coder::array<double, 2U> BasisVal;
     ::coder::array<double, 2U> BasisValD;
     ::coder::array<double, 2U> BasisValDD;
     ::coder::array<double, 2U> Spline_Bl_breakpoints;
     ::coder::array<double, 2U> a__1;
-    ::coder::array<double, 2U> b_ctx;
     ::coder::array<double, 2U> breakpoints;
     ::coder::array<double, 2U> r;
     ::coder::array<double, 2U> y;
@@ -131,57 +120,32 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     int Bl_ncoeff;
     int Spline_Bl_degree;
     int Spline_Bl_ncoeff;
-    int f_loop_ub;
     int g_loop_ub;
-    int h_loop_ub;
-    int i8;
     int i_loop_ub;
     int k_loop_ub;
-    int m_loop_ub;
     if (!isInitialized_sinspace) {
         sinspace_initialize();
     }
     if (cfg.UseLinearBreakpoints) {
         int b_loop_ub;
-        int d_loop_ub;
-        if (cfg.NBreak < 0) {
-            y.set_size(1, 0);
-        } else {
-            y.set_size(1, cfg.NBreak);
-            if (cfg.NBreak >= 1) {
-                y[cfg.NBreak - 1] = 1.0;
-                if (y.size(1) >= 2) {
-                    y[0] = 0.0;
-                    if (y.size(1) >= 3) {
-                        double delta1;
-                        int i3;
-                        delta1 = 1.0 / (static_cast<double>(y.size(1)) - 1.0);
-                        i3 = y.size(1);
-                        for (int b_k{0}; b_k <= i3 - 3; b_k++) {
-                            y[b_k + 1] = (static_cast<double>(b_k) + 1.0) * delta1;
-                        }
-                    }
-                }
-            }
+        coder::c_linspace(cfg.NBreak, ctx->Bl.breakpoints);
+        Bl_ncoeff = (ctx->Bl.breakpoints.size(1) + cfg.SplineDegree) - 2;
+        breakpoints.set_size(1, ctx->Bl.breakpoints.size(1));
+        b_loop_ub = ctx->Bl.breakpoints.size(1);
+        for (int i1{0}; i1 < b_loop_ub; i1++) {
+            breakpoints[i1] = ctx->Bl.breakpoints[i1];
         }
-        Bl_ncoeff = (y.size(1) + cfg.SplineDegree) - 2;
-        ctx->Bl.breakpoints.set_size(1, y.size(1));
-        b_loop_ub = y.size(1);
-        for (int i2{0}; i2 < b_loop_ub; i2++) {
-            ctx->Bl.breakpoints[i2] = y[i2];
-        }
-        c_bspline_create_with_breakpoints(&Bl_handle, cfg.SplineDegree, &ctx->Bl.breakpoints[0],
-                                          y.size(1));
-        ctx->Bl.breakpoints.set_size(1, y.size(1));
-        d_loop_ub = y.size(1);
-        for (int i5{0}; i5 < d_loop_ub; i5++) {
-            ctx->Bl.breakpoints[i5] = y[i5];
-        }
+        c_bspline_create_with_breakpoints(&Bl_handle, cfg.SplineDegree, &breakpoints[0],
+                                          ctx->Bl.breakpoints.size(1));
         Bl_degree = cfg.SplineDegree;
+        coder::c_linspace(cfg.NDiscr, ctx->u_vec);
     } else {
         int c_loop_ub;
+        int d_loop_ub;
         int e_loop_ub;
-        int i1;
+        int f_loop_ub;
+        int i2;
+        int i6;
         int loop_ub;
         coder::b_linspace(cfg.NBreak, r);
         y.set_size(1, r.size(1));
@@ -189,46 +153,41 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
         for (int i{0}; i < loop_ub; i++) {
             y[i] = 3.1415926535897931 * r[i];
         }
-        i1 = y.size(1);
-        for (int k{0}; k < i1; k++) {
+        i2 = y.size(1);
+        for (int k{0}; k < i2; k++) {
             y[k] = std::cos(y[k]);
         }
         ctx->Bl.breakpoints.set_size(1, y.size(1));
         c_loop_ub = y.size(1);
-        for (int i4{0}; i4 < c_loop_ub; i4++) {
-            ctx->Bl.breakpoints[i4] = y[i4] * 0.5 + 0.5;
+        for (int i3{0}; i3 < c_loop_ub; i3++) {
+            ctx->Bl.breakpoints[i3] = y[i3] * 0.5 + 0.5;
         }
         Bl_ncoeff = (ctx->Bl.breakpoints.size(1) + cfg.SplineDegree) - 2;
         breakpoints.set_size(1, ctx->Bl.breakpoints.size(1));
-        e_loop_ub = ctx->Bl.breakpoints.size(1);
-        for (int i6{0}; i6 < e_loop_ub; i6++) {
-            breakpoints[i6] = ctx->Bl.breakpoints[i6];
+        d_loop_ub = ctx->Bl.breakpoints.size(1);
+        for (int i4{0}; i4 < d_loop_ub; i4++) {
+            breakpoints[i4] = ctx->Bl.breakpoints[i4];
         }
         c_bspline_create_with_breakpoints(&Bl_handle, cfg.SplineDegree, &breakpoints[0],
                                           ctx->Bl.breakpoints.size(1));
         Bl_degree = cfg.SplineDegree;
+        coder::b_linspace(cfg.NDiscr, r);
+        y.set_size(1, r.size(1));
+        e_loop_ub = r.size(1);
+        for (int i5{0}; i5 < e_loop_ub; i5++) {
+            y[i5] = 3.1415926535897931 * r[i5];
+        }
+        i6 = y.size(1);
+        for (int b_k{0}; b_k < i6; b_k++) {
+            y[b_k] = std::cos(y[b_k]);
+        }
+        ctx->u_vec.set_size(1, y.size(1));
+        f_loop_ub = y.size(1);
+        for (int i7{0}; i7 < f_loop_ub; i7++) {
+            ctx->u_vec[i7] = y[i7] * 0.5 + 0.5;
+        }
     }
-    coder::b_linspace(cfg.NDiscr, r);
-    y.set_size(1, r.size(1));
-    f_loop_ub = r.size(1);
-    for (int i7{0}; i7 < f_loop_ub; i7++) {
-        y[i7] = 3.1415926535897931 * r[i7];
-    }
-    i8 = y.size(1);
-    for (int c_k{0}; c_k < i8; c_k++) {
-        y[c_k] = std::cos(y[c_k]);
-    }
-    ctx->u_vec.set_size(1, y.size(1));
-    g_loop_ub = y.size(1);
-    for (int i9{0}; i9 < g_loop_ub; i9++) {
-        ctx->u_vec[i9] = y[i9] * 0.5 + 0.5;
-    }
-    b_ctx.set_size(1, ctx->u_vec.size(1));
-    h_loop_ub = ctx->u_vec.size(1) - 1;
-    for (int i10{0}; i10 <= h_loop_ub; i10++) {
-        b_ctx[i10] = ctx->u_vec[i10];
-    }
-    bspline_base_eval(Bl_ncoeff, Bl_handle, b_ctx, BasisVal, BasisValD, BasisValDD, a__1,
+    bspline_base_eval(Bl_ncoeff, Bl_handle, ctx->u_vec, BasisVal, BasisValD, BasisValDD, a__1,
                       ctx->BasisIntegr);
     dv[0] = 0.0;
     dv1[0] = 0.0;
@@ -237,13 +196,14 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     dv[2] = 0.0;
     dv1[2] = 0.0;
     ConstrLineStruct(dv, dv1, 1.0, ZSpdMode_NN, &Curv);
-    CalcBspline_Lee(cfg.SplineDegree, dv2, Spline_CoeffX, Spline_CoeffY, Spline_CoeffZ,
+    CalcBspline_Lee(cfg.SplineDegree, Spline_CoeffX, Spline_CoeffY, Spline_CoeffZ,
                     &Spline_Bl_ncoeff, Spline_Bl_breakpoints, &Spline_Bl_handle, &Spline_Bl_degree,
                     Spline_knots);
     cast(Spline_CoeffX, Spline_CoeffY, Spline_CoeffZ, Spline_Bl_ncoeff, Spline_Bl_breakpoints,
-         Spline_Bl_handle, Spline_Bl_degree, Spline_knots, Curv.sp.CoeffX, Curv.sp.CoeffY,
-         Curv.sp.CoeffZ, &Curv.sp.Bl.ncoeff, Curv.sp.Bl.breakpoints, &Curv.sp.Bl.handle,
-         &Curv.sp.Bl.degree, Curv.sp.knots);
+         Spline_Bl_handle, Spline_Bl_degree, Spline_knots, &Curv.sp);
+    Curv.sp.Ltot = 0.0;
+    Curv.sp.Lk.set_size(1, 1);
+    Curv.sp.Lk[0] = 0.0;
     ctx->op = Fopt_Init;
     ctx->go_next = false;
     ctx->q_gcode.init(&Curv);
@@ -268,36 +228,36 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     ctx->jmax_increase_count = 0;
     ctx->zero_start = false;
     ctx->zero_end = false;
+    ctx->simplex_calls = 0;
     ctx->forced_stop = 0;
     ctx->programmed_stop = 0;
     ctx->BasisVal.set_size(BasisVal.size(0), BasisVal.size(1));
-    i_loop_ub = BasisVal.size(1);
-    for (int i11{0}; i11 < i_loop_ub; i11++) {
-        int j_loop_ub;
-        j_loop_ub = BasisVal.size(0);
-        for (int i12{0}; i12 < j_loop_ub; i12++) {
-            ctx->BasisVal[i12 + ctx->BasisVal.size(0) * i11] =
-                BasisVal[i12 + BasisVal.size(0) * i11];
+    g_loop_ub = BasisVal.size(1);
+    for (int i8{0}; i8 < g_loop_ub; i8++) {
+        int h_loop_ub;
+        h_loop_ub = BasisVal.size(0);
+        for (int i9{0}; i9 < h_loop_ub; i9++) {
+            ctx->BasisVal[i9 + ctx->BasisVal.size(0) * i8] = BasisVal[i9 + BasisVal.size(0) * i8];
         }
     }
     ctx->BasisValD.set_size(BasisValD.size(0), BasisValD.size(1));
-    k_loop_ub = BasisValD.size(1);
-    for (int i13{0}; i13 < k_loop_ub; i13++) {
-        int l_loop_ub;
-        l_loop_ub = BasisValD.size(0);
-        for (int i14{0}; i14 < l_loop_ub; i14++) {
-            ctx->BasisValD[i14 + ctx->BasisValD.size(0) * i13] =
-                BasisValD[i14 + BasisValD.size(0) * i13];
+    i_loop_ub = BasisValD.size(1);
+    for (int i10{0}; i10 < i_loop_ub; i10++) {
+        int j_loop_ub;
+        j_loop_ub = BasisValD.size(0);
+        for (int i11{0}; i11 < j_loop_ub; i11++) {
+            ctx->BasisValD[i11 + ctx->BasisValD.size(0) * i10] =
+                BasisValD[i11 + BasisValD.size(0) * i10];
         }
     }
     ctx->BasisValDD.set_size(BasisValDD.size(0), BasisValDD.size(1));
-    m_loop_ub = BasisValDD.size(1);
-    for (int i15{0}; i15 < m_loop_ub; i15++) {
-        int n_loop_ub;
-        n_loop_ub = BasisValDD.size(0);
-        for (int i16{0}; i16 < n_loop_ub; i16++) {
-            ctx->BasisValDD[i16 + ctx->BasisValDD.size(0) * i15] =
-                BasisValDD[i16 + BasisValDD.size(0) * i15];
+    k_loop_ub = BasisValDD.size(1);
+    for (int i12{0}; i12 < k_loop_ub; i12++) {
+        int l_loop_ub;
+        l_loop_ub = BasisValDD.size(0);
+        for (int i13{0}; i13 < l_loop_ub; i13++) {
+            ctx->BasisValDD[i13 + ctx->BasisValDD.size(0) * i12] =
+                BasisValDD[i13 + BasisValDD.size(0) * i12];
         }
     }
     ctx->Coeff.set_size(0, 0);

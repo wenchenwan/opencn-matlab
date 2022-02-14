@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: colon.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:36:47
 //
 
 // Include Files
@@ -94,7 +94,7 @@ void eml_float_colon(double d, double b, ::coder::array<double, 2U> &y)
     } else {
         cdiff = b - apnd;
     }
-    if (std::abs(cdiff) < 4.4408920985006262E-16 * std::abs(b)) {
+    if (std::abs(cdiff) < 4.4408920985006262E-16 * std::fmax(0.0, std::abs(b))) {
         ndbl++;
         b1 = b;
     } else if (cdiff > 0.0) {

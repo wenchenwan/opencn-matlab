@@ -4,12 +4,13 @@
 // government, commercial, or other organizational use.
 // File: queue_coder.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:36:47
 //
 
 // Include Files
 #include "queue_coder.h"
+#include "sinspace_types1.h"
 #include <cmath>
 
 // Function Definitions
@@ -21,9 +22,9 @@
 namespace ocn {
 void queue_coder::get(unsigned long b_index, CurvStruct *value) const
 {
-    *value = this->value_type;
+    *value = value_type;
     // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
-    c_queue_get(this->ptr, static_cast<unsigned int>(b_index), value);
+    c_queue_get(ptr, static_cast<unsigned int>(b_index), value);
 }
 
 //
@@ -33,9 +34,9 @@ void queue_coder::get(unsigned long b_index, CurvStruct *value) const
 //
 void queue_coder::get(long b_index, CurvStruct *value) const
 {
-    *value = this->value_type;
+    *value = value_type;
     // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
-    c_queue_get(this->ptr, static_cast<unsigned int>(b_index), value);
+    c_queue_get(ptr, static_cast<unsigned int>(b_index), value);
 }
 
 //
@@ -45,9 +46,9 @@ void queue_coder::get(long b_index, CurvStruct *value) const
 //
 void queue_coder::get(unsigned int b_index, CurvStruct *value) const
 {
-    *value = this->value_type;
+    *value = value_type;
     // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
-    c_queue_get(this->ptr, b_index, value);
+    c_queue_get(ptr, b_index, value);
 }
 
 //
@@ -57,9 +58,9 @@ void queue_coder::get(unsigned int b_index, CurvStruct *value) const
 //
 void queue_coder::get(double b_index, CurvStruct *value) const
 {
-    *value = this->value_type;
+    *value = value_type;
     // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
-    c_queue_get(this->ptr, static_cast<unsigned int>(std::round(b_index)), value);
+    c_queue_get(ptr, static_cast<unsigned int>(std::round(b_index)), value);
 }
 
 //
@@ -69,9 +70,9 @@ void queue_coder::get(double b_index, CurvStruct *value) const
 //
 void queue_coder::get(int b_index, CurvStruct *value) const
 {
-    *value = this->value_type;
+    *value = value_type;
     // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
-    c_queue_get(this->ptr, static_cast<unsigned int>(b_index), value);
+    c_queue_get(ptr, static_cast<unsigned int>(b_index), value);
 }
 
 //
@@ -80,8 +81,8 @@ void queue_coder::get(int b_index, CurvStruct *value) const
 //
 void queue_coder::init(const CurvStruct *b_value_type)
 {
-    this->value_type = *b_value_type;
-    this->ptr = c_queue_new();
+    value_type = *b_value_type;
+    ptr = c_queue_new();
 }
 
 //
@@ -90,7 +91,7 @@ void queue_coder::init(const CurvStruct *b_value_type)
 //
 bool queue_coder::isempty() const
 {
-    return this->size() == 0U;
+    return size() == 0U;
 }
 
 //
@@ -99,7 +100,7 @@ bool queue_coder::isempty() const
 //
 void queue_coder::push(const CurvStruct *value) const
 {
-    c_queue_push(this->ptr, *value);
+    c_queue_push(ptr, *value);
 }
 
 //
@@ -124,8 +125,8 @@ queue_coder::~queue_coder()
 //
 void queue_coder::rget(CurvStruct *value) const
 {
-    this->size();
-    this->get(this->size(), value);
+    size();
+    get(size(), value);
 }
 
 //
@@ -135,7 +136,7 @@ void queue_coder::rget(CurvStruct *value) const
 //
 void queue_coder::set(unsigned int b_index, const CurvStruct *value) const
 {
-    c_queue_set(this->ptr, b_index, *value);
+    c_queue_set(ptr, b_index, *value);
 }
 
 //
@@ -144,7 +145,7 @@ void queue_coder::set(unsigned int b_index, const CurvStruct *value) const
 //
 unsigned int queue_coder::size() const
 {
-    return c_queue_size(this->ptr);
+    return c_queue_size(ptr);
 }
 
 } // namespace ocn

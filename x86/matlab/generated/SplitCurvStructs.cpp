@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: SplitCurvStructs.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:47:09
 //
 
 // Include Files
@@ -14,6 +14,7 @@
 #include "SplitCurvStruct.h"
 #include "queue_coder.h"
 #include "sinspace_types.h"
+#include "sinspace_types1.h"
 
 // Function Definitions
 //
@@ -28,7 +29,8 @@ void SplitCurvStructs(const FeedoptContext *ctx)
         unsigned int N;
         int i;
         N = ctx->q_smooth.size();
-        l_DebugLog();
+        p_DebugLog();
+        q_DebugLog();
         i = static_cast<int>(N);
         for (int k{0}; k < i; k++) {
             ctx->q_smooth.get(k + 1U, &r);

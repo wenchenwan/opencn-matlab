@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: CalcVAJ_v5.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:36:47
 //
 
 // Include Files
@@ -14,6 +14,7 @@
 #include "bspline_eval.h"
 #include "queue_coder.h"
 #include "sinspace_data.h"
+#include "sinspace_types2.h"
 #include "coder_array.h"
 #include <cmath>
 
@@ -83,14 +84,18 @@ void CalcVAJ_v5(const queue_coder *ctx_q_splines, CurveType CurvStructs_Type,
     //  TODO: Optimize this with a single call to eval, and maybe a basis
     //  precompute?
     if (CurvStructs_zspdmode == ZSpdMode_ZN) {
+        double b_a;
         double t;
         t = std::pow(6.0 / CurvStructs_ConstJerk, 0.33333333333333331);
-        q_val = std::pow(CurvStructs_ConstJerk * std::pow(t, 2.0) / 2.0, 2.0);
+        b_a = CurvStructs_ConstJerk * (t * t) / 2.0;
+        q_val = b_a * b_a;
         qD_val = 2.0 * CurvStructs_ConstJerk * t;
     } else if (CurvStructs_zspdmode == ZSpdMode_NZ) {
+        double c_a;
         double t;
         t = std::pow(0.0 / CurvStructs_ConstJerk, 0.33333333333333331);
-        q_val = std::pow(CurvStructs_ConstJerk * std::pow(t, 2.0) / 2.0, 2.0);
+        c_a = CurvStructs_ConstJerk * (t * t) / 2.0;
+        q_val = c_a * c_a;
         qD_val = -2.0 * CurvStructs_ConstJerk * t;
     } else if (!(CurvStructs_zspdmode == ZSpdMode_ZZ)) {
         int loop_ub;

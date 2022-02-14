@@ -11,6 +11,7 @@ end
 Ncrv = ctx.q_compress.size;
 
 DebugLog(DebugCfg.Validate, 'Smoothing...\n');
+DebugLog(DebugCfg.OptimProgress, 'Smoothing...\n');
 
 k = 1;
 

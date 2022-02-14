@@ -58,7 +58,10 @@ namespace coder {
 #define CODER_DELETE(P) delete[](P)
 #endif
 
-using SizeType = int32_T;
+#ifndef CODER_ARRAY_SIZE_TYPE_DEFINED
+using SizeType = int;
+#endif
+
 namespace std = ::std;
 
 namespace detail {
@@ -602,17 +605,17 @@ class array_base {
         return data_[index(_i...)];
     }
 
-    array_iterator<array_base<T, SZ, N>> begin() {
-        return array_iterator<array_base<T, SZ, N>>(this, 0);
+    array_iterator<array_base<T, SZ, N> > begin() {
+        return array_iterator<array_base<T, SZ, N> >(this, 0);
     }
-    array_iterator<array_base<T, SZ, N>> end() {
-        return array_iterator<array_base<T, SZ, N>>(this, this->numel());
+    array_iterator<array_base<T, SZ, N> > end() {
+        return array_iterator<array_base<T, SZ, N> >(this, this->numel());
     }
-    const_array_iterator<array_base<T, SZ, N>> begin() const {
-        return const_array_iterator<array_base<T, SZ, N>>(this, 0);
+    const_array_iterator<array_base<T, SZ, N> > begin() const {
+        return const_array_iterator<array_base<T, SZ, N> >(this, 0);
     }
-    const_array_iterator<array_base<T, SZ, N>> end() const {
-        return const_array_iterator<array_base<T, SZ, N>>(this, this->numel());
+    const_array_iterator<array_base<T, SZ, N> > end() const {
+        return const_array_iterator<array_base<T, SZ, N> >(this, this->numel());
     }
 
   protected:

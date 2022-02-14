@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: find.h
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:36:47
 //
 
 #ifndef FIND_H
@@ -24,9 +24,9 @@ namespace ocn {
 namespace coder {
 void b_eml_find(const ::coder::array<bool, 2U> &x, int i_data[], int i_size[2]);
 
-void c_eml_find(const bool x_data[], int x_size, int i_data[], int *i_size);
+void c_eml_find(const ::coder::array<bool, 2U> &x, int i_data[], int i_size[2]);
 
-void eml_find(const ::coder::array<bool, 2U> &x, int i_data[], int i_size[2]);
+void eml_find(const bool x_data[], int x_size, int i_data[], int *i_size);
 
 } // namespace coder
 } // namespace ocn

@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: BuildConstrJerk_v4.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:36:47
 //
 
 // Include Files
@@ -14,11 +14,110 @@
 #include "bsxfun.h"
 #include "queue_coder.h"
 #include "sinspace_data.h"
+#include "sinspace_types1.h"
+#include "sinspace_types2.h"
 #include "sparse1.h"
 #include "coder_array.h"
+#include <algorithm>
 #include <cmath>
 
+// Function Declarations
+namespace ocn {
+static void binary_expand_op(::coder::array<double, 2U> &R3, const ::coder::array<double, 2U> &r1,
+                             const ::coder::array<double, 2U> &r2,
+                             const ::coder::array<double, 2U> &r3,
+                             const ::coder::array<double, 1U> &y_tmp);
+
+}
+
 // Function Definitions
+//
+// Arguments    : ::coder::array<double, 2U> &R3
+//                const ::coder::array<double, 2U> &r1
+//                const ::coder::array<double, 2U> &r2
+//                const ::coder::array<double, 2U> &r3
+//                const ::coder::array<double, 1U> &y_tmp
+// Return Type  : void
+//
+namespace ocn {
+static void binary_expand_op(::coder::array<double, 2U> &R3, const ::coder::array<double, 2U> &r1,
+                             const ::coder::array<double, 2U> &r2,
+                             const ::coder::array<double, 2U> &r3,
+                             const ::coder::array<double, 1U> &y_tmp)
+{
+    ::coder::array<double, 2U> r;
+    int aux_0_1;
+    int aux_1_1;
+    int aux_2_1;
+    int i;
+    int i1;
+    int loop_ub;
+    int stride_0_0;
+    int stride_0_1;
+    int stride_1_0;
+    int stride_1_1;
+    int stride_2_0;
+    int stride_2_1;
+    if (r3.size(0) == 1) {
+        if (r2.size(0) == 1) {
+            i = r1.size(0);
+        } else {
+            i = r2.size(0);
+        }
+    } else {
+        i = r3.size(0);
+    }
+    if (r3.size(1) == 1) {
+        if (r2.size(1) == 1) {
+            i1 = r1.size(1);
+        } else {
+            i1 = r2.size(1);
+        }
+    } else {
+        i1 = r3.size(1);
+    }
+    r.set_size(i, i1);
+    stride_0_0 = (r1.size(0) != 1);
+    stride_0_1 = (r1.size(1) != 1);
+    stride_1_0 = (r2.size(0) != 1);
+    stride_1_1 = (r2.size(1) != 1);
+    stride_2_0 = (r3.size(0) != 1);
+    stride_2_1 = (r3.size(1) != 1);
+    aux_0_1 = 0;
+    aux_1_1 = 0;
+    aux_2_1 = 0;
+    if (r3.size(1) == 1) {
+        if (r2.size(1) == 1) {
+            loop_ub = r1.size(1);
+        } else {
+            loop_ub = r2.size(1);
+        }
+    } else {
+        loop_ub = r3.size(1);
+    }
+    for (int i2{0}; i2 < loop_ub; i2++) {
+        int b_loop_ub;
+        if (r3.size(0) == 1) {
+            if (r2.size(0) == 1) {
+                b_loop_ub = r1.size(0);
+            } else {
+                b_loop_ub = r2.size(0);
+            }
+        } else {
+            b_loop_ub = r3.size(0);
+        }
+        for (int i3{0}; i3 < b_loop_ub; i3++) {
+            r[i3 + r.size(0) * i2] = (r1[i3 * stride_0_0 + r1.size(0) * aux_0_1] +
+                                      1.5 * r2[i3 * stride_1_0 + r2.size(0) * aux_1_1]) +
+                                     0.5 * r3[i3 * stride_2_0 + r3.size(0) * aux_2_1];
+        }
+        aux_2_1 += stride_2_1;
+        aux_1_1 += stride_1_1;
+        aux_0_1 += stride_0_1;
+    }
+    coder::bsxfun(r, y_tmp, R3);
+}
+
 //
 // Arguments    : const queue_coder *ctx_q_splines
 //                const ::coder::array<CurvStruct, 2U> &CurvStructs
@@ -32,7 +131,6 @@
 //                ::coder::array<double, 1U> &b
 // Return Type  : void
 //
-namespace ocn {
 void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
                         const ::coder::array<CurvStruct, 2U> &CurvStructs,
                         const ::coder::array<double, 2U> &Coeff, const double jmax[3],
@@ -66,6 +164,16 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
     ::coder::array<double, 1U> b_r3D;
     ::coder::array<double, 1U> r3;
     ::coder::array<double, 1U> y_tmp;
+    double dv4[6][3];
+    double dv9[6][3];
+    double dv[3];
+    double dv1[3];
+    double dv2[3];
+    double dv3[3];
+    double dv5[3];
+    double dv6[3];
+    double dv7[3];
+    double dv8[3];
     double b_b;
     double d;
     double varargin_2;
@@ -91,25 +199,28 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
     int e_loop_ub;
     int eb_loop_ub;
     int f_input_sizes_idx_0;
-    int f_loop_ub;
     int fb_loop_ub;
     int g_input_sizes_idx_0;
+    int g_loop_ub;
     int gb_loop_ub;
-    int h_loop_ub;
-    int i27;
+    int i14;
+    int i15;
+    int i21;
+    int i22;
     int i3;
-    int i47;
+    int i33;
+    int i53;
+    int i7;
+    int i8;
     int i_loop_ub;
     int inner;
     int input_sizes_idx_0;
     int j_loop_ub;
-    int k_loop_ub;
+    int l_loop_ub;
     int loop_ub;
-    int m_loop_ub;
     int mc;
     int n_loop_ub;
     int o_loop_ub;
-    int p_loop_ub;
     int r_loop_ub;
     int result;
     int t_loop_ub;
@@ -156,10 +267,22 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
     for (int i2{0}; i2 <= b_loop_ub; i2++) {
         b_u_vec[i2] = u_vec[i2];
     }
-    b_EvalCurvStruct(ctx_q_splines, CurvStructs[0].Type, CurvStructs[0].P0, CurvStructs[0].P1,
-                     CurvStructs[0].CorrectedHelixCenter, CurvStructs[0].evec, CurvStructs[0].theta,
-                     CurvStructs[0].pitch, CurvStructs[0].CoeffP5, CurvStructs[0].sp_index,
-                     CurvStructs[0].a_param, CurvStructs[0].b_param, b_u_vec, a__1, r1D, r2D, r3D);
+    dv[0] = CurvStructs[0].P0[0];
+    dv[1] = CurvStructs[0].P0[1];
+    dv[2] = CurvStructs[0].P0[2];
+    dv1[0] = CurvStructs[0].P1[0];
+    dv1[1] = CurvStructs[0].P1[1];
+    dv1[2] = CurvStructs[0].P1[2];
+    dv2[0] = CurvStructs[0].CorrectedHelixCenter[0];
+    dv2[1] = CurvStructs[0].CorrectedHelixCenter[1];
+    dv2[2] = CurvStructs[0].CorrectedHelixCenter[2];
+    dv3[0] = CurvStructs[0].evec[0];
+    dv3[1] = CurvStructs[0].evec[1];
+    dv3[2] = CurvStructs[0].evec[2];
+    std::copy(&CurvStructs[0].CoeffP5[0][0], &CurvStructs[0].CoeffP5[0][0] + 18U, &dv4[0][0]);
+    b_EvalCurvStruct(ctx_q_splines, CurvStructs[0].Type, dv, dv1, dv2, dv3, CurvStructs[0].theta,
+                     CurvStructs[0].pitch, dv4, CurvStructs[0].sp_index, CurvStructs[0].a_param,
+                     CurvStructs[0].b_param, b_u_vec, a__1, r1D, r2D, r3D);
     //
     mc = BasisVal.size(0) - 1;
     inner = BasisVal.size(1);
@@ -195,76 +318,125 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
         b_r1D[i6] = r1D[3 * i6];
     }
     coder::bsxfun(BasisValDD, b_r1D, r2);
-    f_loop_ub = r.size(1);
-    for (int i7{0}; i7 < f_loop_ub; i7++) {
-        int g_loop_ub;
-        g_loop_ub = r.size(0);
-        for (int i8{0}; i8 < g_loop_ub; i8++) {
-            r[i8 + r.size(0) * i7] = (r[i8 + r.size(0) * i7] + 1.5 * r1[i8 + r1.size(0) * i7]) +
-                                     0.5 * r2[i8 + r2.size(0) * i7];
-        }
+    if (r.size(0) == 1) {
+        i7 = r1.size(0);
+    } else {
+        i7 = r.size(0);
     }
-    coder::bsxfun(r, y_tmp, R1);
+    if (r.size(1) == 1) {
+        i8 = r1.size(1);
+    } else {
+        i8 = r.size(1);
+    }
+    if ((r.size(0) == r1.size(0)) && (r.size(1) == r1.size(1)) && (i7 == r2.size(0)) &&
+        (i8 == r2.size(1))) {
+        int f_loop_ub;
+        f_loop_ub = r.size(1);
+        for (int i9{0}; i9 < f_loop_ub; i9++) {
+            int h_loop_ub;
+            h_loop_ub = r.size(0);
+            for (int i10{0}; i10 < h_loop_ub; i10++) {
+                r[i10 + r.size(0) * i9] =
+                    (r[i10 + r.size(0) * i9] + 1.5 * r1[i10 + r1.size(0) * i9]) +
+                    0.5 * r2[i10 + r2.size(0) * i9];
+            }
+        }
+        coder::bsxfun(r, y_tmp, R1);
+    } else {
+        binary_expand_op(R1, r, r1, r2, y_tmp);
+    }
     sqrt_calls++;
-    h_loop_ub = r3D.size(1);
+    g_loop_ub = r3D.size(1);
     b_r3D.set_size(r3D.size(1));
-    for (int i9{0}; i9 < h_loop_ub; i9++) {
-        b_r3D[i9] = r3D[3 * i9 + 1];
+    for (int i11{0}; i11 < g_loop_ub; i11++) {
+        b_r3D[i11] = r3D[3 * i11 + 1];
     }
     coder::bsxfun(BasisVal, b_r3D, r);
     i_loop_ub = r2D.size(1);
     b_r2D.set_size(r2D.size(1));
-    for (int i10{0}; i10 < i_loop_ub; i10++) {
-        b_r2D[i10] = r2D[3 * i10 + 1];
+    for (int i12{0}; i12 < i_loop_ub; i12++) {
+        b_r2D[i12] = r2D[3 * i12 + 1];
     }
     coder::bsxfun(BasisValD, b_r2D, r1);
     j_loop_ub = r1D.size(1);
     b_r1D.set_size(r1D.size(1));
-    for (int i11{0}; i11 < j_loop_ub; i11++) {
-        b_r1D[i11] = r1D[3 * i11 + 1];
+    for (int i13{0}; i13 < j_loop_ub; i13++) {
+        b_r1D[i13] = r1D[3 * i13 + 1];
     }
     coder::bsxfun(BasisValDD, b_r1D, r2);
-    k_loop_ub = r.size(1);
-    for (int i12{0}; i12 < k_loop_ub; i12++) {
-        int l_loop_ub;
-        l_loop_ub = r.size(0);
-        for (int i13{0}; i13 < l_loop_ub; i13++) {
-            r[i13 + r.size(0) * i12] =
-                (r[i13 + r.size(0) * i12] + 1.5 * r1[i13 + r1.size(0) * i12]) +
-                0.5 * r2[i13 + r2.size(0) * i12];
-        }
+    if (r.size(0) == 1) {
+        i14 = r1.size(0);
+    } else {
+        i14 = r.size(0);
     }
-    coder::bsxfun(r, y_tmp, R2);
+    if (r.size(1) == 1) {
+        i15 = r1.size(1);
+    } else {
+        i15 = r.size(1);
+    }
+    if ((r.size(0) == r1.size(0)) && (r.size(1) == r1.size(1)) && (i14 == r2.size(0)) &&
+        (i15 == r2.size(1))) {
+        int k_loop_ub;
+        k_loop_ub = r.size(1);
+        for (int i16{0}; i16 < k_loop_ub; i16++) {
+            int m_loop_ub;
+            m_loop_ub = r.size(0);
+            for (int i17{0}; i17 < m_loop_ub; i17++) {
+                r[i17 + r.size(0) * i16] =
+                    (r[i17 + r.size(0) * i16] + 1.5 * r1[i17 + r1.size(0) * i16]) +
+                    0.5 * r2[i17 + r2.size(0) * i16];
+            }
+        }
+        coder::bsxfun(r, y_tmp, R2);
+    } else {
+        binary_expand_op(R2, r, r1, r2, y_tmp);
+    }
     sqrt_calls++;
-    m_loop_ub = r3D.size(1);
+    l_loop_ub = r3D.size(1);
     b_r3D.set_size(r3D.size(1));
-    for (int i14{0}; i14 < m_loop_ub; i14++) {
-        b_r3D[i14] = r3D[3 * i14 + 2];
+    for (int i18{0}; i18 < l_loop_ub; i18++) {
+        b_r3D[i18] = r3D[3 * i18 + 2];
     }
     coder::bsxfun(BasisVal, b_r3D, r);
     n_loop_ub = r2D.size(1);
     b_r2D.set_size(r2D.size(1));
-    for (int i15{0}; i15 < n_loop_ub; i15++) {
-        b_r2D[i15] = r2D[3 * i15 + 2];
+    for (int i19{0}; i19 < n_loop_ub; i19++) {
+        b_r2D[i19] = r2D[3 * i19 + 2];
     }
     coder::bsxfun(BasisValD, b_r2D, r1);
     o_loop_ub = r1D.size(1);
     b_r1D.set_size(r1D.size(1));
-    for (int i16{0}; i16 < o_loop_ub; i16++) {
-        b_r1D[i16] = r1D[3 * i16 + 2];
+    for (int i20{0}; i20 < o_loop_ub; i20++) {
+        b_r1D[i20] = r1D[3 * i20 + 2];
     }
     coder::bsxfun(BasisValDD, b_r1D, r2);
-    p_loop_ub = r.size(1);
-    for (int i17{0}; i17 < p_loop_ub; i17++) {
-        int q_loop_ub;
-        q_loop_ub = r.size(0);
-        for (int i18{0}; i18 < q_loop_ub; i18++) {
-            r[i18 + r.size(0) * i17] =
-                (r[i18 + r.size(0) * i17] + 1.5 * r1[i18 + r1.size(0) * i17]) +
-                0.5 * r2[i18 + r2.size(0) * i17];
-        }
+    if (r.size(0) == 1) {
+        i21 = r1.size(0);
+    } else {
+        i21 = r.size(0);
     }
-    coder::bsxfun(r, y_tmp, R3);
+    if (r.size(1) == 1) {
+        i22 = r1.size(1);
+    } else {
+        i22 = r.size(1);
+    }
+    if ((r.size(0) == r1.size(0)) && (r.size(1) == r1.size(1)) && (i21 == r2.size(0)) &&
+        (i22 == r2.size(1))) {
+        int p_loop_ub;
+        p_loop_ub = r.size(1);
+        for (int i23{0}; i23 < p_loop_ub; i23++) {
+            int q_loop_ub;
+            q_loop_ub = r.size(0);
+            for (int i24{0}; i24 < q_loop_ub; i24++) {
+                r[i24 + r.size(0) * i23] =
+                    (r[i24 + r.size(0) * i23] + 1.5 * r1[i24 + r1.size(0) * i23]) +
+                    0.5 * r2[i24 + r2.size(0) * i23];
+            }
+        }
+        coder::bsxfun(r, y_tmp, R3);
+    } else {
+        binary_expand_op(R3, r, r1, r2, y_tmp);
+    }
     //  R2 = (BasisVal .* r3D(2, :)' + ...
     //        1.5*BasisValD .* r2D(2, :)' + ...
     //        0.5*BasisValDD.*r1D(2, :)') .* mysqrt(q_val);
@@ -274,29 +446,29 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
     //
     b_varargin_2.set_size(R1.size(0), R1.size(1));
     r_loop_ub = R1.size(1);
-    for (int i19{0}; i19 < r_loop_ub; i19++) {
+    for (int i25{0}; i25 < r_loop_ub; i25++) {
         int s_loop_ub;
         s_loop_ub = R1.size(0);
-        for (int i20{0}; i20 < s_loop_ub; i20++) {
-            b_varargin_2[i20 + b_varargin_2.size(0) * i19] = -R1[i20 + R1.size(0) * i19];
+        for (int i26{0}; i26 < s_loop_ub; i26++) {
+            b_varargin_2[i26 + b_varargin_2.size(0) * i25] = -R1[i26 + R1.size(0) * i25];
         }
     }
     varargin_4.set_size(R2.size(0), R2.size(1));
     t_loop_ub = R2.size(1);
-    for (int i21{0}; i21 < t_loop_ub; i21++) {
+    for (int i27{0}; i27 < t_loop_ub; i27++) {
         int u_loop_ub;
         u_loop_ub = R2.size(0);
-        for (int i22{0}; i22 < u_loop_ub; i22++) {
-            varargin_4[i22 + varargin_4.size(0) * i21] = -R2[i22 + R2.size(0) * i21];
+        for (int i28{0}; i28 < u_loop_ub; i28++) {
+            varargin_4[i28 + varargin_4.size(0) * i27] = -R2[i28 + R2.size(0) * i27];
         }
     }
     varargin_6.set_size(R3.size(0), R3.size(1));
     v_loop_ub = R3.size(1);
-    for (int i23{0}; i23 < v_loop_ub; i23++) {
+    for (int i29{0}; i29 < v_loop_ub; i29++) {
         int w_loop_ub;
         w_loop_ub = R3.size(0);
-        for (int i24{0}; i24 < w_loop_ub; i24++) {
-            varargin_6[i24 + varargin_6.size(0) * i23] = -R3[i24 + R3.size(0) * i23];
+        for (int i30{0}; i30 < w_loop_ub; i30++) {
+            varargin_6[i30 + varargin_6.size(0) * i29] = -R3[i30 + R3.size(0) * i29];
         }
     }
     if ((R1.size(0) != 0) && (R1.size(1) != 0)) {
@@ -367,8 +539,8 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
         int x_loop_ub;
         y.set_size(1, static_cast<int>(b_b - 1.0) + 1);
         x_loop_ub = static_cast<int>(b_b - 1.0);
-        for (int i25{0}; i25 <= x_loop_ub; i25++) {
-            y[i25] = static_cast<double>(i25) + 1.0;
+        for (int i31{0}; i31 <= x_loop_ub; i31++) {
+            y[i31] = static_cast<double>(i31) + 1.0;
         }
     }
     if (BasisVal.size(1) < 1) {
@@ -377,53 +549,53 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
         int y_loop_ub;
         b_y.set_size(1, BasisVal.size(1));
         y_loop_ub = BasisVal.size(1) - 1;
-        for (int i26{0}; i26 <= y_loop_ub; i26++) {
-            b_y[i26] = static_cast<double>(i26) + 1.0;
+        for (int i32{0}; i32 <= y_loop_ub; i32++) {
+            b_y[i32] = static_cast<double>(i32) + 1.0;
         }
     }
     g_input_sizes_idx_0 = input_sizes_idx_0;
     input_sizes_idx_0 = b_input_sizes_idx_0;
     b_input_sizes_idx_0 = c_input_sizes_idx_0;
     c_input_sizes_idx_0 = d_input_sizes_idx_0;
-    i27 = g_input_sizes_idx_0 + input_sizes_idx_0;
-    b_R1.set_size((((i27 + b_input_sizes_idx_0) + c_input_sizes_idx_0) + e_input_sizes_idx_0) +
+    i33 = g_input_sizes_idx_0 + input_sizes_idx_0;
+    b_R1.set_size((((i33 + b_input_sizes_idx_0) + c_input_sizes_idx_0) + e_input_sizes_idx_0) +
                       f_input_sizes_idx_0,
                   result);
-    for (int i28{0}; i28 < result; i28++) {
-        for (int i30{0}; i30 < g_input_sizes_idx_0; i30++) {
-            b_R1[i30 + b_R1.size(0) * i28] = R1[i30 + g_input_sizes_idx_0 * i28];
-        }
-    }
-    for (int i29{0}; i29 < result; i29++) {
-        for (int i32{0}; i32 < input_sizes_idx_0; i32++) {
-            b_R1[(i32 + g_input_sizes_idx_0) + b_R1.size(0) * i29] =
-                b_varargin_2[i32 + input_sizes_idx_0 * i29];
-        }
-    }
-    for (int i31{0}; i31 < result; i31++) {
-        for (int i34{0}; i34 < b_input_sizes_idx_0; i34++) {
-            b_R1[((i34 + g_input_sizes_idx_0) + input_sizes_idx_0) + b_R1.size(0) * i31] =
-                R2[i34 + b_input_sizes_idx_0 * i31];
-        }
-    }
-    for (int i33{0}; i33 < result; i33++) {
-        for (int i36{0}; i36 < c_input_sizes_idx_0; i36++) {
-            b_R1[(((i36 + g_input_sizes_idx_0) + input_sizes_idx_0) + b_input_sizes_idx_0) +
-                 b_R1.size(0) * i33] = varargin_4[i36 + c_input_sizes_idx_0 * i33];
+    for (int i34{0}; i34 < result; i34++) {
+        for (int i36{0}; i36 < g_input_sizes_idx_0; i36++) {
+            b_R1[i36 + b_R1.size(0) * i34] = R1[i36 + g_input_sizes_idx_0 * i34];
         }
     }
     for (int i35{0}; i35 < result; i35++) {
-        for (int i38{0}; i38 < e_input_sizes_idx_0; i38++) {
-            b_R1[((((i38 + g_input_sizes_idx_0) + input_sizes_idx_0) + b_input_sizes_idx_0) +
-                  c_input_sizes_idx_0) +
-                 b_R1.size(0) * i35] = R3[i38 + e_input_sizes_idx_0 * i35];
+        for (int i38{0}; i38 < input_sizes_idx_0; i38++) {
+            b_R1[(i38 + g_input_sizes_idx_0) + b_R1.size(0) * i35] =
+                b_varargin_2[i38 + input_sizes_idx_0 * i35];
         }
     }
     for (int i37{0}; i37 < result; i37++) {
-        for (int i39{0}; i39 < f_input_sizes_idx_0; i39++) {
-            b_R1[((((i39 + i27) + b_input_sizes_idx_0) + c_input_sizes_idx_0) +
+        for (int i40{0}; i40 < b_input_sizes_idx_0; i40++) {
+            b_R1[((i40 + g_input_sizes_idx_0) + input_sizes_idx_0) + b_R1.size(0) * i37] =
+                R2[i40 + b_input_sizes_idx_0 * i37];
+        }
+    }
+    for (int i39{0}; i39 < result; i39++) {
+        for (int i42{0}; i42 < c_input_sizes_idx_0; i42++) {
+            b_R1[(((i42 + g_input_sizes_idx_0) + input_sizes_idx_0) + b_input_sizes_idx_0) +
+                 b_R1.size(0) * i39] = varargin_4[i42 + c_input_sizes_idx_0 * i39];
+        }
+    }
+    for (int i41{0}; i41 < result; i41++) {
+        for (int i44{0}; i44 < e_input_sizes_idx_0; i44++) {
+            b_R1[((((i44 + g_input_sizes_idx_0) + input_sizes_idx_0) + b_input_sizes_idx_0) +
+                  c_input_sizes_idx_0) +
+                 b_R1.size(0) * i41] = R3[i44 + e_input_sizes_idx_0 * i41];
+        }
+    }
+    for (int i43{0}; i43 < result; i43++) {
+        for (int i45{0}; i45 < f_input_sizes_idx_0; i45++) {
+            b_R1[((((i45 + i33) + b_input_sizes_idx_0) + c_input_sizes_idx_0) +
                   e_input_sizes_idx_0) +
-                 b_R1.size(0) * i37] = varargin_6[i39 + f_input_sizes_idx_0 * i37];
+                 b_R1.size(0) * i43] = varargin_6[i45 + f_input_sizes_idx_0 * i43];
         }
     }
     A->parenAssign(b_R1, y, b_y);
@@ -438,29 +610,29 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
                  BasisVal.size(0)) +
                 BasisVal.size(0));
     ab_loop_ub = BasisVal.size(0);
-    for (int i40{0}; i40 < ab_loop_ub; i40++) {
-        r3[i40] = jmax[0];
+    for (int i46{0}; i46 < ab_loop_ub; i46++) {
+        r3[i46] = jmax[0];
     }
     bb_loop_ub = BasisVal.size(0);
-    for (int i41{0}; i41 < bb_loop_ub; i41++) {
-        r3[i41 + BasisVal_idx_0] = jmax[0];
+    for (int i47{0}; i47 < bb_loop_ub; i47++) {
+        r3[i47 + BasisVal_idx_0] = jmax[0];
     }
     cb_loop_ub = BasisVal.size(0);
-    for (int i42{0}; i42 < cb_loop_ub; i42++) {
-        r3[(i42 + BasisVal_idx_0) + b_BasisVal_idx_0] = jmax[1];
+    for (int i48{0}; i48 < cb_loop_ub; i48++) {
+        r3[(i48 + BasisVal_idx_0) + b_BasisVal_idx_0] = jmax[1];
     }
     db_loop_ub = BasisVal.size(0);
-    for (int i43{0}; i43 < db_loop_ub; i43++) {
-        r3[((i43 + BasisVal_idx_0) + b_BasisVal_idx_0) + c_BasisVal_idx_0] = jmax[1];
+    for (int i49{0}; i49 < db_loop_ub; i49++) {
+        r3[((i49 + BasisVal_idx_0) + b_BasisVal_idx_0) + c_BasisVal_idx_0] = jmax[1];
     }
     eb_loop_ub = BasisVal.size(0);
-    for (int i44{0}; i44 < eb_loop_ub; i44++) {
-        r3[(((i44 + BasisVal_idx_0) + b_BasisVal_idx_0) + c_BasisVal_idx_0) + d_BasisVal_idx_0] =
+    for (int i50{0}; i50 < eb_loop_ub; i50++) {
+        r3[(((i50 + BasisVal_idx_0) + b_BasisVal_idx_0) + c_BasisVal_idx_0) + d_BasisVal_idx_0] =
             jmax[2];
     }
     fb_loop_ub = BasisVal.size(0);
-    for (int i45{0}; i45 < fb_loop_ub; i45++) {
-        r3[((((i45 + BasisVal_idx_0) + b_BasisVal_idx_0) + c_BasisVal_idx_0) + d_BasisVal_idx_0) +
+    for (int i51{0}; i51 < fb_loop_ub; i51++) {
+        r3[((((i51 + BasisVal_idx_0) + b_BasisVal_idx_0) + c_BasisVal_idx_0) + d_BasisVal_idx_0) +
            BasisVal.size(0)] = jmax[2];
     }
     if (1.0 > d) {
@@ -468,16 +640,16 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
     } else {
         gb_loop_ub = static_cast<int>(d);
     }
-    for (int i46{0}; i46 < gb_loop_ub; i46++) {
-        b[i46] = r3[i46];
+    for (int i52{0}; i52 < gb_loop_ub; i52++) {
+        b[i52] = r3[i52];
     }
     //
-    i47 = CurvStructs.size(1);
+    i53 = CurvStructs.size(1);
     if (0 <= CurvStructs.size(1) - 2) {
         b_mc = BasisVal.size(0) - 1;
         b_inner = BasisVal.size(1);
     }
-    for (int c_k{0}; c_k <= i47 - 2; c_k++) {
+    for (int c_k{0}; c_k <= i53 - 2; c_k++) {
         double a;
         double a_tmp;
         double b_tmp;
@@ -488,9 +660,15 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
         int gc_loop_ub;
         int h_input_sizes_idx_0;
         int hb_loop_ub;
-        int i49;
-        int i85;
-        int i86;
+        int i55;
+        int i59;
+        int i60;
+        int i66;
+        int i67;
+        int i73;
+        int i74;
+        int i97;
+        int i98;
         int i_input_sizes_idx_0;
         int ib_loop_ub;
         int j_input_sizes_idx_0;
@@ -498,27 +676,36 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
         int k_input_sizes_idx_0;
         int kb_loop_ub;
         int l_input_sizes_idx_0;
-        int lb_loop_ub;
         int m_input_sizes_idx_0;
-        int nb_loop_ub;
+        int mb_loop_ub;
         int ob_loop_ub;
         int pb_loop_ub;
-        int qb_loop_ub;
-        int sb_loop_ub;
+        int rb_loop_ub;
         int tb_loop_ub;
         int ub_loop_ub;
-        int vb_loop_ub;
         int xb_loop_ub;
         bool b_empty_non_axis_sizes;
         c_u_vec.set_size(1, u_vec.size(1));
         hb_loop_ub = u_vec.size(1) - 1;
-        for (int i48{0}; i48 <= hb_loop_ub; i48++) {
-            c_u_vec[i48] = u_vec[i48];
+        for (int i54{0}; i54 <= hb_loop_ub; i54++) {
+            c_u_vec[i54] = u_vec[i54];
         }
-        b_EvalCurvStruct(ctx_q_splines, CurvStructs[c_k + 1].Type, CurvStructs[c_k + 1].P0,
-                         CurvStructs[c_k + 1].P1, CurvStructs[c_k + 1].CorrectedHelixCenter,
-                         CurvStructs[c_k + 1].evec, CurvStructs[c_k + 1].theta,
-                         CurvStructs[c_k + 1].pitch, CurvStructs[c_k + 1].CoeffP5,
+        dv5[0] = CurvStructs[c_k + 1].P0[0];
+        dv5[1] = CurvStructs[c_k + 1].P0[1];
+        dv5[2] = CurvStructs[c_k + 1].P0[2];
+        dv6[0] = CurvStructs[c_k + 1].P1[0];
+        dv6[1] = CurvStructs[c_k + 1].P1[1];
+        dv6[2] = CurvStructs[c_k + 1].P1[2];
+        dv7[0] = CurvStructs[c_k + 1].CorrectedHelixCenter[0];
+        dv7[1] = CurvStructs[c_k + 1].CorrectedHelixCenter[1];
+        dv7[2] = CurvStructs[c_k + 1].CorrectedHelixCenter[2];
+        dv8[0] = CurvStructs[c_k + 1].evec[0];
+        dv8[1] = CurvStructs[c_k + 1].evec[1];
+        dv8[2] = CurvStructs[c_k + 1].evec[2];
+        std::copy(&CurvStructs[c_k + 1].CoeffP5[0][0], &CurvStructs[c_k + 1].CoeffP5[0][0] + 18U,
+                  &dv9[0][0]);
+        b_EvalCurvStruct(ctx_q_splines, CurvStructs[c_k + 1].Type, dv5, dv6, dv7, dv8,
+                         CurvStructs[c_k + 1].theta, CurvStructs[c_k + 1].pitch, dv9,
                          CurvStructs[c_k + 1].sp_index, CurvStructs[c_k + 1].a_param,
                          CurvStructs[c_k + 1].b_param, c_u_vec, a__2, r1D, r2D, r3D);
         //
@@ -535,100 +722,148 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
                                               Coeff[d_k + Coeff.size(0) * (c_k + 1)];
             }
         }
-        i49 = y_tmp.size(0);
-        for (int e_k{0}; e_k < i49; e_k++) {
+        i55 = y_tmp.size(0);
+        for (int e_k{0}; e_k < i55; e_k++) {
             y_tmp[e_k] = std::sqrt(y_tmp[e_k]);
         }
         sqrt_calls++;
         ib_loop_ub = r3D.size(1);
         b_r3D.set_size(r3D.size(1));
-        for (int i50{0}; i50 < ib_loop_ub; i50++) {
-            b_r3D[i50] = r3D[3 * i50];
+        for (int i56{0}; i56 < ib_loop_ub; i56++) {
+            b_r3D[i56] = r3D[3 * i56];
         }
         coder::bsxfun(BasisVal, b_r3D, r);
         jb_loop_ub = r2D.size(1);
         b_r2D.set_size(r2D.size(1));
-        for (int i51{0}; i51 < jb_loop_ub; i51++) {
-            b_r2D[i51] = r2D[3 * i51];
+        for (int i57{0}; i57 < jb_loop_ub; i57++) {
+            b_r2D[i57] = r2D[3 * i57];
         }
         coder::bsxfun(BasisValD, b_r2D, r1);
         kb_loop_ub = r1D.size(1);
         b_r1D.set_size(r1D.size(1));
-        for (int i52{0}; i52 < kb_loop_ub; i52++) {
-            b_r1D[i52] = r1D[3 * i52];
+        for (int i58{0}; i58 < kb_loop_ub; i58++) {
+            b_r1D[i58] = r1D[3 * i58];
         }
         coder::bsxfun(BasisValDD, b_r1D, r2);
-        lb_loop_ub = r.size(1);
-        for (int i53{0}; i53 < lb_loop_ub; i53++) {
-            int mb_loop_ub;
-            mb_loop_ub = r.size(0);
-            for (int i54{0}; i54 < mb_loop_ub; i54++) {
-                r[i54 + r.size(0) * i53] =
-                    (r[i54 + r.size(0) * i53] + 1.5 * r1[i54 + r1.size(0) * i53]) +
-                    0.5 * r2[i54 + r2.size(0) * i53];
-            }
+        if (r.size(0) == 1) {
+            i59 = r1.size(0);
+        } else {
+            i59 = r.size(0);
         }
-        coder::bsxfun(r, y_tmp, R1);
+        if (r.size(1) == 1) {
+            i60 = r1.size(1);
+        } else {
+            i60 = r.size(1);
+        }
+        if ((r.size(0) == r1.size(0)) && (r.size(1) == r1.size(1)) && (i59 == r2.size(0)) &&
+            (i60 == r2.size(1))) {
+            int lb_loop_ub;
+            lb_loop_ub = r.size(1);
+            for (int i61{0}; i61 < lb_loop_ub; i61++) {
+                int nb_loop_ub;
+                nb_loop_ub = r.size(0);
+                for (int i62{0}; i62 < nb_loop_ub; i62++) {
+                    r[i62 + r.size(0) * i61] =
+                        (r[i62 + r.size(0) * i61] + 1.5 * r1[i62 + r1.size(0) * i61]) +
+                        0.5 * r2[i62 + r2.size(0) * i61];
+                }
+            }
+            coder::bsxfun(r, y_tmp, R1);
+        } else {
+            binary_expand_op(R1, r, r1, r2, y_tmp);
+        }
         sqrt_calls++;
-        nb_loop_ub = r3D.size(1);
+        mb_loop_ub = r3D.size(1);
         b_r3D.set_size(r3D.size(1));
-        for (int i55{0}; i55 < nb_loop_ub; i55++) {
-            b_r3D[i55] = r3D[3 * i55 + 1];
+        for (int i63{0}; i63 < mb_loop_ub; i63++) {
+            b_r3D[i63] = r3D[3 * i63 + 1];
         }
         coder::bsxfun(BasisVal, b_r3D, r);
         ob_loop_ub = r2D.size(1);
         b_r2D.set_size(r2D.size(1));
-        for (int i56{0}; i56 < ob_loop_ub; i56++) {
-            b_r2D[i56] = r2D[3 * i56 + 1];
+        for (int i64{0}; i64 < ob_loop_ub; i64++) {
+            b_r2D[i64] = r2D[3 * i64 + 1];
         }
         coder::bsxfun(BasisValD, b_r2D, r1);
         pb_loop_ub = r1D.size(1);
         b_r1D.set_size(r1D.size(1));
-        for (int i57{0}; i57 < pb_loop_ub; i57++) {
-            b_r1D[i57] = r1D[3 * i57 + 1];
+        for (int i65{0}; i65 < pb_loop_ub; i65++) {
+            b_r1D[i65] = r1D[3 * i65 + 1];
         }
         coder::bsxfun(BasisValDD, b_r1D, r2);
-        qb_loop_ub = r.size(1);
-        for (int i58{0}; i58 < qb_loop_ub; i58++) {
-            int rb_loop_ub;
-            rb_loop_ub = r.size(0);
-            for (int i59{0}; i59 < rb_loop_ub; i59++) {
-                r[i59 + r.size(0) * i58] =
-                    (r[i59 + r.size(0) * i58] + 1.5 * r1[i59 + r1.size(0) * i58]) +
-                    0.5 * r2[i59 + r2.size(0) * i58];
-            }
+        if (r.size(0) == 1) {
+            i66 = r1.size(0);
+        } else {
+            i66 = r.size(0);
         }
-        coder::bsxfun(r, y_tmp, R2);
+        if (r.size(1) == 1) {
+            i67 = r1.size(1);
+        } else {
+            i67 = r.size(1);
+        }
+        if ((r.size(0) == r1.size(0)) && (r.size(1) == r1.size(1)) && (i66 == r2.size(0)) &&
+            (i67 == r2.size(1))) {
+            int qb_loop_ub;
+            qb_loop_ub = r.size(1);
+            for (int i68{0}; i68 < qb_loop_ub; i68++) {
+                int sb_loop_ub;
+                sb_loop_ub = r.size(0);
+                for (int i69{0}; i69 < sb_loop_ub; i69++) {
+                    r[i69 + r.size(0) * i68] =
+                        (r[i69 + r.size(0) * i68] + 1.5 * r1[i69 + r1.size(0) * i68]) +
+                        0.5 * r2[i69 + r2.size(0) * i68];
+                }
+            }
+            coder::bsxfun(r, y_tmp, R2);
+        } else {
+            binary_expand_op(R2, r, r1, r2, y_tmp);
+        }
         sqrt_calls++;
-        sb_loop_ub = r3D.size(1);
+        rb_loop_ub = r3D.size(1);
         b_r3D.set_size(r3D.size(1));
-        for (int i60{0}; i60 < sb_loop_ub; i60++) {
-            b_r3D[i60] = r3D[3 * i60 + 2];
+        for (int i70{0}; i70 < rb_loop_ub; i70++) {
+            b_r3D[i70] = r3D[3 * i70 + 2];
         }
         coder::bsxfun(BasisVal, b_r3D, r);
         tb_loop_ub = r2D.size(1);
         b_r2D.set_size(r2D.size(1));
-        for (int i61{0}; i61 < tb_loop_ub; i61++) {
-            b_r2D[i61] = r2D[3 * i61 + 2];
+        for (int i71{0}; i71 < tb_loop_ub; i71++) {
+            b_r2D[i71] = r2D[3 * i71 + 2];
         }
         coder::bsxfun(BasisValD, b_r2D, r1);
         ub_loop_ub = r1D.size(1);
         b_r1D.set_size(r1D.size(1));
-        for (int i62{0}; i62 < ub_loop_ub; i62++) {
-            b_r1D[i62] = r1D[3 * i62 + 2];
+        for (int i72{0}; i72 < ub_loop_ub; i72++) {
+            b_r1D[i72] = r1D[3 * i72 + 2];
         }
         coder::bsxfun(BasisValDD, b_r1D, r2);
-        vb_loop_ub = r.size(1);
-        for (int i63{0}; i63 < vb_loop_ub; i63++) {
-            int wb_loop_ub;
-            wb_loop_ub = r.size(0);
-            for (int i64{0}; i64 < wb_loop_ub; i64++) {
-                r[i64 + r.size(0) * i63] =
-                    (r[i64 + r.size(0) * i63] + 1.5 * r1[i64 + r1.size(0) * i63]) +
-                    0.5 * r2[i64 + r2.size(0) * i63];
-            }
+        if (r.size(0) == 1) {
+            i73 = r1.size(0);
+        } else {
+            i73 = r.size(0);
         }
-        coder::bsxfun(r, y_tmp, R3);
+        if (r.size(1) == 1) {
+            i74 = r1.size(1);
+        } else {
+            i74 = r.size(1);
+        }
+        if ((r.size(0) == r1.size(0)) && (r.size(1) == r1.size(1)) && (i73 == r2.size(0)) &&
+            (i74 == r2.size(1))) {
+            int vb_loop_ub;
+            vb_loop_ub = r.size(1);
+            for (int i75{0}; i75 < vb_loop_ub; i75++) {
+                int wb_loop_ub;
+                wb_loop_ub = r.size(0);
+                for (int i76{0}; i76 < wb_loop_ub; i76++) {
+                    r[i76 + r.size(0) * i75] =
+                        (r[i76 + r.size(0) * i75] + 1.5 * r1[i76 + r1.size(0) * i75]) +
+                        0.5 * r2[i76 + r2.size(0) * i75];
+                }
+            }
+            coder::bsxfun(r, y_tmp, R3);
+        } else {
+            binary_expand_op(R3, r, r1, r2, y_tmp);
+        }
         //      R2 = (BasisVal .* r3D(2, :)' + ...
         //            1.5*BasisValD .* r2D(2, :)' + ...
         //            0.5*BasisValDD.*r1D(2, :)') .* mysqrt(q_val);
@@ -638,29 +873,29 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
         //
         b_varargin_2.set_size(R1.size(0), R1.size(1));
         xb_loop_ub = R1.size(1);
-        for (int i65{0}; i65 < xb_loop_ub; i65++) {
+        for (int i77{0}; i77 < xb_loop_ub; i77++) {
             int yb_loop_ub;
             yb_loop_ub = R1.size(0);
-            for (int i66{0}; i66 < yb_loop_ub; i66++) {
-                b_varargin_2[i66 + b_varargin_2.size(0) * i65] = -R1[i66 + R1.size(0) * i65];
+            for (int i78{0}; i78 < yb_loop_ub; i78++) {
+                b_varargin_2[i78 + b_varargin_2.size(0) * i77] = -R1[i78 + R1.size(0) * i77];
             }
         }
         varargin_4.set_size(R2.size(0), R2.size(1));
         ac_loop_ub = R2.size(1);
-        for (int i67{0}; i67 < ac_loop_ub; i67++) {
+        for (int i79{0}; i79 < ac_loop_ub; i79++) {
             int bc_loop_ub;
             bc_loop_ub = R2.size(0);
-            for (int i68{0}; i68 < bc_loop_ub; i68++) {
-                varargin_4[i68 + varargin_4.size(0) * i67] = -R2[i68 + R2.size(0) * i67];
+            for (int i80{0}; i80 < bc_loop_ub; i80++) {
+                varargin_4[i80 + varargin_4.size(0) * i79] = -R2[i80 + R2.size(0) * i79];
             }
         }
         varargin_6.set_size(R3.size(0), R3.size(1));
         cc_loop_ub = R3.size(1);
-        for (int i69{0}; i69 < cc_loop_ub; i69++) {
+        for (int i81{0}; i81 < cc_loop_ub; i81++) {
             int dc_loop_ub;
             dc_loop_ub = R3.size(0);
-            for (int i70{0}; i70 < dc_loop_ub; i70++) {
-                varargin_6[i70 + varargin_6.size(0) * i69] = -R3[i70 + R3.size(0) * i69];
+            for (int i82{0}; i82 < dc_loop_ub; i82++) {
+                varargin_6[i82 + varargin_6.size(0) * i81] = -R3[i82 + R3.size(0) * i81];
             }
         }
         if ((R1.size(0) != 0) && (R1.size(1) != 0)) {
@@ -733,8 +968,8 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
             int ec_loop_ub;
             ec_loop_ub = static_cast<int>(b_tmp - a_tmp);
             y.set_size(1, ec_loop_ub + 1);
-            for (int i71{0}; i71 <= ec_loop_ub; i71++) {
-                y[i71] = a_tmp + static_cast<double>(i71);
+            for (int i83{0}; i83 <= ec_loop_ub; i83++) {
+                y[i83] = a_tmp + static_cast<double>(i83);
             }
         }
         a = (static_cast<double>(c_k) + 1.0) * static_cast<double>(N) + 1.0;
@@ -745,8 +980,8 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
             int fc_loop_ub;
             fc_loop_ub = static_cast<int>(c_b - a);
             b_y.set_size(1, fc_loop_ub + 1);
-            for (int i72{0}; i72 <= fc_loop_ub; i72++) {
-                b_y[i72] = a + static_cast<double>(i72);
+            for (int i84{0}; i84 <= fc_loop_ub; i84++) {
+                b_y[i84] = a + static_cast<double>(i84);
             }
         }
         b_R1.set_size(((((h_input_sizes_idx_0 + i_input_sizes_idx_0) + j_input_sizes_idx_0) +
@@ -754,56 +989,56 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
                        l_input_sizes_idx_0) +
                           m_input_sizes_idx_0,
                       b_result);
-        for (int i73{0}; i73 < b_result; i73++) {
-            for (int i75{0}; i75 < h_input_sizes_idx_0; i75++) {
-                b_R1[i75 + b_R1.size(0) * i73] = R1[i75 + h_input_sizes_idx_0 * i73];
+        for (int i85{0}; i85 < b_result; i85++) {
+            for (int i87{0}; i87 < h_input_sizes_idx_0; i87++) {
+                b_R1[i87 + b_R1.size(0) * i85] = R1[i87 + h_input_sizes_idx_0 * i85];
             }
         }
-        for (int i74{0}; i74 < b_result; i74++) {
-            for (int i77{0}; i77 < i_input_sizes_idx_0; i77++) {
-                b_R1[(i77 + h_input_sizes_idx_0) + b_R1.size(0) * i74] =
-                    b_varargin_2[i77 + i_input_sizes_idx_0 * i74];
+        for (int i86{0}; i86 < b_result; i86++) {
+            for (int i89{0}; i89 < i_input_sizes_idx_0; i89++) {
+                b_R1[(i89 + h_input_sizes_idx_0) + b_R1.size(0) * i86] =
+                    b_varargin_2[i89 + i_input_sizes_idx_0 * i86];
             }
         }
-        for (int i76{0}; i76 < b_result; i76++) {
-            for (int i79{0}; i79 < j_input_sizes_idx_0; i79++) {
-                b_R1[((i79 + h_input_sizes_idx_0) + i_input_sizes_idx_0) + b_R1.size(0) * i76] =
-                    R2[i79 + j_input_sizes_idx_0 * i76];
+        for (int i88{0}; i88 < b_result; i88++) {
+            for (int i91{0}; i91 < j_input_sizes_idx_0; i91++) {
+                b_R1[((i91 + h_input_sizes_idx_0) + i_input_sizes_idx_0) + b_R1.size(0) * i88] =
+                    R2[i91 + j_input_sizes_idx_0 * i88];
             }
         }
-        for (int i78{0}; i78 < b_result; i78++) {
-            for (int i81{0}; i81 < k_input_sizes_idx_0; i81++) {
-                b_R1[(((i81 + h_input_sizes_idx_0) + i_input_sizes_idx_0) + j_input_sizes_idx_0) +
-                     b_R1.size(0) * i78] = varargin_4[i81 + k_input_sizes_idx_0 * i78];
+        for (int i90{0}; i90 < b_result; i90++) {
+            for (int i93{0}; i93 < k_input_sizes_idx_0; i93++) {
+                b_R1[(((i93 + h_input_sizes_idx_0) + i_input_sizes_idx_0) + j_input_sizes_idx_0) +
+                     b_R1.size(0) * i90] = varargin_4[i93 + k_input_sizes_idx_0 * i90];
             }
         }
-        for (int i80{0}; i80 < b_result; i80++) {
-            for (int i83{0}; i83 < l_input_sizes_idx_0; i83++) {
-                b_R1[((((i83 + h_input_sizes_idx_0) + i_input_sizes_idx_0) + j_input_sizes_idx_0) +
+        for (int i92{0}; i92 < b_result; i92++) {
+            for (int i95{0}; i95 < l_input_sizes_idx_0; i95++) {
+                b_R1[((((i95 + h_input_sizes_idx_0) + i_input_sizes_idx_0) + j_input_sizes_idx_0) +
                       k_input_sizes_idx_0) +
-                     b_R1.size(0) * i80] = R3[i83 + l_input_sizes_idx_0 * i80];
+                     b_R1.size(0) * i92] = R3[i95 + l_input_sizes_idx_0 * i92];
             }
         }
-        for (int i82{0}; i82 < b_result; i82++) {
-            for (int i84{0}; i84 < m_input_sizes_idx_0; i84++) {
-                b_R1[(((((i84 + h_input_sizes_idx_0) + i_input_sizes_idx_0) + j_input_sizes_idx_0) +
+        for (int i94{0}; i94 < b_result; i94++) {
+            for (int i96{0}; i96 < m_input_sizes_idx_0; i96++) {
+                b_R1[(((((i96 + h_input_sizes_idx_0) + i_input_sizes_idx_0) + j_input_sizes_idx_0) +
                        k_input_sizes_idx_0) +
                       l_input_sizes_idx_0) +
-                     b_R1.size(0) * i82] = varargin_6[i84 + m_input_sizes_idx_0 * i82];
+                     b_R1.size(0) * i94] = varargin_6[i96 + m_input_sizes_idx_0 * i94];
             }
         }
         A->parenAssign(b_R1, y, b_y);
         //
         if (a_tmp > b_tmp) {
-            i85 = -1;
-            i86 = 0;
+            i97 = -1;
+            i98 = 0;
         } else {
-            i85 = static_cast<int>(a_tmp) - 2;
-            i86 = static_cast<int>(b_tmp);
+            i97 = static_cast<int>(a_tmp) - 2;
+            i98 = static_cast<int>(b_tmp);
         }
-        gc_loop_ub = (i86 - i85) - 1;
-        for (int i87{0}; i87 < gc_loop_ub; i87++) {
-            b[(i85 + i87) + 1] = r3[i87];
+        gc_loop_ub = (i98 - i97) - 1;
+        for (int i99{0}; i99 < gc_loop_ub; i99++) {
+            b[(i97 + i99) + 1] = r3[i99];
         }
         //
     }

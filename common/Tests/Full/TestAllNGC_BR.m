@@ -1,3 +1,25 @@
+% This script implements the minimum configuration
+% to be able to run geometric optimisation, feedrate planning,
+% and resampling, with selected gcode file(s), with Matlab.
+
+% In current implementation, theses files have to be placed in:
+% agency/usr/matlab/common/ngc_test/utility_test_gcodes
+
+% Be sure to have already generated all needed MEX files with
+% generate_mex.m and
+% mex_queue.m
+
+% You can activate different debug configurations with EnableDebugLog().
+% See DebugCfg enum definition to know all supported options, in DebugCfg.m.
+
+% PlotResampled_BR() plot routine makes a 3D plot of the machined piece
+% after all optimisations and resamling.
+% This plot includes velocity information along all the path, with a color code.
+
+% We need to invoke DestoyContext() function in the end of each for iteration,
+% in order to prorerly free and deallocate memory space.
+% Without this call, Matlab may crash when many gcodes have been treated.
+
 clear; clc; close all;
 
 global DebugConfig
@@ -11,38 +33,21 @@ cfg.DebugPrint = false;
 cfg.SkipCompressing = false;
 cfg.DebugOptimProgress = true;
 
-ngc_unit_list = string(fullfile('ngc_test/unit', {dir('ngc_test/unit/*.ngc').name}));
-ngc_full_list = string(fullfile('ngc_test/full', {dir('ngc_test/full/*.ngc').name}));
-ngc_full_Montres_list = string(fullfile('ngc_test/full', {dir('ngc_test/full/*.ngc').name}));
-
-if coder.target('matlab')
-    diary ([cfg.LogFileName, '_', ...
-        datestr(now,'yyyy_mm_dd_HH_MM_SS'), ...
-        '.txt']);
-    diary on;
-end
+ngc_list = string(fullfile('ngc_test/utility_test_gcodes', {dir('ngc_test/utility_test_gcodes/*.ngc').name}));
 
 EnableDebugLog(DebugCfg.Transitions);
 EnableDebugLog(DebugCfg.Error);
+EnableDebugLog(DebugCfg.Warning);
+EnableDebugLog(DebugCfg.OptimProgress);
+EnableDebugLog(DebugCfg.Plots);
 
+for k=1:numel(ngc_list)
 
-for k=1:numel(ngc_full_Montres_list)
-
-    cfg.source = char(ngc_full_Montres_list(k));
+    cfg.source = char(ngc_list(k));
     DebugLog(DebugCfg.Transitions, [cfg.source, '\n']);
     ctx = InitFeedoptPlan(cfg);
     ctx = FeedoptPlanRun(ctx);
-    
-%         figure;
-%         PlotCurvStructsBR_2(ctx, ctx.q_split.getall());
-%         title(ngc_full_Montres_list(k), 'Interpreter', 'none');
-
-%         PlotResampled(ctx, 1e-3);
-
+    PlotResampled_BR(ctx, 10, 1e-3);
     DestroyContext(ctx);
 
-end
-
-if coder.target('matlab')
-    diary off;
 end

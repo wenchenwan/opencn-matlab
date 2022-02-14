@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: c_assert.h
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:47:09
 //
 
 #ifndef C_ASSERT_H
@@ -33,6 +33,14 @@ void e_c_assert(bool condition);
 void f_c_assert(bool condition);
 
 void g_c_assert(bool condition);
+
+void h_c_assert(bool condition);
+
+void i_c_assert(bool condition);
+
+void j_c_assert(bool condition);
+
+void k_c_assert(bool condition);
 
 } // namespace ocn
 

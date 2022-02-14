@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: EvalHelix.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:36:47
 //
 
 // Include Files
@@ -16,7 +16,181 @@
 #include "common/tracy/Tracy.hpp"
 #include <cmath>
 
+// Function Declarations
+namespace ocn {
+static void binary_expand_op(::coder::array<double, 2U> &b,
+                             const ::coder::array<double, 2U> &cphiTCP0,
+                             const ::coder::array<double, 2U> &sphiTEcrCP0, double a,
+                             const double CurvStruct_evec[3],
+                             const ::coder::array<double, 2U> &phi_vec);
+
+static void binary_expand_op(::coder::array<double, 2U> &a, double CurvStruct_theta,
+                             const ::coder::array<double, 2U> &sphiTCP0,
+                             const ::coder::array<double, 2U> &cphiTEcrCP0);
+
+static void binary_expand_op(::coder::array<double, 2U> &r3D, double a,
+                             const ::coder::array<double, 2U> &sphiTCP0, double b_a,
+                             const ::coder::array<double, 2U> &cphiTEcrCP0);
+
+} // namespace ocn
+
 // Function Definitions
+//
+// Arguments    : ::coder::array<double, 2U> &b
+//                const ::coder::array<double, 2U> &cphiTCP0
+//                const ::coder::array<double, 2U> &sphiTEcrCP0
+//                double a
+//                const double CurvStruct_evec[3]
+//                const ::coder::array<double, 2U> &phi_vec
+// Return Type  : void
+//
+namespace ocn {
+static void binary_expand_op(::coder::array<double, 2U> &b,
+                             const ::coder::array<double, 2U> &cphiTCP0,
+                             const ::coder::array<double, 2U> &sphiTEcrCP0, double a,
+                             const double CurvStruct_evec[3],
+                             const ::coder::array<double, 2U> &phi_vec)
+{
+    ::coder::array<double, 2U> b_a;
+    int aux_0_1;
+    int aux_1_1;
+    int aux_2_1;
+    int b_loop_ub;
+    int i1;
+    int loop_ub;
+    int stride_0_1;
+    int stride_1_1;
+    int stride_2_1;
+    b_a.set_size(3, phi_vec.size(1));
+    loop_ub = phi_vec.size(1);
+    for (int i{0}; i < loop_ub; i++) {
+        b_a[3 * i] = a * CurvStruct_evec[0] * phi_vec[i];
+        b_a[3 * i + 1] = a * CurvStruct_evec[1] * phi_vec[i];
+        b_a[3 * i + 2] = a * CurvStruct_evec[2] * phi_vec[i];
+    }
+    if (b_a.size(1) == 1) {
+        if (sphiTEcrCP0.size(1) == 1) {
+            i1 = cphiTCP0.size(1);
+        } else {
+            i1 = sphiTEcrCP0.size(1);
+        }
+    } else {
+        i1 = b_a.size(1);
+    }
+    b.set_size(3, i1);
+    stride_0_1 = (cphiTCP0.size(1) != 1);
+    stride_1_1 = (sphiTEcrCP0.size(1) != 1);
+    stride_2_1 = (b_a.size(1) != 1);
+    aux_0_1 = 0;
+    aux_1_1 = 0;
+    aux_2_1 = 0;
+    if (b_a.size(1) == 1) {
+        if (sphiTEcrCP0.size(1) == 1) {
+            b_loop_ub = cphiTCP0.size(1);
+        } else {
+            b_loop_ub = sphiTEcrCP0.size(1);
+        }
+    } else {
+        b_loop_ub = b_a.size(1);
+    }
+    for (int i2{0}; i2 < b_loop_ub; i2++) {
+        b[3 * i2] = (cphiTCP0[3 * aux_0_1] + sphiTEcrCP0[3 * aux_1_1]) + b_a[3 * aux_2_1];
+        b[3 * i2 + 1] =
+            (cphiTCP0[3 * aux_0_1 + 1] + sphiTEcrCP0[3 * aux_1_1 + 1]) + b_a[3 * aux_2_1 + 1];
+        b[3 * i2 + 2] =
+            (cphiTCP0[3 * aux_0_1 + 2] + sphiTEcrCP0[3 * aux_1_1 + 2]) + b_a[3 * aux_2_1 + 2];
+        aux_2_1 += stride_2_1;
+        aux_1_1 += stride_1_1;
+        aux_0_1 += stride_0_1;
+    }
+}
+
+//
+// Arguments    : ::coder::array<double, 2U> &a
+//                double CurvStruct_theta
+//                const ::coder::array<double, 2U> &sphiTCP0
+//                const ::coder::array<double, 2U> &cphiTEcrCP0
+// Return Type  : void
+//
+static void binary_expand_op(::coder::array<double, 2U> &a, double CurvStruct_theta,
+                             const ::coder::array<double, 2U> &sphiTCP0,
+                             const ::coder::array<double, 2U> &cphiTEcrCP0)
+{
+    int aux_0_1;
+    int aux_1_1;
+    int i;
+    int loop_ub;
+    int stride_0_1;
+    int stride_1_1;
+    if (cphiTEcrCP0.size(1) == 1) {
+        i = sphiTCP0.size(1);
+    } else {
+        i = cphiTEcrCP0.size(1);
+    }
+    a.set_size(3, i);
+    stride_0_1 = (sphiTCP0.size(1) != 1);
+    stride_1_1 = (cphiTEcrCP0.size(1) != 1);
+    aux_0_1 = 0;
+    aux_1_1 = 0;
+    if (cphiTEcrCP0.size(1) == 1) {
+        loop_ub = sphiTCP0.size(1);
+    } else {
+        loop_ub = cphiTEcrCP0.size(1);
+    }
+    for (int i1{0}; i1 < loop_ub; i1++) {
+        a[3 * i1] =
+            -CurvStruct_theta * sphiTCP0[3 * aux_0_1] + CurvStruct_theta * cphiTEcrCP0[3 * aux_1_1];
+        a[3 * i1 + 1] = -CurvStruct_theta * sphiTCP0[3 * aux_0_1 + 1] +
+                        CurvStruct_theta * cphiTEcrCP0[3 * aux_1_1 + 1];
+        a[3 * i1 + 2] = -CurvStruct_theta * sphiTCP0[3 * aux_0_1 + 2] +
+                        CurvStruct_theta * cphiTEcrCP0[3 * aux_1_1 + 2];
+        aux_1_1 += stride_1_1;
+        aux_0_1 += stride_0_1;
+    }
+}
+
+//
+// Arguments    : ::coder::array<double, 2U> &r3D
+//                double a
+//                const ::coder::array<double, 2U> &sphiTCP0
+//                double b_a
+//                const ::coder::array<double, 2U> &cphiTEcrCP0
+// Return Type  : void
+//
+static void binary_expand_op(::coder::array<double, 2U> &r3D, double a,
+                             const ::coder::array<double, 2U> &sphiTCP0, double b_a,
+                             const ::coder::array<double, 2U> &cphiTEcrCP0)
+{
+    int aux_0_1;
+    int aux_1_1;
+    int i;
+    int loop_ub;
+    int stride_0_1;
+    int stride_1_1;
+    if (cphiTEcrCP0.size(1) == 1) {
+        i = sphiTCP0.size(1);
+    } else {
+        i = cphiTEcrCP0.size(1);
+    }
+    r3D.set_size(3, i);
+    stride_0_1 = (sphiTCP0.size(1) != 1);
+    stride_1_1 = (cphiTEcrCP0.size(1) != 1);
+    aux_0_1 = 0;
+    aux_1_1 = 0;
+    if (cphiTEcrCP0.size(1) == 1) {
+        loop_ub = sphiTCP0.size(1);
+    } else {
+        loop_ub = cphiTEcrCP0.size(1);
+    }
+    for (int i1{0}; i1 < loop_ub; i1++) {
+        r3D[3 * i1] = a * sphiTCP0[3 * aux_0_1] - b_a * cphiTEcrCP0[3 * aux_1_1];
+        r3D[3 * i1 + 1] = a * sphiTCP0[3 * aux_0_1 + 1] - b_a * cphiTEcrCP0[3 * aux_1_1 + 1];
+        r3D[3 * i1 + 2] = a * sphiTCP0[3 * aux_0_1 + 2] - b_a * cphiTEcrCP0[3 * aux_1_1 + 2];
+        aux_1_1 += stride_1_1;
+        aux_0_1 += stride_0_1;
+    }
+}
+
 //
 // Arguments    : const double CurvStruct_P0[3]
 //                const double CurvStruct_P1[3]
@@ -31,7 +205,6 @@
 //                double r3D[10][3]
 // Return Type  : void
 //
-namespace ocn {
 void EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3],
                const double CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3],
                double CurvStruct_theta, double CurvStruct_pitch, const double u_vec[10],
@@ -41,7 +214,6 @@ void EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3],
     double P0P1_idx_1;
     double P0P1_idx_2;
     ZoneScopedN("EvalHelix");
-    //
     //
     P0P1_idx_0 = CurvStruct_P1[0] - CurvStruct_P0[0];
     P0P1_idx_1 = CurvStruct_P1[1] - CurvStruct_P0[1];
@@ -107,7 +279,7 @@ void EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3],
         y_idx_0 = b_a * CurvStruct_evec[0];
         y_idx_1 = b_a * CurvStruct_evec[1];
         y_idx_2 = b_a * CurvStruct_evec[2];
-        a_tmp = std::pow(CurvStruct_theta, 2.0);
+        a_tmp = CurvStruct_theta * CurvStruct_theta;
         b_a_tmp = std::pow(CurvStruct_theta, 3.0);
         d = CurvStruct_CorrectedHelixCenter[0];
         d1 = CurvStruct_CorrectedHelixCenter[1];
@@ -193,6 +365,7 @@ void EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3],
     ::coder::array<double, 2U> cphiTCP0;
     ::coder::array<double, 2U> cphiTEcrCP0;
     ::coder::array<double, 2U> phi_vec;
+    ::coder::array<double, 2U> r;
     ::coder::array<double, 2U> sphi;
     ::coder::array<double, 2U> sphiTCP0;
     ::coder::array<double, 2U> sphiTEcrCP0;
@@ -204,7 +377,6 @@ void EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3],
     int d_loop_ub;
     int loop_ub;
     ZoneScopedN("EvalHelix");
-    //
     //
     P0P1_idx_0 = CurvStruct_P1[0] - CurvStruct_P0[0];
     P0P1_idx_1 = CurvStruct_P1[1] - CurvStruct_P0[1];
@@ -261,15 +433,13 @@ void EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3],
         int f_loop_ub;
         int g_loop_ub;
         int h_loop_ub;
+        int i14;
         int i6;
         int i8;
         int i_loop_ub;
         int j_loop_ub;
         int k_loop_ub;
         int l_loop_ub;
-        int m_loop_ub;
-        int n_loop_ub;
-        int o_loop_ub;
         //  if pitch == 0
         //      if ~c_assert(evec'*P0P1 > eps, 'e'' * P0P1 = 0')
         //          return;
@@ -338,23 +508,40 @@ void EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3],
         }
         //
         a = CurvStruct_pitch / 6.2831853071795862;
-        b.set_size(3, phi_vec.size(1));
+        r.set_size(3, phi_vec.size(1));
         l_loop_ub = phi_vec.size(1);
         for (int i13{0}; i13 < l_loop_ub; i13++) {
-            b[3 * i13] =
-                (cphiTCP0[3 * i13] + sphiTEcrCP0[3 * i13]) + a * CurvStruct_evec[0] * phi_vec[i13];
-            b[3 * i13 + 1] = (cphiTCP0[3 * i13 + 1] + sphiTEcrCP0[3 * i13 + 1]) +
-                             a * CurvStruct_evec[1] * phi_vec[i13];
-            b[3 * i13 + 2] = (cphiTCP0[3 * i13 + 2] + sphiTEcrCP0[3 * i13 + 2]) +
-                             a * CurvStruct_evec[2] * phi_vec[i13];
+            r[3 * i13] = a * CurvStruct_evec[0] * phi_vec[i13];
+            r[3 * i13 + 1] = a * CurvStruct_evec[1] * phi_vec[i13];
+            r[3 * i13 + 2] = a * CurvStruct_evec[2] * phi_vec[i13];
+        }
+        if (cphiTCP0.size(1) == 1) {
+            i14 = sphiTEcrCP0.size(1);
+        } else {
+            i14 = cphiTCP0.size(1);
+        }
+        if ((cphiTCP0.size(1) == sphiTEcrCP0.size(1)) && (i14 == r.size(1))) {
+            int m_loop_ub;
+            b.set_size(3, phi_vec.size(1));
+            m_loop_ub = phi_vec.size(1);
+            for (int i15{0}; i15 < m_loop_ub; i15++) {
+                b[3 * i15] = (cphiTCP0[3 * i15] + sphiTEcrCP0[3 * i15]) +
+                             a * CurvStruct_evec[0] * phi_vec[i15];
+                b[3 * i15 + 1] = (cphiTCP0[3 * i15 + 1] + sphiTEcrCP0[3 * i15 + 1]) +
+                                 a * CurvStruct_evec[1] * phi_vec[i15];
+                b[3 * i15 + 2] = (cphiTCP0[3 * i15 + 2] + sphiTEcrCP0[3 * i15 + 2]) +
+                                 a * CurvStruct_evec[2] * phi_vec[i15];
+            }
+        } else {
+            binary_expand_op(b, cphiTCP0, sphiTEcrCP0, a, CurvStruct_evec, phi_vec);
         }
         r0D.set_size(3, b.size(1));
         if (b.size(1) != 0) {
             int bcoef;
-            int i14;
+            int i16;
             bcoef = (b.size(1) != 1);
-            i14 = b.size(1) - 1;
-            for (int c_k{0}; c_k <= i14; c_k++) {
+            i16 = b.size(1) - 1;
+            for (int c_k{0}; c_k <= i16; c_k++) {
                 int varargin_3;
                 varargin_3 = bcoef * c_k;
                 r0D[3 * c_k] = CurvStruct_CorrectedHelixCenter[0] + b[3 * varargin_3];
@@ -366,23 +553,28 @@ void EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3],
         y_idx_0 = b_a * CurvStruct_evec[0];
         y_idx_1 = b_a * CurvStruct_evec[1];
         y_idx_2 = b_a * CurvStruct_evec[2];
-        c_a.set_size(3, sphiTCP0.size(1));
-        m_loop_ub = sphiTCP0.size(1);
-        for (int i15{0}; i15 < m_loop_ub; i15++) {
-            c_a[3 * i15] =
-                -CurvStruct_theta * sphiTCP0[3 * i15] + CurvStruct_theta * cphiTEcrCP0[3 * i15];
-            c_a[3 * i15 + 1] = -CurvStruct_theta * sphiTCP0[3 * i15 + 1] +
-                               CurvStruct_theta * cphiTEcrCP0[3 * i15 + 1];
-            c_a[3 * i15 + 2] = -CurvStruct_theta * sphiTCP0[3 * i15 + 2] +
-                               CurvStruct_theta * cphiTEcrCP0[3 * i15 + 2];
+        if (sphiTCP0.size(1) == cphiTEcrCP0.size(1)) {
+            int n_loop_ub;
+            c_a.set_size(3, sphiTCP0.size(1));
+            n_loop_ub = sphiTCP0.size(1);
+            for (int i17{0}; i17 < n_loop_ub; i17++) {
+                c_a[3 * i17] =
+                    -CurvStruct_theta * sphiTCP0[3 * i17] + CurvStruct_theta * cphiTEcrCP0[3 * i17];
+                c_a[3 * i17 + 1] = -CurvStruct_theta * sphiTCP0[3 * i17 + 1] +
+                                   CurvStruct_theta * cphiTEcrCP0[3 * i17 + 1];
+                c_a[3 * i17 + 2] = -CurvStruct_theta * sphiTCP0[3 * i17 + 2] +
+                                   CurvStruct_theta * cphiTEcrCP0[3 * i17 + 2];
+            }
+        } else {
+            binary_expand_op(c_a, CurvStruct_theta, sphiTCP0, cphiTEcrCP0);
         }
         r1D.set_size(3, c_a.size(1));
         if (c_a.size(1) != 0) {
             int acoef;
-            int i16;
+            int i18;
             acoef = (c_a.size(1) != 1);
-            i16 = c_a.size(1) - 1;
-            for (int d_k{0}; d_k <= i16; d_k++) {
+            i18 = c_a.size(1) - 1;
+            for (int d_k{0}; d_k <= i18; d_k++) {
                 int varargin_2;
                 varargin_2 = acoef * d_k;
                 r1D[3 * d_k] = c_a[3 * varargin_2] + y_idx_0;
@@ -390,21 +582,35 @@ void EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3],
                 r1D[3 * d_k + 2] = c_a[3 * varargin_2 + 2] + y_idx_2;
             }
         }
-        a_tmp = std::pow(CurvStruct_theta, 2.0);
-        r2D.set_size(3, cphiTCP0.size(1));
-        n_loop_ub = cphiTCP0.size(1);
-        for (int i17{0}; i17 < n_loop_ub; i17++) {
-            r2D[3 * i17] = -a_tmp * cphiTCP0[3 * i17] - a_tmp * sphiTEcrCP0[3 * i17];
-            r2D[3 * i17 + 1] = -a_tmp * cphiTCP0[3 * i17 + 1] - a_tmp * sphiTEcrCP0[3 * i17 + 1];
-            r2D[3 * i17 + 2] = -a_tmp * cphiTCP0[3 * i17 + 2] - a_tmp * sphiTEcrCP0[3 * i17 + 2];
+        a_tmp = CurvStruct_theta * CurvStruct_theta;
+        if (cphiTCP0.size(1) == sphiTEcrCP0.size(1)) {
+            int o_loop_ub;
+            r2D.set_size(3, cphiTCP0.size(1));
+            o_loop_ub = cphiTCP0.size(1);
+            for (int i19{0}; i19 < o_loop_ub; i19++) {
+                r2D[3 * i19] = -a_tmp * cphiTCP0[3 * i19] - a_tmp * sphiTEcrCP0[3 * i19];
+                r2D[3 * i19 + 1] =
+                    -a_tmp * cphiTCP0[3 * i19 + 1] - a_tmp * sphiTEcrCP0[3 * i19 + 1];
+                r2D[3 * i19 + 2] =
+                    -a_tmp * cphiTCP0[3 * i19 + 2] - a_tmp * sphiTEcrCP0[3 * i19 + 2];
+            }
+        } else {
+            binary_expand_op(r2D, -a_tmp, cphiTCP0, a_tmp, sphiTEcrCP0);
         }
         b_a_tmp = std::pow(CurvStruct_theta, 3.0);
-        r3D.set_size(3, sphiTCP0.size(1));
-        o_loop_ub = sphiTCP0.size(1);
-        for (int i18{0}; i18 < o_loop_ub; i18++) {
-            r3D[3 * i18] = b_a_tmp * sphiTCP0[3 * i18] - b_a_tmp * cphiTEcrCP0[3 * i18];
-            r3D[3 * i18 + 1] = b_a_tmp * sphiTCP0[3 * i18 + 1] - b_a_tmp * cphiTEcrCP0[3 * i18 + 1];
-            r3D[3 * i18 + 2] = b_a_tmp * sphiTCP0[3 * i18 + 2] - b_a_tmp * cphiTEcrCP0[3 * i18 + 2];
+        if (sphiTCP0.size(1) == cphiTEcrCP0.size(1)) {
+            int p_loop_ub;
+            r3D.set_size(3, sphiTCP0.size(1));
+            p_loop_ub = sphiTCP0.size(1);
+            for (int i20{0}; i20 < p_loop_ub; i20++) {
+                r3D[3 * i20] = b_a_tmp * sphiTCP0[3 * i20] - b_a_tmp * cphiTEcrCP0[3 * i20];
+                r3D[3 * i20 + 1] =
+                    b_a_tmp * sphiTCP0[3 * i20 + 1] - b_a_tmp * cphiTEcrCP0[3 * i20 + 1];
+                r3D[3 * i20 + 2] =
+                    b_a_tmp * sphiTCP0[3 * i20 + 2] - b_a_tmp * cphiTEcrCP0[3 * i20 + 2];
+            }
+        } else {
+            binary_expand_op(r3D, b_a_tmp, sphiTCP0, b_a_tmp, cphiTEcrCP0);
         }
     }
 }
@@ -432,7 +638,6 @@ void EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3],
     double P0P1_idx_1;
     double P0P1_idx_2;
     ZoneScopedN("EvalHelix");
-    //
     //
     P0P1_idx_0 = CurvStruct_P1[0] - CurvStruct_P0[0];
     r0D[0] = 0.0;
@@ -506,7 +711,7 @@ void EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3],
         //
         a = CurvStruct_pitch / 6.2831853071795862;
         b_a = CurvStruct_theta * CurvStruct_pitch / 6.2831853071795862;
-        a_tmp = std::pow(CurvStruct_theta, 2.0);
+        a_tmp = CurvStruct_theta * CurvStruct_theta;
         b_a_tmp = std::pow(CurvStruct_theta, 3.0);
         d1 = EcrCP0_idx_0 * cphi;
         d2 = EcrCP0_idx_0 * sphi;

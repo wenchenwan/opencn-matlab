@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: c_simplex.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:47:09
 //
 
 // Include Files
@@ -233,7 +233,7 @@ void c_simplex(const ::coder::array<double, 2U> &f, const coder::sparse *A,
     vectorUB = scalarLB - 4;
     for (i6 = 0; i6 <= vectorUB; i6 += 4) {
         __m128i r;
-        r = _mm_loadu_si128((__m128i *)&i_tmp[i6]);
+        r = _mm_loadu_si128((const __m128i *)&i_tmp[i6]);
         _mm_storeu_si128((__m128i *)&Ais[i6], _mm_sub_epi32(r, _mm_set1_epi32(1)));
     }
     for (i6 = scalarLB; i6 < c_loop_ub; i6++) {
@@ -245,7 +245,7 @@ void c_simplex(const ::coder::array<double, 2U> &f, const coder::sparse *A,
     b_vectorUB = b_scalarLB - 4;
     for (i9 = 0; i9 <= b_vectorUB; i9 += 4) {
         __m128i r1;
-        r1 = _mm_loadu_si128((__m128i *)&j[i9]);
+        r1 = _mm_loadu_si128((const __m128i *)&j[i9]);
         _mm_storeu_si128((__m128i *)&Ajs[i9], _mm_sub_epi32(r1, _mm_set1_epi32(1)));
     }
     for (i9 = b_scalarLB; i9 < d_loop_ub; i9++) {

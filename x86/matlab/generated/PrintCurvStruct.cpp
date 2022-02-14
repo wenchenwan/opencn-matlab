@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: PrintCurvStruct.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:47:09
 //
 
 // Include Files
@@ -16,9 +16,11 @@
 #include "queue_coder.h"
 #include "sinspace_data.h"
 #include "sinspace_initialize.h"
+#include "sinspace_internal_types.h"
 #include "sinspace_types.h"
+#include "sinspace_types1.h"
+#include "sinspace_types2.h"
 #include "string1.h"
-#include "coder_bounded_array.h"
 #include <algorithm>
 #include <stdio.h>
 
@@ -203,9 +205,10 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
     printf("%10s: [%.4f %.4f %.4f] -> [%.4f %.4f %.4f]\n", "P", P0[0], P0[1], P0[2], P1[0], P1[1],
            P1[2]);
     fflush(stdout);
-    validatedHoleFilling_f2 = LengthCurv(&ctx->q_splines, ctx->cfg.NGridLengthSpline, S->Type,
-                                         S->P0, S->P1, S->CorrectedHelixCenter, S->evec, S->theta,
-                                         S->pitch, S->CoeffP5, S->sp_index, S->a_param, S->b_param);
+    validatedHoleFilling_f2 =
+        LengthCurv(&ctx->q_splines, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW, S->Type,
+                   S->P0, S->P1, S->CorrectedHelixCenter, S->evec, S->theta, S->pitch, S->CoeffP5,
+                   S->sp_index, S->a_param, S->b_param);
     printf("%10s: %e\n", "Length", validatedHoleFilling_f2);
     fflush(stdout);
     PrintZSpdMode(S->zspdmode, &r);
@@ -234,12 +237,13 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
 
 //
 // Arguments    : const queue_coder *ctx_q_splines
-//                double ctx_cfg_NGridLengthSpline
+//                const double ctx_cfg_GaussLegendreX[5]
+//                const double ctx_cfg_GaussLegendreW[5]
 //                const CurvStruct *S
 // Return Type  : void
 //
-void b_PrintCurvStruct(const queue_coder *ctx_q_splines, double ctx_cfg_NGridLengthSpline,
-                       const CurvStruct *S)
+void b_PrintCurvStruct(const queue_coder *ctx_q_splines, const double ctx_cfg_GaussLegendreX[5],
+                       const double ctx_cfg_GaussLegendreW[5], const CurvStruct *S)
 {
     coder::rtString r;
     double dv[3][6];
@@ -315,9 +319,10 @@ void b_PrintCurvStruct(const queue_coder *ctx_q_splines, double ctx_cfg_NGridLen
     printf("%10s: [%.4f %.4f %.4f] -> [%.4f %.4f %.4f]\n", "P", P0[0], P0[1], P0[2], P1[0], P1[1],
            P1[2]);
     fflush(stdout);
-    validatedHoleFilling_f2 = LengthCurv(ctx_q_splines, ctx_cfg_NGridLengthSpline, S->Type, S->P0,
-                                         S->P1, S->CorrectedHelixCenter, S->evec, S->theta,
-                                         S->pitch, S->CoeffP5, S->sp_index, S->a_param, S->b_param);
+    validatedHoleFilling_f2 =
+        LengthCurv(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, S->Type, S->P0,
+                   S->P1, S->CorrectedHelixCenter, S->evec, S->theta, S->pitch, S->CoeffP5,
+                   S->sp_index, S->a_param, S->b_param);
     printf("%10s: %e\n", "Length", validatedHoleFilling_f2);
     fflush(stdout);
     PrintZSpdMode(S->zspdmode, &r);

@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: DebugLog.h
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:10:03
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:47:09
 //
 
 #ifndef DEBUGLOG_H
@@ -20,34 +20,42 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-void DebugLog(double varargin_2);
-
 void DebugLog(int varargin_2, double varargin_3, double varargin_4, double varargin_5,
               double varargin_6, double varargin_7, double varargin_8, double varargin_9);
+
+void DebugLog(double varargin_2);
 
 void DebugLog(double varargin_2, double varargin_3, double varargin_4);
 
 void DebugLog(int varargin_2);
 
+void DebugLog(int varargin_2, int varargin_3);
+
 void DebugLog();
 
-void DebugLog(int varargin_2, int varargin_3);
+void ab_DebugLog();
 
 void b_DebugLog(double varargin_2);
 
 void b_DebugLog(int varargin_2);
 
+void b_DebugLog();
+
 void b_DebugLog(int varargin_2, int varargin_3);
 
-void b_DebugLog();
+void bb_DebugLog();
 
 void c_DebugLog(double varargin_2);
 
 void c_DebugLog();
 
-void d_DebugLog(double varargin_2);
+void cb_DebugLog();
 
 void d_DebugLog();
+
+void d_DebugLog(double varargin_2);
+
+void db_DebugLog();
 
 void e_DebugLog();
 
@@ -90,6 +98,8 @@ void v_DebugLog();
 void w_DebugLog();
 
 void x_DebugLog();
+
+void y_DebugLog();
 
 } // namespace ocn
 

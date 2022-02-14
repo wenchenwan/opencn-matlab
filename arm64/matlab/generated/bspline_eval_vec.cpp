@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: bspline_eval_vec.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:36:47
 //
 
 // Include Files
@@ -68,58 +68,6 @@ void bspline_eval_vec(unsigned long Bl_handle, const ::coder::array<double, 2U> 
                       const ::coder::array<double, 2U> &u, ::coder::array<double, 2U> &x)
 {
     ::coder::array<double, 2U> xd;
-    ::coder::array<double, 2U> xdd;
-    ::coder::array<double, 2U> xddd;
-    double d;
-    double d1;
-    double d2;
-    int b_loop_ub;
-    int c_loop_ub;
-    int d_loop_ub;
-    int i4;
-    int loop_ub;
-    x.set_size(1, u.size(1));
-    loop_ub = u.size(1);
-    for (int i{0}; i < loop_ub; i++) {
-        x[i] = 0.0;
-    }
-    xd.set_size(1, u.size(1));
-    b_loop_ub = u.size(1);
-    for (int i1{0}; i1 < b_loop_ub; i1++) {
-        xd[i1] = 0.0;
-    }
-    xdd.set_size(1, u.size(1));
-    c_loop_ub = u.size(1);
-    for (int i2{0}; i2 < c_loop_ub; i2++) {
-        xdd[i2] = 0.0;
-    }
-    xddd.set_size(1, u.size(1));
-    d_loop_ub = u.size(1);
-    for (int i3{0}; i3 < d_loop_ub; i3++) {
-        xddd[i3] = 0.0;
-    }
-    i4 = u.size(1);
-    for (int k{0}; k < i4; k++) {
-        x[k] = u[k];
-        bspline_eval(Bl_handle, coeffs, &x[k], &d, &d1, &d2);
-        xddd[k] = d2;
-        xdd[k] = d1;
-        xd[k] = d;
-    }
-}
-
-//
-// Arguments    : unsigned long Bl_handle
-//                const ::coder::array<double, 2U> &coeffs
-//                const ::coder::array<double, 2U> &u
-//                ::coder::array<double, 2U> &x
-//                ::coder::array<double, 2U> &xd
-// Return Type  : void
-//
-void bspline_eval_vec(unsigned long Bl_handle, const ::coder::array<double, 2U> &coeffs,
-                      const ::coder::array<double, 2U> &u, ::coder::array<double, 2U> &x,
-                      ::coder::array<double, 2U> &xd)
-{
     ::coder::array<double, 2U> xdd;
     ::coder::array<double, 2U> xddd;
     double d;

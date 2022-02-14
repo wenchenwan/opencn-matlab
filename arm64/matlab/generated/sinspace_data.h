@@ -4,17 +4,17 @@
 // government, commercial, or other organizational use.
 // File: sinspace_data.h
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:36:47
 //
 
 #ifndef SINSPACE_DATA_H
 #define SINSPACE_DATA_H
 
 // Include Files
-#include "queue_coder.h"
 #include "rtwtypes.h"
 #include "sinspace_types.h"
+#include "sinspace_types2.h"
 #include <cstddef>
 #include <cstdlib>
 

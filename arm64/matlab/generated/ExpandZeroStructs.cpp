@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: ExpandZeroStructs.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:36:47
 //
 
 // Include Files
@@ -16,6 +16,8 @@
 #include "queue_coder.h"
 #include "sinspace_data.h"
 #include "sinspace_types.h"
+#include "sinspace_types1.h"
+#include "sinspace_types2.h"
 
 // Function Definitions
 //
@@ -38,7 +40,7 @@ void ExpandZeroStructs(const FeedoptContext *ctx)
         unsigned int Ncrv;
         int i;
         Ncrv = ctx->q_gcode.size();
-        i_DebugLog();
+        k_DebugLog();
         i = static_cast<int>(Ncrv);
         for (int k{0}; k < i; k++) {
             ctx->q_gcode.get(static_cast<double>(k) + 1.0, &Curv);
@@ -46,29 +48,31 @@ void ExpandZeroStructs(const FeedoptContext *ctx)
                 CutZeroStart(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz, ctx->cfg.amax,
                              ctx->cfg.jmax, ctx->cfg.dt, ctx->cfg.ZeroStartAccLimit,
                              ctx->cfg.ZeroStartJerkLimit, ctx->cfg.ZeroStartVelLimit,
-                             ctx->cfg.DebugCutZero, ctx->cfg.NGridLengthSpline, &Curv,
-                             static_cast<double>(k) + 1.0, &CurvStruct1_C, &CurvStruct2_C);
+                             ctx->cfg.DebugCutZero, ctx->cfg.GaussLegendreX,
+                             ctx->cfg.GaussLegendreW, &Curv, static_cast<double>(k) + 1.0,
+                             &CurvStruct1_C, &CurvStruct2_C);
                 ctx->q_compress.push(&CurvStruct1_C);
                 ctx->q_compress.push(&CurvStruct2_C);
             } else if (Curv.zspdmode == ZSpdMode_NZ) {
                 CutZeroEnd(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz, ctx->cfg.amax,
                            ctx->cfg.jmax, ctx->cfg.dt, ctx->cfg.ZeroStartAccLimit,
                            ctx->cfg.ZeroStartJerkLimit, ctx->cfg.ZeroStartVelLimit,
-                           ctx->cfg.NGridLengthSpline, &Curv, static_cast<double>(k) + 1.0,
-                           &CurvStruct1_C, &CurvStruct2_C);
+                           ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW, &Curv,
+                           static_cast<double>(k) + 1.0, &CurvStruct1_C, &CurvStruct2_C);
                 ctx->q_compress.push(&CurvStruct1_C);
                 ctx->q_compress.push(&CurvStruct2_C);
             } else if (Curv.zspdmode == ZSpdMode_ZZ) {
                 CutZeroStart(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz, ctx->cfg.amax,
                              ctx->cfg.jmax, ctx->cfg.dt, ctx->cfg.ZeroStartAccLimit,
                              ctx->cfg.ZeroStartJerkLimit, ctx->cfg.ZeroStartVelLimit,
-                             ctx->cfg.DebugCutZero, ctx->cfg.NGridLengthSpline, &Curv,
-                             static_cast<double>(k) + 1.0, &CurvStruct1_C, &CurvStruct2_C);
+                             ctx->cfg.DebugCutZero, ctx->cfg.GaussLegendreX,
+                             ctx->cfg.GaussLegendreW, &Curv, static_cast<double>(k) + 1.0,
+                             &CurvStruct1_C, &CurvStruct2_C);
                 CutZeroEnd(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz, ctx->cfg.amax,
                            ctx->cfg.jmax, ctx->cfg.dt, ctx->cfg.ZeroStartAccLimit,
                            ctx->cfg.ZeroStartJerkLimit, ctx->cfg.ZeroStartVelLimit,
-                           ctx->cfg.NGridLengthSpline, &CurvStruct2_C, static_cast<double>(k) + 1.0,
-                           &b_CurvStruct2_C, &CurvStruct3_C);
+                           ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW, &CurvStruct2_C,
+                           static_cast<double>(k) + 1.0, &b_CurvStruct2_C, &CurvStruct3_C);
                 ctx->q_compress.push(&CurvStruct1_C);
                 ctx->q_compress.push(&b_CurvStruct2_C);
                 ctx->q_compress.push(&CurvStruct3_C);

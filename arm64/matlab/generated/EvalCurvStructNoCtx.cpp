@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: EvalCurvStructNoCtx.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 04-Feb-2022 12:36:47
 //
 
 // Include Files
@@ -14,8 +14,8 @@
 #include "EvalHelix.h"
 #include "EvalLine.h"
 #include "EvalTransP5.h"
-#include "queue_coder.h"
 #include "sinspace_data.h"
+#include "sinspace_types2.h"
 #include "coder_array.h"
 #include <stdio.h>
 
@@ -73,7 +73,6 @@ void EvalCurvStructNoCtx(CurveType CurvStruct_Type, const double CurvStruct_P0[3
         fflush(stdout);
         u_vec = 0.0;
     }
-    //
     //
     r0D[0] = 0.0;
     r0D[1] = 0.0;
