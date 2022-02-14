@@ -3,9 +3,9 @@ clear; clc;
 % the current folder must be 'opencn/agency/usr/matlab/common'
 
 % please choose the target first
-generate_for_arm_32 = false;
+generate_for_arm_32 = true;
 generate_for_x86_64 = false;
-generate_for_arm_64 = true;
+generate_for_arm_64 = false;
 
 % Comments from the Mathworks coder reference documentation.
 
@@ -145,7 +145,7 @@ if  generate_for_x86_64
 %     Specifying the ProdHWDeviceType property sets device-specific properties
 %     for the production hardware.
     cfg.HardwareImplementation.ProdHWDeviceType = 'Intel->x86-64 (Linux 64)';
-    Code replacement library for generated code
+%     Code replacement library for generated code.
 %     Generates calls to a specific platform, compiler,
 %     or standards code replacement library. The list of
 %     named libraries depends on:
