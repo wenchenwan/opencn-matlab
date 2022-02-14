@@ -3,6 +3,12 @@ function [CurvStruct1_C, CurvStruct_T, CurvStruct2_C, status]  = ...
 
 CutOff=ctx.cfg.CutOff;
 ColTolCos=ctx.cfg.ColTolCos;
+
+% If the 1st or the 2nd Curve lenth is shorter than 3*CutOff,
+% we will recalculate Cutoff. This new value will be smaller than before.
+% The 3 factor is an attempt to obtain:
+% new CutOff at beginning + rest of Curve + new CutOff at end = curve length before cutting,
+% with: new CutOff at beginning = rest of Curve = new CutOff at end, approx.
 Length_Threshold=3*CutOff;
 
 line1 = CurvStruct1.gcode_source_line;
