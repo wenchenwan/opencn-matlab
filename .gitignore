@@ -10,3 +10,6 @@ x86/**/*.dmr
 arm/**/interface
 arm64/**/interface
 x86/**/interface
+
+.gitignore
+common/dev/*
