@@ -285,8 +285,9 @@ if status == 1
     delete([Cd, fs, 'commit_info.txt']);
 end
 
-copyfile(PfileName, DirName);                   % copy selected parameter file
-copyfile('Validate_OpenCN.m', DirName);         % copy this .m source file
+% copy selected parameter file and validate file
+copyfile(PfileName, DirName);                   
+copyfile('Validate_OpenCN/Validate_OpenCN.m', DirName);
 
 % Ask user whether to save profiling results 
 answer = questdlg('Save profiling info in html format?', ...
