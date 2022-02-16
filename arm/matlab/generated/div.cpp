@@ -5,7 +5,7 @@
 // File: div.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 04-Feb-2022 12:54:59
+// C/C++ source code generated on  : 14-Feb-2022 16:29:45
 //
 
 // Include Files
@@ -13,11 +13,11 @@
 
 // Function Definitions
 //
-// Arguments    : double alpha0_s_data[]
-//                int *alpha0_s_size
-//                const double in2[16]
-//                const double alpha1_data[]
-//                const int *alpha1_size
+// Arguments    : double alpha0_t_data[]
+//                int *alpha0_t_size
+//                const double CoefPS[16]
+//                const double alpha1_t_data[]
+//                const int *alpha1_t_size
 //                const double t5_data[]
 //                const int *t5_size
 //                const double t11_data[]
@@ -33,23 +33,23 @@
 // Return Type  : void
 //
 namespace ocn {
-void binary_expand_op(double alpha0_s_data[], int *alpha0_s_size, const double in2[16],
-                      const double alpha1_data[], const int *alpha1_size, const double t5_data[],
-                      const int *t5_size, const double t11_data[], const int *t11_size,
-                      const double t12_data[], const int *t12_size, const double t10_data[],
-                      const int *t10_size, const double _data[], const int *_size,
-                      const double b__data[], const int *b__size)
+void binary_expand_op(double alpha0_t_data[], int *alpha0_t_size, const double CoefPS[16],
+                      const double alpha1_t_data[], const int *alpha1_t_size,
+                      const double t5_data[], const int *t5_size, const double t11_data[],
+                      const int *t11_size, const double t12_data[], const int *t12_size,
+                      const double t10_data[], const int *t10_size, const double _data[],
+                      const int *_size, const double b__data[], const int *b__size)
 {
-    double b_in2;
-    double c_in2;
-    double d_in2;
-    double e_in2;
-    double f_in2;
-    double g_in2;
-    double h_in2;
-    double i_in2;
-    double j_in2;
-    double k_in2;
+    double b_CoefPS;
+    double c_CoefPS;
+    double d_CoefPS;
+    double e_CoefPS;
+    double f_CoefPS;
+    double g_CoefPS;
+    double h_CoefPS;
+    double i_CoefPS;
+    double j_CoefPS;
+    double k_CoefPS;
     int ab_t11_size;
     int b_t11_size;
     int bb_t11_size;
@@ -84,16 +84,16 @@ void binary_expand_op(double alpha0_s_data[], int *alpha0_s_size, const double i
     int w_t11_size;
     int x_t11_size;
     int y_t11_size;
-    b_in2 = in2[15];
-    c_in2 = in2[11];
-    d_in2 = in2[9];
-    e_in2 = in2[13];
-    f_in2 = in2[12];
-    g_in2 = in2[14];
-    h_in2 = in2[10];
-    i_in2 = in2[8];
-    j_in2 = in2[13];
-    k_in2 = in2[12];
+    b_CoefPS = CoefPS[15];
+    c_CoefPS = CoefPS[11];
+    d_CoefPS = CoefPS[9];
+    e_CoefPS = CoefPS[13];
+    f_CoefPS = CoefPS[12];
+    g_CoefPS = CoefPS[14];
+    h_CoefPS = CoefPS[10];
+    i_CoefPS = CoefPS[8];
+    j_CoefPS = CoefPS[13];
+    k_CoefPS = CoefPS[12];
     if (*t11_size == 1) {
         b_t11_size = *b__size;
     } else {
@@ -142,7 +142,7 @@ void binary_expand_op(double alpha0_s_data[], int *alpha0_s_size, const double i
     if (e_t11_size == 1) {
         if (f_t11_size == 1) {
             if (*t5_size == 1) {
-                j_t11_size = *alpha1_size;
+                j_t11_size = *alpha1_t_size;
             } else {
                 j_t11_size = *t5_size;
             }
@@ -180,23 +180,23 @@ void binary_expand_op(double alpha0_s_data[], int *alpha0_s_size, const double i
             }
             if (c_t12_size == 1) {
                 if (*t5_size == 1) {
-                    *alpha0_s_size = *alpha1_size;
+                    *alpha0_t_size = *alpha1_t_size;
                 } else {
-                    *alpha0_s_size = *t5_size;
+                    *alpha0_t_size = *t5_size;
                 }
             } else if (*t12_size == 1) {
-                *alpha0_s_size = *t11_size;
+                *alpha0_t_size = *t11_size;
             } else {
-                *alpha0_s_size = *t12_size;
+                *alpha0_t_size = *t12_size;
             }
         } else if (*t12_size == 1) {
             if (*_size == 1) {
-                *alpha0_s_size = *t10_size;
+                *alpha0_t_size = *t10_size;
             } else {
-                *alpha0_s_size = *_size;
+                *alpha0_t_size = *_size;
             }
         } else {
-            *alpha0_s_size = *t12_size;
+            *alpha0_t_size = *t12_size;
         }
     } else {
         int k_t11_size;
@@ -238,14 +238,14 @@ void binary_expand_op(double alpha0_s_data[], int *alpha0_s_size, const double i
             }
             if (p_t11_size == 1) {
                 if (*t5_size == 1) {
-                    *alpha0_s_size = *alpha1_size;
+                    *alpha0_t_size = *alpha1_t_size;
                 } else {
-                    *alpha0_s_size = *t5_size;
+                    *alpha0_t_size = *t5_size;
                 }
             } else if (*t11_size == 1) {
-                *alpha0_s_size = *t10_size;
+                *alpha0_t_size = *t10_size;
             } else {
-                *alpha0_s_size = *t11_size;
+                *alpha0_t_size = *t11_size;
             }
         } else {
             int o_t11_size;
@@ -263,7 +263,7 @@ void binary_expand_op(double alpha0_s_data[], int *alpha0_s_size, const double i
                 q_t11_size = *t11_size;
             }
             if (q_t11_size == 1) {
-                *alpha0_s_size = *t11_size;
+                *alpha0_t_size = *t11_size;
             } else {
                 int r_t11_size;
                 if (*t11_size == 1) {
@@ -272,23 +272,23 @@ void binary_expand_op(double alpha0_s_data[], int *alpha0_s_size, const double i
                     r_t11_size = *t11_size;
                 }
                 if (r_t11_size == 1) {
-                    *alpha0_s_size = *t12_size;
+                    *alpha0_t_size = *t12_size;
                 } else if (*t11_size == 1) {
-                    *alpha0_s_size = *b__size;
+                    *alpha0_t_size = *b__size;
                 } else {
-                    *alpha0_s_size = *t11_size;
+                    *alpha0_t_size = *t11_size;
                 }
             }
         }
     }
-    stride_0_0 = (*alpha1_size != 1);
+    stride_0_0 = (*alpha1_t_size != 1);
     stride_1_0 = (*t5_size != 1);
     stride_2_0 = (*t11_size != 1);
     stride_3_0 = (*t12_size != 1);
     stride_4_0 = (*t10_size != 1);
     stride_5_0 = (*_size != 1);
     stride_6_0 = (*t12_size != 1);
-    stride_7_0 = (*alpha1_size != 1);
+    stride_7_0 = (*alpha1_t_size != 1);
     stride_8_0 = (*t5_size != 1);
     stride_9_0 = (*t10_size != 1);
     stride_10_0 = (*t11_size != 1);
@@ -344,7 +344,7 @@ void binary_expand_op(double alpha0_s_data[], int *alpha0_s_size, const double i
     if (v_t11_size == 1) {
         if (w_t11_size == 1) {
             if (*t5_size == 1) {
-                bb_t11_size = *alpha1_size;
+                bb_t11_size = *alpha1_t_size;
             } else {
                 bb_t11_size = *t5_size;
             }
@@ -382,7 +382,7 @@ void binary_expand_op(double alpha0_s_data[], int *alpha0_s_size, const double i
             }
             if (e_t12_size == 1) {
                 if (*t5_size == 1) {
-                    loop_ub = *alpha1_size;
+                    loop_ub = *alpha1_t_size;
                 } else {
                     loop_ub = *t5_size;
                 }
@@ -440,7 +440,7 @@ void binary_expand_op(double alpha0_s_data[], int *alpha0_s_size, const double i
             }
             if (hb_t11_size == 1) {
                 if (*t5_size == 1) {
-                    loop_ub = *alpha1_size;
+                    loop_ub = *alpha1_t_size;
                 } else {
                     loop_ub = *t5_size;
                 }
@@ -484,15 +484,17 @@ void binary_expand_op(double alpha0_s_data[], int *alpha0_s_size, const double i
         }
     }
     for (int i{0}; i < loop_ub; i++) {
-        alpha0_s_data[i] =
-            -((((b_in2 + alpha1_data[i * stride_0_0] * c_in2) + d_in2 * t5_data[i * stride_1_0]) -
-               e_in2 * t11_data[i * stride_2_0] * t12_data[i * stride_3_0]) +
-              f_in2 * t10_data[i * stride_4_0] * _data[i * stride_5_0] * t12_data[i * stride_6_0]) /
-            ((((g_in2 + alpha1_data[i * stride_7_0] * h_in2) + i_in2 * t5_data[i * stride_8_0]) -
-              j_in2 * t10_data[i * stride_9_0] * t11_data[i * stride_10_0]) -
-             k_in2 * t11_data[i * stride_11_0] *
-                 (t12_data[i * stride_12_0] -
-                  b__data[i * stride_13_0] * t11_data[i * stride_14_0]));
+        alpha0_t_data[i] = -((((b_CoefPS + alpha1_t_data[i * stride_0_0] * c_CoefPS) +
+                               d_CoefPS * t5_data[i * stride_1_0]) -
+                              e_CoefPS * t11_data[i * stride_2_0] * t12_data[i * stride_3_0]) +
+                             f_CoefPS * t10_data[i * stride_4_0] * _data[i * stride_5_0] *
+                                 t12_data[i * stride_6_0]) /
+                           ((((g_CoefPS + alpha1_t_data[i * stride_7_0] * h_CoefPS) +
+                              i_CoefPS * t5_data[i * stride_8_0]) -
+                             j_CoefPS * t10_data[i * stride_9_0] * t11_data[i * stride_10_0]) -
+                            k_CoefPS * t11_data[i * stride_11_0] *
+                                (t12_data[i * stride_12_0] -
+                                 b__data[i * stride_13_0] * t11_data[i * stride_14_0]));
     }
 }
 

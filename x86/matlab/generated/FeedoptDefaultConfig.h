@@ -5,15 +5,15 @@
 // File: FeedoptDefaultConfig.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 04-Feb-2022 12:47:09
+// C/C++ source code generated on  : 14-Feb-2022 16:26:14
 //
 
 #ifndef FEEDOPTDEFAULTCONFIG_H
 #define FEEDOPTDEFAULTCONFIG_H
 
 // Include Files
+#include "opencn_matlab_types.h"
 #include "rtwtypes.h"
-#include "sinspace_types.h"
 #include <cstddef>
 #include <cstdlib>
 

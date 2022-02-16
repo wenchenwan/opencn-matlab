@@ -5,13 +5,13 @@
 // File: SplineLengthApproxGL_tot.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 04-Feb-2022 12:36:47
+// C/C++ source code generated on  : 14-Feb-2022 16:27:55
 //
 
 // Include Files
 #include "SplineLengthApproxGL_tot.h"
 #include "EvalBSplineNoCtx.h"
-#include "sinspace_data.h"
+#include "opencn_matlab_data.h"
 #include "coder_array.h"
 #include <cmath>
 
@@ -125,6 +125,8 @@ static void c_binary_expand_op(::coder::array<double, 2U> &Umat,
 }
 
 //
+// function [L, Lk]  = SplineLengthApproxGL_tot(ctx, Curv)
+//
 // Precomputes approximately the total arc length L as well as the individual
 //  arc lengths between knot points of a parametric spline.
 //  The computation is based on numerical Gauss Legendre integration.
@@ -177,13 +179,17 @@ void SplineLengthApproxGL_tot(double ctx_cfg_GaussLegendreN, const double ctx_cf
     //  get the sp structure
     //  Spline = ctx.q_splines.get(Curv.sp_index);
     //  sp     = Spline.sp;
+    // 'SplineLengthApproxGL_tot:11' sp     = Curv.sp;
+    // 'SplineLengthApproxGL_tot:12' Knots  = sp.knots(4:end-3);
     //  eliminate multiplicities at the end points
+    // 'SplineLengthApproxGL_tot:13' a      = Knots(1:end-1);
     if (1 > Curv_sp_knots.size(1) - 7) {
         i = 0;
     } else {
         i = Curv_sp_knots.size(1) - 7;
     }
     //  lower integration limits
+    // 'SplineLengthApproxGL_tot:14' b      = Knots(2:end);
     if (2 > Curv_sp_knots.size(1) - 6) {
         i1 = -1;
         i2 = -1;
@@ -193,7 +199,12 @@ void SplineLengthApproxGL_tot(double ctx_cfg_GaussLegendreN, const double ctx_cf
     }
     //  upper integration limits
     //  get Gauss-Legendre knots and weights
+    // 'SplineLengthApproxGL_tot:16' GL_N   = ctx.cfg.GaussLegendreN;
+    // 'SplineLengthApproxGL_tot:17' GL_X   = ctx.cfg.GaussLegendreX;
+    // 'SplineLengthApproxGL_tot:18' GL_W   = ctx.cfg.GaussLegendreW;
     //  apply linear map from[-1, 1] to [a, b]
+    // 'SplineLengthApproxGL_tot:20' Umat   = (bsxfun(@times, a, (1-GL_X)) + bsxfun(@times, b,
+    // (1+GL_X)))/2;
     for (int b_i{0}; b_i < 5; b_i++) {
         b[b_i] = 1.0 - ctx_cfg_GaussLegendreX[b_i];
     }
@@ -241,7 +252,9 @@ void SplineLengthApproxGL_tot(double ctx_cfg_GaussLegendreN, const double ctx_cf
     } else {
         c_binary_expand_op(Umat, c, b_c);
     }
+    // 'SplineLengthApproxGL_tot:21' Uvec   = Umat(:)';
     //  all evaluation points as row vector
+    // 'SplineLengthApproxGL_tot:23' [~, r1D]  = EvalBSplineNoCtx(Curv, Uvec);
     b_loop_ub = 5 * Umat.size(1);
     b_Umat.set_size(1, b_loop_ub);
     for (int i8{0}; i8 < b_loop_ub; i8++) {
@@ -249,6 +262,10 @@ void SplineLengthApproxGL_tot(double ctx_cfg_GaussLegendreN, const double ctx_cf
     }
     EvalBSplineNoCtx(Curv_sp_CoeffX, Curv_sp_CoeffY, Curv_sp_CoeffZ, Curv_sp_Bl_handle, b_Umat,
                      a__1, r1D);
+    // 'SplineLengthApproxGL_tot:24' r1Dnorm   = MyNorm(r1D);
+    // 'MyNorm:2' coder.inline('always');
+    // 'MyNorm:3' n = mysqrt(sum(x.^2));
+    // 'mysqrt:3' y = sqrt(x);
     r.set_size(3, r1D.size(1));
     c_loop_ub = r1D.size(1);
     for (int i9{0}; i9 < c_loop_ub; i9++) {
@@ -278,7 +295,10 @@ void SplineLengthApproxGL_tot(double ctx_cfg_GaussLegendreN, const double ctx_cf
     for (int f_k{0}; f_k < i11; f_k++) {
         r1Dnorm[f_k] = std::sqrt(r1Dnorm[f_k]);
     }
+    // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
     sqrt_calls++;
+    // 'SplineLengthApproxGL_tot:25' r1DnormM  = reshape(r1Dnorm, GL_N, length(Knots)-1);
+    // 'SplineLengthApproxGL_tot:26' Lk        = sum(bsxfun(@times, GL_W, r1DnormM)) .* (b-a)/2;
     c.set_size(5, Curv_sp_knots.size(1) - 7);
     if (Curv_sp_knots.size(1) - 7 != 0) {
         int bcoef;
@@ -329,6 +349,7 @@ void SplineLengthApproxGL_tot(double ctx_cfg_GaussLegendreN, const double ctx_cf
         binary_expand_op(Lk, y, Curv_sp_knots, i1 + 1, i2, i - 1);
     }
     //  Gauss Legendre integration
+    // 'SplineLengthApproxGL_tot:27' L         = sum(Lk);
     vlen = Lk.size(1);
     if (Lk.size(1) == 0) {
         b_L = 0.0;

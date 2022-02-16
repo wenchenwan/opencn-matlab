@@ -5,18 +5,20 @@
 // File: ConstrCurvStructType.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 04-Feb-2022 12:47:09
+// C/C++ source code generated on  : 14-Feb-2022 16:26:14
 //
 
 // Include Files
 #include "ConstrCurvStructType.h"
 #include "ConstrLineStruct.h"
-#include "sinspace_data.h"
-#include "sinspace_initialize.h"
-#include "sinspace_types1.h"
-#include "sinspace_types2.h"
+#include "opencn_matlab_data.h"
+#include "opencn_matlab_initialize.h"
+#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types2.h"
 
 // Function Definitions
+//
+// function C = ConstrCurvStructType
 //
 // Arguments    : CurvStruct *C
 // Return Type  : void
@@ -26,9 +28,10 @@ void ConstrCurvStructType(CurvStruct *C)
 {
     double dv[3];
     double dv1[3];
-    if (!isInitialized_sinspace) {
-        sinspace_initialize();
+    if (!isInitialized_opencn_matlab) {
+        opencn_matlab_initialize();
     }
+    // 'ConstrCurvStructType:2' C = ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
     dv[0] = 0.0;
     dv1[0] = 0.0;
     dv[1] = 0.0;

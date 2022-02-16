@@ -1,5 +1,6 @@
 function ctx = InitFeedoptPlan(cfg)
 %#codegen
+coder.inline("never");
 % ctx is the context variable, it should contain:
 % - op: Operation to execute
 % - go_next: Should we optimize the next segment

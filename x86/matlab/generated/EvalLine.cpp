@@ -5,7 +5,7 @@
 // File: EvalLine.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 04-Feb-2022 12:47:09
+// C/C++ source code generated on  : 14-Feb-2022 16:26:14
 //
 
 // Include Files
@@ -16,6 +16,8 @@
 #include <emmintrin.h>
 
 // Function Definitions
+//
+// function [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec)
 //
 // Arguments    : const double CurvStruct_P0[3]
 //                const double CurvStruct_P1[3]
@@ -40,14 +42,27 @@ void EvalLine(const double CurvStruct_P0[3], const double CurvStruct_P1[3], cons
     double d6;
     double d7;
     double d8;
+    // 'EvalLine:2' if ~coder.target('MATLAB')
+    // 'EvalLine:3' coder.cinclude('common/tracy/Tracy.hpp');
+    // 'EvalLine:4' coder.inline('never')
+    // 'EvalLine:5' coder.ceval('ZoneScopedN', coder.opaque('const char*', '"EvalLine"'));
     ZoneScopedN("EvalLine");
     //
     //  parametrization of a straight line between P0 and P1
+    // 'EvalLine:9' P0  = CurvStruct.P0;
+    // 'EvalLine:10' P1  = CurvStruct.P1;
     //
+    // 'EvalLine:12' r0D = [P1(1)*u_vec + P0(1)*(1-u_vec);
+    // 'EvalLine:13'        P1(2)*u_vec + P0(2)*(1-u_vec);
+    // 'EvalLine:14'        P1(3)*u_vec + P0(3)*(1-u_vec)];
     //
+    // 'EvalLine:16' N   = length(u_vec);
+    // 'EvalLine:17' r1D = repmat(P1 - P0, 1, N);
     _mm_storeu_pd(&a[0], _mm_sub_pd(_mm_loadu_pd((const double *)&CurvStruct_P1[0]),
                                     _mm_loadu_pd((const double *)&CurvStruct_P0[0])));
     //
+    // 'EvalLine:19' r2D = zeros(3, N);
+    // 'EvalLine:20' r3D = zeros(3, N);
     d = CurvStruct_P1[0];
     d1 = CurvStruct_P1[1];
     d2 = CurvStruct_P1[2];
@@ -76,6 +91,8 @@ void EvalLine(const double CurvStruct_P0[3], const double CurvStruct_P1[3], cons
 }
 
 //
+// function [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec)
+//
 // Arguments    : const double CurvStruct_P0[3]
 //                const double CurvStruct_P1[3]
 //                const ::coder::array<double, 2U> &u_vec
@@ -98,10 +115,19 @@ void EvalLine(const double CurvStruct_P0[3], const double CurvStruct_P1[3],
     int loop_ub;
     int scalarLB;
     int vectorUB;
+    // 'EvalLine:2' if ~coder.target('MATLAB')
+    // 'EvalLine:3' coder.cinclude('common/tracy/Tracy.hpp');
+    // 'EvalLine:4' coder.inline('never')
+    // 'EvalLine:5' coder.ceval('ZoneScopedN', coder.opaque('const char*', '"EvalLine"'));
     ZoneScopedN("EvalLine");
     //
     //  parametrization of a straight line between P0 and P1
+    // 'EvalLine:9' P0  = CurvStruct.P0;
+    // 'EvalLine:10' P1  = CurvStruct.P1;
     //
+    // 'EvalLine:12' r0D = [P1(1)*u_vec + P0(1)*(1-u_vec);
+    // 'EvalLine:13'        P1(2)*u_vec + P0(2)*(1-u_vec);
+    // 'EvalLine:14'        P1(3)*u_vec + P0(3)*(1-u_vec)];
     b_tmp.set_size(1, u_vec.size(1));
     loop_ub = u_vec.size(1);
     scalarLB = (u_vec.size(1) / 2) << 1;
@@ -127,27 +153,30 @@ void EvalLine(const double CurvStruct_P0[3], const double CurvStruct_P1[3],
             r0D[3 * i2 + 1] = CurvStruct_P1[1] * u_vec[i2] + CurvStruct_P0[1] * b_tmp[i2];
         }
         d_loop_ub = u_vec.size(1);
-        for (int i4{0}; i4 < d_loop_ub; i4++) {
-            r0D[3 * i4 + 2] = CurvStruct_P1[2] * u_vec[i4] + CurvStruct_P0[2] * b_tmp[i4];
+        for (int i3{0}; i3 < d_loop_ub; i3++) {
+            r0D[3 * i3 + 2] = CurvStruct_P1[2] * u_vec[i3] + CurvStruct_P0[2] * b_tmp[i3];
         }
     } else {
         binary_expand_op(r0D, CurvStruct_P1, u_vec, CurvStruct_P0, b_tmp);
     }
     //
+    // 'EvalLine:16' N   = length(u_vec);
+    // 'EvalLine:17' r1D = repmat(P1 - P0, 1, N);
     _mm_storeu_pd(&a[0], _mm_sub_pd(_mm_loadu_pd((const double *)&CurvStruct_P1[0]),
                                     _mm_loadu_pd((const double *)&CurvStruct_P0[0])));
     a[2] = CurvStruct_P1[2] - CurvStruct_P0[2];
     r1D.set_size(3, u_vec.size(1));
     if (u_vec.size(1) != 0) {
-        int i3;
-        i3 = u_vec.size(1) - 1;
-        for (int t{0}; t <= i3; t++) {
+        int i4;
+        i4 = u_vec.size(1) - 1;
+        for (int t{0}; t <= i4; t++) {
             r1D[3 * t] = a[0];
             r1D[3 * t + 1] = a[1];
             r1D[3 * t + 2] = a[2];
         }
     }
     //
+    // 'EvalLine:19' r2D = zeros(3, N);
     r2D.set_size(3, u_vec.size(1));
     e_loop_ub = u_vec.size(1);
     for (int i5{0}; i5 < e_loop_ub; i5++) {
@@ -155,6 +184,7 @@ void EvalLine(const double CurvStruct_P0[3], const double CurvStruct_P1[3],
         r2D[3 * i5 + 1] = 0.0;
         r2D[3 * i5 + 2] = 0.0;
     }
+    // 'EvalLine:20' r3D = zeros(3, N);
     r3D.set_size(3, u_vec.size(1));
     f_loop_ub = u_vec.size(1);
     for (int i6{0}; i6 < f_loop_ub; i6++) {
@@ -164,6 +194,8 @@ void EvalLine(const double CurvStruct_P0[3], const double CurvStruct_P1[3],
     }
 }
 
+//
+// function [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec)
 //
 // Arguments    : const double CurvStruct_P0[3]
 //                const double CurvStruct_P1[3]
@@ -178,15 +210,28 @@ void EvalLine(const double CurvStruct_P0[3], const double CurvStruct_P1[3], doub
               double r0D[3], double r1D[3], double r2D[3], double r3D[3])
 {
     __m128d r;
+    // 'EvalLine:2' if ~coder.target('MATLAB')
+    // 'EvalLine:3' coder.cinclude('common/tracy/Tracy.hpp');
+    // 'EvalLine:4' coder.inline('never')
+    // 'EvalLine:5' coder.ceval('ZoneScopedN', coder.opaque('const char*', '"EvalLine"'));
     ZoneScopedN("EvalLine");
     //
     //  parametrization of a straight line between P0 and P1
+    // 'EvalLine:9' P0  = CurvStruct.P0;
+    // 'EvalLine:10' P1  = CurvStruct.P1;
     //
+    // 'EvalLine:12' r0D = [P1(1)*u_vec + P0(1)*(1-u_vec);
+    // 'EvalLine:13'        P1(2)*u_vec + P0(2)*(1-u_vec);
+    // 'EvalLine:14'        P1(3)*u_vec + P0(3)*(1-u_vec)];
     r0D[0] = CurvStruct_P1[0] * u_vec + CurvStruct_P0[0] * (1.0 - u_vec);
     r0D[1] = CurvStruct_P1[1] * u_vec + CurvStruct_P0[1] * (1.0 - u_vec);
     r0D[2] = CurvStruct_P1[2] * u_vec + CurvStruct_P0[2] * (1.0 - u_vec);
     //
+    // 'EvalLine:16' N   = length(u_vec);
+    // 'EvalLine:17' r1D = repmat(P1 - P0, 1, N);
     //
+    // 'EvalLine:19' r2D = zeros(3, N);
+    // 'EvalLine:20' r3D = zeros(3, N);
     _mm_storeu_pd(&r1D[0], _mm_sub_pd(_mm_loadu_pd((const double *)&CurvStruct_P1[0]),
                                       _mm_loadu_pd((const double *)&CurvStruct_P0[0])));
     r = _mm_set1_pd(0.0);

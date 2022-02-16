@@ -5,7 +5,7 @@
 // File: find.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 04-Feb-2022 12:47:09
+// C/C++ source code generated on  : 14-Feb-2022 16:26:14
 //
 
 // Include Files
@@ -22,43 +22,6 @@
 namespace ocn {
 namespace coder {
 void b_eml_find(const ::coder::array<bool, 2U> &x, int i_data[], int i_size[2])
-{
-    int idx;
-    int ii;
-    int k;
-    bool exitg1;
-    k = (1 <= x.size(1));
-    idx = 0;
-    i_size[0] = 1;
-    i_size[1] = k;
-    ii = 0;
-    exitg1 = false;
-    while ((!exitg1) && (ii <= x.size(1) - 1)) {
-        if (x[ii]) {
-            idx = 1;
-            i_data[0] = ii + 1;
-            exitg1 = true;
-        } else {
-            ii++;
-        }
-    }
-    if (k == 1) {
-        if (idx == 0) {
-            i_size[0] = 1;
-            i_size[1] = 0;
-        }
-    } else {
-        i_size[1] = (1 <= idx);
-    }
-}
-
-//
-// Arguments    : const ::coder::array<bool, 2U> &x
-//                int i_data[]
-//                int i_size[2]
-// Return Type  : void
-//
-void c_eml_find(const ::coder::array<bool, 2U> &x, int i_data[], int i_size[2])
 {
     int idx;
     int ii;
@@ -96,7 +59,7 @@ void c_eml_find(const ::coder::array<bool, 2U> &x, int i_data[], int i_size[2])
 //                int *i_size
 // Return Type  : void
 //
-void eml_find(const bool x_data[], int x_size, int i_data[], int *i_size)
+void c_eml_find(const bool x_data[], int x_size, int i_data[], int *i_size)
 {
     int idx;
     int ii;
@@ -126,6 +89,43 @@ void eml_find(const bool x_data[], int x_size, int i_data[], int *i_size)
         *i_size = 0;
     } else {
         *i_size = idx;
+    }
+}
+
+//
+// Arguments    : const ::coder::array<bool, 2U> &x
+//                int i_data[]
+//                int i_size[2]
+// Return Type  : void
+//
+void eml_find(const ::coder::array<bool, 2U> &x, int i_data[], int i_size[2])
+{
+    int idx;
+    int ii;
+    int k;
+    bool exitg1;
+    k = (1 <= x.size(1));
+    idx = 0;
+    i_size[0] = 1;
+    i_size[1] = k;
+    ii = 0;
+    exitg1 = false;
+    while ((!exitg1) && (ii <= x.size(1) - 1)) {
+        if (x[ii]) {
+            idx = 1;
+            i_data[0] = ii + 1;
+            exitg1 = true;
+        } else {
+            ii++;
+        }
+    }
+    if (k == 1) {
+        if (idx == 0) {
+            i_size[0] = 1;
+            i_size[1] = 0;
+        }
+    } else {
+        i_size[1] = (1 <= idx);
     }
 }
 

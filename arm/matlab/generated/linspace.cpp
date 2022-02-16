@@ -5,13 +5,13 @@
 // File: linspace.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 04-Feb-2022 12:54:59
+// C/C++ source code generated on  : 14-Feb-2022 16:29:45
 //
 
 // Include Files
 #include "linspace.h"
-#include "sinspace_data.h"
-#include "sinspace_initialize.h"
+#include "opencn_matlab_data.h"
+#include "opencn_matlab_initialize.h"
 #include "coder_array.h"
 #include <cmath>
 
@@ -24,35 +24,6 @@
 namespace ocn {
 namespace coder {
 void b_linspace(int n, ::coder::array<double, 2U> &y)
-{
-    if (n < 0) {
-        y.set_size(1, 0);
-    } else {
-        y.set_size(1, n);
-        if (n >= 1) {
-            y[n - 1] = 0.0;
-            if (y.size(1) >= 2) {
-                y[0] = -1.0;
-                if (y.size(1) >= 3) {
-                    double delta1;
-                    int i;
-                    delta1 = 1.0 / (static_cast<double>(y.size(1)) - 1.0);
-                    i = y.size(1);
-                    for (int k{0}; k <= i - 3; k++) {
-                        y[k + 1] = (static_cast<double>(k) + 1.0) * delta1 + -1.0;
-                    }
-                }
-            }
-        }
-    }
-}
-
-//
-// Arguments    : int n
-//                ::coder::array<double, 2U> &y
-// Return Type  : void
-//
-void c_linspace(int n, ::coder::array<double, 2U> &y)
 {
     if (n < 0) {
         y.set_size(1, 0);
@@ -77,6 +48,35 @@ void c_linspace(int n, ::coder::array<double, 2U> &y)
 }
 
 //
+// Arguments    : int n
+//                ::coder::array<double, 2U> &y
+// Return Type  : void
+//
+void c_linspace(int n, ::coder::array<double, 2U> &y)
+{
+    if (n < 0) {
+        y.set_size(1, 0);
+    } else {
+        y.set_size(1, n);
+        if (n >= 1) {
+            y[n - 1] = 0.0;
+            if (y.size(1) >= 2) {
+                y[0] = -1.0;
+                if (y.size(1) >= 3) {
+                    double delta1;
+                    int i;
+                    delta1 = 1.0 / (static_cast<double>(y.size(1)) - 1.0);
+                    i = y.size(1);
+                    for (int k{0}; k <= i - 3; k++) {
+                        y[k + 1] = (static_cast<double>(k) + 1.0) * delta1 + -1.0;
+                    }
+                }
+            }
+        }
+    }
+}
+
+//
 // Arguments    : double d1
 //                double d2
 //                double n
@@ -85,8 +85,8 @@ void c_linspace(int n, ::coder::array<double, 2U> &y)
 //
 void linspace(double d1, double d2, double n, ::coder::array<double, 2U> &y)
 {
-    if (!isInitialized_sinspace) {
-        sinspace_initialize();
+    if (!isInitialized_opencn_matlab) {
+        opencn_matlab_initialize();
     }
     if (n < 0.0) {
         y.set_size(1, 0);

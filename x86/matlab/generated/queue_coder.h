@@ -5,15 +5,15 @@
 // File: queue_coder.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 04-Feb-2022 12:47:09
+// C/C++ source code generated on  : 14-Feb-2022 16:26:14
 //
 
 #ifndef QUEUE_CODER_H
 #define QUEUE_CODER_H
 
 // Include Files
+#include "opencn_matlab_types1.h"
 #include "rtwtypes.h"
-#include "sinspace_types1.h"
 #include <cstddef>
 #include <cstdlib>
 

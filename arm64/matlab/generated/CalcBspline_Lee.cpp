@@ -5,13 +5,12 @@
 // File: CalcBspline_Lee.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 04-Feb-2022 12:36:47
+// C/C++ source code generated on  : 14-Feb-2022 16:27:55
 //
 
 // Include Files
 #include "CalcBspline_Lee.h"
 #include "bspline_eval.h"
-#include "bspline_eval_vec.h"
 #include "mldivide.h"
 #include "coder_array.h"
 #include "src/c_spline.h"
@@ -19,211 +18,7 @@
 
 // Function Definitions
 //
-// Arguments    : int cfg_SplineDegree
-//                double sp3D_CoeffX[4]
-//                double sp3D_CoeffY[4]
-//                double sp3D_CoeffZ[4]
-//                int *sp3D_Bl_ncoeff
-//                ::coder::array<double, 2U> &sp3D_Bl_breakpoints
-//                unsigned long *sp3D_Bl_handle
-//                int *sp3D_Bl_degree
-//                double sp3D_knots[8]
-// Return Type  : void
-//
-namespace ocn {
-void CalcBspline_Lee(int cfg_SplineDegree, double sp3D_CoeffX[4], double sp3D_CoeffY[4],
-                     double sp3D_CoeffZ[4], int *sp3D_Bl_ncoeff,
-                     ::coder::array<double, 2U> &sp3D_Bl_breakpoints, unsigned long *sp3D_Bl_handle,
-                     int *sp3D_Bl_degree, double sp3D_knots[8])
-{
-    static const signed char bx[4]{0, 0, 1, 0};
-    double A[4][4];
-    double BasisVal[4][2];
-    double BasisValDD0[4];
-    double BasisValDD1[4];
-    double coef[4];
-    double breakpoints[2];
-    double dv[2];
-    double u[2];
-    double a__2;
-    double a__3;
-    double a__4;
-    double a__5;
-    double d;
-    double z1_tmp;
-    unsigned long Bl_handle;
-    signed char ipiv[4];
-    //  number of points in 3D space
-    z1_tmp = std::pow(1.0, 2.0);
-    d = std::pow((z1_tmp + z1_tmp) + z1_tmp, 0.25);
-    u[0] = 0.0 / d;
-    u[1] = d / d;
-    //  normalize knots to interval [0...1]
-    sp3D_knots[0] = 0.0;
-    sp3D_knots[1] = 0.0;
-    sp3D_knots[2] = 0.0;
-    sp3D_knots[3] = u[0];
-    sp3D_knots[4] = u[1];
-    sp3D_knots[5] = 1.0;
-    sp3D_knots[6] = 1.0;
-    sp3D_knots[7] = 1.0;
-    breakpoints[0] = u[0];
-    breakpoints[1] = u[1];
-    c_bspline_create_with_breakpoints(&Bl_handle, cfg_SplineDegree, &breakpoints[0], 2);
-    sp3D_Bl_breakpoints.set_size(1, 2);
-    sp3D_Bl_breakpoints[0] = u[0];
-    sp3D_Bl_breakpoints[1] = u[1];
-    //  preallocation
-    //
-    for (int k{0}; k < 4; k++) {
-        //  evaluate basis functions at the knots
-        coef[0] = 0.0;
-        coef[1] = 0.0;
-        coef[2] = 0.0;
-        coef[3] = 0.0;
-        coef[k] = 1.0;
-        //      sp             = spmak(knots, coef);
-        //      BasisVal(:, k) = spval(sp, u);          % tridiagonal matrix
-        bspline_eval_vec(Bl_handle, coef, u, dv);
-        BasisVal[k][0] = dv[0];
-        BasisVal[k][1] = dv[1];
-        //      sp2D           = fnder(sp, 2);          % evaluate 2nd derivative of basis functions
-        //      @u=0,1
-        a__2 = 0.0;
-        bspline_eval(Bl_handle, coef, &a__2, &a__3, &BasisValDD0[k]);
-        a__4 = 1.0;
-        bspline_eval(Bl_handle, coef, &a__4, &a__5, &BasisValDD1[k]);
-        //      BasisValDD0(k) = spval(sp2D, 0);
-        //      BasisValDD1(k) = spval(sp2D, 1);
-    }
-    //
-    //  warning('NOT using a sparse matrix here because it pulled the CXSparse project into
-    //  generation') A = sparse(A); figure; spy(A)
-    //
-    //  mmdflag = spparms('autommd'); % protect current spparms setting
-    //  spparms('autommd',0);         % suppress pivoting
-    //
-    // tic
-    for (int i{0}; i < 4; i++) {
-        A[i][0] = BasisValDD0[i];
-        A[i][1] = BasisVal[i][0];
-        A[i][2] = BasisVal[i][1];
-        A[i][3] = BasisValDD1[i];
-        sp3D_CoeffX[i] = bx[i];
-        ipiv[i] = static_cast<signed char>(i + 1);
-    }
-    for (int j{0}; j < 3; j++) {
-        double smax;
-        int a;
-        int b_tmp;
-        int jA;
-        int jp1j;
-        int mmj_tmp;
-        int n;
-        signed char i3;
-        mmj_tmp = 2 - j;
-        b_tmp = j * 5;
-        jp1j = b_tmp + 2;
-        n = 4 - j;
-        a = 0;
-        smax = std::abs((&A[0][0])[b_tmp]);
-        for (int d_k{2}; d_k <= n; d_k++) {
-            double s;
-            s = std::abs((&A[0][0])[(b_tmp + d_k) - 1]);
-            if (s > smax) {
-                a = d_k - 1;
-                smax = s;
-            }
-        }
-        if ((&A[0][0])[b_tmp + a] != 0.0) {
-            int i2;
-            if (a != 0) {
-                double temp;
-                int ipiv_tmp;
-                ipiv_tmp = j + a;
-                ipiv[j] = static_cast<signed char>(ipiv_tmp + 1);
-                temp = (&A[0][0])[j];
-                (&A[0][0])[j] = (&A[0][0])[ipiv_tmp];
-                (&A[0][0])[ipiv_tmp] = temp;
-                temp = (&A[0][0])[j + 4];
-                (&A[0][0])[j + 4] = (&A[0][0])[ipiv_tmp + 4];
-                (&A[0][0])[ipiv_tmp + 4] = temp;
-                temp = (&A[0][0])[j + 8];
-                (&A[0][0])[j + 8] = (&A[0][0])[ipiv_tmp + 8];
-                (&A[0][0])[ipiv_tmp + 8] = temp;
-                temp = (&A[0][0])[j + 12];
-                (&A[0][0])[j + 12] = (&A[0][0])[ipiv_tmp + 12];
-                (&A[0][0])[ipiv_tmp + 12] = temp;
-            }
-            i2 = (b_tmp - j) + 4;
-            for (int d_i{jp1j}; d_i <= i2; d_i++) {
-                (&A[0][0])[d_i - 1] /= (&A[0][0])[b_tmp];
-            }
-        }
-        jA = b_tmp;
-        for (int b_j{0}; b_j <= mmj_tmp; b_j++) {
-            double yjy_tmp;
-            yjy_tmp = (&A[0][0])[(b_tmp + (b_j << 2)) + 4];
-            if (yjy_tmp != 0.0) {
-                int i4;
-                int i5;
-                i4 = jA + 6;
-                i5 = (jA - j) + 8;
-                for (int ijA{i4}; ijA <= i5; ijA++) {
-                    (&A[0][0])[ijA - 1] += (&A[0][0])[((b_tmp + ijA) - jA) - 5] * -yjy_tmp;
-                }
-            }
-            jA += 4;
-        }
-        i3 = ipiv[j];
-        if (i3 != j + 1) {
-            double b_temp;
-            b_temp = sp3D_CoeffX[j];
-            sp3D_CoeffX[j] = sp3D_CoeffX[i3 - 1];
-            sp3D_CoeffX[i3 - 1] = b_temp;
-        }
-    }
-    for (int b_k{0}; b_k < 4; b_k++) {
-        int kAcol;
-        kAcol = b_k << 2;
-        if (sp3D_CoeffX[b_k] != 0.0) {
-            int i1;
-            i1 = b_k + 2;
-            for (int b_i{i1}; b_i < 5; b_i++) {
-                sp3D_CoeffX[b_i - 1] -= sp3D_CoeffX[b_k] * (&A[0][0])[(b_i + kAcol) - 1];
-            }
-        }
-    }
-    for (int c_k{3}; c_k >= 0; c_k--) {
-        int b_kAcol;
-        b_kAcol = c_k << 2;
-        if (sp3D_CoeffX[c_k] != 0.0) {
-            sp3D_CoeffX[c_k] /= (&A[0][0])[c_k + b_kAcol];
-            for (int c_i{0}; c_i < c_k; c_i++) {
-                sp3D_CoeffX[c_i] -= sp3D_CoeffX[c_k] * (&A[0][0])[c_i + b_kAcol];
-            }
-        }
-    }
-    //  solve sparse banded linear system
-    // toc
-    //
-    //  spparms('autommd',mmdflag);   % restore spparms setting
-    //
-    //  sp3D = spmak(knots, [cx'; cy'; cz']);
-    //  coder.varsize('cx', 'cy', 'cz', [1, Inf], [0, 1]);
-    sp3D_CoeffY[0] = sp3D_CoeffX[0];
-    sp3D_CoeffZ[0] = sp3D_CoeffX[0];
-    sp3D_CoeffY[1] = sp3D_CoeffX[1];
-    sp3D_CoeffZ[1] = sp3D_CoeffX[1];
-    sp3D_CoeffY[2] = sp3D_CoeffX[2];
-    sp3D_CoeffZ[2] = sp3D_CoeffX[2];
-    sp3D_CoeffY[3] = sp3D_CoeffX[3];
-    sp3D_CoeffZ[3] = sp3D_CoeffX[3];
-    *sp3D_Bl_ncoeff = cfg_SplineDegree;
-    *sp3D_Bl_handle = Bl_handle;
-    *sp3D_Bl_degree = cfg_SplineDegree;
-}
-
+// function sp3D = CalcBspline_Lee(cfg, points)
 //
 // Arguments    : int cfg_SplineDegree
 //                const ::coder::array<double, 2U> &points
@@ -237,6 +32,7 @@ void CalcBspline_Lee(int cfg_SplineDegree, double sp3D_CoeffX[4], double sp3D_Co
 //                ::coder::array<double, 2U> &sp3D_knots
 // Return Type  : void
 //
+namespace ocn {
 void CalcBspline_Lee(int cfg_SplineDegree, const ::coder::array<double, 2U> &points,
                      ::coder::array<double, 2U> &sp3D_CoeffX,
                      ::coder::array<double, 2U> &sp3D_CoeffY,
@@ -255,6 +51,9 @@ void CalcBspline_Lee(int cfg_SplineDegree, const ::coder::array<double, 2U> &poi
     ::coder::array<double, 2U> r1;
     ::coder::array<double, 2U> r2;
     ::coder::array<double, 2U> x;
+    ::coder::array<double, 2U> xd;
+    ::coder::array<double, 2U> xdd;
+    ::coder::array<double, 2U> xddd;
     ::coder::array<double, 1U> r3;
     ::coder::array<double, 1U> r4;
     double a__2;
@@ -262,8 +61,14 @@ void CalcBspline_Lee(int cfg_SplineDegree, const ::coder::array<double, 2U> &poi
     double a__4;
     double a__5;
     double b_sp3D_Bl_breakpoints;
+    double d1;
+    double d2;
+    double d3;
     unsigned long Bl_handle;
+    int N;
+    int ab_loop_ub;
     int b_loop_ub;
+    int bb_loop_ub;
     int c_loop_ub;
     int d_loop_ub;
     int dimSize;
@@ -277,18 +82,17 @@ void CalcBspline_Lee(int cfg_SplineDegree, const ::coder::array<double, 2U> &poi
     int k_loop_ub;
     int l_loop_ub;
     int loop_ub;
-    int m_loop_ub;
     int n_loop_ub;
     int o_loop_ub;
-    int q_loop_ub;
-    int r_loop_ub;
-    int s_loop_ub;
-    int t_loop_ub;
-    int u_loop_ub;
-    int unnamed_idx_1;
+    int p_loop_ub;
     int v_loop_ub;
     int w_loop_ub;
+    int x_loop_ub;
+    int y_loop_ub;
+    // 'CalcBspline_Lee:3' [~, N] = size(points);
+    N = points.size(1);
     //  number of points in 3D space
+    // 'CalcBspline_Lee:4' du     = sum((diff(points.').^2).');
     x.set_size(points.size(1), 3);
     loop_ub = points.size(1);
     for (int i{0}; i < 3; i++) {
@@ -334,6 +138,7 @@ void CalcBspline_Lee(int cfg_SplineDegree, const ::coder::array<double, 2U> &poi
             }
         }
     }
+    // 'CalcBspline_Lee:5' u      = cumsum([0,du.^(1/4)]);
     r.set_size(b_y1.size(0), 3);
     b_loop_ub = b_y1.size(0);
     for (int i2{0}; i2 < 3; i2++) {
@@ -382,6 +187,7 @@ void CalcBspline_Lee(int cfg_SplineDegree, const ::coder::array<double, 2U> &poi
             sp3D_Bl_breakpoints[b_k + 1] = sp3D_Bl_breakpoints[b_k] + sp3D_Bl_breakpoints[b_k + 1];
         }
     }
+    // 'CalcBspline_Lee:6' u      = u / u(end);
     b_sp3D_Bl_breakpoints = sp3D_Bl_breakpoints[sp3D_Bl_breakpoints.size(1) - 1];
     sp3D_Bl_breakpoints.set_size(1, sp3D_Bl_breakpoints.size(1));
     f_loop_ub = sp3D_Bl_breakpoints.size(1);
@@ -389,6 +195,7 @@ void CalcBspline_Lee(int cfg_SplineDegree, const ::coder::array<double, 2U> &poi
         sp3D_Bl_breakpoints[i9] = sp3D_Bl_breakpoints[i9] / b_sp3D_Bl_breakpoints;
     }
     //  normalize knots to interval [0...1]
+    // 'CalcBspline_Lee:7' knots  = [zeros(1, 3), u, ones(1, 3)];
     sp3D_knots.set_size(1, sp3D_Bl_breakpoints.size(1) + 6);
     sp3D_knots[0] = 0.0;
     sp3D_knots[1] = 0.0;
@@ -400,6 +207,16 @@ void CalcBspline_Lee(int cfg_SplineDegree, const ::coder::array<double, 2U> &poi
     sp3D_knots[sp3D_Bl_breakpoints.size(1) + 3] = 1.0;
     sp3D_knots[sp3D_Bl_breakpoints.size(1) + 4] = 1.0;
     sp3D_knots[sp3D_Bl_breakpoints.size(1) + 5] = 1.0;
+    // 'CalcBspline_Lee:9' Bl = bspline_create(cfg.SplineDegree, u);
+    // 'bspline_create:2' nbreak = length(breakpoints);
+    // 'bspline_create:3' ncoeff = nbreak + degree - 2;
+    // 'bspline_create:5' h = uint64(0);
+    // 'bspline_create:7' if coder.target('rtw') || coder.target('mex')
+    // 'bspline_create:8' coder.updateBuildInfo('addSourceFiles','c_spline.c', '$(START_DIR)/src');
+    // 'bspline_create:9' coder.updateBuildInfo('addLinkFlags', LibInfo.gsl.lflags);
+    // 'bspline_create:10' coder.cinclude('src/c_spline.h');
+    // 'bspline_create:11' coder.ceval('c_bspline_create_with_breakpoints', coder.wref(h), degree,
+    // breakpoints, int32(nbreak));
     breakpoints.set_size(1, sp3D_Bl_breakpoints.size(1));
     h_loop_ub = sp3D_Bl_breakpoints.size(1);
     for (int i11{0}; i11 < h_loop_ub; i11++) {
@@ -407,6 +224,12 @@ void CalcBspline_Lee(int cfg_SplineDegree, const ::coder::array<double, 2U> &poi
     }
     c_bspline_create_with_breakpoints(&Bl_handle, cfg_SplineDegree, &breakpoints[0],
                                       sp3D_Bl_breakpoints.size(1));
+    // 'bspline_create:12' Bl.ncoeff = ncoeff;
+    // 'bspline_create:13' Bl.breakpoints = breakpoints;
+    // 'bspline_create:14' Bl.handle = h;
+    // 'bspline_create:15' Bl.degree = int32(degree);
+    // 'bspline_create:16' coder.varsize('Bl.breakpoints', [1, Inf], [0, 1]);
+    // 'CalcBspline_Lee:11' BasisVal    = zeros(N, N+2);
     BasisVal.set_size(points.size(1), points.size(1) + 2);
     i_loop_ub = points.size(1) + 2;
     for (int i12{0}; i12 < i_loop_ub; i12++) {
@@ -417,13 +240,14 @@ void CalcBspline_Lee(int cfg_SplineDegree, const ::coder::array<double, 2U> &poi
         }
     }
     //  preallocation
+    // 'CalcBspline_Lee:12' BasisValDD0 = zeros(1, N+2);
     BasisValDD0.set_size(1, points.size(1) + 2);
     k_loop_ub = points.size(1) + 2;
     for (int i14{0}; i14 < k_loop_ub; i14++) {
         BasisValDD0[i14] = 0.0;
     }
     //  preallocation
-    unnamed_idx_1 = points.size(1) + 2;
+    // 'CalcBspline_Lee:13' BasisValDD1 = zeros(1, N+2);
     BasisValDD1.set_size(1, points.size(1) + 2);
     l_loop_ub = points.size(1) + 2;
     for (int i15{0}; i15 < l_loop_ub; i15++) {
@@ -431,36 +255,83 @@ void CalcBspline_Lee(int cfg_SplineDegree, const ::coder::array<double, 2U> &poi
     }
     //  preallocation
     //
+    // 'CalcBspline_Lee:15' for k = 1:N+2
     i16 = points.size(1) + 1;
-    if (0 <= points.size(1) + 1) {
-        unnamed_idx_1 = points.size(1) + 2;
-        m_loop_ub = points.size(1) + 2;
-    }
     for (int c_k{0}; c_k <= i16; c_k++) {
-        int p_loop_ub;
+        int i26;
+        int m_loop_ub;
+        int q_loop_ub;
+        int r_loop_ub;
+        int s_loop_ub;
+        int t_loop_ub;
+        int u_loop_ub;
         //  evaluate basis functions at the knots
-        coef.set_size(1, unnamed_idx_1);
+        // 'CalcBspline_Lee:16' coef           = zeros(1, N+2);
+        coef.set_size(1, N + 2);
+        m_loop_ub = N + 2;
         for (int i17{0}; i17 < m_loop_ub; i17++) {
             coef[i17] = 0.0;
         }
+        // 'CalcBspline_Lee:17' coef(:, k)     = 1;
         coef[c_k] = 1.0;
         //      sp             = spmak(knots, coef);
         //      BasisVal(:, k) = spval(sp, u);          % tridiagonal matrix
-        bspline_eval_vec(Bl_handle, coef, sp3D_Bl_breakpoints, r2);
-        p_loop_ub = BasisVal.size(0);
-        for (int i20{0}; i20 < p_loop_ub; i20++) {
-            BasisVal[i20 + BasisVal.size(0) * c_k] = r2[i20];
+        // 'CalcBspline_Lee:20' BasisVal(:, k) = bspline_eval_vec(Bl, coef, u);
+        // 'bspline_eval_vec:3' x = zeros(size(u));
+        r2.set_size(1, sp3D_Bl_breakpoints.size(1));
+        q_loop_ub = sp3D_Bl_breakpoints.size(1);
+        for (int i22{0}; i22 < q_loop_ub; i22++) {
+            r2[i22] = 0.0;
+        }
+        // 'bspline_eval_vec:4' xd = zeros(size(u));
+        xd.set_size(1, sp3D_Bl_breakpoints.size(1));
+        r_loop_ub = sp3D_Bl_breakpoints.size(1);
+        for (int i23{0}; i23 < r_loop_ub; i23++) {
+            xd[i23] = 0.0;
+        }
+        // 'bspline_eval_vec:5' xdd = zeros(size(u));
+        xdd.set_size(1, sp3D_Bl_breakpoints.size(1));
+        s_loop_ub = sp3D_Bl_breakpoints.size(1);
+        for (int i24{0}; i24 < s_loop_ub; i24++) {
+            xdd[i24] = 0.0;
+        }
+        // 'bspline_eval_vec:6' xddd = zeros(size(u));
+        xddd.set_size(1, sp3D_Bl_breakpoints.size(1));
+        t_loop_ub = sp3D_Bl_breakpoints.size(1);
+        for (int i25{0}; i25 < t_loop_ub; i25++) {
+            xddd[i25] = 0.0;
+        }
+        // 'bspline_eval_vec:8' for k = 1:length(u)
+        i26 = sp3D_Bl_breakpoints.size(1);
+        for (int d_k{0}; d_k < i26; d_k++) {
+            // 'bspline_eval_vec:9' [xk, xdk, xddk, xdddk] = bspline_eval(Bl, coeffs, u(k));
+            r2[d_k] = sp3D_Bl_breakpoints[d_k];
+            bspline_eval(Bl_handle, coef, &r2[d_k], &d1, &d2, &d3);
+            xddd[d_k] = d3;
+            xdd[d_k] = d2;
+            xd[d_k] = d1;
+            // 'bspline_eval_vec:10' x(k) = xk;
+            // 'bspline_eval_vec:11' xd(k) = xdk;
+            // 'bspline_eval_vec:12' xdd(k) = xddk;
+            // 'bspline_eval_vec:13' xddd(k) = xdddk;
+        }
+        u_loop_ub = BasisVal.size(0);
+        for (int i27{0}; i27 < u_loop_ub; i27++) {
+            BasisVal[i27 + BasisVal.size(0) * c_k] = r2[i27];
         }
         //      sp2D           = fnder(sp, 2);          % evaluate 2nd derivative of basis functions
         //      @u=0,1
+        // 'CalcBspline_Lee:24' [~, ~, BasisValDD0(k)] = bspline_eval(Bl, coef, 0);
         a__2 = 0.0;
         bspline_eval(Bl_handle, coef, &a__2, &a__3, &BasisValDD0[c_k]);
+        // 'CalcBspline_Lee:25' [~, ~, BasisValDD1(k)] = bspline_eval(Bl, coef, 1);
         a__4 = 1.0;
         bspline_eval(Bl_handle, coef, &a__4, &a__5, &BasisValDD1[c_k]);
         //      BasisValDD0(k) = spval(sp2D, 0);
         //      BasisValDD1(k) = spval(sp2D, 1);
     }
     //
+    // 'CalcBspline_Lee:30' A = [BasisValDD0; BasisVal; BasisValDD1];
     if ((BasisValDD0.size(1) == 0) || ((BasisVal.size(0) != 0) && (BasisVal.size(1) != 0))) {
         input_sizes_idx_0 = BasisVal.size(0);
     } else {
@@ -473,21 +344,30 @@ void CalcBspline_Lee(int cfg_SplineDegree, const ::coder::array<double, 2U> &poi
     }
     o_loop_ub = BasisValDD0.size(1);
     for (int i19{0}; i19 < o_loop_ub; i19++) {
-        for (int i21{0}; i21 < input_sizes_idx_0; i21++) {
-            A[(i21 + A.size(0) * i19) + 1] = BasisVal[i21 + input_sizes_idx_0 * i19];
+        for (int i20{0}; i20 < input_sizes_idx_0; i20++) {
+            A[(i20 + A.size(0) * i19) + 1] = BasisVal[i20 + input_sizes_idx_0 * i19];
         }
     }
-    q_loop_ub = BasisValDD0.size(1);
-    for (int i22{0}; i22 < q_loop_ub; i22++) {
-        A[(input_sizes_idx_0 + A.size(0) * i22) + 1] = BasisValDD1[i22];
+    p_loop_ub = BasisValDD0.size(1);
+    for (int i21{0}; i21 < p_loop_ub; i21++) {
+        A[(input_sizes_idx_0 + A.size(0) * i21) + 1] = BasisValDD1[i21];
     }
     //  warning('NOT using a sparse matrix here because it pulled the CXSparse project into
     //  generation') A = sparse(A); figure; spy(A)
+    //
+    // 'CalcBspline_Lee:37' bx = [0; points(1, :)'; 0];
+    // 'CalcBspline_Lee:38' by = [0; points(2, :)'; 0];
+    // 'CalcBspline_Lee:39' bz = [0; points(3, :)'; 0];
     //
     //  mmdflag = spparms('autommd'); % protect current spparms setting
     //  spparms('autommd',0);         % suppress pivoting
     //
     // tic
+    // 'CalcBspline_Lee:46' cx = A\bx;
+    //  solve sparse banded linear system
+    // 'CalcBspline_Lee:47' cy = A\by;
+    //  solve sparse banded linear system
+    // 'CalcBspline_Lee:48' cz = A\bz;
     //  solve sparse banded linear system
     // toc
     //
@@ -495,47 +375,52 @@ void CalcBspline_Lee(int cfg_SplineDegree, const ::coder::array<double, 2U> &poi
     //
     //  sp3D = spmak(knots, [cx'; cy'; cz']);
     //  coder.varsize('cx', 'cy', 'cz', [1, Inf], [0, 1]);
-    r_loop_ub = points.size(1);
+    // 'CalcBspline_Lee:55' sp3D.CoeffX = cx.';
+    v_loop_ub = points.size(1);
     r3.set_size(points.size(1) + 2);
     r3[0] = 0.0;
-    for (int i23{0}; i23 < r_loop_ub; i23++) {
-        r3[i23 + 1] = points[3 * i23];
+    for (int i28{0}; i28 < v_loop_ub; i28++) {
+        r3[i28 + 1] = points[3 * i28];
     }
     r3[points.size(1) + 1] = 0.0;
     coder::mldivide(A, r3, r4);
     sp3D_CoeffX.set_size(1, r4.size(0));
-    s_loop_ub = r4.size(0);
-    for (int i24{0}; i24 < s_loop_ub; i24++) {
-        sp3D_CoeffX[i24] = r4[i24];
+    w_loop_ub = r4.size(0);
+    for (int i29{0}; i29 < w_loop_ub; i29++) {
+        sp3D_CoeffX[i29] = r4[i29];
     }
-    t_loop_ub = points.size(1);
+    // 'CalcBspline_Lee:56' sp3D.CoeffY = cy.';
+    x_loop_ub = points.size(1);
     r3.set_size(points.size(1) + 2);
     r3[0] = 0.0;
-    for (int i25{0}; i25 < t_loop_ub; i25++) {
-        r3[i25 + 1] = points[3 * i25 + 1];
+    for (int i30{0}; i30 < x_loop_ub; i30++) {
+        r3[i30 + 1] = points[3 * i30 + 1];
     }
     r3[points.size(1) + 1] = 0.0;
     coder::mldivide(A, r3, r4);
     sp3D_CoeffY.set_size(1, r4.size(0));
-    u_loop_ub = r4.size(0);
-    for (int i26{0}; i26 < u_loop_ub; i26++) {
-        sp3D_CoeffY[i26] = r4[i26];
+    y_loop_ub = r4.size(0);
+    for (int i31{0}; i31 < y_loop_ub; i31++) {
+        sp3D_CoeffY[i31] = r4[i31];
     }
-    v_loop_ub = points.size(1);
+    // 'CalcBspline_Lee:57' sp3D.CoeffZ = cz.';
+    ab_loop_ub = points.size(1);
     r3.set_size(points.size(1) + 2);
     r3[0] = 0.0;
-    for (int i27{0}; i27 < v_loop_ub; i27++) {
-        r3[i27 + 1] = points[3 * i27 + 2];
+    for (int i32{0}; i32 < ab_loop_ub; i32++) {
+        r3[i32 + 1] = points[3 * i32 + 2];
     }
     r3[points.size(1) + 1] = 0.0;
     coder::mldivide(A, r3, r4);
     sp3D_CoeffZ.set_size(1, r4.size(0));
-    w_loop_ub = r4.size(0);
-    for (int i28{0}; i28 < w_loop_ub; i28++) {
-        sp3D_CoeffZ[i28] = r4[i28];
+    bb_loop_ub = r4.size(0);
+    for (int i33{0}; i33 < bb_loop_ub; i33++) {
+        sp3D_CoeffZ[i33] = r4[i33];
     }
     int b_sp3D_Bl_ncoeff;
+    // 'CalcBspline_Lee:58' sp3D.Bl = Bl;
     b_sp3D_Bl_ncoeff = (sp3D_Bl_breakpoints.size(1) + cfg_SplineDegree) - 2;
+    // 'CalcBspline_Lee:59' sp3D.knots = knots;
     *sp3D_Bl_ncoeff = b_sp3D_Bl_ncoeff;
     *sp3D_Bl_handle = Bl_handle;
     *sp3D_Bl_degree = cfg_SplineDegree;

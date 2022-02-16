@@ -5,15 +5,15 @@
 // File: InitFeedoptPlan.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 04-Feb-2022 12:54:59
+// C/C++ source code generated on  : 14-Feb-2022 16:29:45
 //
 
 #ifndef INITFEEDOPTPLAN_H
 #define INITFEEDOPTPLAN_H
 
 // Include Files
+#include "opencn_matlab_types.h"
 #include "rtwtypes.h"
-#include "sinspace_types.h"
 #include <cstddef>
 #include <cstdlib>
 

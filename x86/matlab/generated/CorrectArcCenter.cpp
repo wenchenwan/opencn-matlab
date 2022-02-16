@@ -5,16 +5,18 @@
 // File: CorrectArcCenter.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 04-Feb-2022 12:47:09
+// C/C++ source code generated on  : 14-Feb-2022 16:26:14
 //
 
 // Include Files
 #include "CorrectArcCenter.h"
-#include "sinspace_data.h"
+#include "opencn_matlab_data.h"
 #include <cmath>
 #include <emmintrin.h>
 
 // Function Definitions
+//
+// function [R, Cprim, delta] = CorrectArcCenter(P0, P1, C)
 //
 // Arguments    : const double P0[2]
 //                const double P1[2]
@@ -34,19 +36,36 @@ void CorrectArcCenter(const double P0[2], const double P1[2], double C[2], doubl
     //  [R, Cprim] = CorrectArcCenter(P0, P1, C)
     //  recalculate the center point Cprim of an arc in the plane passing by P0 and P1,
     //  C being the approximate center point
+    // 'CorrectArcCenter:6' P1P0   = P1 - P0;
+    // 'CorrectArcCenter:7' R      = 0.5*(MyNorm(C-P0) + MyNorm(C-P1));
+    // 'MyNorm:2' coder.inline('always');
+    // 'MyNorm:3' n = mysqrt(sum(x.^2));
+    // 'mysqrt:3' y = sqrt(x);
+    // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
     sqrt_calls++;
+    // 'MyNorm:2' coder.inline('always');
+    // 'MyNorm:3' n = mysqrt(sum(x.^2));
     P1P0_idx_0 = P1[0] - P0[0];
     P1P0_idx_1 = P1[1] - P0[1];
+    // 'mysqrt:3' y = sqrt(x);
+    // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
     sqrt_calls++;
     *R = 0.5 * (std::sqrt(std::pow(C[0] - P0[0], 2.0) + std::pow(C[1] - P0[1], 2.0)) +
                 std::sqrt(std::pow(C[0] - P1[0], 2.0) + std::pow(C[1] - P1[1], 2.0)));
     //  mean value of radius
     //
+    // 'CorrectArcCenter:9' if MyNorm(P1P0) < 1e-6
+    // 'MyNorm:2' coder.inline('always');
+    // 'MyNorm:3' n = mysqrt(sum(x.^2));
     z1_idx_1_tmp_tmp = std::pow(P1P0_idx_1, 2.0);
+    // 'mysqrt:3' y = sqrt(x);
+    // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
     sqrt_calls++;
     d = std::sqrt(std::pow(P1P0_idx_0, 2.0) + z1_idx_1_tmp_tmp);
     if (d < 1.0E-6) {
+        // 'CorrectArcCenter:10' Cprim = C;
         //  do nothing if P0 and P1 are extremely close
+        // 'CorrectArcCenter:11' delta = 0;
         *delta = 0.0;
     } else {
         __m128d r;
@@ -60,28 +79,59 @@ void CorrectArcCenter(const double P0[2], const double P1[2], double C[2], doubl
         double d3;
         double d4;
         double z1_idx_0;
+        // 'CorrectArcCenter:12' else
+        // 'CorrectArcCenter:13' l      = MyNorm(P1P0);
+        // 'MyNorm:2' coder.inline('always');
+        // 'MyNorm:3' n = mysqrt(sum(x.^2));
+        // 'mysqrt:3' y = sqrt(x);
+        // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
         sqrt_calls++;
+        // 'CorrectArcCenter:15' ep     = [P1P0(2);
+        // 'CorrectArcCenter:16'              -P1P0(1)];
         ep[0] = P1P0_idx_1;
         ep[1] = -P1P0_idx_0;
         //  bisecting line (90° rotation)
+        // 'CorrectArcCenter:17' ep     = ep/MyNorm(ep);
+        // 'MyNorm:2' coder.inline('always');
+        // 'MyNorm:3' n = mysqrt(sum(x.^2));
+        // 'mysqrt:3' y = sqrt(x);
+        // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
         sqrt_calls++;
         r = _mm_loadu_pd(&ep[0]);
         _mm_storeu_pd(&ep[0], _mm_div_pd(r, _mm_set1_pd(std::sqrt(z1_idx_1_tmp_tmp +
                                                                   std::pow(-P1P0_idx_0, 2.0)))));
         //  unit vector on bisecting line
         //  dealing with limit cases...
+        // 'CorrectArcCenter:20' a = R.^2 - (l/2).^2;
         a = std::pow(*R, 2.0) - std::pow(d / 2.0, 2.0);
+        // 'CorrectArcCenter:21' if  a <= 0
         if (a <= 0.0) {
+            // 'CorrectArcCenter:22' d = 0;
             b_a = 0.0;
         } else {
+            // 'CorrectArcCenter:23' else
+            // 'CorrectArcCenter:24' d = mysqrt(a);
+            // 'mysqrt:3' y = sqrt(x);
             b_a = std::sqrt(a);
+            // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
             sqrt_calls++;
         }
+        // 'CorrectArcCenter:26' delta = a;
         *delta = a;
+        // 'CorrectArcCenter:28' M      = 0.5*(P0+P1);
         //  midpoint
+        // 'CorrectArcCenter:29' Cprim1 = M + d*ep;
         //  two choices for the center point
+        // 'CorrectArcCenter:30' Cprim2 = M - d*ep;
         //
+        // 'CorrectArcCenter:32' if MyNorm(C-Cprim1) < MyNorm(C-Cprim2)
+        // 'MyNorm:2' coder.inline('always');
+        // 'MyNorm:3' n = mysqrt(sum(x.^2));
+        // 'mysqrt:3' y = sqrt(x);
+        // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
         sqrt_calls++;
+        // 'MyNorm:2' coder.inline('always');
+        // 'MyNorm:3' n = mysqrt(sum(x.^2));
         d1 = 0.5 * (P0[0] + P1[0]);
         d2 = b_a * ep[0];
         d3 = d1 + d2;
@@ -94,13 +144,18 @@ void CorrectArcCenter(const double P0[2], const double P1[2], double C[2], doubl
         d2 = b_a * ep[1];
         d3 = d1 + d2;
         d4 = d1 - d2;
+        // 'mysqrt:3' y = sqrt(x);
+        // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
         sqrt_calls++;
         if (std::sqrt(z1_idx_0 + std::pow(C[1] - d3, 2.0)) <
             std::sqrt(b_z1_idx_0 + std::pow(C[1] - d4, 2.0))) {
             //  determine on which side the center point lies
+            // 'CorrectArcCenter:33' Cprim = Cprim1;
             C[0] = Cprim1_idx_0;
             C[1] = d3;
         } else {
+            // 'CorrectArcCenter:34' else
+            // 'CorrectArcCenter:35' Cprim = Cprim2;
             C[0] = Cprim2_idx_0;
             C[1] = d4;
         }

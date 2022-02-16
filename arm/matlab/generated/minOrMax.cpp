@@ -5,28 +5,47 @@
 // File: minOrMax.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 04-Feb-2022 12:54:59
+// C/C++ source code generated on  : 14-Feb-2022 16:29:45
 //
 
 // Include Files
 #include "minOrMax.h"
-#include "sinspace_rtwutil.h"
-#include "sinspace_types11.h"
+#include "opencn_matlab_rtwutil.h"
+#include "opencn_matlab_types11.h"
 #include <cmath>
 
 // Function Declarations
 namespace ocn {
+static double uMultiWord2Double(const unsigned int u1[]);
+
 static bool uMultiWordLt(const unsigned int u1[], const unsigned int u2[]);
 
-}
+} // namespace ocn
 
 // Function Definitions
+//
+// Arguments    : const unsigned int u1[]
+// Return Type  : double
+//
+namespace ocn {
+static double uMultiWord2Double(const unsigned int u1[])
+{
+    double y;
+    int b_exp;
+    y = 0.0;
+    b_exp = 0;
+    for (int i{0}; i < 2; i++) {
+        y += std::ldexp(static_cast<double>(u1[i]), b_exp);
+        b_exp += 32;
+    }
+    return y;
+}
+
 //
 // Arguments    : const unsigned int u1[]
 //                const unsigned int u2[]
 // Return Type  : bool
 //
-namespace ocn {
 static bool uMultiWordLt(const unsigned int u1[], const unsigned int u2[])
 {
     return uMultiWordCmp(u1, u2) < 0;

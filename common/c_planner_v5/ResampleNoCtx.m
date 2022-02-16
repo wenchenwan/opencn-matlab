@@ -1,4 +1,6 @@
 function state = ResampleNoCtx(state, Bl, Curv)
+coder.inline("never");
+
 [ukp1, qk, ~] = Resample(Curv, Bl, state.u, state.dt);
 
 

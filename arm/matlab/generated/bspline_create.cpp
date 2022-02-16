@@ -5,20 +5,22 @@
 // File: bspline_create.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 04-Feb-2022 12:54:59
+// C/C++ source code generated on  : 14-Feb-2022 16:29:45
 //
 
 // Include Files
 #include "bspline_create.h"
-#include "sinspace_data.h"
-#include "sinspace_initialize.h"
-#include "sinspace_types11.h"
-#include "sinspace_types3.h"
+#include "opencn_matlab_data.h"
+#include "opencn_matlab_initialize.h"
+#include "opencn_matlab_types11.h"
+#include "opencn_matlab_types3.h"
 #include "coder_array.h"
 #include "src/c_spline.h"
 #include <algorithm>
 
 // Function Definitions
+//
+// function Bl = bspline_create(degree, breakpoints)
 //
 // Arguments    : int degree
 //                const double breakpoints[10]
@@ -29,17 +31,31 @@ namespace ocn {
 void bspline_create(int degree, const double breakpoints[10], SplineBase *Bl)
 {
     double b_breakpoints[10];
-    if (!isInitialized_sinspace) {
-        sinspace_initialize();
+    if (!isInitialized_opencn_matlab) {
+        opencn_matlab_initialize();
     }
+    // 'bspline_create:2' nbreak = length(breakpoints);
+    // 'bspline_create:3' ncoeff = nbreak + degree - 2;
     Bl->ncoeff = degree + 8;
+    // 'bspline_create:5' h = uint64(0);
+    // 'bspline_create:7' if coder.target('rtw') || coder.target('mex')
+    // 'bspline_create:8' coder.updateBuildInfo('addSourceFiles','c_spline.c', '$(START_DIR)/src');
+    // 'bspline_create:9' coder.updateBuildInfo('addLinkFlags', LibInfo.gsl.lflags);
+    // 'bspline_create:10' coder.cinclude('src/c_spline.h');
+    // 'bspline_create:11' coder.ceval('c_bspline_create_with_breakpoints', coder.wref(h), degree,
+    // breakpoints, int32(nbreak));
     std::copy(&breakpoints[0], &breakpoints[10], &b_breakpoints[0]);
     c_bspline_create_with_breakpoints(&Bl->handle, degree, &b_breakpoints[0], 10);
+    // 'bspline_create:12' Bl.ncoeff = ncoeff;
+    // 'bspline_create:13' Bl.breakpoints = breakpoints;
     Bl->breakpoints.set_size(1, 10);
     for (int i{0}; i < 10; i++) {
         Bl->breakpoints[i] = breakpoints[i];
     }
+    // 'bspline_create:14' Bl.handle = h;
+    // 'bspline_create:15' Bl.degree = int32(degree);
     Bl->degree = degree;
+    // 'bspline_create:16' coder.varsize('Bl.breakpoints', [1, Inf], [0, 1]);
 }
 
 } // namespace ocn

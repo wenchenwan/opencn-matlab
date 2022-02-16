@@ -5,7 +5,7 @@
 // File: sparse1.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 04-Feb-2022 12:36:47
+// C/C++ source code generated on  : 14-Feb-2022 16:27:55
 //
 
 #ifndef SPARSE1_H
@@ -24,6 +24,7 @@ namespace ocn {
 namespace coder {
 class sparse {
   public:
+    void vertcat(const sparse *varargin_2, sparse *c) const;
     void parenAssign(const ::coder::array<double, 2U> &rhs,
                      const ::coder::array<double, 2U> &varargin_1,
                      const ::coder::array<double, 2U> &varargin_2);
