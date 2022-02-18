@@ -5,7 +5,7 @@
 // File: sinspace_data.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 08-Feb-2022 09:15:12
+// C/C++ source code generated on  : 18-Feb-2022 13:18:06
 //
 
 #ifndef SINSPACE_DATA_H
@@ -22,9 +22,9 @@
 #include "functions.h"
 // Variable Declarations
 namespace ocn {
-extern double sqrt_calls;
 extern double cos_calls;
 extern double sin_calls;
+extern double sqrt_calls;
 extern double DebugConfig;
 extern const char cv[30];
 extern bool isInitialized_sinspace;

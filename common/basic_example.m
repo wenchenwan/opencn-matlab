@@ -8,7 +8,7 @@ clc; close all; clear all;
 cfg = FeedoptDefaultConfig;
 
 % Set the path to the gcode file
-cfg.source = './ngc_test/micro5_3axes_finition.ngc';
+cfg.source = 'ngc_test/test.ngc';
 
 % Initialization of the feed operator
 ctx = InitFeedoptPlan(cfg);

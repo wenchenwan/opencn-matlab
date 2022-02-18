@@ -5,7 +5,7 @@
 // File: sinspace_data.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 08-Feb-2022 09:15:12
+// C/C++ source code generated on  : 18-Feb-2022 13:18:06
 //
 
 // Include Files
@@ -13,11 +13,11 @@
 
 // Variable Definitions
 namespace ocn {
-double sqrt_calls;
-
 double cos_calls;
 
 double sin_calls;
+
+double sqrt_calls;
 
 double DebugConfig;
 

@@ -5,7 +5,7 @@
 // File: ResampleNoCtx.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 08-Feb-2022 09:15:12
+// C/C++ source code generated on  : 18-Feb-2022 13:18:06
 //
 
 // Include Files
@@ -91,7 +91,7 @@ static void ResampleNN(bool CurOptStruct_UseConstJerk,
     double b_dk;
     double b_qk;
     int loop_ub;
-    f_c_assert(!CurOptStruct_UseConstJerk);
+    e_c_assert(!CurOptStruct_UseConstJerk);
     b_qk = u;
     b_CurOptStruct_Coeff.set_size(1, CurOptStruct_Coeff.size(0));
     loop_ub = CurOptStruct_Coeff.size(0);
@@ -120,7 +120,7 @@ static void ResampleNZ(bool CurOptStruct_UseConstJerk, double CurOptStruct_Const
 {
     double a;
     double t;
-    g_c_assert(CurOptStruct_UseConstJerk);
+    f_c_assert(CurOptStruct_UseConstJerk);
     t = std::pow(6.0 * (1.0 - u) / CurOptStruct_ConstJerk, 0.33333333333333331);
     a = CurOptStruct_ConstJerk * (t * t) / 2.0;
     *qk = a * a;
@@ -143,7 +143,7 @@ static void ResampleZN(bool CurOptStruct_UseConstJerk, double CurOptStruct_Const
 {
     double a;
     double t;
-    e_c_assert(CurOptStruct_UseConstJerk);
+    d_c_assert(CurOptStruct_UseConstJerk);
     t = std::pow(6.0 * u / CurOptStruct_ConstJerk, 0.33333333333333331);
     if (dt > 0.0) {
         t = std::round(t / dt) * dt;

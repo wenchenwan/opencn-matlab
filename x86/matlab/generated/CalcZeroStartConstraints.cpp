@@ -5,7 +5,7 @@
 // File: CalcZeroStartConstraints.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 08-Feb-2022 09:15:12
+// C/C++ source code generated on  : 18-Feb-2022 13:18:06
 //
 
 // Include Files
@@ -59,7 +59,7 @@ void CalcZeroStartConstraints(const queue_coder *ctx_q_splines, CurveType Curv_T
     double n;
     double scale;
     double t;
-    b_c_assert(Curv_UseConstJerk);
+    c_assert(Curv_UseConstJerk);
     jps = Curv_ConstJerk * JerkScale;
     t = std::pow(6.0 / jps, 0.33333333333333331);
     d1uk = jps * std::pow(t, 2.0) / 2.0;

@@ -5,7 +5,7 @@
 // File: CorrectArcCenter.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 08-Feb-2022 09:15:12
+// C/C++ source code generated on  : 18-Feb-2022 13:18:06
 //
 
 // Include Files
@@ -15,6 +15,17 @@
 #include <emmintrin.h>
 
 // Function Definitions
+//
+// CorrectArcCenter : Recompute the correct center of a given arc. This is a
+//  required step to minimize rounding errors.
+//
+//  P0    : 2D vector from the origin to the starting point
+//  P1    : 2D vector from the origin to the ending point
+//  C     : 2D vector from the origin to the center of the arc
+//
+//  R     : Radius of arc
+//  Cprim : Corrected Center of the arc
+//  delta : Numerical difference between the two centers
 //
 // Arguments    : const double P0[2]
 //                const double P1[2]
@@ -27,26 +38,27 @@ namespace ocn {
 void CorrectArcCenter(const double P0[2], const double P1[2], double C[2], double *R, double *delta)
 {
     double ep[2];
-    double P1P0_idx_0;
-    double P1P0_idx_1;
+    double L10;
+    double L10_tmp;
+    double P10_idx_0;
     double d;
-    double z1_idx_1_tmp_tmp;
-    //  [R, Cprim] = CorrectArcCenter(P0, P1, C)
-    //  recalculate the center point Cprim of an arc in the plane passing by P0 and P1,
-    //  C being the approximate center point
+    double z1_idx_0;
     sqrt_calls++;
-    P1P0_idx_0 = P1[0] - P0[0];
-    P1P0_idx_1 = P1[1] - P0[1];
+    //  Compute mean of radii
+    d = P1[0] - P0[0];
+    P10_idx_0 = d;
+    z1_idx_0 = std::pow(d, 2.0);
+    d = P1[1] - P0[1];
+    L10_tmp = std::pow(d, 2.0);
+    L10 = std::sqrt(z1_idx_0 + L10_tmp);
     sqrt_calls++;
-    *R = 0.5 * (std::sqrt(std::pow(C[0] - P0[0], 2.0) + std::pow(C[1] - P0[1], 2.0)) +
-                std::sqrt(std::pow(C[0] - P1[0], 2.0) + std::pow(C[1] - P1[1], 2.0)));
-    //  mean value of radius
-    //
-    z1_idx_1_tmp_tmp = std::pow(P1P0_idx_1, 2.0);
     sqrt_calls++;
-    d = std::sqrt(std::pow(P1P0_idx_0, 2.0) + z1_idx_1_tmp_tmp);
-    if (d < 1.0E-6) {
-        //  do nothing if P0 and P1 are extremely close
+    *R = (std::sqrt(std::pow(C[0] - P0[0], 2.0) + std::pow(C[1] - P0[1], 2.0)) +
+          std::sqrt(std::pow(C[0] - P1[0], 2.0) + std::pow(C[1] - P1[1], 2.0))) /
+         2.0;
+    //  Default tolerance for considering two points as supperposed
+    if (L10 < 1.0E-6) {
+        //  Points are supperposed
         *delta = 0.0;
     } else {
         __m128d r;
@@ -59,28 +71,27 @@ void CorrectArcCenter(const double P0[2], const double P1[2], double C[2], doubl
         double d2;
         double d3;
         double d4;
-        double z1_idx_0;
-        sqrt_calls++;
-        ep[0] = P1P0_idx_1;
-        ep[1] = -P1P0_idx_0;
-        //  bisecting line (90° rotation)
+        ep[0] = d;
+        ep[1] = -P10_idx_0;
+        //  Bisecting line (90° rotation)
         sqrt_calls++;
         r = _mm_loadu_pd(&ep[0]);
-        _mm_storeu_pd(&ep[0], _mm_div_pd(r, _mm_set1_pd(std::sqrt(z1_idx_1_tmp_tmp +
-                                                                  std::pow(-P1P0_idx_0, 2.0)))));
-        //  unit vector on bisecting line
-        //  dealing with limit cases...
-        a = std::pow(*R, 2.0) - std::pow(d / 2.0, 2.0);
+        _mm_storeu_pd(&ep[0],
+                      _mm_div_pd(r, _mm_set1_pd(std::sqrt(L10_tmp + std::pow(-P10_idx_0, 2.0)))));
+        //  Unit vector on bisecting line
+        //  Dealing with limit cases...
+        a = std::pow(*R, 2.0) - std::pow(L10, 2.0) / 4.0;
         if (a <= 0.0) {
+            //  Center is aligned with the two points
             b_a = 0.0;
         } else {
             b_a = std::sqrt(a);
             sqrt_calls++;
         }
         *delta = a;
-        //  midpoint
-        //  two choices for the center point
-        //
+        //  Midpoint
+        //  Two choices for the center point
+        //  Determine on which side the center point lies
         sqrt_calls++;
         d1 = 0.5 * (P0[0] + P1[0]);
         d2 = b_a * ep[0];
@@ -97,7 +108,6 @@ void CorrectArcCenter(const double P0[2], const double P1[2], double C[2], doubl
         sqrt_calls++;
         if (std::sqrt(z1_idx_0 + std::pow(C[1] - d3, 2.0)) <
             std::sqrt(b_z1_idx_0 + std::pow(C[1] - d4, 2.0))) {
-            //  determine on which side the center point lies
             C[0] = Cprim1_idx_0;
             C[1] = d3;
         } else {

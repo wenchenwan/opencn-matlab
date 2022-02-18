@@ -5,7 +5,7 @@
 // File: _coder_sinspace_api.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 08-Feb-2022 09:15:12
+// C/C++ source code generated on  : 18-Feb-2022 13:18:06
 //
 
 #ifndef _CODER_SINSPACE_API_H
@@ -137,6 +137,10 @@ typedef struct {
     CurveType Type;
     ZSpdMode zspdmode;
     boolean_T TRAFO;
+    real_T Poff[3];
+    real_T Aoff[3];
+    real_T Uoff[3];
+    real_T Doff;
     real_T P0[3];
     real_T P1[3];
     real_T A0[3];
@@ -225,25 +229,26 @@ void ConstrCurvStructType(CurvStruct *C);
 
 void ConstrCurvStructType_api(const mxArray **plhs);
 
-void ConstrHelixStruct(boolean_T trafo, real_T P0[3], real_T P1[3], real_T A0[3], real_T A1[3],
-                       real_T U0[3], real_T U1[3], real_T Cprim[3], real_T delta, real_T evec[3],
-                       real_T theta, real_T pitch, real_T FeedRate, ZSpdMode b_ZSpdMode,
-                       CurvStruct *b_CurvStruct);
+void ConstrHelixStruct(boolean_T trafo, real_T Poff[3], real_T Aoff[3], real_T Uoff[3], real_T Doff,
+                       real_T P0[3], real_T P1[3], real_T A0[3], real_T A1[3], real_T U0[3],
+                       real_T U1[3], real_T Cprim[3], real_T delta, real_T evec[3], real_T theta,
+                       real_T pitch, real_T FeedRate, ZSpdMode mode, CurvStruct *b_CurvStruct);
 
-void ConstrHelixStructFromArcFeed(boolean_T trafo, real_T p0x, real_T p0y, real_T p0z, real_T p1x,
+void ConstrHelixStructFromArcFeed(boolean_T trafo, real_T Poff[3], real_T Aoff[3], real_T Uoff[3],
+                                  real_T Doff, real_T p0x, real_T p0y, real_T p0z, real_T p1x,
                                   real_T p1y, real_T p1z, real_T cx, real_T cy, real_T cz,
                                   real_T A0[3], real_T A1[3], real_T U0[3], real_T U1[3],
                                   real_T rotation, real_T evec[3], CurvStruct *b_CurvStruct);
 
-void ConstrHelixStructFromArcFeed_api(const mxArray *const prhs[16], const mxArray **plhs);
+void ConstrHelixStructFromArcFeed_api(const mxArray *const prhs[20], const mxArray **plhs);
 
-void ConstrHelixStruct_api(const mxArray *const prhs[14], const mxArray **plhs);
+void ConstrHelixStruct_api(const mxArray *const prhs[18], const mxArray **plhs);
 
-void ConstrLineStruct(boolean_T trafo, real_T P0[3], real_T P1[3], real_T A0[3], real_T A1[3],
-                      real_T U0[3], real_T U1[3], real_T FeedRate, ZSpdMode b_ZSpdMode,
-                      CurvStruct *b_CurvStruct);
+void ConstrLineStruct(boolean_T trafo, real_T Poff[3], real_T Aoff[3], real_T Uoff[3], real_T Doff,
+                      real_T P0[3], real_T P1[3], real_T A0[3], real_T A1[3], real_T U0[3],
+                      real_T U1[3], real_T FeedRate, ZSpdMode b_ZSpdMode, CurvStruct *b_CurvStruct);
 
-void ConstrLineStruct_api(const mxArray *const prhs[9], const mxArray **plhs);
+void ConstrLineStruct_api(const mxArray *const prhs[13], const mxArray **plhs);
 
 void CopyCurvStruct(CurvStruct *Curv, CurvStruct *Copy);
 

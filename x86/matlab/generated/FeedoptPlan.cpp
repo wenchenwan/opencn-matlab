@@ -5,7 +5,7 @@
 // File: FeedoptPlan.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 08-Feb-2022 09:15:12
+// C/C++ source code generated on  : 18-Feb-2022 13:18:06
 //
 
 // Include Files
@@ -61,6 +61,9 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
     double dv3[3];
     double dv4[3];
     double dv5[3];
+    double dv6[3];
+    double dv7[3];
+    double dv8[3];
     double e_ctx[3];
     double at_0;
     double b_at_0;
@@ -71,30 +74,38 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
     if (!isInitialized_sinspace) {
         sinspace_initialize();
     }
-    c_c_assert(ctx->errcode == FeedoptPlanError_Success);
+    b_c_assert(ctx->errcode == FeedoptPlanError_Success);
     b_optimized = false;
-    //  opt_struct = struct('Coeff', zeros(ctx.cfg.MaxNCoeff, 1),...
-    //      'CurvStruct', ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN));
-    //  coder.cstructname(opt_struct, 'OptCurvStruct');
+    //  TRAFO flag disable
     dv[0] = 0.0;
     dv1[0] = 0.0;
     dv2[0] = 0.0;
     dv3[0] = 0.0;
     dv4[0] = 0.0;
     dv5[0] = 0.0;
+    dv6[0] = 0.0;
+    dv7[0] = 0.0;
+    dv8[0] = 0.0;
     dv[1] = 0.0;
     dv1[1] = 0.0;
     dv2[1] = 0.0;
     dv3[1] = 0.0;
     dv4[1] = 0.0;
     dv5[1] = 0.0;
+    dv6[1] = 0.0;
+    dv7[1] = 0.0;
+    dv8[1] = 0.0;
     dv[2] = 0.0;
     dv1[2] = 0.0;
     dv2[2] = 0.0;
     dv3[2] = 0.0;
     dv4[2] = 0.0;
     dv5[2] = 0.0;
-    ConstrLineStruct(false, dv, dv1, dv2, dv3, dv4, dv5, 0.2, ZSpdMode_NN, opt_struct);
+    dv6[2] = 0.0;
+    dv7[2] = 0.0;
+    dv8[2] = 0.0;
+    ConstrLineStruct(false, dv, dv1, dv2, 0.0, dv3, dv4, dv5, dv6, dv7, dv8, 0.2, ZSpdMode_NN,
+                     opt_struct);
     guard1 = false;
     switch (ctx->op) {
     case Fopt_Init:
@@ -110,30 +121,41 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         status = ReadGCode(ctx->cfg.source);
         f_DebugLog();
         if (status != 0) {
-            dv[0] = 1.0;
-            dv1[0] = 4.0;
+            dv[0] = 0.0;
+            dv1[0] = 0.0;
             dv2[0] = 0.0;
-            dv3[0] = 0.0;
-            dv4[0] = 0.0;
+            dv3[0] = 1.0;
+            dv4[0] = 4.0;
             dv5[0] = 0.0;
-            dv[1] = 2.0;
-            dv1[1] = 5.0;
+            dv6[0] = 0.0;
+            dv7[0] = 0.0;
+            dv8[0] = 0.0;
+            dv[1] = 0.0;
+            dv1[1] = 0.0;
             dv2[1] = 0.0;
-            dv3[1] = 0.0;
-            dv4[1] = 0.0;
+            dv3[1] = 2.0;
+            dv4[1] = 5.0;
             dv5[1] = 0.0;
-            dv[2] = 3.0;
-            dv1[2] = 6.0;
+            dv6[1] = 0.0;
+            dv7[1] = 0.0;
+            dv8[1] = 0.0;
+            dv[2] = 0.0;
+            dv1[2] = 0.0;
             dv2[2] = 0.0;
-            dv3[2] = 0.0;
-            dv4[2] = 0.0;
+            dv3[2] = 3.0;
+            dv4[2] = 6.0;
             dv5[2] = 0.0;
+            dv6[2] = 0.0;
+            dv7[2] = 0.0;
+            dv8[2] = 0.0;
         }
         while (status != 0) {
             int b_status;
             //  coder.extrinsic('ReadGCode_mex');
             //  Wrapper for pulling the next gcode line from the interpreter
-            ConstrLineStruct(false, dv, dv1, dv2, dv3, dv4, dv5, 0.2, ZSpdMode_NN, &b_CurvStruct);
+            //  TRAFO flag disable
+            ConstrLineStruct(false, dv, dv1, dv2, 0.0, dv3, dv4, dv5, dv6, dv7, dv8, 0.2,
+                             ZSpdMode_NN, &b_CurvStruct);
             b_status = c_read_and_exec_gcode(nullptr, &b_CurvStruct);
             status = b_status;
             if ((b_status == 1) && (static_cast<int>(b_CurvStruct.Type) != 0)) {

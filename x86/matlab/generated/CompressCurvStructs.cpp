@@ -5,7 +5,7 @@
 // File: CompressCurvStructs.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 08-Feb-2022 09:15:12
+// C/C++ source code generated on  : 18-Feb-2022 13:18:06
 //
 
 // Include Files
@@ -157,8 +157,8 @@ void CompressCurvStructs(const FeedoptContext *ctx)
                         b_Curv[1][2] = Curv.A1[2];
                         c_Curv[0][2] = Curv.U0[2];
                         c_Curv[1][2] = Curv.U1[2];
-                        ConstrBSplineStruct(Curv.TRAFO, pvec, b_Curv, c_Curv, Curv.FeedRate,
-                                            &spline);
+                        ConstrBSplineStruct(Curv.TRAFO, Curv.Poff, Curv.Aoff, Curv.Uoff, Curv.Doff,
+                                            pvec, b_Curv, c_Curv, Curv.FeedRate, &spline);
                         spline.gcode_source_line = Curv.gcode_source_line;
                         spline.sp_index = static_cast<int>(spline_index);
                         spline_index++;
@@ -215,7 +215,8 @@ void CompressCurvStructs(const FeedoptContext *ctx)
                 b_Curv[1][2] = Curv.A1[2];
                 c_Curv[0][2] = Curv.U0[2];
                 c_Curv[1][2] = Curv.U1[2];
-                ConstrBSplineStruct(Curv.TRAFO, pvec, b_Curv, c_Curv, Curv.FeedRate, &spline);
+                ConstrBSplineStruct(Curv.TRAFO, Curv.Poff, Curv.Aoff, Curv.Uoff, Curv.Doff, pvec,
+                                    b_Curv, c_Curv, Curv.FeedRate, &spline);
                 spline.gcode_source_line = Curv.gcode_source_line;
                 spline.sp_index = static_cast<int>(spline_index);
                 spline.SpindleSpeed = spindle_speed;

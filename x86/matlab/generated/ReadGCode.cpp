@@ -5,7 +5,7 @@
 // File: ReadGCode.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 08-Feb-2022 09:15:12
+// C/C++ source code generated on  : 18-Feb-2022 13:18:06
 //
 
 // Include Files
@@ -34,26 +34,40 @@ int ReadGCode(const char filename[1024])
     double dv3[3];
     double dv4[3];
     double dv5[3];
+    double dv6[3];
+    double dv7[3];
+    double dv8[3];
     char b_cv[1025];
-    dv[0] = 1.0;
-    dv1[0] = 4.0;
+    //  TRAFO flag disable
+    dv[0] = 0.0;
+    dv1[0] = 0.0;
     dv2[0] = 0.0;
-    dv3[0] = 0.0;
-    dv4[0] = 0.0;
+    dv3[0] = 1.0;
+    dv4[0] = 4.0;
     dv5[0] = 0.0;
-    dv[1] = 2.0;
-    dv1[1] = 5.0;
+    dv6[0] = 0.0;
+    dv7[0] = 0.0;
+    dv8[0] = 0.0;
+    dv[1] = 0.0;
+    dv1[1] = 0.0;
     dv2[1] = 0.0;
-    dv3[1] = 0.0;
-    dv4[1] = 0.0;
+    dv3[1] = 2.0;
+    dv4[1] = 5.0;
     dv5[1] = 0.0;
-    dv[2] = 3.0;
-    dv1[2] = 6.0;
+    dv6[1] = 0.0;
+    dv7[1] = 0.0;
+    dv8[1] = 0.0;
+    dv[2] = 0.0;
+    dv1[2] = 0.0;
     dv2[2] = 0.0;
-    dv3[2] = 0.0;
-    dv4[2] = 0.0;
+    dv3[2] = 3.0;
+    dv4[2] = 6.0;
     dv5[2] = 0.0;
-    ConstrLineStruct(false, dv, dv1, dv2, dv3, dv4, dv5, 0.2, ZSpdMode_NN, &b_CurvStruct);
+    dv6[2] = 0.0;
+    dv7[2] = 0.0;
+    dv8[2] = 0.0;
+    ConstrLineStruct(false, dv, dv1, dv2, 0.0, dv3, dv4, dv5, dv6, dv7, dv8, 0.2, ZSpdMode_NN,
+                     &b_CurvStruct);
     std::copy(&filename[0], &filename[1024], &b_cv[0]);
     b_cv[1024] = '\x00';
     return c_open_gcode(&b_cv[0], &b_CurvStruct);

@@ -5,10 +5,14 @@ function [status, CurvStruct] = ReadGCode(cmd, filename)
 persistent n data using_mat
 
 if coder.target('mex')
-    trafo = false;
-    A0 = zeros(3,1); A1 = A0; U0 = A0; U1 = A0;
-    CurvStruct = ConstrLineStruct(trafo, [1,2,3]', [4,5,6]', A0, A1, U0, ...
-                                    U1, 0.2, ZSpdMode.NN);
+    trafo = false; % TRAFO flag disable 
+    Poff = zeros(3, 1); Aoff = Poff; Uoff = Poff; Doff = 0.0;
+    A0 = zeros(3,1); A1 = A0; U0 = A0 ; U1 = A0; 
+
+    CurvStruct = ConstrLineStruct(trafo, Poff, Aoff, Uoff, ...
+                               Doff, [1,2,3]', [4,5,6]', A0, A1, U0, ...
+                               U1, 0.2, ZSpdMode.NN);
+
     coder.updateBuildInfo('addDefines', '_POSIX_C_SOURCE=199309L')
     pathRs274Src = '$(START_DIR)/../../rs274ngc/src';
     % coder.updateBuildInfo('addDefines', 'DEBUG_RS274')
@@ -83,16 +87,23 @@ elseif coder.target('matlab')
         end
     end
 elseif coder.target('rtw')
-    trafo = false;
-    A0 = zeros(3,1); A1 = A0; U0 = A0; U1 = A0;
+    trafo = false; % TRAFO flag disable 
+    Poff = zeros(3, 1); Aoff = Poff; Uoff = Poff; Doff = 0.0;
+    A0 = zeros(3,1); A1 = A0; U0 = A0 ; U1 = A0; 
+
     if cmd == ReadGCodeCmd.Load
-        CurvStruct = ConstrLineStruct(false, [1,2,3]', [4,5,6]', A0, A1, ...
-                                        U0, U1, 0.2, ZSpdMode.NN);
+
+        CurvStruct = ConstrLineStruct(trafo, Poff, Aoff, ...
+                                      Uoff, Doff, [1,2,3]', [4,5,6]', ...
+                                      A0, A1, U0, U1, 0.2, ZSpdMode.NN);
+
         status = int32(0);
         status = coder.ceval('c_open_gcode', [filename, 0], coder.ref(CurvStruct));
     elseif cmd == ReadGCodeCmd.Read
-        CurvStruct = ConstrLineStruct(false, [1,2,3]', [4,5,6]', A0, A1, ...
-                                        U0, U1, 0.2, ZSpdMode.NN);
+
+        CurvStruct = ConstrLineStruct(trafo, Poff, Aoff, ...
+                                      Uoff, Doff, [1,2,3]', [4,5,6]', ...
+                                      A0, A1, U0, U1, 0.2, ZSpdMode.NN);
         status = int32(0);
         status = coder.ceval('c_read_and_exec_gcode', '', coder.ref(CurvStruct));
     end

@@ -5,7 +5,7 @@
 // File: ConstrBSplineStruct.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 08-Feb-2022 09:15:12
+// C/C++ source code generated on  : 18-Feb-2022 13:18:06
 //
 
 // Include Files
@@ -20,6 +20,10 @@
 // Function Definitions
 //
 // Arguments    : bool trafo
+//                const double Poff[3]
+//                const double Aoff[3]
+//                const double Uoff[3]
+//                double Doff
 //                const ::coder::array<double, 2U> &pvec
 //                const double avec[2][3]
 //                const double uvec[2][3]
@@ -28,7 +32,8 @@
 // Return Type  : void
 //
 namespace ocn {
-void ConstrBSplineStruct(bool trafo, const ::coder::array<double, 2U> &pvec,
+void ConstrBSplineStruct(bool trafo, const double Poff[3], const double Aoff[3],
+                         const double Uoff[3], double Doff, const ::coder::array<double, 2U> &pvec,
                          const double avec[2][3], const double uvec[2][3], double FeedRate,
                          CurvStruct *b_CurvStruct)
 {
@@ -38,7 +43,7 @@ void ConstrBSplineStruct(bool trafo, const ::coder::array<double, 2U> &pvec,
     double dv2[3];
     double dv4[3];
     int b_pvec;
-    d_c_assert(pvec.size(1) > 2);
+    c_c_assert(pvec.size(1) > 2);
     b_pvec = pvec.size(1);
     dv[0] = 0.0;
     dv1[0] = 0.0;
@@ -57,10 +62,10 @@ void ConstrBSplineStruct(bool trafo, const ::coder::array<double, 2U> &pvec,
     dv4[0] = (*(double(*)[3]) & pvec[3 * (b_pvec - 1)])[0];
     dv4[1] = (*(double(*)[3]) & pvec[3 * (b_pvec - 1)])[1];
     dv4[2] = (*(double(*)[3]) & pvec[3 * (b_pvec - 1)])[2];
-    ConstrCurvStruct(CurveType_Spline, ZSpdMode_NN, trafo, dv2, dv4, *(double(*)[3]) & avec[0][0],
-                     *(double(*)[3]) & avec[1][0], *(double(*)[3]) & uvec[0][0],
-                     *(double(*)[3]) & uvec[1][0], dv, 0.0, dv1, 0.0, 0.0, dv3, FeedRate,
-                     b_CurvStruct);
+    ConstrCurvStruct(CurveType_Spline, ZSpdMode_NN, trafo, Poff, Aoff, Uoff, Doff, dv2, dv4,
+                     *(double(*)[3]) & avec[0][0], *(double(*)[3]) & avec[1][0],
+                     *(double(*)[3]) & uvec[0][0], *(double(*)[3]) & uvec[1][0], dv, 0.0, dv1, 0.0,
+                     0.0, dv3, FeedRate, b_CurvStruct);
 }
 
 } // namespace ocn

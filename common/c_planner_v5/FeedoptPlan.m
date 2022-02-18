@@ -8,15 +8,13 @@ c_assert(ctx.errcode == FeedoptPlanError.Success, 'FeedoptPlan: error code was n
 optimized = false;
 end_flag = false;
 
-% opt_struct = struct('Coeff', zeros(ctx.cfg.MaxNCoeff, 1),...
-%     'CurvStruct', ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN));
-% coder.cstructname(opt_struct, 'OptCurvStruct');
+trafo = false; % TRAFO flag disable 
+Poff = zeros(3, 1); Aoff = Poff; Uoff = Poff; Doff = 0.0;
+A0 = zeros(3,1); A1 = A0; U0 = A0 ; U1 = A0; 
 
-trafo = false;
-A0 = zeros(3,1); A1 = A0; U0 = A0; U1 = A0;
-
-opt_struct = ConstrLineStruct(trafo, [0,0,0]', [0,0,0]', A0, A1, U0, U1, ...
-                               0.2, ZSpdMode.NN);
+opt_struct = ConstrLineStruct(trafo, Poff, Aoff, Uoff, ...
+                               Doff, [0,0,0]', [0,0,0]', A0, A1, U0, ...
+                               U1, 0.2, ZSpdMode.NN);
 
 switch ctx.op
     case Fopt.Init

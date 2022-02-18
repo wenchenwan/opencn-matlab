@@ -13,11 +13,14 @@ ctx = InitFeedoptPlan(cfg);
 
 %% Geometry construction (BEGIN) %%%%%%%%%%%%%%%%%%%%%
 
-trafo = false;
-A0 = zeros(3,1); A1 = A0; U0 = A0; U1 = A0;
+trafo = false; % TRAFO flag disable 
+Poff = zeros(3, 1); Aoff = Poff; Uoff = Poff; Doff = 0.0;
+A0 = zeros(3,1); A1 = A0; U0 = A0 ; U1 = A0; 
 
-Line1 = ConstrLineStruct(trafo, [0, 0, 0]', [L, 0, 0]', A0, A1, U0, U1, ...
-                         100, ZSpdMode.ZN);
+Line1 = ConstrLineStruct(trafo, Poff, Aoff, Uoff, ...
+                               Doff, [0,0,0]', [L,0,0]', A0, A1, U0, ...
+                               U1, 100, ZSpdMode.NN);
+
 ctx.q_gcode.push(Line1);
 
 
@@ -45,20 +48,23 @@ for k=1:NSegm_G01
                 ((-1)^k)*Aosc];
     end
     
-    Line = ConstrLineStruct(trafo, P0, P1, A0, A1, U0, U1, 100, ZSpdMode.NN);
+    Line = ConstrLineStruct(trafo, Poff, Aoff, Uoff, ...
+                            Doff, P0, P1, A0, A1, U0, U1, 100, ZSpdMode.NN);
     ctx.q_gcode.push(Line);
     
 end
 
-Line2 = ConstrLineStruct(trafo, P1, [P1(1)+L, 0, 0]', A0, A1, U0, U1, 100, ...
-                         ZSpdMode.NN);
+Line2 = ConstrLineStruct(trafo, Poff, Aoff, Uoff, ...
+                            Doff, P1, [P1(1)+L, 0, 0]', A0, A1, U0, U1, ...
+                            100, ZSpdMode.NN);
+
 ctx.q_gcode.push(Line2);
 
-Arc = ConstrHelixStructFromArcFeed(trafo, P1(1)+L, 0, 0, ...
-                                   P1(1)+L+R, R, 0, ...
-                                   P1(1)+L, R, 0, ...
-                                   A0, A1, U0, U1, ...
-                                   1, [0 0 1]');
+Arc = ConstrHelixStructFromArcFeed(trafo, ...
+                      Poff, Aoff, Uoff, Doff,P1(1)+L, 0, 0, ...
+                      P1(1)+L+R, R, 0, P1(1)+L, R, 0, A0, A1, U0, U1, 1,...
+                      [0 0 1]');
+
 ctx.q_gcode.push(Arc);
 
 Line3 = ConstrLineStruct(trafo, [P1(1)+L+R, R, 0]', [P1(1)+L+R, L+R, 0]', ...

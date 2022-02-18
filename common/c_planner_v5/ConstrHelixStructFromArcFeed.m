@@ -1,4 +1,5 @@
-function CurvStruct = ConstrHelixStructFromArcFeed(trafo, p0x, p0y, p0z, ...
+function CurvStruct = ConstrHelixStructFromArcFeed(trafo, ...
+                      Poff, Aoff, Uoff, Doff, p0x, p0y, p0z, ...
                       p1x, p1y, p1z, cx, cy, cz, A0, A1, U0, U1, rotation,...
                       evec) %#codegen
 % ConstrHelixStructFromArcFeed : Construct a Curv struct filled with the
@@ -7,6 +8,10 @@ function CurvStruct = ConstrHelixStructFromArcFeed(trafo, p0x, p0y, p0z, ...
 % motion in the perpendicular plan (XY, ZX, YZ).
 %
 % trafo     : Flag for the trafo directive
+% Poff      : Offset on the position {X, Y, Z}
+% Aoff      : Offset on the angle {A, B, C}
+% Uoff      : Offset on the sub-axis {U, V, W}
+% Doff      : Offset for the diameter of the tool
 % p0x       : Value in the x axis of point P0
 % p0y       : Value in the y axis of point P0
 % p0z       : Value in the z axis of point P0
@@ -61,6 +66,7 @@ else                    % XY
     
 end
 
+P10 = P1 - P0;
 % Theta is in [-2 pi; 2 pi]
 theta = phi1 - phi0; 
 % Projection of P10 along the linear motion. Note evec is a unit vector.
@@ -83,7 +89,7 @@ else
     end
 end
 
-CurvStruct = ConstrHelixStruct(trafo, P0, P1, A0, A1, U0, U1, Cprim, ...
+CurvStruct = ConstrHelixStruct(trafo, Poff, Aoff, Uoff, ...
+                                Doff, P0, P1, A0, A1, U0, U1, Cprim, ...
                                 delta, evec, theta, pitch, 1, ZSpdMode.NN);
-
 end

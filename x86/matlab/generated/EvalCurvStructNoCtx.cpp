@@ -5,7 +5,7 @@
 // File: EvalCurvStructNoCtx.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 08-Feb-2022 09:15:12
+// C/C++ source code generated on  : 18-Feb-2022 13:18:06
 //
 
 // Include Files
@@ -85,8 +85,8 @@ void EvalCurvStructNoCtx(CurveType CurvStruct_Type, const double CurvStruct_P0[3
         break;
     case CurveType_Helix:
         //  arc of circle / helix (G02, G03)
-        EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_CorrectedHelixCenter, CurvStruct_evec,
-                  CurvStruct_theta, CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
+        EvalHelix(CurvStruct_P0, CurvStruct_CorrectedHelixCenter, CurvStruct_evec, CurvStruct_theta,
+                  CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_TransP5:
         //  polynomial transition

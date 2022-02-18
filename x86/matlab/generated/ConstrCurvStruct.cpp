@@ -5,7 +5,7 @@
 // File: ConstrCurvStruct.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 08-Feb-2022 09:15:12
+// C/C++ source code generated on  : 18-Feb-2022 13:18:06
 //
 
 // Include Files
@@ -65,11 +65,43 @@ static void cast(::coder::array<double, 2U> &r)
 }
 
 //
-// ctxType = coder.OutputType('InitFeedoptPlan');
+// Construct a struct for the curves.
+//
+//  trafo     : Flag for the trafo directive
+//  Poff      : Offset on the position {X, Y, Z}
+//  Aoff      : Offset on the angle {A, B, C}
+//  Uoff      : Offset on the sub-axis {U, V, W}
+//  Doff      : Offset for the diameter of the tool
+//  p0x       : Value in the x axis of point P0
+//  p0y       : Value in the y axis of point P0
+//  p0z       : Value in the z axis of point P0
+//  p1x       : Value in the x axis of point P1
+//  p1y       : Value in the y axis of point P1
+//  p1z       : Value in the z axis of point P1
+//  cx        : Value in the x axis of the center C
+//  cy        : Value in the y axis of the center C
+//  cz        : Value in the z axis of the center C
+//  A0        : Vector of the orientation angles at starting pose
+//  A1        : Vector of the orientation angles at ending pose
+//  U0        : Vector of for the secondary axes at starting pose
+//  U1        : Vector of for the secondary axes at ending pose
+//  Cprim     : Corrected center for the circle
+//  delta     : Difference between the radii
+//  evec      : Unit vector in the linear direction for the helix
+//  theta     : Rotation angle of the helix
+//  pitch     : Linear step for the helix
+//  CoeffP5   : Coefficient of the 5th order polynom
+//  Feedrate  : Feedrate of the spindle
+//
+//  CStrct    : The resulting structure
 //
 // Arguments    : CurveType Type
 //                ZSpdMode b_ZSpdMode
 //                bool trafo
+//                const double Poff[3]
+//                const double Aoff[3]
+//                const double Uoff[3]
+//                double Doff
 //                const double P0[3]
 //                const double P1[3]
 //                const double A0[3]
@@ -86,16 +118,22 @@ static void cast(::coder::array<double, 2U> &r)
 //                CurvStruct *CStrct
 // Return Type  : void
 //
-void ConstrCurvStruct(CurveType Type, ZSpdMode b_ZSpdMode, bool trafo, const double P0[3],
+void ConstrCurvStruct(CurveType Type, ZSpdMode b_ZSpdMode, bool trafo, const double Poff[3],
+                      const double Aoff[3], const double Uoff[3], double Doff, const double P0[3],
                       const double P1[3], const double A0[3], const double A1[3],
                       const double U0[3], const double U1[3], const double Cprim[3], double delta,
                       const double evec[3], double theta, double pitch, const double CoeffP5[6][3],
                       double FeedRate, CurvStruct *CStrct)
 {
+    //  ctxType = coder.OutputType('InitFeedoptPlan');
     CStrct->Type = Type;
     CStrct->zspdmode = b_ZSpdMode;
     CStrct->TRAFO = trafo;
+    CStrct->Doff = Doff;
     CStrct->delta = delta;
+    CStrct->Poff[0] = Poff[0];
+    CStrct->Aoff[0] = Aoff[0];
+    CStrct->Uoff[0] = Uoff[0];
     CStrct->P0[0] = P0[0];
     CStrct->P1[0] = P1[0];
     CStrct->A0[0] = A0[0];
@@ -104,6 +142,9 @@ void ConstrCurvStruct(CurveType Type, ZSpdMode b_ZSpdMode, bool trafo, const dou
     CStrct->U1[0] = U1[0];
     CStrct->CorrectedHelixCenter[0] = Cprim[0];
     CStrct->evec[0] = evec[0];
+    CStrct->Poff[1] = Poff[1];
+    CStrct->Aoff[1] = Aoff[1];
+    CStrct->Uoff[1] = Uoff[1];
     CStrct->P0[1] = P0[1];
     CStrct->P1[1] = P1[1];
     CStrct->A0[1] = A0[1];
@@ -112,6 +153,9 @@ void ConstrCurvStruct(CurveType Type, ZSpdMode b_ZSpdMode, bool trafo, const dou
     CStrct->U1[1] = U1[1];
     CStrct->CorrectedHelixCenter[1] = Cprim[1];
     CStrct->evec[1] = evec[1];
+    CStrct->Poff[2] = Poff[2];
+    CStrct->Aoff[2] = Aoff[2];
+    CStrct->Uoff[2] = Uoff[2];
     CStrct->P0[2] = P0[2];
     CStrct->P1[2] = P1[2];
     CStrct->A0[2] = A0[2];

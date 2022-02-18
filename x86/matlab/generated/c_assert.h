@@ -5,7 +5,7 @@
 // File: c_assert.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 08-Feb-2022 09:15:12
+// C/C++ source code generated on  : 18-Feb-2022 13:18:06
 //
 
 #ifndef C_ASSERT_H
@@ -22,7 +22,7 @@
 namespace ocn {
 void b_c_assert(bool condition);
 
-bool c_assert(bool condition);
+void c_assert(bool condition);
 
 void c_c_assert(bool condition);
 
@@ -31,8 +31,6 @@ void d_c_assert(bool condition);
 void e_c_assert(bool condition);
 
 void f_c_assert(bool condition);
-
-void g_c_assert(bool condition);
 
 } // namespace ocn
 

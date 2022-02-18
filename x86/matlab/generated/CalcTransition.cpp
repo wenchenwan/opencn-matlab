@@ -5,7 +5,7 @@
 // File: CalcTransition.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 08-Feb-2022 09:15:12
+// C/C++ source code generated on  : 18-Feb-2022 13:18:06
 //
 
 // Include Files
@@ -246,8 +246,9 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
             b_CurvStruct1[1][2] = CurvStruct1->A1[2];
             c_CurvStruct1[0][2] = CurvStruct1->U0[2];
             c_CurvStruct1[1][2] = CurvStruct1->U1[2];
-            ConstrTransP5Struct(CurvStruct1->TRAFO, b_CurvStruct1, c_CurvStruct1, p5,
-                                CurvStruct1->FeedRate, CurvStruct_T);
+            ConstrTransP5Struct(CurvStruct1->TRAFO, CurvStruct1->Poff, CurvStruct1->Aoff,
+                                CurvStruct1->Uoff, CurvStruct1->Doff, b_CurvStruct1, c_CurvStruct1,
+                                p5, CurvStruct1->FeedRate, CurvStruct_T);
             b_status = TransitionResult_Ok;
         } else if (ret == 6) {
             //  TODO: decide in the future...
@@ -264,8 +265,9 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
             b_CurvStruct1[1][2] = CurvStruct1->A1[2];
             c_CurvStruct1[0][2] = CurvStruct1->U0[2];
             c_CurvStruct1[1][2] = CurvStruct1->U1[2];
-            ConstrTransP5Struct(CurvStruct1->TRAFO, b_CurvStruct1, c_CurvStruct1, p5,
-                                CurvStruct1->FeedRate, CurvStruct_T);
+            ConstrTransP5Struct(CurvStruct1->TRAFO, CurvStruct1->Poff, CurvStruct1->Aoff,
+                                CurvStruct1->Uoff, CurvStruct1->Doff, b_CurvStruct1, c_CurvStruct1,
+                                p5, CurvStruct1->FeedRate, CurvStruct_T);
             b_status = TransitionResult_Ok;
             b_DebugLog();
             c_DebugLog();
@@ -536,8 +538,9 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
             b_CurvStruct1[1][2] = CurvStruct1->A1[2];
             c_CurvStruct1[0][2] = CurvStruct1->U0[2];
             c_CurvStruct1[1][2] = CurvStruct1->U1[2];
-            ConstrTransP5Struct(CurvStruct1->TRAFO, b_CurvStruct1, c_CurvStruct1, p5,
-                                CurvStruct1->FeedRate, CurvStruct_T);
+            ConstrTransP5Struct(CurvStruct1->TRAFO, CurvStruct1->Poff, CurvStruct1->Aoff,
+                                CurvStruct1->Uoff, CurvStruct1->Doff, b_CurvStruct1, c_CurvStruct1,
+                                p5, CurvStruct1->FeedRate, CurvStruct_T);
             b_status = TransitionResult_Ok;
         } else if (ret == 6) {
             //  TODO: decide in the future...
@@ -554,8 +557,9 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
             b_CurvStruct1[1][2] = CurvStruct1->A1[2];
             c_CurvStruct1[0][2] = CurvStruct1->U0[2];
             c_CurvStruct1[1][2] = CurvStruct1->U1[2];
-            ConstrTransP5Struct(CurvStruct1->TRAFO, b_CurvStruct1, c_CurvStruct1, p5,
-                                CurvStruct1->FeedRate, CurvStruct_T);
+            ConstrTransP5Struct(CurvStruct1->TRAFO, CurvStruct1->Poff, CurvStruct1->Aoff,
+                                CurvStruct1->Uoff, CurvStruct1->Doff, b_CurvStruct1, c_CurvStruct1,
+                                p5, CurvStruct1->FeedRate, CurvStruct_T);
             b_status = TransitionResult_Ok;
             b_DebugLog();
             c_DebugLog();

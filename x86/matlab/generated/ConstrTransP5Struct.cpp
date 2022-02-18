@@ -5,7 +5,7 @@
 // File: ConstrTransP5Struct.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 08-Feb-2022 09:15:12
+// C/C++ source code generated on  : 18-Feb-2022 13:18:06
 //
 
 // Include Files
@@ -19,6 +19,10 @@
 // Function Definitions
 //
 // Arguments    : bool trafo
+//                const double Poff[3]
+//                const double Aoff[3]
+//                const double Uoff[3]
+//                double Doff
 //                const double avec[2][3]
 //                const double uvec[2][3]
 //                const double CoeffP5[6][3]
@@ -27,8 +31,10 @@
 // Return Type  : void
 //
 namespace ocn {
-void ConstrTransP5Struct(bool trafo, const double avec[2][3], const double uvec[2][3],
-                         const double CoeffP5[6][3], double FeedRate, CurvStruct *b_CurvStruct)
+void ConstrTransP5Struct(bool trafo, const double Poff[3], const double Aoff[3],
+                         const double Uoff[3], double Doff, const double avec[2][3],
+                         const double uvec[2][3], const double CoeffP5[6][3], double FeedRate,
+                         CurvStruct *b_CurvStruct)
 {
     double dv[3];
     double dv1[3];
@@ -50,10 +56,10 @@ void ConstrTransP5Struct(bool trafo, const double avec[2][3], const double uvec[
     dv[2] = 0.0;
     dv1[2] = 0.0;
     b_mypolyval(CoeffP5, dv2);
-    ConstrCurvStruct(CurveType_TransP5, ZSpdMode_NN, trafo, y, dv2, *(double(*)[3]) & avec[0][0],
-                     *(double(*)[3]) & avec[1][0], *(double(*)[3]) & uvec[0][0],
-                     *(double(*)[3]) & uvec[1][0], dv, 0.0, dv1, 0.0, 0.0, CoeffP5, FeedRate,
-                     b_CurvStruct);
+    ConstrCurvStruct(CurveType_TransP5, ZSpdMode_NN, trafo, Poff, Aoff, Uoff, Doff, y, dv2,
+                     *(double(*)[3]) & avec[0][0], *(double(*)[3]) & avec[1][0],
+                     *(double(*)[3]) & uvec[0][0], *(double(*)[3]) & uvec[1][0], dv, 0.0, dv1, 0.0,
+                     0.0, CoeffP5, FeedRate, b_CurvStruct);
 }
 
 } // namespace ocn

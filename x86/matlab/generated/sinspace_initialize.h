@@ -5,7 +5,7 @@
 // File: sinspace_initialize.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 08-Feb-2022 09:15:12
+// C/C++ source code generated on  : 18-Feb-2022 13:18:06
 //
 
 #ifndef SINSPACE_INITIALIZE_H

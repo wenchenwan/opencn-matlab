@@ -9,14 +9,26 @@ cfg.LSplit = 30;
 N = 1;
 FeedRate = 50;
 
-trafo = false;
-A0 = zeros(3,1); A1 = A0; U0 = A0; U1 = A0;
+trafo = false; % TRAFO flag disable 
+Poff = zeros(3, 1); Aoff = Poff; Uoff = Poff; Doff = 0.0;
+A0 = zeros(3,1); A1 = A0; U0 = A0 ; U1 = A0; 
 
-gcode1 = ConstrLineStruct(trafo, [-1,0,0]', [0,0,0]', A0, A1, U0, U1, ...
-                          FeedRate, ZSpdMode.ZN);
-gcode2 = ConstrHelixStruct(trafo, [0,0,0]', [1,1,1 + (N-1)*4]', A0, A1, ...
-                           U0, U1, [0,0,1]', (N-1)*pi+pi/2, [0,0,0]', ...
-                           4, FeedRate, ZSpdMode.NZ);
+gcode1 = ConstrLineStruct(trafo, Poff, Aoff, Uoff, ...
+                               Doff, [-1,0,0]', [0,0,0]', A0, A1, U0, ...
+                               U1, FeedRate, ZSpdMode.ZN);
+
+P0      = zeros(3, 1);
+P1      = [1,1,1 + (N-1)*4]';
+Cprim   = [0,0,1]';
+delta   = 0;
+evec    = [0,0,0]';
+theta   = (N-1)*pi+pi/2;
+pitch   = 4;
+FeedRate = 15;
+
+gcode2   = ConstrHelixStruct(trafo, Poff, Aoff, Uoff, Doff,...
+                            P0, P1, A0, A1, U0, U1, Cprim, delta, evec, ...
+                            theta, pitch, FeedRate, ZSpdMode.ZN);
 
 ctx = InitFeedoptPlan(cfg);
 ctx.q_gcode.push(gcode1);

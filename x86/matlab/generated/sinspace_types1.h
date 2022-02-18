@@ -5,7 +5,7 @@
 // File: sinspace_types1.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 08-Feb-2022 09:15:12
+// C/C++ source code generated on  : 18-Feb-2022 13:18:06
 //
 
 #ifndef SINSPACE_TYPES1_H
@@ -26,6 +26,10 @@ struct CurvStruct {
     CurveType Type;
     ZSpdMode zspdmode;
     bool TRAFO;
+    double Poff[3];
+    double Aoff[3];
+    double Uoff[3];
+    double Doff;
     double P0[3];
     double P1[3];
     double A0[3];

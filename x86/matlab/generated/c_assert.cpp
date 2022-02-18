@@ -5,7 +5,7 @@
 // File: c_assert.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 08-Feb-2022 09:15:12
+// C/C++ source code generated on  : 18-Feb-2022 13:18:06
 //
 
 // Include Files
@@ -18,43 +18,6 @@
 //
 namespace ocn {
 void b_c_assert(bool condition)
-{
-    static const char b_message[50]{'C', 'a', 'l', 'c', 'Z', 'e', 'r', 'o', 'S', 't', 'a', 'r', 't',
-                                    'C', 'o', 'n', 's', 't', 'r', 'a', 'i', 'n', 't', 's', ':', ' ',
-                                    'C', 'a', 'l', 'l', 'e', 'd', ' ', 'o', 'n', ' ', 'n', 'o', 'n',
-                                    '-', 'c', 'o', 'n', 's', 't', ' ', 'j', 'e', 'r', 'k'};
-    char message[50];
-    if (!condition) {
-        for (int i{0}; i < 50; i++) {
-            message[i] = b_message[i];
-        }
-        c_assert_(&message[0]);
-    }
-}
-
-//
-// Arguments    : bool condition
-// Return Type  : bool
-//
-bool c_assert(bool condition)
-{
-    static const char b_message[16]{'e', ' ', 'c', 'r', 'o', 's', 's', ' ',
-                                    'P', '0', 'P', '1', ' ', '=', ' ', '0'};
-    char message[16];
-    if (!condition) {
-        for (int i{0}; i < 16; i++) {
-            message[i] = b_message[i];
-        }
-        c_assert_(&message[0]);
-    }
-    return condition;
-}
-
-//
-// Arguments    : bool condition
-// Return Type  : void
-//
-void c_c_assert(bool condition)
 {
     static const char b_message[39]{'F', 'e', 'e', 'd', 'o', 'p', 't', 'P', 'l', 'a',
                                     'n', ':', ' ', 'e', 'r', 'r', 'o', 'r', ' ', 'c',
@@ -73,7 +36,26 @@ void c_c_assert(bool condition)
 // Arguments    : bool condition
 // Return Type  : void
 //
-void d_c_assert(bool condition)
+void c_assert(bool condition)
+{
+    static const char b_message[50]{'C', 'a', 'l', 'c', 'Z', 'e', 'r', 'o', 'S', 't', 'a', 'r', 't',
+                                    'C', 'o', 'n', 's', 't', 'r', 'a', 'i', 'n', 't', 's', ':', ' ',
+                                    'C', 'a', 'l', 'l', 'e', 'd', ' ', 'o', 'n', ' ', 'n', 'o', 'n',
+                                    '-', 'c', 'o', 'n', 's', 't', ' ', 'j', 'e', 'r', 'k'};
+    char message[50];
+    if (!condition) {
+        for (int i{0}; i < 50; i++) {
+            message[i] = b_message[i];
+        }
+        c_assert_(&message[0]);
+    }
+}
+
+//
+// Arguments    : bool condition
+// Return Type  : void
+//
+void c_c_assert(bool condition)
 {
     static const char b_message[17]{'N', 'o', 't', ' ', 'e', 'n', 'o', 'u', 'g',
                                     'h', ' ', 'p', 'o', 'i', 'n', 't', 's'};
@@ -90,7 +72,7 @@ void d_c_assert(bool condition)
 // Arguments    : bool condition
 // Return Type  : void
 //
-void e_c_assert(bool condition)
+void d_c_assert(bool condition)
 {
     static const char b_message[26]{'Z', 'N', ' ', 'i', 's', ' ', 'n', 'o', 't',
                                     ' ', 'u', 's', 'i', 'n', 'g', ' ', 'c', 'o',
@@ -108,7 +90,7 @@ void e_c_assert(bool condition)
 // Arguments    : bool condition
 // Return Type  : void
 //
-void f_c_assert(bool condition)
+void e_c_assert(bool condition)
 {
     static const char b_message[16]{'N', 'N', ' ', 'i', 's', ' ', 'u', 's',
                                     'i', 'n', 'g', ' ', 'j', 'e', 'r', 'k'};
@@ -125,7 +107,7 @@ void f_c_assert(bool condition)
 // Arguments    : bool condition
 // Return Type  : void
 //
-void g_c_assert(bool condition)
+void f_c_assert(bool condition)
 {
     static const char b_message[26]{'N', 'Z', ' ', 'i', 's', ' ', 'n', 'o', 't',
                                     ' ', 'u', 's', 'i', 'n', 'g', ' ', 'c', 'o',

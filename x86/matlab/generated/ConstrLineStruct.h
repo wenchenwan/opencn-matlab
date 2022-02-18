@@ -5,7 +5,7 @@
 // File: ConstrLineStruct.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 08-Feb-2022 09:15:12
+// C/C++ source code generated on  : 18-Feb-2022 13:18:06
 //
 
 #ifndef CONSTRLINESTRUCT_H
@@ -22,9 +22,11 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-extern void ConstrLineStruct(bool trafo, const double P0[3], const double P1[3], const double A0[3],
-                             const double A1[3], const double U0[3], const double U1[3],
-                             double FeedRate, ZSpdMode b_ZSpdMode, CurvStruct *b_CurvStruct);
+extern void ConstrLineStruct(bool trafo, const double Poff[3], const double Aoff[3],
+                             const double Uoff[3], double Doff, const double P0[3],
+                             const double P1[3], const double A0[3], const double A1[3],
+                             const double U0[3], const double U1[3], double FeedRate,
+                             ZSpdMode b_ZSpdMode, CurvStruct *b_CurvStruct);
 
 }
 

@@ -8,9 +8,15 @@ test_helix_struct(ctx)
 function test_helix_struct(ctx)
 trafo = false;
 A0 = zeros(3, 1); A1 = A0; U0 = A0; U1 = A0;
+Poff = zeros(3, 1); Aoff = Poff; Uoff = Poff; Doff = 0;
 
-c = ConstrHelixStruct(trafo, [1,0,0]', [0,1,1]', A0, A1, U0, U1, ...
-                      [0,0,1]', pi/2, [0,0,0]', 4, 100, ZSpdMode.NN);
+P0 = [1;0;0]; P1 = [0;1;1]; Cprim = [0;0;1]; theta = pi/2; delta = 0;
+evec = [0,0,0]'; pitch = 4; FeedRate = 100; mode = ZSpdMode.NN;
+
+c = ConstrHelixStruct(trafo, ...
+                      Poff, Aoff, Uoff, Doff, P0, P1, A0, A1, U0, U1, ...
+                      Cprim, delta, evec, theta, pitch, FeedRate, mode);
+
 u = linspace(0,1,100);
 [R0D] = EvalCurvStruct(ctx, c, u);
 % R0D = [cos(u*pi/2); sin(u*pi/2); u]; 

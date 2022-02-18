@@ -20,10 +20,6 @@ Points = [-1,    0,    0,    -1,   -1;
 %
 CurvStructs0 = ConstrPolygon3D(Points, vmax);
 %
-% CurvStructs0 = [ConstrLineStruct([-1;0;0], [0;0;0], vmax), ...
-%                 ConstrHelixStruct([0;0;0], [0;1;0], [0;0;1], pi, 0, vmax), ...
-%                 ConstrLineStruct([0;1;0], [-1;1;0], vmax), ...
-%                ];
 %
 CutOff      = 0.2;
 CurvStructs = SmoothCurvStructs(CurvStructs0, CutOff, vmax);
