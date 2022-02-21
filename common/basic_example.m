@@ -8,7 +8,7 @@ clc; close all; clear all;
 cfg = FeedoptDefaultConfig;
 
 % Set the path to the gcode file
-cfg.source = 'ngc_test/test.ngc';
+cfg.source = 'ngc_test/anchor.ngc';
 
 % Initialization of the feed operator
 ctx = InitFeedoptPlan(cfg);
