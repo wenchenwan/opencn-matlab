@@ -5,7 +5,7 @@
 // File: InitFeedoptPlan.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 14-Feb-2022 16:27:55
+// C/C++ source code generated on  : 22-Feb-2022 11:18:27
 //
 
 // Include Files
@@ -47,7 +47,7 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     CurvStruct Curv;
     double A[4][4];
     double b_BasisVal[4][2];
-    double dv2[8];
+    double dv9[8];
     double B[4];
     double BasisValDD0[4];
     double BasisValDD1[4];
@@ -55,6 +55,13 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     double coef[4];
     double dv[3];
     double dv1[3];
+    double dv2[3];
+    double dv3[3];
+    double dv4[3];
+    double dv5[3];
+    double dv6[3];
+    double dv7[3];
+    double dv8[3];
     double b_breakpoints[2];
     double d1;
     double u_idx_0;
@@ -242,15 +249,49 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
                         &BasisValDD[0], &a__1[0], &(ctx->BasisIntegr.data())[0]);
     // ,
     // 'InitFeedoptPlan:29' Coeff = zeros(0, 0);
-    // 'InitFeedoptPlan:31' Curv = ConstrLineStruct([0,0,0]', [0,0,0]', 1, ZSpdMode.NN);
+    // 'InitFeedoptPlan:31' trafo = false;
+    //  TRAFO flag disable
+    // 'InitFeedoptPlan:32' Poff = zeros(3, 1);
+    // 'InitFeedoptPlan:32' Aoff = Poff;
+    // 'InitFeedoptPlan:32' Uoff = Poff;
+    // 'InitFeedoptPlan:32' Doff = 0.0;
+    // 'InitFeedoptPlan:33' A0 = zeros(3,1);
+    // 'InitFeedoptPlan:33' A1 = A0;
+    // 'InitFeedoptPlan:33' U0 = A0 ;
+    // 'InitFeedoptPlan:33' U1 = A0;
+    // 'InitFeedoptPlan:35' Curv = ConstrLineStruct(trafo, Poff, Aoff, Uoff, ...
+    // 'InitFeedoptPlan:36'                             Doff, [0,0,0]', [0,0,0]', A0, A1, U0, ...
+    // 'InitFeedoptPlan:37'                             U1, 1, ZSpdMode.NN);
     dv[0] = 0.0;
     dv1[0] = 0.0;
+    dv2[0] = 0.0;
+    dv3[0] = 0.0;
+    dv4[0] = 0.0;
+    dv5[0] = 0.0;
+    dv6[0] = 0.0;
+    dv7[0] = 0.0;
+    dv8[0] = 0.0;
     dv[1] = 0.0;
     dv1[1] = 0.0;
+    dv2[1] = 0.0;
+    dv3[1] = 0.0;
+    dv4[1] = 0.0;
+    dv5[1] = 0.0;
+    dv6[1] = 0.0;
+    dv7[1] = 0.0;
+    dv8[1] = 0.0;
     dv[2] = 0.0;
     dv1[2] = 0.0;
-    ConstrLineStruct(dv, dv1, 1.0, ZSpdMode_NN, &Curv);
-    // 'InitFeedoptPlan:32' Spline = CalcBspline_Lee(cfg, [[0,0,0]', [1,1,1]']);
+    dv2[2] = 0.0;
+    dv3[2] = 0.0;
+    dv4[2] = 0.0;
+    dv5[2] = 0.0;
+    dv6[2] = 0.0;
+    dv7[2] = 0.0;
+    dv8[2] = 0.0;
+    ConstrLineStruct(false, dv, dv1, dv2, 0.0, dv3, dv4, dv5, dv6, dv7, dv8, 1.0, ZSpdMode_NN,
+                     &Curv);
+    // 'InitFeedoptPlan:39' Spline = CalcBspline_Lee(cfg, [[0,0,0]', [1,1,1]']);
     // 'CalcBspline_Lee:3' [~, N] = size(points);
     //  number of points in 3D space
     // 'CalcBspline_Lee:4' du     = sum((diff(points.').^2).');
@@ -541,7 +582,7 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     // 'CalcBspline_Lee:57' sp3D.CoeffZ = cz.';
     // 'CalcBspline_Lee:58' sp3D.Bl = Bl;
     // 'CalcBspline_Lee:59' sp3D.knots = knots;
-    // 'InitFeedoptPlan:33' Curv.sp = Spline;
+    // 'InitFeedoptPlan:40' Curv.sp = Spline;
     Curv.sp.CoeffX.set_size(1, 4);
     Curv.sp.CoeffY.set_size(1, 4);
     Curv.sp.CoeffZ.set_size(1, 4);
@@ -560,91 +601,91 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     Curv.sp.Bl.ncoeff = cfg.SplineDegree;
     Curv.sp.Bl.handle = b_Bl_handle;
     Curv.sp.Bl.degree = cfg.SplineDegree;
-    dv2[0] = 0.0;
-    dv2[1] = 0.0;
-    dv2[2] = 0.0;
-    dv2[3] = u_idx_0;
-    dv2[4] = d1;
-    dv2[5] = 1.0;
-    dv2[6] = 1.0;
-    dv2[7] = 1.0;
+    dv9[0] = 0.0;
+    dv9[1] = 0.0;
+    dv9[2] = 0.0;
+    dv9[3] = u_idx_0;
+    dv9[4] = d1;
+    dv9[5] = 1.0;
+    dv9[6] = 1.0;
+    dv9[7] = 1.0;
     Curv.sp.knots.set_size(1, 8);
     for (int i19{0}; i19 < 8; i19++) {
-        Curv.sp.knots[i19] = dv2[i19];
+        Curv.sp.knots[i19] = dv9[i19];
     }
-    // 'InitFeedoptPlan:34' Curv.sp.Ltot = 0;
+    // 'InitFeedoptPlan:41' Curv.sp.Ltot = 0;
     Curv.sp.Ltot = 0.0;
-    // 'InitFeedoptPlan:35' Curv.sp.Lk = 0;
+    // 'InitFeedoptPlan:42' Curv.sp.Lk = 0;
     Curv.sp.Lk.set_size(1, 1);
     Curv.sp.Lk[0] = 0.0;
-    // 'InitFeedoptPlan:37' ctx.op = Fopt.Init;
+    // 'InitFeedoptPlan:44' ctx.op = Fopt.Init;
     ctx->op = Fopt_Init;
-    // 'InitFeedoptPlan:38' ctx.go_next = false;
+    // 'InitFeedoptPlan:45' ctx.go_next = false;
     ctx->go_next = false;
-    // 'InitFeedoptPlan:39' ctx.q_gcode = queue(Curv);
+    // 'InitFeedoptPlan:46' ctx.q_gcode = queue(Curv);
     // 'queue:2' q = queue_coder(value_type);
     ctx->q_gcode.init(&Curv);
-    // 'InitFeedoptPlan:40' ctx.q_compress = queue(Curv);
+    // 'InitFeedoptPlan:47' ctx.q_compress = queue(Curv);
     // 'queue:2' q = queue_coder(value_type);
     ctx->q_compress.init(&Curv);
-    // 'InitFeedoptPlan:41' ctx.q_splines = queue(Curv);
+    // 'InitFeedoptPlan:48' ctx.q_splines = queue(Curv);
     // 'queue:2' q = queue_coder(value_type);
     ctx->q_splines.init(&Curv);
-    // 'InitFeedoptPlan:42' ctx.q_smooth = queue(Curv);
+    // 'InitFeedoptPlan:49' ctx.q_smooth = queue(Curv);
     // 'queue:2' q = queue_coder(value_type);
     ctx->q_smooth.init(&Curv);
-    // 'InitFeedoptPlan:43' ctx.q_split = queue(Curv);
+    // 'InitFeedoptPlan:50' ctx.q_split = queue(Curv);
     // 'queue:2' q = queue_coder(value_type);
     ctx->q_split.init(&Curv);
-    // 'InitFeedoptPlan:44' ctx.q_opt = queue(Curv);
+    // 'InitFeedoptPlan:51' ctx.q_opt = queue(Curv);
     // 'queue:2' q = queue_coder(value_type);
     ctx->q_opt.init(&Curv);
-    // 'InitFeedoptPlan:45' ctx.try_push_again = false;
+    // 'InitFeedoptPlan:52' ctx.try_push_again = false;
     ctx->try_push_again = false;
-    // 'InitFeedoptPlan:46' ctx.n_optimized = int32(0);
+    // 'InitFeedoptPlan:53' ctx.n_optimized = int32(0);
     ctx->n_optimized = 0;
-    // 'InitFeedoptPlan:47' ctx.reached_end = false;
+    // 'InitFeedoptPlan:54' ctx.reached_end = false;
     ctx->reached_end = false;
-    // 'InitFeedoptPlan:48' ctx.k0 = int32(1);
+    // 'InitFeedoptPlan:55' ctx.k0 = int32(1);
     ctx->k0 = 1;
-    // 'InitFeedoptPlan:49' ctx.v_0 = cfg.v_0;
+    // 'InitFeedoptPlan:56' ctx.v_0 = cfg.v_0;
     ctx->v_0 = cfg.v_0;
-    // 'InitFeedoptPlan:50' ctx.v_1 = cfg.v_1;
+    // 'InitFeedoptPlan:57' ctx.v_1 = cfg.v_1;
     ctx->v_1 = cfg.v_1;
-    // 'InitFeedoptPlan:51' ctx.at_0 = cfg.at_0;
+    // 'InitFeedoptPlan:58' ctx.at_0 = cfg.at_0;
     ctx->at_0 = cfg.at_0;
-    // 'InitFeedoptPlan:52' ctx.at_1 = cfg.at_1;
+    // 'InitFeedoptPlan:59' ctx.at_1 = cfg.at_1;
     ctx->at_1 = cfg.at_1;
-    // 'InitFeedoptPlan:53' ctx.cfg = cfg;
+    // 'InitFeedoptPlan:60' ctx.cfg = cfg;
     ctx->cfg = cfg;
-    // 'InitFeedoptPlan:54' ctx.Bl = Bl;
+    // 'InitFeedoptPlan:61' ctx.Bl = Bl;
     ctx->Bl.ncoeff = Bl_ncoeff;
     ctx->Bl.handle = Bl_handle;
     ctx->Bl.degree = Bl_degree;
-    // 'InitFeedoptPlan:55' ctx.u_vec = u_vec;
-    // 'InitFeedoptPlan:56' ctx.errcode = FeedoptPlanError.Success;
+    // 'InitFeedoptPlan:62' ctx.u_vec = u_vec;
+    // 'InitFeedoptPlan:63' ctx.errcode = FeedoptPlanError.Success;
     ctx->errcode = FeedoptPlanError_Success;
-    // 'InitFeedoptPlan:57' ctx.jmax_increase_count = int32(0);
+    // 'InitFeedoptPlan:64' ctx.jmax_increase_count = int32(0);
     ctx->jmax_increase_count = 0;
-    // 'InitFeedoptPlan:58' ctx.zero_start = false;
+    // 'InitFeedoptPlan:65' ctx.zero_start = false;
     ctx->zero_start = false;
-    // 'InitFeedoptPlan:59' ctx.zero_end = false;
+    // 'InitFeedoptPlan:66' ctx.zero_end = false;
     ctx->zero_end = false;
-    // 'InitFeedoptPlan:60' ctx.simplex_calls = int32(0);
+    // 'InitFeedoptPlan:67' ctx.simplex_calls = int32(0);
     ctx->simplex_calls = 0;
-    // 'InitFeedoptPlan:62' ctx.forced_stop = int32(0);
+    // 'InitFeedoptPlan:69' ctx.forced_stop = int32(0);
     ctx->forced_stop = 0;
-    // 'InitFeedoptPlan:63' ctx.programmed_stop = int32(0);
+    // 'InitFeedoptPlan:70' ctx.programmed_stop = int32(0);
     ctx->programmed_stop = 0;
-    // 'InitFeedoptPlan:66' if ~coder.target('matlab')
-    // 'InitFeedoptPlan:67' coder.varsize('ctx.BasisVal', [Inf, Inf], [1, 1]);
-    // 'InitFeedoptPlan:68' coder.varsize('ctx.BasisValD', [Inf, Inf], [1, 1]);
-    // 'InitFeedoptPlan:69' coder.varsize('ctx.BasisValDD', [Inf, Inf], [1, 1]);
-    // 'InitFeedoptPlan:70' coder.varsize('ctx.BasisIntegr', [Inf, 1], [1 0]);
-    // 'InitFeedoptPlan:71' coder.varsize('ctx.u_vec', [1, Inf], [0, 1]);
-    // 'InitFeedoptPlan:72' coder.varsize('ctx.Coeff', [Inf, Inf], [1 1]);
-    // 'InitFeedoptPlan:73' coder.varsize('ctx.Bl.breakpoints', [1, Inf], [0, 1]);
-    // 'InitFeedoptPlan:76' ctx.BasisVal = BasisVal;
+    // 'InitFeedoptPlan:73' if ~coder.target('matlab')
+    // 'InitFeedoptPlan:74' coder.varsize('ctx.BasisVal', [Inf, Inf], [1, 1]);
+    // 'InitFeedoptPlan:75' coder.varsize('ctx.BasisValD', [Inf, Inf], [1, 1]);
+    // 'InitFeedoptPlan:76' coder.varsize('ctx.BasisValDD', [Inf, Inf], [1, 1]);
+    // 'InitFeedoptPlan:77' coder.varsize('ctx.BasisIntegr', [Inf, 1], [1 0]);
+    // 'InitFeedoptPlan:78' coder.varsize('ctx.u_vec', [1, Inf], [0, 1]);
+    // 'InitFeedoptPlan:79' coder.varsize('ctx.Coeff', [Inf, Inf], [1 1]);
+    // 'InitFeedoptPlan:80' coder.varsize('ctx.Bl.breakpoints', [1, Inf], [0, 1]);
+    // 'InitFeedoptPlan:83' ctx.BasisVal = BasisVal;
     ctx->BasisVal.set_size(BasisVal.size(0), BasisVal.size(1));
     l_loop_ub = BasisVal.size(1);
     for (int i20{0}; i20 < l_loop_ub; i20++) {
@@ -655,7 +696,7 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
                 BasisVal[i21 + BasisVal.size(0) * i20];
         }
     }
-    // 'InitFeedoptPlan:77' ctx.BasisValD = BasisValD;
+    // 'InitFeedoptPlan:84' ctx.BasisValD = BasisValD;
     ctx->BasisValD.set_size(BasisValD.size(0), BasisValD.size(1));
     n_loop_ub = BasisValD.size(1);
     for (int i22{0}; i22 < n_loop_ub; i22++) {
@@ -666,7 +707,7 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
                 BasisValD[i23 + BasisValD.size(0) * i22];
         }
     }
-    // 'InitFeedoptPlan:78' ctx.BasisValDD = BasisValDD;
+    // 'InitFeedoptPlan:85' ctx.BasisValDD = BasisValDD;
     ctx->BasisValDD.set_size(BasisValDD.size(0), BasisValDD.size(1));
     p_loop_ub = BasisValDD.size(1);
     for (int i24{0}; i24 < p_loop_ub; i24++) {
@@ -677,14 +718,14 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
                 BasisValDD[i25 + BasisValDD.size(0) * i24];
         }
     }
-    // 'InitFeedoptPlan:79' ctx.BasisIntegr = BasisIntegr;
-    // 'InitFeedoptPlan:81' ctx.Coeff = Coeff;
+    // 'InitFeedoptPlan:86' ctx.BasisIntegr = BasisIntegr;
+    // 'InitFeedoptPlan:88' ctx.Coeff = Coeff;
     ctx->Coeff.set_size(0, 0);
-    // 'InitFeedoptPlan:82' ctx.Skipped = int32(0);
+    // 'InitFeedoptPlan:89' ctx.Skipped = int32(0);
     ctx->Skipped = 0;
-    // 'InitFeedoptPlan:83' coder.cstructname(ctx, 'FeedoptContext');
+    // 'InitFeedoptPlan:90' coder.cstructname(ctx, 'FeedoptContext');
     //  Push the dummy spline curv
-    // 'InitFeedoptPlan:86' ctx.q_splines.push(Curv);
+    // 'InitFeedoptPlan:93' ctx.q_splines.push(Curv);
     ctx->q_splines.push(&Curv);
 }
 

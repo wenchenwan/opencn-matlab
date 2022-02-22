@@ -5,7 +5,7 @@
 // File: c_simplex.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 22-Feb-2022 08:27:14
+// C/C++ source code generated on  : 22-Feb-2022 11:10:49
 //
 
 #ifndef C_SIMPLEX_H

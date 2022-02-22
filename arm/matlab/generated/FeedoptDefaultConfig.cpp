@@ -5,14 +5,14 @@
 // File: FeedoptDefaultConfig.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 21-Feb-2022 17:59:00
+// C/C++ source code generated on  : 22-Feb-2022 11:16:30
 //
 
 // Include Files
 #include "FeedoptDefaultConfig.h"
-#include "EvalCurvStruct_data.h"
-#include "EvalCurvStruct_initialize.h"
-#include "EvalCurvStruct_types.h"
+#include "opencn_matlab_data.h"
+#include "opencn_matlab_initialize.h"
+#include "opencn_matlab_types.h"
 #include <cstring>
 
 // Function Definitions
@@ -30,8 +30,8 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
                                           0.23692688505618911};
     static const double dv[5]{0.90617984593866385, 0.538469310105683, 0.0, -0.538469310105683,
                               -0.90617984593866385};
-    if (!isInitialized_EvalCurvStruct) {
-        EvalCurvStruct_initialize();
+    if (!isInitialized_opencn_matlab) {
+        opencn_matlab_initialize();
     }
     // 'FeedoptDefaultConfig:3' coder.inline("never");
     // 'FeedoptDefaultConfig:5' tol_col_compress_deg = 1e-2;

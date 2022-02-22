@@ -5,11 +5,7 @@
 // File: opencn_matlab_types.h
 //
 // MATLAB Coder version            : 5.3
-<<<<<<< HEAD:x86/matlab/generated/sinspace_types.h
-// C/C++ source code generated on  : 18-Feb-2022 13:18:06
-=======
-// C/C++ source code generated on  : 14-Feb-2022 16:27:55
->>>>>>> 18eeaa025c5f7820e8529e0ccd6a36cae8cccd12:arm64/matlab/generated/opencn_matlab_types.h
+// C/C++ source code generated on  : 22-Feb-2022 11:18:27
 //
 
 #ifndef OPENCN_MATLAB_TYPES_H
@@ -19,7 +15,6 @@
 #include "opencn_matlab_types3.h"
 #include "queue_coder.h"
 #include "rtwtypes.h"
-#include "sinspace_types3.h"
 #include "coder_array.h"
 
 // Custom Header Code
@@ -65,21 +60,6 @@ struct FeedoptConfig {
     double Simplex_params[4];
 };
 
-<<<<<<< HEAD:x86/matlab/generated/sinspace_types.h
-enum DebugCfg : int
-{
-    DebugCfg_Transitions = 1, // Default value
-    DebugCfg_OptimProgress,
-    DebugCfg_FeedratePlanning,
-    DebugCfg_Global,
-    DebugCfg_Warning,
-    DebugCfg_Error,
-    DebugCfg_Plots,
-    DebugCfg_Validate
-};
-
-=======
->>>>>>> 18eeaa025c5f7820e8529e0ccd6a36cae8cccd12:arm64/matlab/generated/opencn_matlab_types.h
 enum Fopt : int
 {
     Fopt_Init = 0, // Default value

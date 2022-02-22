@@ -5,16 +5,16 @@
 // File: ConstrHelixStruct.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 21-Feb-2022 17:59:00
+// C/C++ source code generated on  : 22-Feb-2022 11:16:30
 //
 
 // Include Files
 #include "ConstrHelixStruct.h"
 #include "ConstrCurvStruct.h"
-#include "EvalCurvStruct_data.h"
-#include "EvalCurvStruct_initialize.h"
-#include "EvalCurvStruct_types1.h"
-#include "EvalCurvStruct_types2.h"
+#include "opencn_matlab_data.h"
+#include "opencn_matlab_initialize.h"
+#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types2.h"
 
 // Function Definitions
 //
@@ -51,8 +51,8 @@ void ConstrHelixStruct(bool trafo, const double Poff[3], const double Aoff[3], c
                        double pitch, double FeedRate, ZSpdMode mode, CurvStruct *b_CurvStruct)
 {
     double dv[6][3];
-    if (!isInitialized_EvalCurvStruct) {
-        EvalCurvStruct_initialize();
+    if (!isInitialized_opencn_matlab) {
+        opencn_matlab_initialize();
     }
     // 'ConstrHelixStruct:5' CoeffP5     = zeros(3, 6);
     // 'ConstrHelixStruct:7' CurvStruct  = ConstrCurvStruct(CurveType.Helix, mode, trafo, Poff,

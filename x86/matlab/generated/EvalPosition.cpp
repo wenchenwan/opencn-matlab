@@ -5,20 +5,20 @@
 // File: EvalPosition.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 22-Feb-2022 08:27:14
+// C/C++ source code generated on  : 22-Feb-2022 11:10:49
 //
 
 // Include Files
 #include "EvalPosition.h"
 #include "EvalBSplineNoCtx.h"
-#include "EvalCurvStruct_data.h"
-#include "EvalCurvStruct_initialize.h"
-#include "EvalCurvStruct_types1.h"
-#include "EvalCurvStruct_types2.h"
-#include "EvalCurvStruct_types3.h"
 #include "EvalHelix.h"
 #include "EvalLine.h"
 #include "EvalTransP5.h"
+#include "opencn_matlab_data.h"
+#include "opencn_matlab_initialize.h"
+#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types2.h"
+#include "opencn_matlab_types3.h"
 #include "coder_array.h"
 #include <stdio.h>
 
@@ -41,8 +41,8 @@ void EvalPosition(const CurvStruct *Curv, const CurvStruct *Spline, double u, do
     double u_vec;
     double u_vec_tilda;
     char message[30];
-    if (!isInitialized_EvalCurvStruct) {
-        EvalCurvStruct_initialize();
+    if (!isInitialized_opencn_matlab) {
+        opencn_matlab_initialize();
     }
     // 'EvalPosition:2' coder.inline("never");
     // 'EvalPosition:3' coder.varsize('r0D', [3, 1], [0,0]);

@@ -5,14 +5,14 @@
 // File: string1.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 21-Feb-2022 17:59:00
+// C/C++ source code generated on  : 22-Feb-2022 11:16:30
 //
 
 #ifndef STRING1_H
 #define STRING1_H
 
 // Include Files
-#include "EvalCurvStruct_internal_types.h"
+#include "opencn_matlab_internal_types.h"
 #include "rtwtypes.h"
 #include <cstddef>
 #include <cstdlib>

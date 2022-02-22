@@ -5,15 +5,15 @@
 // File: bspline_copy.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 21-Feb-2022 17:59:00
+// C/C++ source code generated on  : 22-Feb-2022 11:16:30
 //
 
 // Include Files
 #include "bspline_copy.h"
-#include "EvalCurvStruct_data.h"
-#include "EvalCurvStruct_initialize.h"
-#include "EvalCurvStruct_types11.h"
-#include "EvalCurvStruct_types3.h"
+#include "opencn_matlab_data.h"
+#include "opencn_matlab_initialize.h"
+#include "opencn_matlab_types11.h"
+#include "opencn_matlab_types3.h"
 #include "coder_array.h"
 #include "src/c_spline.h"
 
@@ -31,8 +31,8 @@ void bspline_copy(const SplineBase *Bl, SplineBase *Copy)
     ::coder::array<double, 2U> breakpoints;
     int b_loop_ub;
     int loop_ub;
-    if (!isInitialized_EvalCurvStruct) {
-        EvalCurvStruct_initialize();
+    if (!isInitialized_opencn_matlab) {
+        opencn_matlab_initialize();
     }
     // 'bspline_copy:2' coder.inline("never");
     // 'bspline_copy:3' Copy = bspline_create(Bl.degree, Bl.breakpoints);

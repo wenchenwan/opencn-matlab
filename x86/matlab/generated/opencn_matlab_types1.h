@@ -5,7 +5,7 @@
 // File: opencn_matlab_types1.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 14-Feb-2022 16:26:14
+// C/C++ source code generated on  : 22-Feb-2022 11:10:49
 //
 
 #ifndef OPENCN_MATLAB_TYPES1_H
@@ -25,8 +25,17 @@ namespace ocn {
 struct CurvStruct {
     CurveType Type;
     ZSpdMode zspdmode;
+    bool TRAFO;
+    double Poff[3];
+    double Aoff[3];
+    double Uoff[3];
+    double Doff;
     double P0[3];
     double P1[3];
+    double A0[3];
+    double A1[3];
+    double U0[3];
+    double U1[3];
     double CorrectedHelixCenter[3];
     double delta;
     double evec[3];

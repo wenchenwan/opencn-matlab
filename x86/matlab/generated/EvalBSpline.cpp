@@ -5,15 +5,15 @@
 // File: EvalBSpline.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 22-Feb-2022 08:27:14
+// C/C++ source code generated on  : 22-Feb-2022 11:10:49
 //
 
 // Include Files
 #include "EvalBSpline.h"
-#include "EvalCurvStruct_types1.h"
-#include "EvalCurvStruct_types2.h"
-#include "EvalCurvStruct_types3.h"
 #include "bspline_eval.h"
+#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types2.h"
+#include "opencn_matlab_types3.h"
 #include "queue_coder.h"
 #include "coder_array.h"
 

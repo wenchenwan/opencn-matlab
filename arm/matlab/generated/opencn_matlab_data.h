@@ -2,18 +2,18 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: EvalCurvStruct_data.h
+// File: opencn_matlab_data.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 22-Feb-2022 08:27:14
+// C/C++ source code generated on  : 22-Feb-2022 11:16:30
 //
 
-#ifndef EVALCURVSTRUCT_DATA_H
-#define EVALCURVSTRUCT_DATA_H
+#ifndef OPENCN_MATLAB_DATA_H
+#define OPENCN_MATLAB_DATA_H
 
 // Include Files
-#include "EvalCurvStruct_types.h"
-#include "EvalCurvStruct_types2.h"
+#include "opencn_matlab_types.h"
+#include "opencn_matlab_types2.h"
 #include "rtwtypes.h"
 #include <cstddef>
 #include <cstdlib>
@@ -29,12 +29,12 @@ extern double sqrt_calls;
 extern const char cv[30];
 extern const char cv1[54];
 extern const char cv2[54];
-extern bool isInitialized_EvalCurvStruct;
+extern bool isInitialized_opencn_matlab;
 } // namespace ocn
 
 #endif
 //
-// File trailer for EvalCurvStruct_data.h
+// File trailer for opencn_matlab_data.h
 //
 // [EOF]
 //

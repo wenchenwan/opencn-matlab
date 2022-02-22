@@ -2,15 +2,15 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: EvalCurvStruct_initialize.cpp
+// File: opencn_matlab_initialize.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 22-Feb-2022 08:27:14
+// C/C++ source code generated on  : 22-Feb-2022 11:16:30
 //
 
 // Include Files
-#include "EvalCurvStruct_initialize.h"
-#include "EvalCurvStruct_data.h"
+#include "opencn_matlab_initialize.h"
+#include "opencn_matlab_data.h"
 
 // Function Definitions
 //
@@ -18,19 +18,19 @@
 // Return Type  : void
 //
 namespace ocn {
-void EvalCurvStruct_initialize()
+void opencn_matlab_initialize()
 {
     sqrt_calls = 0.0;
     DebugConfig = 0.0;
     sin_calls = 0.0;
     cos_calls = 0.0;
-    isInitialized_EvalCurvStruct = true;
+    isInitialized_opencn_matlab = true;
 }
 
 } // namespace ocn
 
 //
-// File trailer for EvalCurvStruct_initialize.cpp
+// File trailer for opencn_matlab_initialize.cpp
 //
 // [EOF]
 //

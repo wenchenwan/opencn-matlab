@@ -5,24 +5,24 @@
 // File: CutZeroStart.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 21-Feb-2022 17:59:00
+// C/C++ source code generated on  : 22-Feb-2022 11:16:30
 //
 
 // Include Files
 #include "CutZeroStart.h"
 #include "CutCurvStruct.h"
 #include "EvalCurvStruct.h"
-#include "EvalCurvStruct_data.h"
-#include "EvalCurvStruct_rtwutil.h"
-#include "EvalCurvStruct_types.h"
-#include "EvalCurvStruct_types1.h"
-#include "EvalCurvStruct_types2.h"
 #include "GetCurvMaxFeedrate.h"
 #include "LengthCurv.h"
 #include "PrintCurvStruct.h"
 #include "bsxfun.h"
 #include "colon.h"
 #include "find.h"
+#include "opencn_matlab_data.h"
+#include "opencn_matlab_rtwutil.h"
+#include "opencn_matlab_types.h"
+#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types2.h"
 #include "queue_coder.h"
 #include "sum.h"
 #include "coder_array.h"

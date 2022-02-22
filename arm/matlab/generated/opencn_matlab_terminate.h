@@ -2,14 +2,14 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: EvalCurvStruct_terminate.h
+// File: opencn_matlab_terminate.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 21-Feb-2022 17:59:00
+// C/C++ source code generated on  : 22-Feb-2022 11:16:30
 //
 
-#ifndef EVALCURVSTRUCT_TERMINATE_H
-#define EVALCURVSTRUCT_TERMINATE_H
+#ifndef OPENCN_MATLAB_TERMINATE_H
+#define OPENCN_MATLAB_TERMINATE_H
 
 // Include Files
 #include "rtwtypes.h"
@@ -20,13 +20,13 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-extern void EvalCurvStruct_terminate();
+extern void opencn_matlab_terminate();
 
 }
 
 #endif
 //
-// File trailer for EvalCurvStruct_terminate.h
+// File trailer for opencn_matlab_terminate.h
 //
 // [EOF]
 //

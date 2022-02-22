@@ -2,14 +2,14 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: EvalCurvStruct_data.cpp
+// File: opencn_matlab_data.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 22-Feb-2022 08:27:14
+// C/C++ source code generated on  : 22-Feb-2022 11:16:30
 //
 
 // Include Files
-#include "EvalCurvStruct_data.h"
+#include "opencn_matlab_data.h"
 
 // Variable Definitions
 namespace ocn {
@@ -34,12 +34,12 @@ const char cv2[54]{'u', '1', ' ', 'm', 'u', 's', 't', ' ', 'b', 'e', ' ', 's', '
                    't', 'h', 'a', 'n', ' ', 't', 'h', 'e', ' ', 'f', 'i', 'r', 's', 't',
                    ' ', 's', 'p', 'l', 'i', 'n', 'e', ' ', 'k', 'n', 'o', 't'};
 
-bool isInitialized_EvalCurvStruct{false};
+bool isInitialized_opencn_matlab{false};
 
 } // namespace ocn
 
 //
-// File trailer for EvalCurvStruct_data.cpp
+// File trailer for opencn_matlab_data.cpp
 //
 // [EOF]
 //

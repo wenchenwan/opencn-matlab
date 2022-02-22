@@ -5,16 +5,16 @@
 // File: EvalCurvStruct.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 21-Feb-2022 17:59:00
+// C/C++ source code generated on  : 22-Feb-2022 11:16:30
 //
 
 #ifndef EVALCURVSTRUCT_H
 #define EVALCURVSTRUCT_H
 
 // Include Files
-#include "EvalCurvStruct_types.h"
-#include "EvalCurvStruct_types1.h"
-#include "EvalCurvStruct_types2.h"
+#include "opencn_matlab_types.h"
+#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types2.h"
 #include "rtwtypes.h"
 #include "coder_array.h"
 #include <cstddef>

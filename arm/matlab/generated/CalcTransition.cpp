@@ -5,7 +5,7 @@
 // File: CalcTransition.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 21-Feb-2022 17:59:00
+// C/C++ source code generated on  : 22-Feb-2022 11:16:30
 //
 
 // Include Files
@@ -13,17 +13,17 @@
 #include "ConstrTransP5Struct.h"
 #include "CutCurvStruct.h"
 #include "EvalCurvStruct.h"
-#include "EvalCurvStruct_data.h"
-#include "EvalCurvStruct_initialize.h"
-#include "EvalCurvStruct_rtwutil.h"
-#include "EvalCurvStruct_types.h"
-#include "EvalCurvStruct_types1.h"
-#include "EvalCurvStruct_types11.h"
-#include "EvalCurvStruct_types2.h"
 #include "G2_Hermite_Interpolation.h"
 #include "LengthCurv.h"
 #include "PrintCurvStruct.h"
 #include "SplineLengthApproxGL_bounds.h"
+#include "opencn_matlab_data.h"
+#include "opencn_matlab_initialize.h"
+#include "opencn_matlab_rtwutil.h"
+#include "opencn_matlab_types.h"
+#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types11.h"
+#include "opencn_matlab_types2.h"
 #include "queue_coder.h"
 #include "coder_array.h"
 #include <cmath>
@@ -102,8 +102,8 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
     int ret;
     bool guard1{false};
     TransitionResult b_status;
-    if (!isInitialized_EvalCurvStruct) {
-        EvalCurvStruct_initialize();
+    if (!isInitialized_opencn_matlab) {
+        opencn_matlab_initialize();
     }
     // 'CalcTransition:4' coder.inline("never");
     // 'CalcTransition:6' CutOff=ctx.cfg.CutOff;

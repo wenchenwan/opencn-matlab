@@ -2,14 +2,14 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: EvalCurvStruct_rtwutil.cpp
+// File: opencn_matlab_rtwutil.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 21-Feb-2022 17:59:00
+// C/C++ source code generated on  : 22-Feb-2022 11:16:30
 //
 
 // Include Files
-#include "EvalCurvStruct_rtwutil.h"
+#include "opencn_matlab_rtwutil.h"
 #include <cmath>
 #include <math.h>
 
@@ -195,7 +195,7 @@ bool uMultiWordNe(const unsigned int u1[], const unsigned int u2[])
 } // namespace ocn
 
 //
-// File trailer for EvalCurvStruct_rtwutil.cpp
+// File trailer for opencn_matlab_rtwutil.cpp
 //
 // [EOF]
 //

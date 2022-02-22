@@ -5,13 +5,13 @@
 // File: linspace.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 21-Feb-2022 17:59:00
+// C/C++ source code generated on  : 22-Feb-2022 11:16:30
 //
 
 // Include Files
 #include "linspace.h"
-#include "EvalCurvStruct_data.h"
-#include "EvalCurvStruct_initialize.h"
+#include "opencn_matlab_data.h"
+#include "opencn_matlab_initialize.h"
 #include "coder_array.h"
 #include <cmath>
 
@@ -85,8 +85,8 @@ void c_linspace(int n, ::coder::array<double, 2U> &y)
 //
 void linspace(double d1, double d2, double n, ::coder::array<double, 2U> &y)
 {
-    if (!isInitialized_EvalCurvStruct) {
-        EvalCurvStruct_initialize();
+    if (!isInitialized_opencn_matlab) {
+        opencn_matlab_initialize();
     }
     if (n < 0.0) {
         y.set_size(1, 0);

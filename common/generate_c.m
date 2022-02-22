@@ -4,8 +4,8 @@ clear; clc;
 
 % please choose the target first ( only 1 target is generated at the time )
 generate_for_arm_32 = false;
-generate_for_x86_64 = true;
-generate_for_arm_64 = false;
+generate_for_x86_64 = false;
+generate_for_arm_64 = true;
 
 % Comments from the Mathworks coder reference documentation.
 
@@ -69,6 +69,7 @@ cfg.MATLABSourceComments = true;
 % visualization functions as extrinsic functions.
 % unless you declare them as extrinsic.
 cfg.EnableAutoExtrinsicCalls = false;
+% Namespace for the generated C++ code.
 cfg.CppNamespace = 'ocn';
 % The code generator does not generate an example C/C++ main function.
 cfg.GenerateExampleMain = 'DoNotGenerate';
@@ -173,9 +174,7 @@ end
 configType = coder.OutputType('FeedoptDefaultConfig');
 ctxType = coder.OutputType('InitFeedoptPlan');
 resampleType = coder.OutputType('ResampleState');
-SplineType = coder.OutputType('bspline_create');
 C = coder.OutputType('ConstrCurvStructType');
-
 splineType = coder.OutputType('bspline_create');
 
 global sqrt_calls sin_calls cos_calls cot_calls DebugConfig
@@ -195,7 +194,7 @@ Doff = 0.0;
 
 % Important: Matlab Crash (2021b, Update 2, Coder version 5.3 on Linux Ubuntu)
 % if 'EvalCurvStruct' is removed from this list
-codegen('-config', cfg,'-d', output_root, ...
+codegen('-config', cfg,'-d', output_root, '-o', 'opencn_matlab',...
     'EvalCurvStruct', '-args', {ctxType, C, coder.typeof(0.0, [1, Inf], [0, 1])},...
     'CalcTransition', '-args', {ctxType, C, C},...
     'FeedoptDefaultConfig',...
@@ -208,7 +207,7 @@ codegen('-config', cfg,'-d', output_root, ...
     'ConstrHelixStructFromArcFeed', '-args', {trafo, P0, P0 P0, Doff, 0,0,0,  0,0,0,  0,0,0,  P0, P0, P0, P0, 0,[0,0,0]'},...
     'bspline_create', '-args', {int32(4), linspace(0,1,10)},...
     'ResampleState', '-args', 0,...
-    'ResampleNoCtx', '-args', {resampleType, SplineType, C},...
+    'ResampleNoCtx', '-args', {resampleType, splineType, C},...
     'EvalPosition', '-args', {C, C, 0},...
-    'bspline_copy', '-args', SplineType,...
+    'bspline_copy', '-args', splineType,...
     'ConfigSetSource', '-args', {configType, coder.typeof(' ', [1, 1024], [0, 1])});

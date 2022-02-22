@@ -5,7 +5,7 @@
 // File: CutZeroEnd.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 14-Feb-2022 16:27:55
+// C/C++ source code generated on  : 22-Feb-2022 11:18:27
 //
 
 // Include Files
@@ -408,7 +408,7 @@ void CutZeroEnd(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splines
     for (int i24{0}; i24 < o_loop_ub; i24++) {
         b_max_jt[i24] = (max_jt[i24] > ctx_cfg_ZeroStartJerkLimit);
     }
-    coder::b_eml_find(b_max_jt, (int *)&cut_index_vel_data, cut_index_vel_size);
+    coder::c_eml_find(b_max_jt, (int *)&cut_index_vel_data, cut_index_vel_size);
     p_loop_ub = cut_index_vel_size[1];
     for (int i25{0}; i25 < p_loop_ub; i25++) {
         cut_index_jerk_data = cut_index_vel_data;
@@ -427,7 +427,7 @@ void CutZeroEnd(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splines
     for (int i26{0}; i26 < q_loop_ub; i26++) {
         b_max_at[i26] = (max_at[i26] > ctx_cfg_ZeroStartAccLimit);
     }
-    coder::b_eml_find(b_max_at, (int *)&cut_index_vel_data, cut_index_vel_size);
+    coder::c_eml_find(b_max_at, (int *)&cut_index_vel_data, cut_index_vel_size);
     r_loop_ub = cut_index_vel_size[1];
     for (int i27{0}; i27 < r_loop_ub; i27++) {
         cut_index_acc_data = cut_index_vel_data;
@@ -477,7 +477,7 @@ void CutZeroEnd(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splines
     for (int i31{0}; i31 < t_loop_ub; i31++) {
         c_x[i31] = (b_x[i31] / b_vmax > ctx_cfg_ZeroStartVelLimit);
     }
-    coder::b_eml_find(c_x, (int *)&cut_index_vel_data, cut_index_vel_size);
+    coder::c_eml_find(c_x, (int *)&cut_index_vel_data, cut_index_vel_size);
     // 'orelse:2' if isempty(value)
     if (cut_index_vel_size[1] == 0) {
         // 'orelse:3' v = elsevalue;

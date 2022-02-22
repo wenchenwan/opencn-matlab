@@ -21,7 +21,8 @@ PfileName = pwd + "/Validate_OpenCN/params.m";
 run(PfileName);
 
 % Resampling of the parameter
-uvec = PlotResampled_BR(ctx, max_time, ctx.cfg.dt);            % u(t)
+paramsPlotBr = containers.Map('disablePlot', true);
+uvec = PlotResampled_BR(ctx, max_time, ctx.cfg.dt, paramsPlotBr);
 
 % Create tolerance structure
 tol.v_tol       = vmax_norm_tol;

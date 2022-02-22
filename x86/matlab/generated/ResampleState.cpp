@@ -5,14 +5,14 @@
 // File: ResampleState.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 22-Feb-2022 08:27:14
+// C/C++ source code generated on  : 22-Feb-2022 11:10:49
 //
 
 // Include Files
 #include "ResampleState.h"
-#include "EvalCurvStruct_data.h"
-#include "EvalCurvStruct_initialize.h"
 #include "ResampleStateClass.h"
+#include "opencn_matlab_data.h"
+#include "opencn_matlab_initialize.h"
 
 // Function Definitions
 //
@@ -25,8 +25,8 @@
 namespace ocn {
 void ResampleState(double dt, ResampleStateClass *state)
 {
-    if (!isInitialized_EvalCurvStruct) {
-        EvalCurvStruct_initialize();
+    if (!isInitialized_opencn_matlab) {
+        opencn_matlab_initialize();
     }
     // 'ResampleState:2' coder.inline("never");
     // 'ResampleState:3' state = ResampleStateClass(dt);

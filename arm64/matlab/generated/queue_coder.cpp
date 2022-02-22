@@ -5,7 +5,7 @@
 // File: queue_coder.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 14-Feb-2022 16:27:55
+// C/C++ source code generated on  : 22-Feb-2022 11:18:27
 //
 
 // Include Files
@@ -30,7 +30,6 @@ void queue_coder::get(long b_index, CurvStruct *value) const
     // 'queue_get:2' if coder.target('matlab')
     // 'queue_get:4' else
     // 'queue_get:5' value = value_type;
-    // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
     // 'queue_get:6' coder.ceval('c_queue_get', uint64(ptr), uint32(index), coder.ref(value));
     c_queue_get(ptr, static_cast<unsigned int>(b_index), value);
 }
@@ -50,7 +49,6 @@ void queue_coder::get(unsigned long b_index, CurvStruct *value) const
     // 'queue_get:2' if coder.target('matlab')
     // 'queue_get:4' else
     // 'queue_get:5' value = value_type;
-    // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
     // 'queue_get:6' coder.ceval('c_queue_get', uint64(ptr), uint32(index), coder.ref(value));
     c_queue_get(ptr, static_cast<unsigned int>(b_index), value);
 }
@@ -70,7 +68,6 @@ void queue_coder::get(double b_index, CurvStruct *value) const
     // 'queue_get:2' if coder.target('matlab')
     // 'queue_get:4' else
     // 'queue_get:5' value = value_type;
-    // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
     // 'queue_get:6' coder.ceval('c_queue_get', uint64(ptr), uint32(index), coder.ref(value));
     c_queue_get(ptr, static_cast<unsigned int>(std::round(b_index)), value);
 }
@@ -90,7 +87,6 @@ void queue_coder::get(unsigned int b_index, CurvStruct *value) const
     // 'queue_get:2' if coder.target('matlab')
     // 'queue_get:4' else
     // 'queue_get:5' value = value_type;
-    // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
     // 'queue_get:6' coder.ceval('c_queue_get', uint64(ptr), uint32(index), coder.ref(value));
     c_queue_get(ptr, b_index, value);
 }
@@ -110,7 +106,6 @@ void queue_coder::get(int b_index, CurvStruct *value) const
     // 'queue_get:2' if coder.target('matlab')
     // 'queue_get:4' else
     // 'queue_get:5' value = value_type;
-    // ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
     // 'queue_get:6' coder.ceval('c_queue_get', uint64(ptr), uint32(index), coder.ref(value));
     c_queue_get(ptr, static_cast<unsigned int>(b_index), value);
 }

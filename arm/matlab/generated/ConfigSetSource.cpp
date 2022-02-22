@@ -5,14 +5,14 @@
 // File: ConfigSetSource.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 21-Feb-2022 17:59:00
+// C/C++ source code generated on  : 22-Feb-2022 11:16:30
 //
 
 // Include Files
 #include "ConfigSetSource.h"
-#include "EvalCurvStruct_data.h"
-#include "EvalCurvStruct_initialize.h"
-#include "EvalCurvStruct_types.h"
+#include "opencn_matlab_data.h"
+#include "opencn_matlab_initialize.h"
+#include "opencn_matlab_types.h"
 #include <algorithm>
 #include <cstring>
 
@@ -32,8 +32,8 @@ void ConfigSetSource(FeedoptConfig *cfg, const char filename_data[], const int f
     int i;
     int i1;
     int loop_ub;
-    if (!isInitialized_EvalCurvStruct) {
-        EvalCurvStruct_initialize();
+    if (!isInitialized_opencn_matlab) {
+        opencn_matlab_initialize();
     }
     // 'ConfigSetSource:2' coder.inline("never");
     // 'ConfigSetSource:4' N = size(filename, 2);

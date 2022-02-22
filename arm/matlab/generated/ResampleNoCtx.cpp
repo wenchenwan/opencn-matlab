@@ -5,19 +5,19 @@
 // File: ResampleNoCtx.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 21-Feb-2022 17:59:00
+// C/C++ source code generated on  : 22-Feb-2022 11:16:30
 //
 
 // Include Files
 #include "ResampleNoCtx.h"
-#include "EvalCurvStruct_data.h"
-#include "EvalCurvStruct_initialize.h"
-#include "EvalCurvStruct_types1.h"
-#include "EvalCurvStruct_types11.h"
-#include "EvalCurvStruct_types2.h"
-#include "EvalCurvStruct_types3.h"
 #include "ResampleStateClass.h"
 #include "bspline_eval.h"
+#include "opencn_matlab_data.h"
+#include "opencn_matlab_initialize.h"
+#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types11.h"
+#include "opencn_matlab_types2.h"
+#include "opencn_matlab_types3.h"
 #include "coder_array.h"
 #include <cmath>
 
@@ -177,8 +177,8 @@ void ResampleNoCtx(ResampleStateClass *state, const SplineBase *Bl, const CurvSt
     double qk;
     double ukp1;
     double y;
-    if (!isInitialized_EvalCurvStruct) {
-        EvalCurvStruct_initialize();
+    if (!isInitialized_opencn_matlab) {
+        opencn_matlab_initialize();
     }
     // 'ResampleNoCtx:2' coder.inline("never");
     // 'ResampleNoCtx:4' [ukp1, qk, ~] = Resample(Curv, Bl, state.u, state.dt);

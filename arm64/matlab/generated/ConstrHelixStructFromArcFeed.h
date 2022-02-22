@@ -5,7 +5,7 @@
 // File: ConstrHelixStructFromArcFeed.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 14-Feb-2022 16:27:55
+// C/C++ source code generated on  : 22-Feb-2022 11:18:27
 //
 
 #ifndef CONSTRHELIXSTRUCTFROMARCFEED_H
@@ -21,8 +21,11 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-extern void ConstrHelixStructFromArcFeed(double p0x, double p0y, double p0z, double p1x, double p1y,
-                                         double p1z, double cx, double cy, double cz,
+extern void ConstrHelixStructFromArcFeed(bool trafo, const double Poff[3], const double Aoff[3],
+                                         const double Uoff[3], double Doff, double p0x, double p0y,
+                                         double p0z, double p1x, double p1y, double p1z, double cx,
+                                         double cy, double cz, const double A0[3],
+                                         const double A1[3], const double U0[3], const double U1[3],
                                          double rotation, const double evec[3],
                                          CurvStruct *b_CurvStruct);
 

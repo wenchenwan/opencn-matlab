@@ -2,17 +2,17 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: EvalCurvStruct_types.h
+// File: opencn_matlab_types.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 22-Feb-2022 08:27:14
+// C/C++ source code generated on  : 22-Feb-2022 11:16:30
 //
 
-#ifndef EVALCURVSTRUCT_TYPES_H
-#define EVALCURVSTRUCT_TYPES_H
+#ifndef OPENCN_MATLAB_TYPES_H
+#define OPENCN_MATLAB_TYPES_H
 
 // Include Files
-#include "EvalCurvStruct_types3.h"
+#include "opencn_matlab_types3.h"
 #include "queue_coder.h"
 #include "rtwtypes.h"
 #include "coder_array.h"
@@ -58,6 +58,10 @@ struct FeedoptConfig {
     double GaussLegendreW[5];
     char LogFileName[4];
     double Simplex_params[4];
+};
+
+struct int64m_T {
+    unsigned int chunks[2];
 };
 
 enum Fopt : int
@@ -126,7 +130,7 @@ struct FeedoptContext {
 
 #endif
 //
-// File trailer for EvalCurvStruct_types.h
+// File trailer for opencn_matlab_types.h
 //
 // [EOF]
 //

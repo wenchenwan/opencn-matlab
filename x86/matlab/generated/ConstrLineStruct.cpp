@@ -5,16 +5,16 @@
 // File: ConstrLineStruct.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 22-Feb-2022 08:27:14
+// C/C++ source code generated on  : 22-Feb-2022 11:10:49
 //
 
 // Include Files
 #include "ConstrLineStruct.h"
 #include "ConstrCurvStruct.h"
-#include "EvalCurvStruct_data.h"
-#include "EvalCurvStruct_initialize.h"
-#include "EvalCurvStruct_types1.h"
-#include "EvalCurvStruct_types2.h"
+#include "opencn_matlab_data.h"
+#include "opencn_matlab_initialize.h"
+#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types2.h"
 
 // Function Definitions
 //
@@ -47,8 +47,8 @@ void ConstrLineStruct(bool trafo, const double Poff[3], const double Aoff[3], co
     double dv2[6][3];
     double dv[3];
     double dv1[3];
-    if (!isInitialized_EvalCurvStruct) {
-        EvalCurvStruct_initialize();
+    if (!isInitialized_opencn_matlab) {
+        opencn_matlab_initialize();
     }
     // 'ConstrLineStruct:5' coder.inline("never");
     // 'ConstrLineStruct:6' CoeffP5     = zeros(3, 6);

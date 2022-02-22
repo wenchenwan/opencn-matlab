@@ -5,23 +5,23 @@
 // File: BuildConstr_v4.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 21-Feb-2022 17:59:00
+// C/C++ source code generated on  : 22-Feb-2022 11:16:30
 //
 
 // Include Files
 #include "BuildConstr_v4.h"
 #include "EvalCurvStruct.h"
-#include "EvalCurvStruct_data.h"
-#include "EvalCurvStruct_rtwutil.h"
-#include "EvalCurvStruct_types1.h"
-#include "EvalCurvStruct_types11.h"
-#include "EvalCurvStruct_types2.h"
 #include "LengthCurv.h"
 #include "bspline_base_eval.h"
 #include "bsxfun.h"
 #include "eml_mtimes_helper.h"
 #include "mtimes.h"
 #include "norm.h"
+#include "opencn_matlab_data.h"
+#include "opencn_matlab_rtwutil.h"
+#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types11.h"
+#include "opencn_matlab_types2.h"
 #include "queue_coder.h"
 #include "sparse.h"
 #include "sparse1.h"

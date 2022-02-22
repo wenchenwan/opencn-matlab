@@ -5,17 +5,17 @@
 // File: ConstrHelixStructFromArcFeed.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 21-Feb-2022 17:59:00
+// C/C++ source code generated on  : 22-Feb-2022 11:16:30
 //
 
 // Include Files
 #include "ConstrHelixStructFromArcFeed.h"
 #include "ConstrHelixStruct.h"
 #include "CorrectArcCenter.h"
-#include "EvalCurvStruct_data.h"
-#include "EvalCurvStruct_initialize.h"
-#include "EvalCurvStruct_types1.h"
-#include "EvalCurvStruct_types2.h"
+#include "opencn_matlab_data.h"
+#include "opencn_matlab_initialize.h"
+#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types2.h"
 #include <cmath>
 
 // Function Definitions
@@ -100,8 +100,8 @@ void ConstrHelixStructFromArcFeed(bool trafo, const double Poff[3], const double
     double phi1;
     double pitch;
     double theta;
-    if (!isInitialized_EvalCurvStruct) {
-        EvalCurvStruct_initialize();
+    if (!isInitialized_opencn_matlab) {
+        opencn_matlab_initialize();
     }
     // 'ConstrHelixStructFromArcFeed:33' coder.inline("never");
     //  Create vectors

@@ -5,15 +5,15 @@
 // File: queue_coder.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 21-Feb-2022 17:59:00
+// C/C++ source code generated on  : 22-Feb-2022 11:16:30
 //
 
 #ifndef QUEUE_CODER_H
 #define QUEUE_CODER_H
 
 // Include Files
-#include "EvalCurvStruct_types1.h"
-#include "EvalCurvStruct_types11.h"
+#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types11.h"
 #include "rtwtypes.h"
 #include <cstddef>
 #include <cstdlib>

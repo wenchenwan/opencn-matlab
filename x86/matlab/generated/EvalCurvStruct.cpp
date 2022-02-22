@@ -5,22 +5,22 @@
 // File: EvalCurvStruct.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 22-Feb-2022 08:27:14
+// C/C++ source code generated on  : 22-Feb-2022 11:10:49
 //
 
 // Include Files
 #include "EvalCurvStruct.h"
 #include "EvalBSpline.h"
-#include "EvalCurvStruct_data.h"
-#include "EvalCurvStruct_initialize.h"
-#include "EvalCurvStruct_types.h"
-#include "EvalCurvStruct_types1.h"
-#include "EvalCurvStruct_types2.h"
-#include "EvalCurvStruct_types3.h"
 #include "EvalHelix.h"
 #include "EvalLine.h"
 #include "EvalTransP5.h"
 #include "bspline_eval.h"
+#include "opencn_matlab_data.h"
+#include "opencn_matlab_initialize.h"
+#include "opencn_matlab_types.h"
+#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types2.h"
+#include "opencn_matlab_types3.h"
 #include "queue_coder.h"
 #include "coder_array.h"
 #include <cmath>
@@ -71,8 +71,8 @@ void EvalCurvStruct(const FeedoptContext *ctx, const CurvStruct *b_CurvStruct,
     bool b_y;
     bool exitg1;
     bool y;
-    if (!isInitialized_EvalCurvStruct) {
-        EvalCurvStruct_initialize();
+    if (!isInitialized_opencn_matlab) {
+        opencn_matlab_initialize();
     }
     // 'EvalCurvStruct:3' coder.inline("never");
     // 'EvalCurvStruct:4' if any(u_vec - 1.0 > 10*eps)

@@ -2,17 +2,17 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: EvalCurvStruct_types1.h
+// File: opencn_matlab_types1.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 21-Feb-2022 17:59:00
+// C/C++ source code generated on  : 22-Feb-2022 11:16:30
 //
 
-#ifndef EVALCURVSTRUCT_TYPES1_H
-#define EVALCURVSTRUCT_TYPES1_H
+#ifndef OPENCN_MATLAB_TYPES1_H
+#define OPENCN_MATLAB_TYPES1_H
 
 // Include Files
-#include "EvalCurvStruct_types2.h"
+#include "opencn_matlab_types2.h"
 #include "rtwtypes.h"
 #include "coder_array.h"
 #include <cstddef>
@@ -63,7 +63,7 @@ struct CurvStruct {
 
 #endif
 //
-// File trailer for EvalCurvStruct_types1.h
+// File trailer for opencn_matlab_types1.h
 //
 // [EOF]
 //

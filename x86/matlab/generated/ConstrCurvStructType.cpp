@@ -5,16 +5,16 @@
 // File: ConstrCurvStructType.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 22-Feb-2022 08:27:14
+// C/C++ source code generated on  : 22-Feb-2022 11:10:49
 //
 
 // Include Files
 #include "ConstrCurvStructType.h"
 #include "ConstrLineStruct.h"
-#include "EvalCurvStruct_data.h"
-#include "EvalCurvStruct_initialize.h"
-#include "EvalCurvStruct_types1.h"
-#include "EvalCurvStruct_types2.h"
+#include "opencn_matlab_data.h"
+#include "opencn_matlab_initialize.h"
+#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types2.h"
 
 // Function Definitions
 //
@@ -35,8 +35,8 @@ void ConstrCurvStructType(CurvStruct *C)
     double dv6[3];
     double dv7[3];
     double dv8[3];
-    if (!isInitialized_EvalCurvStruct) {
-        EvalCurvStruct_initialize();
+    if (!isInitialized_opencn_matlab) {
+        opencn_matlab_initialize();
     }
     // 'ConstrCurvStructType:2' trafo       = false;
     // 'ConstrCurvStructType:3' Poff        = zeros(3,1);

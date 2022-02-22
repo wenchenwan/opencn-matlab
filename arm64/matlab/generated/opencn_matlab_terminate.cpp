@@ -5,11 +5,7 @@
 // File: opencn_matlab_terminate.cpp
 //
 // MATLAB Coder version            : 5.3
-<<<<<<< HEAD:x86/matlab/generated/sinspace_terminate.cpp
-// C/C++ source code generated on  : 18-Feb-2022 13:18:06
-=======
-// C/C++ source code generated on  : 14-Feb-2022 16:27:55
->>>>>>> 18eeaa025c5f7820e8529e0ccd6a36cae8cccd12:arm64/matlab/generated/opencn_matlab_terminate.cpp
+// C/C++ source code generated on  : 22-Feb-2022 11:18:27
 //
 
 // Include Files

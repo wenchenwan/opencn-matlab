@@ -2,33 +2,33 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: EvalCurvStruct_types11.h
+// File: opencn_matlab_internal_types.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 21-Feb-2022 17:59:00
+// C/C++ source code generated on  : 22-Feb-2022 11:16:30
 //
 
-#ifndef EVALCURVSTRUCT_TYPES11_H
-#define EVALCURVSTRUCT_TYPES11_H
+#ifndef OPENCN_MATLAB_INTERNAL_TYPES_H
+#define OPENCN_MATLAB_INTERNAL_TYPES_H
 
 // Include Files
+#include "opencn_matlab_types.h"
 #include "rtwtypes.h"
-#include <cstddef>
-#include <cstdlib>
 
 // Custom Header Code
 #include "functions.h"
 // Type Definitions
 namespace ocn {
-struct uint64m_T {
-    unsigned int chunks[2];
+struct emxArray_char_T_1x9 {
+    char data[9];
+    int size[2];
 };
 
 } // namespace ocn
 
 #endif
 //
-// File trailer for EvalCurvStruct_types11.h
+// File trailer for opencn_matlab_internal_types.h
 //
 // [EOF]
 //

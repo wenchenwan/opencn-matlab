@@ -5,15 +5,15 @@
 // File: bspline_create.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 21-Feb-2022 17:59:00
+// C/C++ source code generated on  : 22-Feb-2022 11:16:30
 //
 
 // Include Files
 #include "bspline_create.h"
-#include "EvalCurvStruct_data.h"
-#include "EvalCurvStruct_initialize.h"
-#include "EvalCurvStruct_types11.h"
-#include "EvalCurvStruct_types3.h"
+#include "opencn_matlab_data.h"
+#include "opencn_matlab_initialize.h"
+#include "opencn_matlab_types11.h"
+#include "opencn_matlab_types3.h"
 #include "coder_array.h"
 #include "src/c_spline.h"
 #include <algorithm>
@@ -31,8 +31,8 @@ namespace ocn {
 void bspline_create(int degree, const double breakpoints[10], SplineBase *Bl)
 {
     double b_breakpoints[10];
-    if (!isInitialized_EvalCurvStruct) {
-        EvalCurvStruct_initialize();
+    if (!isInitialized_opencn_matlab) {
+        opencn_matlab_initialize();
     }
     // 'bspline_create:2' nbreak = length(breakpoints);
     // 'bspline_create:3' ncoeff = nbreak + degree - 2;
