@@ -4,18 +4,21 @@
 // government, commercial, or other organizational use.
 // File: ConstrLineStruct.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 14-Feb-2022 16:27:55
 //
 
 // Include Files
 #include "ConstrLineStruct.h"
 #include "ConstrCurvStruct.h"
-#include "queue_coder.h"
-#include "sinspace_data.h"
-#include "sinspace_initialize.h"
+#include "opencn_matlab_data.h"
+#include "opencn_matlab_initialize.h"
+#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types2.h"
 
 // Function Definitions
+//
+// function CurvStruct = ConstrLineStruct(P0, P1, FeedRate, ZSpdMode)
 //
 // Arguments    : const double P0[3]
 //                const double P1[3]
@@ -31,9 +34,16 @@ void ConstrLineStruct(const double P0[3], const double P1[3], double FeedRate, Z
     double dv2[6][3];
     double dv[3];
     double dv1[3];
-    if (!isInitialized_sinspace) {
-        sinspace_initialize();
+    if (!isInitialized_opencn_matlab) {
+        opencn_matlab_initialize();
     }
+    // 'ConstrLineStruct:3' coder.inline("never");
+    // 'ConstrLineStruct:4' CoeffP5     = zeros(3, 6);
+    // 'ConstrLineStruct:5' evec        = zeros(3, 1);
+    // 'ConstrLineStruct:6' theta       = 0;
+    // 'ConstrLineStruct:7' pitch       = 0;
+    // 'ConstrLineStruct:10' CurvStruct  = ConstrCurvStruct(CurveType.Line, ZSpdMode, P0, P1,
+    // [0,0,0]', 0.0, evec, theta, pitch, CoeffP5, FeedRate);
     dv[0] = 0.0;
     dv1[0] = 0.0;
     dv[1] = 0.0;
@@ -47,6 +57,7 @@ void ConstrLineStruct(const double P0[3], const double P1[3], double FeedRate, Z
     }
     ConstrCurvStruct(CurveType_Line, b_ZSpdMode, P0, P1, dv, 0.0, dv1, 0.0, 0.0, dv2, FeedRate,
                      b_CurvStruct);
+    // 'ConstrLineStruct:11' coder.cstructname(CurvStruct, 'CurvStruct');
 }
 
 } // namespace ocn

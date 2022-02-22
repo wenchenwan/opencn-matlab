@@ -5,18 +5,22 @@
 // File: ConstrLineStruct.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 18-Feb-2022 13:18:06
+// C/C++ source code generated on  : 22-Feb-2022 08:27:14
 //
 
 // Include Files
 #include "ConstrLineStruct.h"
 #include "ConstrCurvStruct.h"
-#include "sinspace_data.h"
-#include "sinspace_initialize.h"
-#include "sinspace_types1.h"
-#include "sinspace_types2.h"
+#include "EvalCurvStruct_data.h"
+#include "EvalCurvStruct_initialize.h"
+#include "EvalCurvStruct_types1.h"
+#include "EvalCurvStruct_types2.h"
 
 // Function Definitions
+//
+// function CurvStruct = ConstrLineStruct(trafo, Poff, Aoff, ...
+//                                        Uoff, Doff, P0, P1, A0, A1, U0, U1,...
+//                                        FeedRate, ZSpdMode)
 //
 // Arguments    : bool trafo
 //                const double Poff[3]
@@ -43,9 +47,20 @@ void ConstrLineStruct(bool trafo, const double Poff[3], const double Aoff[3], co
     double dv2[6][3];
     double dv[3];
     double dv1[3];
-    if (!isInitialized_sinspace) {
-        sinspace_initialize();
+    if (!isInitialized_EvalCurvStruct) {
+        EvalCurvStruct_initialize();
     }
+    // 'ConstrLineStruct:5' coder.inline("never");
+    // 'ConstrLineStruct:6' CoeffP5     = zeros(3, 6);
+    // 'ConstrLineStruct:7' evec        = zeros(3, 1);
+    // 'ConstrLineStruct:8' Cprim       = zeros(3, 1);
+    // 'ConstrLineStruct:9' delta       = 0.0;
+    // 'ConstrLineStruct:10' theta       = 0;
+    // 'ConstrLineStruct:11' pitch       = 0;
+    // 'ConstrLineStruct:14' CurvStruct  = ConstrCurvStruct(CurveType.Line, ZSpdMode, trafo, Poff,
+    // ... 'ConstrLineStruct:15'                                 Aoff, Uoff, Doff, P0, P1, A0, A1,
+    // U0, U1, ... 'ConstrLineStruct:16'                                 Cprim, delta, evec, theta,
+    // pitch, ... 'ConstrLineStruct:17'                                 CoeffP5, FeedRate);
     dv[0] = 0.0;
     dv1[0] = 0.0;
     dv[1] = 0.0;
@@ -59,6 +74,7 @@ void ConstrLineStruct(bool trafo, const double Poff[3], const double Aoff[3], co
     }
     ConstrCurvStruct(CurveType_Line, b_ZSpdMode, trafo, Poff, Aoff, Uoff, Doff, P0, P1, A0, A1, U0,
                      U1, dv, 0.0, dv1, 0.0, 0.0, dv2, FeedRate, b_CurvStruct);
+    // 'ConstrLineStruct:19' coder.cstructname(CurvStruct, 'CurvStruct');
 }
 
 } // namespace ocn

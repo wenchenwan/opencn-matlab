@@ -42,7 +42,6 @@ if length(points(1,:))==1 dt = 0;
 else dt = sum((diff(points.').^2).'); end
 t = cumsum([0,dt.^(1/4)]);
 
-% change RHG
 t = t / t(end);  % normalize to knots between 0...1
 
 if all(dt>0) cs = csape(t,points,endconds);

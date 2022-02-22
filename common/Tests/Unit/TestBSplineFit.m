@@ -5,7 +5,7 @@ K = 11;
 t = linspace(0, 1, K);
 points = [t*10; cos(t*10); sin(t*10)];
 
-sp3D = CalcBspline_Lee_coder(cfg, points);
+sp3D = CalcBspline_Lee(cfg, points);
 
 % sp3Dmatlab = CalcBspline_Lee_matlab(points);
 

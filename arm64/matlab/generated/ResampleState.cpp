@@ -4,17 +4,19 @@
 // government, commercial, or other organizational use.
 // File: ResampleState.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 14-Feb-2022 16:27:55
 //
 
 // Include Files
 #include "ResampleState.h"
 #include "ResampleStateClass.h"
-#include "sinspace_data.h"
-#include "sinspace_initialize.h"
+#include "opencn_matlab_data.h"
+#include "opencn_matlab_initialize.h"
 
 // Function Definitions
+//
+// function state = ResampleState(dt)
 //
 // Arguments    : double dt
 //                ResampleStateClass *state
@@ -23,10 +25,19 @@
 namespace ocn {
 void ResampleState(double dt, ResampleStateClass *state)
 {
-    if (!isInitialized_sinspace) {
-        sinspace_initialize();
+    if (!isInitialized_opencn_matlab) {
+        opencn_matlab_initialize();
     }
-    state->init(dt);
+    // 'ResampleState:2' coder.inline("never");
+    // 'ResampleState:3' state = ResampleStateClass(dt);
+    state->dt = dt;
+    // 'ResampleStateClass:10' this.u = 0;
+    state->u = 0.0;
+    // 'ResampleStateClass:11' this.go_next = false;
+    state->go_next = false;
+    // 'ResampleStateClass:12' this.dt = dt;
+    // 'ResampleStateClass:5' double
+    // 'ResampleStateClass:5' dt
 }
 
 } // namespace ocn

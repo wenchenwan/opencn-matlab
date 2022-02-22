@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: ResampleStateClass.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 14-Feb-2022 16:27:55
 //
 
 // Include Files
@@ -14,18 +14,9 @@
 // Function Definitions
 //
 // Arguments    : void
-// Return Type  : void
-//
-namespace ocn {
-void ResampleStateClass::set_go_next()
-{
-    this->go_next = false;
-}
-
-//
-// Arguments    : void
 // Return Type  : ResampleStateClass
 //
+namespace ocn {
 ResampleStateClass::ResampleStateClass()
 {
 }
@@ -36,53 +27,6 @@ ResampleStateClass::ResampleStateClass()
 //
 ResampleStateClass::~ResampleStateClass()
 {
-}
-
-//
-// Arguments    : void
-// Return Type  : void
-//
-void ResampleStateClass::b_set_go_next()
-{
-    this->go_next = true;
-}
-
-//
-// Arguments    : double b_dt
-// Return Type  : void
-//
-void ResampleStateClass::init(double b_dt)
-{
-    this->set_u();
-    this->set_go_next();
-    this->set_dt(b_dt);
-}
-
-//
-// Arguments    : double val
-// Return Type  : void
-//
-void ResampleStateClass::set_dt(double val)
-{
-    this->dt = val;
-}
-
-//
-// Arguments    : double val
-// Return Type  : void
-//
-void ResampleStateClass::set_u(double val)
-{
-    this->u = val;
-}
-
-//
-// Arguments    : void
-// Return Type  : void
-//
-void ResampleStateClass::set_u()
-{
-    this->u = 0.0;
 }
 
 } // namespace ocn

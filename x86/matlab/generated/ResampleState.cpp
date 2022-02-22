@@ -5,16 +5,18 @@
 // File: ResampleState.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 18-Feb-2022 13:18:06
+// C/C++ source code generated on  : 22-Feb-2022 08:27:14
 //
 
 // Include Files
 #include "ResampleState.h"
+#include "EvalCurvStruct_data.h"
+#include "EvalCurvStruct_initialize.h"
 #include "ResampleStateClass.h"
-#include "sinspace_data.h"
-#include "sinspace_initialize.h"
 
 // Function Definitions
+//
+// function state = ResampleState(dt)
 //
 // Arguments    : double dt
 //                ResampleStateClass *state
@@ -23,10 +25,19 @@
 namespace ocn {
 void ResampleState(double dt, ResampleStateClass *state)
 {
-    if (!isInitialized_sinspace) {
-        sinspace_initialize();
+    if (!isInitialized_EvalCurvStruct) {
+        EvalCurvStruct_initialize();
     }
-    state->init(dt);
+    // 'ResampleState:2' coder.inline("never");
+    // 'ResampleState:3' state = ResampleStateClass(dt);
+    state->dt = dt;
+    // 'ResampleStateClass:10' this.u = 0;
+    state->u = 0.0;
+    // 'ResampleStateClass:11' this.go_next = false;
+    state->go_next = false;
+    // 'ResampleStateClass:12' this.dt = dt;
+    // 'ResampleStateClass:5' double
+    // 'ResampleStateClass:5' dt
 }
 
 } // namespace ocn

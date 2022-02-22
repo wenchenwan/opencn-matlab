@@ -1,1 +1,1 @@
-MODEL=sinspace
+MODEL=opencn_matlab

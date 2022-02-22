@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: mypolyval.h
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 14-Feb-2022 16:27:55
 //
 
 #ifndef MYPOLYVAL_H
@@ -21,39 +21,10 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-void b_mypolyval(const double p[6][3], double y[3]);
+void binary_expand_op(::coder::array<double, 2U> &r_0D, const ::coder::array<double, 2U> &r1,
+                      const ::coder::array<double, 2U> &b);
 
-void b_mypolyval(const double p[5][3], const double x[10], double y[10][3]);
-
-void b_mypolyval(const double p[5][3], const ::coder::array<double, 2U> &x,
-                 ::coder::array<double, 2U> &y);
-
-void b_mypolyval(const double p[5][3], double x, double y[3]);
-
-void c_mypolyval(const double p[4][3], const double x[10], double y[10][3]);
-
-void c_mypolyval(const double p[4][3], const ::coder::array<double, 2U> &x,
-                 ::coder::array<double, 2U> &y);
-
-void c_mypolyval(const double p[4][3], double x, double y[3]);
-
-void d_mypolyval(const double p[3][3], const double x[10], double y[10][3]);
-
-void d_mypolyval(const double p[3][3], const ::coder::array<double, 2U> &x,
-                 ::coder::array<double, 2U> &y);
-
-void d_mypolyval(const double p[3][3], double x, double y[3]);
-
-void mypolyval(const double p[6][3], const double x[10], double y[10][3]);
-
-void mypolyval(const double p[5][3], double y[9][3]);
-
-void mypolyval(const double p[6][3], const ::coder::array<double, 2U> &x,
-               ::coder::array<double, 2U> &y);
-
-void mypolyval(const double p[6][3], double x, double y[3]);
-
-} // namespace ocn
+}
 
 #endif
 //

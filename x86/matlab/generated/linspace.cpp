@@ -5,13 +5,13 @@
 // File: linspace.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 18-Feb-2022 13:18:06
+// C/C++ source code generated on  : 22-Feb-2022 08:27:14
 //
 
 // Include Files
 #include "linspace.h"
-#include "sinspace_data.h"
-#include "sinspace_initialize.h"
+#include "EvalCurvStruct_data.h"
+#include "EvalCurvStruct_initialize.h"
 #include "coder_array.h"
 #include <cmath>
 
@@ -24,6 +24,35 @@
 namespace ocn {
 namespace coder {
 void b_linspace(int n, ::coder::array<double, 2U> &y)
+{
+    if (n < 0) {
+        y.set_size(1, 0);
+    } else {
+        y.set_size(1, n);
+        if (n >= 1) {
+            y[n - 1] = 1.0;
+            if (y.size(1) >= 2) {
+                y[0] = 0.0;
+                if (y.size(1) >= 3) {
+                    double delta1;
+                    int i;
+                    delta1 = 1.0 / (static_cast<double>(y.size(1)) - 1.0);
+                    i = y.size(1);
+                    for (int k{0}; k <= i - 3; k++) {
+                        y[k + 1] = (static_cast<double>(k) + 1.0) * delta1;
+                    }
+                }
+            }
+        }
+    }
+}
+
+//
+// Arguments    : int n
+//                ::coder::array<double, 2U> &y
+// Return Type  : void
+//
+void c_linspace(int n, ::coder::array<double, 2U> &y)
 {
     if (n < 0) {
         y.set_size(1, 0);
@@ -56,8 +85,8 @@ void b_linspace(int n, ::coder::array<double, 2U> &y)
 //
 void linspace(double d1, double d2, double n, ::coder::array<double, 2U> &y)
 {
-    if (!isInitialized_sinspace) {
-        sinspace_initialize();
+    if (!isInitialized_EvalCurvStruct) {
+        EvalCurvStruct_initialize();
     }
     if (n < 0.0) {
         y.set_size(1, 0);

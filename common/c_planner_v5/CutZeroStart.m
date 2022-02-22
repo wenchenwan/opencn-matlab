@@ -58,7 +58,6 @@ function [CurvStruct1, CurvStruct2] = CutZeroStart(ctx, CurvStruct, k0)
     CurvStruct1 = CutCurvStruct(ctx, CurvStruct, 0, L - u_cut*L);
     CurvStruct1.UseConstJerk = true;
     CurvStruct1.ConstJerk = actual_jps;
-%     CurvStruct1.ConstJerkTime = t_cut;
     CurvStruct1.ConstJerkMaxIterations = int32(cut_index);
     CurvStruct2 = CutCurvStruct(ctx, CurvStruct, u_cut*L, 0);
     

@@ -5,7 +5,7 @@
 // File: eml_mtimes_helper.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 18-Feb-2022 13:18:06
+// C/C++ source code generated on  : 22-Feb-2022 08:27:14
 //
 
 #ifndef EML_MTIMES_HELPER_H
@@ -25,9 +25,6 @@ void b_binary_expand_op(::coder::array<double, 2U> &r1, const ::coder::array<dou
                         double a, const ::coder::array<double, 2U> &BasisVal, double b_a,
                         const ::coder::array<double, 2U> &BasisValD, double c_a, double d_a,
                         double e_a, double f_a);
-
-void binary_expand_op(::coder::array<double, 2U> &u_mid_tilda,
-                      const ::coder::array<double, 2U> &u_tilda, int i2, int i3, int i4);
 
 void binary_expand_op(::coder::array<double, 2U> &Aeq, int i16, int i17, const double t_1[3],
                       double a, const ::coder::array<double, 2U> &BasisVal, double b_a,

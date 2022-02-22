@@ -1,12 +1,20 @@
 function [CurvStruct1_C, CurvStruct_T, CurvStruct2_C, status]  = ...
     CalcTransition(ctx, CurvStruct1, CurvStruct2)
+    
+coder.inline("never");
 
 CutOff=ctx.cfg.CutOff;
-CollTolDeg=ctx.cfg.CollTolDeg;
+ColTolCos=ctx.cfg.ColTolCos;
+
+% If the 1st or the 2nd Curve lenth is shorter than 3*CutOff,
+% we will recalculate Cutoff. This new value will be smaller than before.
+% The 3 factor is an attempt to obtain:
+% new CutOff at beginning + rest of Curve + new CutOff at end = curve length before cutting,
+% with: new CutOff at beginning = rest of Curve = new CutOff at end, approx.
 Length_Threshold=3*CutOff;
 
-% DebugLog(DebugCfg.Transitions, ...
-%     '========== CalcTransition ==========\n')
+line1 = CurvStruct1.gcode_source_line;
+line2 = CurvStruct2.gcode_source_line;
 
 if IsEnabledDebugLog(DebugCfg.Global)
     PrintCurvStruct(ctx, CurvStruct1);
@@ -22,7 +30,7 @@ CurvStruct_T = CurvStruct1; %default value
 
 % colinearity test
 if CurvStruct1.Type~=CurveType.Helix && CurvStruct2.Type~=CurveType.Helix && ...
-        collinear(r0D1_2, r1D1_1, CollTolDeg) % && norm(r0D2 - r1D2) < 10*eps && collinear(r0D2, r1D2, 1e-2)
+        collinear(r0D1_2, r1D1_1, ColTolCos)
     
     status = TransitionResult.Collinear;    
     CurvStruct1_C = CurvStruct1;
@@ -56,9 +64,13 @@ else
         u1_tilda = a*1+b;
         
         % We need to find the previous spline knot u0_tilda...
-        Idx      = find(sp.knots < u1_tilda, 1, 'last');
-        u0_tilda = sp.knots(Idx);
-        l1 = SplineLengthApprox(ctx, CurvStruct1, u0_tilda, u1_tilda)/2;     
+        % 
+        k = length(sp.knots);
+        while sp.knots(k) >= u1_tilda
+            k = k - 1;
+        end
+        u0_tilda = sp.knots(k);
+        l1  = SplineLengthApproxGL_bounds(ctx, CurvStruct1, u0_tilda, u1_tilda)/2;     
     else
         if L1<Length_Threshold
             l1 = L1/3;
@@ -82,9 +94,13 @@ else
         u0_tilda = a*0+b;
         
         % We need to find the next spline knot u1_tilda...
-        Idx      = find(sp.knots > u0_tilda, 1);
-        u1_tilda = sp.knots(Idx);
-        l2 = SplineLengthApprox(ctx, CurvStruct2, u0_tilda, u1_tilda)/2;
+        % 
+        k = 1;
+        while sp.knots(k) <= u0_tilda
+            k = k + 1;
+        end
+        u1_tilda = sp.knots(k);
+        l2 = SplineLengthApproxGL_bounds(ctx, CurvStruct2, u0_tilda, u1_tilda)/2;
     else
         if L2<Length_Threshold
             l2 = L2/3;
@@ -97,16 +113,10 @@ else
     
 end
 
-% DebugLog(DebugCfg.Transitions, ...
-%     'CutOff = %.3f\n', CutOff)
-
 status = TransitionResult.Ok;
 
 CurvStruct1_C = CutCurvStruct(ctx, CurvStruct1, 0, CutOff);
 CurvStruct2_C = CutCurvStruct(ctx, CurvStruct2, CutOff, 0);
-
-DebugLog(DebugCfg.Global, ...
-    '========== AFTER CUTTING \n')
 
 if IsEnabledDebugLog(DebugCfg.Global)
     PrintCurvStruct(ctx, CurvStruct1_C)
@@ -130,7 +140,41 @@ if ret==1
                    [CurvStruct1.U0, CurvStruct1.U1], ...
                    p5, CurvStruct1.FeedRate);
     status = TransitionResult.Ok;
-
+    
+elseif ret==2
+    
+    % badly conditioned matrix in G2_Hermite()
+    status = TransitionResult.NoSolution;
+    
+    DebugLog(DebugCfg.Error, '========== CalcTransition ==========\n');
+    DebugLog(DebugCfg.Error, '=========== Badly Cond. Matrix in G2_Hermite() ==========\n');
+    DebugLog(DebugCfg.Error, 'Lines: %d, %d\n\n', line1, line2);
+    
+    if coder.target('matlab')
+    if IsEnabledDebugLog(DebugCfg.Plots)
+        
+        figure;
+        PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct2]);
+        hold on;
+        plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
+        hold on;
+        plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
+        hold on;
+        plot3(r0D0_1(1), r0D0_1(2), r0D0_1(3), 'xc', 'LineWidth', 3);
+        hold on;
+        plot3(r0D0_2(1), r0D0_2(2), r0D0_2(3), 'xc', 'LineWidth', 3);
+        hold on;
+        plot3(r1D0_1(1), r1D0_1(2), r1D0_1(3), 'xc', 'LineWidth', 3);
+        hold on;
+        plot3(r1D0_2(1), r1D0_2(2), r1D0_2(3), 'xc', 'LineWidth', 3);
+        str = regexp(ctx.cfg.source, '/', 'split'); % to get only g-code file name
+        title({str{end}, 'Badly Cond. Matrix', ...
+            ['Lines: ', num2str(line1), ' ', num2str(line2)]}, 'Interpreter', 'none');
+        axis equal;
+        camproj('perspective');
+    end
+    end
+    
 elseif ret==6
     
     % TODO: decide in the future...
@@ -143,70 +187,61 @@ elseif ret==6
                    p5, CurvStruct1.FeedRate);
     status = TransitionResult.Ok;
               
-    DebugLog(DebugCfg.Warning, ...
-            '========== CalcTransition ==========\n');
-    DebugLog(DebugCfg.Warning, ...
-        '=========== status = 6 ==========\n');
-    DebugLog(DebugCfg.Warning, ...
-        'Lines: %d, %d\n\n', CurvStruct1.gcode_source_line, ...
-        CurvStruct2.gcode_source_line);
+    DebugLog(DebugCfg.Warning, '========== CalcTransition ==========\n');
+    DebugLog(DebugCfg.Warning, '=========== status = 6 ==========\n');
+    DebugLog(DebugCfg.Warning, 'Lines: %d, %d\n\n', line1, line2);
     
-%     if coder.target('matlab')
-% 
-%         figure;
-%         PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct_T CurvStruct2]);
-%         hold on;
-%         plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
-%         hold on;
-%         plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
-%         title({ctx.cfg.source, 'status_G2_Hermite=6'}, 'Interpreter', 'none');
-%         axis equal;
-%         camproj('perspective');
-% 
-%     end
+    if coder.target('matlab')
+    if  IsEnabledDebugLog(DebugCfg.Plots)
+
+        figure;
+        PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct_T CurvStruct2]);
+        hold on;
+        plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
+        hold on;
+        plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
+        str = regexp(ctx.cfg.source, '/', 'split'); % to get only g-code file name
+        title({str{end}, 'status_G2_Hermite=6', ...
+            ['Lines: ', num2str(line1), ' ', num2str(line2)]}, 'Interpreter', 'none');
+        axis equal;
+        camproj('perspective');
+    end
+    end
        
 else
     
     status = TransitionResult.NoSolution;
     
-    DebugLog(DebugCfg.Error, ...
-        '========== CalcTransition ==========\n');
-    DebugLog(DebugCfg.Error, ...
-        '=========== No Solution ==========\n');
-    DebugLog(DebugCfg.Error, ...
-        'Lines: %d, %d\n\n', CurvStruct1.gcode_source_line, ...
-        CurvStruct2.gcode_source_line);
+    DebugLog(DebugCfg.Error, '========== CalcTransition ==========\n');
+    DebugLog(DebugCfg.Error, '=========== No Solution ==========\n');
+    DebugLog(DebugCfg.Error, 'Lines: %d, %d\n\n', line1, line2);
     
-%     if coder.target('matlab')
-% 
-%         figure;
-%         PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct2]);
-%         hold on;
-%         plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
-%         hold on;
-%         plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
-%         hold on;
-%         plot3(r0D0_1(1), r0D0_1(2), r0D0_1(3), 'xc', 'LineWidth', 3);
-%         hold on;
-%         plot3(r0D0_2(1), r0D0_2(2), r0D0_2(3), 'xc', 'LineWidth', 3);
-%         hold on;
-%         plot3(r1D0_1(1), r1D0_1(2), r1D0_1(3), 'xc', 'LineWidth', 3);
-%         hold on;
-%         plot3(r1D0_2(1), r1D0_2(2), r1D0_2(3), 'xc', 'LineWidth', 3);
-%         title({ctx.cfg.source, 'No solution'}, 'Interpreter', 'none');
-%         axis equal;
-%         camproj('perspective');
-% 
-%     end
-            
+    if coder.target('matlab')
+    if IsEnabledDebugLog(DebugCfg.Plots)
+        
+        figure;
+        PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct2]);
+        hold on;
+        plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
+        hold on;
+        plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
+        hold on;
+        plot3(r0D0_1(1), r0D0_1(2), r0D0_1(3), 'xc', 'LineWidth', 3);
+        hold on;
+        plot3(r0D0_2(1), r0D0_2(2), r0D0_2(3), 'xc', 'LineWidth', 3);
+        hold on;
+        plot3(r1D0_1(1), r1D0_1(2), r1D0_1(3), 'xc', 'LineWidth', 3);
+        hold on;
+        plot3(r1D0_2(1), r1D0_2(2), r1D0_2(3), 'xc', 'LineWidth', 3);
+        str = regexp(ctx.cfg.source, '/', 'split'); % to get only g-code file name
+        title({str{end}, 'No solution', ...
+            ['Lines: ', num2str(line1), ' ', num2str(line2)]}, 'Interpreter', 'none');
+        axis equal;
+        camproj('perspective');
+    end
+    end
+    
 end
-
-    CurvStruct1_C.gcode_source_line = CurvStruct1.gcode_source_line;
-    CurvStruct_T.gcode_source_line = CurvStruct2.gcode_source_line;
-    CurvStruct2_C.gcode_source_line = CurvStruct2.gcode_source_line;
-    
-    CurvStruct1_C.SpindleSpeed = CurvStruct1.SpindleSpeed;
-    CurvStruct_T.SpindleSpeed = min(CurvStruct1.SpindleSpeed, CurvStruct2.SpindleSpeed);
-    CurvStruct2_C.SpindleSpeed = CurvStruct2.SpindleSpeed;
-    
+    CurvStruct_T.gcode_source_line = line2;    
+    CurvStruct_T.SpindleSpeed = min(CurvStruct1.SpindleSpeed, CurvStruct2.SpindleSpeed);    
 end

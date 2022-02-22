@@ -4,76 +4,21 @@
 // government, commercial, or other organizational use.
 // File: ConstrCurvStruct.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 14-Feb-2022 16:27:55
 //
 
 // Include Files
 #include "ConstrCurvStruct.h"
-#include "queue_coder.h"
+#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types2.h"
+#include "opencn_matlab_types3.h"
 #include "coder_array.h"
-
-// Function Declarations
-namespace ocn {
-static void cast(double t0_CoeffX, double t0_CoeffY, double t0_CoeffZ, int t0_Bl_ncoeff,
-                 unsigned long t0_Bl_handle, int t0_Bl_degree, double t0_knots,
-                 ::coder::array<double, 2U> &t1_CoeffX, ::coder::array<double, 2U> &t1_CoeffY,
-                 ::coder::array<double, 2U> &t1_CoeffZ, int *t1_Bl_ncoeff,
-                 ::coder::array<double, 2U> &t1_Bl_breakpoints, unsigned long *t1_Bl_handle,
-                 int *t1_Bl_degree, ::coder::array<double, 2U> &t1_knots);
-
-static void cast(double b, ::coder::array<double, 2U> &c);
-
-} // namespace ocn
 
 // Function Definitions
 //
-// Arguments    : double t0_CoeffX
-//                double t0_CoeffY
-//                double t0_CoeffZ
-//                int t0_Bl_ncoeff
-//                unsigned long t0_Bl_handle
-//                int t0_Bl_degree
-//                double t0_knots
-//                ::coder::array<double, 2U> &t1_CoeffX
-//                ::coder::array<double, 2U> &t1_CoeffY
-//                ::coder::array<double, 2U> &t1_CoeffZ
-//                int *t1_Bl_ncoeff
-//                ::coder::array<double, 2U> &t1_Bl_breakpoints
-//                unsigned long *t1_Bl_handle
-//                int *t1_Bl_degree
-//                ::coder::array<double, 2U> &t1_knots
-// Return Type  : void
-//
-namespace ocn {
-static void cast(double t0_CoeffX, double t0_CoeffY, double t0_CoeffZ, int t0_Bl_ncoeff,
-                 unsigned long t0_Bl_handle, int t0_Bl_degree, double t0_knots,
-                 ::coder::array<double, 2U> &t1_CoeffX, ::coder::array<double, 2U> &t1_CoeffY,
-                 ::coder::array<double, 2U> &t1_CoeffZ, int *t1_Bl_ncoeff,
-                 ::coder::array<double, 2U> &t1_Bl_breakpoints, unsigned long *t1_Bl_handle,
-                 int *t1_Bl_degree, ::coder::array<double, 2U> &t1_knots)
-{
-    cast(t0_CoeffX, t1_CoeffX);
-    cast(t0_CoeffY, t1_CoeffY);
-    cast(t0_CoeffZ, t1_CoeffZ);
-    t1_Bl_breakpoints.set_size(1, 0);
-    cast(t0_knots, t1_knots);
-    *t1_Bl_ncoeff = t0_Bl_ncoeff;
-    *t1_Bl_handle = t0_Bl_handle;
-    *t1_Bl_degree = t0_Bl_degree;
-}
-
-//
-// Arguments    : double b
-//                ::coder::array<double, 2U> &c
-// Return Type  : void
-//
-static void cast(double b, ::coder::array<double, 2U> &c)
-{
-    c.set_size(1, 1);
-    c[0] = b;
-}
-
+// function CStrct = ConstrCurvStruct(Type, ZSpdMode, P0, P1, Cprim, delta, evec, theta, pitch,
+// CoeffP5, FeedRate)
 //
 // ctxType = coder.OutputType('InitFeedoptPlan');
 //
@@ -91,10 +36,46 @@ static void cast(double b, ::coder::array<double, 2U> &c)
 //                CurvStruct *CStrct
 // Return Type  : void
 //
+namespace ocn {
 void ConstrCurvStruct(CurveType Type, ZSpdMode b_ZSpdMode, const double P0[3], const double P1[3],
                       const double Cprim[3], double delta, const double evec[3], double theta,
                       double pitch, const double CoeffP5[6][3], double FeedRate, CurvStruct *CStrct)
 {
+    // 'ConstrCurvStruct:5' CStrct = struct('Type', Type,...
+    // 'ConstrCurvStruct:6'                 'zspdmode', ZSpdMode,...
+    // 'ConstrCurvStruct:7'                 'P0', P0,...
+    // 'ConstrCurvStruct:8'                 'P1', P1,...
+    // 'ConstrCurvStruct:9' 				'CorrectedHelixCenter', Cprim,...
+    // 'ConstrCurvStruct:10'                 'delta', delta, ...
+    // 'ConstrCurvStruct:11'                 'evec', evec,...
+    // 'ConstrCurvStruct:12'                 'theta', theta,...
+    // 'ConstrCurvStruct:13'                 'pitch', pitch,...
+    // 'ConstrCurvStruct:14'                 'CoeffP5', CoeffP5,...
+    // 'ConstrCurvStruct:15'                 'sp_index', int32(1),...
+    // 'ConstrCurvStruct:16'                 'FeedRate', FeedRate,...
+    // 'ConstrCurvStruct:17'                 'SpindleSpeed', 0,...
+    // 'ConstrCurvStruct:18'                 'MaxConstantFeedRate', 0,...
+    // 'ConstrCurvStruct:19'                 'i_begin_sp', int32(0),...
+    // 'ConstrCurvStruct:20'                 'i_end_sp', int32(0),...
+    // 'ConstrCurvStruct:21'                 'gcode_source_line', int32(0),...
+    // 'ConstrCurvStruct:22'                 'index_smooth', int32(0),...
+    // 'ConstrCurvStruct:23'                 'UseConstJerk', false,...
+    // 'ConstrCurvStruct:24'                 'ConstJerk', 0,...
+    // 'ConstrCurvStruct:25'                 'ConstJerkMaxIterations', int32(0),...
+    // 'ConstrCurvStruct:26'                 'Coeff', zeros(0, 1),...
+    // 'ConstrCurvStruct:27'                 'a_param', 1,...
+    // 'ConstrCurvStruct:28'                 'b_param', 0,...
+    // 'ConstrCurvStruct:29'                 'sp', struct('CoeffX', 0,...
+    // 'ConstrCurvStruct:30'                     'CoeffY', 0,...
+    // 'ConstrCurvStruct:31'                     'CoeffZ', 0,...
+    // 'ConstrCurvStruct:32'                     'Bl', struct(...
+    // 'ConstrCurvStruct:33'                         'ncoeff', int32(0),...
+    // 'ConstrCurvStruct:34'                         'breakpoints', zeros(1, 0),...
+    // 'ConstrCurvStruct:35'                         'handle', uint64(0),...
+    // 'ConstrCurvStruct:36'                         'degree', int32(0)),...
+    // 'ConstrCurvStruct:37'                     'knots', 0,...
+    // 'ConstrCurvStruct:38'                     'Ltot', 0,...
+    // 'ConstrCurvStruct:39'                     'Lk', 0));
     CStrct->Type = Type;
     CStrct->zspdmode = b_ZSpdMode;
     CStrct->delta = delta;
@@ -131,9 +112,33 @@ void ConstrCurvStruct(CurveType Type, ZSpdMode b_ZSpdMode, const double P0[3], c
     CStrct->Coeff.set_size(0);
     CStrct->a_param = 1.0;
     CStrct->b_param = 0.0;
-    cast(0.0, 0.0, 0.0, 0, 0UL, 0, 0.0, CStrct->sp.CoeffX, CStrct->sp.CoeffY, CStrct->sp.CoeffZ,
-         &CStrct->sp.Bl.ncoeff, CStrct->sp.Bl.breakpoints, &CStrct->sp.Bl.handle,
-         &CStrct->sp.Bl.degree, CStrct->sp.knots);
+    CStrct->sp.CoeffX.set_size(1, 1);
+    CStrct->sp.CoeffX[0] = 0.0;
+    CStrct->sp.CoeffY.set_size(1, 1);
+    CStrct->sp.CoeffY[0] = 0.0;
+    CStrct->sp.CoeffZ.set_size(1, 1);
+    CStrct->sp.CoeffZ[0] = 0.0;
+    CStrct->sp.Bl.ncoeff = 0;
+    CStrct->sp.Bl.breakpoints.set_size(1, 0);
+    CStrct->sp.Bl.handle = 0UL;
+    CStrct->sp.Bl.degree = 0;
+    CStrct->sp.knots.set_size(1, 1);
+    CStrct->sp.knots[0] = 0.0;
+    CStrct->sp.Ltot = 0.0;
+    CStrct->sp.Lk.set_size(1, 1);
+    CStrct->sp.Lk[0] = 0.0;
+    // 'ConstrCurvStruct:41' if ~coder.target('matlab')
+    // 'ConstrCurvStruct:42' coder.cstructname(CStrct, 'CurvStruct');
+    // 'ConstrCurvStruct:43' coder.cstructname(CStrct.sp, 'SplineStruct');
+    // 'ConstrCurvStruct:44' coder.cstructname(CStrct.sp.Bl, 'SplineBase');
+    // 'ConstrCurvStruct:46' coder.varsize('CStrct.sp.Bl.breakpoints', [1, Inf], [0, 1]);
+    // 'ConstrCurvStruct:48' coder.varsize('CStrct.Coeff', [Inf, 1], [1, 0]);
+    // 'ConstrCurvStruct:49' coder.varsize('CStrct.sp.CoeffX', [1, Inf], [0, 1]);
+    // 'ConstrCurvStruct:50' coder.varsize('CStrct.sp.CoeffY', [1, Inf], [0, 1]);
+    // 'ConstrCurvStruct:51' coder.varsize('CStrct.sp.CoeffZ', [1, Inf], [0, 1]);
+    // 'ConstrCurvStruct:52' coder.varsize('CStrct.sp.knots',  [1, Inf], [0, 1]);
+    // 'ConstrCurvStruct:53' coder.varsize('CStrct.sp.Lk',     [1, Inf], [0, 1]);
+    // 'ConstrCurvStruct:55' coder.varsize('CStrct.CoeffP5', [3, 6], [0, 0]);
 }
 
 } // namespace ocn

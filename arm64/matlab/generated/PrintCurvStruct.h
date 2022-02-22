@@ -4,30 +4,34 @@
 // government, commercial, or other organizational use.
 // File: PrintCurvStruct.h
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 14-Feb-2022 16:27:55
 //
 
 #ifndef PRINTCURVSTRUCT_H
 #define PRINTCURVSTRUCT_H
 
 // Include Files
-#include "queue_coder.h"
 #include "rtwtypes.h"
-#include "sinspace_types.h"
 #include <cstddef>
 #include <cstdlib>
 
 // Custom Header Code
 #include "functions.h"
-// Function Declarations
+// Type Declarations
 namespace ocn {
-extern void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S);
+class queue_coder;
 
-void b_PrintCurvStruct(const queue_coder *ctx_q_splines, double ctx_cfg_NGridLengthSpline,
-                       const CurvStruct *S);
+struct CurvStruct;
 
 } // namespace ocn
+
+// Function Declarations
+namespace ocn {
+void PrintCurvStruct(const queue_coder *ctx_q_splines, const double ctx_cfg_GaussLegendreX[5],
+                     const double ctx_cfg_GaussLegendreW[5], const CurvStruct *S);
+
+}
 
 #endif
 //

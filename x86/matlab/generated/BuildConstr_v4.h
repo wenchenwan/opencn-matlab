@@ -5,7 +5,7 @@
 // File: BuildConstr_v4.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 18-Feb-2022 13:18:06
+// C/C++ source code generated on  : 22-Feb-2022 08:27:14
 //
 
 #ifndef BUILDCONSTR_V4_H
@@ -35,7 +35,8 @@ class sparse;
 namespace ocn {
 void BuildConstr_v4(const queue_coder *ctx_q_splines, bool ctx_cfg_UseDynamicBreakpoints,
                     bool ctx_cfg_UseLinearBreakpoints, double ctx_cfg_DynamicBreakpointsDistance,
-                    int ctx_cfg_SplineDegree, double ctx_cfg_NGridLengthSpline, int ctx_Bl_ncoeff,
+                    int ctx_cfg_SplineDegree, const double ctx_cfg_GaussLegendreX[5],
+                    const double ctx_cfg_GaussLegendreW[5], int ctx_Bl_ncoeff,
                     unsigned long ctx_Bl_handle, const ::coder::array<CurvStruct, 2U> &CurvStructs,
                     const double amax[3], double v_0, double at_0, double v_1, double at_1,
                     ::coder::array<double, 2U> &BasisVal, ::coder::array<double, 2U> &BasisValD,

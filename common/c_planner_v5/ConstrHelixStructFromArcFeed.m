@@ -30,6 +30,7 @@ function CurvStruct = ConstrHelixStructFromArcFeed(trafo, ...
 % evec      : Unit vector orthogonal to the planned of the projected circle 
 %
 % CurvStruct : The resulting CurvStruct
+coder.inline("never");
 
 
 % Create vectors

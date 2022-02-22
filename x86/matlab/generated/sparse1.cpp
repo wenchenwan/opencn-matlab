@@ -5,7 +5,7 @@
 // File: sparse1.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 18-Feb-2022 13:18:06
+// C/C++ source code generated on  : 22-Feb-2022 08:27:14
 //
 
 // Include Files
@@ -256,6 +256,120 @@ void sparse::parenAssign(const ::coder::array<double, 2U> &rhs,
                 }
             }
         }
+    }
+}
+
+//
+// Arguments    : const sparse *varargin_2
+//                sparse *c
+// Return Type  : void
+//
+void sparse::vertcat(const sparse *varargin_2, sparse *c) const
+{
+    int cnfixeddim;
+    int cnnz;
+    int cnvardim;
+    int i1;
+    int numalloc;
+    int nzCount;
+    bool allEmpty;
+    bool b_isAcceptableEmpty_tmp;
+    bool emptyflag_idx_0;
+    bool emptyflag_idx_1;
+    bool isAcceptableEmpty_tmp;
+    cnfixeddim = n;
+    if ((m == 0) || (n == 0)) {
+        isAcceptableEmpty_tmp = true;
+    } else {
+        isAcceptableEmpty_tmp = false;
+    }
+    if ((varargin_2->m == 0) || (varargin_2->n == 0)) {
+        b_isAcceptableEmpty_tmp = true;
+    } else {
+        b_isAcceptableEmpty_tmp = false;
+    }
+    allEmpty = (isAcceptableEmpty_tmp && b_isAcceptableEmpty_tmp);
+    if ((!b_isAcceptableEmpty_tmp) && isAcceptableEmpty_tmp) {
+        cnfixeddim = varargin_2->n;
+    }
+    cnnz = 0;
+    cnvardim = 0;
+    if (allEmpty || (!isAcceptableEmpty_tmp)) {
+        cnnz = colidx[colidx.size(0) - 1] - 1;
+        cnvardim = m;
+    }
+    if (allEmpty || (!b_isAcceptableEmpty_tmp)) {
+        cnnz = (cnnz + varargin_2->colidx[varargin_2->colidx.size(0) - 1]) - 1;
+        cnvardim += varargin_2->m;
+    }
+    c->m = cnvardim;
+    c->n = cnfixeddim;
+    if (cnnz >= 1) {
+        numalloc = cnnz;
+    } else {
+        numalloc = 1;
+    }
+    c->d.set_size(numalloc);
+    c->maxnz = numalloc;
+    c->colidx.set_size(cnfixeddim + 1);
+    c->colidx[0] = 1;
+    c->rowidx.set_size(numalloc);
+    for (int i{0}; i < numalloc; i++) {
+        c->d[i] = 0.0;
+        c->rowidx[i] = 0;
+    }
+    for (int b_c{0}; b_c < cnfixeddim; b_c++) {
+        c->colidx[b_c + 1] = 1;
+    }
+    i1 = c->colidx.size(0);
+    for (int c_c{0}; c_c <= i1 - 2; c_c++) {
+        c->colidx[c_c] = 1;
+    }
+    c->colidx[c->colidx.size(0) - 1] = 1;
+    nzCount = -1;
+    if ((m == 0) || (n == 0)) {
+        emptyflag_idx_0 = true;
+    } else {
+        emptyflag_idx_0 = false;
+    }
+    if ((varargin_2->m == 0) || (varargin_2->n == 0)) {
+        emptyflag_idx_1 = true;
+    } else {
+        emptyflag_idx_1 = false;
+    }
+    for (int ccol{0}; ccol < cnfixeddim; ccol++) {
+        int crowoffs;
+        int kpend;
+        int kpstart;
+        crowoffs = 0;
+        if (!emptyflag_idx_0) {
+            int kpend_tmp;
+            kpstart = colidx[ccol];
+            kpend_tmp = colidx[ccol + 1];
+            kpend = kpend_tmp - 1;
+            for (int kp{kpstart}; kp <= kpend; kp++) {
+                int i2;
+                i2 = ((nzCount + kp) - kpstart) + 1;
+                c->rowidx[i2] = rowidx[kp - 1];
+                c->d[i2] = d[kp - 1];
+            }
+            nzCount = (nzCount + kpend_tmp) - colidx[ccol];
+            crowoffs = m;
+        }
+        if (!emptyflag_idx_1) {
+            int b_kpend_tmp;
+            kpstart = varargin_2->colidx[ccol];
+            b_kpend_tmp = varargin_2->colidx[ccol + 1];
+            kpend = b_kpend_tmp - 1;
+            for (int b_kp{kpstart}; b_kp <= kpend; b_kp++) {
+                int i3;
+                i3 = ((nzCount + b_kp) - kpstart) + 1;
+                c->rowidx[i3] = varargin_2->rowidx[b_kp - 1] + crowoffs;
+                c->d[i3] = varargin_2->d[b_kp - 1];
+            }
+            nzCount = (nzCount + b_kpend_tmp) - varargin_2->colidx[ccol];
+        }
+        c->colidx[ccol + 1] = nzCount + 2;
     }
 }
 

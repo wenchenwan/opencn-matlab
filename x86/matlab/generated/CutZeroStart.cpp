@@ -5,13 +5,16 @@
 // File: CutZeroStart.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 18-Feb-2022 13:18:06
+// C/C++ source code generated on  : 22-Feb-2022 08:27:14
 //
 
 // Include Files
 #include "CutZeroStart.h"
 #include "CutCurvStruct.h"
 #include "EvalCurvStruct.h"
+#include "EvalCurvStruct_data.h"
+#include "EvalCurvStruct_types1.h"
+#include "EvalCurvStruct_types2.h"
 #include "GetCurvMaxFeedrate.h"
 #include "LengthCurv.h"
 #include "PrintCurvStruct.h"
@@ -19,9 +22,6 @@
 #include "colon.h"
 #include "find.h"
 #include "queue_coder.h"
-#include "sinspace_data.h"
-#include "sinspace_types1.h"
-#include "sinspace_types2.h"
 #include "sum.h"
 #include "coder_array.h"
 #include <cmath>
@@ -29,6 +29,8 @@
 #include <stdio.h>
 
 // Function Definitions
+//
+// function [CurvStruct1, CurvStruct2] = CutZeroStart(ctx, CurvStruct, k0)
 //
 // Arguments    : const queue_coder *ctx_q_gcode
 //                const queue_coder *ctx_q_splines
@@ -40,7 +42,8 @@
 //                double ctx_cfg_ZeroStartJerkLimit
 //                double ctx_cfg_ZeroStartVelLimit
 //                bool ctx_cfg_DebugCutZero
-//                double ctx_cfg_NGridLengthSpline
+//                const double ctx_cfg_GaussLegendreX[5]
+//                const double ctx_cfg_GaussLegendreW[5]
 //                const CurvStruct *b_CurvStruct
 //                double k0
 //                CurvStruct *CurvStruct1
@@ -52,9 +55,9 @@ void CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splin
                   int ctx_cfg_NHorz, const double ctx_cfg_amax[3], const double ctx_cfg_jmax[3],
                   double ctx_cfg_dt, double ctx_cfg_ZeroStartAccLimit,
                   double ctx_cfg_ZeroStartJerkLimit, double ctx_cfg_ZeroStartVelLimit,
-                  bool ctx_cfg_DebugCutZero, double ctx_cfg_NGridLengthSpline,
-                  const CurvStruct *b_CurvStruct, double k0, CurvStruct *CurvStruct1,
-                  CurvStruct *CurvStruct2)
+                  bool ctx_cfg_DebugCutZero, const double ctx_cfg_GaussLegendreX[5],
+                  const double ctx_cfg_GaussLegendreW[5], const CurvStruct *b_CurvStruct, double k0,
+                  CurvStruct *CurvStruct1, CurvStruct *CurvStruct2)
 {
     ::coder::array<double, 2U> a;
     ::coder::array<double, 2U> a__2;
@@ -97,18 +100,19 @@ void CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splin
     long k;
     long x;
     long y;
-    int value_size[2];
+    int cut_index_vel_size[2];
     int b_loop_ub;
     int b_m;
     int b_scalarLB;
-    int b_value_data;
     int b_vectorUB;
     int c_ex;
     int c_loop_ub;
     int c_scalarLB;
-    int c_value_data;
     int c_vectorUB;
     int cut_index;
+    int cut_index_acc_data;
+    int cut_index_jerk_data;
+    int cut_index_vel_data;
     int d_loop_ub;
     int e_loop_ub;
     int e_scalarLB;
@@ -137,15 +141,16 @@ void CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splin
     int u0;
     int u1;
     int u_loop_ub;
-    int value_data;
     int vectorUB;
     bool exitg1;
-    b_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                     b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
-                     b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
-                     b_CurvStruct->a_param, b_CurvStruct->b_param, a__1, r1D);
+    // 'CutZeroStart:2' cfg=ctx.cfg;
+    // 'CutZeroStart:3' [~, r1D] = EvalCurvStruct(ctx, CurvStruct, 0);
+    b_EvalCurvStruct(ctx_q_splines, b_CurvStruct, a__1, r1D);
+    // 'CutZeroStart:4' jps = min(cfg.jmax) / max(abs(r1D));
     z1_idx_1 = std::abs(r1D[1]);
     z1_idx_2 = std::abs(r1D[2]);
+    // 'CutZeroStart:6' dt = cfg.dt;
+    // 'CutZeroStart:7' tmax = ceil((6/jps)^(1/3)/dt)*dt;
     ex = ctx_cfg_jmax[0];
     ex_tmp = std::abs(r1D[0]);
     b_ex = ex_tmp;
@@ -162,7 +167,9 @@ void CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splin
         b_ex = z1_idx_2;
     }
     tmax = std::ceil(std::pow(6.0 / (ex / b_ex), 0.33333333333333331) / ctx_cfg_dt) * ctx_cfg_dt;
+    // 'CutZeroStart:8' jps = 6/tmax^3;
     jps = 6.0 / std::pow(tmax, 3.0);
+    // 'CutZeroStart:9' t = 0:dt:tmax;
     if ((ctx_cfg_dt == 0.0) || ((0.0 < tmax) && (ctx_cfg_dt < 0.0)) ||
         ((tmax < 0.0) && (ctx_cfg_dt > 0.0))) {
         t.set_size(1, 0);
@@ -176,6 +183,7 @@ void CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splin
     } else {
         coder::eml_float_colon(ctx_cfg_dt, tmax, t);
     }
+    // 'CutZeroStart:11' uk = jps*t.^3/6;
     r.set_size(1, t.size(1));
     b_loop_ub = t.size(1);
     for (int i1{0}; i1 < b_loop_ub; i1++) {
@@ -195,6 +203,7 @@ void CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splin
     for (i2 = scalarLB; i2 < c_loop_ub; i2++) {
         uk[i2] = jps * r[i2] / 6.0;
     }
+    // 'CutZeroStart:12' d1uk = jps*t.^2/2;
     r.set_size(1, t.size(1));
     d_loop_ub = t.size(1);
     for (int i3{0}; i3 < d_loop_ub; i3++) {
@@ -214,6 +223,7 @@ void CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splin
     for (i4 = b_scalarLB; i4 < e_loop_ub; i4++) {
         d1uk[i4] = jps * r[i4] / 2.0;
     }
+    // 'CutZeroStart:13' d2uk = jps*t;
     d2uk.set_size(1, t.size(1));
     f_loop_ub = t.size(1);
     c_scalarLB = (t.size(1) / 2) << 1;
@@ -226,16 +236,20 @@ void CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splin
     for (i5 = c_scalarLB; i5 < f_loop_ub; i5++) {
         d2uk[i5] = jps * t[i5];
     }
+    // 'CutZeroStart:14' d3uk = jps;
+    // 'CutZeroStart:16' [~, r1D, r2D, r3D] = EvalCurvStruct(ctx, CurvStruct, uk);
     b_uk.set_size(1, uk.size(1));
     g_loop_ub = uk.size(1) - 1;
     for (int i6{0}; i6 <= g_loop_ub; i6++) {
         b_uk[i6] = uk[i6];
     }
-    b_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                     b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
-                     b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
-                     b_CurvStruct->a_param, b_CurvStruct->b_param, b_uk, a__2, b_r1D, r2D, r3D);
+    b_EvalCurvStruct(ctx_q_splines, b_CurvStruct, b_uk, a__2, b_r1D, r2D, r3D);
+    // 'CutZeroStart:18' r3dt = bsxfun(@times, r3D, d1uk.^3) + 3*bsxfun(@times, r2D, d1uk.*d2uk) +
+    // bsxfun(@times, r1D, d3uk); 'CutZeroStart:19' r2dt = bsxfun(@times, r2D, d1uk.^2) +
+    // bsxfun(@times, r1D, d2uk); 'CutZeroStart:20' r1dt = bsxfun(@times, r1D, d1uk);
+    // 'CutZeroStart:22' vmax = CurvStruct.FeedRate;
     b_vmax = b_CurvStruct->FeedRate;
+    // 'CutZeroStart:23' N = min(int64(k0 + ctx.cfg.NHorz - 1), int64(ctx.q_gcode.size()));
     x = static_cast<int>(std::round(k0 + static_cast<double>(ctx_cfg_NHorz))) - 1;
     y = ctx_q_gcode->size();
     if (x > y) {
@@ -243,23 +257,29 @@ void CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splin
     } else {
         N = x;
     }
+    // 'CutZeroStart:25' for k = k0:N
     k = static_cast<long>(std::round(k0));
     exitg1 = false;
     while ((!exitg1) && (k <= N)) {
         double b_y;
+        // 'CutZeroStart:26' TmpCurv = ctx.q_gcode.get(k);
         ctx_q_gcode->get(k, &expl_temp);
+        // 'CutZeroStart:28' vmax_tmp = GetCurvMaxFeedrate(ctx, TmpCurv);
         b_y = GetCurvMaxFeedrate(ctx_q_splines, ctx_cfg_amax, ctx_cfg_jmax, expl_temp.Type,
                                  expl_temp.P0, expl_temp.P1, expl_temp.CorrectedHelixCenter,
                                  expl_temp.evec, expl_temp.theta, expl_temp.pitch,
                                  expl_temp.CoeffP5, expl_temp.sp_index, expl_temp.FeedRate,
                                  expl_temp.a_param, expl_temp.b_param);
+        // 'CutZeroStart:29' vmax = min(vmax, vmax_tmp);
         b_vmax = std::fmin(b_vmax, b_y);
+        // 'CutZeroStart:30' if TmpCurv.zspdmode == ZSpdMode.NZ
         if (expl_temp.zspdmode == ZSpdMode_NZ) {
             exitg1 = true;
         } else {
             k++;
         }
     }
+    // 'CutZeroStart:35' jt = abs(bsxfun(@rdivide, r3dt.', cfg.jmax));
     c.set_size(3, b_r1D.size(1));
     if (b_r1D.size(1) != 0) {
         int acoef;
@@ -358,11 +378,12 @@ void CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splin
         jt.set_size(at.size(0), 3);
         m_loop_ub = at.size(0);
         for (int i18{0}; i18 < 3; i18++) {
-            for (int i20{0}; i20 < m_loop_ub; i20++) {
-                jt[i20 + jt.size(0) * i18] = at[i20 + at.size(0) * i18];
+            for (int i19{0}; i19 < m_loop_ub; i19++) {
+                jt[i19 + jt.size(0) * i18] = at[i19 + at.size(0) * i18];
             }
         }
     }
+    // 'CutZeroStart:36' at = abs(bsxfun(@rdivide, r2dt.', cfg.amax));
     r.set_size(1, d1uk.size(1));
     l_loop_ub = d1uk.size(1);
     for (int i15{0}; i15 < l_loop_ub; i15++) {
@@ -376,9 +397,9 @@ void CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splin
         int n_loop_ub;
         a.set_size(r4.size(1), 3);
         n_loop_ub = r4.size(1);
-        for (int i19{0}; i19 < 3; i19++) {
+        for (int i20{0}; i20 < 3; i20++) {
             for (int i21{0}; i21 < n_loop_ub; i21++) {
-                a[i21 + a.size(0) * i19] = r4[i19 + 3 * i21] + r6[i19 + 3 * i21];
+                a[i21 + a.size(0) * i20] = r4[i20 + 3 * i21] + r6[i20 + 3 * i21];
             }
         }
     } else {
@@ -407,7 +428,11 @@ void CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splin
             }
         }
     }
+    // 'CutZeroStart:37' norm_vt = mysqrt(sum(r1dt.^2, 1))/vmax;
+    // 'mysqrt:3' y = sqrt(x);
+    // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
     sqrt_calls++;
+    // 'CutZeroStart:38' norm_vt = norm_vt.';
     coder::bsxfun(b_r1D, d1uk, r4);
     r4.set_size(3, r4.size(1));
     o_loop_ub = r4.size(1);
@@ -446,6 +471,7 @@ void CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splin
     for (i26 = f_scalarLB; i26 < p_loop_ub; i26++) {
         norm_vt[i26] = c_x[i26] / b_vmax;
     }
+    // 'CutZeroStart:40' max_jt = max(jt, [], 2);
     m = jt.size(0) - 1;
     max_jt.set_size(jt.size(0));
     if (jt.size(0) >= 1) {
@@ -453,20 +479,21 @@ void CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splin
             max_jt[b_i] = jt[b_i];
         }
         for (int j{0}; j < 2; j++) {
-            for (int d_i{0}; d_i <= m; d_i++) {
+            for (int c_i{0}; c_i <= m; c_i++) {
                 double d;
-                d = jt[d_i + jt.size(0) * (j + 1)];
-                if (max_jt[d_i] < d) {
-                    max_jt[d_i] = d;
+                d = jt[c_i + jt.size(0) * (j + 1)];
+                if (max_jt[c_i] < d) {
+                    max_jt[c_i] = d;
                 }
             }
         }
     }
+    // 'CutZeroStart:41' max_at = max(at, [], 2);
     b_m = at.size(0) - 1;
     max_at.set_size(at.size(0));
     if (at.size(0) >= 1) {
-        for (int c_i{0}; c_i <= b_m; c_i++) {
-            max_at[c_i] = at[c_i];
+        for (int d_i{0}; d_i <= b_m; d_i++) {
+            max_at[d_i] = at[d_i];
         }
         for (int b_j{0}; b_j < 2; b_j++) {
             for (int e_i{0}; e_i <= b_m; e_i++) {
@@ -478,48 +505,70 @@ void CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splin
             }
         }
     }
-    b_max_at.set_size(1, max_at.size(0));
-    q_loop_ub = max_at.size(0);
-    for (int i27{0}; i27 < q_loop_ub; i27++) {
-        b_max_at[i27] = (max_at[i27] > ctx_cfg_ZeroStartAccLimit);
-    }
-    coder::eml_find(b_max_at, (int *)&value_data, value_size);
-    r_loop_ub = value_size[1];
-    for (int i28{0}; i28 < r_loop_ub; i28++) {
-        b_value_data = value_data;
-    }
-    if (value_size[1] == 0) {
-        b_value_data = max_jt.size(0);
-    }
+    // 'CutZeroStart:43' N = length(max_jt);
+    // 'CutZeroStart:45' cut_index_jerk = orelse(find(max_jt.' > cfg.ZeroStartJerkLimit, 1), N);
     b_max_jt.set_size(1, max_jt.size(0));
-    s_loop_ub = max_jt.size(0);
+    q_loop_ub = max_jt.size(0);
+    for (int i27{0}; i27 < q_loop_ub; i27++) {
+        b_max_jt[i27] = (max_jt[i27] > ctx_cfg_ZeroStartJerkLimit);
+    }
+    coder::b_eml_find(b_max_jt, (int *)&cut_index_vel_data, cut_index_vel_size);
+    r_loop_ub = cut_index_vel_size[1];
+    for (int i28{0}; i28 < r_loop_ub; i28++) {
+        cut_index_jerk_data = cut_index_vel_data;
+    }
+    // 'orelse:2' if isempty(value)
+    if (cut_index_vel_size[1] == 0) {
+        // 'orelse:3' v = elsevalue;
+        cut_index_jerk_data = max_jt.size(0);
+    } else {
+        // 'orelse:4' else
+        // 'orelse:5' v = value;
+    }
+    // 'CutZeroStart:46' cut_index_acc = orelse(find(max_at.' > cfg.ZeroStartAccLimit, 1), N);
+    b_max_at.set_size(1, max_at.size(0));
+    s_loop_ub = max_at.size(0);
     for (int i29{0}; i29 < s_loop_ub; i29++) {
-        b_max_jt[i29] = (max_jt[i29] > ctx_cfg_ZeroStartJerkLimit);
+        b_max_at[i29] = (max_at[i29] > ctx_cfg_ZeroStartAccLimit);
     }
-    coder::eml_find(b_max_jt, (int *)&value_data, value_size);
-    t_loop_ub = value_size[1];
+    coder::b_eml_find(b_max_at, (int *)&cut_index_vel_data, cut_index_vel_size);
+    t_loop_ub = cut_index_vel_size[1];
     for (int i30{0}; i30 < t_loop_ub; i30++) {
-        c_value_data = value_data;
+        cut_index_acc_data = cut_index_vel_data;
     }
-    if (value_size[1] == 0) {
-        c_value_data = max_jt.size(0);
+    // 'orelse:2' if isempty(value)
+    if (cut_index_vel_size[1] == 0) {
+        // 'orelse:3' v = elsevalue;
+        cut_index_acc_data = max_jt.size(0);
+    } else {
+        // 'orelse:4' else
+        // 'orelse:5' v = value;
     }
+    // 'CutZeroStart:47' cut_index_vel = orelse(find(norm_vt.' > cfg.ZeroStartVelLimit, 1), N);
     b_norm_vt.set_size(1, norm_vt.size(0));
     u_loop_ub = norm_vt.size(0);
     for (int i31{0}; i31 < u_loop_ub; i31++) {
         b_norm_vt[i31] = (norm_vt[i31] > ctx_cfg_ZeroStartVelLimit);
     }
-    coder::eml_find(b_norm_vt, (int *)&value_data, value_size);
-    if (value_size[1] == 0) {
-        value_data = max_jt.size(0);
+    coder::b_eml_find(b_norm_vt, (int *)&cut_index_vel_data, cut_index_vel_size);
+    // 'orelse:2' if isempty(value)
+    if (cut_index_vel_size[1] == 0) {
+        // 'orelse:3' v = elsevalue;
+        cut_index_vel_data = max_jt.size(0);
+    } else {
+        // 'orelse:4' else
+        // 'orelse:5' v = value;
     }
-    c_ex = b_value_data;
-    if (b_value_data > c_value_data) {
-        c_ex = c_value_data;
+    // 'CutZeroStart:49' cut_index = min([cut_index_acc, cut_index_jerk, cut_index_vel]);
+    // 'CutZeroStart:50' cut_index = max(2, int32(cut_index) - 1);
+    c_ex = cut_index_acc_data;
+    if (cut_index_acc_data > cut_index_jerk_data) {
+        c_ex = cut_index_jerk_data;
     }
-    if (c_ex > value_data) {
-        c_ex = value_data;
+    if (c_ex > cut_index_vel_data) {
+        c_ex = cut_index_vel_data;
     }
+    // 'CutZeroStart:51' cut_index = min(int32(N/2), cut_index);
     u0 = static_cast<int>(std::round(static_cast<double>(max_jt.size(0)) / 2.0));
     if (2 < c_ex - 1) {
         u1 = c_ex - 1;
@@ -531,39 +580,65 @@ void CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splin
     } else {
         cut_index = u1;
     }
-    L = LengthCurv(ctx_q_splines, ctx_cfg_NGridLengthSpline, b_CurvStruct->Type, b_CurvStruct->P0,
-                   b_CurvStruct->P1, b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec,
-                   b_CurvStruct->theta, b_CurvStruct->pitch, b_CurvStruct->CoeffP5,
-                   b_CurvStruct->sp_index, b_CurvStruct->a_param, b_CurvStruct->b_param);
+    // 'CutZeroStart:52' u_cut = uk(cut_index);
+    // 'CutZeroStart:53' t_cut = t(cut_index);
+    // 'CutZeroStart:54' L = LengthCurv(ctx, CurvStruct, 0, 1);
+    L = LengthCurv(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, b_CurvStruct);
+    // 'CutZeroStart:56' actual_jps = 6/t_cut.^3;
+    // 'CutZeroStart:58' CurvStruct1 = CutCurvStruct(ctx, CurvStruct, 0, L - u_cut*L);
     *CurvStruct1 = *b_CurvStruct;
-    CutCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct1, L - uk[cut_index - 1] * L);
+    CutCurvStruct(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, CurvStruct1,
+                  L - uk[cut_index - 1] * L);
+    // 'CutZeroStart:59' CurvStruct1.UseConstJerk = true;
     CurvStruct1->UseConstJerk = true;
+    // 'CutZeroStart:60' CurvStruct1.ConstJerk = actual_jps;
     CurvStruct1->ConstJerk = 6.0 / std::pow(t[cut_index - 1], 3.0);
-    //      CurvStruct1.ConstJerkTime = t_cut;
+    // 'CutZeroStart:61' CurvStruct1.ConstJerkMaxIterations = int32(cut_index);
     CurvStruct1->ConstJerkMaxIterations = cut_index;
+    // 'CutZeroStart:62' CurvStruct2 = CutCurvStruct(ctx, CurvStruct, u_cut*L, 0);
     *CurvStruct2 = *b_CurvStruct;
-    b_CutCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct2, uk[cut_index - 1] * L);
+    b_CutCurvStruct(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, CurvStruct2,
+                    uk[cut_index - 1] * L);
+    // 'CutZeroStart:64' norm_vt_at_index = norm_vt(cut_index);
+    // 'CutZeroStart:66' CurvStruct1.zspdmode = ZSpdMode.ZN;
     CurvStruct1->zspdmode = ZSpdMode_ZN;
+    // 'CutZeroStart:67' CurvStruct2.zspdmode = ZSpdMode.NN;
     CurvStruct2->zspdmode = ZSpdMode_NN;
+    // 'CutZeroStart:69' CurvStruct1.gcode_source_line = CurvStruct.gcode_source_line;
     CurvStruct1->gcode_source_line = b_CurvStruct->gcode_source_line;
+    // 'CutZeroStart:70' CurvStruct2.gcode_source_line = CurvStruct.gcode_source_line;
     CurvStruct2->gcode_source_line = b_CurvStruct->gcode_source_line;
+    // 'CutZeroStart:72' if ctx.cfg.DebugCutZero
     if (ctx_cfg_DebugCutZero) {
+        // 'CutZeroStart:73' fprintf('======== CUT ZERO START =========\n');
         printf("======== CUT ZERO START =========\n");
         fflush(stdout);
+        // 'CutZeroStart:74' fprintf('Initial: \n');
         printf("Initial: \n");
         fflush(stdout);
-        b_PrintCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, b_CurvStruct);
+        // 'CutZeroStart:75' PrintCurvStruct(ctx, CurvStruct);
+        PrintCurvStruct(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
+                        b_CurvStruct);
+        // 'CutZeroStart:77' fprintf('\nCut:\n');
         printf("\nCut:\n");
         fflush(stdout);
+        // 'CutZeroStart:78' fprintf('Index = %d, t_cut = %e, vmax = %.1f\n', cut_index, t_cut,
+        // vmax);
         printf("Index = %d, t_cut = %e, vmax = %.1f\n", cut_index, t[cut_index - 1], b_vmax);
         fflush(stdout);
+        // 'CutZeroStart:79' fprintf('jps = %e, norm_vt(%d) = %f\n', jps, cut_index,
+        // norm_vt_at_index);
         printf("jps = %e, norm_vt(%d) = %f\n", jps, cut_index, norm_vt[cut_index - 1]);
         fflush(stdout);
-        b_PrintCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct1);
-        b_PrintCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct2);
+        // 'CutZeroStart:81' PrintCurvStruct(ctx, CurvStruct1);
+        PrintCurvStruct(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, CurvStruct1);
+        // 'CutZeroStart:82' PrintCurvStruct(ctx, CurvStruct2);
+        PrintCurvStruct(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, CurvStruct2);
     }
 }
 
+//
+// function [CurvStruct1, CurvStruct2] = CutZeroStart(ctx, CurvStruct, k0)
 //
 // Arguments    : const queue_coder *ctx_q_gcode
 //                const queue_coder *ctx_q_splines
@@ -575,7 +650,8 @@ void CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splin
 //                double ctx_cfg_ZeroStartJerkLimit
 //                double ctx_cfg_ZeroStartVelLimit
 //                bool ctx_cfg_DebugCutZero
-//                double ctx_cfg_NGridLengthSpline
+//                const double ctx_cfg_GaussLegendreX[5]
+//                const double ctx_cfg_GaussLegendreW[5]
 //                const CurvStruct *b_CurvStruct
 //                CurvStruct *CurvStruct1
 //                CurvStruct *CurvStruct2
@@ -585,9 +661,9 @@ void b_CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_spl
                     int ctx_cfg_NHorz, const double ctx_cfg_amax[3], const double ctx_cfg_jmax[3],
                     double ctx_cfg_dt, double ctx_cfg_ZeroStartAccLimit,
                     double ctx_cfg_ZeroStartJerkLimit, double ctx_cfg_ZeroStartVelLimit,
-                    bool ctx_cfg_DebugCutZero, double ctx_cfg_NGridLengthSpline,
-                    const CurvStruct *b_CurvStruct, CurvStruct *CurvStruct1,
-                    CurvStruct *CurvStruct2)
+                    bool ctx_cfg_DebugCutZero, const double ctx_cfg_GaussLegendreX[5],
+                    const double ctx_cfg_GaussLegendreW[5], const CurvStruct *b_CurvStruct,
+                    CurvStruct *CurvStruct1, CurvStruct *CurvStruct2)
 {
     ::coder::array<double, 2U> a;
     ::coder::array<double, 2U> a__2;
@@ -629,18 +705,19 @@ void b_CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_spl
     long N;
     long k;
     long y;
-    int value_size[2];
+    int cut_index_vel_size[2];
     int b_loop_ub;
     int b_m;
     int b_scalarLB;
-    int b_value_data;
     int b_vectorUB;
     int c_ex;
     int c_loop_ub;
     int c_scalarLB;
-    int c_value_data;
     int c_vectorUB;
     int cut_index;
+    int cut_index_acc_data;
+    int cut_index_jerk_data;
+    int cut_index_vel_data;
     int d_loop_ub;
     int e_loop_ub;
     int e_scalarLB;
@@ -669,15 +746,16 @@ void b_CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_spl
     int u0;
     int u1;
     int u_loop_ub;
-    int value_data;
     int vectorUB;
     bool exitg1;
-    b_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                     b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
-                     b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
-                     b_CurvStruct->a_param, b_CurvStruct->b_param, a__1, r1D);
+    // 'CutZeroStart:2' cfg=ctx.cfg;
+    // 'CutZeroStart:3' [~, r1D] = EvalCurvStruct(ctx, CurvStruct, 0);
+    b_EvalCurvStruct(ctx_q_splines, b_CurvStruct, a__1, r1D);
+    // 'CutZeroStart:4' jps = min(cfg.jmax) / max(abs(r1D));
     z1_idx_1 = std::abs(r1D[1]);
     z1_idx_2 = std::abs(r1D[2]);
+    // 'CutZeroStart:6' dt = cfg.dt;
+    // 'CutZeroStart:7' tmax = ceil((6/jps)^(1/3)/dt)*dt;
     ex = ctx_cfg_jmax[0];
     ex_tmp = std::abs(r1D[0]);
     b_ex = ex_tmp;
@@ -694,7 +772,9 @@ void b_CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_spl
         b_ex = z1_idx_2;
     }
     tmax = std::ceil(std::pow(6.0 / (ex / b_ex), 0.33333333333333331) / ctx_cfg_dt) * ctx_cfg_dt;
+    // 'CutZeroStart:8' jps = 6/tmax^3;
     jps = 6.0 / std::pow(tmax, 3.0);
+    // 'CutZeroStart:9' t = 0:dt:tmax;
     if ((ctx_cfg_dt == 0.0) || ((0.0 < tmax) && (ctx_cfg_dt < 0.0)) ||
         ((tmax < 0.0) && (ctx_cfg_dt > 0.0))) {
         t.set_size(1, 0);
@@ -708,6 +788,7 @@ void b_CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_spl
     } else {
         coder::eml_float_colon(ctx_cfg_dt, tmax, t);
     }
+    // 'CutZeroStart:11' uk = jps*t.^3/6;
     r.set_size(1, t.size(1));
     b_loop_ub = t.size(1);
     for (int i1{0}; i1 < b_loop_ub; i1++) {
@@ -727,6 +808,7 @@ void b_CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_spl
     for (i2 = scalarLB; i2 < c_loop_ub; i2++) {
         uk[i2] = jps * r[i2] / 6.0;
     }
+    // 'CutZeroStart:12' d1uk = jps*t.^2/2;
     r.set_size(1, t.size(1));
     d_loop_ub = t.size(1);
     for (int i3{0}; i3 < d_loop_ub; i3++) {
@@ -746,6 +828,7 @@ void b_CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_spl
     for (i4 = b_scalarLB; i4 < e_loop_ub; i4++) {
         d1uk[i4] = jps * r[i4] / 2.0;
     }
+    // 'CutZeroStart:13' d2uk = jps*t;
     d2uk.set_size(1, t.size(1));
     f_loop_ub = t.size(1);
     c_scalarLB = (t.size(1) / 2) << 1;
@@ -758,39 +841,49 @@ void b_CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_spl
     for (i5 = c_scalarLB; i5 < f_loop_ub; i5++) {
         d2uk[i5] = jps * t[i5];
     }
+    // 'CutZeroStart:14' d3uk = jps;
+    // 'CutZeroStart:16' [~, r1D, r2D, r3D] = EvalCurvStruct(ctx, CurvStruct, uk);
     b_uk.set_size(1, uk.size(1));
     g_loop_ub = uk.size(1) - 1;
     for (int i6{0}; i6 <= g_loop_ub; i6++) {
         b_uk[i6] = uk[i6];
     }
-    b_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
-                     b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
-                     b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
-                     b_CurvStruct->a_param, b_CurvStruct->b_param, b_uk, a__2, b_r1D, r2D, r3D);
+    b_EvalCurvStruct(ctx_q_splines, b_CurvStruct, b_uk, a__2, b_r1D, r2D, r3D);
+    // 'CutZeroStart:18' r3dt = bsxfun(@times, r3D, d1uk.^3) + 3*bsxfun(@times, r2D, d1uk.*d2uk) +
+    // bsxfun(@times, r1D, d3uk); 'CutZeroStart:19' r2dt = bsxfun(@times, r2D, d1uk.^2) +
+    // bsxfun(@times, r1D, d2uk); 'CutZeroStart:20' r1dt = bsxfun(@times, r1D, d1uk);
+    // 'CutZeroStart:22' vmax = CurvStruct.FeedRate;
     b_vmax = b_CurvStruct->FeedRate;
+    // 'CutZeroStart:23' N = min(int64(k0 + ctx.cfg.NHorz - 1), int64(ctx.q_gcode.size()));
     y = ctx_q_gcode->size();
     if (ctx_cfg_NHorz > y) {
         N = y;
     } else {
         N = ctx_cfg_NHorz;
     }
+    // 'CutZeroStart:25' for k = k0:N
     k = 1L;
     exitg1 = false;
     while ((!exitg1) && (k <= N)) {
         double b_y;
+        // 'CutZeroStart:26' TmpCurv = ctx.q_gcode.get(k);
         ctx_q_gcode->get(k, &expl_temp);
+        // 'CutZeroStart:28' vmax_tmp = GetCurvMaxFeedrate(ctx, TmpCurv);
         b_y = GetCurvMaxFeedrate(ctx_q_splines, ctx_cfg_amax, ctx_cfg_jmax, expl_temp.Type,
                                  expl_temp.P0, expl_temp.P1, expl_temp.CorrectedHelixCenter,
                                  expl_temp.evec, expl_temp.theta, expl_temp.pitch,
                                  expl_temp.CoeffP5, expl_temp.sp_index, expl_temp.FeedRate,
                                  expl_temp.a_param, expl_temp.b_param);
+        // 'CutZeroStart:29' vmax = min(vmax, vmax_tmp);
         b_vmax = std::fmin(b_vmax, b_y);
+        // 'CutZeroStart:30' if TmpCurv.zspdmode == ZSpdMode.NZ
         if (expl_temp.zspdmode == ZSpdMode_NZ) {
             exitg1 = true;
         } else {
             k++;
         }
     }
+    // 'CutZeroStart:35' jt = abs(bsxfun(@rdivide, r3dt.', cfg.jmax));
     c.set_size(3, b_r1D.size(1));
     if (b_r1D.size(1) != 0) {
         int acoef;
@@ -888,11 +981,12 @@ void b_CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_spl
         jt.set_size(at.size(0), 3);
         m_loop_ub = at.size(0);
         for (int i18{0}; i18 < 3; i18++) {
-            for (int i20{0}; i20 < m_loop_ub; i20++) {
-                jt[i20 + jt.size(0) * i18] = at[i20 + at.size(0) * i18];
+            for (int i19{0}; i19 < m_loop_ub; i19++) {
+                jt[i19 + jt.size(0) * i18] = at[i19 + at.size(0) * i18];
             }
         }
     }
+    // 'CutZeroStart:36' at = abs(bsxfun(@rdivide, r2dt.', cfg.amax));
     r.set_size(1, d1uk.size(1));
     l_loop_ub = d1uk.size(1);
     for (int i15{0}; i15 < l_loop_ub; i15++) {
@@ -906,9 +1000,9 @@ void b_CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_spl
         int n_loop_ub;
         a.set_size(r4.size(1), 3);
         n_loop_ub = r4.size(1);
-        for (int i19{0}; i19 < 3; i19++) {
+        for (int i20{0}; i20 < 3; i20++) {
             for (int i21{0}; i21 < n_loop_ub; i21++) {
-                a[i21 + a.size(0) * i19] = r4[i19 + 3 * i21] + r6[i19 + 3 * i21];
+                a[i21 + a.size(0) * i20] = r4[i20 + 3 * i21] + r6[i20 + 3 * i21];
             }
         }
     } else {
@@ -936,7 +1030,11 @@ void b_CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_spl
             }
         }
     }
+    // 'CutZeroStart:37' norm_vt = mysqrt(sum(r1dt.^2, 1))/vmax;
+    // 'mysqrt:3' y = sqrt(x);
+    // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
     sqrt_calls++;
+    // 'CutZeroStart:38' norm_vt = norm_vt.';
     coder::bsxfun(b_r1D, d1uk, r4);
     r4.set_size(3, r4.size(1));
     o_loop_ub = r4.size(1);
@@ -975,6 +1073,7 @@ void b_CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_spl
     for (i26 = f_scalarLB; i26 < p_loop_ub; i26++) {
         norm_vt[i26] = b_x[i26] / b_vmax;
     }
+    // 'CutZeroStart:40' max_jt = max(jt, [], 2);
     m = jt.size(0) - 1;
     max_jt.set_size(jt.size(0));
     if (jt.size(0) >= 1) {
@@ -982,20 +1081,21 @@ void b_CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_spl
             max_jt[b_i] = jt[b_i];
         }
         for (int j{0}; j < 2; j++) {
-            for (int d_i{0}; d_i <= m; d_i++) {
+            for (int c_i{0}; c_i <= m; c_i++) {
                 double d;
-                d = jt[d_i + jt.size(0) * (j + 1)];
-                if (max_jt[d_i] < d) {
-                    max_jt[d_i] = d;
+                d = jt[c_i + jt.size(0) * (j + 1)];
+                if (max_jt[c_i] < d) {
+                    max_jt[c_i] = d;
                 }
             }
         }
     }
+    // 'CutZeroStart:41' max_at = max(at, [], 2);
     b_m = at.size(0) - 1;
     max_at.set_size(at.size(0));
     if (at.size(0) >= 1) {
-        for (int c_i{0}; c_i <= b_m; c_i++) {
-            max_at[c_i] = at[c_i];
+        for (int d_i{0}; d_i <= b_m; d_i++) {
+            max_at[d_i] = at[d_i];
         }
         for (int b_j{0}; b_j < 2; b_j++) {
             for (int e_i{0}; e_i <= b_m; e_i++) {
@@ -1007,48 +1107,70 @@ void b_CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_spl
             }
         }
     }
-    b_max_at.set_size(1, max_at.size(0));
-    q_loop_ub = max_at.size(0);
-    for (int i27{0}; i27 < q_loop_ub; i27++) {
-        b_max_at[i27] = (max_at[i27] > ctx_cfg_ZeroStartAccLimit);
-    }
-    coder::eml_find(b_max_at, (int *)&value_data, value_size);
-    r_loop_ub = value_size[1];
-    for (int i28{0}; i28 < r_loop_ub; i28++) {
-        b_value_data = value_data;
-    }
-    if (value_size[1] == 0) {
-        b_value_data = max_jt.size(0);
-    }
+    // 'CutZeroStart:43' N = length(max_jt);
+    // 'CutZeroStart:45' cut_index_jerk = orelse(find(max_jt.' > cfg.ZeroStartJerkLimit, 1), N);
     b_max_jt.set_size(1, max_jt.size(0));
-    s_loop_ub = max_jt.size(0);
+    q_loop_ub = max_jt.size(0);
+    for (int i27{0}; i27 < q_loop_ub; i27++) {
+        b_max_jt[i27] = (max_jt[i27] > ctx_cfg_ZeroStartJerkLimit);
+    }
+    coder::b_eml_find(b_max_jt, (int *)&cut_index_vel_data, cut_index_vel_size);
+    r_loop_ub = cut_index_vel_size[1];
+    for (int i28{0}; i28 < r_loop_ub; i28++) {
+        cut_index_jerk_data = cut_index_vel_data;
+    }
+    // 'orelse:2' if isempty(value)
+    if (cut_index_vel_size[1] == 0) {
+        // 'orelse:3' v = elsevalue;
+        cut_index_jerk_data = max_jt.size(0);
+    } else {
+        // 'orelse:4' else
+        // 'orelse:5' v = value;
+    }
+    // 'CutZeroStart:46' cut_index_acc = orelse(find(max_at.' > cfg.ZeroStartAccLimit, 1), N);
+    b_max_at.set_size(1, max_at.size(0));
+    s_loop_ub = max_at.size(0);
     for (int i29{0}; i29 < s_loop_ub; i29++) {
-        b_max_jt[i29] = (max_jt[i29] > ctx_cfg_ZeroStartJerkLimit);
+        b_max_at[i29] = (max_at[i29] > ctx_cfg_ZeroStartAccLimit);
     }
-    coder::eml_find(b_max_jt, (int *)&value_data, value_size);
-    t_loop_ub = value_size[1];
+    coder::b_eml_find(b_max_at, (int *)&cut_index_vel_data, cut_index_vel_size);
+    t_loop_ub = cut_index_vel_size[1];
     for (int i30{0}; i30 < t_loop_ub; i30++) {
-        c_value_data = value_data;
+        cut_index_acc_data = cut_index_vel_data;
     }
-    if (value_size[1] == 0) {
-        c_value_data = max_jt.size(0);
+    // 'orelse:2' if isempty(value)
+    if (cut_index_vel_size[1] == 0) {
+        // 'orelse:3' v = elsevalue;
+        cut_index_acc_data = max_jt.size(0);
+    } else {
+        // 'orelse:4' else
+        // 'orelse:5' v = value;
     }
+    // 'CutZeroStart:47' cut_index_vel = orelse(find(norm_vt.' > cfg.ZeroStartVelLimit, 1), N);
     b_norm_vt.set_size(1, norm_vt.size(0));
     u_loop_ub = norm_vt.size(0);
     for (int i31{0}; i31 < u_loop_ub; i31++) {
         b_norm_vt[i31] = (norm_vt[i31] > ctx_cfg_ZeroStartVelLimit);
     }
-    coder::eml_find(b_norm_vt, (int *)&value_data, value_size);
-    if (value_size[1] == 0) {
-        value_data = max_jt.size(0);
+    coder::b_eml_find(b_norm_vt, (int *)&cut_index_vel_data, cut_index_vel_size);
+    // 'orelse:2' if isempty(value)
+    if (cut_index_vel_size[1] == 0) {
+        // 'orelse:3' v = elsevalue;
+        cut_index_vel_data = max_jt.size(0);
+    } else {
+        // 'orelse:4' else
+        // 'orelse:5' v = value;
     }
-    c_ex = b_value_data;
-    if (b_value_data > c_value_data) {
-        c_ex = c_value_data;
+    // 'CutZeroStart:49' cut_index = min([cut_index_acc, cut_index_jerk, cut_index_vel]);
+    // 'CutZeroStart:50' cut_index = max(2, int32(cut_index) - 1);
+    c_ex = cut_index_acc_data;
+    if (cut_index_acc_data > cut_index_jerk_data) {
+        c_ex = cut_index_jerk_data;
     }
-    if (c_ex > value_data) {
-        c_ex = value_data;
+    if (c_ex > cut_index_vel_data) {
+        c_ex = cut_index_vel_data;
     }
+    // 'CutZeroStart:51' cut_index = min(int32(N/2), cut_index);
     u0 = static_cast<int>(std::round(static_cast<double>(max_jt.size(0)) / 2.0));
     if (2 < c_ex - 1) {
         u1 = c_ex - 1;
@@ -1060,36 +1182,60 @@ void b_CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_spl
     } else {
         cut_index = u1;
     }
-    L = LengthCurv(ctx_q_splines, ctx_cfg_NGridLengthSpline, b_CurvStruct->Type, b_CurvStruct->P0,
-                   b_CurvStruct->P1, b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec,
-                   b_CurvStruct->theta, b_CurvStruct->pitch, b_CurvStruct->CoeffP5,
-                   b_CurvStruct->sp_index, b_CurvStruct->a_param, b_CurvStruct->b_param);
+    // 'CutZeroStart:52' u_cut = uk(cut_index);
+    // 'CutZeroStart:53' t_cut = t(cut_index);
+    // 'CutZeroStart:54' L = LengthCurv(ctx, CurvStruct, 0, 1);
+    L = LengthCurv(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, b_CurvStruct);
+    // 'CutZeroStart:56' actual_jps = 6/t_cut.^3;
+    // 'CutZeroStart:58' CurvStruct1 = CutCurvStruct(ctx, CurvStruct, 0, L - u_cut*L);
     *CurvStruct1 = *b_CurvStruct;
-    CutCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct1, L - uk[cut_index - 1] * L);
+    CutCurvStruct(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, CurvStruct1,
+                  L - uk[cut_index - 1] * L);
+    // 'CutZeroStart:59' CurvStruct1.UseConstJerk = true;
     CurvStruct1->UseConstJerk = true;
+    // 'CutZeroStart:60' CurvStruct1.ConstJerk = actual_jps;
     CurvStruct1->ConstJerk = 6.0 / std::pow(t[cut_index - 1], 3.0);
-    //      CurvStruct1.ConstJerkTime = t_cut;
+    // 'CutZeroStart:61' CurvStruct1.ConstJerkMaxIterations = int32(cut_index);
     CurvStruct1->ConstJerkMaxIterations = cut_index;
+    // 'CutZeroStart:62' CurvStruct2 = CutCurvStruct(ctx, CurvStruct, u_cut*L, 0);
     *CurvStruct2 = *b_CurvStruct;
-    b_CutCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct2, uk[cut_index - 1] * L);
+    b_CutCurvStruct(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, CurvStruct2,
+                    uk[cut_index - 1] * L);
+    // 'CutZeroStart:64' norm_vt_at_index = norm_vt(cut_index);
+    // 'CutZeroStart:66' CurvStruct1.zspdmode = ZSpdMode.ZN;
     CurvStruct1->zspdmode = ZSpdMode_ZN;
+    // 'CutZeroStart:67' CurvStruct2.zspdmode = ZSpdMode.NN;
     CurvStruct2->zspdmode = ZSpdMode_NN;
+    // 'CutZeroStart:69' CurvStruct1.gcode_source_line = CurvStruct.gcode_source_line;
     CurvStruct1->gcode_source_line = b_CurvStruct->gcode_source_line;
+    // 'CutZeroStart:70' CurvStruct2.gcode_source_line = CurvStruct.gcode_source_line;
     CurvStruct2->gcode_source_line = b_CurvStruct->gcode_source_line;
+    // 'CutZeroStart:72' if ctx.cfg.DebugCutZero
     if (ctx_cfg_DebugCutZero) {
+        // 'CutZeroStart:73' fprintf('======== CUT ZERO START =========\n');
         printf("======== CUT ZERO START =========\n");
         fflush(stdout);
+        // 'CutZeroStart:74' fprintf('Initial: \n');
         printf("Initial: \n");
         fflush(stdout);
-        b_PrintCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, b_CurvStruct);
+        // 'CutZeroStart:75' PrintCurvStruct(ctx, CurvStruct);
+        PrintCurvStruct(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
+                        b_CurvStruct);
+        // 'CutZeroStart:77' fprintf('\nCut:\n');
         printf("\nCut:\n");
         fflush(stdout);
+        // 'CutZeroStart:78' fprintf('Index = %d, t_cut = %e, vmax = %.1f\n', cut_index, t_cut,
+        // vmax);
         printf("Index = %d, t_cut = %e, vmax = %.1f\n", cut_index, t[cut_index - 1], b_vmax);
         fflush(stdout);
+        // 'CutZeroStart:79' fprintf('jps = %e, norm_vt(%d) = %f\n', jps, cut_index,
+        // norm_vt_at_index);
         printf("jps = %e, norm_vt(%d) = %f\n", jps, cut_index, norm_vt[cut_index - 1]);
         fflush(stdout);
-        b_PrintCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct1);
-        b_PrintCurvStruct(ctx_q_splines, ctx_cfg_NGridLengthSpline, CurvStruct2);
+        // 'CutZeroStart:81' PrintCurvStruct(ctx, CurvStruct1);
+        PrintCurvStruct(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, CurvStruct1);
+        // 'CutZeroStart:82' PrintCurvStruct(ctx, CurvStruct2);
+        PrintCurvStruct(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, CurvStruct2);
     }
 }
 

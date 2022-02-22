@@ -2,6 +2,7 @@ function CurvStruct = ConstrLineStruct(trafo, Poff, Aoff, ...
                                        Uoff, Doff, P0, P1, A0, A1, U0, U1,...
                                        FeedRate, ZSpdMode)
 %#codegen
+coder.inline("never");
 CoeffP5     = zeros(3, 6);
 evec        = zeros(3, 1);
 Cprim       = zeros(3, 1);

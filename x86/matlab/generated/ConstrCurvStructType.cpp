@@ -5,18 +5,20 @@
 // File: ConstrCurvStructType.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 18-Feb-2022 13:18:06
+// C/C++ source code generated on  : 22-Feb-2022 08:27:14
 //
 
 // Include Files
 #include "ConstrCurvStructType.h"
 #include "ConstrLineStruct.h"
-#include "sinspace_data.h"
-#include "sinspace_initialize.h"
-#include "sinspace_types1.h"
-#include "sinspace_types2.h"
+#include "EvalCurvStruct_data.h"
+#include "EvalCurvStruct_initialize.h"
+#include "EvalCurvStruct_types1.h"
+#include "EvalCurvStruct_types2.h"
 
 // Function Definitions
+//
+// function C = ConstrCurvStructType
 //
 // Arguments    : CurvStruct *C
 // Return Type  : void
@@ -33,9 +35,23 @@ void ConstrCurvStructType(CurvStruct *C)
     double dv6[3];
     double dv7[3];
     double dv8[3];
-    if (!isInitialized_sinspace) {
-        sinspace_initialize();
+    if (!isInitialized_EvalCurvStruct) {
+        EvalCurvStruct_initialize();
     }
+    // 'ConstrCurvStructType:2' trafo       = false;
+    // 'ConstrCurvStructType:3' Poff        = zeros(3,1);
+    // 'ConstrCurvStructType:4' Aoff        = zeros(3,1);
+    // 'ConstrCurvStructType:5' Uoff        = zeros(3,1);
+    // 'ConstrCurvStructType:6' Doff        = 0.0;
+    // 'ConstrCurvStructType:7' P0          = zeros(3,1);
+    // 'ConstrCurvStructType:8' P1          = zeros(3,1);
+    // 'ConstrCurvStructType:9' A0          = zeros(3,1);
+    // 'ConstrCurvStructType:10' A1          = zeros(3,1);
+    // 'ConstrCurvStructType:11' U0          = zeros(3,1);
+    // 'ConstrCurvStructType:12' U1          = zeros(3,1);
+    // 'ConstrCurvStructType:13' FeedRate    = 0.2;
+    // 'ConstrCurvStructType:15' C = ConstrLineStruct(trafo, Poff, Aoff, Uoff, Doff, P0, P1, A0, A1,
+    // ... 'ConstrCurvStructType:16'                             U0, U1, FeedRate,  ZSpdMode.NN);
     dv[0] = 0.0;
     dv1[0] = 0.0;
     dv2[0] = 0.0;

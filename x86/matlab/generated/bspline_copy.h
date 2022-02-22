@@ -5,15 +5,15 @@
 // File: bspline_copy.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 18-Feb-2022 13:18:06
+// C/C++ source code generated on  : 22-Feb-2022 08:27:14
 //
 
 #ifndef BSPLINE_COPY_H
 #define BSPLINE_COPY_H
 
 // Include Files
+#include "EvalCurvStruct_types3.h"
 #include "rtwtypes.h"
-#include "sinspace_types3.h"
 #include <cstddef>
 #include <cstdlib>
 

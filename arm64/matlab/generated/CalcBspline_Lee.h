@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: CalcBspline_Lee.h
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 14-Feb-2022 16:27:55
 //
 
 #ifndef CALCBSPLINE_LEE_H
@@ -21,11 +21,6 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-void CalcBspline_Lee(int cfg_SplineDegree, const double points[2][3], double sp3D_CoeffX[4],
-                     double sp3D_CoeffY[4], double sp3D_CoeffZ[4], int *sp3D_Bl_ncoeff,
-                     ::coder::array<double, 2U> &sp3D_Bl_breakpoints, unsigned long *sp3D_Bl_handle,
-                     int *sp3D_Bl_degree, double sp3D_knots[8]);
-
 void CalcBspline_Lee(int cfg_SplineDegree, const ::coder::array<double, 2U> &points,
                      ::coder::array<double, 2U> &sp3D_CoeffX,
                      ::coder::array<double, 2U> &sp3D_CoeffY,
@@ -33,7 +28,7 @@ void CalcBspline_Lee(int cfg_SplineDegree, const ::coder::array<double, 2U> &poi
                      ::coder::array<double, 2U> &sp3D_Bl_breakpoints, unsigned long *sp3D_Bl_handle,
                      int *sp3D_Bl_degree, ::coder::array<double, 2U> &sp3D_knots);
 
-} // namespace ocn
+}
 
 #endif
 //

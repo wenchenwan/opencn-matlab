@@ -5,20 +5,18 @@
 // File: BuildConstrJerk_v4.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 18-Feb-2022 13:18:06
+// C/C++ source code generated on  : 22-Feb-2022 08:27:14
 //
 
 // Include Files
 #include "BuildConstrJerk_v4.h"
 #include "EvalCurvStruct.h"
+#include "EvalCurvStruct_data.h"
+#include "EvalCurvStruct_types1.h"
 #include "bsxfun.h"
 #include "queue_coder.h"
-#include "sinspace_data.h"
-#include "sinspace_types1.h"
-#include "sinspace_types2.h"
 #include "sparse1.h"
 #include "coder_array.h"
-#include <algorithm>
 #include <cmath>
 #include <emmintrin.h>
 
@@ -120,6 +118,9 @@ static void binary_expand_op(::coder::array<double, 2U> &R3, const ::coder::arra
 }
 
 //
+// function [A, b] = BuildConstrJerk_v4(ctx, CurvStructs, Coeff, jmax,  ...
+//                                      BasisVal, BasisValD, BasisValDD, u_vec)
+//
 // Arguments    : const queue_coder *ctx_q_splines
 //                const ::coder::array<CurvStruct, 2U> &CurvStructs
 //                const ::coder::array<double, 2U> &Coeff
@@ -165,16 +166,6 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
     ::coder::array<double, 1U> b_r3D;
     ::coder::array<double, 1U> r17;
     ::coder::array<double, 1U> y_tmp;
-    double dv4[6][3];
-    double dv9[6][3];
-    double dv[3];
-    double dv1[3];
-    double dv2[3];
-    double dv3[3];
-    double dv5[3];
-    double dv6[3];
-    double dv7[3];
-    double dv8[3];
     double b_b;
     double d;
     double varargin_2;
@@ -205,8 +196,8 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
     int f_input_sizes_idx_0;
     int fb_loop_ub;
     int g_input_sizes_idx_0;
-    int g_loop_ub;
     int gb_loop_ub;
+    int h_loop_ub;
     int i14;
     int i15;
     int i21;
@@ -220,8 +211,8 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
     int inner;
     int input_sizes_idx_0;
     int j_loop_ub;
-    int l_loop_ub;
     int loop_ub;
+    int m_loop_ub;
     int mc;
     int n_loop_ub;
     int o_loop_ub;
@@ -231,11 +222,15 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
     int unnamed_idx_0;
     int v_loop_ub;
     bool empty_non_axis_sizes;
+    // 'BuildConstrJerk_v4:3' c_prof_block('BuildConstrJerk_v4');
     //  import splines.*
     //
+    // 'BuildConstrJerk_v4:6' Ncrv   = length(CurvStructs);
+    // 'BuildConstrJerk_v4:7' [M, N] = size(BasisVal);
     N = BasisVal.size(1);
     M = BasisVal.size(0);
     //
+    // 'BuildConstrJerk_v4:9' A      = sparse(6*M*Ncrv,   N*Ncrv);
     varargin_2 = static_cast<double>(BasisVal.size(1)) * static_cast<double>(CurvStructs.size(1));
     A->m = static_cast<int>(6.0 * static_cast<double>(BasisVal.size(0)) *
                             static_cast<double>(CurvStructs.size(1)));
@@ -253,6 +248,7 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
     A->rowidx[0] = 1;
     A->maxnz = 1;
     //  preallocation
+    // 'BuildConstrJerk_v4:10' b      = zeros(6*M*Ncrv,   1);
     unnamed_idx_0 = static_cast<int>(6.0 * static_cast<double>(BasisVal.size(0)) *
                                      static_cast<double>(CurvStructs.size(1)));
     b.set_size(unnamed_idx_0);
@@ -266,28 +262,19 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
     //
     //  q_opt  = Function(Bl, Coeff(:, 1));
     //  q_val  = q_opt.fast_eval(u_vec);
+    // 'BuildConstrJerk_v4:18' q_val = BasisVal*Coeff(:,1);
+    // 'BuildConstrJerk_v4:20' [~, r1D, r2D, r3D] = EvalCurvStruct(ctx, CurvStructs(1), u_vec);
     b_u_vec.set_size(1, u_vec.size(1));
     b_loop_ub = u_vec.size(1) - 1;
     for (int i2{0}; i2 <= b_loop_ub; i2++) {
         b_u_vec[i2] = u_vec[i2];
     }
-    dv[0] = CurvStructs[0].P0[0];
-    dv[1] = CurvStructs[0].P0[1];
-    dv[2] = CurvStructs[0].P0[2];
-    dv1[0] = CurvStructs[0].P1[0];
-    dv1[1] = CurvStructs[0].P1[1];
-    dv1[2] = CurvStructs[0].P1[2];
-    dv2[0] = CurvStructs[0].CorrectedHelixCenter[0];
-    dv2[1] = CurvStructs[0].CorrectedHelixCenter[1];
-    dv2[2] = CurvStructs[0].CorrectedHelixCenter[2];
-    dv3[0] = CurvStructs[0].evec[0];
-    dv3[1] = CurvStructs[0].evec[1];
-    dv3[2] = CurvStructs[0].evec[2];
-    std::copy(&CurvStructs[0].CoeffP5[0][0], &CurvStructs[0].CoeffP5[0][0] + 18U, &dv4[0][0]);
-    b_EvalCurvStruct(ctx_q_splines, CurvStructs[0].Type, dv, dv1, dv2, dv3, CurvStructs[0].theta,
-                     CurvStructs[0].pitch, dv4, CurvStructs[0].sp_index, CurvStructs[0].a_param,
-                     CurvStructs[0].b_param, b_u_vec, a__1, r1D, r2D, r3D);
+    b_EvalCurvStruct(ctx_q_splines, &CurvStructs[0], b_u_vec, a__1, r1D, r2D, r3D);
     //
+    // 'BuildConstrJerk_v4:22' R1 = bsxfun(@times, (bsxfun(@times, BasisVal , r3D(1, :)') + ...
+    // 'BuildConstrJerk_v4:23'       1.5*bsxfun(@times, BasisValD , r2D(1, :)') + ...
+    // 'BuildConstrJerk_v4:24'       0.5*bsxfun(@times, BasisValDD,r1D(1, :)')) , mysqrt(q_val));
+    // 'mysqrt:3' y = sqrt(x);
     mc = BasisVal.size(0) - 1;
     inner = BasisVal.size(1);
     y_tmp.set_size(BasisVal.size(0));
@@ -324,6 +311,7 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
     for (b_k = b_scalarLB; b_k < i3; b_k++) {
         y_tmp[b_k] = std::sqrt(y_tmp[b_k]);
     }
+    // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
     sqrt_calls++;
     c_loop_ub = r3D.size(1);
     b_r3D.set_size(r3D.size(1));
@@ -360,37 +348,42 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
         for (int i9{0}; i9 < f_loop_ub; i9++) {
             int c_scalarLB;
             int c_vectorUB;
-            int h_loop_ub;
-            int i11;
-            h_loop_ub = r2.size(0);
+            int g_loop_ub;
+            int i10;
+            g_loop_ub = r2.size(0);
             c_scalarLB = (r2.size(0) / 2) << 1;
             c_vectorUB = c_scalarLB - 2;
-            for (i11 = 0; i11 <= c_vectorUB; i11 += 2) {
+            for (i10 = 0; i10 <= c_vectorUB; i10 += 2) {
                 __m128d r5;
                 __m128d r6;
                 __m128d r7;
-                r5 = _mm_loadu_pd(&r3[i11 + r3.size(0) * i9]);
-                r6 = _mm_loadu_pd(&r2[i11 + r2.size(0) * i9]);
-                r7 = _mm_loadu_pd(&r4[i11 + r4.size(0) * i9]);
-                _mm_storeu_pd(&r2[i11 + r2.size(0) * i9],
+                r5 = _mm_loadu_pd(&r3[i10 + r3.size(0) * i9]);
+                r6 = _mm_loadu_pd(&r2[i10 + r2.size(0) * i9]);
+                r7 = _mm_loadu_pd(&r4[i10 + r4.size(0) * i9]);
+                _mm_storeu_pd(&r2[i10 + r2.size(0) * i9],
                               _mm_add_pd(_mm_add_pd(r6, _mm_mul_pd(_mm_set1_pd(1.5), r5)),
                                          _mm_mul_pd(_mm_set1_pd(0.5), r7)));
             }
-            for (i11 = c_scalarLB; i11 < h_loop_ub; i11++) {
-                r2[i11 + r2.size(0) * i9] =
-                    (r2[i11 + r2.size(0) * i9] + 1.5 * r3[i11 + r3.size(0) * i9]) +
-                    0.5 * r4[i11 + r4.size(0) * i9];
+            for (i10 = c_scalarLB; i10 < g_loop_ub; i10++) {
+                r2[i10 + r2.size(0) * i9] =
+                    (r2[i10 + r2.size(0) * i9] + 1.5 * r3[i10 + r3.size(0) * i9]) +
+                    0.5 * r4[i10 + r4.size(0) * i9];
             }
         }
         coder::bsxfun(r2, y_tmp, R1);
     } else {
         binary_expand_op(R1, r2, r3, r4, y_tmp);
     }
+    // 'BuildConstrJerk_v4:26' R2 = bsxfun(@times, (bsxfun(@times, BasisVal , r3D(2, :)') + ...
+    // 'BuildConstrJerk_v4:27'   1.5*bsxfun(@times, BasisValD , r2D(2, :)') + ...
+    // 'BuildConstrJerk_v4:28'   0.5*bsxfun(@times, BasisValDD,r1D(2, :)')) , mysqrt(q_val));
+    // 'mysqrt:3' y = sqrt(x);
+    // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
     sqrt_calls++;
-    g_loop_ub = r3D.size(1);
+    h_loop_ub = r3D.size(1);
     b_r3D.set_size(r3D.size(1));
-    for (int i10{0}; i10 < g_loop_ub; i10++) {
-        b_r3D[i10] = r3D[3 * i10 + 1];
+    for (int i11{0}; i11 < h_loop_ub; i11++) {
+        b_r3D[i11] = r3D[3 * i11 + 1];
     }
     coder::bsxfun(BasisVal, b_r3D, r2);
     i_loop_ub = r2D.size(1);
@@ -422,37 +415,42 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
         for (int i16{0}; i16 < k_loop_ub; i16++) {
             int d_scalarLB;
             int d_vectorUB;
-            int i18;
-            int m_loop_ub;
-            m_loop_ub = r2.size(0);
+            int i17;
+            int l_loop_ub;
+            l_loop_ub = r2.size(0);
             d_scalarLB = (r2.size(0) / 2) << 1;
             d_vectorUB = d_scalarLB - 2;
-            for (i18 = 0; i18 <= d_vectorUB; i18 += 2) {
+            for (i17 = 0; i17 <= d_vectorUB; i17 += 2) {
                 __m128d r10;
                 __m128d r8;
                 __m128d r9;
-                r8 = _mm_loadu_pd(&r3[i18 + r3.size(0) * i16]);
-                r9 = _mm_loadu_pd(&r2[i18 + r2.size(0) * i16]);
-                r10 = _mm_loadu_pd(&r4[i18 + r4.size(0) * i16]);
-                _mm_storeu_pd(&r2[i18 + r2.size(0) * i16],
+                r8 = _mm_loadu_pd(&r3[i17 + r3.size(0) * i16]);
+                r9 = _mm_loadu_pd(&r2[i17 + r2.size(0) * i16]);
+                r10 = _mm_loadu_pd(&r4[i17 + r4.size(0) * i16]);
+                _mm_storeu_pd(&r2[i17 + r2.size(0) * i16],
                               _mm_add_pd(_mm_add_pd(r9, _mm_mul_pd(_mm_set1_pd(1.5), r8)),
                                          _mm_mul_pd(_mm_set1_pd(0.5), r10)));
             }
-            for (i18 = d_scalarLB; i18 < m_loop_ub; i18++) {
-                r2[i18 + r2.size(0) * i16] =
-                    (r2[i18 + r2.size(0) * i16] + 1.5 * r3[i18 + r3.size(0) * i16]) +
-                    0.5 * r4[i18 + r4.size(0) * i16];
+            for (i17 = d_scalarLB; i17 < l_loop_ub; i17++) {
+                r2[i17 + r2.size(0) * i16] =
+                    (r2[i17 + r2.size(0) * i16] + 1.5 * r3[i17 + r3.size(0) * i16]) +
+                    0.5 * r4[i17 + r4.size(0) * i16];
             }
         }
         coder::bsxfun(r2, y_tmp, R2);
     } else {
         binary_expand_op(R2, r2, r3, r4, y_tmp);
     }
+    // 'BuildConstrJerk_v4:30' R3 = bsxfun(@times, (bsxfun(@times, BasisVal , r3D(3, :)') + ...
+    // 'BuildConstrJerk_v4:31'   1.5*bsxfun(@times, BasisValD , r2D(3, :)') + ...
+    // 'BuildConstrJerk_v4:32'   0.5*bsxfun(@times, BasisValDD,r1D(3, :)')) , mysqrt(q_val));
+    // 'mysqrt:3' y = sqrt(x);
+    // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
     sqrt_calls++;
-    l_loop_ub = r3D.size(1);
+    m_loop_ub = r3D.size(1);
     b_r3D.set_size(r3D.size(1));
-    for (int i17{0}; i17 < l_loop_ub; i17++) {
-        b_r3D[i17] = r3D[3 * i17 + 2];
+    for (int i18{0}; i18 < m_loop_ub; i18++) {
+        b_r3D[i18] = r3D[3 * i18 + 2];
     }
     coder::bsxfun(BasisVal, b_r3D, r2);
     n_loop_ub = r2D.size(1);
@@ -517,6 +515,12 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
     //        1.5*BasisValD .* r2D(3, :)' + ...
     //        0.5*BasisValDD.*r1D(3, :)') .* mysqrt(q_val);
     //
+    // 'BuildConstrJerk_v4:40' A(1:6*M, 1:N)  = [R1;
+    // 'BuildConstrJerk_v4:41'                  -R1;
+    // 'BuildConstrJerk_v4:42'                   R2;
+    // 'BuildConstrJerk_v4:43'                  -R2;
+    // 'BuildConstrJerk_v4:44'                   R3;
+    // 'BuildConstrJerk_v4:45'                  -R3];
     b_varargin_2.set_size(R1.size(0), R1.size(1));
     r_loop_ub = R1.size(1);
     for (int i25{0}; i25 < r_loop_ub; i25++) {
@@ -706,7 +710,16 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
     }
     A->parenAssign(b_R1, y, b_y);
     //
+    // 'BuildConstrJerk_v4:47' bC2 = jmax(1)*ones(M, 1);
+    // 'BuildConstrJerk_v4:48' bC3 = jmax(2)*ones(M, 1);
+    // 'BuildConstrJerk_v4:49' bC4 = jmax(3)*ones(M, 1);
     //
+    // 'BuildConstrJerk_v4:51' b(1:6*M)       = [bC2;
+    // 'BuildConstrJerk_v4:52'                   bC2;
+    // 'BuildConstrJerk_v4:53'                   bC3;
+    // 'BuildConstrJerk_v4:54'                   bC3;
+    // 'BuildConstrJerk_v4:55'                   bC4;
+    // 'BuildConstrJerk_v4:56'                   bC4];
     d = 6.0 * static_cast<double>(BasisVal.size(0));
     BasisVal_idx_0 = BasisVal.size(0);
     b_BasisVal_idx_0 = BasisVal.size(0);
@@ -750,6 +763,7 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
         b[i52] = r17[i52];
     }
     //
+    // 'BuildConstrJerk_v4:58' for k = 1:Ncrv-1
     i53 = CurvStructs.size(1);
     if (0 <= CurvStructs.size(1) - 2) {
         b_mc = BasisVal.size(0) - 1;
@@ -786,41 +800,31 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
         int kb_loop_ub;
         int l_input_sizes_idx_0;
         int m_input_sizes_idx_0;
-        int mb_loop_ub;
+        int nb_loop_ub;
         int ob_loop_ub;
         int pb_loop_ub;
-        int rb_loop_ub;
+        int sb_loop_ub;
         int tb_loop_ub;
         int ub_loop_ub;
         int xb_loop_ub;
         bool b_empty_non_axis_sizes;
+        // 'BuildConstrJerk_v4:59' [~, r1D, r2D, r3D] = EvalCurvStruct(ctx, CurvStructs(k+1),
+        // u_vec);
         c_u_vec.set_size(1, u_vec.size(1));
         hb_loop_ub = u_vec.size(1) - 1;
         for (int i54{0}; i54 <= hb_loop_ub; i54++) {
             c_u_vec[i54] = u_vec[i54];
         }
-        dv5[0] = CurvStructs[c_k + 1].P0[0];
-        dv5[1] = CurvStructs[c_k + 1].P0[1];
-        dv5[2] = CurvStructs[c_k + 1].P0[2];
-        dv6[0] = CurvStructs[c_k + 1].P1[0];
-        dv6[1] = CurvStructs[c_k + 1].P1[1];
-        dv6[2] = CurvStructs[c_k + 1].P1[2];
-        dv7[0] = CurvStructs[c_k + 1].CorrectedHelixCenter[0];
-        dv7[1] = CurvStructs[c_k + 1].CorrectedHelixCenter[1];
-        dv7[2] = CurvStructs[c_k + 1].CorrectedHelixCenter[2];
-        dv8[0] = CurvStructs[c_k + 1].evec[0];
-        dv8[1] = CurvStructs[c_k + 1].evec[1];
-        dv8[2] = CurvStructs[c_k + 1].evec[2];
-        std::copy(&CurvStructs[c_k + 1].CoeffP5[0][0], &CurvStructs[c_k + 1].CoeffP5[0][0] + 18U,
-                  &dv9[0][0]);
-        b_EvalCurvStruct(ctx_q_splines, CurvStructs[c_k + 1].Type, dv5, dv6, dv7, dv8,
-                         CurvStructs[c_k + 1].theta, CurvStructs[c_k + 1].pitch, dv9,
-                         CurvStructs[c_k + 1].sp_index, CurvStructs[c_k + 1].a_param,
-                         CurvStructs[c_k + 1].b_param, c_u_vec, a__2, r1D, r2D, r3D);
+        b_EvalCurvStruct(ctx_q_splines, &CurvStructs[c_k + 1], c_u_vec, a__2, r1D, r2D, r3D);
         //
         //      q_opt  = Function(Bl, Coeff(:, k+1));
         //      q_val  = q_opt.fast_eval(u_vec);
+        // 'BuildConstrJerk_v4:63' q_val = BasisVal*Coeff(:, k+1);
         //
+        // 'BuildConstrJerk_v4:65' R1 = bsxfun(@times, (bsxfun(@times, BasisVal , r3D(1, :)') + ...
+        // 'BuildConstrJerk_v4:66'           1.5*bsxfun(@times, BasisValD , r2D(1, :)') + ...
+        // 'BuildConstrJerk_v4:67'           0.5*bsxfun(@times, BasisValDD,r1D(1, :)')) ,
+        // mysqrt(q_val)); 'mysqrt:3' y = sqrt(x);
         y_tmp.set_size(BasisVal.size(0));
         for (int d_i{0}; d_i <= b_mc; d_i++) {
             y_tmp[d_i] = 0.0;
@@ -857,6 +861,7 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
         for (e_k = j_scalarLB; e_k < i55; e_k++) {
             y_tmp[e_k] = std::sqrt(y_tmp[e_k]);
         }
+        // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
         sqrt_calls++;
         ib_loop_ub = r3D.size(1);
         b_r3D.set_size(r3D.size(1));
@@ -891,39 +896,43 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
             int lb_loop_ub;
             lb_loop_ub = r2.size(1);
             for (int i61{0}; i61 < lb_loop_ub; i61++) {
-                int i63;
+                int i62;
                 int k_scalarLB;
                 int k_vectorUB;
-                int nb_loop_ub;
-                nb_loop_ub = r2.size(0);
+                int mb_loop_ub;
+                mb_loop_ub = r2.size(0);
                 k_scalarLB = (r2.size(0) / 2) << 1;
                 k_vectorUB = k_scalarLB - 2;
-                for (i63 = 0; i63 <= k_vectorUB; i63 += 2) {
+                for (i62 = 0; i62 <= k_vectorUB; i62 += 2) {
                     __m128d r20;
                     __m128d r21;
                     __m128d r22;
-                    r20 = _mm_loadu_pd(&r3[i63 + r3.size(0) * i61]);
-                    r21 = _mm_loadu_pd(&r2[i63 + r2.size(0) * i61]);
-                    r22 = _mm_loadu_pd(&r4[i63 + r4.size(0) * i61]);
-                    _mm_storeu_pd(&r2[i63 + r2.size(0) * i61],
+                    r20 = _mm_loadu_pd(&r3[i62 + r3.size(0) * i61]);
+                    r21 = _mm_loadu_pd(&r2[i62 + r2.size(0) * i61]);
+                    r22 = _mm_loadu_pd(&r4[i62 + r4.size(0) * i61]);
+                    _mm_storeu_pd(&r2[i62 + r2.size(0) * i61],
                                   _mm_add_pd(_mm_add_pd(r21, _mm_mul_pd(_mm_set1_pd(1.5), r20)),
                                              _mm_mul_pd(_mm_set1_pd(0.5), r22)));
                 }
-                for (i63 = k_scalarLB; i63 < nb_loop_ub; i63++) {
-                    r2[i63 + r2.size(0) * i61] =
-                        (r2[i63 + r2.size(0) * i61] + 1.5 * r3[i63 + r3.size(0) * i61]) +
-                        0.5 * r4[i63 + r4.size(0) * i61];
+                for (i62 = k_scalarLB; i62 < mb_loop_ub; i62++) {
+                    r2[i62 + r2.size(0) * i61] =
+                        (r2[i62 + r2.size(0) * i61] + 1.5 * r3[i62 + r3.size(0) * i61]) +
+                        0.5 * r4[i62 + r4.size(0) * i61];
                 }
             }
             coder::bsxfun(r2, y_tmp, R1);
         } else {
             binary_expand_op(R1, r2, r3, r4, y_tmp);
         }
+        // 'BuildConstrJerk_v4:69' R2 = bsxfun(@times, (bsxfun(@times, BasisVal , r3D(2, :)') + ...
+        // 'BuildConstrJerk_v4:70'       1.5*bsxfun(@times, BasisValD , r2D(2, :)') + ...
+        // 'BuildConstrJerk_v4:71'       0.5*bsxfun(@times, BasisValDD,r1D(2, :)')) ,
+        // mysqrt(q_val)); 'mysqrt:3' y = sqrt(x); 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
         sqrt_calls++;
-        mb_loop_ub = r3D.size(1);
+        nb_loop_ub = r3D.size(1);
         b_r3D.set_size(r3D.size(1));
-        for (int i62{0}; i62 < mb_loop_ub; i62++) {
-            b_r3D[i62] = r3D[3 * i62 + 1];
+        for (int i63{0}; i63 < nb_loop_ub; i63++) {
+            b_r3D[i63] = r3D[3 * i63 + 1];
         }
         coder::bsxfun(BasisVal, b_r3D, r2);
         ob_loop_ub = r2D.size(1);
@@ -953,39 +962,43 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
             int qb_loop_ub;
             qb_loop_ub = r2.size(1);
             for (int i68{0}; i68 < qb_loop_ub; i68++) {
-                int i70;
+                int i69;
                 int l_scalarLB;
                 int l_vectorUB;
-                int sb_loop_ub;
-                sb_loop_ub = r2.size(0);
+                int rb_loop_ub;
+                rb_loop_ub = r2.size(0);
                 l_scalarLB = (r2.size(0) / 2) << 1;
                 l_vectorUB = l_scalarLB - 2;
-                for (i70 = 0; i70 <= l_vectorUB; i70 += 2) {
+                for (i69 = 0; i69 <= l_vectorUB; i69 += 2) {
                     __m128d r23;
                     __m128d r24;
                     __m128d r25;
-                    r23 = _mm_loadu_pd(&r3[i70 + r3.size(0) * i68]);
-                    r24 = _mm_loadu_pd(&r2[i70 + r2.size(0) * i68]);
-                    r25 = _mm_loadu_pd(&r4[i70 + r4.size(0) * i68]);
-                    _mm_storeu_pd(&r2[i70 + r2.size(0) * i68],
+                    r23 = _mm_loadu_pd(&r3[i69 + r3.size(0) * i68]);
+                    r24 = _mm_loadu_pd(&r2[i69 + r2.size(0) * i68]);
+                    r25 = _mm_loadu_pd(&r4[i69 + r4.size(0) * i68]);
+                    _mm_storeu_pd(&r2[i69 + r2.size(0) * i68],
                                   _mm_add_pd(_mm_add_pd(r24, _mm_mul_pd(_mm_set1_pd(1.5), r23)),
                                              _mm_mul_pd(_mm_set1_pd(0.5), r25)));
                 }
-                for (i70 = l_scalarLB; i70 < sb_loop_ub; i70++) {
-                    r2[i70 + r2.size(0) * i68] =
-                        (r2[i70 + r2.size(0) * i68] + 1.5 * r3[i70 + r3.size(0) * i68]) +
-                        0.5 * r4[i70 + r4.size(0) * i68];
+                for (i69 = l_scalarLB; i69 < rb_loop_ub; i69++) {
+                    r2[i69 + r2.size(0) * i68] =
+                        (r2[i69 + r2.size(0) * i68] + 1.5 * r3[i69 + r3.size(0) * i68]) +
+                        0.5 * r4[i69 + r4.size(0) * i68];
                 }
             }
             coder::bsxfun(r2, y_tmp, R2);
         } else {
             binary_expand_op(R2, r2, r3, r4, y_tmp);
         }
+        // 'BuildConstrJerk_v4:73' R3 = bsxfun(@times, (bsxfun(@times, BasisVal , r3D(3, :)') + ...
+        // 'BuildConstrJerk_v4:74'       1.5*bsxfun(@times, BasisValD , r2D(3, :)') + ...
+        // 'BuildConstrJerk_v4:75'       0.5*bsxfun(@times, BasisValDD,r1D(3, :)')) ,
+        // mysqrt(q_val)); 'mysqrt:3' y = sqrt(x); 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
         sqrt_calls++;
-        rb_loop_ub = r3D.size(1);
+        sb_loop_ub = r3D.size(1);
         b_r3D.set_size(r3D.size(1));
-        for (int i69{0}; i69 < rb_loop_ub; i69++) {
-            b_r3D[i69] = r3D[3 * i69 + 2];
+        for (int i70{0}; i70 < sb_loop_ub; i70++) {
+            b_r3D[i70] = r3D[3 * i70 + 2];
         }
         coder::bsxfun(BasisVal, b_r3D, r2);
         tb_loop_ub = r2D.size(1);
@@ -1050,6 +1063,13 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
         //            1.5*BasisValD .* r2D(3, :)' + ...
         //            0.5*BasisValDD.*r1D(3, :)') .* mysqrt(q_val);
         //
+        // 'BuildConstrJerk_v4:83' A(k*6*M+1:(k+1)*6*M, k*N+1:(k+1)*N) = ...
+        // 'BuildConstrJerk_v4:84'       [R1;
+        // 'BuildConstrJerk_v4:85'       -R1;
+        // 'BuildConstrJerk_v4:86'        R2;
+        // 'BuildConstrJerk_v4:87'       -R2;
+        // 'BuildConstrJerk_v4:88'        R3;
+        // 'BuildConstrJerk_v4:89'       -R3];
         b_varargin_2.set_size(R1.size(0), R1.size(1));
         xb_loop_ub = R1.size(1);
         for (int i77{0}; i77 < xb_loop_ub; i77++) {
@@ -1241,6 +1261,12 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
         }
         A->parenAssign(b_R1, y, b_y);
         //
+        // 'BuildConstrJerk_v4:91' b(k*6*M+1:(k+1)*6*M) = [bC2;
+        // 'BuildConstrJerk_v4:92'                             bC2;
+        // 'BuildConstrJerk_v4:93'                             bC3;
+        // 'BuildConstrJerk_v4:94'                             bC3;
+        // 'BuildConstrJerk_v4:95'                             bC4;
+        // 'BuildConstrJerk_v4:96'                             bC4];
         if (a_tmp > b_tmp) {
             i97 = -1;
             i98 = 0;

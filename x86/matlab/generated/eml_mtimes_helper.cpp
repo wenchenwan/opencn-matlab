@@ -5,7 +5,7 @@
 // File: eml_mtimes_helper.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 18-Feb-2022 13:18:06
+// C/C++ source code generated on  : 22-Feb-2022 08:27:14
 //
 
 // Include Files
@@ -138,39 +138,6 @@ void b_binary_expand_op(::coder::array<double, 2U> &r1, const ::coder::array<dou
         j_a[3 * i14 + 2] = i_a[i14];
     }
     coder::internal::blas::mtimes(b_r1D, j_a, r1);
-}
-
-//
-// Arguments    : ::coder::array<double, 2U> &u_mid_tilda
-//                const ::coder::array<double, 2U> &u_tilda
-//                int i2
-//                int i3
-//                int i4
-// Return Type  : void
-//
-void binary_expand_op(::coder::array<double, 2U> &u_mid_tilda,
-                      const ::coder::array<double, 2U> &u_tilda, int i2, int i3, int i4)
-{
-    int i;
-    int loop_ub;
-    int stride_0_1;
-    int stride_1_1;
-    if ((i4 - i3) + 1 == 1) {
-        i = i2 + 1;
-    } else {
-        i = (i4 - i3) + 1;
-    }
-    u_mid_tilda.set_size(1, i);
-    stride_0_1 = (i2 + 1 != 1);
-    stride_1_1 = ((i4 - i3) + 1 != 1);
-    if ((i4 - i3) + 1 == 1) {
-        loop_ub = i2 + 1;
-    } else {
-        loop_ub = (i4 - i3) + 1;
-    }
-    for (int i1{0}; i1 < loop_ub; i1++) {
-        u_mid_tilda[i1] = 0.5 * (u_tilda[i1 * stride_0_1] + u_tilda[i3 + i1 * stride_1_1]);
-    }
 }
 
 //

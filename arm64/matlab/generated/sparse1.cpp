@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: sparse1.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 14-Feb-2022 16:27:55
 //
 
 // Include Files
@@ -48,15 +48,15 @@ void sparse::parenAssign(const ::coder::array<double, 2U> &rhs,
             int vidx;
             bool found;
             nt = varargin_1[ridx];
-            x_tmp.set_size(this->rowidx.size(0));
-            loop_ub = this->rowidx.size(0);
+            x_tmp.set_size(rowidx.size(0));
+            loop_ub = rowidx.size(0);
             for (int i{0}; i < loop_ub; i++) {
-                x_tmp[i] = this->rowidx[i];
+                x_tmp[i] = rowidx[i];
             }
-            i1 = this->colidx[static_cast<int>(b_d) - 1];
-            i2 = this->colidx[static_cast<int>(b_d)];
+            i1 = colidx[static_cast<int>(b_d) - 1];
+            i2 = colidx[static_cast<int>(b_d)];
             if (i1 < i2) {
-                if (static_cast<int>(nt) < this->rowidx[i1 - 1]) {
+                if (static_cast<int>(nt) < rowidx[i1 - 1]) {
                     vidx = i1 - 1;
                     found = false;
                 } else {
@@ -65,14 +65,14 @@ void sparse::parenAssign(const ::coder::array<double, 2U> &rhs,
                     int low_ip1;
                     high_i = i2;
                     low_i = i1;
-                    low_ip1 = this->colidx[static_cast<int>(b_d) - 1];
+                    low_ip1 = colidx[static_cast<int>(b_d) - 1];
                     while (high_i > low_ip1 + 1) {
                         int mid_i;
                         mid_i = (low_i >> 1) + (high_i >> 1);
                         if (((low_i & 1) == 1) && ((high_i & 1) == 1)) {
                             mid_i++;
                         }
-                        if (static_cast<int>(nt) >= this->rowidx[mid_i - 1]) {
+                        if (static_cast<int>(nt) >= rowidx[mid_i - 1]) {
                             low_i = mid_i;
                             low_ip1 = mid_i;
                         } else {
@@ -80,17 +80,17 @@ void sparse::parenAssign(const ::coder::array<double, 2U> &rhs,
                         }
                     }
                     vidx = low_i;
-                    found = (this->rowidx[low_i - 1] == static_cast<int>(nt));
+                    found = (rowidx[low_i - 1] == static_cast<int>(nt));
                 }
             } else if (i1 == i2) {
-                vidx = this->colidx[static_cast<int>(b_d) - 1] - 1;
+                vidx = colidx[static_cast<int>(b_d) - 1] - 1;
                 found = false;
             } else {
                 vidx = 0;
                 found = false;
             }
             if (found) {
-                thisv = this->d[vidx - 1];
+                thisv = d[vidx - 1];
             } else {
                 thisv = 0.0;
             }
@@ -98,15 +98,15 @@ void sparse::parenAssign(const ::coder::array<double, 2U> &rhs,
             rhsIter_idx++;
             if ((thisv != 0.0) || (rhsv != 0.0)) {
                 int nz;
-                nz = this->colidx[this->colidx.size(0) - 1] - 1;
+                nz = colidx[colidx.size(0) - 1] - 1;
                 if ((thisv != 0.0) && (rhsv != 0.0)) {
-                    this->d[vidx - 1] = rhsv;
+                    d[vidx - 1] = rhsv;
                 } else if (thisv == 0.0) {
                     int i6;
                     int i7;
                     int idx;
                     idx = vidx + 1;
-                    if (this->colidx[this->colidx.size(0) - 1] - 1 == this->maxnz) {
+                    if (colidx[colidx.size(0) - 1] - 1 == maxnz) {
                         int b_loop_ub;
                         int highOrderA;
                         int highOrderB;
@@ -116,16 +116,16 @@ void sparse::parenAssign(const ::coder::array<double, 2U> &rhs,
                         int partialResults_idx_0_tmp;
                         int partialResults_idx_1;
                         int tmp;
-                        dt.set_size(this->d.size(0));
-                        b_loop_ub = this->d.size(0);
+                        dt.set_size(d.size(0));
+                        b_loop_ub = d.size(0);
                         for (int i5{0}; i5 < b_loop_ub; i5++) {
-                            dt[i5] = this->d[i5];
+                            dt[i5] = d[i5];
                         }
                         int lowOrderA;
-                        highOrderA = this->m >> 16;
-                        lowOrderA = this->m & 65535;
-                        highOrderB = this->n >> 16;
-                        lowOrderB = this->n & 65535;
+                        highOrderA = m >> 16;
+                        lowOrderA = m & 65535;
+                        highOrderB = n >> 16;
+                        lowOrderB = n & 65535;
                         partialResults_idx_0_tmp = lowOrderA * lowOrderB;
                         tmp = lowOrderA * highOrderB;
                         partialResults_idx_1 = tmp << 16;
@@ -152,80 +152,199 @@ void sparse::parenAssign(const ::coder::array<double, 2U> &rhs,
                             }
                         }
                         if (overflow == 0) {
-                            int b;
+                            int b_u1;
+                            int u0;
                             int y;
-                            y = this->m * this->n;
-                            if (this->colidx[this->colidx.size(0) - 1] + 9 <= y) {
-                                b = this->colidx[this->colidx.size(0) - 1] + 9;
+                            u0 = colidx[colidx.size(0) - 1] + 9;
+                            b_u1 = m * n;
+                            if (u0 <= b_u1) {
+                                y = u0;
                             } else {
-                                b = y;
+                                y = b_u1;
                             }
-                            if (1 >= b) {
+                            if (1 >= y) {
                                 numAlloc = 1;
                             } else {
-                                numAlloc = b;
+                                numAlloc = y;
                             }
-                        } else if (1 >= this->colidx[this->colidx.size(0) - 1] + 9) {
-                            numAlloc = 1;
                         } else {
-                            numAlloc = this->colidx[this->colidx.size(0) - 1] + 9;
+                            int u1;
+                            u1 = colidx[colidx.size(0) - 1] + 9;
+                            if (1 >= u1) {
+                                numAlloc = 1;
+                            } else {
+                                numAlloc = u1;
+                            }
                         }
-                        this->rowidx.set_size(numAlloc);
+                        rowidx.set_size(numAlloc);
                         for (int i8{0}; i8 < numAlloc; i8++) {
-                            this->rowidx[i8] = 0;
+                            rowidx[i8] = 0;
                         }
-                        this->d.set_size(numAlloc);
+                        d.set_size(numAlloc);
                         for (int i9{0}; i9 < numAlloc; i9++) {
-                            this->d[i9] = 0.0;
+                            d[i9] = 0.0;
                         }
-                        this->maxnz = numAlloc;
+                        maxnz = numAlloc;
                         for (int c_k{0}; c_k < vidx; c_k++) {
-                            this->rowidx[c_k] = x_tmp[c_k];
-                            this->d[c_k] = dt[c_k];
+                            rowidx[c_k] = x_tmp[c_k];
+                            d[c_k] = dt[c_k];
                         }
                         for (int d_k{idx}; d_k <= nz; d_k++) {
-                            this->rowidx[d_k] = x_tmp[d_k - 1];
-                            this->d[d_k] = dt[d_k - 1];
+                            rowidx[d_k] = x_tmp[d_k - 1];
+                            d[d_k] = dt[d_k - 1];
                         }
-                        this->rowidx[vidx] = static_cast<int>(nt);
-                        this->d[vidx] = rhsv;
+                        rowidx[vidx] = static_cast<int>(nt);
+                        d[vidx] = rhsv;
                     } else {
                         int b_nelem;
-                        b_nelem = (this->colidx[this->colidx.size(0) - 1] - vidx) - 1;
+                        b_nelem = (colidx[colidx.size(0) - 1] - vidx) - 1;
                         if (b_nelem > 0) {
-                            std::memmove((void *)&this->rowidx[vidx + 1],
-                                         (void *)&this->rowidx[vidx],
+                            std::memmove((void *)&rowidx[vidx + 1], (void *)&rowidx[vidx],
                                          (unsigned int)((size_t)b_nelem * sizeof(int)));
-                            std::memmove((void *)&this->d[vidx + 1], (void *)&this->d[vidx],
+                            std::memmove((void *)&d[vidx + 1], (void *)&d[vidx],
                                          (unsigned int)((size_t)b_nelem * sizeof(double)));
                         }
-                        this->d[vidx] = rhsv;
-                        this->rowidx[vidx] = static_cast<int>(nt);
+                        d[vidx] = rhsv;
+                        rowidx[vidx] = static_cast<int>(nt);
                     }
                     i6 = static_cast<int>(b_d) + 1;
-                    i7 = this->n + 1;
+                    i7 = n + 1;
                     for (int b_k{i6}; b_k <= i7; b_k++) {
-                        this->colidx[b_k - 1] = this->colidx[b_k - 1] + 1;
+                        colidx[b_k - 1] = colidx[b_k - 1] + 1;
                     }
                 } else {
                     int i3;
                     int i4;
                     int nelem;
-                    nelem = (this->colidx[this->colidx.size(0) - 1] - vidx) - 1;
+                    nelem = (colidx[colidx.size(0) - 1] - vidx) - 1;
                     if (nelem > 0) {
-                        std::memmove((void *)&this->rowidx[vidx - 1], (void *)&this->rowidx[vidx],
+                        std::memmove((void *)&rowidx[vidx - 1], (void *)&rowidx[vidx],
                                      (unsigned int)((size_t)nelem * sizeof(int)));
-                        std::memmove((void *)&this->d[vidx - 1], (void *)&this->d[vidx],
+                        std::memmove((void *)&d[vidx - 1], (void *)&d[vidx],
                                      (unsigned int)((size_t)nelem * sizeof(double)));
                     }
                     i3 = static_cast<int>(b_d) + 1;
-                    i4 = this->n + 1;
+                    i4 = n + 1;
                     for (int k{i3}; k <= i4; k++) {
-                        this->colidx[k - 1] = this->colidx[k - 1] - 1;
+                        colidx[k - 1] = colidx[k - 1] - 1;
                     }
                 }
             }
         }
+    }
+}
+
+//
+// Arguments    : const sparse *varargin_2
+//                sparse *c
+// Return Type  : void
+//
+void sparse::vertcat(const sparse *varargin_2, sparse *c) const
+{
+    int cnfixeddim;
+    int cnnz;
+    int cnvardim;
+    int i1;
+    int numalloc;
+    int nzCount;
+    bool allEmpty;
+    bool b_isAcceptableEmpty_tmp;
+    bool emptyflag_idx_0;
+    bool emptyflag_idx_1;
+    bool isAcceptableEmpty_tmp;
+    cnfixeddim = n;
+    if ((m == 0) || (n == 0)) {
+        isAcceptableEmpty_tmp = true;
+    } else {
+        isAcceptableEmpty_tmp = false;
+    }
+    if ((varargin_2->m == 0) || (varargin_2->n == 0)) {
+        b_isAcceptableEmpty_tmp = true;
+    } else {
+        b_isAcceptableEmpty_tmp = false;
+    }
+    allEmpty = (isAcceptableEmpty_tmp && b_isAcceptableEmpty_tmp);
+    if ((!b_isAcceptableEmpty_tmp) && isAcceptableEmpty_tmp) {
+        cnfixeddim = varargin_2->n;
+    }
+    cnnz = 0;
+    cnvardim = 0;
+    if (allEmpty || (!isAcceptableEmpty_tmp)) {
+        cnnz = colidx[colidx.size(0) - 1] - 1;
+        cnvardim = m;
+    }
+    if (allEmpty || (!b_isAcceptableEmpty_tmp)) {
+        cnnz = (cnnz + varargin_2->colidx[varargin_2->colidx.size(0) - 1]) - 1;
+        cnvardim += varargin_2->m;
+    }
+    c->m = cnvardim;
+    c->n = cnfixeddim;
+    if (cnnz >= 1) {
+        numalloc = cnnz;
+    } else {
+        numalloc = 1;
+    }
+    c->d.set_size(numalloc);
+    c->maxnz = numalloc;
+    c->colidx.set_size(cnfixeddim + 1);
+    c->colidx[0] = 1;
+    c->rowidx.set_size(numalloc);
+    for (int i{0}; i < numalloc; i++) {
+        c->d[i] = 0.0;
+        c->rowidx[i] = 0;
+    }
+    for (int b_c{0}; b_c < cnfixeddim; b_c++) {
+        c->colidx[b_c + 1] = 1;
+    }
+    i1 = c->colidx.size(0);
+    for (int c_c{0}; c_c <= i1 - 2; c_c++) {
+        c->colidx[c_c] = 1;
+    }
+    c->colidx[c->colidx.size(0) - 1] = 1;
+    nzCount = -1;
+    if ((m == 0) || (n == 0)) {
+        emptyflag_idx_0 = true;
+    } else {
+        emptyflag_idx_0 = false;
+    }
+    if ((varargin_2->m == 0) || (varargin_2->n == 0)) {
+        emptyflag_idx_1 = true;
+    } else {
+        emptyflag_idx_1 = false;
+    }
+    for (int ccol{0}; ccol < cnfixeddim; ccol++) {
+        int crowoffs;
+        int kpend;
+        int kpstart;
+        crowoffs = 0;
+        if (!emptyflag_idx_0) {
+            int kpend_tmp;
+            kpstart = colidx[ccol];
+            kpend_tmp = colidx[ccol + 1];
+            kpend = kpend_tmp - 1;
+            for (int kp{kpstart}; kp <= kpend; kp++) {
+                int i2;
+                i2 = ((nzCount + kp) - kpstart) + 1;
+                c->rowidx[i2] = rowidx[kp - 1];
+                c->d[i2] = d[kp - 1];
+            }
+            nzCount = (nzCount + kpend_tmp) - colidx[ccol];
+            crowoffs = m;
+        }
+        if (!emptyflag_idx_1) {
+            int b_kpend_tmp;
+            kpstart = varargin_2->colidx[ccol];
+            b_kpend_tmp = varargin_2->colidx[ccol + 1];
+            kpend = b_kpend_tmp - 1;
+            for (int b_kp{kpstart}; b_kp <= kpend; b_kp++) {
+                int i3;
+                i3 = ((nzCount + b_kp) - kpstart) + 1;
+                c->rowidx[i3] = varargin_2->rowidx[b_kp - 1] + crowoffs;
+                c->d[i3] = varargin_2->d[b_kp - 1];
+            }
+            nzCount = (nzCount + b_kpend_tmp) - varargin_2->colidx[ccol];
+        }
+        c->colidx[ccol + 1] = nzCount + 2;
     }
 }
 

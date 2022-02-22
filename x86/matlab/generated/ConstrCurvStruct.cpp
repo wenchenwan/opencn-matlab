@@ -5,65 +5,22 @@
 // File: ConstrCurvStruct.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 18-Feb-2022 13:18:06
+// C/C++ source code generated on  : 22-Feb-2022 08:27:14
 //
 
 // Include Files
 #include "ConstrCurvStruct.h"
-#include "sinspace_types1.h"
-#include "sinspace_types2.h"
-#include "sinspace_types3.h"
+#include "EvalCurvStruct_types1.h"
+#include "EvalCurvStruct_types2.h"
+#include "EvalCurvStruct_types3.h"
 #include "coder_array.h"
-
-// Function Declarations
-namespace ocn {
-static void cast(::coder::array<double, 2U> &t1_CoeffX, ::coder::array<double, 2U> &t1_CoeffY,
-                 ::coder::array<double, 2U> &t1_CoeffZ, int *t1_Bl_ncoeff,
-                 ::coder::array<double, 2U> &t1_Bl_breakpoints, unsigned long *t1_Bl_handle,
-                 int *t1_Bl_degree, ::coder::array<double, 2U> &t1_knots);
-
-static void cast(::coder::array<double, 2U> &r);
-
-} // namespace ocn
 
 // Function Definitions
 //
-// Arguments    : ::coder::array<double, 2U> &t1_CoeffX
-//                ::coder::array<double, 2U> &t1_CoeffY
-//                ::coder::array<double, 2U> &t1_CoeffZ
-//                int *t1_Bl_ncoeff
-//                ::coder::array<double, 2U> &t1_Bl_breakpoints
-//                unsigned long *t1_Bl_handle
-//                int *t1_Bl_degree
-//                ::coder::array<double, 2U> &t1_knots
-// Return Type  : void
-//
-namespace ocn {
-static void cast(::coder::array<double, 2U> &t1_CoeffX, ::coder::array<double, 2U> &t1_CoeffY,
-                 ::coder::array<double, 2U> &t1_CoeffZ, int *t1_Bl_ncoeff,
-                 ::coder::array<double, 2U> &t1_Bl_breakpoints, unsigned long *t1_Bl_handle,
-                 int *t1_Bl_degree, ::coder::array<double, 2U> &t1_knots)
-{
-    cast(t1_CoeffX);
-    cast(t1_CoeffY);
-    cast(t1_CoeffZ);
-    t1_Bl_breakpoints.set_size(1, 0);
-    cast(t1_knots);
-    *t1_Bl_ncoeff = 0;
-    *t1_Bl_handle = 0UL;
-    *t1_Bl_degree = 0;
-}
-
-//
-// Arguments    : ::coder::array<double, 2U> &r
-// Return Type  : void
-//
-static void cast(::coder::array<double, 2U> &r)
-{
-    r.set_size(1, 1);
-    r[0] = 0.0;
-}
-
+// function CStrct = ConstrCurvStruct(Type, ZSpdMode, trafo, Poff, Aoff, ...
+//                                    Uoff, Doff, P0, P1, A0, A1, U0, U1, ...
+//                                    Cprim, delta, evec, theta, pitch, ...
+//                                    CoeffP5, FeedRate)
 //
 // Construct a struct for the curves.
 //
@@ -118,6 +75,7 @@ static void cast(::coder::array<double, 2U> &r)
 //                CurvStruct *CStrct
 // Return Type  : void
 //
+namespace ocn {
 void ConstrCurvStruct(CurveType Type, ZSpdMode b_ZSpdMode, bool trafo, const double Poff[3],
                       const double Aoff[3], const double Uoff[3], double Doff, const double P0[3],
                       const double P1[3], const double A0[3], const double A1[3],
@@ -126,6 +84,50 @@ void ConstrCurvStruct(CurveType Type, ZSpdMode b_ZSpdMode, bool trafo, const dou
                       double FeedRate, CurvStruct *CStrct)
 {
     //  ctxType = coder.OutputType('InitFeedoptPlan');
+    // 'ConstrCurvStruct:37' CStrct = struct('Type', Type, ...
+    // 'ConstrCurvStruct:38'                 'zspdmode', ZSpdMode, ...
+    // 'ConstrCurvStruct:39'                 'TRAFO', trafo, ...
+    // 'ConstrCurvStruct:40'                 'Poff', Poff, ...
+    // 'ConstrCurvStruct:41'                 'Aoff', Aoff, ...
+    // 'ConstrCurvStruct:42'                 'Uoff', Uoff, ...
+    // 'ConstrCurvStruct:43'                 'Doff', Doff, ...
+    // 'ConstrCurvStruct:44'                 'P0', P0, ...
+    // 'ConstrCurvStruct:45'                 'P1', P1, ...
+    // 'ConstrCurvStruct:46'                 'A0', A0,...
+    // 'ConstrCurvStruct:47'                 'A1', A1,...
+    // 'ConstrCurvStruct:48'                 'U0', U0,...
+    // 'ConstrCurvStruct:49'                 'U1', U1,...
+    // 'ConstrCurvStruct:50' 				'CorrectedHelixCenter', Cprim, ...
+    // 'ConstrCurvStruct:51'                 'delta', delta, ...
+    // 'ConstrCurvStruct:52'                 'evec', evec,...
+    // 'ConstrCurvStruct:53'                 'theta', theta,...
+    // 'ConstrCurvStruct:54'                 'pitch', pitch,...
+    // 'ConstrCurvStruct:55'                 'CoeffP5', CoeffP5,...
+    // 'ConstrCurvStruct:56'                 'sp_index', int32(1),...
+    // 'ConstrCurvStruct:57'                 'FeedRate', FeedRate,...
+    // 'ConstrCurvStruct:58'                 'SpindleSpeed', 0,...
+    // 'ConstrCurvStruct:59'                 'MaxConstantFeedRate', 0,...
+    // 'ConstrCurvStruct:60'                 'i_begin_sp', int32(0),...
+    // 'ConstrCurvStruct:61'                 'i_end_sp', int32(0),...
+    // 'ConstrCurvStruct:62'                 'gcode_source_line', int32(0),...
+    // 'ConstrCurvStruct:63'                 'index_smooth', int32(0),...
+    // 'ConstrCurvStruct:64'                 'UseConstJerk', false,...
+    // 'ConstrCurvStruct:65'                 'ConstJerk', 0,...
+    // 'ConstrCurvStruct:66'                 'ConstJerkMaxIterations', int32(0),...
+    // 'ConstrCurvStruct:67'                 'Coeff', zeros(0, 1),...
+    // 'ConstrCurvStruct:68'                 'a_param', 1,...
+    // 'ConstrCurvStruct:69'                 'b_param', 0,...
+    // 'ConstrCurvStruct:70'                 'sp', struct('CoeffX', 0,...
+    // 'ConstrCurvStruct:71'                     'CoeffY', 0,...
+    // 'ConstrCurvStruct:72'                     'CoeffZ', 0,...
+    // 'ConstrCurvStruct:73'                     'Bl', struct(...
+    // 'ConstrCurvStruct:74'                         'ncoeff', int32(0),...
+    // 'ConstrCurvStruct:75'                         'breakpoints', zeros(1, 0),...
+    // 'ConstrCurvStruct:76'                         'handle', uint64(0),...
+    // 'ConstrCurvStruct:77'                         'degree', int32(0)),...
+    // 'ConstrCurvStruct:78'                     'knots', 0,...
+    // 'ConstrCurvStruct:79'                     'Ltot', 0,...
+    // 'ConstrCurvStruct:80'                     'Lk', 0));
     CStrct->Type = Type;
     CStrct->zspdmode = b_ZSpdMode;
     CStrct->TRAFO = trafo;
@@ -185,8 +187,33 @@ void ConstrCurvStruct(CurveType Type, ZSpdMode b_ZSpdMode, bool trafo, const dou
     CStrct->Coeff.set_size(0);
     CStrct->a_param = 1.0;
     CStrct->b_param = 0.0;
-    cast(CStrct->sp.CoeffX, CStrct->sp.CoeffY, CStrct->sp.CoeffZ, &CStrct->sp.Bl.ncoeff,
-         CStrct->sp.Bl.breakpoints, &CStrct->sp.Bl.handle, &CStrct->sp.Bl.degree, CStrct->sp.knots);
+    CStrct->sp.CoeffX.set_size(1, 1);
+    CStrct->sp.CoeffX[0] = 0.0;
+    CStrct->sp.CoeffY.set_size(1, 1);
+    CStrct->sp.CoeffY[0] = 0.0;
+    CStrct->sp.CoeffZ.set_size(1, 1);
+    CStrct->sp.CoeffZ[0] = 0.0;
+    CStrct->sp.Bl.ncoeff = 0;
+    CStrct->sp.Bl.breakpoints.set_size(1, 0);
+    CStrct->sp.Bl.handle = 0UL;
+    CStrct->sp.Bl.degree = 0;
+    CStrct->sp.knots.set_size(1, 1);
+    CStrct->sp.knots[0] = 0.0;
+    CStrct->sp.Ltot = 0.0;
+    CStrct->sp.Lk.set_size(1, 1);
+    CStrct->sp.Lk[0] = 0.0;
+    // 'ConstrCurvStruct:82' if ~coder.target('matlab')
+    // 'ConstrCurvStruct:83' coder.cstructname(CStrct, 'CurvStruct');
+    // 'ConstrCurvStruct:84' coder.cstructname(CStrct.sp, 'SplineStruct');
+    // 'ConstrCurvStruct:85' coder.cstructname(CStrct.sp.Bl, 'SplineBase');
+    // 'ConstrCurvStruct:87' coder.varsize('CStrct.sp.Bl.breakpoints', [1, Inf], [0, 1]);
+    // 'ConstrCurvStruct:89' coder.varsize('CStrct.Coeff', [Inf, 1], [1, 0]);
+    // 'ConstrCurvStruct:90' coder.varsize('CStrct.sp.CoeffX', [1, Inf], [0, 1]);
+    // 'ConstrCurvStruct:91' coder.varsize('CStrct.sp.CoeffY', [1, Inf], [0, 1]);
+    // 'ConstrCurvStruct:92' coder.varsize('CStrct.sp.CoeffZ', [1, Inf], [0, 1]);
+    // 'ConstrCurvStruct:93' coder.varsize('CStrct.sp.knots',  [1, Inf], [0, 1]);
+    // 'ConstrCurvStruct:94' coder.varsize('CStrct.sp.Lk',     [1, Inf], [0, 1]);
+    // 'ConstrCurvStruct:96' coder.varsize('CStrct.CoeffP5', [3, 6], [0, 0]);
 }
 
 } // namespace ocn

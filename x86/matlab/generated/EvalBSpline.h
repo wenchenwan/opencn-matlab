@@ -5,7 +5,7 @@
 // File: EvalBSpline.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 18-Feb-2022 13:18:06
+// C/C++ source code generated on  : 22-Feb-2022 08:27:14
 //
 
 #ifndef EVALBSPLINE_H
@@ -27,18 +27,12 @@ class queue_coder;
 
 // Function Declarations
 namespace ocn {
-void EvalBSpline(const queue_coder *ctx_q_splines, int CurvStruct_sp_index, const double uvec[10],
-                 double r0D[10][3], double r1D[10][3], double r2D[10][3], double r3D[10][3]);
-
 void EvalBSpline(const queue_coder *ctx_q_splines, int CurvStruct_sp_index,
                  const ::coder::array<double, 2U> &uvec, ::coder::array<double, 2U> &r0D,
                  ::coder::array<double, 2U> &r1D, ::coder::array<double, 2U> &r2D,
                  ::coder::array<double, 2U> &r3D);
 
-void EvalBSpline(const queue_coder *ctx_q_splines, int CurvStruct_sp_index, double uvec,
-                 double r0D[3], double r1D[3], double r2D[3], double r3D[3]);
-
-} // namespace ocn
+}
 
 #endif
 //

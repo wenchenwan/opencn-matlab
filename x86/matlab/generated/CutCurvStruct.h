@@ -5,7 +5,7 @@
 // File: CutCurvStruct.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 18-Feb-2022 13:18:06
+// C/C++ source code generated on  : 22-Feb-2022 08:27:14
 //
 
 #ifndef CUTCURVSTRUCT_H
@@ -28,11 +28,11 @@ struct CurvStruct;
 
 // Function Declarations
 namespace ocn {
-void CutCurvStruct(const queue_coder *ctx_q_splines, double ctx_cfg_NGridLengthSpline,
-                   CurvStruct *b_CurvStruct, double d1);
+void CutCurvStruct(const queue_coder *ctx_q_splines, const double ctx_cfg_GaussLegendreX[5],
+                   const double ctx_cfg_GaussLegendreW[5], CurvStruct *b_CurvStruct, double d1);
 
-void b_CutCurvStruct(const queue_coder *ctx_q_splines, double ctx_cfg_NGridLengthSpline,
-                     CurvStruct *b_CurvStruct, double d0);
+void b_CutCurvStruct(const queue_coder *ctx_q_splines, const double ctx_cfg_GaussLegendreX[5],
+                     const double ctx_cfg_GaussLegendreW[5], CurvStruct *b_CurvStruct, double d0);
 
 } // namespace ocn
 

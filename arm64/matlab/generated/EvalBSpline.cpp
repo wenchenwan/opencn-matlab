@@ -4,95 +4,22 @@
 // government, commercial, or other organizational use.
 // File: EvalBSpline.cpp
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 14-Feb-2022 16:27:55
 //
 
 // Include Files
 #include "EvalBSpline.h"
 #include "bspline_eval.h"
-#include "bspline_eval_vec.h"
+#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types2.h"
+#include "opencn_matlab_types3.h"
 #include "queue_coder.h"
 #include "coder_array.h"
 
 // Function Definitions
 //
-// if coder.target('rtw') || coder.target('mex')
-//
-// Arguments    : const queue_coder *ctx_q_splines
-//                int CurvStruct_sp_index
-//                const double uvec[10]
-//                double r0D[10][3]
-//                double r1D[10][3]
-//                double r2D[10][3]
-//                double r3D[10][3]
-// Return Type  : void
-//
-namespace ocn {
-void EvalBSpline(const queue_coder *ctx_q_splines, int CurvStruct_sp_index, const double uvec[10],
-                 double r0D[10][3], double r1D[10][3], double r2D[10][3], double r3D[10][3])
-{
-    CurvStruct expl_temp;
-    double r0Dx[10];
-    double r0Dy[10];
-    double r0Dz[10];
-    double r1Dx[10];
-    double r1Dy[10];
-    double r1Dz[10];
-    double r2Dx[10];
-    double r2Dy[10];
-    double r2Dz[10];
-    double r3Dx[10];
-    double r3Dy[10];
-    double r3Dz[10];
-    unsigned long Spline_sp_Bl_handle;
-    ctx_q_splines->get(CurvStruct_sp_index, &expl_temp);
-    Spline_sp_Bl_handle = expl_temp.sp.Bl.handle;
-    for (int k{0}; k < 10; k++) {
-        r0Dx[k] = uvec[k];
-        bspline_eval(Spline_sp_Bl_handle, expl_temp.sp.CoeffX, &r0Dx[k], &r1Dx[k], &r2Dx[k],
-                     &r3Dx[k]);
-    }
-    for (int b_k{0}; b_k < 10; b_k++) {
-        r0Dy[b_k] = uvec[b_k];
-        bspline_eval(Spline_sp_Bl_handle, expl_temp.sp.CoeffY, &r0Dy[b_k], &r1Dy[b_k], &r2Dy[b_k],
-                     &r3Dy[b_k]);
-    }
-    for (int c_k{0}; c_k < 10; c_k++) {
-        r0Dz[c_k] = uvec[c_k];
-        bspline_eval(Spline_sp_Bl_handle, expl_temp.sp.CoeffZ, &r0Dz[c_k], &r1Dz[c_k], &r2Dz[c_k],
-                     &r3Dz[c_k]);
-    }
-    for (int i{0}; i < 10; i++) {
-        r0D[i][0] = r0Dx[i];
-        r0D[i][1] = r0Dy[i];
-        r0D[i][2] = r0Dz[i];
-        r1D[i][0] = r1Dx[i];
-        r1D[i][1] = r1Dy[i];
-        r1D[i][2] = r1Dz[i];
-        r2D[i][0] = r2Dx[i];
-        r2D[i][1] = r2Dy[i];
-        r2D[i][2] = r2Dz[i];
-        r3D[i][0] = r3Dx[i];
-        r3D[i][1] = r3Dy[i];
-        r3D[i][2] = r3Dz[i];
-    }
-    //  else
-    //      Spline=ctx.q_splines.get(CurvStruct.sp_index);
-    //      sp = Spline.sp;
-    //      r0D = spval(sp, uvec);
-    //
-    //      sp1D = fnder(sp, 1);
-    //      r1D = spval(sp1D, uvec);
-    //
-    //      sp2D = fnder(sp, 2);
-    //      r2D = spval(sp2D, uvec);
-    //
-    //      sp3D = fnder(sp, 3);
-    //      r3D = spval(sp3D, uvec);
-    //  end
-}
-
+// function [r0D, r1D, r2D, r3D] = EvalBSpline(ctx, CurvStruct, uvec)
 //
 // if coder.target('rtw') || coder.target('mex')
 //
@@ -105,6 +32,7 @@ void EvalBSpline(const queue_coder *ctx_q_splines, int CurvStruct_sp_index, cons
 //                ::coder::array<double, 2U> &r3D
 // Return Type  : void
 //
+namespace ocn {
 void EvalBSpline(const queue_coder *ctx_q_splines, int CurvStruct_sp_index,
                  const ::coder::array<double, 2U> &uvec, ::coder::array<double, 2U> &r0D,
                  ::coder::array<double, 2U> &r1D, ::coder::array<double, 2U> &r2D,
@@ -123,6 +51,16 @@ void EvalBSpline(const queue_coder *ctx_q_splines, int CurvStruct_sp_index,
     ::coder::array<double, 2U> r3Dy;
     ::coder::array<double, 2U> r3Dz;
     CurvStruct expl_temp;
+    double d;
+    double d1;
+    double d2;
+    double d3;
+    double d4;
+    double d5;
+    double d6;
+    double d7;
+    double d8;
+    unsigned long Spline_sp_Bl_handle;
     int b_loop_ub;
     int c_loop_ub;
     int d_loop_ub;
@@ -130,130 +68,204 @@ void EvalBSpline(const queue_coder *ctx_q_splines, int CurvStruct_sp_index,
     int f_loop_ub;
     int g_loop_ub;
     int h_loop_ub;
+    int i14;
+    int i4;
+    int i9;
     int i_loop_ub;
     int j_loop_ub;
     int k_loop_ub;
     int l_loop_ub;
     int loop_ub;
+    int m_loop_ub;
+    int n_loop_ub;
+    int o_loop_ub;
+    int p_loop_ub;
+    int q_loop_ub;
+    int r_loop_ub;
+    int s_loop_ub;
+    int t_loop_ub;
+    int u_loop_ub;
+    int v_loop_ub;
+    int w_loop_ub;
+    int x_loop_ub;
+    // 'EvalBSpline:4' Spline=ctx.q_splines.get(CurvStruct.sp_index);
     ctx_q_splines->get(CurvStruct_sp_index, &expl_temp);
-    bspline_eval_vec(expl_temp.sp.Bl.handle, expl_temp.sp.CoeffX, uvec, r0Dx, r1Dx, r2Dx, r3Dx);
-    bspline_eval_vec(expl_temp.sp.Bl.handle, expl_temp.sp.CoeffY, uvec, r0Dy, r1Dy, r2Dy, r3Dy);
-    bspline_eval_vec(expl_temp.sp.Bl.handle, expl_temp.sp.CoeffZ, uvec, r0Dz, r1Dz, r2Dz, r3Dz);
-    r0D.set_size(3, r0Dx.size(1));
-    loop_ub = r0Dx.size(1);
+    Spline_sp_Bl_handle = expl_temp.sp.Bl.handle;
+    // 'EvalBSpline:5' sp = Spline.sp;
+    // 'EvalBSpline:6' Bl = sp.Bl;
+    // 'EvalBSpline:7' [r0Dx, r1Dx, r2Dx, r3Dx] = bspline_eval_vec(Bl, sp.CoeffX, uvec);
+    // 'bspline_eval_vec:3' x = zeros(size(u));
+    r0Dx.set_size(1, uvec.size(1));
+    loop_ub = uvec.size(1);
     for (int i{0}; i < loop_ub; i++) {
-        r0D[3 * i] = r0Dx[i];
+        r0Dx[i] = 0.0;
     }
-    b_loop_ub = r0Dy.size(1);
+    // 'bspline_eval_vec:4' xd = zeros(size(u));
+    r1Dx.set_size(1, uvec.size(1));
+    b_loop_ub = uvec.size(1);
     for (int i1{0}; i1 < b_loop_ub; i1++) {
-        r0D[3 * i1 + 1] = r0Dy[i1];
+        r1Dx[i1] = 0.0;
     }
-    c_loop_ub = r0Dz.size(1);
+    // 'bspline_eval_vec:5' xdd = zeros(size(u));
+    r2Dx.set_size(1, uvec.size(1));
+    c_loop_ub = uvec.size(1);
     for (int i2{0}; i2 < c_loop_ub; i2++) {
-        r0D[3 * i2 + 2] = r0Dz[i2];
+        r2Dx[i2] = 0.0;
     }
-    r1D.set_size(3, r1Dx.size(1));
-    d_loop_ub = r1Dx.size(1);
+    // 'bspline_eval_vec:6' xddd = zeros(size(u));
+    r3Dx.set_size(1, uvec.size(1));
+    d_loop_ub = uvec.size(1);
     for (int i3{0}; i3 < d_loop_ub; i3++) {
-        r1D[3 * i3] = r1Dx[i3];
+        r3Dx[i3] = 0.0;
     }
-    e_loop_ub = r1Dy.size(1);
-    for (int i4{0}; i4 < e_loop_ub; i4++) {
-        r1D[3 * i4 + 1] = r1Dy[i4];
+    // 'bspline_eval_vec:8' for k = 1:length(u)
+    i4 = uvec.size(1);
+    for (int k{0}; k < i4; k++) {
+        // 'bspline_eval_vec:9' [xk, xdk, xddk, xdddk] = bspline_eval(Bl, coeffs, u(k));
+        r0Dx[k] = uvec[k];
+        bspline_eval(Spline_sp_Bl_handle, expl_temp.sp.CoeffX, &r0Dx[k], &d, &d1, &d2);
+        r3Dx[k] = d2;
+        r2Dx[k] = d1;
+        r1Dx[k] = d;
+        // 'bspline_eval_vec:10' x(k) = xk;
+        // 'bspline_eval_vec:11' xd(k) = xdk;
+        // 'bspline_eval_vec:12' xdd(k) = xddk;
+        // 'bspline_eval_vec:13' xddd(k) = xdddk;
     }
-    f_loop_ub = r1Dz.size(1);
-    for (int i5{0}; i5 < f_loop_ub; i5++) {
-        r1D[3 * i5 + 2] = r1Dz[i5];
+    // 'EvalBSpline:8' [r0Dy, r1Dy, r2Dy, r3Dy] = bspline_eval_vec(Bl, sp.CoeffY, uvec);
+    // 'bspline_eval_vec:3' x = zeros(size(u));
+    r0Dy.set_size(1, uvec.size(1));
+    e_loop_ub = uvec.size(1);
+    for (int i5{0}; i5 < e_loop_ub; i5++) {
+        r0Dy[i5] = 0.0;
     }
+    // 'bspline_eval_vec:4' xd = zeros(size(u));
+    r1Dy.set_size(1, uvec.size(1));
+    f_loop_ub = uvec.size(1);
+    for (int i6{0}; i6 < f_loop_ub; i6++) {
+        r1Dy[i6] = 0.0;
+    }
+    // 'bspline_eval_vec:5' xdd = zeros(size(u));
+    r2Dy.set_size(1, uvec.size(1));
+    g_loop_ub = uvec.size(1);
+    for (int i7{0}; i7 < g_loop_ub; i7++) {
+        r2Dy[i7] = 0.0;
+    }
+    // 'bspline_eval_vec:6' xddd = zeros(size(u));
+    r3Dy.set_size(1, uvec.size(1));
+    h_loop_ub = uvec.size(1);
+    for (int i8{0}; i8 < h_loop_ub; i8++) {
+        r3Dy[i8] = 0.0;
+    }
+    // 'bspline_eval_vec:8' for k = 1:length(u)
+    i9 = uvec.size(1);
+    for (int b_k{0}; b_k < i9; b_k++) {
+        // 'bspline_eval_vec:9' [xk, xdk, xddk, xdddk] = bspline_eval(Bl, coeffs, u(k));
+        r0Dy[b_k] = uvec[b_k];
+        bspline_eval(Spline_sp_Bl_handle, expl_temp.sp.CoeffY, &r0Dy[b_k], &d3, &d4, &d5);
+        r3Dy[b_k] = d5;
+        r2Dy[b_k] = d4;
+        r1Dy[b_k] = d3;
+        // 'bspline_eval_vec:10' x(k) = xk;
+        // 'bspline_eval_vec:11' xd(k) = xdk;
+        // 'bspline_eval_vec:12' xdd(k) = xddk;
+        // 'bspline_eval_vec:13' xddd(k) = xdddk;
+    }
+    // 'EvalBSpline:9' [r0Dz, r1Dz, r2Dz, r3Dz] = bspline_eval_vec(Bl, sp.CoeffZ, uvec);
+    // 'bspline_eval_vec:3' x = zeros(size(u));
+    r0Dz.set_size(1, uvec.size(1));
+    i_loop_ub = uvec.size(1);
+    for (int i10{0}; i10 < i_loop_ub; i10++) {
+        r0Dz[i10] = 0.0;
+    }
+    // 'bspline_eval_vec:4' xd = zeros(size(u));
+    r1Dz.set_size(1, uvec.size(1));
+    j_loop_ub = uvec.size(1);
+    for (int i11{0}; i11 < j_loop_ub; i11++) {
+        r1Dz[i11] = 0.0;
+    }
+    // 'bspline_eval_vec:5' xdd = zeros(size(u));
+    r2Dz.set_size(1, uvec.size(1));
+    k_loop_ub = uvec.size(1);
+    for (int i12{0}; i12 < k_loop_ub; i12++) {
+        r2Dz[i12] = 0.0;
+    }
+    // 'bspline_eval_vec:6' xddd = zeros(size(u));
+    r3Dz.set_size(1, uvec.size(1));
+    l_loop_ub = uvec.size(1);
+    for (int i13{0}; i13 < l_loop_ub; i13++) {
+        r3Dz[i13] = 0.0;
+    }
+    // 'bspline_eval_vec:8' for k = 1:length(u)
+    i14 = uvec.size(1);
+    for (int c_k{0}; c_k < i14; c_k++) {
+        // 'bspline_eval_vec:9' [xk, xdk, xddk, xdddk] = bspline_eval(Bl, coeffs, u(k));
+        r0Dz[c_k] = uvec[c_k];
+        bspline_eval(Spline_sp_Bl_handle, expl_temp.sp.CoeffZ, &r0Dz[c_k], &d6, &d7, &d8);
+        r3Dz[c_k] = d8;
+        r2Dz[c_k] = d7;
+        r1Dz[c_k] = d6;
+        // 'bspline_eval_vec:10' x(k) = xk;
+        // 'bspline_eval_vec:11' xd(k) = xdk;
+        // 'bspline_eval_vec:12' xdd(k) = xddk;
+        // 'bspline_eval_vec:13' xddd(k) = xdddk;
+    }
+    // 'EvalBSpline:11' r0D = [r0Dx; r0Dy; r0Dz];
+    r0D.set_size(3, r0Dx.size(1));
+    m_loop_ub = r0Dx.size(1);
+    for (int i15{0}; i15 < m_loop_ub; i15++) {
+        r0D[3 * i15] = r0Dx[i15];
+    }
+    n_loop_ub = r0Dy.size(1);
+    for (int i16{0}; i16 < n_loop_ub; i16++) {
+        r0D[3 * i16 + 1] = r0Dy[i16];
+    }
+    o_loop_ub = r0Dz.size(1);
+    for (int i17{0}; i17 < o_loop_ub; i17++) {
+        r0D[3 * i17 + 2] = r0Dz[i17];
+    }
+    // 'EvalBSpline:12' r1D = [r1Dx; r1Dy; r1Dz];
+    r1D.set_size(3, r1Dx.size(1));
+    p_loop_ub = r1Dx.size(1);
+    for (int i18{0}; i18 < p_loop_ub; i18++) {
+        r1D[3 * i18] = r1Dx[i18];
+    }
+    q_loop_ub = r1Dy.size(1);
+    for (int i19{0}; i19 < q_loop_ub; i19++) {
+        r1D[3 * i19 + 1] = r1Dy[i19];
+    }
+    r_loop_ub = r1Dz.size(1);
+    for (int i20{0}; i20 < r_loop_ub; i20++) {
+        r1D[3 * i20 + 2] = r1Dz[i20];
+    }
+    // 'EvalBSpline:13' r2D = [r2Dx; r2Dy; r2Dz];
     r2D.set_size(3, r2Dx.size(1));
-    g_loop_ub = r2Dx.size(1);
-    for (int i6{0}; i6 < g_loop_ub; i6++) {
-        r2D[3 * i6] = r2Dx[i6];
+    s_loop_ub = r2Dx.size(1);
+    for (int i21{0}; i21 < s_loop_ub; i21++) {
+        r2D[3 * i21] = r2Dx[i21];
     }
-    h_loop_ub = r2Dy.size(1);
-    for (int i7{0}; i7 < h_loop_ub; i7++) {
-        r2D[3 * i7 + 1] = r2Dy[i7];
+    t_loop_ub = r2Dy.size(1);
+    for (int i22{0}; i22 < t_loop_ub; i22++) {
+        r2D[3 * i22 + 1] = r2Dy[i22];
     }
-    i_loop_ub = r2Dz.size(1);
-    for (int i8{0}; i8 < i_loop_ub; i8++) {
-        r2D[3 * i8 + 2] = r2Dz[i8];
+    u_loop_ub = r2Dz.size(1);
+    for (int i23{0}; i23 < u_loop_ub; i23++) {
+        r2D[3 * i23 + 2] = r2Dz[i23];
     }
+    // 'EvalBSpline:14' r3D = [r3Dx; r3Dy; r3Dz];
     r3D.set_size(3, r3Dx.size(1));
-    j_loop_ub = r3Dx.size(1);
-    for (int i9{0}; i9 < j_loop_ub; i9++) {
-        r3D[3 * i9] = r3Dx[i9];
+    v_loop_ub = r3Dx.size(1);
+    for (int i24{0}; i24 < v_loop_ub; i24++) {
+        r3D[3 * i24] = r3Dx[i24];
     }
-    k_loop_ub = r3Dy.size(1);
-    for (int i10{0}; i10 < k_loop_ub; i10++) {
-        r3D[3 * i10 + 1] = r3Dy[i10];
+    w_loop_ub = r3Dy.size(1);
+    for (int i25{0}; i25 < w_loop_ub; i25++) {
+        r3D[3 * i25 + 1] = r3Dy[i25];
     }
-    l_loop_ub = r3Dz.size(1);
-    for (int i11{0}; i11 < l_loop_ub; i11++) {
-        r3D[3 * i11 + 2] = r3Dz[i11];
+    x_loop_ub = r3Dz.size(1);
+    for (int i26{0}; i26 < x_loop_ub; i26++) {
+        r3D[3 * i26 + 2] = r3Dz[i26];
     }
-    //  else
-    //      Spline=ctx.q_splines.get(CurvStruct.sp_index);
-    //      sp = Spline.sp;
-    //      r0D = spval(sp, uvec);
-    //
-    //      sp1D = fnder(sp, 1);
-    //      r1D = spval(sp1D, uvec);
-    //
-    //      sp2D = fnder(sp, 2);
-    //      r2D = spval(sp2D, uvec);
-    //
-    //      sp3D = fnder(sp, 3);
-    //      r3D = spval(sp3D, uvec);
-    //  end
-}
-
-//
-// if coder.target('rtw') || coder.target('mex')
-//
-// Arguments    : const queue_coder *ctx_q_splines
-//                int CurvStruct_sp_index
-//                double uvec
-//                double r0D[3]
-//                double r1D[3]
-//                double r2D[3]
-//                double r3D[3]
-// Return Type  : void
-//
-void EvalBSpline(const queue_coder *ctx_q_splines, int CurvStruct_sp_index, double uvec,
-                 double r0D[3], double r1D[3], double r2D[3], double r3D[3])
-{
-    CurvStruct expl_temp;
-    double r0Dx;
-    double r0Dy;
-    double r0Dz;
-    double r1Dx;
-    double r1Dy;
-    double r1Dz;
-    double r2Dx;
-    double r2Dy;
-    double r2Dz;
-    double r3Dx;
-    double r3Dy;
-    double r3Dz;
-    ctx_q_splines->get(CurvStruct_sp_index, &expl_temp);
-    r0Dx = uvec;
-    bspline_eval(expl_temp.sp.Bl.handle, expl_temp.sp.CoeffX, &r0Dx, &r1Dx, &r2Dx, &r3Dx);
-    r0Dy = uvec;
-    bspline_eval(expl_temp.sp.Bl.handle, expl_temp.sp.CoeffY, &r0Dy, &r1Dy, &r2Dy, &r3Dy);
-    r0Dz = uvec;
-    bspline_eval(expl_temp.sp.Bl.handle, expl_temp.sp.CoeffZ, &r0Dz, &r1Dz, &r2Dz, &r3Dz);
-    r0D[0] = r0Dx;
-    r0D[1] = r0Dy;
-    r0D[2] = r0Dz;
-    r1D[0] = r1Dx;
-    r1D[1] = r1Dy;
-    r1D[2] = r1Dz;
-    r2D[0] = r2Dx;
-    r2D[1] = r2Dy;
-    r2D[2] = r2Dz;
-    r3D[0] = r3Dx;
-    r3D[1] = r3Dy;
-    r3D[2] = r3Dz;
     //  else
     //      Spline=ctx.q_splines.get(CurvStruct.sp_index);
     //      sp = Spline.sp;

@@ -5,18 +5,20 @@
 // File: ConfigSetSource.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 18-Feb-2022 13:18:06
+// C/C++ source code generated on  : 22-Feb-2022 08:27:14
 //
 
 // Include Files
 #include "ConfigSetSource.h"
-#include "sinspace_data.h"
-#include "sinspace_initialize.h"
-#include "sinspace_types.h"
+#include "EvalCurvStruct_data.h"
+#include "EvalCurvStruct_initialize.h"
+#include "EvalCurvStruct_types.h"
 #include <algorithm>
 #include <cstring>
 
 // Function Definitions
+//
+// function cfg = ConfigSetSource(cfg, filename)
 //
 // Arguments    : FeedoptConfig *cfg
 //                const char filename_data[]
@@ -30,9 +32,12 @@ void ConfigSetSource(FeedoptConfig *cfg, const char filename_data[], const int f
     int i;
     int i1;
     int loop_ub;
-    if (!isInitialized_sinspace) {
-        sinspace_initialize();
+    if (!isInitialized_EvalCurvStruct) {
+        EvalCurvStruct_initialize();
     }
+    // 'ConfigSetSource:2' coder.inline("never");
+    // 'ConfigSetSource:4' N = size(filename, 2);
+    // 'ConfigSetSource:5' cfg.source(1:N) = filename;
     if (1 > filename_size[1]) {
         loop_ub = 0;
     } else {
@@ -41,6 +46,7 @@ void ConfigSetSource(FeedoptConfig *cfg, const char filename_data[], const int f
     if (0 <= loop_ub - 1) {
         std::copy(&filename_data[0], &filename_data[loop_ub], &cfg->source[0]);
     }
+    // 'ConfigSetSource:6' cfg.source(N+1:end) = 0;
     if (filename_size[1] + 1 > 1024) {
         i = 0;
         i1 = -1;

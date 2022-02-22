@@ -1,5 +1,6 @@
 function [r0D, r1D, r2D, r3D] = EvalCurvStruct(ctx, CurvStruct, u_vec)
 % coder.cstructname(CurvStruct, 'CurvStruct')
+coder.inline("never");
 if any(u_vec - 1.0 > 10*eps)
     if coder.target('matlab')
         error('EvalCurvStruct: u_vec > 1\n');

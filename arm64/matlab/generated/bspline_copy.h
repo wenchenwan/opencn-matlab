@@ -4,15 +4,15 @@
 // government, commercial, or other organizational use.
 // File: bspline_copy.h
 //
-// MATLAB Coder version            : 5.2
-// C/C++ source code generated on  : 14-Jul-2021 15:06:07
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 14-Feb-2022 16:27:55
 //
 
 #ifndef BSPLINE_COPY_H
 #define BSPLINE_COPY_H
 
 // Include Files
-#include "queue_coder.h"
+#include "opencn_matlab_types3.h"
 #include "rtwtypes.h"
 #include <cstddef>
 #include <cstdlib>

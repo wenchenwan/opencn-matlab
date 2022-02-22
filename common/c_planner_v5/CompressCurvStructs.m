@@ -15,6 +15,8 @@ CumulatedLength = 0;
 Length_Threshold = ctx.cfg.LThreshold; % [mm]
 
 DebugLog(DebugCfg.Validate, 'Compressing...\n');
+DebugLog(DebugCfg.OptimProgress, 'Compressing...\n');
+
 spindle_speed = 75000;
 
 % Satisfy coder
@@ -29,14 +31,14 @@ end
 %  ||...
 %             (CumulatedLength > 0 && ~CurvCollinear(ctx, ctx.q_gcode.get(k-1), Curv, ctx.cfg.Compressing.MaxCollinearityDegrees)) 
 
-k=1;
+k = 1;
 while k <= Ncrv
     Curv = ctx.q_gcode.get(k);
     % If the next curve segment is too long for compressing or it is not an NN,
     % we need to stop growing the compressing list and create the spline
     Collinear = false;
     if k > 1
-        Collinear = CurvCollinear(ctx, ctx.q_gcode.get(k-1), Curv, ctx.cfg.Compressing.ColTolDeg);
+        Collinear = CurvCollinear(ctx, ctx.q_gcode.get(k-1), Curv, ctx.cfg.Compressing.ColTolCos);
     end
     
     if (LengthCurv(ctx, Curv, 0, 1)>=Length_Threshold) || ...
@@ -77,6 +79,11 @@ while k <= Ncrv
             if size(pvec, 2) > 2
                 SplineCurve = ConstrCurvStructType;
                 SplineCurve.sp=CalcBspline_Lee(ctx.cfg, pvec);
+                SplineCurve.sp.Ltot = 0; % satisfy coder
+                SplineCurve.sp.Lk = 0;   % satisfy coder
+                [Ltot, Lk]    = SplineLengthApproxGL_tot(ctx, SplineCurve);
+                SplineCurve.sp.Ltot = Ltot;                                 
+                SplineCurve.sp.Lk   = Lk;                                  
                 ctx.q_splines.push(SplineCurve);
                 spline = ConstrBSplineStruct(Curv.TRAFO,Curv.Poff, ...
                                              Curv.Aoff, Curv.Uoff, ...
@@ -100,6 +107,7 @@ while k <= Ncrv
             % With only two points, construct a line
             else
                 C = ctx.q_gcode.get(k-1);
+                C.gcode_source_line=Curv.gcode_source_line;
                 ctx.q_compress.push(C);
                 if Curv.zspdmode == ZSpdMode.NZ
                     [CurvStruct1_C, CurvStruct2_C] = CutZeroEnd(ctx, Curv, k);
@@ -108,7 +116,6 @@ while k <= Ncrv
                 else
                     ctx.q_compress.push(Curv);
                 end
-                C.gcode_source_line=Curv.gcode_source_line;
             end
             CumulatedLength = 0;
         end
@@ -117,6 +124,11 @@ while k <= Ncrv
     elseif (k==Ncrv) && (CumulatedLength ~= 0)
         SplineCurve = ConstrCurvStructType;
         SplineCurve.sp=CalcBspline_Lee(ctx.cfg, pvec);
+        SplineCurve.sp.Ltot = 0; % satisfy coder
+        SplineCurve.sp.Lk = 0;   % satisfy coder
+        [Ltot, Lk]     = SplineLengthApproxGL_tot(ctx, SplineCurve);
+        SplineCurve.sp.Ltot = Ltot;                                 
+        SplineCurve.sp.Lk   = Lk;                                    
         ctx.q_splines.push(SplineCurve);
         spline = ConstrBSplineStruct(Curv.TRAFO, Curv.Poff, ...
                                              Curv.Aoff, Curv.Uoff, ...
