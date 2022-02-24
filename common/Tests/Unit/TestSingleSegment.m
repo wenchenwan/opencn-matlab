@@ -4,12 +4,13 @@ cfg.NBreak = 5;
 ctx = InitFeedoptPlan(cfg);
 
 trafo = false; % TRAFO flag disable 
+HSC = false; HSC_cmd  =  char(zeros(1,256));
 Poff = zeros(3, 1); Aoff = Poff; Uoff = Poff; Doff = 0.0;
 A0 = zeros(3,1); A1 = A0; U0 = A0 ; U1 = A0; 
 
-C1 = ConstrLineStruct(trafo, Poff, Aoff, Uoff, Doff, ...
+C1 = ConstrLineStruct(trafo, HSC, HSC_cmd, Poff, Aoff, Uoff, Doff, ...
                       [0,0,0]', [1,1,1]', A0, A1, U0, U1, 30, ZSpdMode.NN);
-C2 = ConstrLineStruct(trafo, Poff, Aoff, Uoff, Doff, ...
+C2 = ConstrLineStruct(trafo, HSC, HSC_cmd, Poff, Aoff, Uoff, Doff, ...
                       [0,0,0]', [1,1,1]', A0, A1, U0, U1, 2, ZSpdMode.NN);
 
 CurvStructs = [C1, C2];

@@ -5,7 +5,7 @@
 // File: ConstrCurvStruct.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 22-Feb-2022 11:16:30
+// C/C++ source code generated on  : 24-Feb-2022 11:48:06
 //
 
 #ifndef CONSTRCURVSTRUCT_H
@@ -27,12 +27,13 @@ struct CurvStruct;
 
 // Function Declarations
 namespace ocn {
-void ConstrCurvStruct(CurveType Type, ZSpdMode b_ZSpdMode, bool trafo, const double Poff[3],
-                      const double Aoff[3], const double Uoff[3], double Doff, const double P0[3],
-                      const double P1[3], const double A0[3], const double A1[3],
-                      const double U0[3], const double U1[3], const double Cprim[3], double delta,
-                      const double evec[3], double theta, double pitch, const double CoeffP5[6][3],
-                      double FeedRate, CurvStruct *CStrct);
+void ConstrCurvStruct(CurveType Type, ZSpdMode b_ZSpdMode, bool trafo, bool HSC,
+                      const char HSC_cmd[256], const double Poff[3], const double Aoff[3],
+                      const double Uoff[3], double Doff, const double P0[3], const double P1[3],
+                      const double A0[3], const double A1[3], const double U0[3],
+                      const double U1[3], const double Cprim[3], double delta, const double evec[3],
+                      double theta, double pitch, const double CoeffP5[6][3], double FeedRate,
+                      CurvStruct *CStrct);
 
 }
 

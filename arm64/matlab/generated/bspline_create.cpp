@@ -5,14 +5,14 @@
 // File: bspline_create.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 22-Feb-2022 11:18:27
+// C/C++ source code generated on  : 24-Feb-2022 11:52:48
 //
 
 // Include Files
 #include "bspline_create.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_initialize.h"
-#include "opencn_matlab_types3.h"
+#include "opencn_matlab_types11.h"
 #include "coder_array.h"
 #include "src/c_spline.h"
 #include <algorithm>

@@ -5,7 +5,7 @@
 // File: Calc_beta0_beta1.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 22-Feb-2022 11:16:30
+// C/C++ source code generated on  : 24-Feb-2022 11:48:06
 //
 
 #ifndef CALC_BETA0_BETA1_H

@@ -5,7 +5,7 @@
 // File: opencn_matlab_types1.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 22-Feb-2022 11:18:27
+// C/C++ source code generated on  : 24-Feb-2022 11:52:48
 //
 
 #ifndef OPENCN_MATLAB_TYPES1_H
@@ -13,6 +13,7 @@
 
 // Include Files
 #include "opencn_matlab_types2.h"
+#include "opencn_matlab_types21.h"
 #include "rtwtypes.h"
 #include "coder_array.h"
 #include <cstddef>
@@ -26,6 +27,8 @@ struct CurvStruct {
     CurveType Type;
     ZSpdMode zspdmode;
     bool TRAFO;
+    bool HSC;
+    char HSC_cmd[256];
     double Poff[3];
     double Aoff[3];
     double Uoff[3];

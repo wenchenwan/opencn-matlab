@@ -5,7 +5,7 @@
 // File: ConstrTransP5Struct.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 22-Feb-2022 11:16:30
+// C/C++ source code generated on  : 24-Feb-2022 11:48:06
 //
 
 #ifndef CONSTRTRANSP5STRUCT_H
@@ -26,10 +26,10 @@ struct CurvStruct;
 
 // Function Declarations
 namespace ocn {
-void ConstrTransP5Struct(bool trafo, const double Poff[3], const double Aoff[3],
-                         const double Uoff[3], double Doff, const double avec[2][3],
-                         const double uvec[2][3], const double CoeffP5[6][3], double FeedRate,
-                         CurvStruct *b_CurvStruct);
+void ConstrTransP5Struct(bool trafo, bool HSC, const char HSC_cmd[256], const double Poff[3],
+                         const double Aoff[3], const double Uoff[3], double Doff,
+                         const double avec[2][3], const double uvec[2][3],
+                         const double CoeffP5[6][3], double FeedRate, CurvStruct *b_CurvStruct);
 
 }
 

@@ -5,14 +5,14 @@
 // File: opencn_matlab_types2.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 22-Feb-2022 11:18:27
+// C/C++ source code generated on  : 24-Feb-2022 11:52:48
 //
 
 #ifndef OPENCN_MATLAB_TYPES2_H
 #define OPENCN_MATLAB_TYPES2_H
 
 // Include Files
-#include "opencn_matlab_types3.h"
+#include "opencn_matlab_types11.h"
 #include "rtwtypes.h"
 #include "coder_array.h"
 #include <cstddef>
@@ -30,23 +30,6 @@ struct SplineStruct {
     ::coder::array<double, 2U> knots;
     double Ltot;
     ::coder::array<double, 2U> Lk;
-};
-
-enum ZSpdMode : int
-{
-    ZSpdMode_NN = 0, // Default value
-    ZSpdMode_ZN,
-    ZSpdMode_NZ,
-    ZSpdMode_ZZ
-};
-
-enum CurveType : int
-{
-    CurveType_None = 0, // Default value
-    CurveType_Line,
-    CurveType_Helix,
-    CurveType_Spline,
-    CurveType_TransP5
 };
 
 } // namespace ocn

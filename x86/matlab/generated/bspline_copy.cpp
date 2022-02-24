@@ -5,14 +5,14 @@
 // File: bspline_copy.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 22-Feb-2022 11:10:49
+// C/C++ source code generated on  : 24-Feb-2022 11:51:03
 //
 
 // Include Files
 #include "bspline_copy.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_initialize.h"
-#include "opencn_matlab_types3.h"
+#include "opencn_matlab_types11.h"
 #include "coder_array.h"
 #include "src/c_spline.h"
 

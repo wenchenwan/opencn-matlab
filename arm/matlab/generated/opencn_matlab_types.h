@@ -5,13 +5,15 @@
 // File: opencn_matlab_types.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 22-Feb-2022 11:16:30
+// C/C++ source code generated on  : 24-Feb-2022 11:48:06
 //
 
 #ifndef OPENCN_MATLAB_TYPES_H
 #define OPENCN_MATLAB_TYPES_H
 
 // Include Files
+#include "opencn_matlab_types11.h"
+#include "opencn_matlab_types2.h"
 #include "opencn_matlab_types3.h"
 #include "queue_coder.h"
 #include "rtwtypes.h"
@@ -64,6 +66,22 @@ struct int64m_T {
     unsigned int chunks[2];
 };
 
+struct struct_T {
+    int ncoeff;
+    uint64m_T handle;
+    int degree;
+};
+
+struct b_struct_T {
+    double CoeffX;
+    double CoeffY;
+    double CoeffZ;
+    struct_T Bl;
+    double knots;
+    double Ltot;
+    double Lk;
+};
+
 enum Fopt : int
 {
     Fopt_Init = 0, // Default value
@@ -89,6 +107,44 @@ enum TransitionResult : int
     TransitionResult_Ok = 0, // Default value
     TransitionResult_Collinear,
     TransitionResult_NoSolution
+};
+
+struct c_struct_T {
+    CurveType Type;
+    ZSpdMode zspdmode;
+    bool TRAFO;
+    bool HSC;
+    char HSC_cmd[256];
+    double Poff[3];
+    double Aoff[3];
+    double Uoff[3];
+    double Doff;
+    double P0[3];
+    double P1[3];
+    double A0[3];
+    double A1[3];
+    double U0[3];
+    double U1[3];
+    double CorrectedHelixCenter[3];
+    double delta;
+    double evec[3];
+    double theta;
+    double pitch;
+    double CoeffP5[6][3];
+    int sp_index;
+    double FeedRate;
+    double SpindleSpeed;
+    double MaxConstantFeedRate;
+    int i_begin_sp;
+    int i_end_sp;
+    int gcode_source_line;
+    int index_smooth;
+    bool UseConstJerk;
+    double ConstJerk;
+    int ConstJerkMaxIterations;
+    double a_param;
+    double b_param;
+    b_struct_T sp;
 };
 
 struct FeedoptContext {

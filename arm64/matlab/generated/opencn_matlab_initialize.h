@@ -5,7 +5,7 @@
 // File: opencn_matlab_initialize.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 22-Feb-2022 11:18:27
+// C/C++ source code generated on  : 24-Feb-2022 11:52:48
 //
 
 #ifndef OPENCN_MATLAB_INITIALIZE_H

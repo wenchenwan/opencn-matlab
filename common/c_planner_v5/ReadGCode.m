@@ -6,12 +6,11 @@ persistent n data using_mat
 
 if coder.target('mex')
     trafo = false; % TRAFO flag disable 
+    HSC = false; HSC_cmd = char(zeros(1,256));
     Poff = zeros(3, 1); Aoff = Poff; Uoff = Poff; Doff = 0.0;
     A0 = zeros(3,1); A1 = A0; U0 = A0 ; U1 = A0; 
 
-    CurvStruct = ConstrLineStruct(trafo, Poff, Aoff, Uoff, ...
-                               Doff, [1,2,3]', [4,5,6]', A0, A1, U0, ...
-                               U1, 0.2, ZSpdMode.NN);
+    CurvStruct = ConstrCurvStructType;
 
     coder.updateBuildInfo('addDefines', '_POSIX_C_SOURCE=199309L')
     pathRs274Src = '$(START_DIR)/../../rs274ngc/src';
@@ -41,7 +40,7 @@ if coder.target('mex')
     coder.updateBuildInfo('addSourceFiles','rs274ngc_pre.cc', pathRs274Src);
     coder.updateBuildInfo('addSourceFiles','inifile.cc', pathRs274Src);
     coder.updateBuildInfo('addLinkFlags', '-ldl');
-    coder.updateBuildInfo('addIncludePaths', '$(START_DIR)/gen_mex/readgcode');
+   coder.updateBuildInfo('addIncludePaths', '$(START_DIR)/gen_mex/readgcode');
     coder.cinclude('cpp_interp.hpp');
     
     status = int32(0);
@@ -88,12 +87,13 @@ elseif coder.target('matlab')
     end
 elseif coder.target('rtw')
     trafo = false; % TRAFO flag disable 
+    HSC = false; HSC_cmd = char(zeros(1,256));
     Poff = zeros(3, 1); Aoff = Poff; Uoff = Poff; Doff = 0.0;
     A0 = zeros(3,1); A1 = A0; U0 = A0 ; U1 = A0; 
 
     if cmd == ReadGCodeCmd.Load
 
-        CurvStruct = ConstrLineStruct(trafo, Poff, Aoff, ...
+        CurvStruct = ConstrLineStruct(trafo, HSC, HSC_cmd, Poff, Aoff, ...
                                       Uoff, Doff, [1,2,3]', [4,5,6]', ...
                                       A0, A1, U0, U1, 0.2, ZSpdMode.NN);
 
@@ -101,7 +101,7 @@ elseif coder.target('rtw')
         status = coder.ceval('c_open_gcode', [filename, 0], coder.ref(CurvStruct));
     elseif cmd == ReadGCodeCmd.Read
 
-        CurvStruct = ConstrLineStruct(trafo, Poff, Aoff, ...
+        CurvStruct = ConstrLineStruct(trafo, HSC, HSC_cmd, Poff, Aoff, ...
                                       Uoff, Doff, [1,2,3]', [4,5,6]', ...
                                       A0, A1, U0, U1, 0.2, ZSpdMode.NN);
         status = int32(0);

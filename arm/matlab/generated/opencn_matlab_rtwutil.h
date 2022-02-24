@@ -5,13 +5,15 @@
 // File: opencn_matlab_rtwutil.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 22-Feb-2022 11:16:30
+// C/C++ source code generated on  : 24-Feb-2022 11:48:06
 //
 
 #ifndef OPENCN_MATLAB_RTWUTIL_H
 #define OPENCN_MATLAB_RTWUTIL_H
 
 // Include Files
+#include "opencn_matlab_types.h"
+#include "opencn_matlab_types1.h"
 #include "rtwtypes.h"
 #include <cstddef>
 #include <cstdlib>
@@ -27,6 +29,8 @@ extern void MultiWordAdd(const unsigned int u1[], const unsigned int u2[], unsig
 extern void MultiWordAnd(const unsigned int u1[], const unsigned int u2[], unsigned int y[]);
 
 extern void MultiWordSub(const unsigned int u1[], const unsigned int u2[], unsigned int y[]);
+
+extern void cast(const c_struct_T *r, CurvStruct *r1);
 
 extern void sLong2MultiWord(int u, unsigned int y[]);
 
