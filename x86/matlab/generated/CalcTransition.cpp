@@ -5,7 +5,7 @@
 // File: CalcTransition.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 24-Feb-2022 11:51:03
+// C/C++ source code generated on  : 25-Feb-2022 11:10:36
 //
 
 // Include Files
@@ -22,7 +22,6 @@
 #include "opencn_matlab_types.h"
 #include "opencn_matlab_types1.h"
 #include "opencn_matlab_types2.h"
-#include "opencn_matlab_types21.h"
 #include "queue_coder.h"
 #include "coder_array.h"
 #include <cmath>
@@ -393,7 +392,7 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
             //  standard case
             //  transition CurvStruct calculation
             // 'CalcTransition:136' CurvStruct_T = ConstrTransP5Struct(CurvStruct1.TRAFO,...
-            // 'CalcTransition:137'                    CurvStruct1.HSC, CurvStruct1.HSC_cmd, ...
+            // 'CalcTransition:137'                    CurvStruct1.HSC, ...
             // 'CalcTransition:138'                    CurvStruct1.Poff, CurvStruct1.Aoff, ...
             // 'CalcTransition:139'                    CurvStruct1.Uoff, CurvStruct1.Doff,...
             // 'CalcTransition:140'                    [CurvStruct1.A0, CurvStruct1.A1], ...
@@ -411,10 +410,10 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
             b_CurvStruct1[1][2] = CurvStruct1->A1[2];
             c_CurvStruct1[0][2] = CurvStruct1->U0[2];
             c_CurvStruct1[1][2] = CurvStruct1->U1[2];
-            ConstrTransP5Struct(CurvStruct1->TRAFO, CurvStruct1->HSC, CurvStruct1->HSC_cmd,
-                                CurvStruct1->Poff, CurvStruct1->Aoff, CurvStruct1->Uoff,
-                                CurvStruct1->Doff, b_CurvStruct1, c_CurvStruct1, p5,
-                                CurvStruct1->FeedRate, CurvStruct_T);
+            ConstrTransP5Struct(CurvStruct1->TRAFO, CurvStruct1->HSC, CurvStruct1->Poff,
+                                CurvStruct1->Aoff, CurvStruct1->Uoff, CurvStruct1->Doff,
+                                b_CurvStruct1, c_CurvStruct1, p5, CurvStruct1->FeedRate,
+                                CurvStruct_T);
             // 'CalcTransition:143' status = TransitionResult.Ok;
             b_status = TransitionResult_Ok;
         } else if (ret == 2) {
@@ -470,7 +469,7 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
             //  TODO: decide in the future...
             //  Now we ignore and construct the transition curve anyway
             // 'CalcTransition:183' CurvStruct_T = ConstrTransP5Struct(CurvStruct1.TRAFO,...
-            // 'CalcTransition:184'                    CurvStruct1.HSC, CurvStruct1.HSC_cmd, ...
+            // 'CalcTransition:184'                    CurvStruct1.HSC, ...
             // 'CalcTransition:185'                    CurvStruct1.Poff, CurvStruct1.Aoff, ...
             // 'CalcTransition:186'                    CurvStruct1.Uoff, CurvStruct1.Doff,...
             // 'CalcTransition:187'                    [CurvStruct1.A0, CurvStruct1.A1], ...
@@ -488,10 +487,10 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
             b_CurvStruct1[1][2] = CurvStruct1->A1[2];
             c_CurvStruct1[0][2] = CurvStruct1->U0[2];
             c_CurvStruct1[1][2] = CurvStruct1->U1[2];
-            ConstrTransP5Struct(CurvStruct1->TRAFO, CurvStruct1->HSC, CurvStruct1->HSC_cmd,
-                                CurvStruct1->Poff, CurvStruct1->Aoff, CurvStruct1->Uoff,
-                                CurvStruct1->Doff, b_CurvStruct1, c_CurvStruct1, p5,
-                                CurvStruct1->FeedRate, CurvStruct_T);
+            ConstrTransP5Struct(CurvStruct1->TRAFO, CurvStruct1->HSC, CurvStruct1->Poff,
+                                CurvStruct1->Aoff, CurvStruct1->Uoff, CurvStruct1->Doff,
+                                b_CurvStruct1, c_CurvStruct1, p5, CurvStruct1->FeedRate,
+                                CurvStruct_T);
             // 'CalcTransition:190' status = TransitionResult.Ok;
             b_status = TransitionResult_Ok;
             // 'CalcTransition:192' DebugLog(DebugCfg.Warning, '========== CalcTransition
@@ -952,7 +951,7 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
             //  standard case
             //  transition CurvStruct calculation
             // 'CalcTransition:136' CurvStruct_T = ConstrTransP5Struct(CurvStruct1.TRAFO,...
-            // 'CalcTransition:137'                    CurvStruct1.HSC, CurvStruct1.HSC_cmd, ...
+            // 'CalcTransition:137'                    CurvStruct1.HSC, ...
             // 'CalcTransition:138'                    CurvStruct1.Poff, CurvStruct1.Aoff, ...
             // 'CalcTransition:139'                    CurvStruct1.Uoff, CurvStruct1.Doff,...
             // 'CalcTransition:140'                    [CurvStruct1.A0, CurvStruct1.A1], ...
@@ -970,10 +969,10 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
             b_CurvStruct1[1][2] = CurvStruct1->A1[2];
             c_CurvStruct1[0][2] = CurvStruct1->U0[2];
             c_CurvStruct1[1][2] = CurvStruct1->U1[2];
-            ConstrTransP5Struct(CurvStruct1->TRAFO, CurvStruct1->HSC, CurvStruct1->HSC_cmd,
-                                CurvStruct1->Poff, CurvStruct1->Aoff, CurvStruct1->Uoff,
-                                CurvStruct1->Doff, b_CurvStruct1, c_CurvStruct1, p5,
-                                CurvStruct1->FeedRate, CurvStruct_T);
+            ConstrTransP5Struct(CurvStruct1->TRAFO, CurvStruct1->HSC, CurvStruct1->Poff,
+                                CurvStruct1->Aoff, CurvStruct1->Uoff, CurvStruct1->Doff,
+                                b_CurvStruct1, c_CurvStruct1, p5, CurvStruct1->FeedRate,
+                                CurvStruct_T);
             // 'CalcTransition:143' status = TransitionResult.Ok;
             b_status = TransitionResult_Ok;
         } else if (ret == 2) {
@@ -1029,7 +1028,7 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
             //  TODO: decide in the future...
             //  Now we ignore and construct the transition curve anyway
             // 'CalcTransition:183' CurvStruct_T = ConstrTransP5Struct(CurvStruct1.TRAFO,...
-            // 'CalcTransition:184'                    CurvStruct1.HSC, CurvStruct1.HSC_cmd, ...
+            // 'CalcTransition:184'                    CurvStruct1.HSC, ...
             // 'CalcTransition:185'                    CurvStruct1.Poff, CurvStruct1.Aoff, ...
             // 'CalcTransition:186'                    CurvStruct1.Uoff, CurvStruct1.Doff,...
             // 'CalcTransition:187'                    [CurvStruct1.A0, CurvStruct1.A1], ...
@@ -1047,10 +1046,10 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
             b_CurvStruct1[1][2] = CurvStruct1->A1[2];
             c_CurvStruct1[0][2] = CurvStruct1->U0[2];
             c_CurvStruct1[1][2] = CurvStruct1->U1[2];
-            ConstrTransP5Struct(CurvStruct1->TRAFO, CurvStruct1->HSC, CurvStruct1->HSC_cmd,
-                                CurvStruct1->Poff, CurvStruct1->Aoff, CurvStruct1->Uoff,
-                                CurvStruct1->Doff, b_CurvStruct1, c_CurvStruct1, p5,
-                                CurvStruct1->FeedRate, CurvStruct_T);
+            ConstrTransP5Struct(CurvStruct1->TRAFO, CurvStruct1->HSC, CurvStruct1->Poff,
+                                CurvStruct1->Aoff, CurvStruct1->Uoff, CurvStruct1->Doff,
+                                b_CurvStruct1, c_CurvStruct1, p5, CurvStruct1->FeedRate,
+                                CurvStruct_T);
             // 'CalcTransition:190' status = TransitionResult.Ok;
             b_status = TransitionResult_Ok;
             // 'CalcTransition:192' DebugLog(DebugCfg.Warning, '========== CalcTransition

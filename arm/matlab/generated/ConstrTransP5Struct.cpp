@@ -5,7 +5,7 @@
 // File: ConstrTransP5Struct.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 24-Feb-2022 11:48:06
+// C/C++ source code generated on  : 25-Feb-2022 11:28:22
 //
 
 // Include Files
@@ -17,13 +17,12 @@
 
 // Function Definitions
 //
-// function CurvStruct = ConstrTransP5Struct(trafo, HSC, HSC_cmd, Poff, ...
+// function CurvStruct = ConstrTransP5Struct(trafo, HSC, Poff, ...
 //                                           Aoff, Uoff, Doff, avec, uvec,...
 //                                           CoeffP5, FeedRate)
 //
 // Arguments    : bool trafo
 //                bool HSC
-//                const char HSC_cmd[256]
 //                const double Poff[3]
 //                const double Aoff[3]
 //                const double Uoff[3]
@@ -36,10 +35,10 @@
 // Return Type  : void
 //
 namespace ocn {
-void ConstrTransP5Struct(bool trafo, bool HSC, const char HSC_cmd[256], const double Poff[3],
-                         const double Aoff[3], const double Uoff[3], double Doff,
-                         const double avec[2][3], const double uvec[2][3],
-                         const double CoeffP5[6][3], double FeedRate, CurvStruct *b_CurvStruct)
+void ConstrTransP5Struct(bool trafo, bool HSC, const double Poff[3], const double Aoff[3],
+                         const double Uoff[3], double Doff, const double avec[2][3],
+                         const double uvec[2][3], const double CoeffP5[6][3], double FeedRate,
+                         CurvStruct *b_CurvStruct)
 {
     double P0[3];
     double P1[3];
@@ -102,18 +101,19 @@ void ConstrTransP5Struct(bool trafo, bool HSC, const char HSC_cmd[256], const do
     // 'ConstrTransP5Struct:15' evec        = zeros(3, 1);
     // 'ConstrTransP5Struct:16' theta       = 0.0;
     // 'ConstrTransP5Struct:17' pitch       = 0.0;
-    // 'ConstrTransP5Struct:19' CurvStruct  = ConstrCurvStruct(Type, ZSpdMode.NN, trafo, HSC,
-    // HSC_cmd, ... 'ConstrTransP5Struct:20'                                    Poff, Aoff, Uoff,
-    // Doff, P0, P1, A0, ... 'ConstrTransP5Struct:21'                                    A1, U0, U1,
-    // Cprim, delta, evec, theta,... 'ConstrTransP5Struct:22' pitch, CoeffP5, FeedRate);
+    // 'ConstrTransP5Struct:19' CurvStruct  = ConstrCurvStruct(Type, ZSpdMode.NN, trafo, HSC, ...
+    // 'ConstrTransP5Struct:20'                                    Poff, Aoff, Uoff, Doff, P0, P1,
+    // A0, ... 'ConstrTransP5Struct:21'                                    A1, U0, U1, Cprim, delta,
+    // evec, theta,... 'ConstrTransP5Struct:22'                                    pitch, CoeffP5,
+    // FeedRate);
     dv[0] = 0.0;
     dv1[0] = 0.0;
     dv[1] = 0.0;
     dv1[1] = 0.0;
     dv[2] = 0.0;
     dv1[2] = 0.0;
-    ConstrCurvStruct(CurveType_TransP5, ZSpdMode_NN, trafo, HSC, HSC_cmd, Poff, Aoff, Uoff, Doff,
-                     P0, P1, *(double(*)[3]) & avec[0][0], *(double(*)[3]) & avec[1][0],
+    ConstrCurvStruct(CurveType_TransP5, ZSpdMode_NN, trafo, HSC, Poff, Aoff, Uoff, Doff, P0, P1,
+                     *(double(*)[3]) & avec[0][0], *(double(*)[3]) & avec[1][0],
                      *(double(*)[3]) & uvec[0][0], *(double(*)[3]) & uvec[1][0], dv, 0.0, dv1, 0.0,
                      0.0, CoeffP5, FeedRate, b_CurvStruct);
 }

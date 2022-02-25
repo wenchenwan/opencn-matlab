@@ -4,12 +4,7 @@ function [status, CurvStruct] = ReadGCode(cmd, filename)
 % Wrapper for pulling the next gcode line from the interpreter
 persistent n data using_mat
 
-if coder.target('mex')
-    trafo = false; % TRAFO flag disable 
-    HSC = false; HSC_cmd = char(zeros(1,256));
-    Poff = zeros(3, 1); Aoff = Poff; Uoff = Poff; Doff = 0.0;
-    A0 = zeros(3,1); A1 = A0; U0 = A0 ; U1 = A0; 
-
+if coder.target('mex') 
     CurvStruct = ConstrCurvStructType;
 
     coder.updateBuildInfo('addDefines', '_POSIX_C_SOURCE=199309L')
@@ -87,13 +82,13 @@ elseif coder.target('matlab')
     end
 elseif coder.target('rtw')
     trafo = false; % TRAFO flag disable 
-    HSC = false; HSC_cmd = char(zeros(1,256));
+    HSC = false;
     Poff = zeros(3, 1); Aoff = Poff; Uoff = Poff; Doff = 0.0;
     A0 = zeros(3,1); A1 = A0; U0 = A0 ; U1 = A0; 
 
     if cmd == ReadGCodeCmd.Load
 
-        CurvStruct = ConstrLineStruct(trafo, HSC, HSC_cmd, Poff, Aoff, ...
+        CurvStruct = ConstrLineStruct(trafo, HSC, Poff, Aoff, ...
                                       Uoff, Doff, [1,2,3]', [4,5,6]', ...
                                       A0, A1, U0, U1, 0.2, ZSpdMode.NN);
 
@@ -101,7 +96,7 @@ elseif coder.target('rtw')
         status = coder.ceval('c_open_gcode', [filename, 0], coder.ref(CurvStruct));
     elseif cmd == ReadGCodeCmd.Read
 
-        CurvStruct = ConstrLineStruct(trafo, HSC, HSC_cmd, Poff, Aoff, ...
+        CurvStruct = ConstrLineStruct(trafo, HSC, Poff, Aoff, ...
                                       Uoff, Doff, [1,2,3]', [4,5,6]', ...
                                       A0, A1, U0, U1, 0.2, ZSpdMode.NN);
         status = int32(0);

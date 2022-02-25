@@ -5,7 +5,7 @@
 // File: SplineLengthApproxGL_tot.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 24-Feb-2022 11:51:03
+// C/C++ source code generated on  : 25-Feb-2022 11:10:36
 //
 
 #ifndef SPLINELENGTHAPPROXGL_TOT_H

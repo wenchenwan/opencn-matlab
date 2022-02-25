@@ -5,7 +5,7 @@
 // File: FeedoptPlan.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 24-Feb-2022 11:51:03
+// C/C++ source code generated on  : 25-Feb-2022 11:10:36
 //
 
 // Include Files
@@ -23,8 +23,8 @@
 #include "opencn_matlab_initialize.h"
 #include "opencn_matlab_types.h"
 #include "opencn_matlab_types1.h"
-#include "opencn_matlab_types11.h"
-#include "opencn_matlab_types21.h"
+#include "opencn_matlab_types2.h"
+#include "opencn_matlab_types3.h"
 #include "queue_coder.h"
 #include "coder_array.h"
 #include <algorithm>
@@ -52,7 +52,6 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
     ::coder::array<CurvStruct, 2U> OptSegment;
     ::coder::array<double, 2U> Coeff;
     ::coder::array<double, 2U> c_ctx;
-    CurvStruct CurvStruct_tmp;
     CurvStruct NextCurv;
     CurvStruct b_CurvStruct;
     CurvStruct b_first;
@@ -60,6 +59,13 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
     CurvStruct r;
     double dv[3];
     double dv1[3];
+    double dv2[3];
+    double dv3[3];
+    double dv4[3];
+    double dv5[3];
+    double dv6[3];
+    double dv7[3];
+    double dv8[3];
     double e_ctx[3];
     double at_0;
     double b_at_0;
@@ -88,7 +94,6 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
     // 'FeedoptPlan:11' trafo = false;
     //  TRAFO flag disable
     // 'FeedoptPlan:12' HSC = false;
-    // 'FeedoptPlan:12' HSC_cmd = char(zeros(1,256));
     // 'FeedoptPlan:13' Poff = zeros(3, 1);
     // 'FeedoptPlan:13' Aoff = Poff;
     // 'FeedoptPlan:13' Uoff = Poff;
@@ -97,16 +102,38 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
     // 'FeedoptPlan:14' A1 = A0;
     // 'FeedoptPlan:14' U0 = A0 ;
     // 'FeedoptPlan:14' U1 = A0;
-    // 'FeedoptPlan:16' opt_struct = ConstrLineStruct(trafo, HSC, HSC_cmd, Poff, Aoff, Uoff, ...
+    // 'FeedoptPlan:16' opt_struct = ConstrLineStruct(trafo, HSC, Poff, Aoff, Uoff, ...
     // 'FeedoptPlan:17'                                Doff, [0,0,0]', [0,0,0]', A0, A1, U0, ...
     // 'FeedoptPlan:18'                                U1, 0.2, ZSpdMode.NN);
     dv[0] = 0.0;
     dv1[0] = 0.0;
+    dv2[0] = 0.0;
+    dv3[0] = 0.0;
+    dv4[0] = 0.0;
+    dv5[0] = 0.0;
+    dv6[0] = 0.0;
+    dv7[0] = 0.0;
+    dv8[0] = 0.0;
     dv[1] = 0.0;
     dv1[1] = 0.0;
+    dv2[1] = 0.0;
+    dv3[1] = 0.0;
+    dv4[1] = 0.0;
+    dv5[1] = 0.0;
+    dv6[1] = 0.0;
+    dv7[1] = 0.0;
+    dv8[1] = 0.0;
     dv[2] = 0.0;
     dv1[2] = 0.0;
-    b_ConstrLineStruct(dv, dv1, 0.2, opt_struct);
+    dv2[2] = 0.0;
+    dv3[2] = 0.0;
+    dv4[2] = 0.0;
+    dv5[2] = 0.0;
+    dv6[2] = 0.0;
+    dv7[2] = 0.0;
+    dv8[2] = 0.0;
+    ConstrLineStruct(false, false, dv, dv1, dv2, 0.0, dv3, dv4, dv5, dv6, dv7, dv8, 0.2,
+                     ZSpdMode_NN, opt_struct);
     // 'FeedoptPlan:20' switch ctx.op
     guard1 = false;
     switch (ctx->op) {
@@ -124,33 +151,53 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         //  coder.extrinsic('ReadGCode_mex');
         //  Wrapper for pulling the next gcode line from the interpreter
         // 'ReadGCode:7' if coder.target('mex')
-        // 'ReadGCode:88' elseif coder.target('rtw')
-        // 'ReadGCode:89' trafo = false;
+        // 'ReadGCode:83' elseif coder.target('rtw')
+        // 'ReadGCode:84' trafo = false;
         //  TRAFO flag disable
-        // 'ReadGCode:90' HSC = false;
-        // 'ReadGCode:90' HSC_cmd = char(zeros(1,256));
-        // 'ReadGCode:91' Poff = zeros(3, 1);
-        // 'ReadGCode:91' Aoff = Poff;
-        // 'ReadGCode:91' Uoff = Poff;
-        // 'ReadGCode:91' Doff = 0.0;
-        // 'ReadGCode:92' A0 = zeros(3,1);
-        // 'ReadGCode:92' A1 = A0;
-        // 'ReadGCode:92' U0 = A0 ;
-        // 'ReadGCode:92' U1 = A0;
-        // 'ReadGCode:94' if cmd == ReadGCodeCmd.Load
-        // 'ReadGCode:96' CurvStruct = ConstrLineStruct(trafo, HSC, HSC_cmd, Poff, Aoff, ...
-        // 'ReadGCode:97'                                       Uoff, Doff, [1,2,3]', [4,5,6]', ...
-        // 'ReadGCode:98'                                       A0, A1, U0, U1, 0.2, ZSpdMode.NN);
-        dv[0] = 1.0;
-        dv1[0] = 4.0;
-        dv[1] = 2.0;
-        dv1[1] = 5.0;
-        dv[2] = 3.0;
-        dv1[2] = 6.0;
-        b_ConstrLineStruct(dv, dv1, 0.2, &CurvStruct_tmp);
-        b_CurvStruct = CurvStruct_tmp;
-        // 'ReadGCode:100' status = int32(0);
-        // 'ReadGCode:101' status = coder.ceval('c_open_gcode', [filename, 0],
+        // 'ReadGCode:85' HSC = false;
+        // 'ReadGCode:86' Poff = zeros(3, 1);
+        // 'ReadGCode:86' Aoff = Poff;
+        // 'ReadGCode:86' Uoff = Poff;
+        // 'ReadGCode:86' Doff = 0.0;
+        // 'ReadGCode:87' A0 = zeros(3,1);
+        // 'ReadGCode:87' A1 = A0;
+        // 'ReadGCode:87' U0 = A0 ;
+        // 'ReadGCode:87' U1 = A0;
+        // 'ReadGCode:89' if cmd == ReadGCodeCmd.Load
+        // 'ReadGCode:91' CurvStruct = ConstrLineStruct(trafo, HSC, Poff, Aoff, ...
+        // 'ReadGCode:92'                                       Uoff, Doff, [1,2,3]', [4,5,6]', ...
+        // 'ReadGCode:93'                                       A0, A1, U0, U1, 0.2, ZSpdMode.NN);
+        dv[0] = 0.0;
+        dv1[0] = 0.0;
+        dv2[0] = 0.0;
+        dv3[0] = 1.0;
+        dv4[0] = 4.0;
+        dv5[0] = 0.0;
+        dv6[0] = 0.0;
+        dv7[0] = 0.0;
+        dv8[0] = 0.0;
+        dv[1] = 0.0;
+        dv1[1] = 0.0;
+        dv2[1] = 0.0;
+        dv3[1] = 2.0;
+        dv4[1] = 5.0;
+        dv5[1] = 0.0;
+        dv6[1] = 0.0;
+        dv7[1] = 0.0;
+        dv8[1] = 0.0;
+        dv[2] = 0.0;
+        dv1[2] = 0.0;
+        dv2[2] = 0.0;
+        dv3[2] = 3.0;
+        dv4[2] = 6.0;
+        dv5[2] = 0.0;
+        dv6[2] = 0.0;
+        dv7[2] = 0.0;
+        dv8[2] = 0.0;
+        ConstrLineStruct(false, false, dv, dv1, dv2, 0.0, dv3, dv4, dv5, dv6, dv7, dv8, 0.2,
+                         ZSpdMode_NN, &b_CurvStruct);
+        // 'ReadGCode:95' status = int32(0);
+        // 'ReadGCode:96' status = coder.ceval('c_open_gcode', [filename, 0],
         // coder.ref(CurvStruct));
         std::copy(&ctx->cfg.source[0], &ctx->cfg.source[1024], &b_cv[0]);
         b_cv[1024] = '\x00';
@@ -168,6 +215,35 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             fflush(stdout);
         }
         // 'FeedoptPlan:29' while status
+        if (status != 0) {
+            dv[0] = 0.0;
+            dv1[0] = 0.0;
+            dv2[0] = 0.0;
+            dv3[0] = 1.0;
+            dv4[0] = 4.0;
+            dv5[0] = 0.0;
+            dv6[0] = 0.0;
+            dv7[0] = 0.0;
+            dv8[0] = 0.0;
+            dv[1] = 0.0;
+            dv1[1] = 0.0;
+            dv2[1] = 0.0;
+            dv3[1] = 2.0;
+            dv4[1] = 5.0;
+            dv5[1] = 0.0;
+            dv6[1] = 0.0;
+            dv7[1] = 0.0;
+            dv8[1] = 0.0;
+            dv[2] = 0.0;
+            dv1[2] = 0.0;
+            dv2[2] = 0.0;
+            dv3[2] = 3.0;
+            dv4[2] = 6.0;
+            dv5[2] = 0.0;
+            dv6[2] = 0.0;
+            dv7[2] = 0.0;
+            dv8[2] = 0.0;
+        }
         while (status != 0) {
             int b_status;
             //    if( isempty(mySuperCounter) )
@@ -179,28 +255,28 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             //  coder.extrinsic('ReadGCode_mex');
             //  Wrapper for pulling the next gcode line from the interpreter
             // 'ReadGCode:7' if coder.target('mex')
-            // 'ReadGCode:88' elseif coder.target('rtw')
-            // 'ReadGCode:89' trafo = false;
+            // 'ReadGCode:83' elseif coder.target('rtw')
+            // 'ReadGCode:84' trafo = false;
             //  TRAFO flag disable
-            // 'ReadGCode:90' HSC = false;
-            // 'ReadGCode:90' HSC_cmd = char(zeros(1,256));
-            // 'ReadGCode:91' Poff = zeros(3, 1);
-            // 'ReadGCode:91' Aoff = Poff;
-            // 'ReadGCode:91' Uoff = Poff;
-            // 'ReadGCode:91' Doff = 0.0;
-            // 'ReadGCode:92' A0 = zeros(3,1);
-            // 'ReadGCode:92' A1 = A0;
-            // 'ReadGCode:92' U0 = A0 ;
-            // 'ReadGCode:92' U1 = A0;
-            // 'ReadGCode:94' if cmd == ReadGCodeCmd.Load
-            // 'ReadGCode:102' elseif cmd == ReadGCodeCmd.Read
-            // 'ReadGCode:104' CurvStruct = ConstrLineStruct(trafo, HSC, HSC_cmd, Poff, Aoff, ...
-            // 'ReadGCode:105'                                       Uoff, Doff, [1,2,3]', [4,5,6]',
-            // ... 'ReadGCode:106'                                       A0, A1, U0, U1, 0.2,
+            // 'ReadGCode:85' HSC = false;
+            // 'ReadGCode:86' Poff = zeros(3, 1);
+            // 'ReadGCode:86' Aoff = Poff;
+            // 'ReadGCode:86' Uoff = Poff;
+            // 'ReadGCode:86' Doff = 0.0;
+            // 'ReadGCode:87' A0 = zeros(3,1);
+            // 'ReadGCode:87' A1 = A0;
+            // 'ReadGCode:87' U0 = A0 ;
+            // 'ReadGCode:87' U1 = A0;
+            // 'ReadGCode:89' if cmd == ReadGCodeCmd.Load
+            // 'ReadGCode:97' elseif cmd == ReadGCodeCmd.Read
+            // 'ReadGCode:99' CurvStruct = ConstrLineStruct(trafo, HSC, Poff, Aoff, ...
+            // 'ReadGCode:100'                                       Uoff, Doff, [1,2,3]', [4,5,6]',
+            // ... 'ReadGCode:101'                                       A0, A1, U0, U1, 0.2,
             // ZSpdMode.NN);
-            b_CurvStruct = CurvStruct_tmp;
-            // 'ReadGCode:107' status = int32(0);
-            // 'ReadGCode:108' status = coder.ceval('c_read_and_exec_gcode', '',
+            ConstrLineStruct(false, false, dv, dv1, dv2, 0.0, dv3, dv4, dv5, dv6, dv7, dv8, 0.2,
+                             ZSpdMode_NN, &b_CurvStruct);
+            // 'ReadGCode:102' status = int32(0);
+            // 'ReadGCode:103' status = coder.ceval('c_read_and_exec_gcode', '',
             // coder.ref(CurvStruct));
             b_status = c_read_and_exec_gcode(nullptr, &b_CurvStruct);
             status = b_status;

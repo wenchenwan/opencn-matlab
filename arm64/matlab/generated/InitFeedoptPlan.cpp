@@ -5,7 +5,7 @@
 // File: InitFeedoptPlan.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 24-Feb-2022 11:52:48
+// C/C++ source code generated on  : 25-Feb-2022 11:29:52
 //
 
 // Include Files
@@ -16,8 +16,8 @@
 #include "opencn_matlab_initialize.h"
 #include "opencn_matlab_types.h"
 #include "opencn_matlab_types1.h"
-#include "opencn_matlab_types11.h"
 #include "opencn_matlab_types2.h"
+#include "opencn_matlab_types3.h"
 #include "queue_coder.h"
 #include "coder_array.h"
 #include "src/c_spline.h"
@@ -47,7 +47,7 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     CurvStruct Curv;
     double A[4][4];
     double b_BasisVal[4][2];
-    double dv2[8];
+    double dv9[8];
     double B[4];
     double BasisValDD0[4];
     double BasisValDD1[4];
@@ -55,6 +55,13 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     double coef[4];
     double dv[3];
     double dv1[3];
+    double dv2[3];
+    double dv3[3];
+    double dv4[3];
+    double dv5[3];
+    double dv6[3];
+    double dv7[3];
+    double dv8[3];
     double b_breakpoints[2];
     double d1;
     double u_idx_0;
@@ -245,7 +252,6 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     // 'InitFeedoptPlan:31' trafo = false;
     //  TRAFO flag disable
     // 'InitFeedoptPlan:32' HSC = false;
-    // 'InitFeedoptPlan:32' HSC_cmd = char(zeros(1,256));
     // 'InitFeedoptPlan:33' Poff = zeros(3, 1);
     // 'InitFeedoptPlan:33' Aoff = Poff;
     // 'InitFeedoptPlan:33' Uoff = Poff;
@@ -254,16 +260,38 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     // 'InitFeedoptPlan:34' A1 = A0;
     // 'InitFeedoptPlan:34' U0 = A0 ;
     // 'InitFeedoptPlan:34' U1 = A0;
-    // 'InitFeedoptPlan:36' Curv = ConstrLineStruct(trafo, HSC, HSC_cmd, Poff, Aoff, Uoff, ...
+    // 'InitFeedoptPlan:36' Curv = ConstrLineStruct(trafo, HSC, Poff, Aoff, Uoff, ...
     // 'InitFeedoptPlan:37'                             Doff, [0,0,0]', [0,0,0]', A0, A1, U0, ...
     // 'InitFeedoptPlan:38'                             U1, 1, ZSpdMode.NN);
     dv[0] = 0.0;
     dv1[0] = 0.0;
+    dv2[0] = 0.0;
+    dv3[0] = 0.0;
+    dv4[0] = 0.0;
+    dv5[0] = 0.0;
+    dv6[0] = 0.0;
+    dv7[0] = 0.0;
+    dv8[0] = 0.0;
     dv[1] = 0.0;
     dv1[1] = 0.0;
+    dv2[1] = 0.0;
+    dv3[1] = 0.0;
+    dv4[1] = 0.0;
+    dv5[1] = 0.0;
+    dv6[1] = 0.0;
+    dv7[1] = 0.0;
+    dv8[1] = 0.0;
     dv[2] = 0.0;
     dv1[2] = 0.0;
-    b_ConstrLineStruct(dv, dv1, 1.0, &Curv);
+    dv2[2] = 0.0;
+    dv3[2] = 0.0;
+    dv4[2] = 0.0;
+    dv5[2] = 0.0;
+    dv6[2] = 0.0;
+    dv7[2] = 0.0;
+    dv8[2] = 0.0;
+    ConstrLineStruct(false, false, dv, dv1, dv2, 0.0, dv3, dv4, dv5, dv6, dv7, dv8, 1.0,
+                     ZSpdMode_NN, &Curv);
     // 'InitFeedoptPlan:40' Spline = CalcBspline_Lee(cfg, [[0,0,0]', [1,1,1]']);
     // 'CalcBspline_Lee:3' [~, N] = size(points);
     //  number of points in 3D space
@@ -574,17 +602,17 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     Curv.sp.Bl.ncoeff = cfg.SplineDegree;
     Curv.sp.Bl.handle = b_Bl_handle;
     Curv.sp.Bl.degree = cfg.SplineDegree;
-    dv2[0] = 0.0;
-    dv2[1] = 0.0;
-    dv2[2] = 0.0;
-    dv2[3] = u_idx_0;
-    dv2[4] = d1;
-    dv2[5] = 1.0;
-    dv2[6] = 1.0;
-    dv2[7] = 1.0;
+    dv9[0] = 0.0;
+    dv9[1] = 0.0;
+    dv9[2] = 0.0;
+    dv9[3] = u_idx_0;
+    dv9[4] = d1;
+    dv9[5] = 1.0;
+    dv9[6] = 1.0;
+    dv9[7] = 1.0;
     Curv.sp.knots.set_size(1, 8);
     for (int i19{0}; i19 < 8; i19++) {
-        Curv.sp.knots[i19] = dv2[i19];
+        Curv.sp.knots[i19] = dv9[i19];
     }
     // 'InitFeedoptPlan:42' Curv.sp.Ltot = 0;
     Curv.sp.Ltot = 0.0;

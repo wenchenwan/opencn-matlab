@@ -5,7 +5,7 @@
 // File: FeedoptPlan.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 24-Feb-2022 11:48:06
+// C/C++ source code generated on  : 25-Feb-2022 11:28:22
 //
 
 // Include Files
@@ -53,7 +53,7 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
     static const uint64m_T r10{
         {128U, 0U} // chunks
     };
-    static const uint64m_T r20{
+    static const uint64m_T r25{
         {16U, 0U} // chunks
     };
     static const uint64m_T r4{
@@ -69,7 +69,6 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
     ::coder::array<CurvStruct, 2U> OptSegment;
     ::coder::array<double, 2U> Coeff;
     ::coder::array<double, 2U> c_ctx;
-    CurvStruct CurvStruct_tmp;
     CurvStruct NextCurv;
     CurvStruct b_CurvStruct;
     CurvStruct b_first;
@@ -80,11 +79,11 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
     uint64m_T r12;
     uint64m_T r14;
     uint64m_T r16;
-    uint64m_T r17;
+    uint64m_T r18;
     uint64m_T r19;
     uint64m_T r2;
     uint64m_T r21;
-    uint64m_T r23;
+    uint64m_T r22;
     uint64m_T r24;
     uint64m_T r26;
     uint64m_T r27;
@@ -100,6 +99,13 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
     uint64m_T r9;
     double dv[3];
     double dv1[3];
+    double dv2[3];
+    double dv3[3];
+    double dv4[3];
+    double dv5[3];
+    double dv6[3];
+    double dv7[3];
+    double dv8[3];
     double e_ctx[3];
     double at_0;
     double b_at_0;
@@ -128,7 +134,6 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
     // 'FeedoptPlan:11' trafo = false;
     //  TRAFO flag disable
     // 'FeedoptPlan:12' HSC = false;
-    // 'FeedoptPlan:12' HSC_cmd = char(zeros(1,256));
     // 'FeedoptPlan:13' Poff = zeros(3, 1);
     // 'FeedoptPlan:13' Aoff = Poff;
     // 'FeedoptPlan:13' Uoff = Poff;
@@ -137,16 +142,38 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
     // 'FeedoptPlan:14' A1 = A0;
     // 'FeedoptPlan:14' U0 = A0 ;
     // 'FeedoptPlan:14' U1 = A0;
-    // 'FeedoptPlan:16' opt_struct = ConstrLineStruct(trafo, HSC, HSC_cmd, Poff, Aoff, Uoff, ...
+    // 'FeedoptPlan:16' opt_struct = ConstrLineStruct(trafo, HSC, Poff, Aoff, Uoff, ...
     // 'FeedoptPlan:17'                                Doff, [0,0,0]', [0,0,0]', A0, A1, U0, ...
     // 'FeedoptPlan:18'                                U1, 0.2, ZSpdMode.NN);
     dv[0] = 0.0;
     dv1[0] = 0.0;
+    dv2[0] = 0.0;
+    dv3[0] = 0.0;
+    dv4[0] = 0.0;
+    dv5[0] = 0.0;
+    dv6[0] = 0.0;
+    dv7[0] = 0.0;
+    dv8[0] = 0.0;
     dv[1] = 0.0;
     dv1[1] = 0.0;
+    dv2[1] = 0.0;
+    dv3[1] = 0.0;
+    dv4[1] = 0.0;
+    dv5[1] = 0.0;
+    dv6[1] = 0.0;
+    dv7[1] = 0.0;
+    dv8[1] = 0.0;
     dv[2] = 0.0;
     dv1[2] = 0.0;
-    b_ConstrLineStruct(dv, dv1, 0.2, opt_struct);
+    dv2[2] = 0.0;
+    dv3[2] = 0.0;
+    dv4[2] = 0.0;
+    dv5[2] = 0.0;
+    dv6[2] = 0.0;
+    dv7[2] = 0.0;
+    dv8[2] = 0.0;
+    ConstrLineStruct(false, false, dv, dv1, dv2, 0.0, dv3, dv4, dv5, dv6, dv7, dv8, 0.2,
+                     ZSpdMode_NN, opt_struct);
     // 'FeedoptPlan:20' switch ctx.op
     guard1 = false;
     switch (ctx->op) {
@@ -156,7 +183,7 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         ctx->op = Fopt_GCode;
         break;
     case Fopt_GCode: {
-        uint64m_T r15;
+        uint64m_T r17;
         int status;
         // 'FeedoptPlan:23' case Fopt.GCode
         //  To debug :
@@ -165,33 +192,53 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         //  coder.extrinsic('ReadGCode_mex');
         //  Wrapper for pulling the next gcode line from the interpreter
         // 'ReadGCode:7' if coder.target('mex')
-        // 'ReadGCode:88' elseif coder.target('rtw')
-        // 'ReadGCode:89' trafo = false;
+        // 'ReadGCode:83' elseif coder.target('rtw')
+        // 'ReadGCode:84' trafo = false;
         //  TRAFO flag disable
-        // 'ReadGCode:90' HSC = false;
-        // 'ReadGCode:90' HSC_cmd = char(zeros(1,256));
-        // 'ReadGCode:91' Poff = zeros(3, 1);
-        // 'ReadGCode:91' Aoff = Poff;
-        // 'ReadGCode:91' Uoff = Poff;
-        // 'ReadGCode:91' Doff = 0.0;
-        // 'ReadGCode:92' A0 = zeros(3,1);
-        // 'ReadGCode:92' A1 = A0;
-        // 'ReadGCode:92' U0 = A0 ;
-        // 'ReadGCode:92' U1 = A0;
-        // 'ReadGCode:94' if cmd == ReadGCodeCmd.Load
-        // 'ReadGCode:96' CurvStruct = ConstrLineStruct(trafo, HSC, HSC_cmd, Poff, Aoff, ...
-        // 'ReadGCode:97'                                       Uoff, Doff, [1,2,3]', [4,5,6]', ...
-        // 'ReadGCode:98'                                       A0, A1, U0, U1, 0.2, ZSpdMode.NN);
-        dv[0] = 1.0;
-        dv1[0] = 4.0;
-        dv[1] = 2.0;
-        dv1[1] = 5.0;
-        dv[2] = 3.0;
-        dv1[2] = 6.0;
-        b_ConstrLineStruct(dv, dv1, 0.2, &CurvStruct_tmp);
-        b_CurvStruct = CurvStruct_tmp;
-        // 'ReadGCode:100' status = int32(0);
-        // 'ReadGCode:101' status = coder.ceval('c_open_gcode', [filename, 0],
+        // 'ReadGCode:85' HSC = false;
+        // 'ReadGCode:86' Poff = zeros(3, 1);
+        // 'ReadGCode:86' Aoff = Poff;
+        // 'ReadGCode:86' Uoff = Poff;
+        // 'ReadGCode:86' Doff = 0.0;
+        // 'ReadGCode:87' A0 = zeros(3,1);
+        // 'ReadGCode:87' A1 = A0;
+        // 'ReadGCode:87' U0 = A0 ;
+        // 'ReadGCode:87' U1 = A0;
+        // 'ReadGCode:89' if cmd == ReadGCodeCmd.Load
+        // 'ReadGCode:91' CurvStruct = ConstrLineStruct(trafo, HSC, Poff, Aoff, ...
+        // 'ReadGCode:92'                                       Uoff, Doff, [1,2,3]', [4,5,6]', ...
+        // 'ReadGCode:93'                                       A0, A1, U0, U1, 0.2, ZSpdMode.NN);
+        dv[0] = 0.0;
+        dv1[0] = 0.0;
+        dv2[0] = 0.0;
+        dv3[0] = 1.0;
+        dv4[0] = 4.0;
+        dv5[0] = 0.0;
+        dv6[0] = 0.0;
+        dv7[0] = 0.0;
+        dv8[0] = 0.0;
+        dv[1] = 0.0;
+        dv1[1] = 0.0;
+        dv2[1] = 0.0;
+        dv3[1] = 2.0;
+        dv4[1] = 5.0;
+        dv5[1] = 0.0;
+        dv6[1] = 0.0;
+        dv7[1] = 0.0;
+        dv8[1] = 0.0;
+        dv[2] = 0.0;
+        dv1[2] = 0.0;
+        dv2[2] = 0.0;
+        dv3[2] = 3.0;
+        dv4[2] = 6.0;
+        dv5[2] = 0.0;
+        dv6[2] = 0.0;
+        dv7[2] = 0.0;
+        dv8[2] = 0.0;
+        ConstrLineStruct(false, false, dv, dv1, dv2, 0.0, dv3, dv4, dv5, dv6, dv7, dv8, 0.2,
+                         ZSpdMode_NN, &b_CurvStruct);
+        // 'ReadGCode:95' status = int32(0);
+        // 'ReadGCode:96' status = coder.ceval('c_open_gcode', [filename, 0],
         // coder.ref(CurvStruct));
         std::copy(&ctx->cfg.source[0], &ctx->cfg.source[1024], &b_cv[0]);
         b_cv[1024] = '\x00';
@@ -202,17 +249,46 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         // 'DebugLog:5' if IsEnabledDebugLog(cfg)
         // 'IsEnabledDebugLog:4' value = false;
         // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
-        Double2MultiWord(DebugConfig, (unsigned int *)&r14.chunks[0U]);
-        r15 = r10;
-        MultiWordAnd((unsigned int *)&r14.chunks[0U], (unsigned int *)&r10.chunks[0U],
-                     (unsigned int *)&r16.chunks[0U]);
-        if (uMultiWordNe((unsigned int *)&r16.chunks[0U], (unsigned int *)&r4.chunks[0U])) {
+        Double2MultiWord(DebugConfig, (unsigned int *)&r16.chunks[0U]);
+        r17 = r10;
+        MultiWordAnd((unsigned int *)&r16.chunks[0U], (unsigned int *)&r10.chunks[0U],
+                     (unsigned int *)&r18.chunks[0U]);
+        if (uMultiWordNe((unsigned int *)&r18.chunks[0U], (unsigned int *)&r4.chunks[0U])) {
             // 'IsEnabledDebugLog:7' value = true;
             // 'DebugLog:6' fprintf(1, varargin{:});
             printf("Reading G-code...\n");
             fflush(stdout);
         }
         // 'FeedoptPlan:29' while status
+        if (status != 0) {
+            dv[0] = 0.0;
+            dv1[0] = 0.0;
+            dv2[0] = 0.0;
+            dv3[0] = 1.0;
+            dv4[0] = 4.0;
+            dv5[0] = 0.0;
+            dv6[0] = 0.0;
+            dv7[0] = 0.0;
+            dv8[0] = 0.0;
+            dv[1] = 0.0;
+            dv1[1] = 0.0;
+            dv2[1] = 0.0;
+            dv3[1] = 2.0;
+            dv4[1] = 5.0;
+            dv5[1] = 0.0;
+            dv6[1] = 0.0;
+            dv7[1] = 0.0;
+            dv8[1] = 0.0;
+            dv[2] = 0.0;
+            dv1[2] = 0.0;
+            dv2[2] = 0.0;
+            dv3[2] = 3.0;
+            dv4[2] = 6.0;
+            dv5[2] = 0.0;
+            dv6[2] = 0.0;
+            dv7[2] = 0.0;
+            dv8[2] = 0.0;
+        }
         while (status != 0) {
             int b_status;
             //    if( isempty(mySuperCounter) )
@@ -224,28 +300,28 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             //  coder.extrinsic('ReadGCode_mex');
             //  Wrapper for pulling the next gcode line from the interpreter
             // 'ReadGCode:7' if coder.target('mex')
-            // 'ReadGCode:88' elseif coder.target('rtw')
-            // 'ReadGCode:89' trafo = false;
+            // 'ReadGCode:83' elseif coder.target('rtw')
+            // 'ReadGCode:84' trafo = false;
             //  TRAFO flag disable
-            // 'ReadGCode:90' HSC = false;
-            // 'ReadGCode:90' HSC_cmd = char(zeros(1,256));
-            // 'ReadGCode:91' Poff = zeros(3, 1);
-            // 'ReadGCode:91' Aoff = Poff;
-            // 'ReadGCode:91' Uoff = Poff;
-            // 'ReadGCode:91' Doff = 0.0;
-            // 'ReadGCode:92' A0 = zeros(3,1);
-            // 'ReadGCode:92' A1 = A0;
-            // 'ReadGCode:92' U0 = A0 ;
-            // 'ReadGCode:92' U1 = A0;
-            // 'ReadGCode:94' if cmd == ReadGCodeCmd.Load
-            // 'ReadGCode:102' elseif cmd == ReadGCodeCmd.Read
-            // 'ReadGCode:104' CurvStruct = ConstrLineStruct(trafo, HSC, HSC_cmd, Poff, Aoff, ...
-            // 'ReadGCode:105'                                       Uoff, Doff, [1,2,3]', [4,5,6]',
-            // ... 'ReadGCode:106'                                       A0, A1, U0, U1, 0.2,
+            // 'ReadGCode:85' HSC = false;
+            // 'ReadGCode:86' Poff = zeros(3, 1);
+            // 'ReadGCode:86' Aoff = Poff;
+            // 'ReadGCode:86' Uoff = Poff;
+            // 'ReadGCode:86' Doff = 0.0;
+            // 'ReadGCode:87' A0 = zeros(3,1);
+            // 'ReadGCode:87' A1 = A0;
+            // 'ReadGCode:87' U0 = A0 ;
+            // 'ReadGCode:87' U1 = A0;
+            // 'ReadGCode:89' if cmd == ReadGCodeCmd.Load
+            // 'ReadGCode:97' elseif cmd == ReadGCodeCmd.Read
+            // 'ReadGCode:99' CurvStruct = ConstrLineStruct(trafo, HSC, Poff, Aoff, ...
+            // 'ReadGCode:100'                                       Uoff, Doff, [1,2,3]', [4,5,6]',
+            // ... 'ReadGCode:101'                                       A0, A1, U0, U1, 0.2,
             // ZSpdMode.NN);
-            b_CurvStruct = CurvStruct_tmp;
-            // 'ReadGCode:107' status = int32(0);
-            // 'ReadGCode:108' status = coder.ceval('c_read_and_exec_gcode', '',
+            ConstrLineStruct(false, false, dv, dv1, dv2, 0.0, dv3, dv4, dv5, dv6, dv7, dv8, 0.2,
+                             ZSpdMode_NN, &b_CurvStruct);
+            // 'ReadGCode:102' status = int32(0);
+            // 'ReadGCode:103' status = coder.ceval('c_read_and_exec_gcode', '',
             // coder.ref(CurvStruct));
             b_status = c_read_and_exec_gcode(nullptr, &b_CurvStruct);
             status = b_status;
@@ -269,10 +345,10 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             // 'DebugLog:5' if IsEnabledDebugLog(cfg)
             // 'IsEnabledDebugLog:4' value = false;
             // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
-            Double2MultiWord(DebugConfig, (unsigned int *)&r19.chunks[0U]);
-            MultiWordAnd((unsigned int *)&r19.chunks[0U], (unsigned int *)&r20.chunks[0U],
-                         (unsigned int *)&r15.chunks[0U]);
-            if (uMultiWordNe((unsigned int *)&r15.chunks[0U], (unsigned int *)&r4.chunks[0U])) {
+            Double2MultiWord(DebugConfig, (unsigned int *)&r24.chunks[0U]);
+            MultiWordAnd((unsigned int *)&r24.chunks[0U], (unsigned int *)&r25.chunks[0U],
+                         (unsigned int *)&r17.chunks[0U]);
+            if (uMultiWordNe((unsigned int *)&r17.chunks[0U], (unsigned int *)&r4.chunks[0U])) {
                 // 'IsEnabledDebugLog:7' value = true;
                 // 'DebugLog:6' fprintf(1, varargin{:});
                 printf("ERROR: Optimization failed, Gcode queue is empty\n");
@@ -431,8 +507,8 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                         // 'FeedoptPlan:115' ctx.zero_start = true;
                         ctx->zero_start = true;
                     } else {
-                        uint64m_T r18;
-                        uint64m_T r22;
+                        uint64m_T r15;
+                        uint64m_T r20;
                         int Retry;
                         int e_loop_ub;
                         int k;
@@ -467,9 +543,9 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                         // 'DebugLog:5' if IsEnabledDebugLog(cfg)
                         // 'IsEnabledDebugLog:4' value = false;
                         // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
-                        Double2MultiWord(DebugConfig, (unsigned int *)&r17.chunks[0U]);
-                        r18 = r1;
-                        MultiWordAnd((unsigned int *)&r17.chunks[0U],
+                        Double2MultiWord(DebugConfig, (unsigned int *)&r14.chunks[0U]);
+                        r15 = r1;
+                        MultiWordAnd((unsigned int *)&r14.chunks[0U],
                                      (unsigned int *)&r1.chunks[0U],
                                      (unsigned int *)&r5.chunks[0U]);
                         if (uMultiWordNe((unsigned int *)&r5.chunks[0U],
@@ -513,7 +589,7 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                                 exitg1 = true;
                             } else {
                                 if (NextCurv.zspdmode == ZSpdMode_NN) {
-                                    uint64m_T r25;
+                                    uint64m_T r23;
                                     // 'FeedoptPlan:147' elseif NextCurv.zspdmode == ZSpdMode.NN
                                     // 'FeedoptPlan:148' nopt = nopt + 1;
                                     nopt++;
@@ -522,13 +598,13 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                                     // 'FeedoptPlan:151' if IsEnabledDebugLog(DebugCfg.Global)
                                     // 'IsEnabledDebugLog:4' value = false;
                                     // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
-                                    Double2MultiWord(DebugConfig, (unsigned int *)&r24.chunks[0U]);
-                                    r25 = r1;
-                                    MultiWordAnd((unsigned int *)&r24.chunks[0U],
+                                    Double2MultiWord(DebugConfig, (unsigned int *)&r22.chunks[0U]);
+                                    r23 = r1;
+                                    MultiWordAnd((unsigned int *)&r22.chunks[0U],
                                                  (unsigned int *)&r1.chunks[0U],
-                                                 (unsigned int *)&r18.chunks[0U]);
-                                    r24 = r4;
-                                    if (uMultiWordNe((unsigned int *)&r18.chunks[0U],
+                                                 (unsigned int *)&r15.chunks[0U]);
+                                    r22 = r4;
+                                    if (uMultiWordNe((unsigned int *)&r15.chunks[0U],
                                                      (unsigned int *)&r4.chunks[0U])) {
                                         // 'IsEnabledDebugLog:7' value = true;
                                         // 'FeedoptPlan:152' PrintCurvStruct(ctx,
@@ -549,12 +625,12 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                                         // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
                                         Double2MultiWord(DebugConfig,
                                                          (unsigned int *)&r26.chunks[0U]);
-                                        r23 = r1;
+                                        r21 = r1;
                                         MultiWordAnd((unsigned int *)&r26.chunks[0U],
                                                      (unsigned int *)&r1.chunks[0U],
-                                                     (unsigned int *)&r25.chunks[0U]);
+                                                     (unsigned int *)&r23.chunks[0U]);
                                         r26 = r4;
-                                        if (uMultiWordNe((unsigned int *)&r25.chunks[0U],
+                                        if (uMultiWordNe((unsigned int *)&r23.chunks[0U],
                                                          (unsigned int *)&r4.chunks[0U])) {
                                             // 'IsEnabledDebugLog:7' value = true;
                                             // 'DebugLog:6' fprintf(1, varargin{:});
@@ -576,12 +652,12 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                         // 'DebugLog:5' if IsEnabledDebugLog(cfg)
                         // 'IsEnabledDebugLog:4' value = false;
                         // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
-                        Double2MultiWord(DebugConfig, (unsigned int *)&r21.chunks[0U]);
-                        r22 = r1;
-                        MultiWordAnd((unsigned int *)&r21.chunks[0U],
+                        Double2MultiWord(DebugConfig, (unsigned int *)&r19.chunks[0U]);
+                        r20 = r1;
+                        MultiWordAnd((unsigned int *)&r19.chunks[0U],
                                      (unsigned int *)&r1.chunks[0U],
-                                     (unsigned int *)&r23.chunks[0U]);
-                        if (uMultiWordNe((unsigned int *)&r23.chunks[0U],
+                                     (unsigned int *)&r21.chunks[0U]);
+                        if (uMultiWordNe((unsigned int *)&r21.chunks[0U],
                                          (unsigned int *)&r4.chunks[0U])) {
                             // 'IsEnabledDebugLog:7' value = true;
                             // 'DebugLog:6' fprintf(1, varargin{:});
@@ -625,9 +701,9 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                                 // 'IsEnabledDebugLog:4' value = false;
                                 // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
                                 Double2MultiWord(DebugConfig, (unsigned int *)&r28.chunks[0U]);
-                                r29 = r20;
+                                r29 = r25;
                                 MultiWordAnd((unsigned int *)&r28.chunks[0U],
-                                             (unsigned int *)&r20.chunks[0U],
+                                             (unsigned int *)&r25.chunks[0U],
                                              (unsigned int *)&r31.chunks[0U]);
                                 r28 = r4;
                                 if (uMultiWordNe((unsigned int *)&r31.chunks[0U],
@@ -662,7 +738,7 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                                 // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
                                 Double2MultiWord(DebugConfig, (unsigned int *)&r32.chunks[0U]);
                                 MultiWordAnd((unsigned int *)&r32.chunks[0U],
-                                             (unsigned int *)&r20.chunks[0U],
+                                             (unsigned int *)&r25.chunks[0U],
                                              (unsigned int *)&r29.chunks[0U]);
                                 r32 = r4;
                                 if (uMultiWordNe((unsigned int *)&r29.chunks[0U],
@@ -719,9 +795,9 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                                 Double2MultiWord(DebugConfig, (unsigned int *)&r30.chunks[0U]);
                                 MultiWordAnd((unsigned int *)&r30.chunks[0U],
                                              (unsigned int *)&r1.chunks[0U],
-                                             (unsigned int *)&r22.chunks[0U]);
+                                             (unsigned int *)&r20.chunks[0U]);
                                 r30 = r4;
-                                if (uMultiWordNe((unsigned int *)&r22.chunks[0U],
+                                if (uMultiWordNe((unsigned int *)&r20.chunks[0U],
                                                  (unsigned int *)&r4.chunks[0U])) {
                                     // 'IsEnabledDebugLog:7' value = true;
                                     // 'FeedoptPlan:202' PrintCurvStruct(ctx, OptSegment(1));

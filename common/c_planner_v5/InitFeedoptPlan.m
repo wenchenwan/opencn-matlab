@@ -29,11 +29,11 @@ coder.inline("never");
     Coeff = zeros(0, 0);
     
     trafo = false; % TRAFO flag disable
-    HSC = false; HSC_cmd = char(zeros(1,256));
+    HSC = false;
     Poff = zeros(3, 1); Aoff = Poff; Uoff = Poff; Doff = 0.0;
     A0 = zeros(3,1); A1 = A0; U0 = A0 ; U1 = A0;
 
-    Curv = ConstrLineStruct(trafo, HSC, HSC_cmd, Poff, Aoff, Uoff, ...
+    Curv = ConstrLineStruct(trafo, HSC, Poff, Aoff, Uoff, ...
                             Doff, [0,0,0]', [0,0,0]', A0, A1, U0, ...
                             U1, 1, ZSpdMode.NN);
 

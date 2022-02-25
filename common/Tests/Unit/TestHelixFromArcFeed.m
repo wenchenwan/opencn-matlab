@@ -9,7 +9,7 @@ phi1 = pi/2;
 rotation = -2;
 
 trafo = false; % TRAFO flag disable 
-HSC = false; HSC_cmd  =  char(zeros(1,256));
+HSC = false;
 Poff = zeros(3, 1); Aoff = Poff; Uoff = Poff; Doff = 0.0;
 A0 = zeros(3,1); A1 = A0; U0 = A0 ; U1 = A0; 
 
@@ -18,7 +18,7 @@ p1x = cos(phi1); p1y = sin(phi1) + 1; p1z = -1;
 cx = 0; cy = 1; cz = 0;
 evec = [0,0,1]';
 
-Curv = ConstrHelixStructFromArcFeed(trafo, HSC, HSC_cmd, ...
+Curv = ConstrHelixStructFromArcFeed(trafo, HSC, ...
                                    Poff, Aoff, Uoff, Doff, p0x, p0y, p0z,...
                                    p1x, p1y, p1z, cx, cy, cz, A0, A1, U0,...
                                    U1, rotation, evec);

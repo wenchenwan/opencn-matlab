@@ -5,14 +5,14 @@
 // File: GetCurvMaxFeedrate.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 24-Feb-2022 11:52:48
+// C/C++ source code generated on  : 25-Feb-2022 11:29:52
 //
 
 #ifndef GETCURVMAXFEEDRATE_H
 #define GETCURVMAXFEEDRATE_H
 
 // Include Files
-#include "opencn_matlab_types21.h"
+#include "opencn_matlab_types2.h"
 #include "rtwtypes.h"
 #include <cstddef>
 #include <cstdlib>
