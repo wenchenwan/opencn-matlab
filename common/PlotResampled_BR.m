@@ -27,12 +27,16 @@ N = ctx.q_opt.size();
 DebugLog(DebugCfg.Validate, 'Resampling ...\n');
 DebugLog(DebugCfg.OptimProgress, 'Resampling ...\n');
 
-pvec = zeros(200000, 3);
-vvec = zeros(200000, 1);
+pvec = zeros(ktick_max, 3);
+vvec = zeros(ktick_max, 1);
 
+count = 0;
 for k = 1:N
-    
-    DebugLog(DebugCfg.OptimProgress, '%4d/%d\n', k, N);
+    if( floor( k * 100 / N ) > count )
+        DebugLog(DebugCfg.OptimProgress, '%3d [%%]\n', count);
+        count = count + 1;
+    end
+
     Curv = ctx.q_opt.get(k);
     SplineCurv = ctx.q_splines.get(Curv.sp_index);
     Curv.MaxConstantFeedRate = GetCurvMaxFeedrate(ctx, Curv);
@@ -68,6 +72,7 @@ if( nargin < 4 || ~params('disablePlot') )
     ylabel('y')
     zlabel('z')
     colorbar
+    
 end
 
 end

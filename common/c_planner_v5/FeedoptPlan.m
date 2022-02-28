@@ -35,6 +35,9 @@ switch ctx.op
             [status, CurvStruct] = ReadGCode(ReadGCodeCmd.Read, '');
          %  disp([mySuperCounter, CurvStruct.Poff', CurvStruct.P1']);
             if status == 1 && CurvStruct.Type ~= 0
+                if ( CurvStruct.FeedRate == 0 )
+                    CurvStruct.FeedRate = ctx.cfg.vmax;
+                end
                 ctx.q_gcode.push(CurvStruct);
           %      disp(mySuperCounter);
             end

@@ -27,10 +27,14 @@ max_vec_logic = zeros(k_max, 1);
 
 diary off;
 
+count = 0;
 for k=1:k_max
     
-    DebugLog(DebugCfg.OptimProgress, '%4d/%d\n', k, k_max);
-    
+    if( floor(k / k_max * 100) > count )
+        DebugLog(DebugCfg.OptimProgress, '%3d [%%] \n', count);
+        count = count + 5;
+    end
+
     ucum = uvec(k);
     u = ucum - floor(ucum);
     

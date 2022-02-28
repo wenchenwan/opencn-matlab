@@ -53,6 +53,9 @@ if coder.target('mex')
     end
 elseif coder.target('matlab') 
     if cmd == ReadGCodeCmd.Load
+        setenv("INI_FILE_NAME", pwd + "/config.ini");
+        disp("The configuration file is located : " + ...
+              getenv("INI_FILE_NAME"));
         ext = filename(end-3:end);
         if ext == ".mat"
             fprintf('Loading CurvStructs ... ')

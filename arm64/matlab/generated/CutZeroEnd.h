@@ -5,7 +5,7 @@
 // File: CutZeroEnd.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 25-Feb-2022 11:29:52
+// C/C++ source code generated on  : 28-Feb-2022 15:02:06
 //
 
 #ifndef CUTZEROEND_H
