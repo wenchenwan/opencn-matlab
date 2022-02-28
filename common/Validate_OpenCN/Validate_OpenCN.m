@@ -151,7 +151,7 @@ for k = 1:NGcodes
             profile on
             
             ctx = FeedoptPlanRun(ctx);                          % q(u)   
-                        diary on;
+            diary on;
             % Resampling of the parameter
             paramsPlotBr = containers.Map('disablePlot', true);
             uvec = PlotResampled_BR(ctx, ...

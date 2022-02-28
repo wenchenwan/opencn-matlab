@@ -30,11 +30,11 @@ DebugLog(DebugCfg.OptimProgress, 'Resampling ...\n');
 pvec = zeros(ktick_max, 3);
 vvec = zeros(ktick_max, 1);
 
-count = 0;
+countInPercent = 0;
 for k = 1:N
-    if( floor( k * 100 / N ) > count )
-        DebugLog(DebugCfg.OptimProgress, '%3d [%%]\n', count);
-        count = count + 1;
+    if( floor( k * 100 / N ) > countInPercent )
+        DebugLog(DebugCfg.OptimProgress, '%3d [%%]\n', countInPercent);
+        countInPercent = countInPercent + 1;
     end
 
     Curv = ctx.q_opt.get(k);

@@ -4,25 +4,20 @@ function CStrct = ConstrCurvStruct(Type, ZSpdMode, trafo, HSC,...
                                    pitch, CoeffP5, FeedRate)
 % Construct a struct for the curves.
 %
+% Type      : Type of curve
+% ZSpdMode  : Zero speed mode
 % trafo     : Flag for the trafo directive
 % HSC       : High speed cutting (true : on, false : off)
 % Poff      : Offset on the position {X, Y, Z}
 % Aoff      : Offset on the angle {A, B, C}
 % Uoff      : Offset on the sub-axis {U, V, W}
 % Doff      : Offset for the diameter of the tool
-% p0x       : Value in the x axis of point P0
-% p0y       : Value in the y axis of point P0
-% p0z       : Value in the z axis of point P0
-% p1x       : Value in the x axis of point P1
-% p1y       : Value in the y axis of point P1
-% p1z       : Value in the z axis of point P1
-% cx        : Value in the x axis of the center C
-% cy        : Value in the y axis of the center C
-% cz        : Value in the z axis of the center C
-% A0        : Vector of the orientation angles at starting pose
-% A1        : Vector of the orientation angles at ending pose
-% U0        : Vector of for the secondary axes at starting pose
-% U1        : Vector of for the secondary axes at ending pose
+% P0        : vector of the position at starting time
+% P1        : vector of the position at ending time
+% A0        : Vector of the orientation angles at starting time
+% A1        : Vector of the orientation angles at ending time
+% U0        : Vector of for the secondary axes at starting time
+% U1        : Vector of for the secondary axes at ending time
 % Cprim     : Corrected center for the circle
 % delta     : Difference between the radii
 % evec      : Unit vector in the linear direction for the helix

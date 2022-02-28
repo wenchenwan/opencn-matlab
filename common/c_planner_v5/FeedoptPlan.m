@@ -21,25 +21,17 @@ switch ctx.op
     case Fopt.Init
         ctx.op = Fopt.GCode;
     case Fopt.GCode
-        % To debug : 
-        %global mySuperCounter;
 
         status = int32(ReadGCode(ReadGCodeCmd.Load, ctx.cfg.source));
         DebugLog(DebugCfg.Validate, 'Reading G-code...\n');
         while status
-         %   if( isempty(mySuperCounter) )
-         %       mySuperCounter = 0;
-         %   else
-         %       mySuperCounter = mySuperCounter + 1;
-         %   end
             [status, CurvStruct] = ReadGCode(ReadGCodeCmd.Read, '');
-         %  disp([mySuperCounter, CurvStruct.Poff', CurvStruct.P1']);
             if status == 1 && CurvStruct.Type ~= 0
-                if ( CurvStruct.FeedRate == 0 )
+                if ( CurvStruct.FeedRate == 0.0 ) 
+                    % check for undefined feedrate
                     CurvStruct.FeedRate = ctx.cfg.vmax;
                 end
                 ctx.q_gcode.push(CurvStruct);
-          %      disp(mySuperCounter);
             end
         end
         if ctx.q_gcode.isempty()

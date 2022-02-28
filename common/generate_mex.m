@@ -2,7 +2,7 @@ clear; clc;
 
 % We need first to choose what we whant to MEX.
 % Several options are possible.
-GenerateDebug = false;
+GenerateConstrFunctions = false;
 GenerateGCodeInterpreter = true;
 GenerateSimplex = true;
 GenerateFeedoptPlanRun = false;
@@ -25,7 +25,7 @@ cfg.FilePartitionMethod = 'SingleFile';
 % Generate code that uses N-dimensional indexing.
 cfg.PreserveArrayDimensions = true;
 % Report will only be generated when errors or warnings occur.
-cfg.GenerateReport = true;
+cfg.GenerateReport = false;
 % Source files that will then be built, will be generated in C++.
 % They will not be removed after build.
 cfg.TargetLang = 'C++';
@@ -117,7 +117,7 @@ if GenerateFeedoptPlanRun
         '-o', 'FeedoptPlanRun_mex');
 end
 
-if GenerateDebug
+if GenerateConstrFunctions
     fprintf('Debug Constr functions\n')
     codegen('-config', cfg,'-d', 'gen_mex/debug', ...
         'ConstrCurvStructType',...
