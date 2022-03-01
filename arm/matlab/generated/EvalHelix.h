@@ -5,7 +5,7 @@
 // File: EvalHelix.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 14-Feb-2022 16:29:45
+// C/C++ source code generated on  : 01-Mar-2022 10:58:42
 //
 
 #ifndef EVALHELIX_H
@@ -21,22 +21,20 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-void EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3],
-               const double CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3],
-               double CurvStruct_theta, double CurvStruct_pitch, const double u_vec[10],
-               double r0D[10][3], double r1D[10][3], double r2D[10][3], double r3D[10][3]);
+void EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_CorrectedHelixCenter[3],
+               const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+               const double u_vec[10], double r0D[10][3], double r1D[10][3], double r2D[10][3],
+               double r3D[10][3]);
 
-void EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3],
-               const double CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3],
-               double CurvStruct_theta, double CurvStruct_pitch,
+void EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_CorrectedHelixCenter[3],
+               const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
                const ::coder::array<double, 2U> &u_vec, ::coder::array<double, 2U> &r0D,
                ::coder::array<double, 2U> &r1D, ::coder::array<double, 2U> &r2D,
                ::coder::array<double, 2U> &r3D);
 
-void EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_P1[3],
-               const double CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3],
-               double CurvStruct_theta, double CurvStruct_pitch, double u_vec, double r0D[3],
-               double r1D[3], double r2D[3], double r3D[3]);
+void EvalHelix(const double CurvStruct_P0[3], const double CurvStruct_CorrectedHelixCenter[3],
+               const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+               double u_vec, double r0D[3], double r1D[3], double r2D[3], double r3D[3]);
 
 } // namespace ocn
 

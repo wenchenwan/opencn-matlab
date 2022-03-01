@@ -3,10 +3,20 @@ function StudyZeroResampling
     cfg = FeedoptDefaultConfig;
     ctx = InitFeedoptPlan(cfg);
     
-%     gcode = ConstrLineStruct([0,0,0]', [1,0,0]', 10, ZSpdMode.ZZ);
 %     TestWithCurvStruct(gcode);
+    trafo = false; % TRAFO flag disable 
+    HSC = false;
+    Poff = zeros(3, 1); Aoff = Poff; Uoff = Poff; Doff = 0.0;
+    A0 = zeros(3,1); A1 = A0; U0 = A0 ; U1 = A0; 
     
-    gcode = ConstrHelixStruct([0,0,0]', [1,1,1]', [0,0,1]', pi/2, 4, 150, ZSpdMode.ZZ);
+    P0 = zeros(3, 1); P1 = ones(3, 1);
+    Cprim = [0,0,1]'; delta = 0; evec = [0,0,0]'; theta = pi/2; pitch = 4; 
+    mode = ZSpdMode.ZZ; FeedRate = 150;
+    
+    gcode = ConstrHelixStruct(trafo, HSC, Poff, Aoff, Uoff, ...
+                              Doff, P0, P1, A0, A1, U0, U1, Cprim, ...
+                              delta, evec, theta, pitch, FeedRate, mode);
+    
     TestWithCurvStruct(ctx, gcode);
     
 end

@@ -8,7 +8,7 @@ fs         = filesep; % file separation character
 % Gdir       = uigetdir('.', 'Choose directory with G-code validation files');
 
 % temporary line!
-Gdir       = char(pwd + "/ngc_test");
+Gdir       = char(pwd + "/ngc_test/");
 dircontent = dir([Gdir, fs, '*.ngc']);
 NGcodes    = length(dircontent);
 Str        = sprintf('%d G-code files found', NGcodes);
@@ -152,8 +152,10 @@ for k = 1:NGcodes
             
             ctx = FeedoptPlanRun(ctx);                          % q(u)   
             diary on;
+            % Resampling of the parameter
+            paramsPlotBr = containers.Map('disablePlot', true);
             uvec = PlotResampled_BR(ctx, ...
-                max_time, ctx.cfg.dt);                          % u(t)
+                max_time, ctx.cfg.dt, paramsPlotBr);                          % u(t)
             diary on;
             
             profile off

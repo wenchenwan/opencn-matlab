@@ -6,29 +6,31 @@ c_assert(ctx.errcode == FeedoptPlanError.Success, 'FeedoptPlan: error code was n
 
 
 optimized = false;
+end_flag = false;
 
-% opt_struct = struct('Coeff', zeros(ctx.cfg.MaxNCoeff, 1),...
-%     'CurvStruct', ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN));
-% coder.cstructname(opt_struct, 'OptCurvStruct');
+trafo = false; % TRAFO flag disable
+HSC = false;
+Poff = zeros(3, 1); Aoff = Poff; Uoff = Poff; Doff = 0.0;
+A0 = zeros(3,1); A1 = A0; U0 = A0 ; U1 = A0; 
 
-opt_struct = ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
+opt_struct = ConstrLineStruct(trafo, HSC, Poff, Aoff, Uoff, ...
+                               Doff, [0,0,0]', [0,0,0]', A0, A1, U0, ...
+                               U1, 0.2, ZSpdMode.NN);
 
 switch ctx.op
     case Fopt.Init
         ctx.op = Fopt.GCode;
-        
-%         coder.varsize('OptSegment', [1, FeedoptLimits.MaxNHorz], [0, 0]);
-%         coder.varsize('Coeff', [FeedoptLimits.MaxNCoeff, FeedoptLimits.MaxNHorz], [1,1]);
-        
-        % fprintf('Starting optimization with NHorz = %d\n', ctx.cfg.NHorz);
-%         
     case Fopt.GCode
+
         status = int32(ReadGCode(ReadGCodeCmd.Load, ctx.cfg.source));
         DebugLog(DebugCfg.Validate, 'Reading G-code...\n');
-        DebugLog(DebugCfg.OptimProgress, 'Reading G-code...\n');
         while status
             [status, CurvStruct] = ReadGCode(ReadGCodeCmd.Read, '');
             if status == 1 && CurvStruct.Type ~= 0
+                if ( CurvStruct.FeedRate == 0.0 ) 
+                    % check for undefined feedrate
+                    CurvStruct.FeedRate = ctx.cfg.vmax;
+                end
                 ctx.q_gcode.push(CurvStruct);
             end
         end
@@ -82,7 +84,7 @@ switch ctx.op
         end
         ctx.op = Fopt.Opt;
         
-        if IsEnabledDebugLog(DebugCfg.Validate) || IsEnabledDebugLog(DebugCfg.OptimProgress)
+        if IsEnabledDebugLog(DebugCfg.OptimProgress)
             fprintf('%4d/%u\n', ctx.k0, ctx.q_split.size);
         end
         

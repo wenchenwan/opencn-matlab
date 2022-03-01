@@ -1,35 +1,48 @@
-% [R, Cprim] = CorrectArcCenter(P0, P1, C)
-% recalculate the center point Cprim of an arc in the plane passing by P0 and P1,
-% C being the approximate center point
-function [R, Cprim, delta] = CorrectArcCenter(P0, P1, C)
 
-P1P0   = P1 - P0;
-R      = 0.5*(MyNorm(C-P0) + MyNorm(C-P1)); % mean value of radius
+function [R, Cprim, delta] = CorrectArcCenter(P0, P1, C)
+% CorrectArcCenter : Recompute the correct center of a given arc. This is a
+% required step to minimize rounding errors.
 %
-if MyNorm(P1P0) < 1e-6
-    Cprim = C;                         % do nothing if P0 and P1 are extremely close
-    delta = 0;
+% P0    : 2D vector from the origin to the starting point
+% P1    : 2D vector from the origin to the ending point
+% C     : 2D vector from the origin to the center of the arc
+%
+% R     : Radius of arc
+% Cprim : Corrected Center of the arc
+% delta : Numerical difference between the two centers
+
+P10 = P1 - P0;
+L10 = MyNorm( P10 );
+% Compute mean of radii
+R   = ( MyNorm( C - P0 ) + MyNorm( C - P1 ) ) / 2; 
+
+% Default tolerance for considering two points as supperposed 
+DEFAULT_TOL_DIST = 1e-6; 
+
+if L10 < DEFAULT_TOL_DIST
+    % Points are supperposed 
+    Cprim = C; delta = 0;
 else
-    l      = MyNorm(P1P0);
+
+    ep  = [P10(2); -P10(1)];        % Bisecting line (90° rotation)
+    ep  = ep / MyNorm(ep);          % Unit vector on bisecting line
     
-    ep     = [P1P0(2);
-             -P1P0(1)];                % bisecting line (90° rotation)
-    ep     = ep/MyNorm(ep);              % unit vector on bisecting line
-    
-    % dealing with limit cases...
-    a = R.^2 - (l/2).^2;
-    if  a <= 0
+    % Dealing with limit cases...
+    a = R.^2 - ( L10.^2 ) / 4;
+    if  a <= 0 % Center is aligned with the two points
         d = 0;
     else
         d = mysqrt(a);
     end
+
     delta = a;
     
-    M      = 0.5*(P0+P1);              % midpoint
-    Cprim1 = M + d*ep;                 % two choices for the center point
+    M      = 0.5*(P0+P1);           % Midpoint
+    Cprim1 = M + d*ep;              % Two choices for the center point
     Cprim2 = M - d*ep;
-    %
-    if MyNorm(C-Cprim1) < MyNorm(C-Cprim2) % determine on which side the center point lies
+    
+    % Determine on which side the center point lies
+    if MyNorm(C-Cprim1) < MyNorm(C-Cprim2) 
         Cprim = Cprim1;
     else
         Cprim = Cprim2;

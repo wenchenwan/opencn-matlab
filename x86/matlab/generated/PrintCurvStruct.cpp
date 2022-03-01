@@ -5,7 +5,7 @@
 // File: PrintCurvStruct.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 14-Feb-2022 16:26:14
+// C/C++ source code generated on  : 01-Mar-2022 11:00:11
 //
 
 // Include Files
@@ -38,7 +38,7 @@ void PrintCurvStruct(const queue_coder *ctx_q_splines, const double ctx_cfg_Gaus
 {
     static const char b_cv[9]{'<', 'U', 'N', 'K', 'N', 'O', 'W', 'N', '>'};
     static const char b_cv2[7]{'T', 'r', 'a', 'n', 's', 'P', '5'};
-    static const char b_cv3[6]{'S', 'p', 'l', 'i', 'n', 'e'};
+    static const char cv3[6]{'S', 'p', 'l', 'i', 'n', 'e'};
     static const char b_cv1[5]{'H', 'e', 'l', 'i', 'x'};
     coder::rtString formatSpec;
     double dv[3][6];
@@ -87,7 +87,7 @@ void PrintCurvStruct(const queue_coder *ctx_q_splines, const double ctx_cfg_Gaus
         // 'PrintCurvStruct:67' str = 'Spline';
         varargin_1_size_idx_1 = 6;
         for (int i3{0}; i3 < 6; i3++) {
-            varargin_1_data[i3] = b_cv3[i3];
+            varargin_1_data[i3] = cv3[i3];
         }
         break;
     default:

@@ -5,7 +5,7 @@
 // File: opencn_matlab_data.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 14-Feb-2022 16:27:55
+// C/C++ source code generated on  : 01-Mar-2022 11:01:39
 //
 
 // Include Files
@@ -13,23 +13,23 @@
 
 // Variable Definitions
 namespace ocn {
-double sqrt_calls;
-
 double cos_calls;
 
 double sin_calls;
 
 double DebugConfig;
 
+double sqrt_calls;
+
 const char cv[30]{'U', 'n', 'k', 'n', 'o', 'w', 'n', ' ', 'C', 'u', 'r', 'v', 'e', ' ',  'T',
                   'y', 'p', 'e', ' ', 'f', 'o', 'r', ' ', 'E', 'v', 'a', 'l', '.', '\\', 'n'};
 
-const char cv2[54]{'u', '1', ' ', 'm', 'u', 's', 't', ' ', 'b', 'e', ' ', 'g', 'r', 'e',
+const char cv1[54]{'u', '1', ' ', 'm', 'u', 's', 't', ' ', 'b', 'e', ' ', 'g', 'r', 'e',
                    'a', 't', 'e', 'r', ' ', 'o', 'r', ' ', 'e', 'q', 'u', 'a', 'l', ' ',
                    't', 'h', 'a', 'n', ' ', 't', 'h', 'e', ' ', 'f', 'i', 'r', 's', 't',
                    ' ', 's', 'p', 'l', 'i', 'n', 'e', ' ', 'k', 'n', 'o', 't'};
 
-const char cv3[54]{'u', '1', ' ', 'm', 'u', 's', 't', ' ', 'b', 'e', ' ', 's', 'm', 'a',
+const char cv2[54]{'u', '1', ' ', 'm', 'u', 's', 't', ' ', 'b', 'e', ' ', 's', 'm', 'a',
                    'l', 'l', 'e', 'r', ' ', 'o', 'r', ' ', 'e', 'q', 'u', 'a', 'l', ' ',
                    't', 'h', 'a', 'n', ' ', 't', 'h', 'e', ' ', 'f', 'i', 'r', 's', 't',
                    ' ', 's', 'p', 'l', 'i', 'n', 'e', ' ', 'k', 'n', 'o', 't'};

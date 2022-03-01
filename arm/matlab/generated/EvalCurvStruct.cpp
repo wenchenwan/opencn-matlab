@@ -5,7 +5,7 @@
 // File: EvalCurvStruct.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 14-Feb-2022 16:29:45
+// C/C++ source code generated on  : 01-Mar-2022 10:58:42
 //
 
 // Include Files
@@ -190,9 +190,8 @@ void EvalCurvStruct(const FeedoptContext *ctx, const CurvStruct *b_CurvStruct,
         // 'EvalCurvStruct:35' case CurveType.Helix
         //  arc of circle / helix (G02, G03)
         // 'EvalCurvStruct:36' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
-        EvalHelix(b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->CorrectedHelixCenter,
-                  b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->pitch, u_vec_tilda, r0D,
-                  r1D, r2D, r3D);
+        EvalHelix(b_CurvStruct->P0, b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec,
+                  b_CurvStruct->theta, b_CurvStruct->pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_TransP5:
         // 'EvalCurvStruct:37' case CurveType.TransP5
@@ -337,8 +336,8 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         // 'EvalCurvStruct:35' case CurveType.Helix
         //  arc of circle / helix (G02, G03)
         // 'EvalCurvStruct:36' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
-        EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_CorrectedHelixCenter, CurvStruct_evec,
-                  CurvStruct_theta, CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
+        EvalHelix(CurvStruct_P0, CurvStruct_CorrectedHelixCenter, CurvStruct_evec, CurvStruct_theta,
+                  CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_TransP5:
         // 'EvalCurvStruct:37' case CurveType.TransP5
@@ -529,9 +528,9 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, const CurvStruct *b_Curv
         // 'EvalCurvStruct:35' case CurveType.Helix
         //  arc of circle / helix (G02, G03)
         // 'EvalCurvStruct:36' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
-        EvalHelix(b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->CorrectedHelixCenter,
-                  b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->pitch,
-                  b_CurvStruct->b_param, r0D, r1D, r2D, r3D);
+        EvalHelix(b_CurvStruct->P0, b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec,
+                  b_CurvStruct->theta, b_CurvStruct->pitch, b_CurvStruct->b_param, r0D, r1D, r2D,
+                  r3D);
         break;
     case CurveType_TransP5:
         // 'EvalCurvStruct:37' case CurveType.TransP5
@@ -707,8 +706,8 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         // 'EvalCurvStruct:35' case CurveType.Helix
         //  arc of circle / helix (G02, G03)
         // 'EvalCurvStruct:36' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
-        EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_CorrectedHelixCenter, CurvStruct_evec,
-                  CurvStruct_theta, CurvStruct_pitch, CurvStruct_b_param, r0D, r1D, r2D, r3D);
+        EvalHelix(CurvStruct_P0, CurvStruct_CorrectedHelixCenter, CurvStruct_evec, CurvStruct_theta,
+                  CurvStruct_pitch, CurvStruct_b_param, r0D, r1D, r2D, r3D);
         break;
     case CurveType_TransP5:
         // 'EvalCurvStruct:37' case CurveType.TransP5
@@ -880,8 +879,8 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         // 'EvalCurvStruct:35' case CurveType.Helix
         //  arc of circle / helix (G02, G03)
         // 'EvalCurvStruct:36' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
-        EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_CorrectedHelixCenter, CurvStruct_evec,
-                  CurvStruct_theta, CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
+        EvalHelix(CurvStruct_P0, CurvStruct_CorrectedHelixCenter, CurvStruct_evec, CurvStruct_theta,
+                  CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_TransP5:
         // 'EvalCurvStruct:37' case CurveType.TransP5
@@ -1030,8 +1029,8 @@ void b_EvalCurvStruct(CurveType CurvStruct_Type, const double CurvStruct_P0[3],
         // 'EvalCurvStruct:35' case CurveType.Helix
         //  arc of circle / helix (G02, G03)
         // 'EvalCurvStruct:36' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
-        EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_CorrectedHelixCenter, CurvStruct_evec,
-                  CurvStruct_theta, CurvStruct_pitch, CurvStruct_b_param, r0D, r1D, r2D, r3D);
+        EvalHelix(CurvStruct_P0, CurvStruct_CorrectedHelixCenter, CurvStruct_evec, CurvStruct_theta,
+                  CurvStruct_pitch, CurvStruct_b_param, r0D, r1D, r2D, r3D);
     }
     // 'EvalCurvStruct:45' r1D = a.*r1D;
     // 'EvalCurvStruct:46' r2D = a^2.*r2D;
@@ -1211,8 +1210,8 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         // 'EvalCurvStruct:35' case CurveType.Helix
         //  arc of circle / helix (G02, G03)
         // 'EvalCurvStruct:36' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
-        EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_CorrectedHelixCenter, CurvStruct_evec,
-                  CurvStruct_theta, CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
+        EvalHelix(CurvStruct_P0, CurvStruct_CorrectedHelixCenter, CurvStruct_evec, CurvStruct_theta,
+                  CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_TransP5:
         // 'EvalCurvStruct:37' case CurveType.TransP5
@@ -1338,8 +1337,8 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         // 'EvalCurvStruct:35' case CurveType.Helix
         //  arc of circle / helix (G02, G03)
         // 'EvalCurvStruct:36' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
-        EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_CorrectedHelixCenter, CurvStruct_evec,
-                  CurvStruct_theta, CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
+        EvalHelix(CurvStruct_P0, CurvStruct_CorrectedHelixCenter, CurvStruct_evec, CurvStruct_theta,
+                  CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_TransP5:
         // 'EvalCurvStruct:37' case CurveType.TransP5
@@ -1599,9 +1598,8 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, const CurvStruct *b_Curv
         // 'EvalCurvStruct:35' case CurveType.Helix
         //  arc of circle / helix (G02, G03)
         // 'EvalCurvStruct:36' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
-        EvalHelix(b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->CorrectedHelixCenter,
-                  b_CurvStruct->evec, b_CurvStruct->theta, b_CurvStruct->pitch, u_vec_tilda, r0D,
-                  r1D, r2D, r3D);
+        EvalHelix(b_CurvStruct->P0, b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec,
+                  b_CurvStruct->theta, b_CurvStruct->pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_TransP5:
         // 'EvalCurvStruct:37' case CurveType.TransP5
@@ -1739,8 +1737,8 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         // 'EvalCurvStruct:35' case CurveType.Helix
         //  arc of circle / helix (G02, G03)
         // 'EvalCurvStruct:36' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
-        EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_CorrectedHelixCenter, CurvStruct_evec,
-                  CurvStruct_theta, CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
+        EvalHelix(CurvStruct_P0, CurvStruct_CorrectedHelixCenter, CurvStruct_evec, CurvStruct_theta,
+                  CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_TransP5:
         // 'EvalCurvStruct:37' case CurveType.TransP5
@@ -1930,8 +1928,8 @@ void c_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         // 'EvalCurvStruct:35' case CurveType.Helix
         //  arc of circle / helix (G02, G03)
         // 'EvalCurvStruct:36' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
-        EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_CorrectedHelixCenter, CurvStruct_evec,
-                  CurvStruct_theta, CurvStruct_pitch, CurvStruct_b_param, r0D, r1D, r2D, r3D);
+        EvalHelix(CurvStruct_P0, CurvStruct_CorrectedHelixCenter, CurvStruct_evec, CurvStruct_theta,
+                  CurvStruct_pitch, CurvStruct_b_param, r0D, r1D, r2D, r3D);
         break;
     case CurveType_TransP5:
         // 'EvalCurvStruct:37' case CurveType.TransP5
@@ -2127,8 +2125,8 @@ void c_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         // 'EvalCurvStruct:35' case CurveType.Helix
         //  arc of circle / helix (G02, G03)
         // 'EvalCurvStruct:36' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
-        EvalHelix(CurvStruct_P0, CurvStruct_P1, CurvStruct_CorrectedHelixCenter, CurvStruct_evec,
-                  CurvStruct_theta, CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
+        EvalHelix(CurvStruct_P0, CurvStruct_CorrectedHelixCenter, CurvStruct_evec, CurvStruct_theta,
+                  CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_TransP5:
         // 'EvalCurvStruct:37' case CurveType.TransP5

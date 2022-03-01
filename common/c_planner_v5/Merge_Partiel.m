@@ -15,20 +15,6 @@ load('.\GeomFiles\SmallAnchor2D_F9000_CS.mat');
 % load('.\GeomFiles\PieceDemoLinuxCNC_Compressing0_035_CS.mat');
 CurvStructs0 = CurvStructs;
 Stats_CrvStrc(CurvStructs);
-%
-% CurvStructs0 = [ConstrLineStruct([-1;0;0], [0;0;0], vmax, ZSpdMode.ZN), ...
-%                 ConstrHelixStruct([0;0;0], [0;1;0], [0;0;1], pi, 0, vmax, ZSpdMode.NN), ...
-%                 ConstrLineStruct([0;1;0], [-1;1;0], vmax, ZSpdMode.NZ), ...
-%                ];
-
-% Points = [-1,    0,    0,    -1,   -0.5,  -2;
-%            0,    0,    1,     0,   -0.5,   0;
-%            0,    0,    0.5, 0.5,   -0.5,  -1];
-% %
-% CurvStructs0 = ConstrPolygon3D(Points, vmax);
-%
-% CurvStructs0 = ConstrLineStruct([0;0;0], [1;0;0], vmax, ZSpdMode.ZN);
-% CurvStructs1 = CurvStructs0;
 
 %% smoothing of transitions
 CutOff      = 0.1;   

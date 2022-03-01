@@ -5,7 +5,7 @@
 // File: EvalPosition.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 14-Feb-2022 16:29:45
+// C/C++ source code generated on  : 01-Mar-2022 10:58:42
 //
 
 // Include Files
@@ -100,8 +100,8 @@ void EvalPosition(const CurvStruct *Curv, const CurvStruct *Spline, double u, do
         // 'EvalCurvStructNoCtx:34' case CurveType.Helix
         //  arc of circle / helix (G02, G03)
         // 'EvalCurvStructNoCtx:35' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
-        EvalHelix(Curv->P0, Curv->P1, Curv->CorrectedHelixCenter, Curv->evec, Curv->theta,
-                  Curv->pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
+        EvalHelix(Curv->P0, Curv->CorrectedHelixCenter, Curv->evec, Curv->theta, Curv->pitch,
+                  u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_TransP5:
         // 'EvalCurvStructNoCtx:36' case CurveType.TransP5

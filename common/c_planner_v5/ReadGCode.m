@@ -4,35 +4,38 @@ function [status, CurvStruct] = ReadGCode(cmd, filename)
 % Wrapper for pulling the next gcode line from the interpreter
 persistent n data using_mat
 
-if coder.target('mex')
-    CurvStruct = ConstrLineStruct([1,2,3]', [4,5,6]', 0.2, ZSpdMode.NN);
+if coder.target('mex') 
+    CurvStruct = ConstrCurvStructType;
+
     coder.updateBuildInfo('addDefines', '_POSIX_C_SOURCE=199309L')
+    pathRs274Src = '$(START_DIR)/../../rs274ngc/src';
     % coder.updateBuildInfo('addDefines', 'DEBUG_RS274')
     coder.updateBuildInfo('addDefines', 'MEX_READGCODE')
     coder.updateBuildInfo('addCompileFlags', '-fdiagnostics-color=always')
     coder.updateBuildInfo('addSourceFiles','cpp_interp.cpp', '$(START_DIR)/../common/src');
-    coder.updateBuildInfo('addSourceFiles','interp_arc.cc', '$(START_DIR)/../../rs274ngc');
-    coder.updateBuildInfo('addSourceFiles','interp_array.cc', '$(START_DIR)/../../rs274ngc');
-    coder.updateBuildInfo('addSourceFiles','interp_base.cc', '$(START_DIR)/../../rs274ngc');
-    coder.updateBuildInfo('addSourceFiles','interp_check.cc', '$(START_DIR)/../../rs274ngc');
-    coder.updateBuildInfo('addSourceFiles','interp_convert.cc', '$(START_DIR)/../../rs274ngc');
-    coder.updateBuildInfo('addSourceFiles','interp_cycles.cc', '$(START_DIR)/../../rs274ngc');
-    coder.updateBuildInfo('addSourceFiles','interp_execute.cc', '$(START_DIR)/../../rs274ngc');
-    coder.updateBuildInfo('addSourceFiles','interp_find.cc', '$(START_DIR)/../../rs274ngc');
-    coder.updateBuildInfo('addSourceFiles','interp_internal.cc', '$(START_DIR)/../../rs274ngc');
-    coder.updateBuildInfo('addSourceFiles','interp_inverse.cc', '$(START_DIR)/../../rs274ngc');
-    coder.updateBuildInfo('addSourceFiles','interp_namedparams.cc', '$(START_DIR)/../../rs274ngc');
-    coder.updateBuildInfo('addSourceFiles','interp_o_word.cc', '$(START_DIR)/../../rs274ngc');
-    coder.updateBuildInfo('addSourceFiles','interp_queue.cc', '$(START_DIR)/../../rs274ngc');
-    coder.updateBuildInfo('addSourceFiles','interp_read.cc', '$(START_DIR)/../../rs274ngc');
-    coder.updateBuildInfo('addSourceFiles','interp_remap.cc', '$(START_DIR)/../../rs274ngc');
-    coder.updateBuildInfo('addSourceFiles','interp_setup.cc', '$(START_DIR)/../../rs274ngc');
-    coder.updateBuildInfo('addSourceFiles','interp_write.cc', '$(START_DIR)/../../rs274ngc');
-    coder.updateBuildInfo('addSourceFiles','ocn.cc', '$(START_DIR)/../../rs274ngc');
-    coder.updateBuildInfo('addSourceFiles','rs274ngc_pre.cc', '$(START_DIR)/../../rs274ngc');
-    coder.updateBuildInfo('addSourceFiles','inifile.cc', '$(START_DIR)/../../rs274ngc');
+    coder.updateBuildInfo('addSourceFiles','directives.cc', pathRs274Src);
+    coder.updateBuildInfo('addSourceFiles','interp_arc.cc', pathRs274Src);
+    coder.updateBuildInfo('addSourceFiles','interp_array.cc', pathRs274Src);
+    coder.updateBuildInfo('addSourceFiles','interp_base.cc', pathRs274Src);
+    coder.updateBuildInfo('addSourceFiles','interp_check.cc', pathRs274Src);
+    coder.updateBuildInfo('addSourceFiles','interp_convert.cc', pathRs274Src);
+    coder.updateBuildInfo('addSourceFiles','interp_cycles.cc', pathRs274Src);
+    coder.updateBuildInfo('addSourceFiles','interp_execute.cc', pathRs274Src);
+    coder.updateBuildInfo('addSourceFiles','interp_find.cc', pathRs274Src);
+    coder.updateBuildInfo('addSourceFiles','interp_internal.cc', pathRs274Src);
+    coder.updateBuildInfo('addSourceFiles','interp_inverse.cc', pathRs274Src);
+    coder.updateBuildInfo('addSourceFiles','interp_namedparams.cc', pathRs274Src);
+    coder.updateBuildInfo('addSourceFiles','interp_o_word.cc', pathRs274Src);
+    coder.updateBuildInfo('addSourceFiles','interp_queue.cc', pathRs274Src);
+    coder.updateBuildInfo('addSourceFiles','interp_read.cc', pathRs274Src);
+    coder.updateBuildInfo('addSourceFiles','interp_remap.cc', pathRs274Src);
+    coder.updateBuildInfo('addSourceFiles','interp_setup.cc', pathRs274Src);
+    coder.updateBuildInfo('addSourceFiles','interp_write.cc', pathRs274Src);
+    coder.updateBuildInfo('addSourceFiles','ocn.cc', pathRs274Src);
+    coder.updateBuildInfo('addSourceFiles','rs274ngc_pre.cc', pathRs274Src);
+    coder.updateBuildInfo('addSourceFiles','inifile.cc', pathRs274Src);
     coder.updateBuildInfo('addLinkFlags', '-ldl');
-    coder.updateBuildInfo('addIncludePaths', '$(START_DIR)/gen_mex/readgcode');
+   coder.updateBuildInfo('addIncludePaths', '$(START_DIR)/gen_mex/readgcode');
     coder.cinclude('cpp_interp.hpp');
     
     status = int32(0);
@@ -50,6 +53,9 @@ if coder.target('mex')
     end
 elseif coder.target('matlab') 
     if cmd == ReadGCodeCmd.Load
+        setenv("INI_FILE_NAME", pwd + "/config.ini");
+        disp("The configuration file is located : " + ...
+              getenv("INI_FILE_NAME"));
         ext = filename(end-3:end);
         if ext == ".mat"
             fprintf('Loading CurvStructs ... ')
@@ -78,12 +84,24 @@ elseif coder.target('matlab')
         end
     end
 elseif coder.target('rtw')
+    trafo = false; % TRAFO flag disable 
+    HSC = false;
+    Poff = zeros(3, 1); Aoff = Poff; Uoff = Poff; Doff = 0.0;
+    A0 = zeros(3,1); A1 = A0; U0 = A0 ; U1 = A0; 
+
     if cmd == ReadGCodeCmd.Load
-        CurvStruct = ConstrLineStruct([1,2,3]', [4,5,6]', 0.2, ZSpdMode.NN);
+
+        CurvStruct = ConstrLineStruct(trafo, HSC, Poff, Aoff, ...
+                                      Uoff, Doff, [1,2,3]', [4,5,6]', ...
+                                      A0, A1, U0, U1, 0.2, ZSpdMode.NN);
+
         status = int32(0);
         status = coder.ceval('c_open_gcode', [filename, 0], coder.ref(CurvStruct));
     elseif cmd == ReadGCodeCmd.Read
-        CurvStruct = ConstrLineStruct([1,2,3]', [4,5,6]', 0.2, ZSpdMode.NN);
+
+        CurvStruct = ConstrLineStruct(trafo, HSC, Poff, Aoff, ...
+                                      Uoff, Doff, [1,2,3]', [4,5,6]', ...
+                                      A0, A1, U0, U1, 0.2, ZSpdMode.NN);
         status = int32(0);
         status = coder.ceval('c_read_and_exec_gcode', '', coder.ref(CurvStruct));
     end

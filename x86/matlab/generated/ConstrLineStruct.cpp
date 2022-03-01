@@ -5,7 +5,7 @@
 // File: ConstrLineStruct.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 14-Feb-2022 16:26:14
+// C/C++ source code generated on  : 01-Mar-2022 11:00:11
 //
 
 // Include Files
@@ -18,17 +18,32 @@
 
 // Function Definitions
 //
-// function CurvStruct = ConstrLineStruct(P0, P1, FeedRate, ZSpdMode)
+// function CurvStruct = ConstrLineStruct(trafo,  HSC, Poff, Aoff, ...
+//                                        Uoff, Doff, P0, P1, A0, A1, U0, U1,...
+//                                        FeedRate, ZSpdMode)
 //
-// Arguments    : const double P0[3]
+// Arguments    : bool trafo
+//                bool HSC
+//                const double Poff[3]
+//                const double Aoff[3]
+//                const double Uoff[3]
+//                double Doff
+//                const double P0[3]
 //                const double P1[3]
+//                const double A0[3]
+//                const double A1[3]
+//                const double U0[3]
+//                const double U1[3]
 //                double FeedRate
 //                ZSpdMode b_ZSpdMode
 //                CurvStruct *b_CurvStruct
 // Return Type  : void
 //
 namespace ocn {
-void ConstrLineStruct(const double P0[3], const double P1[3], double FeedRate, ZSpdMode b_ZSpdMode,
+void ConstrLineStruct(bool trafo, bool HSC, const double Poff[3], const double Aoff[3],
+                      const double Uoff[3], double Doff, const double P0[3], const double P1[3],
+                      const double A0[3], const double A1[3], const double U0[3],
+                      const double U1[3], double FeedRate, ZSpdMode b_ZSpdMode,
                       CurvStruct *b_CurvStruct)
 {
     double dv2[6][3];
@@ -37,13 +52,17 @@ void ConstrLineStruct(const double P0[3], const double P1[3], double FeedRate, Z
     if (!isInitialized_opencn_matlab) {
         opencn_matlab_initialize();
     }
-    // 'ConstrLineStruct:3' coder.inline("never");
-    // 'ConstrLineStruct:4' CoeffP5     = zeros(3, 6);
-    // 'ConstrLineStruct:5' evec        = zeros(3, 1);
-    // 'ConstrLineStruct:6' theta       = 0;
-    // 'ConstrLineStruct:7' pitch       = 0;
-    // 'ConstrLineStruct:10' CurvStruct  = ConstrCurvStruct(CurveType.Line, ZSpdMode, P0, P1,
-    // [0,0,0]', 0.0, evec, theta, pitch, CoeffP5, FeedRate);
+    // 'ConstrLineStruct:4' coder.inline("never");
+    // 'ConstrLineStruct:5' CoeffP5     = zeros(3, 6);
+    // 'ConstrLineStruct:6' evec        = zeros(3, 1);
+    // 'ConstrLineStruct:7' Cprim       = zeros(3, 1);
+    // 'ConstrLineStruct:8' delta       = 0.0;
+    // 'ConstrLineStruct:9' theta       = 0;
+    // 'ConstrLineStruct:10' pitch       = 0;
+    // 'ConstrLineStruct:13' CurvStruct  = ConstrCurvStruct(CurveType.Line, ZSpdMode, trafo,  HSC,
+    // ... 'ConstrLineStruct:14'                                 Poff, Aoff, Uoff, Doff, P0, P1,...
+    // 'ConstrLineStruct:15'                                 A0, A1, U0, U1, Cprim, delta, evec, ...
+    // 'ConstrLineStruct:16'                                 theta, pitch, CoeffP5, FeedRate);
     dv[0] = 0.0;
     dv1[0] = 0.0;
     dv[1] = 0.0;
@@ -55,9 +74,9 @@ void ConstrLineStruct(const double P0[3], const double P1[3], double FeedRate, Z
         dv2[i][1] = 0.0;
         dv2[i][2] = 0.0;
     }
-    ConstrCurvStruct(CurveType_Line, b_ZSpdMode, P0, P1, dv, 0.0, dv1, 0.0, 0.0, dv2, FeedRate,
-                     b_CurvStruct);
-    // 'ConstrLineStruct:11' coder.cstructname(CurvStruct, 'CurvStruct');
+    ConstrCurvStruct(CurveType_Line, b_ZSpdMode, trafo, HSC, Poff, Aoff, Uoff, Doff, P0, P1, A0, A1,
+                     U0, U1, dv, 0.0, dv1, 0.0, 0.0, dv2, FeedRate, b_CurvStruct);
+    // 'ConstrLineStruct:19' coder.cstructname(CurvStruct, 'CurvStruct');
 }
 
 } // namespace ocn

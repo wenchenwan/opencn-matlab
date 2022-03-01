@@ -5,7 +5,7 @@
 // File: SplineLengthFindU_up.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 14-Feb-2022 16:26:14
+// C/C++ source code generated on  : 01-Mar-2022 11:00:11
 //
 
 // Include Files
@@ -96,7 +96,7 @@ double SplineLengthFindU_up(const queue_coder *ctx_q_splines,
     if (u1 < expl_temp.sp.knots[i + 1]) {
         // 'c_assert:4' coder.ceval('c_assert_', message);
         for (int i2{0}; i2 < 54; i2++) {
-            message[i2] = cv2[i2];
+            message[i2] = cv1[i2];
         }
         c_assert_(&message[0]);
     }
@@ -107,7 +107,7 @@ double SplineLengthFindU_up(const queue_coder *ctx_q_splines,
     if (u1 > expl_temp.sp.knots[i1]) {
         // 'c_assert:4' coder.ceval('c_assert_', message);
         for (int i3{0}; i3 < 54; i3++) {
-            message[i3] = cv3[i3];
+            message[i3] = cv2[i3];
         }
         c_assert_(&message[0]);
     }

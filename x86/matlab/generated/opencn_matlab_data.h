@@ -5,7 +5,7 @@
 // File: opencn_matlab_data.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 14-Feb-2022 16:26:14
+// C/C++ source code generated on  : 01-Mar-2022 11:00:11
 //
 
 #ifndef OPENCN_MATLAB_DATA_H
@@ -22,13 +22,13 @@
 #include "functions.h"
 // Variable Declarations
 namespace ocn {
-extern double sqrt_calls;
 extern double cos_calls;
 extern double sin_calls;
 extern double DebugConfig;
+extern double sqrt_calls;
 extern const char cv[30];
+extern const char cv1[54];
 extern const char cv2[54];
-extern const char cv3[54];
 extern bool isInitialized_opencn_matlab;
 } // namespace ocn
 

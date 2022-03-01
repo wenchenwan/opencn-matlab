@@ -5,7 +5,7 @@
 // File: FeedoptPlan.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 14-Feb-2022 16:29:45
+// C/C++ source code generated on  : 01-Mar-2022 10:58:42
 //
 
 // Include Files
@@ -50,17 +50,17 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
     static const uint64m_T r1{
         {8U, 0U} // chunks
     };
-    static const uint64m_T r14{
-        {2U, 0U} // chunks
+    static const uint64m_T r10{
+        {128U, 0U} // chunks
     };
-    static const uint64m_T r24{
+    static const uint64m_T r25{
         {16U, 0U} // chunks
     };
     static const uint64m_T r4{
         {0U, 0U} // chunks
     };
     static const uint64m_T r6{
-        {128U, 0U} // chunks
+        {2U, 0U} // chunks
     };
     static const char b_message[39]{'F', 'e', 'e', 'd', 'o', 'p', 't', 'P', 'l', 'a',
                                     'n', ':', ' ', 'e', 'r', 'r', 'o', 'r', ' ', 'c',
@@ -73,35 +73,39 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
     CurvStruct b_CurvStruct;
     CurvStruct b_first;
     CurvStruct last;
-    CurvStruct r18;
+    CurvStruct r13;
     uint64m_T r;
-    uint64m_T r10;
     uint64m_T r11;
     uint64m_T r12;
-    uint64m_T r13;
-    uint64m_T r15;
-    uint64m_T r17;
+    uint64m_T r14;
+    uint64m_T r16;
+    uint64m_T r18;
     uint64m_T r19;
     uint64m_T r2;
     uint64m_T r21;
     uint64m_T r22;
-    uint64m_T r25;
+    uint64m_T r24;
+    uint64m_T r26;
     uint64m_T r27;
     uint64m_T r28;
+    uint64m_T r29;
     uint64m_T r3;
     uint64m_T r30;
     uint64m_T r31;
     uint64m_T r32;
     uint64m_T r33;
-    uint64m_T r34;
-    uint64m_T r35;
-    uint64m_T r36;
-    uint64m_T r37;
     uint64m_T r7;
     uint64m_T r8;
     uint64m_T r9;
     double dv[3];
     double dv1[3];
+    double dv2[3];
+    double dv3[3];
+    double dv4[3];
+    double dv5[3];
+    double dv6[3];
+    double dv7[3];
+    double dv8[3];
     double e_ctx[3];
     double at_0;
     double b_at_0;
@@ -126,310 +130,382 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
     // 'c_assert:6' value = condition;
     // 'FeedoptPlan:8' optimized = false;
     b_optimized = false;
-    //  opt_struct = struct('Coeff', zeros(ctx.cfg.MaxNCoeff, 1),...
-    //      'CurvStruct', ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN));
-    //  coder.cstructname(opt_struct, 'OptCurvStruct');
-    // 'FeedoptPlan:14' opt_struct = ConstrLineStruct([0,0,0]', [0,0,0]', 0.2, ZSpdMode.NN);
+    // 'FeedoptPlan:9' end_flag = false;
+    // 'FeedoptPlan:11' trafo = false;
+    //  TRAFO flag disable
+    // 'FeedoptPlan:12' HSC = false;
+    // 'FeedoptPlan:13' Poff = zeros(3, 1);
+    // 'FeedoptPlan:13' Aoff = Poff;
+    // 'FeedoptPlan:13' Uoff = Poff;
+    // 'FeedoptPlan:13' Doff = 0.0;
+    // 'FeedoptPlan:14' A0 = zeros(3,1);
+    // 'FeedoptPlan:14' A1 = A0;
+    // 'FeedoptPlan:14' U0 = A0 ;
+    // 'FeedoptPlan:14' U1 = A0;
+    // 'FeedoptPlan:16' opt_struct = ConstrLineStruct(trafo, HSC, Poff, Aoff, Uoff, ...
+    // 'FeedoptPlan:17'                                Doff, [0,0,0]', [0,0,0]', A0, A1, U0, ...
+    // 'FeedoptPlan:18'                                U1, 0.2, ZSpdMode.NN);
     dv[0] = 0.0;
     dv1[0] = 0.0;
+    dv2[0] = 0.0;
+    dv3[0] = 0.0;
+    dv4[0] = 0.0;
+    dv5[0] = 0.0;
+    dv6[0] = 0.0;
+    dv7[0] = 0.0;
+    dv8[0] = 0.0;
     dv[1] = 0.0;
     dv1[1] = 0.0;
+    dv2[1] = 0.0;
+    dv3[1] = 0.0;
+    dv4[1] = 0.0;
+    dv5[1] = 0.0;
+    dv6[1] = 0.0;
+    dv7[1] = 0.0;
+    dv8[1] = 0.0;
     dv[2] = 0.0;
     dv1[2] = 0.0;
-    ConstrLineStruct(dv, dv1, 0.2, ZSpdMode_NN, opt_struct);
-    // 'FeedoptPlan:16' switch ctx.op
+    dv2[2] = 0.0;
+    dv3[2] = 0.0;
+    dv4[2] = 0.0;
+    dv5[2] = 0.0;
+    dv6[2] = 0.0;
+    dv7[2] = 0.0;
+    dv8[2] = 0.0;
+    ConstrLineStruct(false, false, dv, dv1, dv2, 0.0, dv3, dv4, dv5, dv6, dv7, dv8, 0.2,
+                     ZSpdMode_NN, opt_struct);
+    // 'FeedoptPlan:20' switch ctx.op
     guard1 = false;
     switch (ctx->op) {
     case Fopt_Init:
-        // 'FeedoptPlan:17' case Fopt.Init
-        // 'FeedoptPlan:18' ctx.op = Fopt.GCode;
+        // 'FeedoptPlan:21' case Fopt.Init
+        // 'FeedoptPlan:22' ctx.op = Fopt.GCode;
         ctx->op = Fopt_GCode;
-        //          coder.varsize('OptSegment', [1, FeedoptLimits.MaxNHorz], [0, 0]);
-        //          coder.varsize('Coeff', [FeedoptLimits.MaxNCoeff, FeedoptLimits.MaxNHorz],
-        //          [1,1]);
-        //  fprintf('Starting optimization with NHorz = %d\n', ctx.cfg.NHorz);
-        //
         break;
     case Fopt_GCode: {
-        uint64m_T r16;
-        uint64m_T r20;
+        uint64m_T r17;
         int status;
-        // 'FeedoptPlan:25' case Fopt.GCode
-        // 'FeedoptPlan:26' status = int32(ReadGCode(ReadGCodeCmd.Load, ctx.cfg.source));
+        // 'FeedoptPlan:23' case Fopt.GCode
+        // 'FeedoptPlan:25' status = int32(ReadGCode(ReadGCodeCmd.Load, ctx.cfg.source));
         //  coder.extrinsic('ReadGCode_mex');
         //  Wrapper for pulling the next gcode line from the interpreter
         // 'ReadGCode:7' if coder.target('mex')
-        // 'ReadGCode:80' elseif coder.target('rtw')
-        // 'ReadGCode:81' if cmd == ReadGCodeCmd.Load
-        // 'ReadGCode:82' CurvStruct = ConstrLineStruct([1,2,3]', [4,5,6]', 0.2, ZSpdMode.NN);
-        dv[0] = 1.0;
-        dv1[0] = 4.0;
-        dv[1] = 2.0;
-        dv1[1] = 5.0;
-        dv[2] = 3.0;
-        dv1[2] = 6.0;
-        ConstrLineStruct(dv, dv1, 0.2, ZSpdMode_NN, &b_CurvStruct);
-        // 'ReadGCode:83' status = int32(0);
-        // 'ReadGCode:84' status = coder.ceval('c_open_gcode', [filename, 0],
+        // 'ReadGCode:86' elseif coder.target('rtw')
+        // 'ReadGCode:87' trafo = false;
+        //  TRAFO flag disable
+        // 'ReadGCode:88' HSC = false;
+        // 'ReadGCode:89' Poff = zeros(3, 1);
+        // 'ReadGCode:89' Aoff = Poff;
+        // 'ReadGCode:89' Uoff = Poff;
+        // 'ReadGCode:89' Doff = 0.0;
+        // 'ReadGCode:90' A0 = zeros(3,1);
+        // 'ReadGCode:90' A1 = A0;
+        // 'ReadGCode:90' U0 = A0 ;
+        // 'ReadGCode:90' U1 = A0;
+        // 'ReadGCode:92' if cmd == ReadGCodeCmd.Load
+        // 'ReadGCode:94' CurvStruct = ConstrLineStruct(trafo, HSC, Poff, Aoff, ...
+        // 'ReadGCode:95'                                       Uoff, Doff, [1,2,3]', [4,5,6]', ...
+        // 'ReadGCode:96'                                       A0, A1, U0, U1, 0.2, ZSpdMode.NN);
+        dv[0] = 0.0;
+        dv1[0] = 0.0;
+        dv2[0] = 0.0;
+        dv3[0] = 1.0;
+        dv4[0] = 4.0;
+        dv5[0] = 0.0;
+        dv6[0] = 0.0;
+        dv7[0] = 0.0;
+        dv8[0] = 0.0;
+        dv[1] = 0.0;
+        dv1[1] = 0.0;
+        dv2[1] = 0.0;
+        dv3[1] = 2.0;
+        dv4[1] = 5.0;
+        dv5[1] = 0.0;
+        dv6[1] = 0.0;
+        dv7[1] = 0.0;
+        dv8[1] = 0.0;
+        dv[2] = 0.0;
+        dv1[2] = 0.0;
+        dv2[2] = 0.0;
+        dv3[2] = 3.0;
+        dv4[2] = 6.0;
+        dv5[2] = 0.0;
+        dv6[2] = 0.0;
+        dv7[2] = 0.0;
+        dv8[2] = 0.0;
+        ConstrLineStruct(false, false, dv, dv1, dv2, 0.0, dv3, dv4, dv5, dv6, dv7, dv8, 0.2,
+                         ZSpdMode_NN, &b_CurvStruct);
+        // 'ReadGCode:98' status = int32(0);
+        // 'ReadGCode:99' status = coder.ceval('c_open_gcode', [filename, 0],
         // coder.ref(CurvStruct));
         std::copy(&ctx->cfg.source[0], &ctx->cfg.source[1024], &b_cv[0]);
         b_cv[1024] = '\x00';
         status = c_open_gcode(&b_cv[0], &b_CurvStruct);
-        // 'FeedoptPlan:27' DebugLog(DebugCfg.Validate, 'Reading G-code...\n');
+        // 'FeedoptPlan:26' DebugLog(DebugCfg.Validate, 'Reading G-code...\n');
         //  1 -> stdout
         //  2 -> stderr
         // 'DebugLog:5' if IsEnabledDebugLog(cfg)
         // 'IsEnabledDebugLog:4' value = false;
         // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
-        Double2MultiWord(DebugConfig, (unsigned int *)&r15.chunks[0U]);
-        r16 = r6;
-        MultiWordAnd((unsigned int *)&r15.chunks[0U], (unsigned int *)&r6.chunks[0U],
-                     (unsigned int *)&r17.chunks[0U]);
-        if (uMultiWordNe((unsigned int *)&r17.chunks[0U], (unsigned int *)&r4.chunks[0U])) {
+        Double2MultiWord(DebugConfig, (unsigned int *)&r16.chunks[0U]);
+        r17 = r10;
+        MultiWordAnd((unsigned int *)&r16.chunks[0U], (unsigned int *)&r10.chunks[0U],
+                     (unsigned int *)&r18.chunks[0U]);
+        if (uMultiWordNe((unsigned int *)&r18.chunks[0U], (unsigned int *)&r4.chunks[0U])) {
             // 'IsEnabledDebugLog:7' value = true;
             // 'DebugLog:6' fprintf(1, varargin{:});
             printf("Reading G-code...\n");
             fflush(stdout);
         }
-        // 'FeedoptPlan:28' DebugLog(DebugCfg.OptimProgress, 'Reading G-code...\n');
-        //  1 -> stdout
-        //  2 -> stderr
-        // 'DebugLog:5' if IsEnabledDebugLog(cfg)
-        // 'IsEnabledDebugLog:4' value = false;
-        // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
-        Double2MultiWord(DebugConfig, (unsigned int *)&r19.chunks[0U]);
-        r20 = r14;
-        MultiWordAnd((unsigned int *)&r19.chunks[0U], (unsigned int *)&r14.chunks[0U],
-                     (unsigned int *)&r16.chunks[0U]);
-        if (uMultiWordNe((unsigned int *)&r16.chunks[0U], (unsigned int *)&r4.chunks[0U])) {
-            // 'IsEnabledDebugLog:7' value = true;
-            // 'DebugLog:6' fprintf(1, varargin{:});
-            printf("Reading G-code...\n");
-            fflush(stdout);
-        }
-        // 'FeedoptPlan:29' while status
+        // 'FeedoptPlan:27' while status
         if (status != 0) {
-            dv[0] = 1.0;
-            dv1[0] = 4.0;
-            dv[1] = 2.0;
-            dv1[1] = 5.0;
-            dv[2] = 3.0;
-            dv1[2] = 6.0;
+            dv[0] = 0.0;
+            dv1[0] = 0.0;
+            dv2[0] = 0.0;
+            dv3[0] = 1.0;
+            dv4[0] = 4.0;
+            dv5[0] = 0.0;
+            dv6[0] = 0.0;
+            dv7[0] = 0.0;
+            dv8[0] = 0.0;
+            dv[1] = 0.0;
+            dv1[1] = 0.0;
+            dv2[1] = 0.0;
+            dv3[1] = 2.0;
+            dv4[1] = 5.0;
+            dv5[1] = 0.0;
+            dv6[1] = 0.0;
+            dv7[1] = 0.0;
+            dv8[1] = 0.0;
+            dv[2] = 0.0;
+            dv1[2] = 0.0;
+            dv2[2] = 0.0;
+            dv3[2] = 3.0;
+            dv4[2] = 6.0;
+            dv5[2] = 0.0;
+            dv6[2] = 0.0;
+            dv7[2] = 0.0;
+            dv8[2] = 0.0;
         }
         while (status != 0) {
             int b_status;
-            // 'FeedoptPlan:30' [status, CurvStruct] = ReadGCode(ReadGCodeCmd.Read, '');
+            // 'FeedoptPlan:28' [status, CurvStruct] = ReadGCode(ReadGCodeCmd.Read, '');
             //  coder.extrinsic('ReadGCode_mex');
             //  Wrapper for pulling the next gcode line from the interpreter
             // 'ReadGCode:7' if coder.target('mex')
-            // 'ReadGCode:80' elseif coder.target('rtw')
-            // 'ReadGCode:81' if cmd == ReadGCodeCmd.Load
-            // 'ReadGCode:85' elseif cmd == ReadGCodeCmd.Read
-            // 'ReadGCode:86' CurvStruct = ConstrLineStruct([1,2,3]', [4,5,6]', 0.2, ZSpdMode.NN);
-            ConstrLineStruct(dv, dv1, 0.2, ZSpdMode_NN, &b_CurvStruct);
-            // 'ReadGCode:87' status = int32(0);
-            // 'ReadGCode:88' status = coder.ceval('c_read_and_exec_gcode', '',
+            // 'ReadGCode:86' elseif coder.target('rtw')
+            // 'ReadGCode:87' trafo = false;
+            //  TRAFO flag disable
+            // 'ReadGCode:88' HSC = false;
+            // 'ReadGCode:89' Poff = zeros(3, 1);
+            // 'ReadGCode:89' Aoff = Poff;
+            // 'ReadGCode:89' Uoff = Poff;
+            // 'ReadGCode:89' Doff = 0.0;
+            // 'ReadGCode:90' A0 = zeros(3,1);
+            // 'ReadGCode:90' A1 = A0;
+            // 'ReadGCode:90' U0 = A0 ;
+            // 'ReadGCode:90' U1 = A0;
+            // 'ReadGCode:92' if cmd == ReadGCodeCmd.Load
+            // 'ReadGCode:100' elseif cmd == ReadGCodeCmd.Read
+            // 'ReadGCode:102' CurvStruct = ConstrLineStruct(trafo, HSC, Poff, Aoff, ...
+            // 'ReadGCode:103'                                       Uoff, Doff, [1,2,3]', [4,5,6]',
+            // ... 'ReadGCode:104'                                       A0, A1, U0, U1, 0.2,
+            // ZSpdMode.NN);
+            ConstrLineStruct(false, false, dv, dv1, dv2, 0.0, dv3, dv4, dv5, dv6, dv7, dv8, 0.2,
+                             ZSpdMode_NN, &b_CurvStruct);
+            // 'ReadGCode:105' status = int32(0);
+            // 'ReadGCode:106' status = coder.ceval('c_read_and_exec_gcode', '',
             // coder.ref(CurvStruct));
             b_status = c_read_and_exec_gcode(nullptr, &b_CurvStruct);
             status = b_status;
-            // 'FeedoptPlan:31' if status == 1 && CurvStruct.Type ~= 0
+            // 'FeedoptPlan:29' if status == 1 && CurvStruct.Type ~= 0
             if ((b_status == 1) && (static_cast<int>(b_CurvStruct.Type) != 0)) {
-                // 'FeedoptPlan:32' ctx.q_gcode.push(CurvStruct);
+                // 'FeedoptPlan:30' if ( CurvStruct.FeedRate == 0.0 )
+                if (b_CurvStruct.FeedRate == 0.0) {
+                    //  check for undefined feedrate
+                    // 'FeedoptPlan:32' CurvStruct.FeedRate = ctx.cfg.vmax;
+                    b_CurvStruct.FeedRate = ctx->cfg.vmax;
+                }
+                // 'FeedoptPlan:34' ctx.q_gcode.push(CurvStruct);
                 ctx->q_gcode.push(&b_CurvStruct);
             }
         }
-        // 'FeedoptPlan:35' if ctx.q_gcode.isempty()
+        // 'FeedoptPlan:37' if ctx.q_gcode.isempty()
         if (ctx->q_gcode.isempty()) {
-            // 'FeedoptPlan:36' ctx.op = Fopt.Finished;
+            // 'FeedoptPlan:38' ctx.op = Fopt.Finished;
             ctx->op = Fopt_Finished;
-            // 'FeedoptPlan:37' DebugLog(DebugCfg.Warning, ...
-            // 'FeedoptPlan:38'                 'ERROR: Optimization failed, Gcode queue is
+            // 'FeedoptPlan:39' DebugLog(DebugCfg.Warning, ...
+            // 'FeedoptPlan:40'                 'ERROR: Optimization failed, Gcode queue is
             // empty\n');
             //  1 -> stdout
             //  2 -> stderr
             // 'DebugLog:5' if IsEnabledDebugLog(cfg)
             // 'IsEnabledDebugLog:4' value = false;
             // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
-            Double2MultiWord(DebugConfig, (unsigned int *)&r22.chunks[0U]);
-            MultiWordAnd((unsigned int *)&r22.chunks[0U], (unsigned int *)&r24.chunks[0U],
-                         (unsigned int *)&r20.chunks[0U]);
-            if (uMultiWordNe((unsigned int *)&r20.chunks[0U], (unsigned int *)&r4.chunks[0U])) {
+            Double2MultiWord(DebugConfig, (unsigned int *)&r24.chunks[0U]);
+            MultiWordAnd((unsigned int *)&r24.chunks[0U], (unsigned int *)&r25.chunks[0U],
+                         (unsigned int *)&r17.chunks[0U]);
+            if (uMultiWordNe((unsigned int *)&r17.chunks[0U], (unsigned int *)&r4.chunks[0U])) {
                 // 'IsEnabledDebugLog:7' value = true;
                 // 'DebugLog:6' fprintf(1, varargin{:});
                 printf("ERROR: Optimization failed, Gcode queue is empty\n");
                 fflush(stdout);
             }
         } else {
-            // 'FeedoptPlan:41' last = ctx.q_gcode.rget(1);
+            // 'FeedoptPlan:43' last = ctx.q_gcode.rget(1);
             ctx->q_gcode.rget(&last);
-            // 'FeedoptPlan:42' if last.zspdmode == ZSpdMode.NN
+            // 'FeedoptPlan:44' if last.zspdmode == ZSpdMode.NN
             if (last.zspdmode == ZSpdMode_NN) {
-                // 'FeedoptPlan:43' last.zspdmode = ZSpdMode.NZ;
+                // 'FeedoptPlan:45' last.zspdmode = ZSpdMode.NZ;
                 last.zspdmode = ZSpdMode_NZ;
             } else if (last.zspdmode == ZSpdMode_ZN) {
-                // 'FeedoptPlan:44' elseif last.zspdmode == ZSpdMode.ZN
-                // 'FeedoptPlan:45' last.zspdmode = ZSpdMode.ZZ;
+                // 'FeedoptPlan:46' elseif last.zspdmode == ZSpdMode.ZN
+                // 'FeedoptPlan:47' last.zspdmode = ZSpdMode.ZZ;
                 last.zspdmode = ZSpdMode_ZZ;
             }
-            // 'FeedoptPlan:47' ctx.q_gcode.set(ctx.q_gcode.size, last);
+            // 'FeedoptPlan:49' ctx.q_gcode.set(ctx.q_gcode.size, last);
             ctx->q_gcode.set(ctx->q_gcode.size(), &last);
-            // 'FeedoptPlan:48' ctx.op = Fopt.Check;
+            // 'FeedoptPlan:50' ctx.op = Fopt.Check;
             ctx->op = Fopt_Check;
         }
     } break;
     case Fopt_Check:
-        // 'FeedoptPlan:50' case Fopt.Check
-        // 'FeedoptPlan:51' ctx = CheckCurvStructs(ctx);
+        // 'FeedoptPlan:52' case Fopt.Check
+        // 'FeedoptPlan:53' ctx = CheckCurvStructs(ctx);
         CheckCurvStructs(ctx);
-        // 'FeedoptPlan:52' ctx.op = Fopt.Compress;
+        // 'FeedoptPlan:54' ctx.op = Fopt.Compress;
         ctx->op = Fopt_Compress;
         break;
     case Fopt_Compress:
-        // 'FeedoptPlan:54' case Fopt.Compress
-        // 'FeedoptPlan:55' if ctx.cfg.Compressing.Skip
+        // 'FeedoptPlan:56' case Fopt.Compress
+        // 'FeedoptPlan:57' if ctx.cfg.Compressing.Skip
         if (ctx->cfg.Compressing.Skip) {
-            // 'FeedoptPlan:56' ctx = ExpandZeroStructs(ctx);
+            // 'FeedoptPlan:58' ctx = ExpandZeroStructs(ctx);
             ExpandZeroStructs(ctx);
         } else {
-            // 'FeedoptPlan:57' else
-            // 'FeedoptPlan:58' ctx = CompressCurvStructs(ctx);
+            // 'FeedoptPlan:59' else
+            // 'FeedoptPlan:60' ctx = CompressCurvStructs(ctx);
             CompressCurvStructs(ctx);
         }
-        // 'FeedoptPlan:60' ctx.op = Fopt.Smooth;
+        // 'FeedoptPlan:62' ctx.op = Fopt.Smooth;
         ctx->op = Fopt_Smooth;
         break;
     case Fopt_Smooth:
-        // 'FeedoptPlan:62' case Fopt.Smooth
-        // 'FeedoptPlan:63' ctx = SmoothCurvStructs(ctx);
+        // 'FeedoptPlan:64' case Fopt.Smooth
+        // 'FeedoptPlan:65' ctx = SmoothCurvStructs(ctx);
         SmoothCurvStructs(ctx);
-        // 'FeedoptPlan:64' ctx.op = Fopt.Split;
+        // 'FeedoptPlan:66' ctx.op = Fopt.Split;
         ctx->op = Fopt_Split;
         break;
     case Fopt_Split:
-        // 'FeedoptPlan:66' case Fopt.Split
-        // 'FeedoptPlan:67' ctx = SplitCurvStructs(ctx);
+        // 'FeedoptPlan:68' case Fopt.Split
+        // 'FeedoptPlan:69' ctx = SplitCurvStructs(ctx);
         SplitCurvStructs(ctx);
-        // 'FeedoptPlan:68' ctx.op = Fopt.Opt;
+        // 'FeedoptPlan:70' ctx.op = Fopt.Opt;
         ctx->op = Fopt_Opt;
-        // 'FeedoptPlan:69' DebugLog(DebugCfg.Validate, 'Feedrate Planning...\n');
+        // 'FeedoptPlan:71' DebugLog(DebugCfg.Validate, 'Feedrate Planning...\n');
         //  1 -> stdout
         //  2 -> stderr
         // 'DebugLog:5' if IsEnabledDebugLog(cfg)
         // 'IsEnabledDebugLog:4' value = false;
         // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
         Double2MultiWord(DebugConfig, (unsigned int *)&r9.chunks[0U]);
-        MultiWordAnd((unsigned int *)&r9.chunks[0U], (unsigned int *)&r6.chunks[0U],
-                     (unsigned int *)&r11.chunks[0U]);
-        if (uMultiWordNe((unsigned int *)&r11.chunks[0U], (unsigned int *)&r4.chunks[0U])) {
+        MultiWordAnd((unsigned int *)&r9.chunks[0U], (unsigned int *)&r10.chunks[0U],
+                     (unsigned int *)&r12.chunks[0U]);
+        if (uMultiWordNe((unsigned int *)&r12.chunks[0U], (unsigned int *)&r4.chunks[0U])) {
             // 'IsEnabledDebugLog:7' value = true;
             // 'DebugLog:6' fprintf(1, varargin{:});
             printf("Feedrate Planning...\n");
             fflush(stdout);
         }
-        // 'FeedoptPlan:70' if coder.target('matlab')
+        // 'FeedoptPlan:72' if coder.target('matlab')
         break;
     case Fopt_Opt: {
-        // 'FeedoptPlan:74' case Fopt.Opt
-        // 'FeedoptPlan:75' if ctx.q_split.isempty
+        // 'FeedoptPlan:76' case Fopt.Opt
+        // 'FeedoptPlan:77' if ctx.q_split.isempty
         if (ctx->q_split.isempty()) {
-            // 'FeedoptPlan:76' if coder.target('matlab')
-            // 'FeedoptPlan:79' DebugLog(DebugCfg.Validate, 'Queue empty...\n');
+            // 'FeedoptPlan:78' if coder.target('matlab')
+            // 'FeedoptPlan:81' DebugLog(DebugCfg.Validate, 'Queue empty...\n');
             //  1 -> stdout
             //  2 -> stderr
             // 'DebugLog:5' if IsEnabledDebugLog(cfg)
             // 'IsEnabledDebugLog:4' value = false;
             // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
             Double2MultiWord(DebugConfig, (unsigned int *)&r8.chunks[0U]);
-            MultiWordAnd((unsigned int *)&r8.chunks[0U], (unsigned int *)&r6.chunks[0U],
-                         (unsigned int *)&r10.chunks[0U]);
-            if (uMultiWordNe((unsigned int *)&r10.chunks[0U], (unsigned int *)&r4.chunks[0U])) {
+            MultiWordAnd((unsigned int *)&r8.chunks[0U], (unsigned int *)&r10.chunks[0U],
+                         (unsigned int *)&r11.chunks[0U]);
+            if (uMultiWordNe((unsigned int *)&r11.chunks[0U], (unsigned int *)&r4.chunks[0U])) {
                 // 'IsEnabledDebugLog:7' value = true;
                 // 'DebugLog:6' fprintf(1, varargin{:});
                 printf("Queue empty...\n");
                 fflush(stdout);
             }
-            // 'FeedoptPlan:80' ctx.op = Fopt.Finished;
+            // 'FeedoptPlan:82' ctx.op = Fopt.Finished;
             ctx->op = Fopt_Finished;
         } else {
             uint64m_T r5;
-            bool guard2{false};
-            // 'FeedoptPlan:83' ctx.op = Fopt.Opt;
+            // 'FeedoptPlan:85' ctx.op = Fopt.Opt;
             ctx->op = Fopt_Opt;
-            // 'FeedoptPlan:85' if IsEnabledDebugLog(DebugCfg.Validate) ||
-            // IsEnabledDebugLog(DebugCfg.OptimProgress) 'IsEnabledDebugLog:4' value = false;
+            // 'FeedoptPlan:87' if IsEnabledDebugLog(DebugCfg.OptimProgress)
+            // 'IsEnabledDebugLog:4' value = false;
             // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
             Double2MultiWord(DebugConfig, (unsigned int *)&r3.chunks[0U]);
             r5 = r6;
             MultiWordAnd((unsigned int *)&r3.chunks[0U], (unsigned int *)&r6.chunks[0U],
                          (unsigned int *)&r7.chunks[0U]);
-            guard2 = false;
             if (uMultiWordNe((unsigned int *)&r7.chunks[0U], (unsigned int *)&r4.chunks[0U])) {
-                // 'IsEnabledDebugLog:7' value = true;
-                guard2 = true;
-            } else {
-                // 'IsEnabledDebugLog:4' value = false;
-                // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
-                Double2MultiWord(DebugConfig, (unsigned int *)&r12.chunks[0U]);
-                r13 = r14;
-                MultiWordAnd((unsigned int *)&r12.chunks[0U], (unsigned int *)&r14.chunks[0U],
-                             (unsigned int *)&r5.chunks[0U]);
-                if (uMultiWordNe((unsigned int *)&r5.chunks[0U], (unsigned int *)&r4.chunks[0U])) {
-                    // 'IsEnabledDebugLog:7' value = true;
-                    guard2 = true;
-                }
-            }
-            if (guard2) {
                 unsigned int validatedHoleFilling_f2;
-                // 'FeedoptPlan:86' fprintf('%4d/%u\n', ctx.k0, ctx.q_split.size);
+                // 'IsEnabledDebugLog:7' value = true;
+                // 'FeedoptPlan:88' fprintf('%4d/%u\n', ctx.k0, ctx.q_split.size);
                 validatedHoleFilling_f2 = ctx->q_split.size();
                 printf("%4d/%u\n", ctx->k0, validatedHoleFilling_f2);
                 fflush(stdout);
             }
-            // 'FeedoptPlan:89' if ctx.go_next
+            // 'FeedoptPlan:91' if ctx.go_next
             if (ctx->go_next) {
-                // 'FeedoptPlan:90' ctx.k0 = ctx.k0 + 1;
+                // 'FeedoptPlan:92' ctx.k0 = ctx.k0 + 1;
                 ctx->k0++;
-                // 'FeedoptPlan:91' ctx.n_optimized = ctx.n_optimized + 1;
+                // 'FeedoptPlan:93' ctx.n_optimized = ctx.n_optimized + 1;
                 ctx->n_optimized++;
             }
-            // 'FeedoptPlan:95' if ctx.n_optimized < ctx.q_split.size
+            // 'FeedoptPlan:97' if ctx.n_optimized < ctx.q_split.size
             if (static_cast<double>(ctx->n_optimized) < ctx->q_split.size()) {
-                // 'FeedoptPlan:96' if ctx.try_push_again
+                // 'FeedoptPlan:98' if ctx.try_push_again
                 if (ctx->try_push_again) {
                     //  Do nothing, we already have the last one optimized
                     guard1 = true;
                 } else if (!ctx->reached_end) {
                     int varargin_2_tmp;
-                    // 'FeedoptPlan:98' elseif ~ctx.reached_end
-                    // 'FeedoptPlan:99' OptSegment = repmat(ctx.q_split.get(1), 1, ctx.cfg.NHorz);
-                    ctx->q_split.get(static_cast<double>(1.0), &r18);
+                    // 'FeedoptPlan:100' elseif ~ctx.reached_end
+                    // 'FeedoptPlan:101' OptSegment = repmat(ctx.q_split.get(1), 1, ctx.cfg.NHorz);
+                    ctx->q_split.get(static_cast<double>(1.0), &r13);
                     varargin_2_tmp = ctx->cfg.NHorz;
                     OptSegment.set_size(1, varargin_2_tmp);
                     for (int i3{0}; i3 < varargin_2_tmp; i3++) {
-                        OptSegment[i3] = r18;
+                        OptSegment[i3] = r13;
                     }
-                    // 'FeedoptPlan:101' first = ctx.q_split.get(ctx.k0);
+                    // 'FeedoptPlan:103' first = ctx.q_split.get(ctx.k0);
                     ctx->q_split.get(ctx->k0, &b_first);
-                    // 'FeedoptPlan:102' if first.zspdmode == ZSpdMode.ZN
+                    // 'FeedoptPlan:104' if first.zspdmode == ZSpdMode.ZN
                     if (b_first.zspdmode == ZSpdMode_ZN) {
-                        // 'FeedoptPlan:103' opt_struct = first;
+                        // 'FeedoptPlan:105' opt_struct = first;
                         *opt_struct = b_first;
-                        // 'FeedoptPlan:104' optimized = true;
+                        // 'FeedoptPlan:106' optimized = true;
                         b_optimized = true;
-                        // 'FeedoptPlan:105' [v_0, at_0] = CalcZeroStartConstraints(ctx, first, 1);
+                        // 'FeedoptPlan:107' [v_0, at_0] = CalcZeroStartConstraints(ctx, first, 1);
                         CalcZeroStartConstraints(
                             &ctx->q_splines, b_first.Type, b_first.P0, b_first.P1,
                             b_first.CorrectedHelixCenter, b_first.evec, b_first.theta,
                             b_first.pitch, b_first.CoeffP5, b_first.sp_index, b_first.UseConstJerk,
                             b_first.ConstJerk, b_first.a_param, b_first.b_param, 1.0, &ctx->v_0,
                             &ctx->at_0);
-                        // 'FeedoptPlan:106' ctx.v_0 = v_0;
-                        // 'FeedoptPlan:107' ctx.at_0 = at_0;
-                        // 'FeedoptPlan:108' ctx.zero_start = true;
+                        // 'FeedoptPlan:108' ctx.v_0 = v_0;
+                        // 'FeedoptPlan:109' ctx.at_0 = at_0;
+                        // 'FeedoptPlan:110' ctx.zero_start = true;
                         ctx->zero_start = true;
                     } else {
-                        uint64m_T r23;
-                        uint64m_T r26;
+                        uint64m_T r15;
+                        uint64m_T r20;
                         int Retry;
                         int e_loop_ub;
                         int k;
@@ -439,58 +515,58 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                         unsigned int nopt;
                         bool exitg1;
                         bool success;
-                        // 'FeedoptPlan:112' k1temp = int32(ctx.k0 + ctx.cfg.NHorz - 1);
+                        // 'FeedoptPlan:114' k1temp = int32(ctx.k0 + ctx.cfg.NHorz - 1);
                         k1temp = (ctx->k0 + ctx->cfg.NHorz) - 1;
-                        // 'FeedoptPlan:113' if k1temp > ctx.q_split.size
+                        // 'FeedoptPlan:115' if k1temp > ctx.q_split.size
                         if (static_cast<double>(k1temp) > ctx->q_split.size()) {
-                            // 'FeedoptPlan:114' ctx.reached_end = true;
+                            // 'FeedoptPlan:116' ctx.reached_end = true;
                             ctx->reached_end = true;
-                            // 'FeedoptPlan:115' k1 = int32(ctx.q_split.size);
+                            // 'FeedoptPlan:117' k1 = int32(ctx.q_split.size);
                             k1 = static_cast<int>(ctx->q_split.size());
                         } else {
-                            // 'FeedoptPlan:116' else
-                            // 'FeedoptPlan:117' k1 = int32(k1temp);
+                            // 'FeedoptPlan:118' else
+                            // 'FeedoptPlan:119' k1 = int32(k1temp);
                             k1 = k1temp;
                         }
-                        // 'FeedoptPlan:120' ctx.at_1 = 0;
+                        // 'FeedoptPlan:122' ctx.at_1 = 0;
                         ctx->at_1 = 0.0;
-                        // 'FeedoptPlan:121' ctx.v_1 = 0;
+                        // 'FeedoptPlan:123' ctx.v_1 = 0;
                         ctx->v_1 = 0.0;
-                        // 'FeedoptPlan:123' nopt = 0;
+                        // 'FeedoptPlan:125' nopt = 0;
                         nopt = 0U;
-                        // 'FeedoptPlan:124' DebugLog(DebugCfg.Global, 'FEEDRATE PLANNING...\n')
+                        // 'FeedoptPlan:126' DebugLog(DebugCfg.Global, 'FEEDRATE PLANNING...\n')
                         //  1 -> stdout
                         //  2 -> stderr
                         // 'DebugLog:5' if IsEnabledDebugLog(cfg)
                         // 'IsEnabledDebugLog:4' value = false;
                         // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
-                        Double2MultiWord(DebugConfig, (unsigned int *)&r21.chunks[0U]);
-                        r23 = r1;
-                        MultiWordAnd((unsigned int *)&r21.chunks[0U],
+                        Double2MultiWord(DebugConfig, (unsigned int *)&r14.chunks[0U]);
+                        r15 = r1;
+                        MultiWordAnd((unsigned int *)&r14.chunks[0U],
                                      (unsigned int *)&r1.chunks[0U],
-                                     (unsigned int *)&r13.chunks[0U]);
-                        if (uMultiWordNe((unsigned int *)&r13.chunks[0U],
+                                     (unsigned int *)&r5.chunks[0U]);
+                        if (uMultiWordNe((unsigned int *)&r5.chunks[0U],
                                          (unsigned int *)&r4.chunks[0U])) {
                             // 'IsEnabledDebugLog:7' value = true;
                             // 'DebugLog:6' fprintf(1, varargin{:});
                             printf("FEEDRATE PLANNING...\n");
                             fflush(stdout);
                         }
-                        // 'FeedoptPlan:125' kend = ctx.k0;
+                        // 'FeedoptPlan:127' kend = ctx.k0;
                         kend = ctx->k0;
-                        // 'FeedoptPlan:126' for k = ctx.k0:k1
+                        // 'FeedoptPlan:128' for k = ctx.k0:k1
                         k = ctx->k0;
                         exitg1 = false;
                         while ((!exitg1) && (k <= k1)) {
-                            // 'FeedoptPlan:127' NextCurv = ctx.q_split.get(k);
+                            // 'FeedoptPlan:129' NextCurv = ctx.q_split.get(k);
                             ctx->q_split.get(k, &NextCurv);
-                            // 'FeedoptPlan:128' if NextCurv.zspdmode == ZSpdMode.NZ
+                            // 'FeedoptPlan:130' if NextCurv.zspdmode == ZSpdMode.NZ
                             if (NextCurv.zspdmode == ZSpdMode_NZ) {
                                 //  If we reach an NZ segment, we set the final velocity
                                 //  and tangent acceleration constraints to the ones
                                 //  specified by the segment, and pretend this is the
                                 //  end of all segments
-                                // 'FeedoptPlan:133' [v_0, at_0] = CalcZeroStartConstraints(ctx,
+                                // 'FeedoptPlan:135' [v_0, at_0] = CalcZeroStartConstraints(ctx,
                                 // NextCurv, 1);
                                 CalcZeroStartConstraints(
                                     &ctx->q_splines, NextCurv.Type, NextCurv.P0, NextCurv.P1,
@@ -498,46 +574,46 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                                     NextCurv.pitch, NextCurv.CoeffP5, NextCurv.sp_index,
                                     NextCurv.UseConstJerk, NextCurv.ConstJerk, NextCurv.a_param,
                                     NextCurv.b_param, 1.0, &ctx->v_1, &at_0);
-                                // 'FeedoptPlan:134' ctx.at_1 = -at_0;
+                                // 'FeedoptPlan:136' ctx.at_1 = -at_0;
                                 ctx->at_1 = -at_0;
-                                // 'FeedoptPlan:135' ctx.v_1 = v_0;
-                                // 'FeedoptPlan:136' ctx.zero_end = true;
+                                // 'FeedoptPlan:137' ctx.v_1 = v_0;
+                                // 'FeedoptPlan:138' ctx.zero_end = true;
                                 ctx->zero_end = true;
-                                // 'FeedoptPlan:137' ctx.reached_end = true;
+                                // 'FeedoptPlan:139' ctx.reached_end = true;
                                 ctx->reached_end = true;
-                                // 'FeedoptPlan:138' kend = k;
+                                // 'FeedoptPlan:140' kend = k;
                                 kend = k;
                                 exitg1 = true;
                             } else {
                                 if (NextCurv.zspdmode == ZSpdMode_NN) {
-                                    uint64m_T r29;
-                                    // 'FeedoptPlan:140' elseif NextCurv.zspdmode == ZSpdMode.NN
-                                    // 'FeedoptPlan:141' nopt = nopt + 1;
+                                    uint64m_T r23;
+                                    // 'FeedoptPlan:142' elseif NextCurv.zspdmode == ZSpdMode.NN
+                                    // 'FeedoptPlan:143' nopt = nopt + 1;
                                     nopt++;
-                                    // 'FeedoptPlan:142' OptSegment(nopt) = NextCurv;
+                                    // 'FeedoptPlan:144' OptSegment(nopt) = NextCurv;
                                     OptSegment[static_cast<int>(nopt) - 1] = NextCurv;
-                                    // 'FeedoptPlan:144' if IsEnabledDebugLog(DebugCfg.Global)
+                                    // 'FeedoptPlan:146' if IsEnabledDebugLog(DebugCfg.Global)
                                     // 'IsEnabledDebugLog:4' value = false;
                                     // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
-                                    Double2MultiWord(DebugConfig, (unsigned int *)&r28.chunks[0U]);
-                                    r29 = r1;
-                                    MultiWordAnd((unsigned int *)&r28.chunks[0U],
+                                    Double2MultiWord(DebugConfig, (unsigned int *)&r22.chunks[0U]);
+                                    r23 = r1;
+                                    MultiWordAnd((unsigned int *)&r22.chunks[0U],
                                                  (unsigned int *)&r1.chunks[0U],
-                                                 (unsigned int *)&r23.chunks[0U]);
-                                    r28 = r4;
-                                    if (uMultiWordNe((unsigned int *)&r23.chunks[0U],
+                                                 (unsigned int *)&r15.chunks[0U]);
+                                    r22 = r4;
+                                    if (uMultiWordNe((unsigned int *)&r15.chunks[0U],
                                                      (unsigned int *)&r4.chunks[0U])) {
                                         // 'IsEnabledDebugLog:7' value = true;
-                                        // 'FeedoptPlan:145' PrintCurvStruct(ctx,
+                                        // 'FeedoptPlan:147' PrintCurvStruct(ctx,
                                         // OptSegment(k-ctx.k0+1))
                                         PrintCurvStruct(&ctx->q_splines, ctx->cfg.GaussLegendreX,
                                                         ctx->cfg.GaussLegendreW,
                                                         &OptSegment[k - ctx->k0]);
                                     }
-                                    // 'FeedoptPlan:147' if k < k1
+                                    // 'FeedoptPlan:149' if k < k1
                                     if (k < k1) {
-                                        // 'FeedoptPlan:148' DebugLog(DebugCfg.Global, ...
-                                        // 'FeedoptPlan:149'
+                                        // 'FeedoptPlan:150' DebugLog(DebugCfg.Global, ...
+                                        // 'FeedoptPlan:151'
                                         // '-----------------------------------\n')
                                         //  1 -> stdout
                                         //  2 -> stderr
@@ -545,13 +621,13 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                                         // 'IsEnabledDebugLog:4' value = false;
                                         // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
                                         Double2MultiWord(DebugConfig,
-                                                         (unsigned int *)&r30.chunks[0U]);
-                                        r27 = r1;
-                                        MultiWordAnd((unsigned int *)&r30.chunks[0U],
+                                                         (unsigned int *)&r26.chunks[0U]);
+                                        r21 = r1;
+                                        MultiWordAnd((unsigned int *)&r26.chunks[0U],
                                                      (unsigned int *)&r1.chunks[0U],
-                                                     (unsigned int *)&r29.chunks[0U]);
-                                        r30 = r4;
-                                        if (uMultiWordNe((unsigned int *)&r29.chunks[0U],
+                                                     (unsigned int *)&r23.chunks[0U]);
+                                        r26 = r4;
+                                        if (uMultiWordNe((unsigned int *)&r23.chunks[0U],
                                                          (unsigned int *)&r4.chunks[0U])) {
                                             // 'IsEnabledDebugLog:7' value = true;
                                             // 'DebugLog:6' fprintf(1, varargin{:});
@@ -560,44 +636,44 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                                         }
                                     }
                                 } else {
-                                    // 'FeedoptPlan:151' else
-                                    // 'FeedoptPlan:152' error('Wrong ZspdMode');
+                                    // 'FeedoptPlan:153' else
+                                    // 'FeedoptPlan:154' error('Wrong ZspdMode');
                                 }
                                 k++;
                             }
                         }
-                        // 'FeedoptPlan:155' DebugLog(DebugCfg.Global, ...
-                        // 'FeedoptPlan:156' '================================================\n')
+                        // 'FeedoptPlan:157' DebugLog(DebugCfg.Global, ...
+                        // 'FeedoptPlan:158' '================================================\n')
                         //  1 -> stdout
                         //  2 -> stderr
                         // 'DebugLog:5' if IsEnabledDebugLog(cfg)
                         // 'IsEnabledDebugLog:4' value = false;
                         // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
-                        Double2MultiWord(DebugConfig, (unsigned int *)&r25.chunks[0U]);
-                        r26 = r1;
-                        MultiWordAnd((unsigned int *)&r25.chunks[0U],
+                        Double2MultiWord(DebugConfig, (unsigned int *)&r19.chunks[0U]);
+                        r20 = r1;
+                        MultiWordAnd((unsigned int *)&r19.chunks[0U],
                                      (unsigned int *)&r1.chunks[0U],
-                                     (unsigned int *)&r27.chunks[0U]);
-                        if (uMultiWordNe((unsigned int *)&r27.chunks[0U],
+                                     (unsigned int *)&r21.chunks[0U]);
+                        if (uMultiWordNe((unsigned int *)&r21.chunks[0U],
                                          (unsigned int *)&r4.chunks[0U])) {
                             // 'IsEnabledDebugLog:7' value = true;
                             // 'DebugLog:6' fprintf(1, varargin{:});
                             printf("================================================\n");
                             fflush(stdout);
                         }
-                        // 'FeedoptPlan:158' Retry = 0;
+                        // 'FeedoptPlan:160' Retry = 0;
                         Retry = 0;
-                        // 'FeedoptPlan:159' success = false;
+                        // 'FeedoptPlan:161' success = false;
                         success = false;
-                        // 'FeedoptPlan:160' Coeff = [];
+                        // 'FeedoptPlan:162' Coeff = [];
                         Coeff.set_size(0, 0);
-                        // 'FeedoptPlan:162' while Retry < 100 && ~success
+                        // 'FeedoptPlan:164' while Retry < 100 && ~success
                         while ((Retry < 100) && (!success)) {
                             int d_ctx;
-                            // 'FeedoptPlan:163' [ctx, Coeff, ~, success] = FeedratePlanning_v4(ctx,
-                            // OptSegment, ctx.cfg.amax, ctx.cfg.jmax,... 'FeedoptPlan:164'
+                            // 'FeedoptPlan:165' [ctx, Coeff, ~, success] = FeedratePlanning_v4(ctx,
+                            // OptSegment, ctx.cfg.amax, ctx.cfg.jmax,... 'FeedoptPlan:166'
                             // ctx.BasisVal, ctx.BasisValD, ctx.BasisValDD, ctx.BasisIntegr,...
-                            // 'FeedoptPlan:165'                         ctx.Bl, ctx.u_vec,
+                            // 'FeedoptPlan:167'                         ctx.Bl, ctx.u_vec,
                             // min(ctx.cfg.NHorz, nopt));
                             if (ctx->cfg.NHorz > static_cast<int>(nopt)) {
                                 d_ctx = static_cast<int>(nopt);
@@ -612,22 +688,22 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                                                 ctx->BasisIntegr, ctx->Bl.handle, ctx->u_vec, d_ctx,
                                                 Coeff, &a__1, &b_success);
                             success = b_success;
-                            // 'FeedoptPlan:167' if success == 0 && ctx.zero_start
+                            // 'FeedoptPlan:169' if success == 0 && ctx.zero_start
                             if ((!b_success) && ctx->zero_start) {
-                                // 'FeedoptPlan:168' DebugLog(DebugCfg.Warning, 'ZeroStart at k = %d
+                                // 'FeedoptPlan:170' DebugLog(DebugCfg.Warning, 'ZeroStart at k = %d
                                 // failed, halving jerk\n', ctx.k0-1);
                                 //  1 -> stdout
                                 //  2 -> stderr
                                 // 'DebugLog:5' if IsEnabledDebugLog(cfg)
                                 // 'IsEnabledDebugLog:4' value = false;
                                 // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
-                                Double2MultiWord(DebugConfig, (unsigned int *)&r32.chunks[0U]);
-                                r33 = r24;
-                                MultiWordAnd((unsigned int *)&r32.chunks[0U],
-                                             (unsigned int *)&r24.chunks[0U],
-                                             (unsigned int *)&r35.chunks[0U]);
-                                r32 = r4;
-                                if (uMultiWordNe((unsigned int *)&r35.chunks[0U],
+                                Double2MultiWord(DebugConfig, (unsigned int *)&r28.chunks[0U]);
+                                r29 = r25;
+                                MultiWordAnd((unsigned int *)&r28.chunks[0U],
+                                             (unsigned int *)&r25.chunks[0U],
+                                             (unsigned int *)&r31.chunks[0U]);
+                                r28 = r4;
+                                if (uMultiWordNe((unsigned int *)&r31.chunks[0U],
                                                  (unsigned int *)&r4.chunks[0U])) {
                                     // 'IsEnabledDebugLog:7' value = true;
                                     // 'DebugLog:6' fprintf(1, varargin{:});
@@ -635,62 +711,62 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                                            ctx->k0 - 1);
                                     fflush(stdout);
                                 }
-                                // 'FeedoptPlan:169' [v_0, at_0] = CalcZeroStartConstraints(ctx,
+                                // 'FeedoptPlan:171' [v_0, at_0] = CalcZeroStartConstraints(ctx,
                                 // ctx.q_split.get(ctx.k0 - 1), 0.5^Retry);
-                                ctx->q_split.get(ctx->k0 - 1, &r18);
-                                CalcZeroStartConstraints(&ctx->q_splines, r18.Type, r18.P0, r18.P1,
-                                                         r18.CorrectedHelixCenter, r18.evec,
-                                                         r18.theta, r18.pitch, r18.CoeffP5,
-                                                         r18.sp_index, r18.UseConstJerk,
-                                                         r18.ConstJerk, r18.a_param, r18.b_param,
+                                ctx->q_split.get(ctx->k0 - 1, &r13);
+                                CalcZeroStartConstraints(&ctx->q_splines, r13.Type, r13.P0, r13.P1,
+                                                         r13.CorrectedHelixCenter, r13.evec,
+                                                         r13.theta, r13.pitch, r13.CoeffP5,
+                                                         r13.sp_index, r13.UseConstJerk,
+                                                         r13.ConstJerk, r13.a_param, r13.b_param,
                                                          std::pow(0.5, static_cast<double>(Retry)),
                                                          &ctx->v_0, &ctx->at_0);
-                                // 'FeedoptPlan:170' ctx.v_0 = v_0;
-                                // 'FeedoptPlan:171' ctx.at_0 = at_0;
+                                // 'FeedoptPlan:172' ctx.v_0 = v_0;
+                                // 'FeedoptPlan:173' ctx.at_0 = at_0;
                             }
-                            // 'FeedoptPlan:174' if success == 0 && ctx.zero_end
+                            // 'FeedoptPlan:176' if success == 0 && ctx.zero_end
                             if ((!b_success) && ctx->zero_end) {
-                                // 'FeedoptPlan:175' DebugLog(DebugCfg.Warning, 'ZeroEnd at k = %d
+                                // 'FeedoptPlan:177' DebugLog(DebugCfg.Warning, 'ZeroEnd at k = %d
                                 // failed, halving jerk\n', kend);
                                 //  1 -> stdout
                                 //  2 -> stderr
                                 // 'DebugLog:5' if IsEnabledDebugLog(cfg)
                                 // 'IsEnabledDebugLog:4' value = false;
                                 // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
-                                Double2MultiWord(DebugConfig, (unsigned int *)&r36.chunks[0U]);
-                                MultiWordAnd((unsigned int *)&r36.chunks[0U],
-                                             (unsigned int *)&r24.chunks[0U],
-                                             (unsigned int *)&r33.chunks[0U]);
-                                r36 = r4;
-                                if (uMultiWordNe((unsigned int *)&r33.chunks[0U],
+                                Double2MultiWord(DebugConfig, (unsigned int *)&r32.chunks[0U]);
+                                MultiWordAnd((unsigned int *)&r32.chunks[0U],
+                                             (unsigned int *)&r25.chunks[0U],
+                                             (unsigned int *)&r29.chunks[0U]);
+                                r32 = r4;
+                                if (uMultiWordNe((unsigned int *)&r29.chunks[0U],
                                                  (unsigned int *)&r4.chunks[0U])) {
                                     // 'IsEnabledDebugLog:7' value = true;
                                     // 'DebugLog:6' fprintf(1, varargin{:});
                                     printf("ZeroEnd at k = %d failed, halving jerk\n", kend);
                                     fflush(stdout);
                                 }
-                                // 'FeedoptPlan:176' [v_0, at_0] = CalcZeroStartConstraints(ctx,
+                                // 'FeedoptPlan:178' [v_0, at_0] = CalcZeroStartConstraints(ctx,
                                 // ctx.q_split.get(kend), 0.5^Retry);
-                                ctx->q_split.get(kend, &r18);
+                                ctx->q_split.get(kend, &r13);
                                 CalcZeroStartConstraints(
-                                    &ctx->q_splines, r18.Type, r18.P0, r18.P1,
-                                    r18.CorrectedHelixCenter, r18.evec, r18.theta, r18.pitch,
-                                    r18.CoeffP5, r18.sp_index, r18.UseConstJerk, r18.ConstJerk,
-                                    r18.a_param, r18.b_param,
+                                    &ctx->q_splines, r13.Type, r13.P0, r13.P1,
+                                    r13.CorrectedHelixCenter, r13.evec, r13.theta, r13.pitch,
+                                    r13.CoeffP5, r13.sp_index, r13.UseConstJerk, r13.ConstJerk,
+                                    r13.a_param, r13.b_param,
                                     std::pow(0.5, static_cast<double>(Retry)), &ctx->v_1, &b_at_0);
-                                // 'FeedoptPlan:177' ctx.at_1 = -at_0;
+                                // 'FeedoptPlan:179' ctx.at_1 = -at_0;
                                 ctx->at_1 = -b_at_0;
-                                // 'FeedoptPlan:178' ctx.v_1 = v_0;
+                                // 'FeedoptPlan:180' ctx.v_1 = v_0;
                             }
-                            // 'FeedoptPlan:181' Retry = Retry + 1;
+                            // 'FeedoptPlan:183' Retry = Retry + 1;
                             Retry++;
                         }
-                        // 'FeedoptPlan:184' if coder.target('matlab')
-                        // 'FeedoptPlan:188' ctx.zero_start = false;
+                        // 'FeedoptPlan:186' if coder.target('matlab')
+                        // 'FeedoptPlan:190' ctx.zero_start = false;
                         ctx->zero_start = false;
-                        // 'FeedoptPlan:189' ctx.zero_end = false;
+                        // 'FeedoptPlan:191' ctx.zero_end = false;
                         ctx->zero_end = false;
-                        // 'FeedoptPlan:191' ctx.Coeff = Coeff;
+                        // 'FeedoptPlan:193' ctx.Coeff = Coeff;
                         ctx->Coeff.set_size(Coeff.size(0), Coeff.size(1));
                         e_loop_ub = Coeff.size(1);
                         for (int i9{0}; i9 < e_loop_ub; i9++) {
@@ -701,54 +777,54 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                                     Coeff[i10 + Coeff.size(0) * i9];
                             }
                         }
-                        // 'FeedoptPlan:192' if success == 0
+                        // 'FeedoptPlan:194' if success == 0
                         if (!success) {
                             int i11;
-                            // 'FeedoptPlan:193' for nprint = 1:ctx.cfg.NHorz
+                            // 'FeedoptPlan:195' for nprint = 1:ctx.cfg.NHorz
                             i11 = ctx->cfg.NHorz;
                             if (0 <= i11 - 1) {
-                                r31 = r1;
+                                r27 = r1;
                             }
                             for (int nprint{0}; nprint < i11; nprint++) {
-                                // 'FeedoptPlan:194' if IsEnabledDebugLog(DebugCfg.Global)
+                                // 'FeedoptPlan:196' if IsEnabledDebugLog(DebugCfg.Global)
                                 // 'IsEnabledDebugLog:4' value = false;
                                 // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
-                                Double2MultiWord(DebugConfig, (unsigned int *)&r34.chunks[0U]);
-                                MultiWordAnd((unsigned int *)&r34.chunks[0U],
+                                Double2MultiWord(DebugConfig, (unsigned int *)&r30.chunks[0U]);
+                                MultiWordAnd((unsigned int *)&r30.chunks[0U],
                                              (unsigned int *)&r1.chunks[0U],
-                                             (unsigned int *)&r26.chunks[0U]);
-                                r34 = r4;
-                                if (uMultiWordNe((unsigned int *)&r26.chunks[0U],
+                                             (unsigned int *)&r20.chunks[0U]);
+                                r30 = r4;
+                                if (uMultiWordNe((unsigned int *)&r20.chunks[0U],
                                                  (unsigned int *)&r4.chunks[0U])) {
                                     // 'IsEnabledDebugLog:7' value = true;
-                                    // 'FeedoptPlan:195' PrintCurvStruct(ctx, OptSegment(1));
+                                    // 'FeedoptPlan:197' PrintCurvStruct(ctx, OptSegment(1));
                                     PrintCurvStruct(&ctx->q_splines, ctx->cfg.GaussLegendreX,
                                                     ctx->cfg.GaussLegendreW, &OptSegment[0]);
                                 }
                             }
-                            // 'FeedoptPlan:198' if coder.target('MATLAB')
-                            // 'FeedoptPlan:200' else
-                            // 'FeedoptPlan:201' DebugLog(DebugCfg.Global, 'OPTIMIZATION
+                            // 'FeedoptPlan:200' if coder.target('MATLAB')
+                            // 'FeedoptPlan:202' else
+                            // 'FeedoptPlan:203' DebugLog(DebugCfg.Global, 'OPTIMIZATION
                             // FAILED!\n');
                             //  1 -> stdout
                             //  2 -> stderr
                             // 'DebugLog:5' if IsEnabledDebugLog(cfg)
                             // 'IsEnabledDebugLog:4' value = false;
                             // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
-                            Double2MultiWord(DebugConfig, (unsigned int *)&r37.chunks[0U]);
-                            MultiWordAnd((unsigned int *)&r37.chunks[0U],
+                            Double2MultiWord(DebugConfig, (unsigned int *)&r33.chunks[0U]);
+                            MultiWordAnd((unsigned int *)&r33.chunks[0U],
                                          (unsigned int *)&r1.chunks[0U],
-                                         (unsigned int *)&r31.chunks[0U]);
-                            if (uMultiWordNe((unsigned int *)&r31.chunks[0U],
+                                         (unsigned int *)&r27.chunks[0U]);
+                            if (uMultiWordNe((unsigned int *)&r27.chunks[0U],
                                              (unsigned int *)&r4.chunks[0U])) {
                                 // 'IsEnabledDebugLog:7' value = true;
                                 // 'DebugLog:6' fprintf(1, varargin{:});
                                 printf("OPTIMIZATION FAILED!\n");
                                 fflush(stdout);
                             }
-                            // 'FeedoptPlan:202' ctx.errcode = FeedoptPlanError.OptimizationFailed;
+                            // 'FeedoptPlan:204' ctx.errcode = FeedoptPlanError.OptimizationFailed;
                             ctx->errcode = FeedoptPlanError_OptimizationFailed;
-                            // 'FeedoptPlan:204' ctx.op = Fopt.Finished;
+                            // 'FeedoptPlan:206' ctx.op = Fopt.Finished;
                             ctx->op = Fopt_Finished;
                         } else {
                             guard1 = true;
@@ -760,10 +836,10 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                     int c_loop_ub;
                     int i2;
                     int i4;
-                    // 'FeedoptPlan:207' else
+                    // 'FeedoptPlan:209' else
                     //  If we have reached the end of the optimizing segment, we
                     //  can just copy out the coefficients for the whole horizon
-                    // 'FeedoptPlan:210' ctx.Coeff(:, 1:end-1) = ctx.Coeff(:, 2:end);
+                    // 'FeedoptPlan:212' ctx.Coeff(:, 1:end-1) = ctx.Coeff(:, 2:end);
                     if (2 > ctx->Coeff.size(1)) {
                         i2 = 0;
                         i4 = 0;
@@ -792,20 +868,20 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                     guard1 = true;
                 }
             } else {
-                // 'FeedoptPlan:221' else
-                // 'FeedoptPlan:222' ctx.op = Fopt.Finished;
+                // 'FeedoptPlan:223' else
+                // 'FeedoptPlan:224' ctx.op = Fopt.Finished;
                 ctx->op = Fopt_Finished;
             }
         }
     } break;
     case Fopt_Finished:
-        // 'FeedoptPlan:225' case Fopt.Finished
-        // 'FeedoptPlan:226' ctx.op = Fopt.Finished;
+        // 'FeedoptPlan:227' case Fopt.Finished
+        // 'FeedoptPlan:228' ctx.op = Fopt.Finished;
         ctx->op = Fopt_Finished;
         break;
     default:
-        // 'FeedoptPlan:228' otherwise
-        // 'FeedoptPlan:229' DebugLog(DebugCfg.Global, 'FEEDOPT: WRONG STATE\n')
+        // 'FeedoptPlan:230' otherwise
+        // 'FeedoptPlan:231' DebugLog(DebugCfg.Global, 'FEEDOPT: WRONG STATE\n')
         //  1 -> stdout
         //  2 -> stderr
         // 'DebugLog:5' if IsEnabledDebugLog(cfg)
@@ -820,25 +896,25 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             printf("FEEDOPT: WRONG STATE\n");
             fflush(stdout);
         }
-        // 'FeedoptPlan:230' ctx.op = Fopt.Finished;
+        // 'FeedoptPlan:232' ctx.op = Fopt.Finished;
         ctx->op = Fopt_Finished;
         break;
     }
     if (guard1) {
         int loop_ub;
-        // 'FeedoptPlan:213' optimized = true;
+        // 'FeedoptPlan:215' optimized = true;
         b_optimized = true;
-        // 'FeedoptPlan:214' opt_struct = ctx.q_split.get(ctx.n_optimized + 1);
+        // 'FeedoptPlan:216' opt_struct = ctx.q_split.get(ctx.n_optimized + 1);
         ctx->q_split.get(ctx->n_optimized + 1, opt_struct);
-        // 'FeedoptPlan:215' opt_struct.Coeff = ctx.Coeff(:, 1);
+        // 'FeedoptPlan:217' opt_struct.Coeff = ctx.Coeff(:, 1);
         loop_ub = ctx->Coeff.size(0);
         opt_struct->Coeff.set_size(loop_ub);
         for (int i1{0}; i1 < loop_ub; i1++) {
             opt_struct->Coeff[i1] = ctx->Coeff[i1];
         }
-        // 'FeedoptPlan:217' if opt_struct.zspdmode == ZSpdMode.NZ
+        // 'FeedoptPlan:219' if opt_struct.zspdmode == ZSpdMode.NZ
         if (opt_struct->zspdmode == ZSpdMode_NZ) {
-            // 'FeedoptPlan:218' ctx.reached_end = false;
+            // 'FeedoptPlan:220' ctx.reached_end = false;
             ctx->reached_end = false;
         }
     }

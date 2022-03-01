@@ -9,8 +9,28 @@ cfg.NBreak = 50;
 cfg.NDiscr = 100;
 % cfg.CutOff = 0.3;
 N = 1;
-gcode1 = ConstrLineStruct([-1,0,0]', [0,0,0]', 15, ZSpdMode.NN);
-gcode2 = ConstrHelixStruct([0,0,0]', [1,1,1 + (N-1)*4]', [0,0,1]', (N-1)*pi+pi/2, 4, 15, ZSpdMode.NZ);
+
+trafo = false; % TRAFO flag disable 
+HSC = false;
+Poff = zeros(3, 1); Aoff = Poff; Uoff = Poff; Doff = 0.0;
+A0 = zeros(3,1); A1 = A0; U0 = A0 ; U1 = A0; 
+
+gcode1 = ConstrLineStruct(trafo, HSC, Poff, Aoff, Uoff, ...
+                               Doff, [-1,0,0]', [0,0,0]', A0, A1, U0, ...
+                               U1, 15, ZSpdMode.NZ);
+
+P0      = zeros(3, 1);
+P1      = [1,1,1 + (N-1)*4]';
+Cprim   = [0,0,1]';
+delta   = 0;
+evec    = [0,0,0]';
+theta   = (N-1)*pi+pi/2;
+pitch   = 4;
+FeedRate = 15;
+
+gcode2   = ConstrHelixStruct(trafo, HSC, Poff, Aoff, Uoff, Doff,...
+                            P0, P1, A0, A1, U0, U1, Cprim, delta, evec, ...
+                            theta, pitch, FeedRate, ZSpdMode.NZ);
 
 % [CurvStruct1, CurvStruct2] = CutZeroEnd(gcode2, cfg);
 % PlotCurvStructs([CurvStruct1, CurvStruct2])

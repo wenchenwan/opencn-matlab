@@ -5,7 +5,7 @@
 // File: G2_Hermite_Interpolation.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 14-Feb-2022 16:29:45
+// C/C++ source code generated on  : 01-Mar-2022 10:58:42
 //
 
 // Include Files
@@ -315,7 +315,7 @@ void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const 
         for (int i13{0}; i13 < alpha0_t_size; i13++) {
             b_alpha0_t_data[i13] = (alpha0_t_data[i13] > 0.0);
         }
-        coder::c_eml_find(b_alpha0_t_data, alpha0_t_size, Idx_data, &Idx_size);
+        coder::eml_find(b_alpha0_t_data, alpha0_t_size, Idx_data, &Idx_size);
         // 'G2_Hermite_Interpolation:101' alpha1_u  = alpha1_t(Idx);
         // 'G2_Hermite_Interpolation:102' alpha0_u  = alpha0_t(Idx);
         // 'G2_Hermite_Interpolation:104' if ~(numel(alpha0_u) > 0)
@@ -491,7 +491,7 @@ void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const 
         for (int i14{0}; i14 < alpha1_t_size; i14++) {
             b_alpha1_t_data[i14] = (alpha1_t_data[i14] > 0.0);
         }
-        coder::c_eml_find(b_alpha1_t_data, alpha1_t_size, Idx_data, &Idx_size);
+        coder::eml_find(b_alpha1_t_data, alpha1_t_size, Idx_data, &Idx_size);
         // 'G2_Hermite_Interpolation:158' alpha1_u   = alpha1_t(Idx);
         // 'G2_Hermite_Interpolation:159' alpha0_u   = alpha0_t(Idx);
         //
@@ -1253,7 +1253,7 @@ void G2_Hermite_Interpolation(const double r0D0[3], const double r0D1[3], const 
         for (int i28{0}; i28 < alpha0_t_size; i28++) {
             c_alpha0_t_data[i28] = (alpha0_t_data[i28] > 0.0);
         }
-        coder::c_eml_find(c_alpha0_t_data, alpha0_t_size, Idx_data, &Idx_size);
+        coder::eml_find(c_alpha0_t_data, alpha0_t_size, Idx_data, &Idx_size);
         // 'G2_Hermite_Interpolation:209' alpha1_u  = alpha1_t(Idx);
         // 'G2_Hermite_Interpolation:210' alpha0_u  = alpha0_t(Idx);
         //

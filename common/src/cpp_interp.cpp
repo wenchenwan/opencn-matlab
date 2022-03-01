@@ -1,6 +1,6 @@
 #include "cpp_interp.hpp"
-#include "rs274ngc_interp.hh"
-#include "interp_return.hh"
+#include "src/rs274ngc_interp.hh"
+#include "src/interp_return.hh"
 
 #include <unistd.h>
 

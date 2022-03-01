@@ -22,7 +22,7 @@ DebugLog(DebugCfg.FeedratePlanning, 'v_1  = %f\n', ctx.v_1)
 DebugLog(DebugCfg.FeedratePlanning, 'at_1 = %f\n', ctx.at_1)
 
 if IsEnabledDebugLog(DebugCfg.FeedratePlanning)
-    for k = 1:Ncrv
+    for k = 1:N_Hor
         PrintCurvStruct(ctx, CurvStructs(k));
     end
 end
@@ -48,7 +48,7 @@ if coder.target('rtw') || coder.target('mex')
     coder.varsize('coder_b', [1, Inf], [0, 1]);
     b = coder_b;
     beq = coder_b;
-    Coeff0 = zeros(N, Ncrv); 
+    Coeff0 = zeros(N, N_Hor); 
 end
 % -----------
 

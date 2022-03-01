@@ -5,12 +5,12 @@
 // File: CalcTransition.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 14-Feb-2022 16:29:45
+// C/C++ source code generated on  : 01-Mar-2022 10:58:42
 //
 
 // Include Files
 #include "CalcTransition.h"
-#include "ConstrCurvStruct.h"
+#include "ConstrTransP5Struct.h"
 #include "CutCurvStruct.h"
 #include "EvalCurvStruct.h"
 #include "G2_Hermite_Interpolation.h"
@@ -78,10 +78,8 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
     uint64m_T r7;
     uint64m_T r8;
     double p5[6][3];
-    double P0[3];
-    double P1[3];
-    double dv[3];
-    double dv1[3];
+    double b_CurvStruct1[2][3];
+    double c_CurvStruct1[2][3];
     double r0D0[3];
     double r0D0_1[3];
     double r0D0_2[3];
@@ -427,79 +425,41 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
         G2_Hermite_Interpolation(r0D0, r0D1, r0D2, r1D0, r1D1, r1D2, p5, &ret, &a__1, &a__2);
         // 'CalcTransition:132' if ret==1
         if (ret == 1) {
-            double d;
-            double d1;
-            double d2;
             //  standard case
             //  transition CurvStruct calculation
-            // 'CalcTransition:136' CurvStruct_T = ConstrTransP5Struct(p5, CurvStruct1.FeedRate);
-            // 'ConstrTransP5Struct:2' P0          = mypolyval(CoeffP5,0);
-            // POLYVAL Evaluate array of polynomials with same degree.
-            //
-            // 'mypolyval:4' [nD, nc] = size(p);
-            // 'mypolyval:5' siz_x    = length(x);
-            //
-            //  Use Horner's method for general case where X is an array.
-            // 'mypolyval:8' y = zeros(nD, siz_x);
-            // 'mypolyval:9' if nc > 0
-            // 'mypolyval:10' y(:) = repmat(p(:, 1), 1, siz_x);
-            // 'mypolyval:12' for i=2:nc
-            // 'ConstrTransP5Struct:3' P1          = mypolyval(CoeffP5,1);
-            // POLYVAL Evaluate array of polynomials with same degree.
-            //
-            // 'mypolyval:4' [nD, nc] = size(p);
-            // 'mypolyval:5' siz_x    = length(x);
-            //
-            //  Use Horner's method for general case where X is an array.
-            // 'mypolyval:8' y = zeros(nD, siz_x);
-            // 'mypolyval:9' if nc > 0
-            // 'mypolyval:10' y(:) = repmat(p(:, 1), 1, siz_x);
-            // 'mypolyval:12' for i=2:nc
-            d = p5[0][0];
-            d1 = p5[0][1];
-            d2 = p5[0][2];
-            for (int b_i{0}; b_i < 5; b_i++) {
-                double d6;
-                double d7;
-                double d9;
-                // 'mypolyval:13' y = repmat(x, nD, 1) .* y + repmat(p(:, i), 1, siz_x);
-                d6 = p5[b_i + 1][0];
-                P0[0] = d6;
-                d7 = p5[b_i + 1][1];
-                P0[1] = d7;
-                d9 = p5[b_i + 1][2];
-                P0[2] = d9;
-                // 'mypolyval:13' y = repmat(x, nD, 1) .* y + repmat(p(:, i), 1, siz_x);
-                d += d6;
-                d1 += d7;
-                d2 += d9;
-            }
-            P1[2] = d2;
-            P1[1] = d1;
-            P1[0] = d;
-            // 'ConstrTransP5Struct:4' evec        = zeros(3, 1);
-            // 'ConstrTransP5Struct:5' theta       = 0;
-            // 'ConstrTransP5Struct:6' pitch       = 0;
-            // 'ConstrTransP5Struct:7' CurvStruct  = ConstrCurvStruct(CurveType.TransP5,
-            // ZSpdMode.NN, P0, P1, [0,0,0]', 0.0, evec, theta, pitch, CoeffP5, FeedRate);
-            dv[0] = 0.0;
-            dv1[0] = 0.0;
-            dv[1] = 0.0;
-            dv1[1] = 0.0;
-            dv[2] = 0.0;
-            dv1[2] = 0.0;
-            ConstrCurvStruct(CurveType_TransP5, ZSpdMode_NN, P0, P1, dv, 0.0, dv1, 0.0, 0.0, p5,
-                             CurvStruct1->FeedRate, CurvStruct_T);
-            // 'CalcTransition:137' status = TransitionResult.Ok;
+            // 'CalcTransition:136' CurvStruct_T = ConstrTransP5Struct(CurvStruct1.TRAFO,...
+            // 'CalcTransition:137'                    CurvStruct1.HSC, ...
+            // 'CalcTransition:138'                    CurvStruct1.Poff, CurvStruct1.Aoff, ...
+            // 'CalcTransition:139'                    CurvStruct1.Uoff, CurvStruct1.Doff,...
+            // 'CalcTransition:140'                    [CurvStruct1.A0, CurvStruct1.A1], ...
+            // 'CalcTransition:141'                    [CurvStruct1.U0, CurvStruct1.U1], ...
+            // 'CalcTransition:142'                    p5, CurvStruct1.FeedRate);
+            b_CurvStruct1[0][0] = CurvStruct1->A0[0];
+            b_CurvStruct1[1][0] = CurvStruct1->A1[0];
+            c_CurvStruct1[0][0] = CurvStruct1->U0[0];
+            c_CurvStruct1[1][0] = CurvStruct1->U1[0];
+            b_CurvStruct1[0][1] = CurvStruct1->A0[1];
+            b_CurvStruct1[1][1] = CurvStruct1->A1[1];
+            c_CurvStruct1[0][1] = CurvStruct1->U0[1];
+            c_CurvStruct1[1][1] = CurvStruct1->U1[1];
+            b_CurvStruct1[0][2] = CurvStruct1->A0[2];
+            b_CurvStruct1[1][2] = CurvStruct1->A1[2];
+            c_CurvStruct1[0][2] = CurvStruct1->U0[2];
+            c_CurvStruct1[1][2] = CurvStruct1->U1[2];
+            ConstrTransP5Struct(CurvStruct1->TRAFO, CurvStruct1->HSC, CurvStruct1->Poff,
+                                CurvStruct1->Aoff, CurvStruct1->Uoff, CurvStruct1->Doff,
+                                b_CurvStruct1, c_CurvStruct1, p5, CurvStruct1->FeedRate,
+                                CurvStruct_T);
+            // 'CalcTransition:143' status = TransitionResult.Ok;
             b_status = TransitionResult_Ok;
         } else if (ret == 2) {
             uint64m_T r11;
             uint64m_T r16;
-            // 'CalcTransition:139' elseif ret==2
+            // 'CalcTransition:145' elseif ret==2
             //  badly conditioned matrix in G2_Hermite()
-            // 'CalcTransition:142' status = TransitionResult.NoSolution;
+            // 'CalcTransition:148' status = TransitionResult.NoSolution;
             b_status = TransitionResult_NoSolution;
-            // 'CalcTransition:144' DebugLog(DebugCfg.Error, '========== CalcTransition
+            // 'CalcTransition:150' DebugLog(DebugCfg.Error, '========== CalcTransition
             // ==========\n');
             //  1 -> stdout
             //  2 -> stderr
@@ -516,7 +476,7 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
                 printf("========== CalcTransition ==========\n");
                 fflush(stdout);
             }
-            // 'CalcTransition:145' DebugLog(DebugCfg.Error, '=========== Badly Cond. Matrix in
+            // 'CalcTransition:151' DebugLog(DebugCfg.Error, '=========== Badly Cond. Matrix in
             // G2_Hermite() ==========\n');
             //  1 -> stdout
             //  2 -> stderr
@@ -533,14 +493,14 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
                 printf("=========== Badly Cond. Matrix in G2_Hermite() ==========\n");
                 fflush(stdout);
             }
-            // 'CalcTransition:146' DebugLog(DebugCfg.Error, 'Lines: %d, %d\n\n', line1, line2);
+            // 'CalcTransition:152' DebugLog(DebugCfg.Error, 'Lines: %d, %d\n\n', line1, line2);
             //  1 -> stdout
             //  2 -> stderr
             // 'DebugLog:5' if IsEnabledDebugLog(cfg)
             // 'IsEnabledDebugLog:4' value = false;
             // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
-            Double2MultiWord(DebugConfig, (unsigned int *)&r18.chunks[0U]);
-            MultiWordAnd((unsigned int *)&r18.chunks[0U], (unsigned int *)&r10.chunks[0U],
+            Double2MultiWord(DebugConfig, (unsigned int *)&r19.chunks[0U]);
+            MultiWordAnd((unsigned int *)&r19.chunks[0U], (unsigned int *)&r10.chunks[0U],
                          (unsigned int *)&r16.chunks[0U]);
             if (uMultiWordNe((unsigned int *)&r16.chunks[0U], (unsigned int *)&r4.chunks[0U])) {
                 // 'IsEnabledDebugLog:7' value = true;
@@ -549,86 +509,48 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
                        CurvStruct2->gcode_source_line);
                 fflush(stdout);
             }
-            // 'CalcTransition:148' if coder.target('matlab')
+            // 'CalcTransition:154' if coder.target('matlab')
         } else if (ret == 6) {
             uint64m_T r20;
             uint64m_T r24;
-            double d3;
-            double d4;
-            double d5;
-            // 'CalcTransition:173' elseif ret==6
+            // 'CalcTransition:179' elseif ret==6
             //  TODO: decide in the future...
             //  Now we ignore and construct the transition curve anyway
-            // 'CalcTransition:177' CurvStruct_T = ConstrTransP5Struct(p5, CurvStruct1.FeedRate);
-            // 'ConstrTransP5Struct:2' P0          = mypolyval(CoeffP5,0);
-            // POLYVAL Evaluate array of polynomials with same degree.
-            //
-            // 'mypolyval:4' [nD, nc] = size(p);
-            // 'mypolyval:5' siz_x    = length(x);
-            //
-            //  Use Horner's method for general case where X is an array.
-            // 'mypolyval:8' y = zeros(nD, siz_x);
-            // 'mypolyval:9' if nc > 0
-            // 'mypolyval:10' y(:) = repmat(p(:, 1), 1, siz_x);
-            // 'mypolyval:12' for i=2:nc
-            // 'ConstrTransP5Struct:3' P1          = mypolyval(CoeffP5,1);
-            // POLYVAL Evaluate array of polynomials with same degree.
-            //
-            // 'mypolyval:4' [nD, nc] = size(p);
-            // 'mypolyval:5' siz_x    = length(x);
-            //
-            //  Use Horner's method for general case where X is an array.
-            // 'mypolyval:8' y = zeros(nD, siz_x);
-            // 'mypolyval:9' if nc > 0
-            // 'mypolyval:10' y(:) = repmat(p(:, 1), 1, siz_x);
-            // 'mypolyval:12' for i=2:nc
-            d3 = p5[0][0];
-            d4 = p5[0][1];
-            d5 = p5[0][2];
-            for (int c_i{0}; c_i < 5; c_i++) {
-                double d10;
-                double d11;
-                double d8;
-                // 'mypolyval:13' y = repmat(x, nD, 1) .* y + repmat(p(:, i), 1, siz_x);
-                d8 = p5[c_i + 1][0];
-                P0[0] = d8;
-                d10 = p5[c_i + 1][1];
-                P0[1] = d10;
-                d11 = p5[c_i + 1][2];
-                P0[2] = d11;
-                // 'mypolyval:13' y = repmat(x, nD, 1) .* y + repmat(p(:, i), 1, siz_x);
-                d3 += d8;
-                d4 += d10;
-                d5 += d11;
-            }
-            P1[2] = d5;
-            P1[1] = d4;
-            P1[0] = d3;
-            // 'ConstrTransP5Struct:4' evec        = zeros(3, 1);
-            // 'ConstrTransP5Struct:5' theta       = 0;
-            // 'ConstrTransP5Struct:6' pitch       = 0;
-            // 'ConstrTransP5Struct:7' CurvStruct  = ConstrCurvStruct(CurveType.TransP5,
-            // ZSpdMode.NN, P0, P1, [0,0,0]', 0.0, evec, theta, pitch, CoeffP5, FeedRate);
-            dv[0] = 0.0;
-            dv1[0] = 0.0;
-            dv[1] = 0.0;
-            dv1[1] = 0.0;
-            dv[2] = 0.0;
-            dv1[2] = 0.0;
-            ConstrCurvStruct(CurveType_TransP5, ZSpdMode_NN, P0, P1, dv, 0.0, dv1, 0.0, 0.0, p5,
-                             CurvStruct1->FeedRate, CurvStruct_T);
-            // 'CalcTransition:178' status = TransitionResult.Ok;
+            // 'CalcTransition:183' CurvStruct_T = ConstrTransP5Struct(CurvStruct1.TRAFO,...
+            // 'CalcTransition:184'                    CurvStruct1.HSC, ...
+            // 'CalcTransition:185'                    CurvStruct1.Poff, CurvStruct1.Aoff, ...
+            // 'CalcTransition:186'                    CurvStruct1.Uoff, CurvStruct1.Doff,...
+            // 'CalcTransition:187'                    [CurvStruct1.A0, CurvStruct1.A1], ...
+            // 'CalcTransition:188'                    [CurvStruct1.U0, CurvStruct1.U1], ...
+            // 'CalcTransition:189'                    p5, CurvStruct1.FeedRate);
+            b_CurvStruct1[0][0] = CurvStruct1->A0[0];
+            b_CurvStruct1[1][0] = CurvStruct1->A1[0];
+            c_CurvStruct1[0][0] = CurvStruct1->U0[0];
+            c_CurvStruct1[1][0] = CurvStruct1->U1[0];
+            b_CurvStruct1[0][1] = CurvStruct1->A0[1];
+            b_CurvStruct1[1][1] = CurvStruct1->A1[1];
+            c_CurvStruct1[0][1] = CurvStruct1->U0[1];
+            c_CurvStruct1[1][1] = CurvStruct1->U1[1];
+            b_CurvStruct1[0][2] = CurvStruct1->A0[2];
+            b_CurvStruct1[1][2] = CurvStruct1->A1[2];
+            c_CurvStruct1[0][2] = CurvStruct1->U0[2];
+            c_CurvStruct1[1][2] = CurvStruct1->U1[2];
+            ConstrTransP5Struct(CurvStruct1->TRAFO, CurvStruct1->HSC, CurvStruct1->Poff,
+                                CurvStruct1->Aoff, CurvStruct1->Uoff, CurvStruct1->Doff,
+                                b_CurvStruct1, c_CurvStruct1, p5, CurvStruct1->FeedRate,
+                                CurvStruct_T);
+            // 'CalcTransition:190' status = TransitionResult.Ok;
             b_status = TransitionResult_Ok;
-            // 'CalcTransition:180' DebugLog(DebugCfg.Warning, '========== CalcTransition
+            // 'CalcTransition:192' DebugLog(DebugCfg.Warning, '========== CalcTransition
             // ==========\n');
             //  1 -> stdout
             //  2 -> stderr
             // 'DebugLog:5' if IsEnabledDebugLog(cfg)
             // 'IsEnabledDebugLog:4' value = false;
             // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
-            Double2MultiWord(DebugConfig, (unsigned int *)&r19.chunks[0U]);
+            Double2MultiWord(DebugConfig, (unsigned int *)&r18.chunks[0U]);
             r20 = r21;
-            MultiWordAnd((unsigned int *)&r19.chunks[0U], (unsigned int *)&r21.chunks[0U],
+            MultiWordAnd((unsigned int *)&r18.chunks[0U], (unsigned int *)&r21.chunks[0U],
                          (unsigned int *)&r22.chunks[0U]);
             if (uMultiWordNe((unsigned int *)&r22.chunks[0U], (unsigned int *)&r4.chunks[0U])) {
                 // 'IsEnabledDebugLog:7' value = true;
@@ -636,7 +558,7 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
                 printf("========== CalcTransition ==========\n");
                 fflush(stdout);
             }
-            // 'CalcTransition:181' DebugLog(DebugCfg.Warning, '=========== status = 6
+            // 'CalcTransition:193' DebugLog(DebugCfg.Warning, '=========== status = 6
             // ==========\n');
             //  1 -> stdout
             //  2 -> stderr
@@ -653,7 +575,7 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
                 printf("=========== status = 6 ==========\n");
                 fflush(stdout);
             }
-            // 'CalcTransition:182' DebugLog(DebugCfg.Warning, 'Lines: %d, %d\n\n', line1, line2);
+            // 'CalcTransition:194' DebugLog(DebugCfg.Warning, 'Lines: %d, %d\n\n', line1, line2);
             //  1 -> stdout
             //  2 -> stderr
             // 'DebugLog:5' if IsEnabledDebugLog(cfg)
@@ -669,14 +591,14 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
                        CurvStruct2->gcode_source_line);
                 fflush(stdout);
             }
-            // 'CalcTransition:184' if coder.target('matlab')
+            // 'CalcTransition:196' if coder.target('matlab')
         } else {
             uint64m_T r15;
             uint64m_T r9;
-            // 'CalcTransition:201' else
-            // 'CalcTransition:203' status = TransitionResult.NoSolution;
+            // 'CalcTransition:213' else
+            // 'CalcTransition:215' status = TransitionResult.NoSolution;
             b_status = TransitionResult_NoSolution;
-            // 'CalcTransition:205' DebugLog(DebugCfg.Error, '========== CalcTransition
+            // 'CalcTransition:217' DebugLog(DebugCfg.Error, '========== CalcTransition
             // ==========\n');
             //  1 -> stdout
             //  2 -> stderr
@@ -693,7 +615,7 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
                 printf("========== CalcTransition ==========\n");
                 fflush(stdout);
             }
-            // 'CalcTransition:206' DebugLog(DebugCfg.Error, '=========== No Solution
+            // 'CalcTransition:218' DebugLog(DebugCfg.Error, '=========== No Solution
             // ==========\n');
             //  1 -> stdout
             //  2 -> stderr
@@ -710,7 +632,7 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
                 printf("=========== No Solution ==========\n");
                 fflush(stdout);
             }
-            // 'CalcTransition:207' DebugLog(DebugCfg.Error, 'Lines: %d, %d\n\n', line1, line2);
+            // 'CalcTransition:219' DebugLog(DebugCfg.Error, 'Lines: %d, %d\n\n', line1, line2);
             //  1 -> stdout
             //  2 -> stderr
             // 'DebugLog:5' if IsEnabledDebugLog(cfg)
@@ -726,11 +648,11 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
                        CurvStruct2->gcode_source_line);
                 fflush(stdout);
             }
-            // 'CalcTransition:209' if coder.target('matlab')
+            // 'CalcTransition:221' if coder.target('matlab')
         }
-        // 'CalcTransition:235' CurvStruct_T.gcode_source_line = line2;
+        // 'CalcTransition:247' CurvStruct_T.gcode_source_line = line2;
         CurvStruct_T->gcode_source_line = CurvStruct2->gcode_source_line;
-        // 'CalcTransition:236' CurvStruct_T.SpindleSpeed = min(CurvStruct1.SpindleSpeed,
+        // 'CalcTransition:248' CurvStruct_T.SpindleSpeed = min(CurvStruct1.SpindleSpeed,
         // CurvStruct2.SpindleSpeed);
         CurvStruct_T->SpindleSpeed =
             std::fmin(CurvStruct1->SpindleSpeed, CurvStruct2->SpindleSpeed);
@@ -791,10 +713,8 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
     uint64m_T r7;
     uint64m_T r8;
     double p5[6][3];
-    double P0[3];
-    double P1[3];
-    double dv[3];
-    double dv1[3];
+    double b_CurvStruct1[2][3];
+    double c_CurvStruct1[2][3];
     double r0D0[3];
     double r0D0_1[3];
     double r0D0_2[3];
@@ -1131,79 +1051,41 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
         G2_Hermite_Interpolation(r0D0, r0D1, r0D2, r1D0, r1D1, r1D2, p5, &ret, &a__1, &a__2);
         // 'CalcTransition:132' if ret==1
         if (ret == 1) {
-            double d;
-            double d1;
-            double d2;
             //  standard case
             //  transition CurvStruct calculation
-            // 'CalcTransition:136' CurvStruct_T = ConstrTransP5Struct(p5, CurvStruct1.FeedRate);
-            // 'ConstrTransP5Struct:2' P0          = mypolyval(CoeffP5,0);
-            // POLYVAL Evaluate array of polynomials with same degree.
-            //
-            // 'mypolyval:4' [nD, nc] = size(p);
-            // 'mypolyval:5' siz_x    = length(x);
-            //
-            //  Use Horner's method for general case where X is an array.
-            // 'mypolyval:8' y = zeros(nD, siz_x);
-            // 'mypolyval:9' if nc > 0
-            // 'mypolyval:10' y(:) = repmat(p(:, 1), 1, siz_x);
-            // 'mypolyval:12' for i=2:nc
-            // 'ConstrTransP5Struct:3' P1          = mypolyval(CoeffP5,1);
-            // POLYVAL Evaluate array of polynomials with same degree.
-            //
-            // 'mypolyval:4' [nD, nc] = size(p);
-            // 'mypolyval:5' siz_x    = length(x);
-            //
-            //  Use Horner's method for general case where X is an array.
-            // 'mypolyval:8' y = zeros(nD, siz_x);
-            // 'mypolyval:9' if nc > 0
-            // 'mypolyval:10' y(:) = repmat(p(:, 1), 1, siz_x);
-            // 'mypolyval:12' for i=2:nc
-            d = p5[0][0];
-            d1 = p5[0][1];
-            d2 = p5[0][2];
-            for (int b_i{0}; b_i < 5; b_i++) {
-                double d6;
-                double d7;
-                double d9;
-                // 'mypolyval:13' y = repmat(x, nD, 1) .* y + repmat(p(:, i), 1, siz_x);
-                d6 = p5[b_i + 1][0];
-                P0[0] = d6;
-                d7 = p5[b_i + 1][1];
-                P0[1] = d7;
-                d9 = p5[b_i + 1][2];
-                P0[2] = d9;
-                // 'mypolyval:13' y = repmat(x, nD, 1) .* y + repmat(p(:, i), 1, siz_x);
-                d += d6;
-                d1 += d7;
-                d2 += d9;
-            }
-            P1[2] = d2;
-            P1[1] = d1;
-            P1[0] = d;
-            // 'ConstrTransP5Struct:4' evec        = zeros(3, 1);
-            // 'ConstrTransP5Struct:5' theta       = 0;
-            // 'ConstrTransP5Struct:6' pitch       = 0;
-            // 'ConstrTransP5Struct:7' CurvStruct  = ConstrCurvStruct(CurveType.TransP5,
-            // ZSpdMode.NN, P0, P1, [0,0,0]', 0.0, evec, theta, pitch, CoeffP5, FeedRate);
-            dv[0] = 0.0;
-            dv1[0] = 0.0;
-            dv[1] = 0.0;
-            dv1[1] = 0.0;
-            dv[2] = 0.0;
-            dv1[2] = 0.0;
-            ConstrCurvStruct(CurveType_TransP5, ZSpdMode_NN, P0, P1, dv, 0.0, dv1, 0.0, 0.0, p5,
-                             CurvStruct1->FeedRate, CurvStruct_T);
-            // 'CalcTransition:137' status = TransitionResult.Ok;
+            // 'CalcTransition:136' CurvStruct_T = ConstrTransP5Struct(CurvStruct1.TRAFO,...
+            // 'CalcTransition:137'                    CurvStruct1.HSC, ...
+            // 'CalcTransition:138'                    CurvStruct1.Poff, CurvStruct1.Aoff, ...
+            // 'CalcTransition:139'                    CurvStruct1.Uoff, CurvStruct1.Doff,...
+            // 'CalcTransition:140'                    [CurvStruct1.A0, CurvStruct1.A1], ...
+            // 'CalcTransition:141'                    [CurvStruct1.U0, CurvStruct1.U1], ...
+            // 'CalcTransition:142'                    p5, CurvStruct1.FeedRate);
+            b_CurvStruct1[0][0] = CurvStruct1->A0[0];
+            b_CurvStruct1[1][0] = CurvStruct1->A1[0];
+            c_CurvStruct1[0][0] = CurvStruct1->U0[0];
+            c_CurvStruct1[1][0] = CurvStruct1->U1[0];
+            b_CurvStruct1[0][1] = CurvStruct1->A0[1];
+            b_CurvStruct1[1][1] = CurvStruct1->A1[1];
+            c_CurvStruct1[0][1] = CurvStruct1->U0[1];
+            c_CurvStruct1[1][1] = CurvStruct1->U1[1];
+            b_CurvStruct1[0][2] = CurvStruct1->A0[2];
+            b_CurvStruct1[1][2] = CurvStruct1->A1[2];
+            c_CurvStruct1[0][2] = CurvStruct1->U0[2];
+            c_CurvStruct1[1][2] = CurvStruct1->U1[2];
+            ConstrTransP5Struct(CurvStruct1->TRAFO, CurvStruct1->HSC, CurvStruct1->Poff,
+                                CurvStruct1->Aoff, CurvStruct1->Uoff, CurvStruct1->Doff,
+                                b_CurvStruct1, c_CurvStruct1, p5, CurvStruct1->FeedRate,
+                                CurvStruct_T);
+            // 'CalcTransition:143' status = TransitionResult.Ok;
             b_status = TransitionResult_Ok;
         } else if (ret == 2) {
             uint64m_T r11;
             uint64m_T r16;
-            // 'CalcTransition:139' elseif ret==2
+            // 'CalcTransition:145' elseif ret==2
             //  badly conditioned matrix in G2_Hermite()
-            // 'CalcTransition:142' status = TransitionResult.NoSolution;
+            // 'CalcTransition:148' status = TransitionResult.NoSolution;
             b_status = TransitionResult_NoSolution;
-            // 'CalcTransition:144' DebugLog(DebugCfg.Error, '========== CalcTransition
+            // 'CalcTransition:150' DebugLog(DebugCfg.Error, '========== CalcTransition
             // ==========\n');
             //  1 -> stdout
             //  2 -> stderr
@@ -1220,7 +1102,7 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
                 printf("========== CalcTransition ==========\n");
                 fflush(stdout);
             }
-            // 'CalcTransition:145' DebugLog(DebugCfg.Error, '=========== Badly Cond. Matrix in
+            // 'CalcTransition:151' DebugLog(DebugCfg.Error, '=========== Badly Cond. Matrix in
             // G2_Hermite() ==========\n');
             //  1 -> stdout
             //  2 -> stderr
@@ -1237,14 +1119,14 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
                 printf("=========== Badly Cond. Matrix in G2_Hermite() ==========\n");
                 fflush(stdout);
             }
-            // 'CalcTransition:146' DebugLog(DebugCfg.Error, 'Lines: %d, %d\n\n', line1, line2);
+            // 'CalcTransition:152' DebugLog(DebugCfg.Error, 'Lines: %d, %d\n\n', line1, line2);
             //  1 -> stdout
             //  2 -> stderr
             // 'DebugLog:5' if IsEnabledDebugLog(cfg)
             // 'IsEnabledDebugLog:4' value = false;
             // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
-            Double2MultiWord(DebugConfig, (unsigned int *)&r18.chunks[0U]);
-            MultiWordAnd((unsigned int *)&r18.chunks[0U], (unsigned int *)&r10.chunks[0U],
+            Double2MultiWord(DebugConfig, (unsigned int *)&r19.chunks[0U]);
+            MultiWordAnd((unsigned int *)&r19.chunks[0U], (unsigned int *)&r10.chunks[0U],
                          (unsigned int *)&r16.chunks[0U]);
             if (uMultiWordNe((unsigned int *)&r16.chunks[0U], (unsigned int *)&r4.chunks[0U])) {
                 // 'IsEnabledDebugLog:7' value = true;
@@ -1253,86 +1135,48 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
                        CurvStruct2->gcode_source_line);
                 fflush(stdout);
             }
-            // 'CalcTransition:148' if coder.target('matlab')
+            // 'CalcTransition:154' if coder.target('matlab')
         } else if (ret == 6) {
             uint64m_T r20;
             uint64m_T r24;
-            double d3;
-            double d4;
-            double d5;
-            // 'CalcTransition:173' elseif ret==6
+            // 'CalcTransition:179' elseif ret==6
             //  TODO: decide in the future...
             //  Now we ignore and construct the transition curve anyway
-            // 'CalcTransition:177' CurvStruct_T = ConstrTransP5Struct(p5, CurvStruct1.FeedRate);
-            // 'ConstrTransP5Struct:2' P0          = mypolyval(CoeffP5,0);
-            // POLYVAL Evaluate array of polynomials with same degree.
-            //
-            // 'mypolyval:4' [nD, nc] = size(p);
-            // 'mypolyval:5' siz_x    = length(x);
-            //
-            //  Use Horner's method for general case where X is an array.
-            // 'mypolyval:8' y = zeros(nD, siz_x);
-            // 'mypolyval:9' if nc > 0
-            // 'mypolyval:10' y(:) = repmat(p(:, 1), 1, siz_x);
-            // 'mypolyval:12' for i=2:nc
-            // 'ConstrTransP5Struct:3' P1          = mypolyval(CoeffP5,1);
-            // POLYVAL Evaluate array of polynomials with same degree.
-            //
-            // 'mypolyval:4' [nD, nc] = size(p);
-            // 'mypolyval:5' siz_x    = length(x);
-            //
-            //  Use Horner's method for general case where X is an array.
-            // 'mypolyval:8' y = zeros(nD, siz_x);
-            // 'mypolyval:9' if nc > 0
-            // 'mypolyval:10' y(:) = repmat(p(:, 1), 1, siz_x);
-            // 'mypolyval:12' for i=2:nc
-            d3 = p5[0][0];
-            d4 = p5[0][1];
-            d5 = p5[0][2];
-            for (int c_i{0}; c_i < 5; c_i++) {
-                double d10;
-                double d11;
-                double d8;
-                // 'mypolyval:13' y = repmat(x, nD, 1) .* y + repmat(p(:, i), 1, siz_x);
-                d8 = p5[c_i + 1][0];
-                P0[0] = d8;
-                d10 = p5[c_i + 1][1];
-                P0[1] = d10;
-                d11 = p5[c_i + 1][2];
-                P0[2] = d11;
-                // 'mypolyval:13' y = repmat(x, nD, 1) .* y + repmat(p(:, i), 1, siz_x);
-                d3 += d8;
-                d4 += d10;
-                d5 += d11;
-            }
-            P1[2] = d5;
-            P1[1] = d4;
-            P1[0] = d3;
-            // 'ConstrTransP5Struct:4' evec        = zeros(3, 1);
-            // 'ConstrTransP5Struct:5' theta       = 0;
-            // 'ConstrTransP5Struct:6' pitch       = 0;
-            // 'ConstrTransP5Struct:7' CurvStruct  = ConstrCurvStruct(CurveType.TransP5,
-            // ZSpdMode.NN, P0, P1, [0,0,0]', 0.0, evec, theta, pitch, CoeffP5, FeedRate);
-            dv[0] = 0.0;
-            dv1[0] = 0.0;
-            dv[1] = 0.0;
-            dv1[1] = 0.0;
-            dv[2] = 0.0;
-            dv1[2] = 0.0;
-            ConstrCurvStruct(CurveType_TransP5, ZSpdMode_NN, P0, P1, dv, 0.0, dv1, 0.0, 0.0, p5,
-                             CurvStruct1->FeedRate, CurvStruct_T);
-            // 'CalcTransition:178' status = TransitionResult.Ok;
+            // 'CalcTransition:183' CurvStruct_T = ConstrTransP5Struct(CurvStruct1.TRAFO,...
+            // 'CalcTransition:184'                    CurvStruct1.HSC, ...
+            // 'CalcTransition:185'                    CurvStruct1.Poff, CurvStruct1.Aoff, ...
+            // 'CalcTransition:186'                    CurvStruct1.Uoff, CurvStruct1.Doff,...
+            // 'CalcTransition:187'                    [CurvStruct1.A0, CurvStruct1.A1], ...
+            // 'CalcTransition:188'                    [CurvStruct1.U0, CurvStruct1.U1], ...
+            // 'CalcTransition:189'                    p5, CurvStruct1.FeedRate);
+            b_CurvStruct1[0][0] = CurvStruct1->A0[0];
+            b_CurvStruct1[1][0] = CurvStruct1->A1[0];
+            c_CurvStruct1[0][0] = CurvStruct1->U0[0];
+            c_CurvStruct1[1][0] = CurvStruct1->U1[0];
+            b_CurvStruct1[0][1] = CurvStruct1->A0[1];
+            b_CurvStruct1[1][1] = CurvStruct1->A1[1];
+            c_CurvStruct1[0][1] = CurvStruct1->U0[1];
+            c_CurvStruct1[1][1] = CurvStruct1->U1[1];
+            b_CurvStruct1[0][2] = CurvStruct1->A0[2];
+            b_CurvStruct1[1][2] = CurvStruct1->A1[2];
+            c_CurvStruct1[0][2] = CurvStruct1->U0[2];
+            c_CurvStruct1[1][2] = CurvStruct1->U1[2];
+            ConstrTransP5Struct(CurvStruct1->TRAFO, CurvStruct1->HSC, CurvStruct1->Poff,
+                                CurvStruct1->Aoff, CurvStruct1->Uoff, CurvStruct1->Doff,
+                                b_CurvStruct1, c_CurvStruct1, p5, CurvStruct1->FeedRate,
+                                CurvStruct_T);
+            // 'CalcTransition:190' status = TransitionResult.Ok;
             b_status = TransitionResult_Ok;
-            // 'CalcTransition:180' DebugLog(DebugCfg.Warning, '========== CalcTransition
+            // 'CalcTransition:192' DebugLog(DebugCfg.Warning, '========== CalcTransition
             // ==========\n');
             //  1 -> stdout
             //  2 -> stderr
             // 'DebugLog:5' if IsEnabledDebugLog(cfg)
             // 'IsEnabledDebugLog:4' value = false;
             // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
-            Double2MultiWord(DebugConfig, (unsigned int *)&r19.chunks[0U]);
+            Double2MultiWord(DebugConfig, (unsigned int *)&r18.chunks[0U]);
             r20 = r21;
-            MultiWordAnd((unsigned int *)&r19.chunks[0U], (unsigned int *)&r21.chunks[0U],
+            MultiWordAnd((unsigned int *)&r18.chunks[0U], (unsigned int *)&r21.chunks[0U],
                          (unsigned int *)&r22.chunks[0U]);
             if (uMultiWordNe((unsigned int *)&r22.chunks[0U], (unsigned int *)&r4.chunks[0U])) {
                 // 'IsEnabledDebugLog:7' value = true;
@@ -1340,7 +1184,7 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
                 printf("========== CalcTransition ==========\n");
                 fflush(stdout);
             }
-            // 'CalcTransition:181' DebugLog(DebugCfg.Warning, '=========== status = 6
+            // 'CalcTransition:193' DebugLog(DebugCfg.Warning, '=========== status = 6
             // ==========\n');
             //  1 -> stdout
             //  2 -> stderr
@@ -1357,7 +1201,7 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
                 printf("=========== status = 6 ==========\n");
                 fflush(stdout);
             }
-            // 'CalcTransition:182' DebugLog(DebugCfg.Warning, 'Lines: %d, %d\n\n', line1, line2);
+            // 'CalcTransition:194' DebugLog(DebugCfg.Warning, 'Lines: %d, %d\n\n', line1, line2);
             //  1 -> stdout
             //  2 -> stderr
             // 'DebugLog:5' if IsEnabledDebugLog(cfg)
@@ -1373,14 +1217,14 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
                        CurvStruct2->gcode_source_line);
                 fflush(stdout);
             }
-            // 'CalcTransition:184' if coder.target('matlab')
+            // 'CalcTransition:196' if coder.target('matlab')
         } else {
             uint64m_T r15;
             uint64m_T r9;
-            // 'CalcTransition:201' else
-            // 'CalcTransition:203' status = TransitionResult.NoSolution;
+            // 'CalcTransition:213' else
+            // 'CalcTransition:215' status = TransitionResult.NoSolution;
             b_status = TransitionResult_NoSolution;
-            // 'CalcTransition:205' DebugLog(DebugCfg.Error, '========== CalcTransition
+            // 'CalcTransition:217' DebugLog(DebugCfg.Error, '========== CalcTransition
             // ==========\n');
             //  1 -> stdout
             //  2 -> stderr
@@ -1397,7 +1241,7 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
                 printf("========== CalcTransition ==========\n");
                 fflush(stdout);
             }
-            // 'CalcTransition:206' DebugLog(DebugCfg.Error, '=========== No Solution
+            // 'CalcTransition:218' DebugLog(DebugCfg.Error, '=========== No Solution
             // ==========\n');
             //  1 -> stdout
             //  2 -> stderr
@@ -1414,7 +1258,7 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
                 printf("=========== No Solution ==========\n");
                 fflush(stdout);
             }
-            // 'CalcTransition:207' DebugLog(DebugCfg.Error, 'Lines: %d, %d\n\n', line1, line2);
+            // 'CalcTransition:219' DebugLog(DebugCfg.Error, 'Lines: %d, %d\n\n', line1, line2);
             //  1 -> stdout
             //  2 -> stderr
             // 'DebugLog:5' if IsEnabledDebugLog(cfg)
@@ -1430,11 +1274,11 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
                        CurvStruct2->gcode_source_line);
                 fflush(stdout);
             }
-            // 'CalcTransition:209' if coder.target('matlab')
+            // 'CalcTransition:221' if coder.target('matlab')
         }
-        // 'CalcTransition:235' CurvStruct_T.gcode_source_line = line2;
+        // 'CalcTransition:247' CurvStruct_T.gcode_source_line = line2;
         CurvStruct_T->gcode_source_line = CurvStruct2->gcode_source_line;
-        // 'CalcTransition:236' CurvStruct_T.SpindleSpeed = min(CurvStruct1.SpindleSpeed,
+        // 'CalcTransition:248' CurvStruct_T.SpindleSpeed = min(CurvStruct1.SpindleSpeed,
         // CurvStruct2.SpindleSpeed);
         CurvStruct_T->SpindleSpeed =
             std::fmin(CurvStruct1->SpindleSpeed, CurvStruct2->SpindleSpeed);

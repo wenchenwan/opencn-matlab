@@ -5,7 +5,7 @@
 // File: opencn_matlab_initialize.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 14-Feb-2022 16:26:14
+// C/C++ source code generated on  : 01-Mar-2022 11:00:11
 //
 
 // Include Files
@@ -20,10 +20,10 @@
 namespace ocn {
 void opencn_matlab_initialize()
 {
+    sqrt_calls = 0.0;
     DebugConfig = 0.0;
     sin_calls = 0.0;
     cos_calls = 0.0;
-    sqrt_calls = 0.0;
     isInitialized_opencn_matlab = true;
 }
 

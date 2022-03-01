@@ -5,7 +5,7 @@
 // File: SmoothCurvStructs.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 14-Feb-2022 16:26:14
+// C/C++ source code generated on  : 01-Mar-2022 11:00:11
 //
 
 // Include Files
@@ -608,7 +608,7 @@ void SmoothCurvStructs(FeedoptContext *ctx)
                 for (int i26{0}; i26 < o_loop_ub; i26++) {
                     b_max_jt[i26] = (max_jt[i26] > ctx->cfg.ZeroStartJerkLimit);
                 }
-                coder::b_eml_find(b_max_jt, (int *)&cut_index_vel_data, cut_index_vel_size);
+                coder::c_eml_find(b_max_jt, (int *)&cut_index_vel_data, cut_index_vel_size);
                 p_loop_ub = cut_index_vel_size[1];
                 for (int i27{0}; i27 < p_loop_ub; i27++) {
                     cut_index_jerk_data = cut_index_vel_data;
@@ -628,7 +628,7 @@ void SmoothCurvStructs(FeedoptContext *ctx)
                 for (int i28{0}; i28 < q_loop_ub; i28++) {
                     b_max_at[i28] = (max_at[i28] > ctx->cfg.ZeroStartAccLimit);
                 }
-                coder::b_eml_find(b_max_at, (int *)&cut_index_vel_data, cut_index_vel_size);
+                coder::c_eml_find(b_max_at, (int *)&cut_index_vel_data, cut_index_vel_size);
                 r_loop_ub = cut_index_vel_size[1];
                 for (int i29{0}; i29 < r_loop_ub; i29++) {
                     cut_index_acc_data = cut_index_vel_data;
@@ -674,7 +674,7 @@ void SmoothCurvStructs(FeedoptContext *ctx)
                 for (int i32{0}; i32 < t_loop_ub; i32++) {
                     b_x[i32] = (x[i32] / b_vmax > ctx->cfg.ZeroStartVelLimit);
                 }
-                coder::b_eml_find(b_x, (int *)&cut_index_vel_data, cut_index_vel_size);
+                coder::c_eml_find(b_x, (int *)&cut_index_vel_data, cut_index_vel_size);
                 // 'orelse:2' if isempty(value)
                 if (cut_index_vel_size[1] == 0) {
                     // 'orelse:3' v = elsevalue;

@@ -8,7 +8,7 @@ clc; close all; clear all;
 cfg = FeedoptDefaultConfig;
 
 % Set the path to the gcode file
-cfg.source = './ngc_test/full/001_anchor.ngc';
+cfg.source = 'ngc_test/anchor.ngc';
 
 % Initialization of the feed operator
 ctx = InitFeedoptPlan(cfg);
@@ -22,7 +22,7 @@ run(PfileName);
 
 % Resampling of the parameter
 paramsPlotBr = containers.Map('disablePlot', true);
-uvec = PlotResampled_BR(ctx, max_time, ctx.cfg.dt, paramsPlotBr); 
+uvec = PlotResampled_BR(ctx, max_time, ctx.cfg.dt, paramsPlotBr);
 
 % Create tolerance structure
 tol.v_tol       = vmax_norm_tol;

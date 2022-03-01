@@ -8,9 +8,23 @@ cfg.LSplit = 0.4;
 % cfg.CutOff = 0.3;
 N = 1;
 FeedRate = 50;
-gcode1 = ConstrLineStruct([0,0,0]', [1,0,0]', FeedRate, ZSpdMode.ZZ);
-gcode2 = ConstrLineStruct([1,0,0]', [1,1,0]', FeedRate, ZSpdMode.ZZ);
-gcode3 = ConstrLineStruct([1,1,0]', [1,1,1]', FeedRate, ZSpdMode.ZZ);
+
+trafo = false; % TRAFO flag disable 
+HSC = false;
+Poff = zeros(3, 1); Aoff = Poff; Uoff = Poff; Doff = 0.0;
+A0 = zeros(3,1); A1 = A0; U0 = A0 ; U1 = A0; 
+
+gcode1 = ConstrLineStruct(trafo, HSC, Poff, Aoff, Uoff, ...
+                               Doff, [0,0,0]', [1,0,0]', A0, A1, U0, ...
+                               U1, FeedRate, ZSpdMode.ZZ);
+
+gcode2 = ConstrLineStruct(trafo, HSC, Poff, Aoff, Uoff, ...
+                               Doff, [1,0,0]', [1,1,0]', A0, A1, U0, ...
+                               U1, FeedRate, ZSpdMode.ZZ);
+
+gcode3 = ConstrLineStruct(trafo, HSC, Poff, Aoff, Uoff, ...
+                               Doff, [1,1,0]', [1,1,1]', A0, A1, U0, ...
+                               U1, FeedRate, ZSpdMode.ZZ);
 
 ctx = InitFeedoptPlan(cfg);
 ctx.q_gcode.push(gcode1);

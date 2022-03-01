@@ -5,7 +5,7 @@
 // File: CompressCurvStructs.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 14-Feb-2022 16:27:55
+// C/C++ source code generated on  : 01-Mar-2022 11:01:39
 //
 
 // Include Files
@@ -56,6 +56,8 @@ void CompressCurvStructs(const FeedoptContext *ctx)
     CurvStruct expl_temp;
     CurvStruct spline;
     double dv3[6][3];
+    double avec[2][3];
+    double uvec[2][3];
     double P0[3];
     double P1[3];
     double V0[3];
@@ -317,7 +319,7 @@ void CompressCurvStructs(const FeedoptContext *ctx)
                     //  is warranted
                     // 'CompressCurvStructs:79' if size(pvec, 2) > 2
                     if (pvec.size(1) > 2) {
-                        int c_pvec;
+                        int b_pvec;
                         // 'CompressCurvStructs:80' SplineCurve = ConstrCurvStructType;
                         ConstrCurvStructType(&SplineCurve);
                         // 'CompressCurvStructs:81' SplineCurve.sp=CalcBspline_Lee(ctx.cfg, pvec);
@@ -343,24 +345,48 @@ void CompressCurvStructs(const FeedoptContext *ctx)
                         // 'CompressCurvStructs:86' SplineCurve.sp.Lk   = Lk;
                         // 'CompressCurvStructs:87' ctx.q_splines.push(SplineCurve);
                         ctx->q_splines.push(&SplineCurve);
-                        // 'CompressCurvStructs:88' spline = ConstrBSplineStruct(pvec, ZSpdMode.NN,
-                        // Curv.FeedRate); 'ConstrBSplineStruct:3' P0          = pvec (:, 1);
-                        // 'ConstrBSplineStruct:4' P1          = pvec (:, end);
-                        // 'ConstrBSplineStruct:5' evec        = zeros(3, 1);
-                        // 'ConstrBSplineStruct:6' theta       = 0;
-                        // 'ConstrBSplineStruct:7' pitch       = 0;
-                        // 'ConstrBSplineStruct:9' c_assert(size(pvec,2) > 2, 'Not enough points');
+                        // 'CompressCurvStructs:88' spline = ConstrBSplineStruct(Curv.TRAFO,
+                        // Curv.HSC,... 'CompressCurvStructs:89' Curv.Poff, ...
+                        // 'CompressCurvStructs:90' Curv.Aoff, Curv.Uoff, ...
+                        // 'CompressCurvStructs:91' Curv.Doff, pvec,... 'CompressCurvStructs:92'
+                        // [Curv.A0,Curv.A1], ... 'CompressCurvStructs:93' [Curv.U0,Curv.U1], ...
+                        // 'CompressCurvStructs:94' ZSpdMode.NN, Curv.FeedRate);
+                        // 'ConstrBSplineStruct:5' P0          = pvec (:, 1);
+                        // 'ConstrBSplineStruct:6' P1          = pvec (:, end);
+                        // 'ConstrBSplineStruct:7' A0          = avec (:, 1);
+                        // 'ConstrBSplineStruct:8' A1          = avec (:, end);
+                        // 'ConstrBSplineStruct:9' U0          = uvec (:, 1);
+                        // 'ConstrBSplineStruct:10' U1          = uvec (:, end);
+                        // 'ConstrBSplineStruct:11' evec        = zeros(3, 1);
+                        // 'ConstrBSplineStruct:12' theta       = 0;
+                        // 'ConstrBSplineStruct:13' pitch       = 0;
+                        // 'ConstrBSplineStruct:15' c_assert(size(pvec,2) > 2, 'Not enough points');
                         // 'c_assert:2' if coder.target('rtw')
                         // 'c_assert:3' if ~condition
                         // 'c_assert:6' value = condition;
-                        // 'ConstrBSplineStruct:11' CoeffP5     = zeros(3, 6);
-                        // 'ConstrBSplineStruct:13' CurvStruct  = ConstrCurvStruct(CurveType.Spline,
-                        // zspdmode, P0, P1, [0,0,0]', 0.0, evec, theta, pitch, CoeffP5, FeedRate);
-                        c_pvec = pvec.size(1);
+                        // 'ConstrBSplineStruct:17' CoeffP5     = zeros(3, 6);
+                        // 'ConstrBSplineStruct:19' CurvStruct  = ConstrCurvStruct(CurveType.Spline,
+                        // zspdmode, trafo, HSC,... 'ConstrBSplineStruct:20' Poff, Aoff, Uoff, Doff,
+                        // P0, P1, ... 'ConstrBSplineStruct:21'                                 A0,
+                        // A1, U0, U1, [0,0,0]', 0.0, evec, ... 'ConstrBSplineStruct:22' theta,
+                        // pitch, CoeffP5, FeedRate);
+                        b_pvec = pvec.size(1);
+                        avec[0][0] = Curv.A0[0];
+                        avec[1][0] = Curv.A1[0];
+                        uvec[0][0] = Curv.U0[0];
+                        uvec[1][0] = Curv.U1[0];
                         dv[0] = 0.0;
                         dv1[0] = 0.0;
+                        avec[0][1] = Curv.A0[1];
+                        avec[1][1] = Curv.A1[1];
+                        uvec[0][1] = Curv.U0[1];
+                        uvec[1][1] = Curv.U1[1];
                         dv[1] = 0.0;
                         dv1[1] = 0.0;
+                        avec[0][2] = Curv.A0[2];
+                        avec[1][2] = Curv.A1[2];
+                        uvec[0][2] = Curv.U0[2];
+                        uvec[1][2] = Curv.U1[2];
                         dv[2] = 0.0;
                         dv1[2] = 0.0;
                         for (int i3{0}; i3 < 6; i3++) {
@@ -371,27 +397,30 @@ void CompressCurvStructs(const FeedoptContext *ctx)
                         dv5[0] = (*(double(*)[3]) & pvec[0])[0];
                         dv5[1] = (*(double(*)[3]) & pvec[0])[1];
                         dv5[2] = (*(double(*)[3]) & pvec[0])[2];
-                        dv6[0] = (*(double(*)[3]) & pvec[3 * (c_pvec - 1)])[0];
-                        dv6[1] = (*(double(*)[3]) & pvec[3 * (c_pvec - 1)])[1];
-                        dv6[2] = (*(double(*)[3]) & pvec[3 * (c_pvec - 1)])[2];
-                        ConstrCurvStruct(CurveType_Spline, ZSpdMode_NN, dv5, dv6, dv, 0.0, dv1, 0.0,
-                                         0.0, dv3, Curv.FeedRate, &spline);
-                        // 'CompressCurvStructs:89' spline.gcode_source_line =
+                        dv6[0] = (*(double(*)[3]) & pvec[3 * (b_pvec - 1)])[0];
+                        dv6[1] = (*(double(*)[3]) & pvec[3 * (b_pvec - 1)])[1];
+                        dv6[2] = (*(double(*)[3]) & pvec[3 * (b_pvec - 1)])[2];
+                        ConstrCurvStruct(CurveType_Spline, ZSpdMode_NN, Curv.TRAFO, Curv.HSC,
+                                         Curv.Poff, Curv.Aoff, Curv.Uoff, Curv.Doff, dv5, dv6,
+                                         *(double(*)[3]) & avec[0][0], *(double(*)[3]) & avec[1][0],
+                                         *(double(*)[3]) & uvec[0][0], *(double(*)[3]) & uvec[1][0],
+                                         dv, 0.0, dv1, 0.0, 0.0, dv3, Curv.FeedRate, &spline);
+                        // 'CompressCurvStructs:95' spline.gcode_source_line =
                         // Curv.gcode_source_line;
                         spline.gcode_source_line = Curv.gcode_source_line;
-                        // 'CompressCurvStructs:90' spline.sp_index = int32(spline_index);
+                        // 'CompressCurvStructs:96' spline.sp_index = int32(spline_index);
                         spline.sp_index = static_cast<int>(spline_index);
-                        // 'CompressCurvStructs:91' spline_index = spline_index + 1;
+                        // 'CompressCurvStructs:97' spline_index = spline_index + 1;
                         spline_index++;
-                        // 'CompressCurvStructs:92' spline.SpindleSpeed = spindle_speed;
+                        // 'CompressCurvStructs:98' spline.SpindleSpeed = spindle_speed;
                         spline.SpindleSpeed = spindle_speed;
-                        // 'CompressCurvStructs:93' spindle_speed = 75000;
+                        // 'CompressCurvStructs:99' spindle_speed = 75000;
                         spindle_speed = 75000.0;
-                        // 'CompressCurvStructs:94' ctx.q_compress.push(spline);
+                        // 'CompressCurvStructs:100' ctx.q_compress.push(spline);
                         ctx->q_compress.push(&spline);
-                        // 'CompressCurvStructs:95' if Curv.zspdmode == ZSpdMode.NZ
+                        // 'CompressCurvStructs:101' if Curv.zspdmode == ZSpdMode.NZ
                         if (Curv.zspdmode == ZSpdMode_NZ) {
-                            // 'CompressCurvStructs:96' [CurvStruct1_C, CurvStruct2_C] =
+                            // 'CompressCurvStructs:102' [CurvStruct1_C, CurvStruct2_C] =
                             // CutZeroEnd(ctx, Curv, k);
                             CutZeroEnd(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz,
                                        ctx->cfg.amax, ctx->cfg.jmax, ctx->cfg.dt,
@@ -399,27 +428,27 @@ void CompressCurvStructs(const FeedoptContext *ctx)
                                        ctx->cfg.ZeroStartVelLimit, ctx->cfg.GaussLegendreX,
                                        ctx->cfg.GaussLegendreW, &Curv, k, &CurvStruct1_C,
                                        &CurvStruct2_C);
-                            // 'CompressCurvStructs:97' ctx.q_compress.push(CurvStruct1_C);
+                            // 'CompressCurvStructs:103' ctx.q_compress.push(CurvStruct1_C);
                             ctx->q_compress.push(&CurvStruct1_C);
-                            // 'CompressCurvStructs:98' ctx.q_compress.push(CurvStruct2_C);
+                            // 'CompressCurvStructs:104' ctx.q_compress.push(CurvStruct2_C);
                             ctx->q_compress.push(&CurvStruct2_C);
                         } else {
-                            // 'CompressCurvStructs:99' else
-                            // 'CompressCurvStructs:100' ctx.q_compress.push(Curv);
+                            // 'CompressCurvStructs:105' else
+                            // 'CompressCurvStructs:106' ctx.q_compress.push(Curv);
                             ctx->q_compress.push(&Curv);
                         }
                         //  With only two points, construct a line
                     } else {
-                        // 'CompressCurvStructs:103' else
-                        // 'CompressCurvStructs:104' C = ctx.q_gcode.get(k-1);
+                        // 'CompressCurvStructs:109' else
+                        // 'CompressCurvStructs:110' C = ctx.q_gcode.get(k-1);
                         ctx->q_gcode.get(k - 1.0, &C);
-                        // 'CompressCurvStructs:105' C.gcode_source_line=Curv.gcode_source_line;
+                        // 'CompressCurvStructs:111' C.gcode_source_line=Curv.gcode_source_line;
                         C.gcode_source_line = Curv.gcode_source_line;
-                        // 'CompressCurvStructs:106' ctx.q_compress.push(C);
+                        // 'CompressCurvStructs:112' ctx.q_compress.push(C);
                         ctx->q_compress.push(&C);
-                        // 'CompressCurvStructs:107' if Curv.zspdmode == ZSpdMode.NZ
+                        // 'CompressCurvStructs:113' if Curv.zspdmode == ZSpdMode.NZ
                         if (Curv.zspdmode == ZSpdMode_NZ) {
-                            // 'CompressCurvStructs:108' [CurvStruct1_C, CurvStruct2_C] =
+                            // 'CompressCurvStructs:114' [CurvStruct1_C, CurvStruct2_C] =
                             // CutZeroEnd(ctx, Curv, k);
                             CutZeroEnd(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz,
                                        ctx->cfg.amax, ctx->cfg.jmax, ctx->cfg.dt,
@@ -427,27 +456,27 @@ void CompressCurvStructs(const FeedoptContext *ctx)
                                        ctx->cfg.ZeroStartVelLimit, ctx->cfg.GaussLegendreX,
                                        ctx->cfg.GaussLegendreW, &Curv, k, &CurvStruct1_C,
                                        &CurvStruct2_C);
-                            // 'CompressCurvStructs:109' ctx.q_compress.push(CurvStruct1_C);
+                            // 'CompressCurvStructs:115' ctx.q_compress.push(CurvStruct1_C);
                             ctx->q_compress.push(&CurvStruct1_C);
-                            // 'CompressCurvStructs:110' ctx.q_compress.push(CurvStruct2_C);
+                            // 'CompressCurvStructs:116' ctx.q_compress.push(CurvStruct2_C);
                             ctx->q_compress.push(&CurvStruct2_C);
                         } else {
-                            // 'CompressCurvStructs:111' else
-                            // 'CompressCurvStructs:112' ctx.q_compress.push(Curv);
+                            // 'CompressCurvStructs:117' else
+                            // 'CompressCurvStructs:118' ctx.q_compress.push(Curv);
                             ctx->q_compress.push(&Curv);
                         }
                     }
-                    // 'CompressCurvStructs:115' CumulatedLength = 0;
+                    // 'CompressCurvStructs:121' CumulatedLength = 0;
                     CumulatedLength = 0.0;
                 }
                 //  If this is the last segment and we have something in the
                 //  compression list, construct the spline
             } else if ((static_cast<unsigned int>(k) == Ncrv) && (CumulatedLength != 0.0)) {
-                int b_pvec;
-                // 'CompressCurvStructs:119' elseif (k==Ncrv) && (CumulatedLength ~= 0)
-                // 'CompressCurvStructs:120' SplineCurve = ConstrCurvStructType;
+                int c_pvec;
+                // 'CompressCurvStructs:125' elseif (k==Ncrv) && (CumulatedLength ~= 0)
+                // 'CompressCurvStructs:126' SplineCurve = ConstrCurvStructType;
                 ConstrCurvStructType(&SplineCurve);
-                // 'CompressCurvStructs:121' SplineCurve.sp=CalcBspline_Lee(ctx.cfg, pvec);
+                // 'CompressCurvStructs:127' SplineCurve.sp=CalcBspline_Lee(ctx.cfg, pvec);
                 CalcBspline_Lee(ctx->cfg.SplineDegree, pvec, SplineCurve.sp.CoeffX,
                                 SplineCurve.sp.CoeffY, SplineCurve.sp.CoeffZ, &t0_Bl_ncoeff,
                                 SplineCurve.sp.Bl.breakpoints, &t0_Bl_handle, &t0_Bl_degree,
@@ -455,27 +484,49 @@ void CompressCurvStructs(const FeedoptContext *ctx)
                 SplineCurve.sp.Bl.ncoeff = t0_Bl_ncoeff;
                 SplineCurve.sp.Bl.handle = t0_Bl_handle;
                 SplineCurve.sp.Bl.degree = t0_Bl_degree;
-                // 'CompressCurvStructs:122' SplineCurve.sp.Ltot = 0;
+                // 'CompressCurvStructs:128' SplineCurve.sp.Ltot = 0;
                 //  satisfy coder
-                // 'CompressCurvStructs:123' SplineCurve.sp.Lk = 0;
+                // 'CompressCurvStructs:129' SplineCurve.sp.Lk = 0;
                 //  satisfy coder
-                // 'CompressCurvStructs:124' [Ltot, Lk]     = SplineLengthApproxGL_tot(ctx,
+                // 'CompressCurvStructs:130' [Ltot, Lk]     = SplineLengthApproxGL_tot(ctx,
                 // SplineCurve);
                 SplineLengthApproxGL_tot(
                     ctx->cfg.GaussLegendreN, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW,
                     SplineCurve.sp.CoeffX, SplineCurve.sp.CoeffY, SplineCurve.sp.CoeffZ,
                     t0_Bl_handle, SplineCurve.sp.knots, &SplineCurve.sp.Ltot, SplineCurve.sp.Lk);
-                // 'CompressCurvStructs:125' SplineCurve.sp.Ltot = Ltot;
-                // 'CompressCurvStructs:126' SplineCurve.sp.Lk   = Lk;
-                // 'CompressCurvStructs:127' ctx.q_splines.push(SplineCurve);
+                // 'CompressCurvStructs:131' SplineCurve.sp.Ltot = Ltot;
+                // 'CompressCurvStructs:132' SplineCurve.sp.Lk   = Lk;
+                // 'CompressCurvStructs:133' ctx.q_splines.push(SplineCurve);
                 ctx->q_splines.push(&SplineCurve);
-                // 'CompressCurvStructs:128' spline = ConstrBSplineStruct(pvec, ZSpdMode.NN,
-                // Curv.FeedRate); 'ConstrBSplineStruct:3' P0          = pvec (:, 1);
-                // 'ConstrBSplineStruct:4' P1          = pvec (:, end);
-                // 'ConstrBSplineStruct:5' evec        = zeros(3, 1);
-                // 'ConstrBSplineStruct:6' theta       = 0;
-                // 'ConstrBSplineStruct:7' pitch       = 0;
-                // 'ConstrBSplineStruct:9' c_assert(size(pvec,2) > 2, 'Not enough points');
+                // 'CompressCurvStructs:134' spline = ConstrBSplineStruct(Curv.TRAFO, Curv.HSC,...
+                // 'CompressCurvStructs:135'                                     Curv.Poff,...
+                // 'CompressCurvStructs:136'                                     Curv.Aoff,
+                // Curv.Uoff, ... 'CompressCurvStructs:137' Curv.Doff, pvec,...
+                // 'CompressCurvStructs:138'                                     [Curv.A0,Curv.A1],
+                // ... 'CompressCurvStructs:139' [Curv.U0,Curv.U1], ... 'CompressCurvStructs:140'
+                // ZSpdMode.NN, Curv.FeedRate);
+                avec[0][0] = Curv.A0[0];
+                avec[1][0] = Curv.A1[0];
+                uvec[0][0] = Curv.U0[0];
+                uvec[1][0] = Curv.U1[0];
+                avec[0][1] = Curv.A0[1];
+                avec[1][1] = Curv.A1[1];
+                uvec[0][1] = Curv.U0[1];
+                uvec[1][1] = Curv.U1[1];
+                avec[0][2] = Curv.A0[2];
+                avec[1][2] = Curv.A1[2];
+                uvec[0][2] = Curv.U0[2];
+                uvec[1][2] = Curv.U1[2];
+                // 'ConstrBSplineStruct:5' P0          = pvec (:, 1);
+                // 'ConstrBSplineStruct:6' P1          = pvec (:, end);
+                // 'ConstrBSplineStruct:7' A0          = avec (:, 1);
+                // 'ConstrBSplineStruct:8' A1          = avec (:, end);
+                // 'ConstrBSplineStruct:9' U0          = uvec (:, 1);
+                // 'ConstrBSplineStruct:10' U1          = uvec (:, end);
+                // 'ConstrBSplineStruct:11' evec        = zeros(3, 1);
+                // 'ConstrBSplineStruct:12' theta       = 0;
+                // 'ConstrBSplineStruct:13' pitch       = 0;
+                // 'ConstrBSplineStruct:15' c_assert(size(pvec,2) > 2, 'Not enough points');
                 // 'c_assert:2' if coder.target('rtw')
                 // 'c_assert:3' if ~condition
                 if (pvec.size(1) <= 2) {
@@ -486,10 +537,13 @@ void CompressCurvStructs(const FeedoptContext *ctx)
                     c_assert_(&message[0]);
                 }
                 // 'c_assert:6' value = condition;
-                // 'ConstrBSplineStruct:11' CoeffP5     = zeros(3, 6);
-                // 'ConstrBSplineStruct:13' CurvStruct  = ConstrCurvStruct(CurveType.Spline,
-                // zspdmode, P0, P1, [0,0,0]', 0.0, evec, theta, pitch, CoeffP5, FeedRate);
-                b_pvec = pvec.size(1);
+                // 'ConstrBSplineStruct:17' CoeffP5     = zeros(3, 6);
+                // 'ConstrBSplineStruct:19' CurvStruct  = ConstrCurvStruct(CurveType.Spline,
+                // zspdmode, trafo, HSC,... 'ConstrBSplineStruct:20' Poff, Aoff, Uoff, Doff, P0, P1,
+                // ... 'ConstrBSplineStruct:21'                                 A0, A1, U0, U1,
+                // [0,0,0]', 0.0, evec, ... 'ConstrBSplineStruct:22' theta, pitch, CoeffP5,
+                // FeedRate);
+                c_pvec = pvec.size(1);
                 dv[0] = 0.0;
                 dv1[0] = 0.0;
                 dv[1] = 0.0;
@@ -504,61 +558,64 @@ void CompressCurvStructs(const FeedoptContext *ctx)
                 dv2[0] = (*(double(*)[3]) & pvec[0])[0];
                 dv2[1] = (*(double(*)[3]) & pvec[0])[1];
                 dv2[2] = (*(double(*)[3]) & pvec[0])[2];
-                dv4[0] = (*(double(*)[3]) & pvec[3 * (b_pvec - 1)])[0];
-                dv4[1] = (*(double(*)[3]) & pvec[3 * (b_pvec - 1)])[1];
-                dv4[2] = (*(double(*)[3]) & pvec[3 * (b_pvec - 1)])[2];
-                ConstrCurvStruct(CurveType_Spline, ZSpdMode_NN, dv2, dv4, dv, 0.0, dv1, 0.0, 0.0,
-                                 dv3, Curv.FeedRate, &spline);
-                // 'CompressCurvStructs:129' spline.gcode_source_line = Curv.gcode_source_line;
+                dv4[0] = (*(double(*)[3]) & pvec[3 * (c_pvec - 1)])[0];
+                dv4[1] = (*(double(*)[3]) & pvec[3 * (c_pvec - 1)])[1];
+                dv4[2] = (*(double(*)[3]) & pvec[3 * (c_pvec - 1)])[2];
+                ConstrCurvStruct(CurveType_Spline, ZSpdMode_NN, Curv.TRAFO, Curv.HSC, Curv.Poff,
+                                 Curv.Aoff, Curv.Uoff, Curv.Doff, dv2, dv4,
+                                 *(double(*)[3]) & avec[0][0], *(double(*)[3]) & avec[1][0],
+                                 *(double(*)[3]) & uvec[0][0], *(double(*)[3]) & uvec[1][0], dv,
+                                 0.0, dv1, 0.0, 0.0, dv3, Curv.FeedRate, &spline);
+                // 'CompressCurvStructs:141' spline.gcode_source_line = Curv.gcode_source_line;
                 spline.gcode_source_line = Curv.gcode_source_line;
-                // 'CompressCurvStructs:130' spline.sp_index = int32(spline_index);
+                // 'CompressCurvStructs:142' spline.sp_index = int32(spline_index);
                 spline.sp_index = static_cast<int>(spline_index);
-                // 'CompressCurvStructs:131' spline.SpindleSpeed = spindle_speed;
+                // 'CompressCurvStructs:143' spline.SpindleSpeed = spindle_speed;
                 spline.SpindleSpeed = spindle_speed;
-                // 'CompressCurvStructs:132' ctx.q_compress.push(spline);
+                // 'CompressCurvStructs:144' ctx.q_compress.push(spline);
                 ctx->q_compress.push(&spline);
                 //  If this is the first (and elligible) WHAT
             } else if (k == 1.0) {
-                // 'CompressCurvStructs:135' elseif k==1
-                // 'CompressCurvStructs:136' ctx.q_compress.push(Curv);
+                // 'CompressCurvStructs:147' elseif k==1
+                // 'CompressCurvStructs:148' ctx.q_compress.push(Curv);
                 ctx->q_compress.push(&Curv);
                 //  In the general case with an elligible segment, add it to the
                 //  compression list
             } else {
                 int i;
-                // 'CompressCurvStructs:140' else
-                // 'CompressCurvStructs:141' if CumulatedLength == 0
+                // 'CompressCurvStructs:152' else
+                // 'CompressCurvStructs:153' if CumulatedLength == 0
                 if (CumulatedLength == 0.0) {
-                    // 'CompressCurvStructs:142' P0 = EvalCurvStruct(ctx, Curv, 0);
+                    // 'CompressCurvStructs:154' P0 = EvalCurvStruct(ctx, Curv, 0);
                     b_EvalCurvStruct(&ctx->q_splines, Curv.Type, Curv.P0, Curv.P1,
                                      Curv.CorrectedHelixCenter, Curv.evec, Curv.theta, Curv.pitch,
                                      Curv.CoeffP5, Curv.sp_index, Curv.b_param, P0);
-                    // 'CompressCurvStructs:143' pvec = P0;
+                    // 'CompressCurvStructs:155' pvec = P0;
                     pvec.set_size(3, 1);
                     pvec[0] = P0[0];
                     pvec[1] = P0[1];
                     pvec[2] = P0[2];
-                    // 'CompressCurvStructs:144' spindle_speed = Curv.SpindleSpeed;
+                    // 'CompressCurvStructs:156' spindle_speed = Curv.SpindleSpeed;
                     spindle_speed = Curv.SpindleSpeed;
                 }
-                // 'CompressCurvStructs:146' CumulatedLength = CumulatedLength + LengthCurv(ctx,
+                // 'CompressCurvStructs:158' CumulatedLength = CumulatedLength + LengthCurv(ctx,
                 // Curv, 0, 1);
                 CumulatedLength += LengthCurv(&ctx->q_splines, ctx->cfg.GaussLegendreX,
                                               ctx->cfg.GaussLegendreW, &Curv);
-                // 'CompressCurvStructs:147' P1 = EvalCurvStruct(ctx, Curv, 1);
+                // 'CompressCurvStructs:159' P1 = EvalCurvStruct(ctx, Curv, 1);
                 b_EvalCurvStruct(&ctx->q_splines, Curv.Type, Curv.P0, Curv.P1,
                                  Curv.CorrectedHelixCenter, Curv.evec, Curv.theta, Curv.pitch,
                                  Curv.CoeffP5, Curv.sp_index, Curv.a_param, Curv.b_param, P1);
-                // 'CompressCurvStructs:148' pvec = [pvec P1];
+                // 'CompressCurvStructs:160' pvec = [pvec P1];
                 i = pvec.size(1);
                 pvec.set_size(3, pvec.size(1) + 1);
                 pvec[3 * i] = P1[0];
                 pvec[3 * i + 1] = P1[1];
                 pvec[3 * i + 2] = P1[2];
-                // 'CompressCurvStructs:149' spindle_speed = min(spindle_speed, Curv.SpindleSpeed);
+                // 'CompressCurvStructs:161' spindle_speed = min(spindle_speed, Curv.SpindleSpeed);
                 spindle_speed = std::fmin(spindle_speed, Curv.SpindleSpeed);
             }
-            // 'CompressCurvStructs:151' k = k + 1;
+            // 'CompressCurvStructs:163' k = k + 1;
         }
     }
 }
