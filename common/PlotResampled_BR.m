@@ -34,7 +34,7 @@ countInPercent = 0;
 for k = 1:N
     if( floor( k * 100 / N ) > countInPercent )
         DebugLog(DebugCfg.OptimProgress, '%3d [%%]\n', countInPercent);
-        countInPercent = countInPercent + 1;
+        countInPercent = countInPercent + max(1, floor(100/N));
     end
 
     Curv = ctx.q_opt.get(k);
@@ -59,6 +59,8 @@ for k = 1:N
         break;
     end
 end
+
+DebugLog(DebugCfg.OptimProgress, '%3d [%%]\n', 100);
 
 ktick = ktick - 1;
 uvec = [0; uvec(1:ktick)];

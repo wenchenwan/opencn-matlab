@@ -5,7 +5,7 @@
 // File: LengthCurv.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 28-Feb-2022 15:00:32
+// C/C++ source code generated on  : 01-Mar-2022 10:58:42
 //
 
 #ifndef LENGTHCURV_H

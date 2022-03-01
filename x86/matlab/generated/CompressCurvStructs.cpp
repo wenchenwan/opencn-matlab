@@ -5,7 +5,7 @@
 // File: CompressCurvStructs.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 28-Feb-2022 14:58:55
+// C/C++ source code generated on  : 01-Mar-2022 11:00:11
 //
 
 // Include Files
@@ -502,8 +502,9 @@ void CompressCurvStructs(const FeedoptContext *ctx)
                 // 'CompressCurvStructs:135'                                     Curv.Poff,...
                 // 'CompressCurvStructs:136'                                     Curv.Aoff,
                 // Curv.Uoff, ... 'CompressCurvStructs:137' Curv.Doff, pvec,...
-                // 'CompressCurvStructs:138' [Curv.A0,Curv.A1], ... 'CompressCurvStructs:139'
-                // [Curv.U0,Curv.U1], ... 'CompressCurvStructs:140' ZSpdMode.NN, Curv.FeedRate);
+                // 'CompressCurvStructs:138'                                     [Curv.A0,Curv.A1],
+                // ... 'CompressCurvStructs:139' [Curv.U0,Curv.U1], ... 'CompressCurvStructs:140'
+                // ZSpdMode.NN, Curv.FeedRate);
                 avec[0][0] = Curv.A0[0];
                 avec[1][0] = Curv.A1[0];
                 uvec[0][0] = Curv.U0[0];

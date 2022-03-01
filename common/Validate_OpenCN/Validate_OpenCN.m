@@ -8,7 +8,7 @@ fs         = filesep; % file separation character
 % Gdir       = uigetdir('.', 'Choose directory with G-code validation files');
 
 % temporary line!
-Gdir       = char(pwd + "/ngc_test/full");
+Gdir       = char(pwd + "/ngc_test/");
 dircontent = dir([Gdir, fs, '*.ngc']);
 NGcodes    = length(dircontent);
 Str        = sprintf('%d G-code files found', NGcodes);

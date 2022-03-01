@@ -5,7 +5,7 @@
 // File: sum.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 28-Feb-2022 15:02:06
+// C/C++ source code generated on  : 01-Mar-2022 11:01:39
 //
 
 #ifndef SUM_H
