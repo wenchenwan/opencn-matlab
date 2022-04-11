@@ -16,6 +16,11 @@ public:
 
         uint64_t qptr = inputs[0][0];
         Queue *q = reinterpret_cast<Queue *>(qptr);
-        delete q;
+        if( not( q->elems.empty() ) ){
+            q->elems.clear();
+            q->elems.~vector();
+        }
+        //std::vector<matlab::data::Array>().swap( q->elems );
+        //delete q;
     }
 };

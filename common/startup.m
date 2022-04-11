@@ -7,3 +7,6 @@ addpath Tests/Unit
 addpath Validate_OpenCN
 addpath arc_center
 addpath Tests
+addpath dev/
+genPath = genpath( 'gen_mex' );
+addpath( genPath );

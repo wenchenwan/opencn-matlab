@@ -1,4 +1,5 @@
+#1 = 15.0
 G91     ; incremental mode
 G0 X0
-G1 X1 F3000
+G1 X#1 Y#1 Z#1 ;F9000
 M2      ; program end

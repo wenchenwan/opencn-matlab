@@ -17,6 +17,7 @@
 #include "c_spline.h"
 
 static const int nderiv = 3;
+static c_bspline_knots (const gsl_vector * breakpts, gsl_bspline_workspace * w);
 
 void c_bspline_create(void *handle_, double x0, double x1, int32_t degree, int32_t nbreak)
 {
@@ -42,7 +43,7 @@ void c_bspline_create(void *handle_, double x0, double x1, int32_t degree, int32
     *handle = (size_t)bs;
 }
 
-void c_bspline_create_with_breakpoints(void *handle_, int32_t degree, double* breakpoints, int N)
+void c_bspline_create_with_breakpoints( void *handle_, int32_t degree, double* breakpoints, int N, double *knots )
 {
 	size_t* handle = handle_;
     size_t ncoeffs;
@@ -59,7 +60,7 @@ void c_bspline_create_with_breakpoints(void *handle_, int32_t degree, double* br
     }
     
     bs->ws = gsl_bspline_alloc(degree, N);
-    gsl_bspline_knots(brkpnts, bs->ws);
+    c_bspline_knots(brkpnts, bs->ws);
     
     ncoeffs = gsl_bspline_ncoeffs(bs->ws);
     
@@ -68,6 +69,12 @@ void c_bspline_create_with_breakpoints(void *handle_, int32_t degree, double* br
 	bs->dBNonZero = gsl_matrix_alloc(degree, nderiv + 1);
     
     *handle = (size_t)bs;
+        
+    size_t Nknots = bs->ws->knots->size;
+
+    for( int i = 0 ; i <  Nknots; i++) {
+        knots[i] = gsl_vector_get(bs->ws->knots, i);
+    }
 }
 
 void c_bspline_destroy(const void *handle_)
@@ -191,4 +198,47 @@ int32_t c_bspline_ncoeff(const void *handle_)
     bspline_t *bs = (bspline_t *)*handle;
     return gsl_bspline_ncoeffs(bs->ws);
 }
+
+/*
+    c_bspline_knots()
+      Compute the knots from the given breakpoints:
+       knots(1:k) = breakpts(1)
+       knots(k+1:k+l-1) = breakpts(i), i = 2 .. l
+       knots(n+1:n+k) = breakpts(l + 1)
+    where l is the number of polynomial pieces (l = nbreak - 1) and
+       n = k + l - 1
+    (using matlab syntax for the arrays)
+    The repeated knots at the beginning and end of the interval
+    correspond to the continuity condition there. See pg. 119
+    of [1].
+    Inputs: breakpts - breakpoints
+            w        - bspline workspace
+    Return: success or error
+*/
+int
+c_bspline_knots (const gsl_vector * breakpts, gsl_bspline_workspace * w)
+{
+  if (breakpts->size != w->nbreak)
+    {
+      GSL_ERROR ("breakpts vector has wrong size", GSL_EBADLEN);
+    }
+  else
+    {
+      size_t i; /* looping */
+
+      for (i = 0; i < w->k; i++)
+        gsl_vector_set (w->knots, i, gsl_vector_get (breakpts, 0));
+
+      for (i = 1; i < w->l; i++)
+        {
+          gsl_vector_set (w->knots, w->k - 1 + i,
+          gsl_vector_get (breakpts, i));
+        }
+
+      for (i = w->n; i < w->n + w->k; i++)
+        gsl_vector_set (w->knots, i, gsl_vector_get (breakpts, w->l));
+
+      return GSL_SUCCESS;
+    }
+} /* c_bspline_knots() */
 

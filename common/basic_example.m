@@ -10,46 +10,53 @@ cfg = FeedoptDefaultConfig;
 % Set the path to the gcode file
 cfg.source = 'ngc_test/anchor.ngc';
 
-% Initialization of the feed operator
-ctx = InitFeedoptPlan(cfg);
+try
 
-% Run the geometrics operations, then solve the LP problem
-ctx = FeedoptPlanRun(ctx);                                     % q(u)
+    % Initialization of the feed operator
+    ctx = InitFeedoptPlan(cfg);
 
-% Load parameters for validation
-PfileName = pwd + "/Validate_OpenCN/params.m";
-run(PfileName);
+    % Run the geometrics operations, then solve the LP problem
+    ctx = FeedoptPlanRun(ctx);                                     % q(u)
 
-% Resampling of the parameter
-paramsPlotBr = containers.Map('disablePlot', true);
-uvec = PlotResampled_BR(ctx, max_time, ctx.cfg.dt, paramsPlotBr);
+    % Load parameters for validation
+    PfileName = pwd + "/Validate_OpenCN/params.m";
+    run(PfileName);
 
-% Create tolerance structure
-tol.v_tol       = vmax_norm_tol;
-tol.a_tol       = amax_xyz_tol;
-tol.j_tol       = jmax_xyz_tol;
-tol.tol_opt_v   = tol_opt_vnorm;
-tol.tol_opt_a   = tol_opt_a;
-tol.tol_opt_j   = tol_opt_j;
-tol.TOpt_tol    = TOpt_tol;
+    % Resampling of the parameter
+    paramsPlotBr = containers.Map('disablePlot', true);
+    uvec = PlotResampled_BR(ctx, max_time, ctx.cfg.dt, paramsPlotBr);
 
-% Check constraints and time-optimality are respected
-[fOpt_vec, status] = checkFopt(ctx, uvec, tol);
-disp(optSolStatus2String(status));
+    % Create tolerance structure
+    tol.v_tol       = vmax_norm_tol;
+    tol.a_tol       = amax_xyz_tol;
+    tol.j_tol       = jmax_xyz_tol;
+    tol.tol_opt_v   = tol_opt_vnorm;
+    tol.tol_opt_a   = tol_opt_a;
+    tol.tol_opt_j   = tol_opt_j;
+    tol.TOpt_tol    = TOpt_tol;
 
-% Plot the resulting trajectories
-plotTrajectories(ctx, fOpt_vec);
+    % Check constraints and time-optimality are respected
+    [fOpt_vec, status] = checkFopt(ctx, uvec, tol);
+    disp(optSolStatus2String(status));
+
+    % Plot the resulting trajectories
+    plotTrajectories(ctx, fOpt_vec);
+
+catch ME
+    warning( ME.message );
+end
 
 % Free external memory (see queue function)
 DestroyContext(ctx);
 
+diary off;
 %-------------------------------------------------------------------------%
-                        %% Utility Functions
+%% Utility Functions
 %-------------------------------------------------------------------------%
 
 function [fOpt_vec, status] = checkFopt(ctx, uvec, tol)
-% checkFopt : 
-% Check the validity of the solution obtained. The constrainsts in speed, 
+% checkFopt :
+% Check the validity of the solution obtained. The constrainsts in speed,
 % acceleration and jerks are evaluated. A struct which contains the
 % resulting trajectory is returned.
 %
@@ -146,7 +153,7 @@ end
 end
 
 function [msg] = optSolStatus2String(status)
-% optSolStatus2String : 
+% optSolStatus2String :
 % Translate the returned status of the optimization into its corresponding
 % message
 %
@@ -180,12 +187,12 @@ function plotTrajectories(ctx, fOpt_vec)
 % ctx       : The contex
 % fOpt_vec  : A structure of the resulting trajectories
 data = table(fOpt_vec.uvec, fOpt_vec.tvec, fOpt_vec.pvec, fOpt_vec.vvec,...
-             fOpt_vec.avec, fOpt_vec.jvec, fOpt_vec.fvec, fOpt_vec.cfvec);
+    fOpt_vec.avec, fOpt_vec.jvec, fOpt_vec.fvec, fOpt_vec.cfvec);
 
 figure
 subplot(2,4,[1,2,5,6])
 scatter3(fOpt_vec.pvec(:, 1), fOpt_vec.pvec(:, 2), fOpt_vec.pvec(:, 3), 1,...
-         fOpt_vec.vvec*60, 'o')
+    fOpt_vec.vvec*60, 'o')
 colormap jet
 set(gca, 'Projection','orthographic')
 % axis vis3d

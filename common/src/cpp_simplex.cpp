@@ -14,6 +14,8 @@ extern int errno;
 
 #define USE_INTERIOR_POINT 0
 
+#define SIMPLEX_DLEVEL 0
+
 static const int Nmax = 1 << 20;
 //static int indRow[Nmax];
 //static int indCol[Nmax];
@@ -166,7 +168,7 @@ int simplex_solve(const double* f, const int* fsize, const double* Avs, const in
     ClpInterior model;
     {   
         PROF_BLOCK(ModelPrepare);
-        model.setLogLevel(0);
+        model.setLogLevel( SIMPLEX_DLEVEL );
         // constraint matrix, lower/upper bound of x, objective coeffs, lower/upper bounds of
         // complex variables
         model.loadProblem(matrix, collb, nullptr, f, rowlb, rowub);
@@ -184,13 +186,13 @@ int simplex_solve(const double* f, const int* fsize, const double* Avs, const in
     ClpSimplex model;
     {
         PROF_BLOCK(ModelPrepare);
-        model.setLogLevel(0);
+        model.setLogLevel( SIMPLEX_DLEVEL );
         // constraint matrix, lower/upper bound of x, objective coeffs, lower/upper bounds of
         // complex variables
         model.loadProblem(matrix, collb, nullptr, f, rowlb, rowub);
         model.setPrimalTolerance(1e-6);
         model.setDualTolerance(1e-6);
-        model.setMaximumSeconds(1.0);
+        //model.setMaximumSeconds(1.0);
     }
     {
         {
