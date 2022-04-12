@@ -5,7 +5,7 @@
 // File: EvalCurvStruct.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 01-Mar-2022 11:01:39
+// C/C++ source code generated on  : 12-Apr-2022 10:51:01
 //
 
 #ifndef EVALCURVSTRUCT_H
@@ -43,7 +43,12 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
                       int CurvStruct_sp_index, double CurvStruct_a_param, double CurvStruct_b_param,
                       double r0D[10][3], double r1D[10][3], double r2D[10][3], double r3D[10][3]);
 
-void b_EvalCurvStruct(const queue_coder *ctx_q_splines, const CurvStruct *b_CurvStruct,
+void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type,
+                      const double CurvStruct_P0[3], const double CurvStruct_P1[3],
+                      const double CurvStruct_CorrectedHelixCenter[3],
+                      const double CurvStruct_evec[3], double CurvStruct_theta,
+                      double CurvStruct_pitch, const double CurvStruct_CoeffP5[6][3],
+                      int CurvStruct_sp_index, double CurvStruct_a_param, double CurvStruct_b_param,
                       double r0D[3], double r1D[3]);
 
 void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type,
@@ -77,18 +82,13 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
                       ::coder::array<double, 2U> &u_vec, ::coder::array<double, 2U> &r0D,
                       ::coder::array<double, 2U> &r1D, ::coder::array<double, 2U> &r2D);
 
-void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type,
-                      const double CurvStruct_P0[3], const double CurvStruct_P1[3],
-                      const double CurvStruct_CorrectedHelixCenter[3],
-                      const double CurvStruct_evec[3], double CurvStruct_theta,
-                      double CurvStruct_pitch, const double CurvStruct_CoeffP5[6][3],
-                      int CurvStruct_sp_index, double CurvStruct_a_param, double CurvStruct_b_param,
-                      double r0D[3], double r1D[3]);
-
 void b_EvalCurvStruct(const queue_coder *ctx_q_splines, const CurvStruct *b_CurvStruct,
                       ::coder::array<double, 2U> &u_vec, ::coder::array<double, 2U> &r0D,
                       ::coder::array<double, 2U> &r1D, ::coder::array<double, 2U> &r2D,
                       ::coder::array<double, 2U> &r3D);
+
+void b_EvalCurvStruct(const queue_coder *ctx_q_splines, const CurvStruct *b_CurvStruct,
+                      double r0D[3], double r1D[3]);
 
 void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type,
                       const double CurvStruct_P0[3], const double CurvStruct_P1[3],

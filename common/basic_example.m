@@ -2,7 +2,7 @@
 % This is script provides a rapid overview of the different steps required
 % by the algorithm.
 %
-clc; close all; clear all;
+clc; clear all; close all;
 
 % Load default configuration parameters
 cfg = FeedoptDefaultConfig;
@@ -10,146 +10,121 @@ cfg = FeedoptDefaultConfig;
 % Set the path to the gcode file
 cfg.source = 'ngc_test/anchor.ngc';
 
+% Logging
+setupLogs( cfg.LogFileName ); diary on;
+
+% Initialization of the feed operator
+ctx = InitFeedoptPlan( cfg );
+
 try
 
-    % Initialization of the feed operator
-    ctx = InitFeedoptPlan(cfg);
-
     % Run the geometrics operations, then solve the LP problem
-    ctx = FeedoptPlanRun(ctx);                                     % q(u)
-
-    % Load parameters for validation
-    PfileName = pwd + "/Validate_OpenCN/params.m";
-    run(PfileName);
+    ctx = FeedoptPlanRun( ctx );                                     
 
     % Resampling of the parameter
-    paramsPlotBr = containers.Map('disablePlot', true);
-    uvec = PlotResampled_BR(ctx, max_time, ctx.cfg.dt, paramsPlotBr);
+    fileName = '.tmp.csv' ;
+    resample2file( ctx, fileName ); ctx.q_opt.delete();
 
-    % Create tolerance structure
-    tol.v_tol       = vmax_norm_tol;
-    tol.a_tol       = amax_xyz_tol;
-    tol.j_tol       = jmax_xyz_tol;
-    tol.tol_opt_v   = tol_opt_vnorm;
-    tol.tol_opt_a   = tol_opt_a;
-    tol.tol_opt_j   = tol_opt_j;
-    tol.TOpt_tol    = TOpt_tol;
+    % Load resampled data points
+    res = readmatrix( fileName );
+    delete( fileName );
 
-    % Check constraints and time-optimality are respected
-    [fOpt_vec, status] = checkFopt(ctx, uvec, tol);
-    disp(optSolStatus2String(status));
+    % Transforms structure into vector for analysis
+    [res_struct, indFeed, indAcc, indJerk] = get_res_struct( res );
+
+    % Analyse time optimality and constraints satisfaction
+    analyse_optimality( res, indFeed, indAcc, indJerk, ctx.cfg.dt );
 
     % Plot the resulting trajectories
-    plotTrajectories(ctx, fOpt_vec);
+    plotTrajectories(ctx, res_struct);
 
 catch ME
     warning( ME.message );
 end
-
 % Free external memory (see queue function)
 DestroyContext(ctx);
 
 diary off;
+
 %-------------------------------------------------------------------------%
 %% Utility Functions
 %-------------------------------------------------------------------------%
 
-function [fOpt_vec, status] = checkFopt(ctx, uvec, tol)
-% checkFopt :
-% Check the validity of the solution obtained. The constrainsts in speed,
-% acceleration and jerks are evaluated. A struct which contains the
-% resulting trajectory is returned.
-%
-% ctx       : The contex
-% uvec      : U vector after resampling
-% tol       : Allowed tolerance used to evaluation the quality of the
-%             solution
-%
-% fOpt_vec  : A structure of the resulting trajectories
-% status    : The status of the optimization problem
+function [status] = check_constraints( tol, feed, a, j )
+status = 0;
+% max constraints respect verif
+if ( feed > 1 + tol.v_tol ), bitset(status, 1); end
 
-status = 0;                                             % Success default
-t_max  = 0;
+if any( a > 1 + tol.a_tol ), bitset(status, 2); end
 
-% uvec will be empty if q_opt is empty
-if isempty(uvec)
-    bitset(status, 5);
-    return;
-end
-
-t = -ctx.cfg.dt;
-k_max = size(uvec, 1);
-
-fOpt_vec.uvec       = uvec;
-fOpt_vec.tvec       = zeros(k_max, 1);
-fOpt_vec.pvec       = zeros(k_max, 3);
-fOpt_vec.vvec       = zeros(k_max, 1);
-fOpt_vec.vvec_norm  = zeros(k_max, 1);
-fOpt_vec.fvec       = zeros(k_max, 1);
-fOpt_vec.cfvec      = zeros(k_max, 1);
-fOpt_vec.avec       = zeros(k_max, 3);
-fOpt_vec.jvec       = zeros(k_max, 3);
-
-for k=1:k_max
-
-    ucum = uvec(k);
-    u = ucum - floor(ucum);
-
-    if k == 1
-        Curv = ctx.q_opt.get(1);
-    else
-        Curv = ctx.q_opt.get(ceil(ucum));
-    end
-
-    SplineCurv = ctx.q_splines.get(Curv.sp_index);
-
-    fOpt_vec.pvec(k, :) = EvalPosition(Curv, SplineCurv, u);
-
-    [fOpt_vec.vvec(k, :), fOpt_vec.avec(k, :), fOpt_vec.jvec(k, :)] =...
-        CalcVAJ(ctx, Curv, ctx.Bl, u);
-
-    fOpt_vec.fvec(k, :) = Curv.FeedRate*60;
-    fOpt_vec.cfvec(k, :) = Curv.MaxConstantFeedRate*60;
-
-    t = t + ctx.cfg.dt;
-
-    fOpt_vec.tvec(k) = t;
-
-    fOpt_vec.vvec_norm(k, :) = fOpt_vec.vvec(k, :)*60./fOpt_vec.fvec(k, :);
-    fOpt_vec.avec(k, :) = abs(fOpt_vec.avec(k, :)./ctx.cfg.amax); % abs normalized
-    fOpt_vec.jvec(k, :) = abs(fOpt_vec.jvec(k, :)./ctx.cfg.jmax); % abs normalized
-
-    % max constraints respect verif
-    if any(fOpt_vec.vvec_norm(k, :) > 1+tol.v_tol)
-        bitset(status, 1);
-    end
-
-    if any(fOpt_vec.avec(k, :) > 1+tol.a_tol)
-        bitset(status, 2);
-    end
-
-    if any(fOpt_vec.jvec(k, :) > 1+tol.j_tol)
-        bitset(status, 3);
-    end
-
-    % time-optimatity verif
-    condv = fOpt_vec.vvec_norm(k, :) > 1-tol.tol_opt_v;
-    conda = any(fOpt_vec.avec(k, :) > 1-tol.tol_opt_a);
-    condj = any(fOpt_vec.jvec(k, :) > 1-tol.tol_opt_j);
-
-    if any([condv, conda, condj])
-        t_max = t_max + ctx.cfg.dt;
-        fOpt_vec.max_vec_logic(k) = 1;
-    end
+if any( j > 1 + tol.j_tol ), bitset(status, 3); end
 
 end
 
-ratioTOpt = t_max / fOpt_vec.tvec(end);
+function [t_opt] = check_time_optimality( tol, feed, a, j )
+N = length( feed );
+t_opt = zeros(N, 4);
 
-if ratioTOpt < tol.TOpt_tol
-    bitset(status, 4);
+% max constraints respect verif
+t_opt( : ,1 ) = ( feed > 1 - tol.tol_opt_v );
+
+t_opt( : ,2 ) = any( a > 1 - tol.tol_opt_a, 2);
+
+t_opt( :, 3 ) = any( j > 1 - tol.tol_opt_j, 2);
+
+t_opt( :, 4 ) = any( t_opt( :, 1:3 ) ,2 );
+
 end
 
+function [] = analyse_optimality( res, indFeed, indAcc, indJerk, dt )
+% Load parameters for validation
+PfileName = pwd + "/Validate_OpenCN/params.m";
+run(PfileName);
+
+tol.v_tol       = vmax_norm_tol;
+tol.a_tol       = amax_xyz_tol;
+tol.j_tol       = jmax_xyz_tol;
+tol.tol_opt_v   = tol_opt_vnorm;
+tol.tol_opt_a   = tol_opt_a;
+tol.tol_opt_j   = tol_opt_j;
+tol.TOpt_tol    = TOpt_tol;
+
+status     = check_constraints( tol, res( :, indFeed ), ...
+                                     res( :, indAcc ), ...
+                                     res( :, indJerk ) );
+disp( optSolStatus2String( status ) );
+
+t_opt_res  = check_time_optimality( tol, res( :, indFeed ), ...
+                                         res( :, indAcc ), ...
+                                         res( :, indJerk ) );
+
+disp("Machining time : " + res(end, 1) * dt);
+
+disp("Optimality : "                + sum( t_opt_res(:, end) ) / ...
+    res(end, 1) * 100 + "[%]" );
+
+disp("Optimality feedrate : "       + sum( t_opt_res(:, 1) ) / ...
+    res(end, 1) * 100 + "[%]" );
+disp("Optimality acceleration : "   + sum( t_opt_res(:, 2) ) / ...
+    res(end, 1) * 100 + "[%]" );
+disp("Optimality jerk : "           + sum( t_opt_res(:, 3) ) / ...
+    res(end, 1) * 100 + "[%]" );
+end
+
+function [res_struct, indFeed, indAcc, indJerk] = get_res_struct( res )
+indFeed = 3;
+indR    = 5  + [ 1 : 3 ];
+indAcc  = 8  + [ 1 : 3 ];
+indJerk = 11 + [ 1 : 3 ];
+
+res_struct.tvec       = res( :, 1 );
+res_struct.uvec       = res( :, 2 );
+res_struct.vvec       = res( :, 3 );
+res_struct.fvec       = res( :, 4 ) * 60;
+res_struct.cfvec      = res( :, 5 ) * 60;
+res_struct.pvec       = res( :, indR );
+res_struct.avec       = res( :, indAcc );
+res_struct.jvec       = res( :, indJerk );
 end
 
 function [msg] = optSolStatus2String(status)
@@ -179,20 +154,22 @@ if bitand(status, 8) ~= 0
 end
 end
 
-function plotTrajectories(ctx, fOpt_vec)
+function plotTrajectories(ctx, res_struct)
 % plotTrajectories :
 %
 % Plot the resluting trajectory of the optimization problem.
 %
 % ctx       : The contex
 % fOpt_vec  : A structure of the resulting trajectories
-data = table(fOpt_vec.uvec, fOpt_vec.tvec, fOpt_vec.pvec, fOpt_vec.vvec,...
-    fOpt_vec.avec, fOpt_vec.jvec, fOpt_vec.fvec, fOpt_vec.cfvec);
+PLOT_DIFF = true;
+
+data = table(res_struct.uvec, res_struct.tvec, res_struct.pvec, res_struct.vvec,...
+    res_struct.avec, res_struct.jvec, res_struct.fvec, res_struct.cfvec);
 
 figure
-subplot(2,4,[1,2,5,6])
-scatter3(fOpt_vec.pvec(:, 1), fOpt_vec.pvec(:, 2), fOpt_vec.pvec(:, 3), 1,...
-    fOpt_vec.vvec*60, 'o')
+subplot(3,3,[1,2,4,5,7,8])
+scatter3(res_struct.pvec(:, 1), res_struct.pvec(:, 2), res_struct.pvec(:, 3), 1,...
+    res_struct.vvec*60, 'o')
 colormap jet
 set(gca, 'Projection','orthographic')
 % axis vis3d
@@ -205,31 +182,61 @@ colorbar
 dcm_obj = datacursormode(gcf);
 set(dcm_obj,'UpdateFcn',{@myupdatefcn,ctx, data})
 
-ax(1) = subplot(2,4,3);
-plot(fOpt_vec.uvec, fOpt_vec.vvec*60, 'b', fOpt_vec.uvec, fOpt_vec.fvec,...
-    'r', fOpt_vec.uvec, fOpt_vec.cfvec, 'm')
+if( PLOT_DIFF )
+    %     fOpt_vec.uvec = 1 : length(fOpt_vec.uvec);
+    [ v_diff, a_diff, j_diff ] = ...
+        computeNumericalDerivation( res_struct.pvec, ctx.cfg.dt );
+
+    v_diff = vecnorm( v_diff )';
+    a_diff = a_diff ./ ctx.cfg.amax';
+    j_diff = j_diff ./ ctx.cfg.jmax';
+    %     fOpt_vec.uvec = fOpt_vec.tvec;
+end
+
+ax(1) = subplot(3,3,3);
+
+if( PLOT_DIFF )
+    plot(res_struct.uvec(2:end), v_diff * 60, 'b.', res_struct.uvec(2:end), ...
+        res_struct.fvec(2:end), 'r');
+else
+    plot(res_struct.uvec, res_struct.vvec*60, 'b', res_struct.uvec, ...
+        res_struct.fvec, 'r');
+end
+
 title('Velocity in mm/min')
 xlabel('Cumulative u')
-legend('norm', 'Specified Feedrate', 'Max Constant Feedrate')
+legend('norm', 'Specified Feedrate')
 grid
 
-ax(2) = subplot(2,4,4);
-plot(fOpt_vec.uvec, fOpt_vec.avec)
+ax(2) = subplot(3,3,6);
+
+if( PLOT_DIFF )
+    plot(res_struct.uvec(3:end), a_diff);
+else
+    plot(res_struct.uvec, res_struct.avec);
+end
+
 title('Normalized acceleration in mm/s^2')
 xlabel('Cumulative u')
 legend('x', 'y', 'z')
 ylim([-1.2 1.2])
 grid
+%
+% ax(3) = subplot(3,3,9);
+% plot(fOpt_vec.uvec, fOpt_vec.pvec)
+% title('Position')
+% xlabel('Cumulative u')
+% legend('x', 'y', 'z')
+% grid
 
-ax(3) = subplot(2,4,7);
-plot(fOpt_vec.uvec, fOpt_vec.pvec)
-title('Position')
-xlabel('Cumulative u')
-legend('x', 'y', 'z')
-grid
 
-ax(4) = subplot(2,4,8);
-plot(fOpt_vec.uvec, fOpt_vec.jvec)
+ax(3) = subplot(3,3,9);
+
+if( PLOT_DIFF )
+    plot(res_struct.uvec(4:end), j_diff);
+else
+    plot(res_struct.uvec, res_struct.jvec);
+end
 title('Normalized jerk in mm/s^3')
 xlabel('Cumulative u')
 ylim([-1.4 1.4])
@@ -238,5 +245,24 @@ grid
 
 
 linkaxes(ax, 'x');
-xlim([fOpt_vec.uvec(1) fOpt_vec.uvec(end)])
+xlim([res_struct.uvec(1) res_struct.uvec(end)])
+end
+
+function [] = setupLogs( logFileName )
+
+mkdir logs;
+
+diary ([logFileName, '_', ...
+    datestr(now,'yyyy_mm_dd_HH_MM_SS'), ...
+    '.txt']);
+
+% debug config init
+global DebugConfig
+DebugConfig = 0;
+
+EnableDebugLog(DebugCfg.OptimProgress);
+EnableDebugLog(DebugCfg.Validate);
+EnableDebugLog(DebugCfg.FeedratePlanning);
+EnableDebugLog(DebugCfg.Error);
+EnableDebugLog(DebugCfg.Plots);
 end

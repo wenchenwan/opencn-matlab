@@ -3,12 +3,13 @@ clc; clear; close all;
 d         = datestr(datetime('now'));
 Cd        = cd;                             % current folder
 
+
 %% Choose directory with G-code validation files
 fs         = filesep; % file separation character
 % Gdir       = uigetdir('.', 'Choose directory with G-code validation files');
 
-% temporary line!
-Gdir       = char(pwd + "/ngc_test/");
+Gdir       = char(pwd + "/ngc_test/unit");
+
 dircontent = dir([Gdir, fs, '*.ngc']);
 NGcodes    = length(dircontent);
 Str        = sprintf('%d G-code files found', NGcodes);
@@ -62,6 +63,13 @@ ProfilCell       = cell(NGcodes, Ncomb);
 AssertErrorCtr   = 0;
 NCtr             = 0;
 
+% Write summary table 
+FileSummary = "Validate_OpenCN/summary.csv";
+colName = ["File Name", "Machining time [s]", "Max Feedrate [%]", ...
+           "Max Acceleration [%]", "Max Jerk [%]", "time ratio [%]",...
+           "Jerk Max normalized"];
+fid = fopen( FileSummary, "w" );
+fprintf( fid, colName.replace("%", "%%").join(", ") + "\n");
 % Report struct init
 for k=1:NGcodes
     for i=1:Ncomb
@@ -83,12 +91,10 @@ for k=1:NGcodes
 end
 
 % logs init
-if exist('logs', 'dir') == 7
-   status = rmdir('logs', 's');
-   pause(0.2);
-   assert(status==1, [sprintf('Impossible to delete folder:\n %s\n',...
-       'logs'), 'Do it manually']);
+try
+    rmdir('logs', 's');
 end
+
 mkdir('logs');
 
 diary ([cfg.LogFileName, '_', ...
@@ -103,6 +109,7 @@ DebugConfig = 0;
 
 EnableDebugLog(DebugCfg.OptimProgress);
 EnableDebugLog(DebugCfg.Validate);
+EnableDebugLog(DebugCfg.FeedratePlanning);
 EnableDebugLog(DebugCfg.Error);
 EnableDebugLog(DebugCfg.Plots);
 
@@ -151,11 +158,8 @@ for k = 1:NGcodes
             profile on
             
             ctx = FeedoptPlanRun(ctx);                          % q(u)   
-            diary on;
-            % Resampling of the parameter
-            paramsPlotBr = containers.Map('disablePlot', true);
-            uvec = PlotResampled_BR(ctx, ...
-                max_time, ctx.cfg.dt, paramsPlotBr);                          % u(t)
+            if( coder.target( 'MATLAB') ), ctx.q_split.delete(); end        
+
             diary on;
             
             profile off
@@ -168,11 +172,21 @@ for k = 1:NGcodes
             end
             
             Report.ExactStopsNbr(k, i).programmed = ctx.programmed_stop;
+
+            [ status, t_opt_res, maxJerk ] = checkTimeOptimality( ctx , tol );
+            if( coder.target( 'MATLAB') ), ctx.q_opt.delete(); end        
             
-            % Check constraints and time-optimality respect
-            [status, ratioTOpt] = FoptVerif(ctx, uvec, tol);
-            
+            t_opt_res( 2 : end )     = t_opt_res( 2 : end ) ./ t_opt_res( 1 );
+            ratioTOpt                = t_opt_res(5);
+            t_opt_res( 2 : end )     = t_opt_res( 2 : end ) * 100; 
+            t_opt_res( 1 )           = t_opt_res( 1 ) * ctx.cfg.dt;
+
             diary on;
+            for ind = 1 : 4
+                disp( colName(ind + 1) + " : " + t_opt_res(ind) );
+            end
+            disp( colName(end) + " : " + maxJerk );
+
             constr = bitand(status, 7);
             if constr ~= 0
                 OK = 0;
@@ -198,7 +212,7 @@ for k = 1:NGcodes
             end
             
             DebugLog(DebugCfg.Validate,...
-                'Time optimality ratio: %.1f%%\n', ratioTOpt*100);
+                'Time optimality ratio: %.1f [%%]\n', ratioTOpt * 100);
             Report.RatioTOpt(k, i) = ratioTOpt;
             
         catch ME % here an assert is detected
@@ -213,12 +227,16 @@ for k = 1:NGcodes
             DebugLog(DebugCfg.Validate,...
                 '  Message: %s\n', ME.message);
             DebugLog(DebugCfg.Validate,...
-                '  Function: %s\n', ME.stack(2).name);
+                '  Function: %s\n', ME.stack(1).name);
             DebugLog(DebugCfg.Validate,...
-                '  Line: %d\n', ME.stack(2).line);
-            
+                '  Line: %d\n', ME.stack(1).line);
+            t_opt_res = -ones(1, 5);
+            maxJerk = -1;
         end
         
+        fprintf( fid, "%s,%s\n", dircontent(k).name, ... 
+                sprintf("%f,%f,%f,%f,%f,%f", [t_opt_res, maxJerk] ) );
+
         DestroyContext(ctx);
         
         DebugLog(DebugCfg.Validate, 'End.\n');
@@ -226,6 +244,8 @@ for k = 1:NGcodes
     end
 
 end
+
+fclose(fid);
 
 close(fw);
 
@@ -287,10 +307,10 @@ if status == 1
     delete([Cd, fs, 'commit_info.txt']);
 end
 
-% copy selected parameter file and validate file
-copyfile(PfileName, DirName);                   
-copyfile('Validate_OpenCN/Validate_OpenCN.m', DirName);
-
+copyfile(PfileName, DirName);                   % copy selected parameter file
+copyfile( 'Validate_OpenCN/Validate_OpenCN.m',      DirName );           % copy this .m source file
+copyfile( 'c_planner_v5/FeedoptDefaultConfig.m',    DirName );         % copy this .m source file
+copyfile( FileSummary,                              DirName );
 % Ask user whether to save profiling results 
 answer = questdlg('Save profiling info in html format?', ...
 	'Profiling', ...
@@ -363,4 +383,67 @@ mkdir([DirName, fs, 'logs']);
 status = copyfile('logs', [DirName, fs, 'logs']);
 if status == 1
     rmdir('logs', 's');
+end
+
+function [fOpt_vec, status, ratioTOpt] = checkFopt(ctx, profile, tol)
+% checkFopt : 
+% Check the validity of the solution obtained. The constrainsts in speed, 
+% acceleration and jerks are evaluated. A struct which contains the
+% resulting trajectory is returned.
+%
+% ctx       : The contex
+% uvec      : U vector after resampling
+% tol       : Allowed tolerance used to evaluation the quality of the
+%             solution
+%
+% fOpt_vec  : A structure of the resulting trajectories
+% status    : The status of the optimization problem
+
+status = 0;                                             % Success default
+
+% profile will be empty if q_opt is empty
+if isempty( profile ), bitset( status, 5 ); return; end
+
+fOpt_vec.uvec       = profile.u';
+fOpt_vec.tvec       = profile.t';
+fOpt_vec.pvec       = profile.r'; % position vector
+fOpt_vec.vvec       = vecnorm( profile.v )';  
+fOpt_vec.avec       = abs( profile.a'./ctx.cfg.amax );
+fOpt_vec.jvec       = abs( profile.j'./ctx.cfg.jmax );
+
+fOpt_vec.fvec       = profile.f';
+fOpt_vec.cfvec      = profile.cf';
+fOpt_vec.vvec_norm  = fOpt_vec.vvec * 60 ./ fOpt_vec.fvec;
+
+% max constraints respect verif
+if any(fOpt_vec.vvec_norm > 1+tol.v_tol)
+    bitset(status, 1);
+end
+
+if any(fOpt_vec.avec > 1+tol.a_tol)
+    bitset(status, 2);
+end
+
+if any(fOpt_vec.jvec > 1+tol.j_tol)
+    bitset(status, 3);
+end
+
+% time-optimatity verif
+condv = find( fOpt_vec.vvec_norm > 1-tol.tol_opt_v );
+conda = find( fOpt_vec.avec      > 1-tol.tol_opt_a );
+condj = find( fOpt_vec.jvec      > 1-tol.tol_opt_j );
+
+
+
+Topt = length( unique( [condv; conda; condj] ) );
+ratioTOpt = Topt / length( fOpt_vec.tvec );
+
+if ratioTOpt < tol.TOpt_tol
+    bitset(status, 4);
+end
+
+disp( "Machining time : " + fOpt_vec.tvec(end) );
+
+disp( "Optimal ratio : " + ratioTOpt );
+
 end

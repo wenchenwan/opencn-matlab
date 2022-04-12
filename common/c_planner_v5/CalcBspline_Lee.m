@@ -6,7 +6,7 @@ u      = cumsum([0,du.^(1/4)]);
 u      = u / u(end);  % normalize knots to interval [0...1]
 knots  = [zeros(1, 3), u, ones(1, 3)];
 
-Bl = bspline_create(cfg.SplineDegree, u);
+Bl = bspline_create(cfg.LeeSplineDegree, u);
 
 BasisVal    = zeros(N, N+2); % preallocation
 BasisValDD0 = zeros(1, N+2); % preallocation

@@ -1,4 +1,4 @@
-function [A, b, Aeq, beq] = BuildConstr_v4(ctx, CurvStructs, amax, v_0, at_0, v_1, at_1, ...
+function [A, b, Aeq, beq ] = BuildConstr_v4(ctx, CurvStructs, amax, v_0, at_0, v_1, at_1, ...
     BasisVal, BasisValD, u_vec)
 
 DebugLog(DebugCfg.Global, 'BuildConstr_v4 with Ncrv = %d, amax = [%f, %f, %f], v_0 = %f, at_0 = %f, v_1 = %f, at_1 = %f\n', ...
@@ -17,20 +17,35 @@ end
 
 c_prof_in(mfilename);
 Ncrv   = length(CurvStructs);
-[M, N] = size(BasisVal);
-%
-A      = sparse(7*M*Ncrv,   N*Ncrv);  % preallocation
-b      = zeros(7*M*Ncrv,   1);        % preallocation
-Aeq    = zeros(2*(Ncrv+1), N*Ncrv);   % preallocation
-beq    = zeros(2*(Ncrv+1), 1);        % preallocation
+%Bl
+[M, N] = size(BasisVal);               
+Nx  = N * Ncrv;
+Nc  = 7 * M * Ncrv;
+Nec = 2 * (Ncrv + 1);
+% M     : number of discretization
+% N     : number of coefficients
+% Nx    : number of decision variable
+% Nc    : number of inequality constraints
+% Nec   : number of equality constraints
+
+A      = sparse(Nc,   Nx); % preallocation
+b      = zeros(Nc,   1);   % preallocation
+Aeq    = zeros(Nec, Nx);   % preallocation
+beq    = zeros(Nec, 1);    % preallocation
+% A     : Inequality matrix
+% b     : Inequality vector
+% Aeq   : Inequality matrix
+% beq   : Inequality vector
 
 % coder.varsize('b', [7*FeedoptLimits.MaxNDiscr*FeedoptLimits.MaxNHorz, 1], [1,0]);
 % coder.varsize('Aeq', [2*(FeedoptLimits.MaxNHorz+1), FeedoptLimits.MaxNCoeff*FeedoptLimits.MaxNHorz], [1,1]);
 % coder.varsize('beq', [2*(FeedoptLimits.MaxNHorz+1), 1], [1,0]);
 
-%
+% Compute the partial derivatives 
 [~, r1D, r2D] = EvalCurvStruct(ctx, CurvStructs(1), u_vec);
-vmax          = CurvStructs(1).FeedRate;
+
+vmax = CurvStructs(1).FeedRate;
+
 r1D_sqnorm    = sum(r1D.^2);      % squared norm
 %
 t_0 = r1D(:, 1)/norm(r1D(:, 1));  % unit tangent vector @ start
@@ -138,6 +153,23 @@ Aeq(end-1:end, end-N+1:end)   = [BasisVal(end, :);
 %
 beq(end-1:end) = [(v_1^2)/r1Dn_sqnorm(end);
     at_1];
+
 c_prof_out(mfilename);
+
+
+% Add a ramp on the acceleration and speed limits
+vel_ramp = linspace(1, ctx.cfg.opt.VEL_RAMP_OVER_WINDOWS, M)';
+acc_ramp = repmat(linspace(1, ctx.cfg.opt.ACC_RAMP_OVER_WINDOWS, M)',1,6);
+
+if( Ncrv > 1 )
+    ramp = [ones(M, 7), vel_ramp, acc_ramp, ...
+            repmat([vel_ramp(end), acc_ramp(end,:)], M, Ncrv-2)];
+    b  = b .* ramp(:);
+end
+
+% if( isempty( ctx.at_1 ) )
+%     Aeq = Aeq(1 : end -1, : );
+%     beq = beq( 1 : end -1 );
+% end
 end
 

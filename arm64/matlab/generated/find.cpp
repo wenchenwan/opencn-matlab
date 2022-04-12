@@ -5,11 +5,12 @@
 // File: find.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 01-Mar-2022 11:01:39
+// C/C++ source code generated on  : 12-Apr-2022 10:51:01
 //
 
 // Include Files
 #include "find.h"
+#include "sparse1.h"
 #include "coder_array.h"
 
 // Function Definitions
@@ -86,6 +87,74 @@ void c_eml_find(const ::coder::array<bool, 2U> &x, int i_data[], int i_size[2])
         }
     } else {
         i_size[1] = (1 <= idx);
+    }
+}
+
+//
+// Arguments    : const sparse *x
+//                ::coder::array<int, 1U> &i
+//                ::coder::array<int, 1U> &j
+//                ::coder::array<double, 1U> &v
+// Return Type  : void
+//
+void d_eml_find(const sparse *x, ::coder::array<int, 1U> &i, ::coder::array<int, 1U> &j,
+                ::coder::array<double, 1U> &v)
+{
+    int nx;
+    nx = x->colidx[x->colidx.size(0) - 1] - 2;
+    if (x->colidx[x->colidx.size(0) - 1] - 1 == 0) {
+        i.set_size(0);
+        j.set_size(0);
+        v.set_size(0);
+    } else {
+        int b_idx;
+        int col;
+        i.set_size(x->colidx[x->colidx.size(0) - 1] - 1);
+        j.set_size(x->colidx[x->colidx.size(0) - 1] - 1);
+        v.set_size(x->colidx[x->colidx.size(0) - 1] - 1);
+        for (int idx{0}; idx <= nx; idx++) {
+            i[idx] = x->rowidx[idx];
+            v[idx] = x->d[idx];
+        }
+        b_idx = 0;
+        col = 1;
+        while (b_idx < nx + 1) {
+            if (b_idx == x->colidx[col] - 1) {
+                col++;
+            } else {
+                b_idx++;
+                j[b_idx - 1] = col;
+            }
+        }
+        if (x->colidx[x->colidx.size(0) - 1] - 1 == 1) {
+            if (b_idx == 0) {
+                i.set_size(0);
+                j.set_size(0);
+                v.set_size(0);
+            }
+        } else {
+            int b_i;
+            int i1;
+            int i2;
+            if (1 > b_idx) {
+                b_i = 0;
+            } else {
+                b_i = b_idx;
+            }
+            i.set_size(b_i);
+            if (1 > b_idx) {
+                i1 = 0;
+            } else {
+                i1 = b_idx;
+            }
+            j.set_size(i1);
+            if (1 > b_idx) {
+                i2 = 0;
+            } else {
+                i2 = b_idx;
+            }
+            v.set_size(i2);
+        }
     }
 }
 

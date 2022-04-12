@@ -5,7 +5,7 @@
 // File: opencn_matlab_internal_types.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 01-Mar-2022 11:00:11
+// C/C++ source code generated on  : 12-Apr-2022 10:46:02
 //
 
 #ifndef OPENCN_MATLAB_INTERNAL_TYPES_H
@@ -19,8 +19,8 @@
 #include "functions.h"
 // Type Definitions
 namespace ocn {
-struct emxArray_char_T_1x9 {
-    char data[9];
+struct emxArray_char_T_1x30 {
+    char data[30];
     int size[2];
 };
 

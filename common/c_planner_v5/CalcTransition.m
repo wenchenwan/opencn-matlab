@@ -1,18 +1,29 @@
 function [CurvStruct1_C, CurvStruct_T, CurvStruct2_C, status]  = ...
     CalcTransition(ctx, CurvStruct1, CurvStruct2)
-    
+% CalcTransition : Compute a transition curve using on a polynome of degree
+% 5.
+%
+% ctx           : The context
+% CurvStruct1   : Current structure of the curve
+% CurvStruct2   : Next structure of the curve
+%
+% CurvStruct1_C : New calculated curve structure (replace CurvStruct1)
+% CurvStruct_T  : New calculated transition curve
+% CurvStruct2_C : New calculated curve structure (replace CurvStruct2)
+% status        : Status of the compuation see TransitionResult
+
 coder.inline("never");
 
-CutOff=ctx.cfg.CutOff;
-ColTolCos=ctx.cfg.ColTolCos;
+CutOff              = ctx.cfg.CutOff;                   % Length removed
+ColTolCos           = ctx.cfg.ColTolCos;                % Tol for colinear
 
 % If the 1st or the 2nd Curve lenth is shorter than 3*CutOff,
 % we will recalculate Cutoff. This new value will be smaller than before.
 % The 3 factor is an attempt to obtain:
 % new CutOff at beginning + rest of Curve + new CutOff at end = curve length before cutting,
 % with: new CutOff at beginning = rest of Curve = new CutOff at end, approx.
-Length_Threshold=3*CutOff;
-
+Length_Threshold    = 3*CutOff;                         % 
+    
 line1 = CurvStruct1.gcode_source_line;
 line2 = CurvStruct2.gcode_source_line;
 
@@ -23,15 +34,16 @@ end
 
 CurvStruct_T = CurvStruct1; %default value
 
-[r0D0_1, r0D1_1] = EvalCurvStruct(ctx, CurvStruct1, 0);
-[r0D0_2, r0D1_2] = EvalCurvStruct(ctx, CurvStruct1, 1);
-[r1D0_1, r1D1_1] = EvalCurvStruct(ctx, CurvStruct2, 0);
-[r1D0_2, r1D1_2] = EvalCurvStruct(ctx, CurvStruct2, 1);
+[r0D0_1, r0D1_1] = EvalCurvStruct(ctx, CurvStruct1, 0); % Curv1 @0
+[r0D0_2, r0D1_2] = EvalCurvStruct(ctx, CurvStruct1, 1); % Curv1 @1
+[r1D0_1, r1D1_1] = EvalCurvStruct(ctx, CurvStruct2, 0); % Curv2 @0
+[r1D0_2, r1D1_2] = EvalCurvStruct(ctx, CurvStruct2, 1); % Curv2 @1
 
 % colinearity test
-if CurvStruct1.Type~=CurveType.Helix && CurvStruct2.Type~=CurveType.Helix && ...
-        collinear(r0D1_2, r1D1_1, ColTolCos)
-    
+if  CurvStruct1.Type ~= CurveType.Helix ...
+    && CurvStruct2.Type ~= CurveType.Helix ...
+    && collinear(r0D1_2, r1D1_1, ColTolCos)
+
     status = TransitionResult.Collinear;    
     CurvStruct1_C = CurvStruct1;
     CurvStruct2_C = CurvStruct2;
@@ -44,7 +56,9 @@ L1 = LengthCurv(ctx, CurvStruct1, 0, 1);
 L2 = LengthCurv(ctx, CurvStruct2, 0, 1);
 
 % CutOff calculation
-if CurvStruct1.Type ~= CurveType.Spline && CurvStruct2.Type ~= CurveType.Spline
+if CurvStruct1.Type ~= CurveType.Spline ...
+   && CurvStruct2.Type ~= CurveType.Spline
+    % If L1 or L2 is smaller than 3*CutOff
     if L1 < Length_Threshold || L2 < Length_Threshold
         CutOff = min (L1,L2)/3;
     end
@@ -115,6 +129,7 @@ end
 
 status = TransitionResult.Ok;
 
+% Cut the curve structures
 CurvStruct1_C = CutCurvStruct(ctx, CurvStruct1, 0, CutOff);
 CurvStruct2_C = CutCurvStruct(ctx, CurvStruct2, CutOff, 0);
 
@@ -130,7 +145,7 @@ end
 [p5, ret, ~, ~] = G2_Hermite_Interpolation(r0D0, r0D1, r0D2, r1D0, r1D1, r1D2);
 
 if ret==1
-    
+
     % standard case
     % transition CurvStruct calculation
     CurvStruct_T = ConstrTransP5Struct(CurvStruct1.TRAFO,...
@@ -213,7 +228,7 @@ elseif ret==6
 else
     
     status = TransitionResult.NoSolution;
-    
+
     DebugLog(DebugCfg.Error, '========== CalcTransition ==========\n');
     DebugLog(DebugCfg.Error, '=========== No Solution ==========\n');
     DebugLog(DebugCfg.Error, 'Lines: %d, %d\n\n', line1, line2);

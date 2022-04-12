@@ -21,7 +21,7 @@ typedef struct bspline {
 } bspline_t;
 
 void c_bspline_create(void *handle, double x0, double x1, int32_t degree, int32_t nbreak);
-void c_bspline_create_with_breakpoints(void *handle, int32_t degree, double* breakpoints, int N, double *knots);
+void c_bspline_create_with_breakpoints(void *handle, int32_t degree, double* breakpoints, int N);
 void c_bspline_base_eval(const void *handle, int32_t N, const double *xvec, double *BasisVal, double *BasisValD,
                          double *BasisValDD, double *BasisValDDD, double *BasisIntegr);
 

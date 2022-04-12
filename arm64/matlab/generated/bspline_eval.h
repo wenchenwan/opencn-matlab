@@ -5,7 +5,7 @@
 // File: bspline_eval.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 01-Mar-2022 11:01:39
+// C/C++ source code generated on  : 12-Apr-2022 10:51:01
 //
 
 #ifndef BSPLINE_EVAL_H
@@ -22,10 +22,10 @@
 // Function Declarations
 namespace ocn {
 void bspline_eval(unsigned long Bl_handle, const ::coder::array<double, 2U> &coeffs, double *x,
-                  double *xd, double *xdd, double *xddd);
+                  double *xd, double *xdd);
 
 void bspline_eval(unsigned long Bl_handle, const ::coder::array<double, 2U> &coeffs, double *x,
-                  double *xd, double *xdd);
+                  double *xd, double *xdd, double *xddd);
 
 } // namespace ocn
 

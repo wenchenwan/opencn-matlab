@@ -5,7 +5,7 @@
 // File: BuildConstr_v4.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 01-Mar-2022 11:00:11
+// C/C++ source code generated on  : 12-Apr-2022 10:46:02
 //
 
 #ifndef BUILDCONSTR_V4_H
@@ -36,7 +36,9 @@ namespace ocn {
 void BuildConstr_v4(const queue_coder *ctx_q_splines, bool ctx_cfg_UseDynamicBreakpoints,
                     bool ctx_cfg_UseLinearBreakpoints, double ctx_cfg_DynamicBreakpointsDistance,
                     int ctx_cfg_SplineDegree, const double ctx_cfg_GaussLegendreX[5],
-                    const double ctx_cfg_GaussLegendreW[5], int ctx_Bl_ncoeff,
+                    const double ctx_cfg_GaussLegendreW[5],
+                    double ctx_cfg_opt_ACC_RAMP_OVER_WINDOWS,
+                    double ctx_cfg_opt_VEL_RAMP_OVER_WINDOWS, int ctx_Bl_ncoeff,
                     unsigned long ctx_Bl_handle, const ::coder::array<CurvStruct, 2U> &CurvStructs,
                     const double amax[3], double v_0, double at_0, double v_1, double at_1,
                     ::coder::array<double, 2U> &BasisVal, ::coder::array<double, 2U> &BasisValD,

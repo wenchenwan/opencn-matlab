@@ -5,7 +5,7 @@
 // File: CutCurvStruct.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 01-Mar-2022 11:01:39
+// C/C++ source code generated on  : 12-Apr-2022 10:51:01
 //
 
 // Include Files
@@ -346,13 +346,13 @@ void CutCurvStruct(const queue_coder *ctx_q_splines, const double ctx_cfg_GaussL
         //  for 0 < u < 1
         //  r1D0 and r1D1 are with respect to u
         // 'CutCurvStruct:31' [~, r1D0] = EvalCurvStruct(ctx, CurvStruct, 0);
-        b_EvalCurvStruct(ctx_q_splines, b_CurvStruct, a__1, r1D0);
-        // 'CutCurvStruct:32' [~, r1D1] = EvalCurvStruct(ctx, CurvStruct, 1);
         b_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
                          b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec,
                          b_CurvStruct->theta, b_CurvStruct->pitch, b_CurvStruct->CoeffP5,
-                         b_CurvStruct->sp_index, b_CurvStruct->a_param, b_CurvStruct->b_param, a__2,
-                         r1D1);
+                         b_CurvStruct->sp_index, b_CurvStruct->a_param, b_CurvStruct->b_param, a__1,
+                         r1D0);
+        // 'CutCurvStruct:32' [~, r1D1] = EvalCurvStruct(ctx, CurvStruct, 1);
+        b_EvalCurvStruct(ctx_q_splines, b_CurvStruct, a__2, r1D1);
         //  d0 = Integral_0_u0 ||r'(u)||du
         //  d1 = Integral_u1_1 ||r'(u)||du
         // 'CutCurvStruct:36' u0 = d0/MyNorm(r1D0);
@@ -435,13 +435,13 @@ void b_CutCurvStruct(const queue_coder *ctx_q_splines, const double ctx_cfg_Gaus
         //  for 0 < u < 1
         //  r1D0 and r1D1 are with respect to u
         // 'CutCurvStruct:31' [~, r1D0] = EvalCurvStruct(ctx, CurvStruct, 0);
-        b_EvalCurvStruct(ctx_q_splines, b_CurvStruct, a__1, r1D0);
-        // 'CutCurvStruct:32' [~, r1D1] = EvalCurvStruct(ctx, CurvStruct, 1);
         b_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
                          b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec,
                          b_CurvStruct->theta, b_CurvStruct->pitch, b_CurvStruct->CoeffP5,
-                         b_CurvStruct->sp_index, b_CurvStruct->a_param, b_CurvStruct->b_param, a__2,
-                         r1D1);
+                         b_CurvStruct->sp_index, b_CurvStruct->a_param, b_CurvStruct->b_param, a__1,
+                         r1D0);
+        // 'CutCurvStruct:32' [~, r1D1] = EvalCurvStruct(ctx, CurvStruct, 1);
+        b_EvalCurvStruct(ctx_q_splines, b_CurvStruct, a__2, r1D1);
         //  d0 = Integral_0_u0 ||r'(u)||du
         //  d1 = Integral_u1_1 ||r'(u)||du
         // 'CutCurvStruct:36' u0 = d0/MyNorm(r1D0);

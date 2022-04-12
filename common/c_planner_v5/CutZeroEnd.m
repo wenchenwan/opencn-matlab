@@ -1,6 +1,6 @@
 function [CurvStruct1, CurvStruct2] = CutZeroEnd(ctx, CurvStruct, k0)
     cfg=ctx.cfg;
-    [~, r1D] = EvalCurvStruct(ctx, CurvStruct, 0);
+    [~, r1D] = EvalCurvStruct(ctx, CurvStruct, 1); % Evaluate end of the curve.
     jps = min(cfg.jmax) / max(abs(r1D));
     
     dt = cfg.dt;

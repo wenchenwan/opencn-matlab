@@ -5,7 +5,7 @@
 // File: BuildConstrJerk_v4.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 01-Mar-2022 10:58:42
+// C/C++ source code generated on  : 12-Apr-2022 10:49:22
 //
 
 #ifndef BUILDCONSTRJERK_V4_H
@@ -42,7 +42,11 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
                         const ::coder::array<double, 2U> &u_vec, coder::sparse *A,
                         ::coder::array<double, 1U> &b);
 
-}
+void binary_expand_op(::coder::array<double, 2U> &R3, const ::coder::array<double, 2U> &r1,
+                      const ::coder::array<double, 2U> &r2, const ::coder::array<double, 2U> &r3,
+                      const ::coder::array<double, 1U> &y_tmp);
+
+} // namespace ocn
 
 #endif
 //

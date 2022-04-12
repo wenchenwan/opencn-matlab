@@ -5,7 +5,7 @@
 // File: opencn_matlab_types.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 01-Mar-2022 11:00:11
+// C/C++ source code generated on  : 12-Apr-2022 10:46:02
 //
 
 #ifndef OPENCN_MATLAB_TYPES_H
@@ -26,7 +26,18 @@ struct struct0_T {
     double ColTolCos;
 };
 
+struct struct1_T {
+    char Type[2];
+    bool EnableFindReasonInfeasibility;
+    double ACC_RAMP_OVER_WINDOWS;
+    double VEL_RAMP_OVER_WINDOWS;
+    bool USE_SLACK_ON_JERK;
+    double SLACK_PENALTY;
+    bool USE_LINPROG;
+};
+
 struct FeedoptConfig {
+    int NumberAxis;
     int NDiscr;
     int NBreak;
     bool UseDynamicBreakpoints;
@@ -36,6 +47,7 @@ struct FeedoptConfig {
     double vmax;
     double amax[3];
     double jmax[3];
+    int LeeSplineDegree;
     int SplineDegree;
     double CutOff;
     double LSplit;
@@ -56,8 +68,8 @@ struct FeedoptConfig {
     double GaussLegendreN;
     double GaussLegendreX[5];
     double GaussLegendreW[5];
-    char LogFileName[4];
-    double Simplex_params[4];
+    struct1_T opt;
+    char LogFileName[9];
 };
 
 enum Fopt : int

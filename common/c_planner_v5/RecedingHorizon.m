@@ -11,13 +11,13 @@ Coeff  = zeros(Bl.n, Ncrv); % preallocation
 C = zeros(Bl.n, N_Hor);
 %
 if Ncrv <= N_Hor
-    Coeff = FeedratePlanning_v4(ctx, CurvStructs, amax, jmax, v_0, at_0, v_1, at_1, ...
+    Coeff = FeedratePlanning(ctx, CurvStructs, amax, jmax, v_0, at_0, v_1, at_1, ...
                                 BasisVal, BasisValD, BasisValDD, BasisIntegr, Bl, u_vec);
 else
     at_0 = 0;
     v_0  = 0.1; % 0.1;   % change to 0 later  !!!!!
     for k = 1:Ncrv-N_Hor+1
-        C = FeedratePlanning_v4(ctx, CurvStructs(k:k+N_Hor-1), amax, jmax, v_0, at_0, v_1, at_1, ...
+        C = FeedratePlanning(ctx, CurvStructs(k:k+N_Hor-1), amax, jmax, v_0, at_0, v_1, at_1, ...
             BasisVal, BasisValD, BasisValDD, BasisIntegr, Bl, u_vec);
         Coeff(:, k) = C(:, 1); % keep solution of the first piece in horizon
         [v_0, a_0]  = CalcVAJ_v5(CurvStructs(k), Bl, C(:, 1), {1});

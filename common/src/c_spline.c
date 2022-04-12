@@ -43,7 +43,7 @@ void c_bspline_create(void *handle_, double x0, double x1, int32_t degree, int32
     *handle = (size_t)bs;
 }
 
-void c_bspline_create_with_breakpoints( void *handle_, int32_t degree, double* breakpoints, int N, double *knots )
+void c_bspline_create_with_breakpoints( void *handle_, int32_t degree, double* breakpoints, int N )
 {
 	size_t* handle = handle_;
     size_t ncoeffs;
@@ -69,12 +69,6 @@ void c_bspline_create_with_breakpoints( void *handle_, int32_t degree, double* b
 	bs->dBNonZero = gsl_matrix_alloc(degree, nderiv + 1);
     
     *handle = (size_t)bs;
-        
-    size_t Nknots = bs->ws->knots->size;
-
-    for( int i = 0 ; i <  Nknots; i++) {
-        knots[i] = gsl_vector_get(bs->ws->knots, i);
-    }
 }
 
 void c_bspline_destroy(const void *handle_)

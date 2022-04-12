@@ -5,7 +5,7 @@
 // File: ResampleState.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 01-Mar-2022 11:01:39
+// C/C++ source code generated on  : 12-Apr-2022 10:51:01
 //
 
 // Include Files
@@ -31,11 +31,13 @@ void ResampleState(double dt, ResampleStateClass *state)
     // 'ResampleState:2' coder.inline("never");
     // 'ResampleState:3' state = ResampleStateClass(dt);
     state->dt = dt;
-    // 'ResampleStateClass:10' this.u = 0;
+    // 'ResampleStateClass:11' this.u = 0;
     state->u = 0.0;
-    // 'ResampleStateClass:11' this.go_next = false;
+    // 'ResampleStateClass:12' this.go_next = false;
     state->go_next = false;
-    // 'ResampleStateClass:12' this.dt = dt;
+    // 'ResampleStateClass:13' this.isOutsideRange = false;
+    state->isOutsideRange = false;
+    // 'ResampleStateClass:14' this.dt = dt;
     // 'ResampleStateClass:5' double
     // 'ResampleStateClass:5' dt
 }

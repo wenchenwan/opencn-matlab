@@ -29,10 +29,10 @@ diary off;
 
 countInPercent = 0;
 for k=1:k_max
-    
+
     if( floor(k / k_max * 100) > countInPercent )  
         DebugLog(DebugCfg.OptimProgress, '%3d [%%] \n', countInPercent);
-        countInPercent = countInPercent + max(5, floor(100/k_max));
+        countInPercent = countInPercent + max(5, floor(500/k_max));
     end
 
     ucum = uvec(k);

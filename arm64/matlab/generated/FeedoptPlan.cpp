@@ -5,7 +5,7 @@
 // File: FeedoptPlan.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 01-Mar-2022 11:01:39
+// C/C++ source code generated on  : 12-Apr-2022 10:51:01
 //
 
 // Include Files
@@ -15,7 +15,7 @@
 #include "CompressCurvStructs.h"
 #include "ConstrLineStruct.h"
 #include "ExpandZeroStructs.h"
-#include "FeedratePlanning_v4.h"
+#include "FeedratePlanning.h"
 #include "PrintCurvStruct.h"
 #include "SmoothCurvStructs.h"
 #include "SplitCurvStructs.h"
@@ -66,10 +66,11 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
     double dv6[3];
     double dv7[3];
     double dv8[3];
-    double e_ctx[3];
     double at_0;
     double b_at_0;
+    double v_0;
     int a__1;
+    int c_status;
     char b_cv[1025];
     char message[39];
     bool b_optimized;
@@ -273,24 +274,29 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             // coder.ref(CurvStruct));
             b_status = c_read_and_exec_gcode(nullptr, &b_CurvStruct);
             status = b_status;
-            // 'FeedoptPlan:29' if status == 1 && CurvStruct.Type ~= 0
+            // 'FeedoptPlan:29' if( CurvStruct.FeedRate == 0 )
+            if (b_CurvStruct.FeedRate == 0.0) {
+                // 'FeedoptPlan:30' CurvStruct.FeedRate = ctx.cfg.vmax;
+                b_CurvStruct.FeedRate = ctx->cfg.vmax;
+            }
+            // 'FeedoptPlan:32' if status == 1 && CurvStruct.Type ~= 0
             if ((b_status == 1) && (static_cast<int>(b_CurvStruct.Type) != 0)) {
-                // 'FeedoptPlan:30' if ( CurvStruct.FeedRate == 0.0 )
+                // 'FeedoptPlan:33' if ( CurvStruct.FeedRate == 0.0 )
                 if (b_CurvStruct.FeedRate == 0.0) {
                     //  check for undefined feedrate
-                    // 'FeedoptPlan:32' CurvStruct.FeedRate = ctx.cfg.vmax;
+                    // 'FeedoptPlan:35' CurvStruct.FeedRate = ctx.cfg.vmax;
                     b_CurvStruct.FeedRate = ctx->cfg.vmax;
                 }
-                // 'FeedoptPlan:34' ctx.q_gcode.push(CurvStruct);
+                // 'FeedoptPlan:37' ctx.q_gcode.push(CurvStruct);
                 ctx->q_gcode.push(&b_CurvStruct);
             }
         }
-        // 'FeedoptPlan:37' if ctx.q_gcode.isempty()
+        // 'FeedoptPlan:40' if ctx.q_gcode.isempty()
         if (ctx->q_gcode.isempty()) {
-            // 'FeedoptPlan:38' ctx.op = Fopt.Finished;
+            // 'FeedoptPlan:41' ctx.op = Fopt.Finished;
             ctx->op = Fopt_Finished;
-            // 'FeedoptPlan:39' DebugLog(DebugCfg.Warning, ...
-            // 'FeedoptPlan:40'                 'ERROR: Optimization failed, Gcode queue is
+            // 'FeedoptPlan:42' DebugLog(DebugCfg.Warning, ...
+            // 'FeedoptPlan:43'                 'ERROR: Optimization failed, Gcode queue is
             // empty\n');
             //  1 -> stdout
             //  2 -> stderr
@@ -304,58 +310,61 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                 fflush(stdout);
             }
         } else {
-            // 'FeedoptPlan:43' last = ctx.q_gcode.rget(1);
+            // 'FeedoptPlan:46' last = ctx.q_gcode.rget(1);
             ctx->q_gcode.rget(&last);
-            // 'FeedoptPlan:44' if last.zspdmode == ZSpdMode.NN
+            // 'FeedoptPlan:47' if last.zspdmode == ZSpdMode.NN
             if (last.zspdmode == ZSpdMode_NN) {
-                // 'FeedoptPlan:45' last.zspdmode = ZSpdMode.NZ;
+                // 'FeedoptPlan:48' last.zspdmode = ZSpdMode.NZ;
                 last.zspdmode = ZSpdMode_NZ;
             } else if (last.zspdmode == ZSpdMode_ZN) {
-                // 'FeedoptPlan:46' elseif last.zspdmode == ZSpdMode.ZN
-                // 'FeedoptPlan:47' last.zspdmode = ZSpdMode.ZZ;
+                // 'FeedoptPlan:49' elseif last.zspdmode == ZSpdMode.ZN
+                // 'FeedoptPlan:50' last.zspdmode = ZSpdMode.ZZ;
                 last.zspdmode = ZSpdMode_ZZ;
             }
-            // 'FeedoptPlan:49' ctx.q_gcode.set(ctx.q_gcode.size, last);
+            // 'FeedoptPlan:52' ctx.q_gcode.set(ctx.q_gcode.size, last);
             ctx->q_gcode.set(ctx->q_gcode.size(), &last);
-            // 'FeedoptPlan:50' ctx.op = Fopt.Check;
+            // 'FeedoptPlan:53' ctx.op = Fopt.Check;
             ctx->op = Fopt_Check;
         }
     } break;
     case Fopt_Check:
-        // 'FeedoptPlan:52' case Fopt.Check
-        // 'FeedoptPlan:53' ctx = CheckCurvStructs(ctx);
+        // 'FeedoptPlan:55' case Fopt.Check
+        // 'FeedoptPlan:56' ctx = CheckCurvStructs(ctx);
         CheckCurvStructs(ctx);
-        // 'FeedoptPlan:54' ctx.op = Fopt.Compress;
+        // 'FeedoptPlan:57' ctx.op = Fopt.Compress;
         ctx->op = Fopt_Compress;
         break;
     case Fopt_Compress:
-        // 'FeedoptPlan:56' case Fopt.Compress
-        // 'FeedoptPlan:57' if ctx.cfg.Compressing.Skip
+        // 'FeedoptPlan:59' case Fopt.Compress
+        // 'FeedoptPlan:60' if ctx.cfg.Compressing.Skip
         if (ctx->cfg.Compressing.Skip) {
-            // 'FeedoptPlan:58' ctx = ExpandZeroStructs(ctx);
+            // 'FeedoptPlan:61' ctx = ExpandZeroStructs(ctx);
             ExpandZeroStructs(ctx);
         } else {
-            // 'FeedoptPlan:59' else
-            // 'FeedoptPlan:60' ctx = CompressCurvStructs(ctx);
+            // 'FeedoptPlan:62' else
+            // 'FeedoptPlan:63' ctx = CompressCurvStructs(ctx);
             CompressCurvStructs(ctx);
         }
-        // 'FeedoptPlan:62' ctx.op = Fopt.Smooth;
+        // 'FeedoptPlan:65' ctx.op = Fopt.Smooth;
         ctx->op = Fopt_Smooth;
+        // 'FeedoptPlan:66' if( coder.target( 'MATLAB') )
         break;
     case Fopt_Smooth:
-        // 'FeedoptPlan:64' case Fopt.Smooth
-        // 'FeedoptPlan:65' ctx = SmoothCurvStructs(ctx);
+        // 'FeedoptPlan:68' case Fopt.Smooth
+        // 'FeedoptPlan:69' ctx = SmoothCurvStructs(ctx);
         SmoothCurvStructs(ctx);
-        // 'FeedoptPlan:66' ctx.op = Fopt.Split;
+        // 'FeedoptPlan:70' ctx.op = Fopt.Split;
         ctx->op = Fopt_Split;
+        // 'FeedoptPlan:71' if( coder.target( 'MATLAB') )
         break;
     case Fopt_Split:
-        // 'FeedoptPlan:68' case Fopt.Split
-        // 'FeedoptPlan:69' ctx = SplitCurvStructs(ctx);
+        // 'FeedoptPlan:73' case Fopt.Split
+        // 'FeedoptPlan:74' ctx = SplitCurvStructs(ctx);
         SplitCurvStructs(ctx);
-        // 'FeedoptPlan:70' ctx.op = Fopt.Opt;
+        // 'FeedoptPlan:76' ctx.op = Fopt.Opt;
         ctx->op = Fopt_Opt;
-        // 'FeedoptPlan:71' DebugLog(DebugCfg.Validate, 'Feedrate Planning...\n');
+        // 'FeedoptPlan:77' if( coder.target( 'MATLAB') )
+        // 'FeedoptPlan:79' DebugLog(DebugCfg.Validate, 'Feedrate Planning...\n');
         //  1 -> stdout
         //  2 -> stderr
         // 'DebugLog:5' if IsEnabledDebugLog(cfg)
@@ -367,14 +376,14 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             printf("Feedrate Planning...\n");
             fflush(stdout);
         }
-        // 'FeedoptPlan:72' if coder.target('matlab')
+        // 'FeedoptPlan:80' if coder.target('matlab')
         break;
     case Fopt_Opt: {
-        // 'FeedoptPlan:76' case Fopt.Opt
-        // 'FeedoptPlan:77' if ctx.q_split.isempty
+        // 'FeedoptPlan:84' case Fopt.Opt
+        // 'FeedoptPlan:85' if ctx.q_split.isempty
         if (ctx->q_split.isempty()) {
-            // 'FeedoptPlan:78' if coder.target('matlab')
-            // 'FeedoptPlan:81' DebugLog(DebugCfg.Validate, 'Queue empty...\n');
+            // 'FeedoptPlan:86' if coder.target('matlab')
+            // 'FeedoptPlan:89' DebugLog(DebugCfg.Validate, 'Queue empty...\n');
             //  1 -> stdout
             //  2 -> stderr
             // 'DebugLog:5' if IsEnabledDebugLog(cfg)
@@ -386,63 +395,64 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                 printf("Queue empty...\n");
                 fflush(stdout);
             }
-            // 'FeedoptPlan:82' ctx.op = Fopt.Finished;
+            // 'FeedoptPlan:90' ctx.op = Fopt.Finished;
             ctx->op = Fopt_Finished;
         } else {
-            // 'FeedoptPlan:85' ctx.op = Fopt.Opt;
+            // 'FeedoptPlan:93' ctx.op = Fopt.Opt;
             ctx->op = Fopt_Opt;
-            // 'FeedoptPlan:87' if IsEnabledDebugLog(DebugCfg.OptimProgress)
+            // 'FeedoptPlan:95' if IsEnabledDebugLog(DebugCfg.OptimProgress)
             // 'IsEnabledDebugLog:4' value = false;
             // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
             if ((static_cast<unsigned long>(DebugConfig) & 2UL) != 0UL) {
                 unsigned int validatedHoleFilling_f2;
                 // 'IsEnabledDebugLog:7' value = true;
-                // 'FeedoptPlan:88' fprintf('%4d/%u\n', ctx.k0, ctx.q_split.size);
+                // 'FeedoptPlan:96' fprintf('%4d/%u\n', ctx.k0, ctx.q_split.size);
                 validatedHoleFilling_f2 = ctx->q_split.size();
                 printf("%4d/%u\n", ctx->k0, validatedHoleFilling_f2);
                 fflush(stdout);
             }
-            // 'FeedoptPlan:91' if ctx.go_next
+            //  Increment index on q_split
+            // 'FeedoptPlan:100' if ctx.go_next
             if (ctx->go_next) {
-                // 'FeedoptPlan:92' ctx.k0 = ctx.k0 + 1;
+                // 'FeedoptPlan:101' ctx.k0 = ctx.k0 + 1;
                 ctx->k0++;
-                // 'FeedoptPlan:93' ctx.n_optimized = ctx.n_optimized + 1;
+                // 'FeedoptPlan:102' ctx.n_optimized = ctx.n_optimized + 1;
                 ctx->n_optimized++;
             }
-            // 'FeedoptPlan:97' if ctx.n_optimized < ctx.q_split.size
+            // 'FeedoptPlan:105' if ctx.n_optimized < ctx.q_split.size
             if (static_cast<double>(ctx->n_optimized) < ctx->q_split.size()) {
-                // 'FeedoptPlan:98' if ctx.try_push_again
+                // 'FeedoptPlan:106' if ctx.try_push_again
                 if (ctx->try_push_again) {
                     //  Do nothing, we already have the last one optimized
                     guard1 = true;
                 } else if (!ctx->reached_end) {
                     int varargin_2_tmp;
-                    // 'FeedoptPlan:100' elseif ~ctx.reached_end
-                    // 'FeedoptPlan:101' OptSegment = repmat(ctx.q_split.get(1), 1, ctx.cfg.NHorz);
+                    // 'FeedoptPlan:108' elseif ~ctx.reached_end
+                    // 'FeedoptPlan:109' OptSegment = repmat(ctx.q_split.get(1), 1, ctx.cfg.NHorz);
                     ctx->q_split.get(static_cast<double>(1.0), &r);
                     varargin_2_tmp = ctx->cfg.NHorz;
                     OptSegment.set_size(1, varargin_2_tmp);
                     for (int i3{0}; i3 < varargin_2_tmp; i3++) {
                         OptSegment[i3] = r;
                     }
-                    // 'FeedoptPlan:103' first = ctx.q_split.get(ctx.k0);
+                    // 'FeedoptPlan:111' first = ctx.q_split.get(ctx.k0);
                     ctx->q_split.get(ctx->k0, &b_first);
-                    // 'FeedoptPlan:104' if first.zspdmode == ZSpdMode.ZN
+                    // 'FeedoptPlan:112' if first.zspdmode == ZSpdMode.ZN
                     if (b_first.zspdmode == ZSpdMode_ZN) {
-                        // 'FeedoptPlan:105' opt_struct = first;
+                        // 'FeedoptPlan:113' opt_struct = first;
                         *opt_struct = b_first;
-                        // 'FeedoptPlan:106' optimized = true;
+                        // 'FeedoptPlan:114' optimized = true;
                         b_optimized = true;
-                        // 'FeedoptPlan:107' [v_0, at_0] = CalcZeroStartConstraints(ctx, first, 1);
+                        // 'FeedoptPlan:115' [v_0, at_0] = CalcZeroStartConstraints(ctx, first, 1);
                         CalcZeroStartConstraints(
                             &ctx->q_splines, b_first.Type, b_first.P0, b_first.P1,
                             b_first.CorrectedHelixCenter, b_first.evec, b_first.theta,
                             b_first.pitch, b_first.CoeffP5, b_first.sp_index, b_first.UseConstJerk,
                             b_first.ConstJerk, b_first.a_param, b_first.b_param, 1.0, &ctx->v_0,
                             &ctx->at_0);
-                        // 'FeedoptPlan:108' ctx.v_0 = v_0;
-                        // 'FeedoptPlan:109' ctx.at_0 = at_0;
-                        // 'FeedoptPlan:110' ctx.zero_start = true;
+                        // 'FeedoptPlan:116' ctx.v_0 = v_0;
+                        // 'FeedoptPlan:117' ctx.at_0 = at_0;
+                        // 'FeedoptPlan:118' ctx.zero_start = true;
                         ctx->zero_start = true;
                     } else {
                         unsigned long u;
@@ -455,26 +465,27 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                         unsigned int nopt;
                         bool exitg1;
                         bool success;
-                        // 'FeedoptPlan:114' k1temp = int32(ctx.k0 + ctx.cfg.NHorz - 1);
+                        //  Get final index for the sliding horizon
+                        // 'FeedoptPlan:123' k1temp = int32(ctx.k0 + ctx.cfg.NHorz - 1);
                         k1temp = (ctx->k0 + ctx->cfg.NHorz) - 1;
-                        // 'FeedoptPlan:115' if k1temp > ctx.q_split.size
+                        // 'FeedoptPlan:124' if k1temp > ctx.q_split.size
                         if (static_cast<double>(k1temp) > ctx->q_split.size()) {
-                            // 'FeedoptPlan:116' ctx.reached_end = true;
+                            // 'FeedoptPlan:125' ctx.reached_end = true;
                             ctx->reached_end = true;
-                            // 'FeedoptPlan:117' k1 = int32(ctx.q_split.size);
+                            // 'FeedoptPlan:126' k1 = int32(ctx.q_split.size);
                             k1 = static_cast<int>(ctx->q_split.size());
                         } else {
-                            // 'FeedoptPlan:118' else
-                            // 'FeedoptPlan:119' k1 = int32(k1temp);
+                            // 'FeedoptPlan:127' else
+                            // 'FeedoptPlan:128' k1 = int32(k1temp);
                             k1 = k1temp;
                         }
-                        // 'FeedoptPlan:122' ctx.at_1 = 0;
+                        // 'FeedoptPlan:131' ctx.at_1    = 0;
                         ctx->at_1 = 0.0;
-                        // 'FeedoptPlan:123' ctx.v_1 = 0;
+                        // 'FeedoptPlan:132' ctx.v_1     = 0;
                         ctx->v_1 = 0.0;
-                        // 'FeedoptPlan:125' nopt = 0;
+                        // 'FeedoptPlan:134' nopt = 0;
                         nopt = 0U;
-                        // 'FeedoptPlan:126' DebugLog(DebugCfg.Global, 'FEEDRATE PLANNING...\n')
+                        // 'FeedoptPlan:135' DebugLog(DebugCfg.Global, 'FEEDRATE PLANNING...\n')
                         //  1 -> stdout
                         //  2 -> stderr
                         // 'DebugLog:5' if IsEnabledDebugLog(cfg)
@@ -487,60 +498,59 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                             printf("FEEDRATE PLANNING...\n");
                             fflush(stdout);
                         }
-                        // 'FeedoptPlan:127' kend = ctx.k0;
+                        // 'FeedoptPlan:136' kend = ctx.k0;
                         kend = ctx->k0;
-                        // 'FeedoptPlan:128' for k = ctx.k0:k1
+                        // 'FeedoptPlan:137' for k = ctx.k0:k1
                         k = ctx->k0;
                         exitg1 = false;
                         while ((!exitg1) && (k <= k1)) {
-                            // 'FeedoptPlan:129' NextCurv = ctx.q_split.get(k);
+                            // 'FeedoptPlan:138' NextCurv = ctx.q_split.get(k);
                             ctx->q_split.get(k, &NextCurv);
-                            // 'FeedoptPlan:130' if NextCurv.zspdmode == ZSpdMode.NZ
+                            // 'FeedoptPlan:139' if NextCurv.zspdmode == ZSpdMode.NZ
                             if (NextCurv.zspdmode == ZSpdMode_NZ) {
                                 //  If we reach an NZ segment, we set the final velocity
                                 //  and tangent acceleration constraints to the ones
                                 //  specified by the segment, and pretend this is the
                                 //  end of all segments
-                                // 'FeedoptPlan:135' [v_0, at_0] = CalcZeroStartConstraints(ctx,
+                                // 'FeedoptPlan:144' [v_0, at_0] = CalcZeroStartConstraints(ctx,
                                 // NextCurv, 1);
                                 CalcZeroStartConstraints(
                                     &ctx->q_splines, NextCurv.Type, NextCurv.P0, NextCurv.P1,
                                     NextCurv.CorrectedHelixCenter, NextCurv.evec, NextCurv.theta,
                                     NextCurv.pitch, NextCurv.CoeffP5, NextCurv.sp_index,
                                     NextCurv.UseConstJerk, NextCurv.ConstJerk, NextCurv.a_param,
-                                    NextCurv.b_param, 1.0, &ctx->v_1, &at_0);
-                                // 'FeedoptPlan:136' ctx.at_1 = -at_0;
-                                ctx->at_1 = -at_0;
-                                // 'FeedoptPlan:137' ctx.v_1 = v_0;
-                                // 'FeedoptPlan:138' ctx.zero_end = true;
+                                    NextCurv.b_param, 1.0, &v_0, &at_0);
+                                // 'FeedoptPlan:145' ctx.at_1 = -at_0;
+                                // 'FeedoptPlan:146' ctx.v_1 = v_0;
+                                // 'FeedoptPlan:147' ctx.zero_end = true;
                                 ctx->zero_end = true;
-                                // 'FeedoptPlan:139' ctx.reached_end = true;
+                                // 'FeedoptPlan:148' ctx.reached_end = true;
                                 ctx->reached_end = true;
-                                // 'FeedoptPlan:140' kend = k;
+                                // 'FeedoptPlan:149' kend = k;
                                 kend = k;
                                 exitg1 = true;
                             } else {
                                 if (NextCurv.zspdmode == ZSpdMode_NN) {
-                                    // 'FeedoptPlan:142' elseif NextCurv.zspdmode == ZSpdMode.NN
-                                    // 'FeedoptPlan:143' nopt = nopt + 1;
+                                    // 'FeedoptPlan:151' elseif NextCurv.zspdmode == ZSpdMode.NN
+                                    // 'FeedoptPlan:152' nopt = nopt + 1;
                                     nopt++;
-                                    // 'FeedoptPlan:144' OptSegment(nopt) = NextCurv;
+                                    // 'FeedoptPlan:153' OptSegment(nopt) = NextCurv;
                                     OptSegment[static_cast<int>(nopt) - 1] = NextCurv;
-                                    // 'FeedoptPlan:146' if IsEnabledDebugLog(DebugCfg.Global)
+                                    // 'FeedoptPlan:155' if IsEnabledDebugLog(DebugCfg.Global)
                                     // 'IsEnabledDebugLog:4' value = false;
                                     // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
                                     if (u != 0UL) {
                                         // 'IsEnabledDebugLog:7' value = true;
-                                        // 'FeedoptPlan:147' PrintCurvStruct(ctx,
+                                        // 'FeedoptPlan:156' PrintCurvStruct(ctx,
                                         // OptSegment(k-ctx.k0+1))
                                         PrintCurvStruct(&ctx->q_splines, ctx->cfg.GaussLegendreX,
                                                         ctx->cfg.GaussLegendreW,
                                                         &OptSegment[k - ctx->k0]);
                                     }
-                                    // 'FeedoptPlan:149' if k < k1
+                                    // 'FeedoptPlan:158' if k < k1
                                     if ((k < k1) && (u != 0UL)) {
-                                        // 'FeedoptPlan:150' DebugLog(DebugCfg.Global, ...
-                                        // 'FeedoptPlan:151'
+                                        // 'FeedoptPlan:159' DebugLog(DebugCfg.Global, ...
+                                        // 'FeedoptPlan:160'
                                         // '-----------------------------------\n')
                                         //  1 -> stdout
                                         //  2 -> stderr
@@ -553,14 +563,14 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                                         fflush(stdout);
                                     }
                                 } else {
-                                    // 'FeedoptPlan:153' else
-                                    // 'FeedoptPlan:154' error('Wrong ZspdMode');
+                                    // 'FeedoptPlan:162' else
+                                    // 'FeedoptPlan:163' error('Wrong ZspdMode');
                                 }
                                 k++;
                             }
                         }
-                        // 'FeedoptPlan:157' DebugLog(DebugCfg.Global, ...
-                        // 'FeedoptPlan:158' '================================================\n')
+                        // 'FeedoptPlan:166' DebugLog(DebugCfg.Global, ...
+                        // 'FeedoptPlan:167' '================================================\n')
                         //  1 -> stdout
                         //  2 -> stderr
                         // 'DebugLog:5' if IsEnabledDebugLog(cfg)
@@ -572,50 +582,23 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                             printf("================================================\n");
                             fflush(stdout);
                         }
-                        // 'FeedoptPlan:160' Retry = 0;
+                        // 'FeedoptPlan:169' Retry = 0;
                         Retry = 0;
-                        // 'FeedoptPlan:161' success = false;
+                        // 'FeedoptPlan:170' success = false;
                         success = false;
-                        // 'FeedoptPlan:162' Coeff = [];
+                        // 'FeedoptPlan:171' Coeff = [];
                         Coeff.set_size(0, 0);
-                        // 'FeedoptPlan:164' while Retry < 100 && ~success
+                        // 'FeedoptPlan:172' ctx.at_1 = ctx.cfg.at_1;
+                        ctx->at_1 = ctx->cfg.at_1;
+                        // 'FeedoptPlan:172' ctx.v_1 = ctx.cfg.v_0;
+                        ctx->v_1 = ctx->cfg.v_0;
+                        // 'FeedoptPlan:173' MAX_RETRY = 100;
+                        // 'FeedoptPlan:174' while Retry < MAX_RETRY && ~success
                         while ((Retry < 100) && (!success)) {
                             int d_ctx;
-                            // 'FeedoptPlan:165' [ctx, Coeff, ~, success] = FeedratePlanning_v4(ctx,
-                            // OptSegment, ctx.cfg.amax, ctx.cfg.jmax,... 'FeedoptPlan:166'
-                            // ctx.BasisVal, ctx.BasisValD, ctx.BasisValDD, ctx.BasisIntegr,...
-                            // 'FeedoptPlan:167'                         ctx.Bl, ctx.u_vec,
-                            // min(ctx.cfg.NHorz, nopt));
-                            if (ctx->cfg.NHorz > static_cast<int>(nopt)) {
-                                d_ctx = static_cast<int>(nopt);
-                            } else {
-                                d_ctx = ctx->cfg.NHorz;
-                            }
-                            e_ctx[0] = ctx->cfg.jmax[0];
-                            e_ctx[1] = ctx->cfg.jmax[1];
-                            e_ctx[2] = ctx->cfg.jmax[2];
-                            FeedratePlanning_v4(ctx, OptSegment, ctx->cfg.amax, e_ctx,
-                                                ctx->BasisVal, ctx->BasisValD, ctx->BasisValDD,
-                                                ctx->BasisIntegr, ctx->Bl.handle, ctx->u_vec, d_ctx,
-                                                Coeff, &a__1, &b_success);
-                            success = b_success;
-                            // 'FeedoptPlan:169' if success == 0 && ctx.zero_start
-                            if ((!b_success) && ctx->zero_start) {
-                                // 'FeedoptPlan:170' DebugLog(DebugCfg.Warning, 'ZeroStart at k = %d
-                                // failed, halving jerk\n', ctx.k0-1);
-                                //  1 -> stdout
-                                //  2 -> stderr
-                                // 'DebugLog:5' if IsEnabledDebugLog(cfg)
-                                // 'IsEnabledDebugLog:4' value = false;
-                                // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
-                                if ((static_cast<unsigned long>(DebugConfig) & 16UL) != 0UL) {
-                                    // 'IsEnabledDebugLog:7' value = true;
-                                    // 'DebugLog:6' fprintf(1, varargin{:});
-                                    printf("ZeroStart at k = %d failed, halving jerk\n",
-                                           ctx->k0 - 1);
-                                    fflush(stdout);
-                                }
-                                // 'FeedoptPlan:171' [v_0, at_0] = CalcZeroStartConstraints(ctx,
+                            // 'FeedoptPlan:176' if ctx.zero_start
+                            if (ctx->zero_start) {
+                                // 'FeedoptPlan:177' [v_0, at_0] = CalcZeroStartConstraints(ctx,
                                 // ctx.q_split.get(ctx.k0 - 1), 0.5^Retry);
                                 ctx->q_split.get(ctx->k0 - 1, &r);
                                 CalcZeroStartConstraints(
@@ -624,25 +607,12 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                                     r.ConstJerk, r.a_param, r.b_param,
                                     std::pow(0.5, static_cast<double>(Retry)), &ctx->v_0,
                                     &ctx->at_0);
-                                // 'FeedoptPlan:172' ctx.v_0 = v_0;
-                                // 'FeedoptPlan:173' ctx.at_0 = at_0;
+                                // 'FeedoptPlan:178' ctx.v_0 = v_0;
+                                // 'FeedoptPlan:179' ctx.at_0 = at_0;
                             }
-                            // 'FeedoptPlan:176' if success == 0 && ctx.zero_end
-                            if ((!b_success) && ctx->zero_end) {
-                                // 'FeedoptPlan:177' DebugLog(DebugCfg.Warning, 'ZeroEnd at k = %d
-                                // failed, halving jerk\n', kend);
-                                //  1 -> stdout
-                                //  2 -> stderr
-                                // 'DebugLog:5' if IsEnabledDebugLog(cfg)
-                                // 'IsEnabledDebugLog:4' value = false;
-                                // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
-                                if ((static_cast<unsigned long>(DebugConfig) & 16UL) != 0UL) {
-                                    // 'IsEnabledDebugLog:7' value = true;
-                                    // 'DebugLog:6' fprintf(1, varargin{:});
-                                    printf("ZeroEnd at k = %d failed, halving jerk\n", kend);
-                                    fflush(stdout);
-                                }
-                                // 'FeedoptPlan:178' [v_0, at_0] = CalcZeroStartConstraints(ctx,
+                            // 'FeedoptPlan:182' if ctx.zero_end
+                            if (ctx->zero_end) {
+                                // 'FeedoptPlan:183' [v_0, at_0] = CalcZeroStartConstraints(ctx,
                                 // ctx.q_split.get(kend), 0.5^Retry);
                                 ctx->q_split.get(kend, &r);
                                 CalcZeroStartConstraints(
@@ -650,19 +620,69 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                                     r.evec, r.theta, r.pitch, r.CoeffP5, r.sp_index, r.UseConstJerk,
                                     r.ConstJerk, r.a_param, r.b_param,
                                     std::pow(0.5, static_cast<double>(Retry)), &ctx->v_1, &b_at_0);
-                                // 'FeedoptPlan:179' ctx.at_1 = -at_0;
+                                // 'FeedoptPlan:184' ctx.at_1 = -at_0;
                                 ctx->at_1 = -b_at_0;
-                                // 'FeedoptPlan:180' ctx.v_1 = v_0;
+                                // 'FeedoptPlan:185' ctx.v_1 = v_0;
                             }
-                            // 'FeedoptPlan:183' Retry = Retry + 1;
-                            Retry++;
+                            // 'FeedoptPlan:188' [ctx, Coeff, ~, success, status, msg] =
+                            // FeedratePlanning(ctx, OptSegment, ctx.cfg.amax, ctx.cfg.jmax,...
+                            // 'FeedoptPlan:189'                         ctx.BasisVal,
+                            // ctx.BasisValD, ctx.BasisValDD, ctx.BasisIntegr,... 'FeedoptPlan:190'
+                            // ctx.Bl, ctx.u_vec, min(ctx.cfg.NHorz, nopt));
+                            if (ctx->cfg.NHorz > static_cast<int>(nopt)) {
+                                d_ctx = static_cast<int>(nopt);
+                            } else {
+                                d_ctx = ctx->cfg.NHorz;
+                            }
+                            FeedratePlanning(ctx, OptSegment, ctx->cfg.amax, ctx->cfg.jmax,
+                                             ctx->BasisVal, ctx->BasisValD, ctx->BasisValDD,
+                                             ctx->BasisIntegr, ctx->Bl.handle, ctx->u_vec, d_ctx,
+                                             Coeff, &a__1, &b_success, &c_status);
+                            success = b_success;
+                            // 'FeedoptPlan:192' if( ~success )
+                            if (!b_success) {
+                                // 'FeedoptPlan:193' Retry = Retry + 1;
+                                Retry++;
+                                // 'FeedoptPlan:194' if coder.target('matlab')
+                                // 'FeedoptPlan:202' if( ctx.zero_start )
+                                if (ctx->zero_start &&
+                                    ((static_cast<unsigned long>(DebugConfig) & 16UL) != 0UL)) {
+                                    // 'FeedoptPlan:203' DebugLog(DebugCfg.Warning, 'ZeroStart at k
+                                    // = %d failed, halving jerk\n', ctx.k0-1);
+                                    //  1 -> stdout
+                                    //  2 -> stderr
+                                    // 'DebugLog:5' if IsEnabledDebugLog(cfg)
+                                    // 'IsEnabledDebugLog:4' value = false;
+                                    // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
+                                    // 'IsEnabledDebugLog:7' value = true;
+                                    // 'DebugLog:6' fprintf(1, varargin{:});
+                                    printf("ZeroStart at k = %d failed, halving jerk\n",
+                                           ctx->k0 - 1);
+                                    fflush(stdout);
+                                }
+                                // 'FeedoptPlan:206' if( ctx.zero_end )
+                                if (ctx->zero_end &&
+                                    ((static_cast<unsigned long>(DebugConfig) & 16UL) != 0UL)) {
+                                    // 'FeedoptPlan:207' DebugLog(DebugCfg.Warning, 'ZeroEnd at k =
+                                    // %d failed, halving jerk\n', kend);
+                                    //  1 -> stdout
+                                    //  2 -> stderr
+                                    // 'DebugLog:5' if IsEnabledDebugLog(cfg)
+                                    // 'IsEnabledDebugLog:4' value = false;
+                                    // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
+                                    // 'IsEnabledDebugLog:7' value = true;
+                                    // 'DebugLog:6' fprintf(1, varargin{:});
+                                    printf("ZeroEnd at k = %d failed, halving jerk\n", kend);
+                                    fflush(stdout);
+                                }
+                            }
                         }
-                        // 'FeedoptPlan:186' if coder.target('matlab')
-                        // 'FeedoptPlan:190' ctx.zero_start = false;
+                        // 'FeedoptPlan:212' if coder.target('matlab')
+                        // 'FeedoptPlan:216' ctx.zero_start = false;
                         ctx->zero_start = false;
-                        // 'FeedoptPlan:191' ctx.zero_end = false;
+                        // 'FeedoptPlan:217' ctx.zero_end = false;
                         ctx->zero_end = false;
-                        // 'FeedoptPlan:193' ctx.Coeff = Coeff;
+                        // 'FeedoptPlan:219' ctx.Coeff = Coeff;
                         ctx->Coeff.set_size(Coeff.size(0), Coeff.size(1));
                         e_loop_ub = Coeff.size(1);
                         for (int i9{0}; i9 < e_loop_ub; i9++) {
@@ -673,25 +693,25 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                                     Coeff[i10 + Coeff.size(0) * i9];
                             }
                         }
-                        // 'FeedoptPlan:194' if success == 0
+                        // 'FeedoptPlan:220' if success == 0
                         if (!success) {
                             int i11;
-                            // 'FeedoptPlan:195' for nprint = 1:ctx.cfg.NHorz
+                            // 'FeedoptPlan:221' for nprint = 1:ctx.cfg.NHorz
                             i11 = ctx->cfg.NHorz;
                             for (int nprint{0}; nprint < i11; nprint++) {
-                                // 'FeedoptPlan:196' if IsEnabledDebugLog(DebugCfg.Global)
+                                // 'FeedoptPlan:222' if IsEnabledDebugLog(DebugCfg.Global)
                                 // 'IsEnabledDebugLog:4' value = false;
                                 // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
                                 if ((static_cast<unsigned long>(DebugConfig) & 8UL) != 0UL) {
                                     // 'IsEnabledDebugLog:7' value = true;
-                                    // 'FeedoptPlan:197' PrintCurvStruct(ctx, OptSegment(1));
+                                    // 'FeedoptPlan:223' PrintCurvStruct(ctx, OptSegment(1));
                                     PrintCurvStruct(&ctx->q_splines, ctx->cfg.GaussLegendreX,
                                                     ctx->cfg.GaussLegendreW, &OptSegment[0]);
                                 }
                             }
-                            // 'FeedoptPlan:200' if coder.target('MATLAB')
-                            // 'FeedoptPlan:202' else
-                            // 'FeedoptPlan:203' DebugLog(DebugCfg.Global, 'OPTIMIZATION
+                            // 'FeedoptPlan:226' if coder.target('MATLAB')
+                            // 'FeedoptPlan:228' else
+                            // 'FeedoptPlan:229' DebugLog(DebugCfg.Global, 'OPTIMIZATION
                             // FAILED!\n');
                             //  1 -> stdout
                             //  2 -> stderr
@@ -704,9 +724,9 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                                 printf("OPTIMIZATION FAILED!\n");
                                 fflush(stdout);
                             }
-                            // 'FeedoptPlan:204' ctx.errcode = FeedoptPlanError.OptimizationFailed;
+                            // 'FeedoptPlan:230' ctx.errcode = FeedoptPlanError.OptimizationFailed;
                             ctx->errcode = FeedoptPlanError_OptimizationFailed;
-                            // 'FeedoptPlan:206' ctx.op = Fopt.Finished;
+                            // 'FeedoptPlan:232' ctx.op = Fopt.Finished;
                             ctx->op = Fopt_Finished;
                         } else {
                             guard1 = true;
@@ -718,10 +738,10 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                     int c_loop_ub;
                     int i2;
                     int i4;
-                    // 'FeedoptPlan:209' else
+                    // 'FeedoptPlan:235' else
                     //  If we have reached the end of the optimizing segment, we
                     //  can just copy out the coefficients for the whole horizon
-                    // 'FeedoptPlan:212' ctx.Coeff(:, 1:end-1) = ctx.Coeff(:, 2:end);
+                    // 'FeedoptPlan:238' ctx.Coeff(:, 1:end-1) = ctx.Coeff(:, 2:end);
                     if (2 > ctx->Coeff.size(1)) {
                         i2 = 0;
                         i4 = 0;
@@ -750,20 +770,20 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                     guard1 = true;
                 }
             } else {
-                // 'FeedoptPlan:223' else
-                // 'FeedoptPlan:224' ctx.op = Fopt.Finished;
+                // 'FeedoptPlan:249' else
+                // 'FeedoptPlan:250' ctx.op = Fopt.Finished;
                 ctx->op = Fopt_Finished;
             }
         }
     } break;
     case Fopt_Finished:
-        // 'FeedoptPlan:227' case Fopt.Finished
-        // 'FeedoptPlan:228' ctx.op = Fopt.Finished;
+        // 'FeedoptPlan:253' case Fopt.Finished
+        // 'FeedoptPlan:254' ctx.op = Fopt.Finished;
         ctx->op = Fopt_Finished;
         break;
     default:
-        // 'FeedoptPlan:230' otherwise
-        // 'FeedoptPlan:231' DebugLog(DebugCfg.Global, 'FEEDOPT: WRONG STATE\n')
+        // 'FeedoptPlan:256' otherwise
+        // 'FeedoptPlan:257' DebugLog(DebugCfg.Global, 'FEEDOPT: WRONG STATE\n')
         //  1 -> stdout
         //  2 -> stderr
         // 'DebugLog:5' if IsEnabledDebugLog(cfg)
@@ -775,25 +795,25 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             printf("FEEDOPT: WRONG STATE\n");
             fflush(stdout);
         }
-        // 'FeedoptPlan:232' ctx.op = Fopt.Finished;
+        // 'FeedoptPlan:258' ctx.op = Fopt.Finished;
         ctx->op = Fopt_Finished;
         break;
     }
     if (guard1) {
         int loop_ub;
-        // 'FeedoptPlan:215' optimized = true;
+        // 'FeedoptPlan:241' optimized = true;
         b_optimized = true;
-        // 'FeedoptPlan:216' opt_struct = ctx.q_split.get(ctx.n_optimized + 1);
+        // 'FeedoptPlan:242' opt_struct = ctx.q_split.get(ctx.n_optimized + 1);
         ctx->q_split.get(ctx->n_optimized + 1, opt_struct);
-        // 'FeedoptPlan:217' opt_struct.Coeff = ctx.Coeff(:, 1);
+        // 'FeedoptPlan:243' opt_struct.Coeff = ctx.Coeff(:, 1);
         loop_ub = ctx->Coeff.size(0);
         opt_struct->Coeff.set_size(loop_ub);
         for (int i1{0}; i1 < loop_ub; i1++) {
             opt_struct->Coeff[i1] = ctx->Coeff[i1];
         }
-        // 'FeedoptPlan:219' if opt_struct.zspdmode == ZSpdMode.NZ
+        // 'FeedoptPlan:245' if opt_struct.zspdmode == ZSpdMode.NZ
         if (opt_struct->zspdmode == ZSpdMode_NZ) {
-            // 'FeedoptPlan:220' ctx.reached_end = false;
+            // 'FeedoptPlan:246' ctx.reached_end = false;
             ctx->reached_end = false;
         }
     }

@@ -5,7 +5,7 @@
 // File: CutZeroEnd.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 01-Mar-2022 11:00:11
+// C/C++ source code generated on  : 12-Apr-2022 10:46:02
 //
 
 // Include Files
@@ -133,8 +133,9 @@ void CutZeroEnd(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splines
     int vectorUB;
     bool exitg1;
     // 'CutZeroEnd:2' cfg=ctx.cfg;
-    // 'CutZeroEnd:3' [~, r1D] = EvalCurvStruct(ctx, CurvStruct, 0);
+    // 'CutZeroEnd:3' [~, r1D] = EvalCurvStruct(ctx, CurvStruct, 1);
     b_EvalCurvStruct(ctx_q_splines, b_CurvStruct, a__1, r1D);
+    //  Evaluate end of the curve.
     // 'CutZeroEnd:4' jps = min(cfg.jmax) / max(abs(r1D));
     z1_idx_1 = std::abs(r1D[1]);
     z1_idx_2 = std::abs(r1D[2]);

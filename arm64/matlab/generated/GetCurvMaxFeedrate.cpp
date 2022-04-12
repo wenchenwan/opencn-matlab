@@ -5,7 +5,7 @@
 // File: GetCurvMaxFeedrate.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 01-Mar-2022 11:01:39
+// C/C++ source code generated on  : 12-Apr-2022 10:51:01
 //
 
 // Include Files
@@ -74,8 +74,8 @@ double GetCurvMaxFeedrate(const queue_coder *ctx_q_splines, const double ctx_cfg
     // 'GetCurvMaxFeedrate:3' BaseFeedrate = 1;
     // 'GetCurvMaxFeedrate:4' [A, J] = GetCurvPeakAJ(ctx, CurvStruct, BaseFeedrate, 10);
     //  rdot = r1D * u1d
-    //  rdot'*rdot = r1D'*r1D * u1d
-    //  ConstantFeedrate = r1D'*r1D * u1d     (1)
+    //  rdot'*rdot = r1D'*r1D * u1d .^2
+    //  ConstantFeedrate = r1D'*r1D * u1d .^2     (1)
     // 'GetCurvPeakAJ:6' uvec = linspace(0,1,NSample);
     // 'GetCurvPeakAJ:7' [~, r1D, r2D, r3D] = EvalCurvStruct(ctx, CurvStruct, uvec);
     b_EvalCurvStruct(ctx_q_splines, CurvStruct_Type, CurvStruct_P0, CurvStruct_P1,
@@ -83,10 +83,41 @@ double GetCurvMaxFeedrate(const queue_coder *ctx_q_splines, const double ctx_cfg
                      CurvStruct_pitch, CurvStruct_CoeffP5, CurvStruct_sp_index, CurvStruct_a_param,
                      CurvStruct_b_param, a__1, r1D, r2D, r3D);
     //  from (1):
-    // 'GetCurvPeakAJ:10' u1d = ConstantFeedrate./vecnorm(r1D, 1);
+    // 'GetCurvPeakAJ:10' u1d = ConstantFeedrate./vecnorm(r1D, 2);
     std::memset(&y[0], 0, 10U * sizeof(double));
     for (int k{0}; k < 10; k++) {
-        y[k] = (std::abs(r1D[k][0]) + std::abs(r1D[k][1])) + std::abs(r1D[k][2]);
+        double absxk;
+        double b_y;
+        double scale;
+        double t;
+        scale = 3.3121686421112381E-170;
+        absxk = std::abs(r1D[k][0]);
+        if (absxk > 3.3121686421112381E-170) {
+            b_y = 1.0;
+            scale = absxk;
+        } else {
+            t = absxk / 3.3121686421112381E-170;
+            b_y = t * t;
+        }
+        absxk = std::abs(r1D[k][1]);
+        if (absxk > scale) {
+            t = scale / absxk;
+            b_y = b_y * t * t + 1.0;
+            scale = absxk;
+        } else {
+            t = absxk / scale;
+            b_y += t * t;
+        }
+        absxk = std::abs(r1D[k][2]);
+        if (absxk > scale) {
+            t = scale / absxk;
+            b_y = b_y * t * t + 1.0;
+            scale = absxk;
+        } else {
+            t = absxk / scale;
+            b_y += t * t;
+        }
+        y[k] = scale * std::sqrt(b_y);
     }
     //  u2d = 0;
     //  u3d = 0;

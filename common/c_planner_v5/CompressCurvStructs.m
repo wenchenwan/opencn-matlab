@@ -1,56 +1,61 @@
 function ctx = CompressCurvStructs(ctx)
-% We replace each sequence of small g-code segments with a B-Spline
-% of degree 3
-% A special queue is dedicated to the splines, ctx.q_splines
+% CompressCurvStructs : 
+% - Is feeded by the queue : q_gcode
+% - Check if a compression is possible based on the individual curves 
+% length, the cummulative length and the collinearity of two consecutive 
+% segment. 
+% - Check speed boundaries conditions (ZZ,ZN,NZ,NN) and split the curves
+% accordingly.
+% - Create a Bspline based on Lee89.
+% - Fill the queue : q_compress
+%
+% Note : If compression is not required call ExpandZeroStructs
 
 if ctx.q_gcode.isempty()
     return;
 end
 
-spline_index = ctx.q_splines.size() + 1;
+spline_index = ctx.q_splines.size() + 1;    % New index in q_spline
+Ncrv = ctx.q_gcode.size;                    % Number of curve in g-code queue
+Length_Threshold = ctx.cfg.LThreshold;      % in [mm]
 
-Ncrv = ctx.q_gcode.size;
-
-CumulatedLength = 0;
-Length_Threshold = ctx.cfg.LThreshold; % [mm]
+CumulatedLength = 0;                        % Accumulator for the length
+spindle_speed = 75000;                      % in [rpm]
 
 DebugLog(DebugCfg.Validate, 'Compressing...\n');
-DebugLog(DebugCfg.OptimProgress, 'Compressing...\n');
-
-spindle_speed = 75000;
 
 % Satisfy coder
-% -------------
 if coder.target('rtw') || coder.target('mex')
     pvec = zeros(3, 0);
     coder.varsize('pvec', [3, Inf], [0, 1]);
     CurvStruct1 = ctx.q_gcode.get(1);
 end
-% -------------
 
-%  ||...
-%             (CumulatedLength > 0 && ~CurvCollinear(ctx, ctx.q_gcode.get(k-1), Curv, ctx.cfg.Compressing.MaxCollinearityDegrees)) 
+k = 1; % index for the Gcode queue
 
-k = 1;
 while k <= Ncrv
-    Curv = ctx.q_gcode.get(k);
+    Curv = ctx.q_gcode.get(k);          % Get next Curv in the queue
     % If the next curve segment is too long for compressing or it is not an NN,
     % we need to stop growing the compressing list and create the spline
-    Collinear = false;
-    if k > 1
-        Collinear = CurvCollinear(ctx, ctx.q_gcode.get(k-1), Curv, ctx.cfg.Compressing.ColTolCos);
+    Collinear = false;                  % Set down collinear flag
+    if k > 1      % Check colinearity with previous segment
+        Collinear = CurvCollinear(ctx, ctx.q_gcode.get(k-1), Curv, ...
+                                  ctx.cfg.Compressing.ColTolCos);
     end
     
-    if (LengthCurv(ctx, Curv, 0, 1)>=Length_Threshold) || ...
-            (Curv.zspdmode~=ZSpdMode.NN) ||...
-            (CumulatedLength == 0 && ~Collinear)
+    % A new spline is created if one of the following conditions is met :
+    %  - The length of the current curve is too long for the compressing
+    %  - One of the boundaries speed is zero
+    % No more segment is added to the list of compressing curves
+    if ( LengthCurv(ctx, Curv, 0, 1) >= Length_Threshold ) || ...
+       ( Curv.zspdmode ~= ZSpdMode.NN ) ||...
+       ( CumulatedLength == 0 && ~Collinear )
 
-        % If the cumulated length is zero, no compressing is on-going and we can
-        % treat the segment individually 
+        % If the cumulated length is zero, no compressing is on-going.
+        % The segment is treated individually 
         if CumulatedLength == 0
-            
-            % If the segment is not a normal one (Nonzero, Nonzero), it needs
-            % to be split
+            % Depending of the speed at the boundary, the segment is split
+            % and then send to q_compress.
             if Curv.zspdmode == ZSpdMode.ZN
                 [CurvStruct1_C, CurvStruct2_C] = CutZeroStart(ctx, Curv, k);
                 ctx.q_compress.push(CurvStruct1_C);
@@ -65,9 +70,6 @@ while k <= Ncrv
                 ctx.q_compress.push(CurvStruct1_C);
                 ctx.q_compress.push(CurvStruct2_C);
                 ctx.q_compress.push(CurvStruct3_C);
-
-            % If the segment is normal, (Nonzero, Nonzero), it can be pushed
-            % as-is into the output list
             else
                 ctx.q_compress.push(Curv);
             end
@@ -78,7 +80,7 @@ while k <= Ncrv
             % is warranted     
             if size(pvec, 2) > 2
                 SplineCurve = ConstrCurvStructType;
-                SplineCurve.sp=CalcBspline_Lee(ctx.cfg, pvec);
+                SplineCurve.sp = CalcBspline_Lee(ctx.cfg, pvec);
                 SplineCurve.sp.Ltot = 0; % satisfy coder
                 SplineCurve.sp.Lk = 0;   % satisfy coder
                 [Ltot, Lk]    = SplineLengthApproxGL_tot(ctx, SplineCurve);
@@ -96,8 +98,8 @@ while k <= Ncrv
                 spline.sp_index = int32(spline_index);
                 spline_index = spline_index + 1;
                 spline.SpindleSpeed = spindle_speed;
-                spindle_speed = 75000;
                 ctx.q_compress.push(spline);
+
                 if Curv.zspdmode == ZSpdMode.NZ
                     [CurvStruct1_C, CurvStruct2_C] = CutZeroEnd(ctx, Curv, k);
                     ctx.q_compress.push(CurvStruct1_C);
@@ -107,15 +109,16 @@ while k <= Ncrv
                 end
             % With only two points, construct a line
             else
-                C = ctx.q_gcode.get(k-1);
+                C = ctx.q_gcode.get(k-1);   % get the previous segment
                 C.gcode_source_line=Curv.gcode_source_line;
-                ctx.q_compress.push(C);
-                if Curv.zspdmode == ZSpdMode.NZ
+                ctx.q_compress.push(C);     % push segment to q_compress
+
+                if Curv.zspdmode == ZSpdMode.NZ % split if zero end
                     [CurvStruct1_C, CurvStruct2_C] = CutZeroEnd(ctx, Curv, k);
                     ctx.q_compress.push(CurvStruct1_C);
                     ctx.q_compress.push(CurvStruct2_C);
                 else
-                    ctx.q_compress.push(Curv);
+                    ctx.q_compress.push(Curv); % push segment to q_compress
                 end
             end
             CumulatedLength = 0;
@@ -155,6 +158,7 @@ while k <= Ncrv
             pvec = P0;
             spindle_speed = Curv.SpindleSpeed;
         end
+
         CumulatedLength = CumulatedLength + LengthCurv(ctx, Curv, 0, 1);
         P1 = EvalCurvStruct(ctx, Curv, 1);
         pvec = [pvec P1];

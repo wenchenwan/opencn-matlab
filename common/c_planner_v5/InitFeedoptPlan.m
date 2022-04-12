@@ -3,11 +3,11 @@ function ctx = InitFeedoptPlan(cfg)
 coder.inline("never");
 % ctx is the context variable, it should contain:
 % - op: Operation to execute
-% - go_next: Should we optimize the next segment
-% - q_gcode: GCode queue
-% - q_smooth: Queue for smoothed segments
-% - q_split: Queue after splitting
-% - q_opt: Queue after optimization
+% - go_next:    Should we optimize the next segment
+% - q_gcode:    GCode queue
+% - q_smooth:   Queue for smoothed segments
+% - q_split:    Queue after splitting
+% - q_opt:      Queue after optimization
 
     if cfg.UseLinearBreakpoints
         Bl = bspline_create(cfg.SplineDegree, linspace(0, 1, cfg.NBreak));
@@ -27,29 +27,22 @@ coder.inline("never");
     [BasisVal, BasisValD, BasisValDD, ~, BasisIntegr] = bspline_base_eval(Bl, u_vec);
 
     Coeff = zeros(0, 0);
-    
-    trafo = false; % TRAFO flag disable
-    HSC = false;
-    Poff = zeros(3, 1); Aoff = Poff; Uoff = Poff; Doff = 0.0;
-    A0 = zeros(3,1); A1 = A0; U0 = A0 ; U1 = A0;
 
-    Curv = ConstrLineStruct(trafo, HSC, Poff, Aoff, Uoff, ...
-                            Doff, [0,0,0]', [0,0,0]', A0, A1, U0, ...
-                            U1, 1, ZSpdMode.NN);
-
-    Spline = CalcBspline_Lee(cfg, [[0,0,0]', [1,1,1]']);
-    Curv.sp = Spline;
-    Curv.sp.Ltot = 0;
-    Curv.sp.Lk = 0;
+    Curv            = ConstrCurvStructType();
+    Spline          = CalcBspline_Lee(cfg, [[0,0,0]', [1,1,1]']);
+    Curv.sp         = Spline;
+    Curv.sp.Ltot    = 0;
+    Curv.sp.Lk      = 0;
     
-    ctx.op = Fopt.Init;
-    ctx.go_next = false;
-    ctx.q_gcode = queue(Curv);
-    ctx.q_compress = queue(Curv);
-    ctx.q_splines = queue(Curv);
-    ctx.q_smooth = queue(Curv);
-    ctx.q_split = queue(Curv);
-    ctx.q_opt = queue(Curv);
+    ctx.op          = Fopt.Init;
+    ctx.go_next     = false;
+    ctx.q_gcode     = queue(Curv);
+    ctx.q_compress  = queue(Curv);
+    ctx.q_splines   = queue(Curv);
+    ctx.q_smooth    = queue(Curv);
+    ctx.q_split     = queue(Curv);
+    ctx.q_opt       = queue(Curv);
+
     ctx.try_push_again = false;
     ctx.n_optimized = int32(0);
     ctx.reached_end = false;

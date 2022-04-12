@@ -1,6 +1,5 @@
 function [r0D, r1D, r2D, r3D] = EvalCurvStructNoCtx(CurvStruct, CurvSpline, u_vec)
-% coder.cstructname(CurvStruct, 'CurvStruct')
-if any(u_vec - 1.0 > 10*eps)
+if any(u_vec > 1.0)
     if coder.target('matlab')
         error('EvalCurvStruct: u_vec > 1\n');
     else
@@ -29,13 +28,13 @@ b=CurvStruct.b_param;
 u_vec_tilda = a*u_vec+b;
 
 switch Type
-    case CurveType.Line % line (G01)
+    case CurveType.Line     % line (G01)
         [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
-    case CurveType.Helix % arc of circle / helix (G02, G03)
+    case CurveType.Helix    % arc of circle / helix (G02, G03)
         [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
-    case CurveType.TransP5 % polynomial transition
+    case CurveType.TransP5  % polynomial transition
         [r0D, r1D, r2D, r3D] = EvalTransP5(CurvStruct, u_vec_tilda);
-    case CurveType.Spline % BSpline
+    case CurveType.Spline   % BSpline
         [r0D, r1D, r2D, r3D] = EvalBSplineNoCtx(CurvSpline, u_vec_tilda);
     otherwise
         c_assert(false, 'Unknown Curve Type for Eval.\n');

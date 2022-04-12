@@ -2,17 +2,11 @@ function [r0D, r1D, r2D, r3D] = EvalCurvStruct(ctx, CurvStruct, u_vec)
 % coder.cstructname(CurvStruct, 'CurvStruct')
 coder.inline("never");
 if any(u_vec - 1.0 > 10*eps)
-    if coder.target('matlab')
-        error('EvalCurvStruct: u_vec > 1\n');
-    else
-        fprintf('EvalCurvStruct: u_vec > 1\n');
-    end
-    u_vec(u_vec > 1.0) = 1.0;
+    u_vec(u_vec > 1.0) = 1.0; printMsg("Error : u_vec > 1\n");
 end
 
 if any(u_vec < 0.0)
-    fprintf('EvalCurvStruct: u_vec < 0\n');
-    u_vec(u_vec < 0.0) = 0.0;
+    u_vec(u_vec < 0.0) = 0.0; printMsg("Error : u_vec < 0\n");
 end
 
 %
@@ -45,3 +39,12 @@ end
 r1D = a.*r1D;
 r2D = a^2.*r2D;
 r3D = a^3.*r3D;
+
+function [] = printMsg( err_msg )
+% printMsg : Print erro message according to the coder.target.
+err_msg = "EvalCurvStruct : " + err_msg;
+if coder.target('matlab')
+    error(err_msg);
+else
+    fprintf(err_msg);
+end

@@ -5,7 +5,7 @@
 // File: CheckCurvStructs.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 01-Mar-2022 11:01:39
+// C/C++ source code generated on  : 12-Apr-2022 10:51:01
 //
 
 // Include Files
@@ -112,11 +112,11 @@ void CheckCurvStructs(const FeedoptContext *ctx)
         // 'CheckCurvStructs:10' Curv2 = ctx.q_gcode.get(k+1);
         ctx->q_gcode.get(k - 4294967294U, &Curv2);
         // 'CheckCurvStructs:12' [~, r0D1] = EvalCurvStruct(ctx, Curv1, 1);
-        b_EvalCurvStruct(&ctx->q_splines, Curv1.Type, Curv1.P0, Curv1.P1,
-                         Curv1.CorrectedHelixCenter, Curv1.evec, Curv1.theta, Curv1.pitch,
-                         Curv1.CoeffP5, Curv1.sp_index, Curv1.a_param, Curv1.b_param, a__1, r0D1);
+        b_EvalCurvStruct(&ctx->q_splines, &Curv1, a__1, r0D1);
         // 'CheckCurvStructs:13' [~, r1D1] = EvalCurvStruct(ctx, Curv2, 0);
-        b_EvalCurvStruct(&ctx->q_splines, &Curv2, a__2, r1D1);
+        b_EvalCurvStruct(&ctx->q_splines, Curv2.Type, Curv2.P0, Curv2.P1,
+                         Curv2.CorrectedHelixCenter, Curv2.evec, Curv2.theta, Curv2.pitch,
+                         Curv2.CoeffP5, Curv2.sp_index, Curv2.a_param, Curv2.b_param, a__2, r1D1);
         // 'CheckCurvStructs:15' if iscusp(r0D1, r1D1, ctx.cfg.CuspThreshold)
         // 'iscusp:2' value = dot(u,v)/(norm(u)*norm(v)) < cosd(180 - angle_d);
         x = rt_remd(180.0 - ctx->cfg.CuspThreshold, 360.0);

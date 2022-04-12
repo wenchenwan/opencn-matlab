@@ -5,7 +5,7 @@
 // File: find.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 01-Mar-2022 11:01:39
+// C/C++ source code generated on  : 12-Apr-2022 10:51:01
 //
 
 #ifndef FIND_H
@@ -19,12 +19,23 @@
 
 // Custom Header Code
 #include "functions.h"
+// Type Declarations
+namespace ocn {
+namespace coder {
+class sparse;
+
+}
+} // namespace ocn
+
 // Function Declarations
 namespace ocn {
 namespace coder {
 void b_eml_find(const ::coder::array<bool, 2U> &x, int i_data[], int i_size[2]);
 
 void c_eml_find(const ::coder::array<bool, 2U> &x, int i_data[], int i_size[2]);
+
+void d_eml_find(const sparse *x, ::coder::array<int, 1U> &i, ::coder::array<int, 1U> &j,
+                ::coder::array<double, 1U> &v);
 
 void eml_find(const bool x_data[], int x_size, int i_data[], int *i_size);
 

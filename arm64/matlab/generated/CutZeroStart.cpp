@@ -5,7 +5,7 @@
 // File: CutZeroStart.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 01-Mar-2022 11:01:39
+// C/C++ source code generated on  : 12-Apr-2022 10:51:01
 //
 
 // Include Files
@@ -129,7 +129,10 @@ void CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_splin
     bool exitg1;
     // 'CutZeroStart:2' cfg=ctx.cfg;
     // 'CutZeroStart:3' [~, r1D] = EvalCurvStruct(ctx, CurvStruct, 0);
-    b_EvalCurvStruct(ctx_q_splines, b_CurvStruct, a__1, r1D);
+    b_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
+                     b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
+                     b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
+                     b_CurvStruct->a_param, b_CurvStruct->b_param, a__1, r1D);
     // 'CutZeroStart:4' jps = min(cfg.jmax) / max(abs(r1D));
     z1_idx_1 = std::abs(r1D[1]);
     z1_idx_2 = std::abs(r1D[2]);
@@ -671,7 +674,10 @@ void b_CutZeroStart(const queue_coder *ctx_q_gcode, const queue_coder *ctx_q_spl
     bool exitg1;
     // 'CutZeroStart:2' cfg=ctx.cfg;
     // 'CutZeroStart:3' [~, r1D] = EvalCurvStruct(ctx, CurvStruct, 0);
-    b_EvalCurvStruct(ctx_q_splines, b_CurvStruct, a__1, r1D);
+    b_EvalCurvStruct(ctx_q_splines, b_CurvStruct->Type, b_CurvStruct->P0, b_CurvStruct->P1,
+                     b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec, b_CurvStruct->theta,
+                     b_CurvStruct->pitch, b_CurvStruct->CoeffP5, b_CurvStruct->sp_index,
+                     b_CurvStruct->a_param, b_CurvStruct->b_param, a__1, r1D);
     // 'CutZeroStart:4' jps = min(cfg.jmax) / max(abs(r1D));
     z1_idx_1 = std::abs(r1D[1]);
     z1_idx_2 = std::abs(r1D[2]);

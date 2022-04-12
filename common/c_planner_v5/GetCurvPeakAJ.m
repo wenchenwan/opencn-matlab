@@ -1,13 +1,13 @@
 function [A,J] = GetCurvPeakAJ(ctx, CurvStruct, ConstantFeedrate, NSample)
 % rdot = r1D * u1d
-% rdot'*rdot = r1D'*r1D * u1d
-% ConstantFeedrate = r1D'*r1D * u1d     (1)
+% rdot'*rdot = r1D'*r1D * u1d .^2
+% ConstantFeedrate = r1D'*r1D * u1d .^2     (1)
 
     uvec = linspace(0,1,NSample);
     [~, r1D, r2D, r3D] = EvalCurvStruct(ctx, CurvStruct, uvec);
     
     % from (1):
-    u1d = ConstantFeedrate./vecnorm(r1D, 1);
+    u1d = ConstantFeedrate./vecnorm(r1D, 2);
     % u2d = 0;
     % u3d = 0;
     

@@ -1,8 +1,9 @@
 classdef TransitionResult < int32
+    % Enumeration class representing the results of the smoothing step
     enumeration
-        Ok(0),
-        Collinear(1),
-        NoSolution(2)
+        Ok(0),             % Transition succeed
+        Collinear(1),      % No need of a transition, curves are colinear
+        NoSolution(2)      % No solutions found...
     end
     
     methods(Static)

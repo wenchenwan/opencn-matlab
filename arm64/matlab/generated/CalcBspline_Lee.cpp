@@ -5,7 +5,7 @@
 // File: CalcBspline_Lee.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 01-Mar-2022 11:01:39
+// C/C++ source code generated on  : 12-Apr-2022 10:51:01
 //
 
 // Include Files
@@ -20,7 +20,7 @@
 //
 // function sp3D = CalcBspline_Lee(cfg, points)
 //
-// Arguments    : int cfg_SplineDegree
+// Arguments    : int cfg_LeeSplineDegree
 //                const ::coder::array<double, 2U> &points
 //                ::coder::array<double, 2U> &sp3D_CoeffX
 //                ::coder::array<double, 2U> &sp3D_CoeffY
@@ -33,7 +33,7 @@
 // Return Type  : void
 //
 namespace ocn {
-void CalcBspline_Lee(int cfg_SplineDegree, const ::coder::array<double, 2U> &points,
+void CalcBspline_Lee(int cfg_LeeSplineDegree, const ::coder::array<double, 2U> &points,
                      ::coder::array<double, 2U> &sp3D_CoeffX,
                      ::coder::array<double, 2U> &sp3D_CoeffY,
                      ::coder::array<double, 2U> &sp3D_CoeffZ, int *sp3D_Bl_ncoeff,
@@ -207,28 +207,28 @@ void CalcBspline_Lee(int cfg_SplineDegree, const ::coder::array<double, 2U> &poi
     sp3D_knots[sp3D_Bl_breakpoints.size(1) + 3] = 1.0;
     sp3D_knots[sp3D_Bl_breakpoints.size(1) + 4] = 1.0;
     sp3D_knots[sp3D_Bl_breakpoints.size(1) + 5] = 1.0;
-    // 'CalcBspline_Lee:9' Bl = bspline_create(cfg.SplineDegree, u);
-    // 'bspline_create:2' nbreak = length(breakpoints);
-    // 'bspline_create:3' ncoeff = nbreak + degree - 2;
+    // 'CalcBspline_Lee:9' Bl = bspline_create(cfg.LeeSplineDegree, u);
+    // 'bspline_create:2' if coder.target('rtw') || coder.target('mex')
+    // 'bspline_create:3' nbreak = length(breakpoints);
+    // 'bspline_create:4' ncoeff = nbreak + degree - 2;
     // 'bspline_create:5' h = uint64(0);
-    // 'bspline_create:7' if coder.target('rtw') || coder.target('mex')
-    // 'bspline_create:8' coder.updateBuildInfo('addSourceFiles','c_spline.c', '$(START_DIR)/src');
-    // 'bspline_create:9' coder.updateBuildInfo('addLinkFlags', LibInfo.gsl.lflags);
-    // 'bspline_create:10' coder.cinclude('src/c_spline.h');
-    // 'bspline_create:11' coder.ceval('c_bspline_create_with_breakpoints', coder.wref(h), degree,
-    // breakpoints, int32(nbreak));
+    // 'bspline_create:7' coder.updateBuildInfo('addSourceFiles','c_spline.c', '$(START_DIR)/src');
+    // 'bspline_create:8' coder.updateBuildInfo('addLinkFlags', LibInfo.gsl.lflags);
+    // 'bspline_create:9' coder.cinclude('src/c_spline.h');
+    // 'bspline_create:10' coder.ceval('c_bspline_create_with_breakpoints', coder.wref(h), degree,
+    // breakpoints, int32(nbreak) );
     breakpoints.set_size(1, sp3D_Bl_breakpoints.size(1));
     h_loop_ub = sp3D_Bl_breakpoints.size(1);
     for (int i11{0}; i11 < h_loop_ub; i11++) {
         breakpoints[i11] = sp3D_Bl_breakpoints[i11];
     }
-    c_bspline_create_with_breakpoints(&Bl_handle, cfg_SplineDegree, &breakpoints[0],
+    c_bspline_create_with_breakpoints(&Bl_handle, cfg_LeeSplineDegree, &breakpoints[0],
                                       sp3D_Bl_breakpoints.size(1));
-    // 'bspline_create:12' Bl.ncoeff = ncoeff;
-    // 'bspline_create:13' Bl.breakpoints = breakpoints;
-    // 'bspline_create:14' Bl.handle = h;
-    // 'bspline_create:15' Bl.degree = int32(degree);
-    // 'bspline_create:16' coder.varsize('Bl.breakpoints', [1, Inf], [0, 1]);
+    // 'bspline_create:11' Bl.ncoeff = ncoeff;
+    // 'bspline_create:12' Bl.breakpoints = breakpoints;
+    // 'bspline_create:13' Bl.handle = h;
+    // 'bspline_create:14' Bl.degree = int32(degree);
+    // 'bspline_create:15' coder.varsize('Bl.breakpoints', [1, Inf], [0, 1]);
     // 'CalcBspline_Lee:11' BasisVal    = zeros(N, N+2);
     BasisVal.set_size(points.size(1), points.size(1) + 2);
     i_loop_ub = points.size(1) + 2;
@@ -419,11 +419,11 @@ void CalcBspline_Lee(int cfg_SplineDegree, const ::coder::array<double, 2U> &poi
     }
     int b_sp3D_Bl_ncoeff;
     // 'CalcBspline_Lee:58' sp3D.Bl = Bl;
-    b_sp3D_Bl_ncoeff = (sp3D_Bl_breakpoints.size(1) + cfg_SplineDegree) - 2;
+    b_sp3D_Bl_ncoeff = (sp3D_Bl_breakpoints.size(1) + cfg_LeeSplineDegree) - 2;
     // 'CalcBspline_Lee:59' sp3D.knots = knots;
     *sp3D_Bl_ncoeff = b_sp3D_Bl_ncoeff;
     *sp3D_Bl_handle = Bl_handle;
-    *sp3D_Bl_degree = cfg_SplineDegree;
+    *sp3D_Bl_degree = cfg_LeeSplineDegree;
 }
 
 } // namespace ocn

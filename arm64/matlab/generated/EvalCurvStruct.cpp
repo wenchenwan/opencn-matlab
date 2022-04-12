@@ -5,7 +5,7 @@
 // File: EvalCurvStruct.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 01-Mar-2022 11:01:39
+// C/C++ source code generated on  : 12-Apr-2022 10:51:01
 //
 
 // Include Files
@@ -90,20 +90,23 @@ void EvalCurvStruct(const FeedoptContext *ctx, const CurvStruct *b_CurvStruct,
     }
     if (y) {
         int end;
-        // 'EvalCurvStruct:5' if coder.target('matlab')
-        // 'EvalCurvStruct:7' else
-        // 'EvalCurvStruct:8' fprintf('EvalCurvStruct: u_vec > 1\n');
-        printf("EvalCurvStruct: u_vec > 1\n");
-        fflush(stdout);
-        // 'EvalCurvStruct:10' u_vec(u_vec > 1.0) = 1.0;
+        // 'EvalCurvStruct:5' u_vec(u_vec > 1.0) = 1.0;
         end = u_vec.size(1);
         for (int b_i{0}; b_i < end; b_i++) {
             if (u_vec[b_i] > 1.0) {
                 u_vec[b_i] = 1.0;
             }
         }
+        // 'EvalCurvStruct:5' printMsg("Error : u_vec > 1\n");
+        //  printMsg : Print erro message according to the coder.target.
+        // 'EvalCurvStruct:45' err_msg = "EvalCurvStruct : " + err_msg;
+        // 'EvalCurvStruct:46' if coder.target('matlab')
+        // 'EvalCurvStruct:48' else
+        // 'EvalCurvStruct:49' fprintf(err_msg);
+        printf("EvalCurvStruct : Error : u_vec > 1\n");
+        fflush(stdout);
     }
-    // 'EvalCurvStruct:13' if any(u_vec < 0.0)
+    // 'EvalCurvStruct:8' if any(u_vec < 0.0)
     x.set_size(1, u_vec.size(1));
     b_loop_ub = u_vec.size(1);
     for (int i1{0}; i1 < b_loop_ub; i1++) {
@@ -122,22 +125,27 @@ void EvalCurvStruct(const FeedoptContext *ctx, const CurvStruct *b_CurvStruct,
     }
     if (b_y) {
         int b_end;
-        // 'EvalCurvStruct:14' fprintf('EvalCurvStruct: u_vec < 0\n');
-        printf("EvalCurvStruct: u_vec < 0\n");
-        fflush(stdout);
-        // 'EvalCurvStruct:15' u_vec(u_vec < 0.0) = 0.0;
+        // 'EvalCurvStruct:9' u_vec(u_vec < 0.0) = 0.0;
         b_end = u_vec.size(1);
         for (int c_i{0}; c_i < b_end; c_i++) {
             if (u_vec[c_i] < 0.0) {
                 u_vec[c_i] = 0.0;
             }
         }
+        // 'EvalCurvStruct:9' printMsg("Error : u_vec < 0\n");
+        //  printMsg : Print erro message according to the coder.target.
+        // 'EvalCurvStruct:45' err_msg = "EvalCurvStruct : " + err_msg;
+        // 'EvalCurvStruct:46' if coder.target('matlab')
+        // 'EvalCurvStruct:48' else
+        // 'EvalCurvStruct:49' fprintf(err_msg);
+        printf("EvalCurvStruct : Error : u_vec < 0\n");
+        fflush(stdout);
     }
     //
-    // 'EvalCurvStruct:19' Type  = CurvStruct.Type;
+    // 'EvalCurvStruct:13' Type  = CurvStruct.Type;
     //
-    // 'EvalCurvStruct:21' N = numel(u_vec);
-    // 'EvalCurvStruct:22' r0D = zeros(3, N);
+    // 'EvalCurvStruct:15' N = numel(u_vec);
+    // 'EvalCurvStruct:16' r0D = zeros(3, N);
     r0D.set_size(3, u_vec.size(1));
     c_loop_ub = u_vec.size(1);
     for (int i2{0}; i2 < c_loop_ub; i2++) {
@@ -145,7 +153,7 @@ void EvalCurvStruct(const FeedoptContext *ctx, const CurvStruct *b_CurvStruct,
         r0D[3 * i2 + 1] = 0.0;
         r0D[3 * i2 + 2] = 0.0;
     }
-    // 'EvalCurvStruct:23' r1D = zeros(3, N);
+    // 'EvalCurvStruct:17' r1D = zeros(3, N);
     r1D.set_size(3, u_vec.size(1));
     d_loop_ub = u_vec.size(1);
     for (int i3{0}; i3 < d_loop_ub; i3++) {
@@ -153,7 +161,7 @@ void EvalCurvStruct(const FeedoptContext *ctx, const CurvStruct *b_CurvStruct,
         r1D[3 * i3 + 1] = 0.0;
         r1D[3 * i3 + 2] = 0.0;
     }
-    // 'EvalCurvStruct:24' r2D = zeros(3, N);
+    // 'EvalCurvStruct:18' r2D = zeros(3, N);
     r2D.set_size(3, u_vec.size(1));
     e_loop_ub = u_vec.size(1);
     for (int i4{0}; i4 < e_loop_ub; i4++) {
@@ -161,7 +169,7 @@ void EvalCurvStruct(const FeedoptContext *ctx, const CurvStruct *b_CurvStruct,
         r2D[3 * i4 + 1] = 0.0;
         r2D[3 * i4 + 2] = 0.0;
     }
-    // 'EvalCurvStruct:25' r3D = zeros(3, N);
+    // 'EvalCurvStruct:19' r3D = zeros(3, N);
     r3D.set_size(3, u_vec.size(1));
     f_loop_ub = u_vec.size(1);
     for (int i5{0}; i5 < f_loop_ub; i5++) {
@@ -169,44 +177,44 @@ void EvalCurvStruct(const FeedoptContext *ctx, const CurvStruct *b_CurvStruct,
         r3D[3 * i5 + 1] = 0.0;
         r3D[3 * i5 + 2] = 0.0;
     }
-    // 'EvalCurvStruct:27' a=CurvStruct.a_param;
-    // 'EvalCurvStruct:28' b=CurvStruct.b_param;
-    // 'EvalCurvStruct:30' u_vec_tilda = a*u_vec+b;
+    // 'EvalCurvStruct:21' a=CurvStruct.a_param;
+    // 'EvalCurvStruct:22' b=CurvStruct.b_param;
+    // 'EvalCurvStruct:24' u_vec_tilda = a*u_vec+b;
     u_vec_tilda.set_size(1, u_vec.size(1));
     g_loop_ub = u_vec.size(1);
     for (int i6{0}; i6 < g_loop_ub; i6++) {
         u_vec_tilda[i6] = b_CurvStruct->a_param * u_vec[i6] + b_CurvStruct->b_param;
     }
-    // 'EvalCurvStruct:32' switch Type
+    // 'EvalCurvStruct:26' switch Type
     switch (b_CurvStruct->Type) {
     case CurveType_Line:
-        // 'EvalCurvStruct:33' case CurveType.Line
+        // 'EvalCurvStruct:27' case CurveType.Line
         //  line (G01)
-        // 'EvalCurvStruct:34' [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:28' [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
         EvalLine(b_CurvStruct->P0, b_CurvStruct->P1, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_Helix:
-        // 'EvalCurvStruct:35' case CurveType.Helix
+        // 'EvalCurvStruct:29' case CurveType.Helix
         //  arc of circle / helix (G02, G03)
-        // 'EvalCurvStruct:36' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:30' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
         EvalHelix(b_CurvStruct->P0, b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec,
                   b_CurvStruct->theta, b_CurvStruct->pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_TransP5:
-        // 'EvalCurvStruct:37' case CurveType.TransP5
+        // 'EvalCurvStruct:31' case CurveType.TransP5
         //  polynomial transition
-        // 'EvalCurvStruct:38' [r0D, r1D, r2D, r3D] = EvalTransP5(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:32' [r0D, r1D, r2D, r3D] = EvalTransP5(CurvStruct, u_vec_tilda);
         EvalTransP5(b_CurvStruct->CoeffP5, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_Spline:
-        // 'EvalCurvStruct:39' case CurveType.Spline
+        // 'EvalCurvStruct:33' case CurveType.Spline
         //  BSpline
-        // 'EvalCurvStruct:40' [r0D, r1D, r2D, r3D] = EvalBSpline(ctx, CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:34' [r0D, r1D, r2D, r3D] = EvalBSpline(ctx, CurvStruct, u_vec_tilda);
         EvalBSpline(&ctx->q_splines, b_CurvStruct->sp_index, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     default:
-        // 'EvalCurvStruct:41' otherwise
-        // 'EvalCurvStruct:42' c_assert(false, 'Unknown Curve Type for Eval.\n');
+        // 'EvalCurvStruct:35' otherwise
+        // 'EvalCurvStruct:36' c_assert(false, 'Unknown Curve Type for Eval.\n');
         // 'c_assert:2' if coder.target('rtw')
         // 'c_assert:3' if ~condition
         // 'c_assert:4' coder.ceval('c_assert_', message);
@@ -217,7 +225,7 @@ void EvalCurvStruct(const FeedoptContext *ctx, const CurvStruct *b_CurvStruct,
         // 'c_assert:6' value = condition;
         break;
     }
-    // 'EvalCurvStruct:45' r1D = a.*r1D;
+    // 'EvalCurvStruct:39' r1D = a.*r1D;
     r1D.set_size(3, r1D.size(1));
     h_loop_ub = r1D.size(1);
     for (int i8{0}; i8 < h_loop_ub; i8++) {
@@ -225,7 +233,7 @@ void EvalCurvStruct(const FeedoptContext *ctx, const CurvStruct *b_CurvStruct,
         r1D[3 * i8 + 1] = b_CurvStruct->a_param * r1D[3 * i8 + 1];
         r1D[3 * i8 + 2] = b_CurvStruct->a_param * r1D[3 * i8 + 2];
     }
-    // 'EvalCurvStruct:46' r2D = a^2.*r2D;
+    // 'EvalCurvStruct:40' r2D = a^2.*r2D;
     c = b_CurvStruct->a_param * b_CurvStruct->a_param;
     r2D.set_size(3, r2D.size(1));
     i_loop_ub = r2D.size(1);
@@ -234,7 +242,7 @@ void EvalCurvStruct(const FeedoptContext *ctx, const CurvStruct *b_CurvStruct,
         r2D[3 * i9 + 1] = c * r2D[3 * i9 + 1];
         r2D[3 * i9 + 2] = c * r2D[3 * i9 + 2];
     }
-    // 'EvalCurvStruct:47' r3D = a^3.*r3D;
+    // 'EvalCurvStruct:41' r3D = a^3.*r3D;
     b_c = std::pow(b_CurvStruct->a_param, 3.0);
     r3D.set_size(3, r3D.size(1));
     j_loop_ub = r3D.size(1);
@@ -295,18 +303,18 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     char message[30];
     // 'EvalCurvStruct:3' coder.inline("never");
     // 'EvalCurvStruct:4' if any(u_vec - 1.0 > 10*eps)
-    // 'EvalCurvStruct:13' if any(u_vec < 0.0)
+    // 'EvalCurvStruct:8' if any(u_vec < 0.0)
     //
-    // 'EvalCurvStruct:19' Type  = CurvStruct.Type;
+    // 'EvalCurvStruct:13' Type  = CurvStruct.Type;
     //
-    // 'EvalCurvStruct:21' N = numel(u_vec);
-    // 'EvalCurvStruct:22' r0D = zeros(3, N);
-    // 'EvalCurvStruct:23' r1D = zeros(3, N);
-    // 'EvalCurvStruct:24' r2D = zeros(3, N);
-    // 'EvalCurvStruct:25' r3D = zeros(3, N);
-    // 'EvalCurvStruct:27' a=CurvStruct.a_param;
-    // 'EvalCurvStruct:28' b=CurvStruct.b_param;
-    // 'EvalCurvStruct:30' u_vec_tilda = a*u_vec+b;
+    // 'EvalCurvStruct:15' N = numel(u_vec);
+    // 'EvalCurvStruct:16' r0D = zeros(3, N);
+    // 'EvalCurvStruct:17' r1D = zeros(3, N);
+    // 'EvalCurvStruct:18' r2D = zeros(3, N);
+    // 'EvalCurvStruct:19' r3D = zeros(3, N);
+    // 'EvalCurvStruct:21' a=CurvStruct.a_param;
+    // 'EvalCurvStruct:22' b=CurvStruct.b_param;
+    // 'EvalCurvStruct:24' u_vec_tilda = a*u_vec+b;
     for (int i{0}; i < 10; i++) {
         r0D[i][0] = 0.0;
         r1D[i][0] = 0.0;
@@ -323,32 +331,32 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         u_vec_tilda[i] =
             CurvStruct_a_param * (0.1111111111111111 * static_cast<double>(i)) + CurvStruct_b_param;
     }
-    // 'EvalCurvStruct:32' switch Type
+    // 'EvalCurvStruct:26' switch Type
     switch (CurvStruct_Type) {
     case CurveType_Line:
-        // 'EvalCurvStruct:33' case CurveType.Line
+        // 'EvalCurvStruct:27' case CurveType.Line
         //  line (G01)
-        // 'EvalCurvStruct:34' [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:28' [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
         EvalLine(CurvStruct_P0, CurvStruct_P1, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_Helix:
-        // 'EvalCurvStruct:35' case CurveType.Helix
+        // 'EvalCurvStruct:29' case CurveType.Helix
         //  arc of circle / helix (G02, G03)
-        // 'EvalCurvStruct:36' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:30' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
         EvalHelix(CurvStruct_P0, CurvStruct_CorrectedHelixCenter, CurvStruct_evec, CurvStruct_theta,
                   CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_TransP5:
-        // 'EvalCurvStruct:37' case CurveType.TransP5
+        // 'EvalCurvStruct:31' case CurveType.TransP5
         //  polynomial transition
-        // 'EvalCurvStruct:38' [r0D, r1D, r2D, r3D] = EvalTransP5(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:32' [r0D, r1D, r2D, r3D] = EvalTransP5(CurvStruct, u_vec_tilda);
         EvalTransP5(CurvStruct_CoeffP5, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_Spline: {
         unsigned long Spline_sp_Bl_handle;
-        // 'EvalCurvStruct:39' case CurveType.Spline
+        // 'EvalCurvStruct:33' case CurveType.Spline
         //  BSpline
-        // 'EvalCurvStruct:40' [r0D, r1D, r2D, r3D] = EvalBSpline(ctx, CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:34' [r0D, r1D, r2D, r3D] = EvalBSpline(ctx, CurvStruct, u_vec_tilda);
         //  if coder.target('rtw') || coder.target('mex')
         // 'EvalBSpline:4' Spline=ctx.q_splines.get(CurvStruct.sp_index);
         ctx_q_splines->get(CurvStruct_sp_index, &expl_temp);
@@ -437,8 +445,8 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         //  end
     } break;
     default:
-        // 'EvalCurvStruct:41' otherwise
-        // 'EvalCurvStruct:42' c_assert(false, 'Unknown Curve Type for Eval.\n');
+        // 'EvalCurvStruct:35' otherwise
+        // 'EvalCurvStruct:36' c_assert(false, 'Unknown Curve Type for Eval.\n');
         // 'c_assert:2' if coder.target('rtw')
         // 'c_assert:3' if ~condition
         // 'c_assert:4' coder.ceval('c_assert_', message);
@@ -449,10 +457,10 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         // 'c_assert:6' value = condition;
         break;
     }
-    // 'EvalCurvStruct:45' r1D = a.*r1D;
-    // 'EvalCurvStruct:46' r2D = a^2.*r2D;
+    // 'EvalCurvStruct:39' r1D = a.*r1D;
+    // 'EvalCurvStruct:40' r2D = a^2.*r2D;
     c = CurvStruct_a_param * CurvStruct_a_param;
-    // 'EvalCurvStruct:47' r3D = a^3.*r3D;
+    // 'EvalCurvStruct:41' r3D = a^3.*r3D;
     b_c = std::pow(CurvStruct_a_param, 3.0);
     for (int i2{0}; i2 < 10; i2++) {
         r1D[i2][0] *= CurvStruct_a_param;
@@ -473,12 +481,27 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
 // coder.cstructname(CurvStruct, 'CurvStruct')
 //
 // Arguments    : const queue_coder *ctx_q_splines
-//                const CurvStruct *b_CurvStruct
+//                CurveType CurvStruct_Type
+//                const double CurvStruct_P0[3]
+//                const double CurvStruct_P1[3]
+//                const double CurvStruct_CorrectedHelixCenter[3]
+//                const double CurvStruct_evec[3]
+//                double CurvStruct_theta
+//                double CurvStruct_pitch
+//                const double CurvStruct_CoeffP5[6][3]
+//                int CurvStruct_sp_index
+//                double CurvStruct_a_param
+//                double CurvStruct_b_param
 //                double r0D[3]
 //                double r1D[3]
 // Return Type  : void
 //
-void b_EvalCurvStruct(const queue_coder *ctx_q_splines, const CurvStruct *b_CurvStruct,
+void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type,
+                      const double CurvStruct_P0[3], const double CurvStruct_P1[3],
+                      const double CurvStruct_CorrectedHelixCenter[3],
+                      const double CurvStruct_evec[3], double CurvStruct_theta,
+                      double CurvStruct_pitch, const double CurvStruct_CoeffP5[6][3],
+                      int CurvStruct_sp_index, double CurvStruct_a_param, double CurvStruct_b_param,
                       double r0D[3], double r1D[3])
 {
     CurvStruct expl_temp;
@@ -499,54 +522,52 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, const CurvStruct *b_Curv
     char message[30];
     // 'EvalCurvStruct:3' coder.inline("never");
     // 'EvalCurvStruct:4' if any(u_vec - 1.0 > 10*eps)
-    // 'EvalCurvStruct:13' if any(u_vec < 0.0)
+    // 'EvalCurvStruct:8' if any(u_vec < 0.0)
     //
-    // 'EvalCurvStruct:19' Type  = CurvStruct.Type;
+    // 'EvalCurvStruct:13' Type  = CurvStruct.Type;
     //
-    // 'EvalCurvStruct:21' N = numel(u_vec);
-    // 'EvalCurvStruct:22' r0D = zeros(3, N);
-    // 'EvalCurvStruct:23' r1D = zeros(3, N);
+    // 'EvalCurvStruct:15' N = numel(u_vec);
+    // 'EvalCurvStruct:16' r0D = zeros(3, N);
+    // 'EvalCurvStruct:17' r1D = zeros(3, N);
     r0D[0] = 0.0;
     r1D[0] = 0.0;
     r0D[1] = 0.0;
     r1D[1] = 0.0;
     r0D[2] = 0.0;
     r1D[2] = 0.0;
-    // 'EvalCurvStruct:24' r2D = zeros(3, N);
-    // 'EvalCurvStruct:25' r3D = zeros(3, N);
-    // 'EvalCurvStruct:27' a=CurvStruct.a_param;
-    // 'EvalCurvStruct:28' b=CurvStruct.b_param;
-    // 'EvalCurvStruct:30' u_vec_tilda = a*u_vec+b;
-    // 'EvalCurvStruct:32' switch Type
-    switch (b_CurvStruct->Type) {
+    // 'EvalCurvStruct:18' r2D = zeros(3, N);
+    // 'EvalCurvStruct:19' r3D = zeros(3, N);
+    // 'EvalCurvStruct:21' a=CurvStruct.a_param;
+    // 'EvalCurvStruct:22' b=CurvStruct.b_param;
+    // 'EvalCurvStruct:24' u_vec_tilda = a*u_vec+b;
+    // 'EvalCurvStruct:26' switch Type
+    switch (CurvStruct_Type) {
     case CurveType_Line:
-        // 'EvalCurvStruct:33' case CurveType.Line
+        // 'EvalCurvStruct:27' case CurveType.Line
         //  line (G01)
-        // 'EvalCurvStruct:34' [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
-        EvalLine(b_CurvStruct->P0, b_CurvStruct->P1, b_CurvStruct->b_param, r0D, r1D, r2D, r3D);
+        // 'EvalCurvStruct:28' [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
+        EvalLine(CurvStruct_P0, CurvStruct_P1, CurvStruct_b_param, r0D, r1D, r2D, r3D);
         break;
     case CurveType_Helix:
-        // 'EvalCurvStruct:35' case CurveType.Helix
+        // 'EvalCurvStruct:29' case CurveType.Helix
         //  arc of circle / helix (G02, G03)
-        // 'EvalCurvStruct:36' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
-        EvalHelix(b_CurvStruct->P0, b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec,
-                  b_CurvStruct->theta, b_CurvStruct->pitch, b_CurvStruct->b_param, r0D, r1D, r2D,
-                  r3D);
+        // 'EvalCurvStruct:30' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
+        EvalHelix(CurvStruct_P0, CurvStruct_CorrectedHelixCenter, CurvStruct_evec, CurvStruct_theta,
+                  CurvStruct_pitch, CurvStruct_b_param, r0D, r1D, r2D, r3D);
         break;
     case CurveType_TransP5:
-        // 'EvalCurvStruct:37' case CurveType.TransP5
+        // 'EvalCurvStruct:31' case CurveType.TransP5
         //  polynomial transition
-        // 'EvalCurvStruct:38' [r0D, r1D, r2D, r3D] = EvalTransP5(CurvStruct, u_vec_tilda);
-        EvalTransP5(b_CurvStruct->CoeffP5, b_CurvStruct->b_param, r0D, r1D, r2D, r3D);
+        // 'EvalCurvStruct:32' [r0D, r1D, r2D, r3D] = EvalTransP5(CurvStruct, u_vec_tilda);
+        EvalTransP5(CurvStruct_CoeffP5, CurvStruct_b_param, r0D, r1D, r2D, r3D);
         break;
-    case CurveType_Spline: {
-        double r0Dx_tmp;
-        // 'EvalCurvStruct:39' case CurveType.Spline
+    case CurveType_Spline:
+        // 'EvalCurvStruct:33' case CurveType.Spline
         //  BSpline
-        // 'EvalCurvStruct:40' [r0D, r1D, r2D, r3D] = EvalBSpline(ctx, CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:34' [r0D, r1D, r2D, r3D] = EvalBSpline(ctx, CurvStruct, u_vec_tilda);
         //  if coder.target('rtw') || coder.target('mex')
         // 'EvalBSpline:4' Spline=ctx.q_splines.get(CurvStruct.sp_index);
-        ctx_q_splines->get(b_CurvStruct->sp_index, &expl_temp);
+        ctx_q_splines->get(CurvStruct_sp_index, &expl_temp);
         // 'EvalBSpline:5' sp = Spline.sp;
         // 'EvalBSpline:6' Bl = sp.Bl;
         // 'EvalBSpline:7' [r0Dx, r1Dx, r2Dx, r3Dx] = bspline_eval_vec(Bl, sp.CoeffX, uvec);
@@ -556,8 +577,7 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, const CurvStruct *b_Curv
         // 'bspline_eval_vec:6' xddd = zeros(size(u));
         // 'bspline_eval_vec:8' for k = 1:length(u)
         // 'bspline_eval_vec:9' [xk, xdk, xddk, xdddk] = bspline_eval(Bl, coeffs, u(k));
-        r0Dx_tmp = b_CurvStruct->b_param;
-        r0Dx = r0Dx_tmp;
+        r0Dx = CurvStruct_b_param;
         bspline_eval(expl_temp.sp.Bl.handle, expl_temp.sp.CoeffX, &r0Dx, &r1Dx, &xddk, &xdddk);
         // 'bspline_eval_vec:10' x(k) = xk;
         // 'bspline_eval_vec:11' xd(k) = xdk;
@@ -570,7 +590,7 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, const CurvStruct *b_Curv
         // 'bspline_eval_vec:6' xddd = zeros(size(u));
         // 'bspline_eval_vec:8' for k = 1:length(u)
         // 'bspline_eval_vec:9' [xk, xdk, xddk, xdddk] = bspline_eval(Bl, coeffs, u(k));
-        r0Dy = r0Dx_tmp;
+        r0Dy = CurvStruct_b_param;
         bspline_eval(expl_temp.sp.Bl.handle, expl_temp.sp.CoeffY, &r0Dy, &r1Dy, &b_xddk, &b_xdddk);
         // 'bspline_eval_vec:10' x(k) = xk;
         // 'bspline_eval_vec:11' xd(k) = xdk;
@@ -583,7 +603,7 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, const CurvStruct *b_Curv
         // 'bspline_eval_vec:6' xddd = zeros(size(u));
         // 'bspline_eval_vec:8' for k = 1:length(u)
         // 'bspline_eval_vec:9' [xk, xdk, xddk, xdddk] = bspline_eval(Bl, coeffs, u(k));
-        r0Dz = r0Dx_tmp;
+        r0Dz = CurvStruct_b_param;
         bspline_eval(expl_temp.sp.Bl.handle, expl_temp.sp.CoeffZ, &r0Dz, &r1Dz, &c_xddk, &c_xdddk);
         // 'bspline_eval_vec:10' x(k) = xk;
         // 'bspline_eval_vec:11' xd(k) = xdk;
@@ -613,10 +633,10 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, const CurvStruct *b_Curv
         //      sp3D = fnder(sp, 3);
         //      r3D = spval(sp3D, uvec);
         //  end
-    } break;
+        break;
     default:
-        // 'EvalCurvStruct:41' otherwise
-        // 'EvalCurvStruct:42' c_assert(false, 'Unknown Curve Type for Eval.\n');
+        // 'EvalCurvStruct:35' otherwise
+        // 'EvalCurvStruct:36' c_assert(false, 'Unknown Curve Type for Eval.\n');
         // 'c_assert:2' if coder.target('rtw')
         // 'c_assert:3' if ~condition
         // 'c_assert:4' coder.ceval('c_assert_', message);
@@ -627,12 +647,12 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, const CurvStruct *b_Curv
         // 'c_assert:6' value = condition;
         break;
     }
-    // 'EvalCurvStruct:45' r1D = a.*r1D;
-    r1D[0] *= b_CurvStruct->a_param;
-    r1D[1] *= b_CurvStruct->a_param;
-    r1D[2] *= b_CurvStruct->a_param;
-    // 'EvalCurvStruct:46' r2D = a^2.*r2D;
-    // 'EvalCurvStruct:47' r3D = a^3.*r3D;
+    // 'EvalCurvStruct:39' r1D = a.*r1D;
+    r1D[0] *= CurvStruct_a_param;
+    r1D[1] *= CurvStruct_a_param;
+    r1D[2] *= CurvStruct_a_param;
+    // 'EvalCurvStruct:40' r2D = a^2.*r2D;
+    // 'EvalCurvStruct:41' r3D = a^3.*r3D;
 }
 
 //
@@ -680,46 +700,46 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     char message[30];
     // 'EvalCurvStruct:3' coder.inline("never");
     // 'EvalCurvStruct:4' if any(u_vec - 1.0 > 10*eps)
-    // 'EvalCurvStruct:13' if any(u_vec < 0.0)
+    // 'EvalCurvStruct:8' if any(u_vec < 0.0)
     //
-    // 'EvalCurvStruct:19' Type  = CurvStruct.Type;
+    // 'EvalCurvStruct:13' Type  = CurvStruct.Type;
     //
-    // 'EvalCurvStruct:21' N = numel(u_vec);
-    // 'EvalCurvStruct:22' r0D = zeros(3, N);
+    // 'EvalCurvStruct:15' N = numel(u_vec);
+    // 'EvalCurvStruct:16' r0D = zeros(3, N);
     r0D[0] = 0.0;
     r0D[1] = 0.0;
     r0D[2] = 0.0;
-    // 'EvalCurvStruct:23' r1D = zeros(3, N);
-    // 'EvalCurvStruct:24' r2D = zeros(3, N);
-    // 'EvalCurvStruct:25' r3D = zeros(3, N);
-    // 'EvalCurvStruct:27' a=CurvStruct.a_param;
-    // 'EvalCurvStruct:28' b=CurvStruct.b_param;
-    // 'EvalCurvStruct:30' u_vec_tilda = a*u_vec+b;
-    // 'EvalCurvStruct:32' switch Type
+    // 'EvalCurvStruct:17' r1D = zeros(3, N);
+    // 'EvalCurvStruct:18' r2D = zeros(3, N);
+    // 'EvalCurvStruct:19' r3D = zeros(3, N);
+    // 'EvalCurvStruct:21' a=CurvStruct.a_param;
+    // 'EvalCurvStruct:22' b=CurvStruct.b_param;
+    // 'EvalCurvStruct:24' u_vec_tilda = a*u_vec+b;
+    // 'EvalCurvStruct:26' switch Type
     switch (CurvStruct_Type) {
     case CurveType_Line:
-        // 'EvalCurvStruct:33' case CurveType.Line
+        // 'EvalCurvStruct:27' case CurveType.Line
         //  line (G01)
-        // 'EvalCurvStruct:34' [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:28' [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
         EvalLine(CurvStruct_P0, CurvStruct_P1, CurvStruct_b_param, r0D, r1D, r2D, r3D);
         break;
     case CurveType_Helix:
-        // 'EvalCurvStruct:35' case CurveType.Helix
+        // 'EvalCurvStruct:29' case CurveType.Helix
         //  arc of circle / helix (G02, G03)
-        // 'EvalCurvStruct:36' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:30' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
         EvalHelix(CurvStruct_P0, CurvStruct_CorrectedHelixCenter, CurvStruct_evec, CurvStruct_theta,
                   CurvStruct_pitch, CurvStruct_b_param, r0D, r1D, r2D, r3D);
         break;
     case CurveType_TransP5:
-        // 'EvalCurvStruct:37' case CurveType.TransP5
+        // 'EvalCurvStruct:31' case CurveType.TransP5
         //  polynomial transition
-        // 'EvalCurvStruct:38' [r0D, r1D, r2D, r3D] = EvalTransP5(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:32' [r0D, r1D, r2D, r3D] = EvalTransP5(CurvStruct, u_vec_tilda);
         EvalTransP5(CurvStruct_CoeffP5, CurvStruct_b_param, r0D, r1D, r2D, r3D);
         break;
     case CurveType_Spline:
-        // 'EvalCurvStruct:39' case CurveType.Spline
+        // 'EvalCurvStruct:33' case CurveType.Spline
         //  BSpline
-        // 'EvalCurvStruct:40' [r0D, r1D, r2D, r3D] = EvalBSpline(ctx, CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:34' [r0D, r1D, r2D, r3D] = EvalBSpline(ctx, CurvStruct, u_vec_tilda);
         //  if coder.target('rtw') || coder.target('mex')
         // 'EvalBSpline:4' Spline=ctx.q_splines.get(CurvStruct.sp_index);
         ctx_q_splines->get(CurvStruct_sp_index, &expl_temp);
@@ -787,8 +807,8 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         //  end
         break;
     default:
-        // 'EvalCurvStruct:41' otherwise
-        // 'EvalCurvStruct:42' c_assert(false, 'Unknown Curve Type for Eval.\n');
+        // 'EvalCurvStruct:35' otherwise
+        // 'EvalCurvStruct:36' c_assert(false, 'Unknown Curve Type for Eval.\n');
         // 'c_assert:2' if coder.target('rtw')
         // 'c_assert:3' if ~condition
         // 'c_assert:4' coder.ceval('c_assert_', message);
@@ -799,9 +819,9 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         // 'c_assert:6' value = condition;
         break;
     }
-    // 'EvalCurvStruct:45' r1D = a.*r1D;
-    // 'EvalCurvStruct:46' r2D = a^2.*r2D;
-    // 'EvalCurvStruct:47' r3D = a^3.*r3D;
+    // 'EvalCurvStruct:39' r1D = a.*r1D;
+    // 'EvalCurvStruct:40' r2D = a^2.*r2D;
+    // 'EvalCurvStruct:41' r3D = a^3.*r3D;
 }
 
 //
@@ -852,47 +872,47 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     char message[30];
     // 'EvalCurvStruct:3' coder.inline("never");
     // 'EvalCurvStruct:4' if any(u_vec - 1.0 > 10*eps)
-    // 'EvalCurvStruct:13' if any(u_vec < 0.0)
+    // 'EvalCurvStruct:8' if any(u_vec < 0.0)
     //
-    // 'EvalCurvStruct:19' Type  = CurvStruct.Type;
+    // 'EvalCurvStruct:13' Type  = CurvStruct.Type;
     //
-    // 'EvalCurvStruct:21' N = numel(u_vec);
-    // 'EvalCurvStruct:22' r0D = zeros(3, N);
+    // 'EvalCurvStruct:15' N = numel(u_vec);
+    // 'EvalCurvStruct:16' r0D = zeros(3, N);
     r0D[0] = 0.0;
     r0D[1] = 0.0;
     r0D[2] = 0.0;
-    // 'EvalCurvStruct:23' r1D = zeros(3, N);
-    // 'EvalCurvStruct:24' r2D = zeros(3, N);
-    // 'EvalCurvStruct:25' r3D = zeros(3, N);
-    // 'EvalCurvStruct:27' a=CurvStruct.a_param;
-    // 'EvalCurvStruct:28' b=CurvStruct.b_param;
-    // 'EvalCurvStruct:30' u_vec_tilda = a*u_vec+b;
+    // 'EvalCurvStruct:17' r1D = zeros(3, N);
+    // 'EvalCurvStruct:18' r2D = zeros(3, N);
+    // 'EvalCurvStruct:19' r3D = zeros(3, N);
+    // 'EvalCurvStruct:21' a=CurvStruct.a_param;
+    // 'EvalCurvStruct:22' b=CurvStruct.b_param;
+    // 'EvalCurvStruct:24' u_vec_tilda = a*u_vec+b;
     u_vec_tilda = CurvStruct_a_param + CurvStruct_b_param;
-    // 'EvalCurvStruct:32' switch Type
+    // 'EvalCurvStruct:26' switch Type
     switch (CurvStruct_Type) {
     case CurveType_Line:
-        // 'EvalCurvStruct:33' case CurveType.Line
+        // 'EvalCurvStruct:27' case CurveType.Line
         //  line (G01)
-        // 'EvalCurvStruct:34' [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:28' [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
         EvalLine(CurvStruct_P0, CurvStruct_P1, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_Helix:
-        // 'EvalCurvStruct:35' case CurveType.Helix
+        // 'EvalCurvStruct:29' case CurveType.Helix
         //  arc of circle / helix (G02, G03)
-        // 'EvalCurvStruct:36' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:30' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
         EvalHelix(CurvStruct_P0, CurvStruct_CorrectedHelixCenter, CurvStruct_evec, CurvStruct_theta,
                   CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_TransP5:
-        // 'EvalCurvStruct:37' case CurveType.TransP5
+        // 'EvalCurvStruct:31' case CurveType.TransP5
         //  polynomial transition
-        // 'EvalCurvStruct:38' [r0D, r1D, r2D, r3D] = EvalTransP5(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:32' [r0D, r1D, r2D, r3D] = EvalTransP5(CurvStruct, u_vec_tilda);
         EvalTransP5(CurvStruct_CoeffP5, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_Spline:
-        // 'EvalCurvStruct:39' case CurveType.Spline
+        // 'EvalCurvStruct:33' case CurveType.Spline
         //  BSpline
-        // 'EvalCurvStruct:40' [r0D, r1D, r2D, r3D] = EvalBSpline(ctx, CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:34' [r0D, r1D, r2D, r3D] = EvalBSpline(ctx, CurvStruct, u_vec_tilda);
         //  if coder.target('rtw') || coder.target('mex')
         // 'EvalBSpline:4' Spline=ctx.q_splines.get(CurvStruct.sp_index);
         ctx_q_splines->get(CurvStruct_sp_index, &expl_temp);
@@ -960,8 +980,8 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         //  end
         break;
     default:
-        // 'EvalCurvStruct:41' otherwise
-        // 'EvalCurvStruct:42' c_assert(false, 'Unknown Curve Type for Eval.\n');
+        // 'EvalCurvStruct:35' otherwise
+        // 'EvalCurvStruct:36' c_assert(false, 'Unknown Curve Type for Eval.\n');
         // 'c_assert:2' if coder.target('rtw')
         // 'c_assert:3' if ~condition
         // 'c_assert:4' coder.ceval('c_assert_', message);
@@ -972,9 +992,9 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         // 'c_assert:6' value = condition;
         break;
     }
-    // 'EvalCurvStruct:45' r1D = a.*r1D;
-    // 'EvalCurvStruct:46' r2D = a^2.*r2D;
-    // 'EvalCurvStruct:47' r3D = a^3.*r3D;
+    // 'EvalCurvStruct:39' r1D = a.*r1D;
+    // 'EvalCurvStruct:40' r2D = a^2.*r2D;
+    // 'EvalCurvStruct:41' r3D = a^3.*r3D;
 }
 
 //
@@ -1008,35 +1028,35 @@ void b_EvalCurvStruct(CurveType CurvStruct_Type, const double CurvStruct_P0[3],
     double c;
     // 'EvalCurvStruct:3' coder.inline("never");
     // 'EvalCurvStruct:4' if any(u_vec - 1.0 > 10*eps)
-    // 'EvalCurvStruct:13' if any(u_vec < 0.0)
+    // 'EvalCurvStruct:8' if any(u_vec < 0.0)
     //
-    // 'EvalCurvStruct:19' Type  = CurvStruct.Type;
+    // 'EvalCurvStruct:13' Type  = CurvStruct.Type;
     //
-    // 'EvalCurvStruct:21' N = numel(u_vec);
-    // 'EvalCurvStruct:22' r0D = zeros(3, N);
-    // 'EvalCurvStruct:23' r1D = zeros(3, N);
-    // 'EvalCurvStruct:24' r2D = zeros(3, N);
-    // 'EvalCurvStruct:25' r3D = zeros(3, N);
-    // 'EvalCurvStruct:27' a=CurvStruct.a_param;
-    // 'EvalCurvStruct:28' b=CurvStruct.b_param;
-    // 'EvalCurvStruct:30' u_vec_tilda = a*u_vec+b;
-    // 'EvalCurvStruct:32' switch Type
+    // 'EvalCurvStruct:15' N = numel(u_vec);
+    // 'EvalCurvStruct:16' r0D = zeros(3, N);
+    // 'EvalCurvStruct:17' r1D = zeros(3, N);
+    // 'EvalCurvStruct:18' r2D = zeros(3, N);
+    // 'EvalCurvStruct:19' r3D = zeros(3, N);
+    // 'EvalCurvStruct:21' a=CurvStruct.a_param;
+    // 'EvalCurvStruct:22' b=CurvStruct.b_param;
+    // 'EvalCurvStruct:24' u_vec_tilda = a*u_vec+b;
+    // 'EvalCurvStruct:26' switch Type
     if (CurvStruct_Type == CurveType_Line) {
-        // 'EvalCurvStruct:33' case CurveType.Line
+        // 'EvalCurvStruct:27' case CurveType.Line
         //  line (G01)
-        // 'EvalCurvStruct:34' [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:28' [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
         EvalLine(CurvStruct_P0, CurvStruct_P1, CurvStruct_b_param, r0D, r1D, r2D, r3D);
     } else {
-        // 'EvalCurvStruct:35' case CurveType.Helix
+        // 'EvalCurvStruct:29' case CurveType.Helix
         //  arc of circle / helix (G02, G03)
-        // 'EvalCurvStruct:36' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:30' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
         EvalHelix(CurvStruct_P0, CurvStruct_CorrectedHelixCenter, CurvStruct_evec, CurvStruct_theta,
                   CurvStruct_pitch, CurvStruct_b_param, r0D, r1D, r2D, r3D);
     }
-    // 'EvalCurvStruct:45' r1D = a.*r1D;
-    // 'EvalCurvStruct:46' r2D = a^2.*r2D;
+    // 'EvalCurvStruct:39' r1D = a.*r1D;
+    // 'EvalCurvStruct:40' r2D = a^2.*r2D;
     c = CurvStruct_a_param * CurvStruct_a_param;
-    // 'EvalCurvStruct:47' r3D = a^3.*r3D;
+    // 'EvalCurvStruct:41' r3D = a^3.*r3D;
     b_c = std::pow(CurvStruct_a_param, 3.0);
     r1D[0] *= CurvStruct_a_param;
     r2D[0] *= c;
@@ -1119,20 +1139,23 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     }
     if (y) {
         int end;
-        // 'EvalCurvStruct:5' if coder.target('matlab')
-        // 'EvalCurvStruct:7' else
-        // 'EvalCurvStruct:8' fprintf('EvalCurvStruct: u_vec > 1\n');
-        printf("EvalCurvStruct: u_vec > 1\n");
-        fflush(stdout);
-        // 'EvalCurvStruct:10' u_vec(u_vec > 1.0) = 1.0;
+        // 'EvalCurvStruct:5' u_vec(u_vec > 1.0) = 1.0;
         end = u_vec.size(1);
         for (int b_i{0}; b_i < end; b_i++) {
             if (u_vec[b_i] > 1.0) {
                 u_vec[b_i] = 1.0;
             }
         }
+        // 'EvalCurvStruct:5' printMsg("Error : u_vec > 1\n");
+        //  printMsg : Print erro message according to the coder.target.
+        // 'EvalCurvStruct:45' err_msg = "EvalCurvStruct : " + err_msg;
+        // 'EvalCurvStruct:46' if coder.target('matlab')
+        // 'EvalCurvStruct:48' else
+        // 'EvalCurvStruct:49' fprintf(err_msg);
+        printf("EvalCurvStruct : Error : u_vec > 1\n");
+        fflush(stdout);
     }
-    // 'EvalCurvStruct:13' if any(u_vec < 0.0)
+    // 'EvalCurvStruct:8' if any(u_vec < 0.0)
     x.set_size(1, u_vec.size(1));
     b_loop_ub = u_vec.size(1);
     for (int i1{0}; i1 < b_loop_ub; i1++) {
@@ -1151,22 +1174,27 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     }
     if (b_y) {
         int b_end;
-        // 'EvalCurvStruct:14' fprintf('EvalCurvStruct: u_vec < 0\n');
-        printf("EvalCurvStruct: u_vec < 0\n");
-        fflush(stdout);
-        // 'EvalCurvStruct:15' u_vec(u_vec < 0.0) = 0.0;
+        // 'EvalCurvStruct:9' u_vec(u_vec < 0.0) = 0.0;
         b_end = u_vec.size(1);
         for (int c_i{0}; c_i < b_end; c_i++) {
             if (u_vec[c_i] < 0.0) {
                 u_vec[c_i] = 0.0;
             }
         }
+        // 'EvalCurvStruct:9' printMsg("Error : u_vec < 0\n");
+        //  printMsg : Print erro message according to the coder.target.
+        // 'EvalCurvStruct:45' err_msg = "EvalCurvStruct : " + err_msg;
+        // 'EvalCurvStruct:46' if coder.target('matlab')
+        // 'EvalCurvStruct:48' else
+        // 'EvalCurvStruct:49' fprintf(err_msg);
+        printf("EvalCurvStruct : Error : u_vec < 0\n");
+        fflush(stdout);
     }
     //
-    // 'EvalCurvStruct:19' Type  = CurvStruct.Type;
+    // 'EvalCurvStruct:13' Type  = CurvStruct.Type;
     //
-    // 'EvalCurvStruct:21' N = numel(u_vec);
-    // 'EvalCurvStruct:22' r0D = zeros(3, N);
+    // 'EvalCurvStruct:15' N = numel(u_vec);
+    // 'EvalCurvStruct:16' r0D = zeros(3, N);
     r0D.set_size(3, u_vec.size(1));
     c_loop_ub = u_vec.size(1);
     for (int i2{0}; i2 < c_loop_ub; i2++) {
@@ -1174,7 +1202,7 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         r0D[3 * i2 + 1] = 0.0;
         r0D[3 * i2 + 2] = 0.0;
     }
-    // 'EvalCurvStruct:23' r1D = zeros(3, N);
+    // 'EvalCurvStruct:17' r1D = zeros(3, N);
     r1D.set_size(3, u_vec.size(1));
     d_loop_ub = u_vec.size(1);
     for (int i3{0}; i3 < d_loop_ub; i3++) {
@@ -1182,7 +1210,7 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         r1D[3 * i3 + 1] = 0.0;
         r1D[3 * i3 + 2] = 0.0;
     }
-    // 'EvalCurvStruct:24' r2D = zeros(3, N);
+    // 'EvalCurvStruct:18' r2D = zeros(3, N);
     r2D.set_size(3, u_vec.size(1));
     e_loop_ub = u_vec.size(1);
     for (int i4{0}; i4 < e_loop_ub; i4++) {
@@ -1190,45 +1218,45 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         r2D[3 * i4 + 1] = 0.0;
         r2D[3 * i4 + 2] = 0.0;
     }
-    // 'EvalCurvStruct:25' r3D = zeros(3, N);
-    // 'EvalCurvStruct:27' a=CurvStruct.a_param;
-    // 'EvalCurvStruct:28' b=CurvStruct.b_param;
-    // 'EvalCurvStruct:30' u_vec_tilda = a*u_vec+b;
+    // 'EvalCurvStruct:19' r3D = zeros(3, N);
+    // 'EvalCurvStruct:21' a=CurvStruct.a_param;
+    // 'EvalCurvStruct:22' b=CurvStruct.b_param;
+    // 'EvalCurvStruct:24' u_vec_tilda = a*u_vec+b;
     u_vec_tilda.set_size(1, u_vec.size(1));
     f_loop_ub = u_vec.size(1);
     for (int i5{0}; i5 < f_loop_ub; i5++) {
         u_vec_tilda[i5] = CurvStruct_a_param * u_vec[i5] + CurvStruct_b_param;
     }
-    // 'EvalCurvStruct:32' switch Type
+    // 'EvalCurvStruct:26' switch Type
     switch (CurvStruct_Type) {
     case CurveType_Line:
-        // 'EvalCurvStruct:33' case CurveType.Line
+        // 'EvalCurvStruct:27' case CurveType.Line
         //  line (G01)
-        // 'EvalCurvStruct:34' [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:28' [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
         EvalLine(CurvStruct_P0, CurvStruct_P1, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_Helix:
-        // 'EvalCurvStruct:35' case CurveType.Helix
+        // 'EvalCurvStruct:29' case CurveType.Helix
         //  arc of circle / helix (G02, G03)
-        // 'EvalCurvStruct:36' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:30' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
         EvalHelix(CurvStruct_P0, CurvStruct_CorrectedHelixCenter, CurvStruct_evec, CurvStruct_theta,
                   CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_TransP5:
-        // 'EvalCurvStruct:37' case CurveType.TransP5
+        // 'EvalCurvStruct:31' case CurveType.TransP5
         //  polynomial transition
-        // 'EvalCurvStruct:38' [r0D, r1D, r2D, r3D] = EvalTransP5(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:32' [r0D, r1D, r2D, r3D] = EvalTransP5(CurvStruct, u_vec_tilda);
         EvalTransP5(CurvStruct_CoeffP5, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_Spline:
-        // 'EvalCurvStruct:39' case CurveType.Spline
+        // 'EvalCurvStruct:33' case CurveType.Spline
         //  BSpline
-        // 'EvalCurvStruct:40' [r0D, r1D, r2D, r3D] = EvalBSpline(ctx, CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:34' [r0D, r1D, r2D, r3D] = EvalBSpline(ctx, CurvStruct, u_vec_tilda);
         EvalBSpline(ctx_q_splines, CurvStruct_sp_index, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     default:
-        // 'EvalCurvStruct:41' otherwise
-        // 'EvalCurvStruct:42' c_assert(false, 'Unknown Curve Type for Eval.\n');
+        // 'EvalCurvStruct:35' otherwise
+        // 'EvalCurvStruct:36' c_assert(false, 'Unknown Curve Type for Eval.\n');
         // 'c_assert:2' if coder.target('rtw')
         // 'c_assert:3' if ~condition
         // 'c_assert:4' coder.ceval('c_assert_', message);
@@ -1239,7 +1267,7 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         // 'c_assert:6' value = condition;
         break;
     }
-    // 'EvalCurvStruct:45' r1D = a.*r1D;
+    // 'EvalCurvStruct:39' r1D = a.*r1D;
     r1D.set_size(3, r1D.size(1));
     g_loop_ub = r1D.size(1);
     for (int i7{0}; i7 < g_loop_ub; i7++) {
@@ -1247,7 +1275,7 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         r1D[3 * i7 + 1] = CurvStruct_a_param * r1D[3 * i7 + 1];
         r1D[3 * i7 + 2] = CurvStruct_a_param * r1D[3 * i7 + 2];
     }
-    // 'EvalCurvStruct:46' r2D = a^2.*r2D;
+    // 'EvalCurvStruct:40' r2D = a^2.*r2D;
     c = CurvStruct_a_param * CurvStruct_a_param;
     r2D.set_size(3, r2D.size(1));
     h_loop_ub = r2D.size(1);
@@ -1256,7 +1284,7 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         r2D[3 * i8 + 1] = c * r2D[3 * i8 + 1];
         r2D[3 * i8 + 2] = c * r2D[3 * i8 + 2];
     }
-    // 'EvalCurvStruct:47' r3D = a^3.*r3D;
+    // 'EvalCurvStruct:41' r3D = a^3.*r3D;
 }
 
 //
@@ -1265,27 +1293,234 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
 // coder.cstructname(CurvStruct, 'CurvStruct')
 //
 // Arguments    : const queue_coder *ctx_q_splines
-//                CurveType CurvStruct_Type
-//                const double CurvStruct_P0[3]
-//                const double CurvStruct_P1[3]
-//                const double CurvStruct_CorrectedHelixCenter[3]
-//                const double CurvStruct_evec[3]
-//                double CurvStruct_theta
-//                double CurvStruct_pitch
-//                const double CurvStruct_CoeffP5[6][3]
-//                int CurvStruct_sp_index
-//                double CurvStruct_a_param
-//                double CurvStruct_b_param
+//                const CurvStruct *b_CurvStruct
+//                ::coder::array<double, 2U> &u_vec
+//                ::coder::array<double, 2U> &r0D
+//                ::coder::array<double, 2U> &r1D
+//                ::coder::array<double, 2U> &r2D
+//                ::coder::array<double, 2U> &r3D
+// Return Type  : void
+//
+void b_EvalCurvStruct(const queue_coder *ctx_q_splines, const CurvStruct *b_CurvStruct,
+                      ::coder::array<double, 2U> &u_vec, ::coder::array<double, 2U> &r0D,
+                      ::coder::array<double, 2U> &r1D, ::coder::array<double, 2U> &r2D,
+                      ::coder::array<double, 2U> &r3D)
+{
+    ::coder::array<double, 2U> u_vec_tilda;
+    ::coder::array<bool, 2U> x;
+    double b_c;
+    double c;
+    int b_k;
+    int b_loop_ub;
+    int c_loop_ub;
+    int d_loop_ub;
+    int e_loop_ub;
+    int f_loop_ub;
+    int g_loop_ub;
+    int h_loop_ub;
+    int i_loop_ub;
+    int j_loop_ub;
+    int k;
+    int loop_ub;
+    char message[30];
+    bool b_y;
+    bool exitg1;
+    bool y;
+    // 'EvalCurvStruct:3' coder.inline("never");
+    // 'EvalCurvStruct:4' if any(u_vec - 1.0 > 10*eps)
+    x.set_size(1, u_vec.size(1));
+    loop_ub = u_vec.size(1);
+    for (int i{0}; i < loop_ub; i++) {
+        x[i] = (u_vec[i] - 1.0 > 2.2204460492503131E-15);
+    }
+    y = false;
+    k = 0;
+    exitg1 = false;
+    while ((!exitg1) && (k <= x.size(1) - 1)) {
+        if (x[k]) {
+            y = true;
+            exitg1 = true;
+        } else {
+            k++;
+        }
+    }
+    if (y) {
+        int end;
+        // 'EvalCurvStruct:5' u_vec(u_vec > 1.0) = 1.0;
+        end = u_vec.size(1);
+        for (int b_i{0}; b_i < end; b_i++) {
+            if (u_vec[b_i] > 1.0) {
+                u_vec[b_i] = 1.0;
+            }
+        }
+        // 'EvalCurvStruct:5' printMsg("Error : u_vec > 1\n");
+        //  printMsg : Print erro message according to the coder.target.
+        // 'EvalCurvStruct:45' err_msg = "EvalCurvStruct : " + err_msg;
+        // 'EvalCurvStruct:46' if coder.target('matlab')
+        // 'EvalCurvStruct:48' else
+        // 'EvalCurvStruct:49' fprintf(err_msg);
+        printf("EvalCurvStruct : Error : u_vec > 1\n");
+        fflush(stdout);
+    }
+    // 'EvalCurvStruct:8' if any(u_vec < 0.0)
+    x.set_size(1, u_vec.size(1));
+    b_loop_ub = u_vec.size(1);
+    for (int i1{0}; i1 < b_loop_ub; i1++) {
+        x[i1] = (u_vec[i1] < 0.0);
+    }
+    b_y = false;
+    b_k = 0;
+    exitg1 = false;
+    while ((!exitg1) && (b_k <= x.size(1) - 1)) {
+        if (x[b_k]) {
+            b_y = true;
+            exitg1 = true;
+        } else {
+            b_k++;
+        }
+    }
+    if (b_y) {
+        int b_end;
+        // 'EvalCurvStruct:9' u_vec(u_vec < 0.0) = 0.0;
+        b_end = u_vec.size(1);
+        for (int c_i{0}; c_i < b_end; c_i++) {
+            if (u_vec[c_i] < 0.0) {
+                u_vec[c_i] = 0.0;
+            }
+        }
+        // 'EvalCurvStruct:9' printMsg("Error : u_vec < 0\n");
+        //  printMsg : Print erro message according to the coder.target.
+        // 'EvalCurvStruct:45' err_msg = "EvalCurvStruct : " + err_msg;
+        // 'EvalCurvStruct:46' if coder.target('matlab')
+        // 'EvalCurvStruct:48' else
+        // 'EvalCurvStruct:49' fprintf(err_msg);
+        printf("EvalCurvStruct : Error : u_vec < 0\n");
+        fflush(stdout);
+    }
+    //
+    // 'EvalCurvStruct:13' Type  = CurvStruct.Type;
+    //
+    // 'EvalCurvStruct:15' N = numel(u_vec);
+    // 'EvalCurvStruct:16' r0D = zeros(3, N);
+    r0D.set_size(3, u_vec.size(1));
+    c_loop_ub = u_vec.size(1);
+    for (int i2{0}; i2 < c_loop_ub; i2++) {
+        r0D[3 * i2] = 0.0;
+        r0D[3 * i2 + 1] = 0.0;
+        r0D[3 * i2 + 2] = 0.0;
+    }
+    // 'EvalCurvStruct:17' r1D = zeros(3, N);
+    r1D.set_size(3, u_vec.size(1));
+    d_loop_ub = u_vec.size(1);
+    for (int i3{0}; i3 < d_loop_ub; i3++) {
+        r1D[3 * i3] = 0.0;
+        r1D[3 * i3 + 1] = 0.0;
+        r1D[3 * i3 + 2] = 0.0;
+    }
+    // 'EvalCurvStruct:18' r2D = zeros(3, N);
+    r2D.set_size(3, u_vec.size(1));
+    e_loop_ub = u_vec.size(1);
+    for (int i4{0}; i4 < e_loop_ub; i4++) {
+        r2D[3 * i4] = 0.0;
+        r2D[3 * i4 + 1] = 0.0;
+        r2D[3 * i4 + 2] = 0.0;
+    }
+    // 'EvalCurvStruct:19' r3D = zeros(3, N);
+    r3D.set_size(3, u_vec.size(1));
+    f_loop_ub = u_vec.size(1);
+    for (int i5{0}; i5 < f_loop_ub; i5++) {
+        r3D[3 * i5] = 0.0;
+        r3D[3 * i5 + 1] = 0.0;
+        r3D[3 * i5 + 2] = 0.0;
+    }
+    // 'EvalCurvStruct:21' a=CurvStruct.a_param;
+    // 'EvalCurvStruct:22' b=CurvStruct.b_param;
+    // 'EvalCurvStruct:24' u_vec_tilda = a*u_vec+b;
+    u_vec_tilda.set_size(1, u_vec.size(1));
+    g_loop_ub = u_vec.size(1);
+    for (int i6{0}; i6 < g_loop_ub; i6++) {
+        u_vec_tilda[i6] = b_CurvStruct->a_param * u_vec[i6] + b_CurvStruct->b_param;
+    }
+    // 'EvalCurvStruct:26' switch Type
+    switch (b_CurvStruct->Type) {
+    case CurveType_Line:
+        // 'EvalCurvStruct:27' case CurveType.Line
+        //  line (G01)
+        // 'EvalCurvStruct:28' [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
+        EvalLine(b_CurvStruct->P0, b_CurvStruct->P1, u_vec_tilda, r0D, r1D, r2D, r3D);
+        break;
+    case CurveType_Helix:
+        // 'EvalCurvStruct:29' case CurveType.Helix
+        //  arc of circle / helix (G02, G03)
+        // 'EvalCurvStruct:30' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
+        EvalHelix(b_CurvStruct->P0, b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec,
+                  b_CurvStruct->theta, b_CurvStruct->pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
+        break;
+    case CurveType_TransP5:
+        // 'EvalCurvStruct:31' case CurveType.TransP5
+        //  polynomial transition
+        // 'EvalCurvStruct:32' [r0D, r1D, r2D, r3D] = EvalTransP5(CurvStruct, u_vec_tilda);
+        EvalTransP5(b_CurvStruct->CoeffP5, u_vec_tilda, r0D, r1D, r2D, r3D);
+        break;
+    case CurveType_Spline:
+        // 'EvalCurvStruct:33' case CurveType.Spline
+        //  BSpline
+        // 'EvalCurvStruct:34' [r0D, r1D, r2D, r3D] = EvalBSpline(ctx, CurvStruct, u_vec_tilda);
+        EvalBSpline(ctx_q_splines, b_CurvStruct->sp_index, u_vec_tilda, r0D, r1D, r2D, r3D);
+        break;
+    default:
+        // 'EvalCurvStruct:35' otherwise
+        // 'EvalCurvStruct:36' c_assert(false, 'Unknown Curve Type for Eval.\n');
+        // 'c_assert:2' if coder.target('rtw')
+        // 'c_assert:3' if ~condition
+        // 'c_assert:4' coder.ceval('c_assert_', message);
+        for (int i7{0}; i7 < 30; i7++) {
+            message[i7] = cv[i7];
+        }
+        c_assert_(&message[0]);
+        // 'c_assert:6' value = condition;
+        break;
+    }
+    // 'EvalCurvStruct:39' r1D = a.*r1D;
+    r1D.set_size(3, r1D.size(1));
+    h_loop_ub = r1D.size(1);
+    for (int i8{0}; i8 < h_loop_ub; i8++) {
+        r1D[3 * i8] = b_CurvStruct->a_param * r1D[3 * i8];
+        r1D[3 * i8 + 1] = b_CurvStruct->a_param * r1D[3 * i8 + 1];
+        r1D[3 * i8 + 2] = b_CurvStruct->a_param * r1D[3 * i8 + 2];
+    }
+    // 'EvalCurvStruct:40' r2D = a^2.*r2D;
+    c = b_CurvStruct->a_param * b_CurvStruct->a_param;
+    r2D.set_size(3, r2D.size(1));
+    i_loop_ub = r2D.size(1);
+    for (int i9{0}; i9 < i_loop_ub; i9++) {
+        r2D[3 * i9] = c * r2D[3 * i9];
+        r2D[3 * i9 + 1] = c * r2D[3 * i9 + 1];
+        r2D[3 * i9 + 2] = c * r2D[3 * i9 + 2];
+    }
+    // 'EvalCurvStruct:41' r3D = a^3.*r3D;
+    b_c = std::pow(b_CurvStruct->a_param, 3.0);
+    r3D.set_size(3, r3D.size(1));
+    j_loop_ub = r3D.size(1);
+    for (int i10{0}; i10 < j_loop_ub; i10++) {
+        r3D[3 * i10] = b_c * r3D[3 * i10];
+        r3D[3 * i10 + 1] = b_c * r3D[3 * i10 + 1];
+        r3D[3 * i10 + 2] = b_c * r3D[3 * i10 + 2];
+    }
+}
+
+//
+// function [r0D, r1D, r2D, r3D] = EvalCurvStruct(ctx, CurvStruct, u_vec)
+//
+// coder.cstructname(CurvStruct, 'CurvStruct')
+//
+// Arguments    : const queue_coder *ctx_q_splines
+//                const CurvStruct *b_CurvStruct
 //                double r0D[3]
 //                double r1D[3]
 // Return Type  : void
 //
-void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Type,
-                      const double CurvStruct_P0[3], const double CurvStruct_P1[3],
-                      const double CurvStruct_CorrectedHelixCenter[3],
-                      const double CurvStruct_evec[3], double CurvStruct_theta,
-                      double CurvStruct_pitch, const double CurvStruct_CoeffP5[6][3],
-                      int CurvStruct_sp_index, double CurvStruct_a_param, double CurvStruct_b_param,
+void b_EvalCurvStruct(const queue_coder *ctx_q_splines, const CurvStruct *b_CurvStruct,
                       double r0D[3], double r1D[3])
 {
     CurvStruct expl_temp;
@@ -1307,53 +1542,53 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     char message[30];
     // 'EvalCurvStruct:3' coder.inline("never");
     // 'EvalCurvStruct:4' if any(u_vec - 1.0 > 10*eps)
-    // 'EvalCurvStruct:13' if any(u_vec < 0.0)
+    // 'EvalCurvStruct:8' if any(u_vec < 0.0)
     //
-    // 'EvalCurvStruct:19' Type  = CurvStruct.Type;
+    // 'EvalCurvStruct:13' Type  = CurvStruct.Type;
     //
-    // 'EvalCurvStruct:21' N = numel(u_vec);
-    // 'EvalCurvStruct:22' r0D = zeros(3, N);
-    // 'EvalCurvStruct:23' r1D = zeros(3, N);
+    // 'EvalCurvStruct:15' N = numel(u_vec);
+    // 'EvalCurvStruct:16' r0D = zeros(3, N);
+    // 'EvalCurvStruct:17' r1D = zeros(3, N);
     r0D[0] = 0.0;
     r1D[0] = 0.0;
     r0D[1] = 0.0;
     r1D[1] = 0.0;
     r0D[2] = 0.0;
     r1D[2] = 0.0;
-    // 'EvalCurvStruct:24' r2D = zeros(3, N);
-    // 'EvalCurvStruct:25' r3D = zeros(3, N);
-    // 'EvalCurvStruct:27' a=CurvStruct.a_param;
-    // 'EvalCurvStruct:28' b=CurvStruct.b_param;
-    // 'EvalCurvStruct:30' u_vec_tilda = a*u_vec+b;
-    u_vec_tilda = CurvStruct_a_param + CurvStruct_b_param;
-    // 'EvalCurvStruct:32' switch Type
-    switch (CurvStruct_Type) {
+    // 'EvalCurvStruct:18' r2D = zeros(3, N);
+    // 'EvalCurvStruct:19' r3D = zeros(3, N);
+    // 'EvalCurvStruct:21' a=CurvStruct.a_param;
+    // 'EvalCurvStruct:22' b=CurvStruct.b_param;
+    // 'EvalCurvStruct:24' u_vec_tilda = a*u_vec+b;
+    u_vec_tilda = b_CurvStruct->a_param + b_CurvStruct->b_param;
+    // 'EvalCurvStruct:26' switch Type
+    switch (b_CurvStruct->Type) {
     case CurveType_Line:
-        // 'EvalCurvStruct:33' case CurveType.Line
+        // 'EvalCurvStruct:27' case CurveType.Line
         //  line (G01)
-        // 'EvalCurvStruct:34' [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
-        EvalLine(CurvStruct_P0, CurvStruct_P1, u_vec_tilda, r0D, r1D, r2D, r3D);
+        // 'EvalCurvStruct:28' [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
+        EvalLine(b_CurvStruct->P0, b_CurvStruct->P1, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_Helix:
-        // 'EvalCurvStruct:35' case CurveType.Helix
+        // 'EvalCurvStruct:29' case CurveType.Helix
         //  arc of circle / helix (G02, G03)
-        // 'EvalCurvStruct:36' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
-        EvalHelix(CurvStruct_P0, CurvStruct_CorrectedHelixCenter, CurvStruct_evec, CurvStruct_theta,
-                  CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
+        // 'EvalCurvStruct:30' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
+        EvalHelix(b_CurvStruct->P0, b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec,
+                  b_CurvStruct->theta, b_CurvStruct->pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_TransP5:
-        // 'EvalCurvStruct:37' case CurveType.TransP5
+        // 'EvalCurvStruct:31' case CurveType.TransP5
         //  polynomial transition
-        // 'EvalCurvStruct:38' [r0D, r1D, r2D, r3D] = EvalTransP5(CurvStruct, u_vec_tilda);
-        EvalTransP5(CurvStruct_CoeffP5, u_vec_tilda, r0D, r1D, r2D, r3D);
+        // 'EvalCurvStruct:32' [r0D, r1D, r2D, r3D] = EvalTransP5(CurvStruct, u_vec_tilda);
+        EvalTransP5(b_CurvStruct->CoeffP5, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_Spline:
-        // 'EvalCurvStruct:39' case CurveType.Spline
+        // 'EvalCurvStruct:33' case CurveType.Spline
         //  BSpline
-        // 'EvalCurvStruct:40' [r0D, r1D, r2D, r3D] = EvalBSpline(ctx, CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:34' [r0D, r1D, r2D, r3D] = EvalBSpline(ctx, CurvStruct, u_vec_tilda);
         //  if coder.target('rtw') || coder.target('mex')
         // 'EvalBSpline:4' Spline=ctx.q_splines.get(CurvStruct.sp_index);
-        ctx_q_splines->get(CurvStruct_sp_index, &expl_temp);
+        ctx_q_splines->get(b_CurvStruct->sp_index, &expl_temp);
         // 'EvalBSpline:5' sp = Spline.sp;
         // 'EvalBSpline:6' Bl = sp.Bl;
         // 'EvalBSpline:7' [r0Dx, r1Dx, r2Dx, r3Dx] = bspline_eval_vec(Bl, sp.CoeffX, uvec);
@@ -1421,8 +1656,8 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         //  end
         break;
     default:
-        // 'EvalCurvStruct:41' otherwise
-        // 'EvalCurvStruct:42' c_assert(false, 'Unknown Curve Type for Eval.\n');
+        // 'EvalCurvStruct:35' otherwise
+        // 'EvalCurvStruct:36' c_assert(false, 'Unknown Curve Type for Eval.\n');
         // 'c_assert:2' if coder.target('rtw')
         // 'c_assert:3' if ~condition
         // 'c_assert:4' coder.ceval('c_assert_', message);
@@ -1433,226 +1668,12 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         // 'c_assert:6' value = condition;
         break;
     }
-    // 'EvalCurvStruct:45' r1D = a.*r1D;
-    r1D[0] *= CurvStruct_a_param;
-    r1D[1] *= CurvStruct_a_param;
-    r1D[2] *= CurvStruct_a_param;
-    // 'EvalCurvStruct:46' r2D = a^2.*r2D;
-    // 'EvalCurvStruct:47' r3D = a^3.*r3D;
-}
-
-//
-// function [r0D, r1D, r2D, r3D] = EvalCurvStruct(ctx, CurvStruct, u_vec)
-//
-// coder.cstructname(CurvStruct, 'CurvStruct')
-//
-// Arguments    : const queue_coder *ctx_q_splines
-//                const CurvStruct *b_CurvStruct
-//                ::coder::array<double, 2U> &u_vec
-//                ::coder::array<double, 2U> &r0D
-//                ::coder::array<double, 2U> &r1D
-//                ::coder::array<double, 2U> &r2D
-//                ::coder::array<double, 2U> &r3D
-// Return Type  : void
-//
-void b_EvalCurvStruct(const queue_coder *ctx_q_splines, const CurvStruct *b_CurvStruct,
-                      ::coder::array<double, 2U> &u_vec, ::coder::array<double, 2U> &r0D,
-                      ::coder::array<double, 2U> &r1D, ::coder::array<double, 2U> &r2D,
-                      ::coder::array<double, 2U> &r3D)
-{
-    ::coder::array<double, 2U> u_vec_tilda;
-    ::coder::array<bool, 2U> x;
-    double b_c;
-    double c;
-    int b_k;
-    int b_loop_ub;
-    int c_loop_ub;
-    int d_loop_ub;
-    int e_loop_ub;
-    int f_loop_ub;
-    int g_loop_ub;
-    int h_loop_ub;
-    int i_loop_ub;
-    int j_loop_ub;
-    int k;
-    int loop_ub;
-    char message[30];
-    bool b_y;
-    bool exitg1;
-    bool y;
-    // 'EvalCurvStruct:3' coder.inline("never");
-    // 'EvalCurvStruct:4' if any(u_vec - 1.0 > 10*eps)
-    x.set_size(1, u_vec.size(1));
-    loop_ub = u_vec.size(1);
-    for (int i{0}; i < loop_ub; i++) {
-        x[i] = (u_vec[i] - 1.0 > 2.2204460492503131E-15);
-    }
-    y = false;
-    k = 0;
-    exitg1 = false;
-    while ((!exitg1) && (k <= x.size(1) - 1)) {
-        if (x[k]) {
-            y = true;
-            exitg1 = true;
-        } else {
-            k++;
-        }
-    }
-    if (y) {
-        int end;
-        // 'EvalCurvStruct:5' if coder.target('matlab')
-        // 'EvalCurvStruct:7' else
-        // 'EvalCurvStruct:8' fprintf('EvalCurvStruct: u_vec > 1\n');
-        printf("EvalCurvStruct: u_vec > 1\n");
-        fflush(stdout);
-        // 'EvalCurvStruct:10' u_vec(u_vec > 1.0) = 1.0;
-        end = u_vec.size(1);
-        for (int b_i{0}; b_i < end; b_i++) {
-            if (u_vec[b_i] > 1.0) {
-                u_vec[b_i] = 1.0;
-            }
-        }
-    }
-    // 'EvalCurvStruct:13' if any(u_vec < 0.0)
-    x.set_size(1, u_vec.size(1));
-    b_loop_ub = u_vec.size(1);
-    for (int i1{0}; i1 < b_loop_ub; i1++) {
-        x[i1] = (u_vec[i1] < 0.0);
-    }
-    b_y = false;
-    b_k = 0;
-    exitg1 = false;
-    while ((!exitg1) && (b_k <= x.size(1) - 1)) {
-        if (x[b_k]) {
-            b_y = true;
-            exitg1 = true;
-        } else {
-            b_k++;
-        }
-    }
-    if (b_y) {
-        int b_end;
-        // 'EvalCurvStruct:14' fprintf('EvalCurvStruct: u_vec < 0\n');
-        printf("EvalCurvStruct: u_vec < 0\n");
-        fflush(stdout);
-        // 'EvalCurvStruct:15' u_vec(u_vec < 0.0) = 0.0;
-        b_end = u_vec.size(1);
-        for (int c_i{0}; c_i < b_end; c_i++) {
-            if (u_vec[c_i] < 0.0) {
-                u_vec[c_i] = 0.0;
-            }
-        }
-    }
-    //
-    // 'EvalCurvStruct:19' Type  = CurvStruct.Type;
-    //
-    // 'EvalCurvStruct:21' N = numel(u_vec);
-    // 'EvalCurvStruct:22' r0D = zeros(3, N);
-    r0D.set_size(3, u_vec.size(1));
-    c_loop_ub = u_vec.size(1);
-    for (int i2{0}; i2 < c_loop_ub; i2++) {
-        r0D[3 * i2] = 0.0;
-        r0D[3 * i2 + 1] = 0.0;
-        r0D[3 * i2 + 2] = 0.0;
-    }
-    // 'EvalCurvStruct:23' r1D = zeros(3, N);
-    r1D.set_size(3, u_vec.size(1));
-    d_loop_ub = u_vec.size(1);
-    for (int i3{0}; i3 < d_loop_ub; i3++) {
-        r1D[3 * i3] = 0.0;
-        r1D[3 * i3 + 1] = 0.0;
-        r1D[3 * i3 + 2] = 0.0;
-    }
-    // 'EvalCurvStruct:24' r2D = zeros(3, N);
-    r2D.set_size(3, u_vec.size(1));
-    e_loop_ub = u_vec.size(1);
-    for (int i4{0}; i4 < e_loop_ub; i4++) {
-        r2D[3 * i4] = 0.0;
-        r2D[3 * i4 + 1] = 0.0;
-        r2D[3 * i4 + 2] = 0.0;
-    }
-    // 'EvalCurvStruct:25' r3D = zeros(3, N);
-    r3D.set_size(3, u_vec.size(1));
-    f_loop_ub = u_vec.size(1);
-    for (int i5{0}; i5 < f_loop_ub; i5++) {
-        r3D[3 * i5] = 0.0;
-        r3D[3 * i5 + 1] = 0.0;
-        r3D[3 * i5 + 2] = 0.0;
-    }
-    // 'EvalCurvStruct:27' a=CurvStruct.a_param;
-    // 'EvalCurvStruct:28' b=CurvStruct.b_param;
-    // 'EvalCurvStruct:30' u_vec_tilda = a*u_vec+b;
-    u_vec_tilda.set_size(1, u_vec.size(1));
-    g_loop_ub = u_vec.size(1);
-    for (int i6{0}; i6 < g_loop_ub; i6++) {
-        u_vec_tilda[i6] = b_CurvStruct->a_param * u_vec[i6] + b_CurvStruct->b_param;
-    }
-    // 'EvalCurvStruct:32' switch Type
-    switch (b_CurvStruct->Type) {
-    case CurveType_Line:
-        // 'EvalCurvStruct:33' case CurveType.Line
-        //  line (G01)
-        // 'EvalCurvStruct:34' [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
-        EvalLine(b_CurvStruct->P0, b_CurvStruct->P1, u_vec_tilda, r0D, r1D, r2D, r3D);
-        break;
-    case CurveType_Helix:
-        // 'EvalCurvStruct:35' case CurveType.Helix
-        //  arc of circle / helix (G02, G03)
-        // 'EvalCurvStruct:36' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
-        EvalHelix(b_CurvStruct->P0, b_CurvStruct->CorrectedHelixCenter, b_CurvStruct->evec,
-                  b_CurvStruct->theta, b_CurvStruct->pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
-        break;
-    case CurveType_TransP5:
-        // 'EvalCurvStruct:37' case CurveType.TransP5
-        //  polynomial transition
-        // 'EvalCurvStruct:38' [r0D, r1D, r2D, r3D] = EvalTransP5(CurvStruct, u_vec_tilda);
-        EvalTransP5(b_CurvStruct->CoeffP5, u_vec_tilda, r0D, r1D, r2D, r3D);
-        break;
-    case CurveType_Spline:
-        // 'EvalCurvStruct:39' case CurveType.Spline
-        //  BSpline
-        // 'EvalCurvStruct:40' [r0D, r1D, r2D, r3D] = EvalBSpline(ctx, CurvStruct, u_vec_tilda);
-        EvalBSpline(ctx_q_splines, b_CurvStruct->sp_index, u_vec_tilda, r0D, r1D, r2D, r3D);
-        break;
-    default:
-        // 'EvalCurvStruct:41' otherwise
-        // 'EvalCurvStruct:42' c_assert(false, 'Unknown Curve Type for Eval.\n');
-        // 'c_assert:2' if coder.target('rtw')
-        // 'c_assert:3' if ~condition
-        // 'c_assert:4' coder.ceval('c_assert_', message);
-        for (int i7{0}; i7 < 30; i7++) {
-            message[i7] = cv[i7];
-        }
-        c_assert_(&message[0]);
-        // 'c_assert:6' value = condition;
-        break;
-    }
-    // 'EvalCurvStruct:45' r1D = a.*r1D;
-    r1D.set_size(3, r1D.size(1));
-    h_loop_ub = r1D.size(1);
-    for (int i8{0}; i8 < h_loop_ub; i8++) {
-        r1D[3 * i8] = b_CurvStruct->a_param * r1D[3 * i8];
-        r1D[3 * i8 + 1] = b_CurvStruct->a_param * r1D[3 * i8 + 1];
-        r1D[3 * i8 + 2] = b_CurvStruct->a_param * r1D[3 * i8 + 2];
-    }
-    // 'EvalCurvStruct:46' r2D = a^2.*r2D;
-    c = b_CurvStruct->a_param * b_CurvStruct->a_param;
-    r2D.set_size(3, r2D.size(1));
-    i_loop_ub = r2D.size(1);
-    for (int i9{0}; i9 < i_loop_ub; i9++) {
-        r2D[3 * i9] = c * r2D[3 * i9];
-        r2D[3 * i9 + 1] = c * r2D[3 * i9 + 1];
-        r2D[3 * i9 + 2] = c * r2D[3 * i9 + 2];
-    }
-    // 'EvalCurvStruct:47' r3D = a^3.*r3D;
-    b_c = std::pow(b_CurvStruct->a_param, 3.0);
-    r3D.set_size(3, r3D.size(1));
-    j_loop_ub = r3D.size(1);
-    for (int i10{0}; i10 < j_loop_ub; i10++) {
-        r3D[3 * i10] = b_c * r3D[3 * i10];
-        r3D[3 * i10 + 1] = b_c * r3D[3 * i10 + 1];
-        r3D[3 * i10 + 2] = b_c * r3D[3 * i10 + 2];
-    }
+    // 'EvalCurvStruct:39' r1D = a.*r1D;
+    r1D[0] *= b_CurvStruct->a_param;
+    r1D[1] *= b_CurvStruct->a_param;
+    r1D[2] *= b_CurvStruct->a_param;
+    // 'EvalCurvStruct:40' r2D = a^2.*r2D;
+    // 'EvalCurvStruct:41' r3D = a^3.*r3D;
 }
 
 //
@@ -1704,14 +1725,14 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     char message[30];
     // 'EvalCurvStruct:3' coder.inline("never");
     // 'EvalCurvStruct:4' if any(u_vec - 1.0 > 10*eps)
-    // 'EvalCurvStruct:13' if any(u_vec < 0.0)
+    // 'EvalCurvStruct:8' if any(u_vec < 0.0)
     //
-    // 'EvalCurvStruct:19' Type  = CurvStruct.Type;
+    // 'EvalCurvStruct:13' Type  = CurvStruct.Type;
     //
-    // 'EvalCurvStruct:21' N = numel(u_vec);
-    // 'EvalCurvStruct:22' r0D = zeros(3, N);
-    // 'EvalCurvStruct:23' r1D = zeros(3, N);
-    // 'EvalCurvStruct:24' r2D = zeros(3, N);
+    // 'EvalCurvStruct:15' N = numel(u_vec);
+    // 'EvalCurvStruct:16' r0D = zeros(3, N);
+    // 'EvalCurvStruct:17' r1D = zeros(3, N);
+    // 'EvalCurvStruct:18' r2D = zeros(3, N);
     r0D[0] = 0.0;
     r1D[0] = 0.0;
     r2D[0] = 0.0;
@@ -1721,36 +1742,36 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     r0D[2] = 0.0;
     r1D[2] = 0.0;
     r2D[2] = 0.0;
-    // 'EvalCurvStruct:25' r3D = zeros(3, N);
-    // 'EvalCurvStruct:27' a=CurvStruct.a_param;
-    // 'EvalCurvStruct:28' b=CurvStruct.b_param;
-    // 'EvalCurvStruct:30' u_vec_tilda = a*u_vec+b;
+    // 'EvalCurvStruct:19' r3D = zeros(3, N);
+    // 'EvalCurvStruct:21' a=CurvStruct.a_param;
+    // 'EvalCurvStruct:22' b=CurvStruct.b_param;
+    // 'EvalCurvStruct:24' u_vec_tilda = a*u_vec+b;
     u_vec_tilda = CurvStruct_a_param + CurvStruct_b_param;
-    // 'EvalCurvStruct:32' switch Type
+    // 'EvalCurvStruct:26' switch Type
     switch (CurvStruct_Type) {
     case CurveType_Line:
-        // 'EvalCurvStruct:33' case CurveType.Line
+        // 'EvalCurvStruct:27' case CurveType.Line
         //  line (G01)
-        // 'EvalCurvStruct:34' [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:28' [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
         EvalLine(CurvStruct_P0, CurvStruct_P1, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_Helix:
-        // 'EvalCurvStruct:35' case CurveType.Helix
+        // 'EvalCurvStruct:29' case CurveType.Helix
         //  arc of circle / helix (G02, G03)
-        // 'EvalCurvStruct:36' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:30' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
         EvalHelix(CurvStruct_P0, CurvStruct_CorrectedHelixCenter, CurvStruct_evec, CurvStruct_theta,
                   CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_TransP5:
-        // 'EvalCurvStruct:37' case CurveType.TransP5
+        // 'EvalCurvStruct:31' case CurveType.TransP5
         //  polynomial transition
-        // 'EvalCurvStruct:38' [r0D, r1D, r2D, r3D] = EvalTransP5(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:32' [r0D, r1D, r2D, r3D] = EvalTransP5(CurvStruct, u_vec_tilda);
         EvalTransP5(CurvStruct_CoeffP5, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_Spline:
-        // 'EvalCurvStruct:39' case CurveType.Spline
+        // 'EvalCurvStruct:33' case CurveType.Spline
         //  BSpline
-        // 'EvalCurvStruct:40' [r0D, r1D, r2D, r3D] = EvalBSpline(ctx, CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:34' [r0D, r1D, r2D, r3D] = EvalBSpline(ctx, CurvStruct, u_vec_tilda);
         //  if coder.target('rtw') || coder.target('mex')
         // 'EvalBSpline:4' Spline=ctx.q_splines.get(CurvStruct.sp_index);
         ctx_q_splines->get(CurvStruct_sp_index, &expl_temp);
@@ -1824,8 +1845,8 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         //  end
         break;
     default:
-        // 'EvalCurvStruct:41' otherwise
-        // 'EvalCurvStruct:42' c_assert(false, 'Unknown Curve Type for Eval.\n');
+        // 'EvalCurvStruct:35' otherwise
+        // 'EvalCurvStruct:36' c_assert(false, 'Unknown Curve Type for Eval.\n');
         // 'c_assert:2' if coder.target('rtw')
         // 'c_assert:3' if ~condition
         // 'c_assert:4' coder.ceval('c_assert_', message);
@@ -1836,8 +1857,8 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         // 'c_assert:6' value = condition;
         break;
     }
-    // 'EvalCurvStruct:45' r1D = a.*r1D;
-    // 'EvalCurvStruct:46' r2D = a^2.*r2D;
+    // 'EvalCurvStruct:39' r1D = a.*r1D;
+    // 'EvalCurvStruct:40' r2D = a^2.*r2D;
     c = CurvStruct_a_param * CurvStruct_a_param;
     r1D[0] *= CurvStruct_a_param;
     r2D[0] *= c;
@@ -1845,7 +1866,7 @@ void b_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     r2D[1] *= c;
     r1D[2] *= CurvStruct_a_param;
     r2D[2] *= c;
-    // 'EvalCurvStruct:47' r3D = a^3.*r3D;
+    // 'EvalCurvStruct:41' r3D = a^3.*r3D;
 }
 
 //
@@ -1896,14 +1917,14 @@ void c_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     char message[30];
     // 'EvalCurvStruct:3' coder.inline("never");
     // 'EvalCurvStruct:4' if any(u_vec - 1.0 > 10*eps)
-    // 'EvalCurvStruct:13' if any(u_vec < 0.0)
+    // 'EvalCurvStruct:8' if any(u_vec < 0.0)
     //
-    // 'EvalCurvStruct:19' Type  = CurvStruct.Type;
+    // 'EvalCurvStruct:13' Type  = CurvStruct.Type;
     //
-    // 'EvalCurvStruct:21' N = numel(u_vec);
-    // 'EvalCurvStruct:22' r0D = zeros(3, N);
-    // 'EvalCurvStruct:23' r1D = zeros(3, N);
-    // 'EvalCurvStruct:24' r2D = zeros(3, N);
+    // 'EvalCurvStruct:15' N = numel(u_vec);
+    // 'EvalCurvStruct:16' r0D = zeros(3, N);
+    // 'EvalCurvStruct:17' r1D = zeros(3, N);
+    // 'EvalCurvStruct:18' r2D = zeros(3, N);
     r0D[0] = 0.0;
     r1D[0] = 0.0;
     r2D[0] = 0.0;
@@ -1913,35 +1934,35 @@ void c_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     r0D[2] = 0.0;
     r1D[2] = 0.0;
     r2D[2] = 0.0;
-    // 'EvalCurvStruct:25' r3D = zeros(3, N);
-    // 'EvalCurvStruct:27' a=CurvStruct.a_param;
-    // 'EvalCurvStruct:28' b=CurvStruct.b_param;
-    // 'EvalCurvStruct:30' u_vec_tilda = a*u_vec+b;
-    // 'EvalCurvStruct:32' switch Type
+    // 'EvalCurvStruct:19' r3D = zeros(3, N);
+    // 'EvalCurvStruct:21' a=CurvStruct.a_param;
+    // 'EvalCurvStruct:22' b=CurvStruct.b_param;
+    // 'EvalCurvStruct:24' u_vec_tilda = a*u_vec+b;
+    // 'EvalCurvStruct:26' switch Type
     switch (CurvStruct_Type) {
     case CurveType_Line:
-        // 'EvalCurvStruct:33' case CurveType.Line
+        // 'EvalCurvStruct:27' case CurveType.Line
         //  line (G01)
-        // 'EvalCurvStruct:34' [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:28' [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
         EvalLine(CurvStruct_P0, CurvStruct_P1, CurvStruct_b_param, r0D, r1D, r2D, r3D);
         break;
     case CurveType_Helix:
-        // 'EvalCurvStruct:35' case CurveType.Helix
+        // 'EvalCurvStruct:29' case CurveType.Helix
         //  arc of circle / helix (G02, G03)
-        // 'EvalCurvStruct:36' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:30' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
         EvalHelix(CurvStruct_P0, CurvStruct_CorrectedHelixCenter, CurvStruct_evec, CurvStruct_theta,
                   CurvStruct_pitch, CurvStruct_b_param, r0D, r1D, r2D, r3D);
         break;
     case CurveType_TransP5:
-        // 'EvalCurvStruct:37' case CurveType.TransP5
+        // 'EvalCurvStruct:31' case CurveType.TransP5
         //  polynomial transition
-        // 'EvalCurvStruct:38' [r0D, r1D, r2D, r3D] = EvalTransP5(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:32' [r0D, r1D, r2D, r3D] = EvalTransP5(CurvStruct, u_vec_tilda);
         EvalTransP5(CurvStruct_CoeffP5, CurvStruct_b_param, r0D, r1D, r2D, r3D);
         break;
     case CurveType_Spline:
-        // 'EvalCurvStruct:39' case CurveType.Spline
+        // 'EvalCurvStruct:33' case CurveType.Spline
         //  BSpline
-        // 'EvalCurvStruct:40' [r0D, r1D, r2D, r3D] = EvalBSpline(ctx, CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:34' [r0D, r1D, r2D, r3D] = EvalBSpline(ctx, CurvStruct, u_vec_tilda);
         //  if coder.target('rtw') || coder.target('mex')
         // 'EvalBSpline:4' Spline=ctx.q_splines.get(CurvStruct.sp_index);
         ctx_q_splines->get(CurvStruct_sp_index, &expl_temp);
@@ -2015,8 +2036,8 @@ void c_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         //  end
         break;
     default:
-        // 'EvalCurvStruct:41' otherwise
-        // 'EvalCurvStruct:42' c_assert(false, 'Unknown Curve Type for Eval.\n');
+        // 'EvalCurvStruct:35' otherwise
+        // 'EvalCurvStruct:36' c_assert(false, 'Unknown Curve Type for Eval.\n');
         // 'c_assert:2' if coder.target('rtw')
         // 'c_assert:3' if ~condition
         // 'c_assert:4' coder.ceval('c_assert_', message);
@@ -2027,8 +2048,8 @@ void c_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         // 'c_assert:6' value = condition;
         break;
     }
-    // 'EvalCurvStruct:45' r1D = a.*r1D;
-    // 'EvalCurvStruct:46' r2D = a^2.*r2D;
+    // 'EvalCurvStruct:39' r1D = a.*r1D;
+    // 'EvalCurvStruct:40' r2D = a^2.*r2D;
     c = CurvStruct_a_param * CurvStruct_a_param;
     r1D[0] *= CurvStruct_a_param;
     r2D[0] *= c;
@@ -2036,7 +2057,7 @@ void c_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     r2D[1] *= c;
     r1D[2] *= CurvStruct_a_param;
     r2D[2] *= c;
-    // 'EvalCurvStruct:47' r3D = a^3.*r3D;
+    // 'EvalCurvStruct:41' r3D = a^3.*r3D;
 }
 
 //
@@ -2089,15 +2110,15 @@ void c_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     char message[30];
     // 'EvalCurvStruct:3' coder.inline("never");
     // 'EvalCurvStruct:4' if any(u_vec - 1.0 > 10*eps)
-    // 'EvalCurvStruct:13' if any(u_vec < 0.0)
+    // 'EvalCurvStruct:8' if any(u_vec < 0.0)
     //
-    // 'EvalCurvStruct:19' Type  = CurvStruct.Type;
+    // 'EvalCurvStruct:13' Type  = CurvStruct.Type;
     //
-    // 'EvalCurvStruct:21' N = numel(u_vec);
-    // 'EvalCurvStruct:22' r0D = zeros(3, N);
-    // 'EvalCurvStruct:23' r1D = zeros(3, N);
-    // 'EvalCurvStruct:24' r2D = zeros(3, N);
-    // 'EvalCurvStruct:25' r3D = zeros(3, N);
+    // 'EvalCurvStruct:15' N = numel(u_vec);
+    // 'EvalCurvStruct:16' r0D = zeros(3, N);
+    // 'EvalCurvStruct:17' r1D = zeros(3, N);
+    // 'EvalCurvStruct:18' r2D = zeros(3, N);
+    // 'EvalCurvStruct:19' r3D = zeros(3, N);
     r0D[0] = 0.0;
     r1D[0] = 0.0;
     r2D[0] = 0.0;
@@ -2110,35 +2131,35 @@ void c_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
     r1D[2] = 0.0;
     r2D[2] = 0.0;
     r3D[2] = 0.0;
-    // 'EvalCurvStruct:27' a=CurvStruct.a_param;
-    // 'EvalCurvStruct:28' b=CurvStruct.b_param;
-    // 'EvalCurvStruct:30' u_vec_tilda = a*u_vec+b;
+    // 'EvalCurvStruct:21' a=CurvStruct.a_param;
+    // 'EvalCurvStruct:22' b=CurvStruct.b_param;
+    // 'EvalCurvStruct:24' u_vec_tilda = a*u_vec+b;
     u_vec_tilda = CurvStruct_a_param + CurvStruct_b_param;
-    // 'EvalCurvStruct:32' switch Type
+    // 'EvalCurvStruct:26' switch Type
     switch (CurvStruct_Type) {
     case CurveType_Line:
-        // 'EvalCurvStruct:33' case CurveType.Line
+        // 'EvalCurvStruct:27' case CurveType.Line
         //  line (G01)
-        // 'EvalCurvStruct:34' [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:28' [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
         EvalLine(CurvStruct_P0, CurvStruct_P1, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_Helix:
-        // 'EvalCurvStruct:35' case CurveType.Helix
+        // 'EvalCurvStruct:29' case CurveType.Helix
         //  arc of circle / helix (G02, G03)
-        // 'EvalCurvStruct:36' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:30' [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
         EvalHelix(CurvStruct_P0, CurvStruct_CorrectedHelixCenter, CurvStruct_evec, CurvStruct_theta,
                   CurvStruct_pitch, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_TransP5:
-        // 'EvalCurvStruct:37' case CurveType.TransP5
+        // 'EvalCurvStruct:31' case CurveType.TransP5
         //  polynomial transition
-        // 'EvalCurvStruct:38' [r0D, r1D, r2D, r3D] = EvalTransP5(CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:32' [r0D, r1D, r2D, r3D] = EvalTransP5(CurvStruct, u_vec_tilda);
         EvalTransP5(CurvStruct_CoeffP5, u_vec_tilda, r0D, r1D, r2D, r3D);
         break;
     case CurveType_Spline:
-        // 'EvalCurvStruct:39' case CurveType.Spline
+        // 'EvalCurvStruct:33' case CurveType.Spline
         //  BSpline
-        // 'EvalCurvStruct:40' [r0D, r1D, r2D, r3D] = EvalBSpline(ctx, CurvStruct, u_vec_tilda);
+        // 'EvalCurvStruct:34' [r0D, r1D, r2D, r3D] = EvalBSpline(ctx, CurvStruct, u_vec_tilda);
         //  if coder.target('rtw') || coder.target('mex')
         // 'EvalBSpline:4' Spline=ctx.q_splines.get(CurvStruct.sp_index);
         ctx_q_splines->get(CurvStruct_sp_index, &expl_temp);
@@ -2215,8 +2236,8 @@ void c_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         //  end
         break;
     default:
-        // 'EvalCurvStruct:41' otherwise
-        // 'EvalCurvStruct:42' c_assert(false, 'Unknown Curve Type for Eval.\n');
+        // 'EvalCurvStruct:35' otherwise
+        // 'EvalCurvStruct:36' c_assert(false, 'Unknown Curve Type for Eval.\n');
         // 'c_assert:2' if coder.target('rtw')
         // 'c_assert:3' if ~condition
         // 'c_assert:4' coder.ceval('c_assert_', message);
@@ -2227,10 +2248,10 @@ void c_EvalCurvStruct(const queue_coder *ctx_q_splines, CurveType CurvStruct_Typ
         // 'c_assert:6' value = condition;
         break;
     }
-    // 'EvalCurvStruct:45' r1D = a.*r1D;
-    // 'EvalCurvStruct:46' r2D = a^2.*r2D;
+    // 'EvalCurvStruct:39' r1D = a.*r1D;
+    // 'EvalCurvStruct:40' r2D = a^2.*r2D;
     c = CurvStruct_a_param * CurvStruct_a_param;
-    // 'EvalCurvStruct:47' r3D = a^3.*r3D;
+    // 'EvalCurvStruct:41' r3D = a^3.*r3D;
     b_c = std::pow(CurvStruct_a_param, 3.0);
     r1D[0] *= CurvStruct_a_param;
     r2D[0] *= c;

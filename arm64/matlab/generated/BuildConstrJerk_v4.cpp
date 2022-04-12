@@ -5,7 +5,7 @@
 // File: BuildConstrJerk_v4.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 01-Mar-2022 11:01:39
+// C/C++ source code generated on  : 12-Apr-2022 10:51:01
 //
 
 // Include Files
@@ -19,103 +19,7 @@
 #include "coder_array.h"
 #include <cmath>
 
-// Function Declarations
-namespace ocn {
-static void binary_expand_op(::coder::array<double, 2U> &R3, const ::coder::array<double, 2U> &r1,
-                             const ::coder::array<double, 2U> &r2,
-                             const ::coder::array<double, 2U> &r3,
-                             const ::coder::array<double, 1U> &y_tmp);
-
-}
-
 // Function Definitions
-//
-// Arguments    : ::coder::array<double, 2U> &R3
-//                const ::coder::array<double, 2U> &r1
-//                const ::coder::array<double, 2U> &r2
-//                const ::coder::array<double, 2U> &r3
-//                const ::coder::array<double, 1U> &y_tmp
-// Return Type  : void
-//
-namespace ocn {
-static void binary_expand_op(::coder::array<double, 2U> &R3, const ::coder::array<double, 2U> &r1,
-                             const ::coder::array<double, 2U> &r2,
-                             const ::coder::array<double, 2U> &r3,
-                             const ::coder::array<double, 1U> &y_tmp)
-{
-    ::coder::array<double, 2U> r;
-    int aux_0_1;
-    int aux_1_1;
-    int aux_2_1;
-    int i;
-    int i1;
-    int loop_ub;
-    int stride_0_0;
-    int stride_0_1;
-    int stride_1_0;
-    int stride_1_1;
-    int stride_2_0;
-    int stride_2_1;
-    if (r3.size(0) == 1) {
-        if (r2.size(0) == 1) {
-            i = r1.size(0);
-        } else {
-            i = r2.size(0);
-        }
-    } else {
-        i = r3.size(0);
-    }
-    if (r3.size(1) == 1) {
-        if (r2.size(1) == 1) {
-            i1 = r1.size(1);
-        } else {
-            i1 = r2.size(1);
-        }
-    } else {
-        i1 = r3.size(1);
-    }
-    r.set_size(i, i1);
-    stride_0_0 = (r1.size(0) != 1);
-    stride_0_1 = (r1.size(1) != 1);
-    stride_1_0 = (r2.size(0) != 1);
-    stride_1_1 = (r2.size(1) != 1);
-    stride_2_0 = (r3.size(0) != 1);
-    stride_2_1 = (r3.size(1) != 1);
-    aux_0_1 = 0;
-    aux_1_1 = 0;
-    aux_2_1 = 0;
-    if (r3.size(1) == 1) {
-        if (r2.size(1) == 1) {
-            loop_ub = r1.size(1);
-        } else {
-            loop_ub = r2.size(1);
-        }
-    } else {
-        loop_ub = r3.size(1);
-    }
-    for (int i2{0}; i2 < loop_ub; i2++) {
-        int b_loop_ub;
-        if (r3.size(0) == 1) {
-            if (r2.size(0) == 1) {
-                b_loop_ub = r1.size(0);
-            } else {
-                b_loop_ub = r2.size(0);
-            }
-        } else {
-            b_loop_ub = r3.size(0);
-        }
-        for (int i3{0}; i3 < b_loop_ub; i3++) {
-            r[i3 + r.size(0) * i2] = (r1[i3 * stride_0_0 + r1.size(0) * aux_0_1] +
-                                      1.5 * r2[i3 * stride_1_0 + r2.size(0) * aux_1_1]) +
-                                     0.5 * r3[i3 * stride_2_0 + r3.size(0) * aux_2_1];
-        }
-        aux_2_1 += stride_2_1;
-        aux_1_1 += stride_1_1;
-        aux_0_1 += stride_0_1;
-    }
-    coder::bsxfun(r, y_tmp, R3);
-}
-
 //
 // function [A, b] = BuildConstrJerk_v4(ctx, CurvStructs, Coeff, jmax,  ...
 //                                      BasisVal, BasisValD, BasisValDD, u_vec)
@@ -132,6 +36,7 @@ static void binary_expand_op(::coder::array<double, 2U> &R3, const ::coder::arra
 //                ::coder::array<double, 1U> &b
 // Return Type  : void
 //
+namespace ocn {
 void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
                         const ::coder::array<CurvStruct, 2U> &CurvStructs,
                         const ::coder::array<double, 2U> &Coeff, const double jmax[3],
@@ -1068,6 +973,91 @@ void BuildConstrJerk_v4(const queue_coder *ctx_q_splines,
         }
         //
     }
+}
+
+//
+// Arguments    : ::coder::array<double, 2U> &R3
+//                const ::coder::array<double, 2U> &r1
+//                const ::coder::array<double, 2U> &r2
+//                const ::coder::array<double, 2U> &r3
+//                const ::coder::array<double, 1U> &y_tmp
+// Return Type  : void
+//
+void binary_expand_op(::coder::array<double, 2U> &R3, const ::coder::array<double, 2U> &r1,
+                      const ::coder::array<double, 2U> &r2, const ::coder::array<double, 2U> &r3,
+                      const ::coder::array<double, 1U> &y_tmp)
+{
+    ::coder::array<double, 2U> r;
+    int aux_0_1;
+    int aux_1_1;
+    int aux_2_1;
+    int i;
+    int i1;
+    int loop_ub;
+    int stride_0_0;
+    int stride_0_1;
+    int stride_1_0;
+    int stride_1_1;
+    int stride_2_0;
+    int stride_2_1;
+    if (r3.size(0) == 1) {
+        if (r2.size(0) == 1) {
+            i = r1.size(0);
+        } else {
+            i = r2.size(0);
+        }
+    } else {
+        i = r3.size(0);
+    }
+    if (r3.size(1) == 1) {
+        if (r2.size(1) == 1) {
+            i1 = r1.size(1);
+        } else {
+            i1 = r2.size(1);
+        }
+    } else {
+        i1 = r3.size(1);
+    }
+    r.set_size(i, i1);
+    stride_0_0 = (r1.size(0) != 1);
+    stride_0_1 = (r1.size(1) != 1);
+    stride_1_0 = (r2.size(0) != 1);
+    stride_1_1 = (r2.size(1) != 1);
+    stride_2_0 = (r3.size(0) != 1);
+    stride_2_1 = (r3.size(1) != 1);
+    aux_0_1 = 0;
+    aux_1_1 = 0;
+    aux_2_1 = 0;
+    if (r3.size(1) == 1) {
+        if (r2.size(1) == 1) {
+            loop_ub = r1.size(1);
+        } else {
+            loop_ub = r2.size(1);
+        }
+    } else {
+        loop_ub = r3.size(1);
+    }
+    for (int i2{0}; i2 < loop_ub; i2++) {
+        int b_loop_ub;
+        if (r3.size(0) == 1) {
+            if (r2.size(0) == 1) {
+                b_loop_ub = r1.size(0);
+            } else {
+                b_loop_ub = r2.size(0);
+            }
+        } else {
+            b_loop_ub = r3.size(0);
+        }
+        for (int i3{0}; i3 < b_loop_ub; i3++) {
+            r[i3 + r.size(0) * i2] = (r1[i3 * stride_0_0 + r1.size(0) * aux_0_1] +
+                                      1.5 * r2[i3 * stride_1_0 + r2.size(0) * aux_1_1]) +
+                                     0.5 * r3[i3 * stride_2_0 + r3.size(0) * aux_2_1];
+        }
+        aux_2_1 += stride_2_1;
+        aux_1_1 += stride_1_1;
+        aux_0_1 += stride_0_1;
+    }
+    coder::bsxfun(r, y_tmp, R3);
 }
 
 } // namespace ocn

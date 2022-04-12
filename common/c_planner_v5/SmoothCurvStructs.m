@@ -16,10 +16,12 @@ DebugLog(DebugCfg.OptimProgress, 'Smoothing...\n');
 k = 1;
 
 if Ncrv > 1
-    CurvStruct1 = ctx.q_compress.get(k);
+    CurvStruct1 = ctx.q_compress.get(k);  % get current curv in q_compress
     while k < Ncrv
-        NextCurv = ctx.q_compress.get(k+1);
-        if CurvStruct1.zspdmode == ZSpdMode.NN && NextCurv.zspdmode == ZSpdMode.NN
+        NextCurv = ctx.q_compress.get(k+1); % get next curv in q_compress
+        % Check neither of the two curves has a zero speed.
+        if CurvStruct1.zspdmode == ZSpdMode.NN ...
+           && NextCurv.zspdmode == ZSpdMode.NN
             [CurvStruct1_C, CurvStruct_T, CurvStruct2_C, status] = ...
                 CalcTransition(ctx, CurvStruct1, NextCurv);
             

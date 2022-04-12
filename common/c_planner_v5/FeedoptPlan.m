@@ -26,6 +26,9 @@ switch ctx.op
         DebugLog(DebugCfg.Validate, 'Reading G-code...\n');
         while status
             [status, CurvStruct] = ReadGCode(ReadGCodeCmd.Read, '');
+            if( CurvStruct.FeedRate == 0 )
+                CurvStruct.FeedRate = ctx.cfg.vmax; 
+            end
             if status == 1 && CurvStruct.Type ~= 0
                 if ( CurvStruct.FeedRate == 0.0 ) 
                     % check for undefined feedrate
@@ -60,14 +63,19 @@ switch ctx.op
             ctx = CompressCurvStructs(ctx);
         end
         ctx.op = Fopt.Smooth;
-        
+        if( coder.target( 'MATLAB') ), ctx.q_gcode.delete(); end        
+    
     case Fopt.Smooth
         ctx = SmoothCurvStructs(ctx);
         ctx.op = Fopt.Split;
+        if( coder.target( 'MATLAB') ), ctx.q_compress.delete(); end        
             
     case Fopt.Split
         ctx = SplitCurvStructs(ctx);
+        
         ctx.op = Fopt.Opt;
+        if( coder.target( 'MATLAB') ), ctx.q_smooth.delete(); end        
+    
         DebugLog(DebugCfg.Validate, 'Feedrate Planning...\n');
         if coder.target('matlab')
             diary off;
@@ -88,12 +96,12 @@ switch ctx.op
             fprintf('%4d/%u\n', ctx.k0, ctx.q_split.size);
         end
         
+        % Increment index on q_split
         if ctx.go_next
             ctx.k0 = ctx.k0 + 1;
             ctx.n_optimized = ctx.n_optimized + 1;
         end
-        
-        
+       
         if ctx.n_optimized < ctx.q_split.size
             if ctx.try_push_again
                 % Do nothing, we already have the last one optimized
@@ -111,6 +119,7 @@ switch ctx.op
                     return;
                 end
                 
+                % Get final index for the sliding horizon
                 k1temp = int32(ctx.k0 + ctx.cfg.NHorz - 1);
                 if k1temp > ctx.q_split.size
                     ctx.reached_end = true;
@@ -118,10 +127,10 @@ switch ctx.op
                 else
                     k1 = int32(k1temp);
                 end
-                
-                ctx.at_1 = 0;
-                ctx.v_1 = 0;
-                
+
+                ctx.at_1    = 0;
+                ctx.v_1     = 0;
+ 
                 nopt = 0;
                 DebugLog(DebugCfg.Global, 'FEEDRATE PLANNING...\n')
                 kend = ctx.k0;
@@ -160,27 +169,44 @@ switch ctx.op
                 Retry = 0;
                 success = false;
                 Coeff = [];
-                
-                while Retry < 100 && ~success
-                    [ctx, Coeff, ~, success] = FeedratePlanning_v4(ctx, OptSegment, ctx.cfg.amax, ctx.cfg.jmax,...
-                        ctx.BasisVal, ctx.BasisValD, ctx.BasisValDD, ctx.BasisIntegr,...
-                        ctx.Bl, ctx.u_vec, min(ctx.cfg.NHorz, nopt));
+                ctx.at_1 = ctx.cfg.at_1; ctx.v_1 = ctx.cfg.v_0;
+                MAX_RETRY = 100;
+                while Retry < MAX_RETRY && ~success
 
-                    if success == 0 && ctx.zero_start
-                        DebugLog(DebugCfg.Warning, 'ZeroStart at k = %d failed, halving jerk\n', ctx.k0-1);
+                    if ctx.zero_start
                         [v_0, at_0] = CalcZeroStartConstraints(ctx, ctx.q_split.get(ctx.k0 - 1), 0.5^Retry);
                         ctx.v_0 = v_0;
                         ctx.at_0 = at_0;
                     end
-                    
-                    if success == 0 && ctx.zero_end
-                        DebugLog(DebugCfg.Warning, 'ZeroEnd at k = %d failed, halving jerk\n', kend);
+
+                    if ctx.zero_end
                         [v_0, at_0] = CalcZeroStartConstraints(ctx, ctx.q_split.get(kend), 0.5^Retry);
                         ctx.at_1 = -at_0;
                         ctx.v_1 = v_0;
                     end
+
+                    [ctx, Coeff, ~, success, status, msg] = FeedratePlanning(ctx, OptSegment, ctx.cfg.amax, ctx.cfg.jmax,...
+                        ctx.BasisVal, ctx.BasisValD, ctx.BasisValDD, ctx.BasisIntegr,...
+                        ctx.Bl, ctx.u_vec, min(ctx.cfg.NHorz, nopt));
                     
-                    Retry = Retry + 1;
+                    if( ~success )
+                        Retry = Retry + 1;
+                        if coder.target('matlab')
+                            diary on;
+                            DebugLog(DebugCfg.Validate, " k : " + ctx.k0 + " \t | retry : " + Retry + "\n");
+                            DebugLog(DebugCfg.Validate, msg);
+                            diary off;
+%                             ctx.at_1 = [];
+                        end
+                        
+                        if( ctx.zero_start )
+                            DebugLog(DebugCfg.Warning, 'ZeroStart at k = %d failed, halving jerk\n', ctx.k0-1);
+                        end
+
+                        if( ctx.zero_end )
+                            DebugLog(DebugCfg.Warning, 'ZeroEnd at k = %d failed, halving jerk\n', kend);
+                        end
+                    end
                 end
                 
                 if coder.target('matlab')

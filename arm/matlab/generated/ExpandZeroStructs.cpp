@@ -5,7 +5,7 @@
 // File: ExpandZeroStructs.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 01-Mar-2022 10:58:42
+// C/C++ source code generated on  : 12-Apr-2022 10:49:22
 //
 
 // Include Files
@@ -25,9 +25,13 @@
 //
 // function ctx = ExpandZeroStructs(ctx)
 //
-// We replace each sequence of small g-code segments with a B-Spline
-//  of degree 3
-//  A special queue is dedicated to the splines, ctx.q_splines
+// ExpandZeroStructs :
+//  - Is feeded by the queue : q_gcode
+//  - Check speed boundaries conditions (ZZ,ZN,NZ,NN) and split the curves if
+//  they contain a zero speed.
+//  - Fill the queue : q_compress
+//
+//  Note : No compression is performed
 //
 // Arguments    : const FeedoptContext *ctx
 // Return Type  : void
@@ -48,13 +52,13 @@ void ExpandZeroStructs(const FeedoptContext *ctx)
     CurvStruct b_CurvStruct2_C;
     uint64m_T r;
     uint64m_T r2;
-    // 'ExpandZeroStructs:7' if ctx.q_gcode.isempty()
+    // 'ExpandZeroStructs:10' if ctx.q_gcode.isempty()
     if (!ctx->q_gcode.isempty()) {
         unsigned int Ncrv;
         int i;
-        // 'ExpandZeroStructs:11' Ncrv = double(ctx.q_gcode.size);
+        // 'ExpandZeroStructs:14' Ncrv = double(ctx.q_gcode.size);
         Ncrv = ctx->q_gcode.size();
-        // 'ExpandZeroStructs:12' DebugLog(DebugCfg.Transitions, 'Expanding ...\n');
+        // 'ExpandZeroStructs:15' DebugLog(DebugCfg.Transitions, 'Expanding ...\n');
         //  1 -> stdout
         //  2 -> stderr
         // 'DebugLog:5' if IsEnabledDebugLog(cfg)
@@ -69,14 +73,14 @@ void ExpandZeroStructs(const FeedoptContext *ctx)
             printf("Expanding ...\n");
             fflush(stdout);
         }
-        // 'ExpandZeroStructs:14' for k = 1:Ncrv
+        // 'ExpandZeroStructs:17' for k = 1:Ncrv
         i = static_cast<int>(Ncrv);
         for (int k{0}; k < i; k++) {
-            // 'ExpandZeroStructs:15' Curv = ctx.q_gcode.get(k);
+            // 'ExpandZeroStructs:18' Curv = ctx.q_gcode.get(k);
             ctx->q_gcode.get(static_cast<double>(k) + 1.0, &Curv);
-            // 'ExpandZeroStructs:17' if Curv.zspdmode == ZSpdMode.ZN
+            // 'ExpandZeroStructs:20' if Curv.zspdmode == ZSpdMode.ZN
             if (Curv.zspdmode == ZSpdMode_ZN) {
-                // 'ExpandZeroStructs:18' [CurvStruct1_C, CurvStruct2_C] = CutZeroStart(ctx, Curv,
+                // 'ExpandZeroStructs:21' [CurvStruct1_C, CurvStruct2_C] = CutZeroStart(ctx, Curv,
                 // k);
                 CutZeroStart(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz, ctx->cfg.amax,
                              ctx->cfg.jmax, ctx->cfg.dt, ctx->cfg.ZeroStartAccLimit,
@@ -84,25 +88,25 @@ void ExpandZeroStructs(const FeedoptContext *ctx)
                              ctx->cfg.DebugCutZero, ctx->cfg.GaussLegendreX,
                              ctx->cfg.GaussLegendreW, &Curv, static_cast<double>(k) + 1.0,
                              &CurvStruct1_C, &CurvStruct2_C);
-                // 'ExpandZeroStructs:19' ctx.q_compress.push(CurvStruct1_C);
+                // 'ExpandZeroStructs:22' ctx.q_compress.push(CurvStruct1_C);
                 ctx->q_compress.push(&CurvStruct1_C);
-                // 'ExpandZeroStructs:20' ctx.q_compress.push(CurvStruct2_C);
+                // 'ExpandZeroStructs:23' ctx.q_compress.push(CurvStruct2_C);
                 ctx->q_compress.push(&CurvStruct2_C);
             } else if (Curv.zspdmode == ZSpdMode_NZ) {
-                // 'ExpandZeroStructs:21' elseif Curv.zspdmode == ZSpdMode.NZ
-                // 'ExpandZeroStructs:22' [CurvStruct1_C, CurvStruct2_C] = CutZeroEnd(ctx, Curv, k);
+                // 'ExpandZeroStructs:24' elseif Curv.zspdmode == ZSpdMode.NZ
+                // 'ExpandZeroStructs:25' [CurvStruct1_C, CurvStruct2_C] = CutZeroEnd(ctx, Curv, k);
                 CutZeroEnd(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz, ctx->cfg.amax,
                            ctx->cfg.jmax, ctx->cfg.dt, ctx->cfg.ZeroStartAccLimit,
                            ctx->cfg.ZeroStartJerkLimit, ctx->cfg.ZeroStartVelLimit,
                            ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW, &Curv,
                            static_cast<double>(k) + 1.0, &CurvStruct1_C, &CurvStruct2_C);
-                // 'ExpandZeroStructs:23' ctx.q_compress.push(CurvStruct1_C);
+                // 'ExpandZeroStructs:26' ctx.q_compress.push(CurvStruct1_C);
                 ctx->q_compress.push(&CurvStruct1_C);
-                // 'ExpandZeroStructs:24' ctx.q_compress.push(CurvStruct2_C);
+                // 'ExpandZeroStructs:27' ctx.q_compress.push(CurvStruct2_C);
                 ctx->q_compress.push(&CurvStruct2_C);
             } else if (Curv.zspdmode == ZSpdMode_ZZ) {
-                // 'ExpandZeroStructs:25' elseif Curv.zspdmode == ZSpdMode.ZZ
-                // 'ExpandZeroStructs:26' [CurvStruct1_C, CurvStruct2_C] = CutZeroStart(ctx, Curv,
+                // 'ExpandZeroStructs:28' elseif Curv.zspdmode == ZSpdMode.ZZ
+                // 'ExpandZeroStructs:29' [CurvStruct1_C, CurvStruct2_C] = CutZeroStart(ctx, Curv,
                 // k);
                 CutZeroStart(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz, ctx->cfg.amax,
                              ctx->cfg.jmax, ctx->cfg.dt, ctx->cfg.ZeroStartAccLimit,
@@ -110,22 +114,22 @@ void ExpandZeroStructs(const FeedoptContext *ctx)
                              ctx->cfg.DebugCutZero, ctx->cfg.GaussLegendreX,
                              ctx->cfg.GaussLegendreW, &Curv, static_cast<double>(k) + 1.0,
                              &CurvStruct1_C, &CurvStruct2_C);
-                // 'ExpandZeroStructs:27' [CurvStruct2_C, CurvStruct3_C] = CutZeroEnd(ctx,
+                // 'ExpandZeroStructs:30' [CurvStruct2_C, CurvStruct3_C] = CutZeroEnd(ctx,
                 // CurvStruct2_C, k);
                 CutZeroEnd(&ctx->q_gcode, &ctx->q_splines, ctx->cfg.NHorz, ctx->cfg.amax,
                            ctx->cfg.jmax, ctx->cfg.dt, ctx->cfg.ZeroStartAccLimit,
                            ctx->cfg.ZeroStartJerkLimit, ctx->cfg.ZeroStartVelLimit,
                            ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW, &CurvStruct2_C,
                            static_cast<double>(k) + 1.0, &b_CurvStruct2_C, &CurvStruct3_C);
-                // 'ExpandZeroStructs:28' ctx.q_compress.push(CurvStruct1_C);
+                // 'ExpandZeroStructs:31' ctx.q_compress.push(CurvStruct1_C);
                 ctx->q_compress.push(&CurvStruct1_C);
-                // 'ExpandZeroStructs:29' ctx.q_compress.push(CurvStruct2_C);
+                // 'ExpandZeroStructs:32' ctx.q_compress.push(CurvStruct2_C);
                 ctx->q_compress.push(&b_CurvStruct2_C);
-                // 'ExpandZeroStructs:30' ctx.q_compress.push(CurvStruct3_C);
+                // 'ExpandZeroStructs:33' ctx.q_compress.push(CurvStruct3_C);
                 ctx->q_compress.push(&CurvStruct3_C);
             } else {
-                // 'ExpandZeroStructs:31' else
-                // 'ExpandZeroStructs:32' ctx.q_compress.push(Curv);
+                // 'ExpandZeroStructs:34' else
+                // 'ExpandZeroStructs:35' ctx.q_compress.push(Curv);
                 ctx->q_compress.push(&Curv);
             }
         }

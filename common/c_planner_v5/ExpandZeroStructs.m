@@ -1,8 +1,11 @@
 function ctx = ExpandZeroStructs(ctx)
-
-% We replace each sequence of small g-code segments with a B-Spline
-% of degree 3
-% A special queue is dedicated to the splines, ctx.q_splines
+% ExpandZeroStructs : 
+% - Is feeded by the queue : q_gcode
+% - Check speed boundaries conditions (ZZ,ZN,NZ,NN) and split the curves if
+% they contain a zero speed.
+% - Fill the queue : q_compress
+% 
+% Note : No compression is performed
 
 if ctx.q_gcode.isempty()
     return;

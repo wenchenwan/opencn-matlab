@@ -5,7 +5,7 @@
 // File: c_simplex.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 01-Mar-2022 11:01:39
+// C/C++ source code generated on  : 12-Apr-2022 10:51:01
 //
 
 #ifndef C_SIMPLEX_H
@@ -30,8 +30,8 @@ class sparse;
 // Function Declarations
 namespace ocn {
 void c_simplex(const ::coder::array<double, 2U> &f, const coder::sparse *A,
-               ::coder::array<double, 2U> &b, const ::coder::array<double, 2U> &Aeq,
-               const ::coder::array<double, 2U> &beq, ::coder::array<double, 2U> &C, bool *success,
+               const ::coder::array<double, 1U> &b, const ::coder::array<double, 2U> &Aeq,
+               const ::coder::array<double, 1U> &beq, ::coder::array<double, 2U> &C, bool *success,
                int *status);
 
 }
