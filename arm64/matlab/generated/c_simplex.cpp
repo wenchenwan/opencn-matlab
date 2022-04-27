@@ -5,7 +5,7 @@
 // File: c_simplex.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 12-Apr-2022 10:51:01
+// C/C++ source code generated on  : 27-Apr-2022 10:08:40
 //
 
 // Include Files
@@ -72,7 +72,7 @@ void c_simplex(const ::coder::array<double, 2U> &f, const coder::sparse *A,
     }
     // 'c_simplex:11' coder.varsize('C', [Inf, Inf], [1,1]);
     // 'c_simplex:13' [Aisd, Ajsd, Avs] = find(Atot);
-    coder::d_eml_find(&Atot, ii, jj, Avs);
+    coder::b_eml_find(&Atot, ii, jj, Avs);
     // 'c_simplex:14' Ais = int32(Aisd)-1;
     Ais.set_size(ii.size(0));
     c_loop_ub = ii.size(0);

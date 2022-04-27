@@ -5,92 +5,22 @@
 // File: bsxfun.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 12-Apr-2022 10:46:02
+// C/C++ source code generated on  : 27-Apr-2022 10:09:54
 //
 
 // Include Files
 #include "bsxfun.h"
 #include "coder_array.h"
-#include <emmintrin.h>
 
 // Function Definitions
-//
-// Arguments    : const ::coder::array<double, 2U> &a
-//                const ::coder::array<double, 2U> &b
-//                ::coder::array<double, 2U> &c
-// Return Type  : void
-//
-namespace ocn {
-namespace coder {
-void bsxfun(const ::coder::array<double, 2U> &a, const ::coder::array<double, 2U> &b,
-            ::coder::array<double, 2U> &c)
-{
-    int b_u0;
-    int b_u1;
-    int b_y;
-    int csz_idx_1;
-    int i;
-    int u0;
-    int u1;
-    int y;
-    u0 = b.size(1);
-    u1 = a.size(1);
-    if (u0 <= u1) {
-        y = u0;
-    } else {
-        y = u1;
-    }
-    if (b.size(1) == 1) {
-        csz_idx_1 = a.size(1);
-    } else if (a.size(1) == 1) {
-        csz_idx_1 = b.size(1);
-    } else if (a.size(1) == b.size(1)) {
-        csz_idx_1 = a.size(1);
-    } else {
-        csz_idx_1 = y;
-    }
-    b_u0 = b.size(1);
-    b_u1 = a.size(1);
-    if (b_u0 <= b_u1) {
-        b_y = b_u0;
-    } else {
-        b_y = b_u1;
-    }
-    if (b.size(1) == 1) {
-        i = a.size(1);
-    } else if (a.size(1) == 1) {
-        i = b.size(1);
-    } else if (a.size(1) == b.size(1)) {
-        i = a.size(1);
-    } else {
-        i = b_y;
-    }
-    c.set_size(3, i);
-    if (csz_idx_1 != 0) {
-        int acoef;
-        int bcoef;
-        int i1;
-        acoef = (a.size(1) != 1);
-        bcoef = (b.size(1) != 1);
-        i1 = csz_idx_1 - 1;
-        for (int k{0}; k <= i1; k++) {
-            int varargin_2;
-            int varargin_3;
-            varargin_2 = acoef * k;
-            varargin_3 = bcoef * k;
-            _mm_storeu_pd(&c[3 * k], _mm_mul_pd(_mm_loadu_pd((const double *)&a[3 * varargin_2]),
-                                                _mm_set1_pd(b[varargin_3])));
-            c[3 * k + 2] = b[varargin_3] * a[3 * varargin_2 + 2];
-        }
-    }
-}
-
 //
 // Arguments    : const ::coder::array<double, 1U> &a
 //                const ::coder::array<double, 2U> &b
 //                ::coder::array<double, 2U> &c
 // Return Type  : void
 //
+namespace ocn {
+namespace coder {
 void bsxfun(const ::coder::array<double, 1U> &a, const ::coder::array<double, 2U> &b,
             ::coder::array<double, 2U> &c)
 {

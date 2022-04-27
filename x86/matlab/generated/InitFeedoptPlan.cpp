@@ -5,7 +5,7 @@
 // File: InitFeedoptPlan.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 12-Apr-2022 10:46:02
+// C/C++ source code generated on  : 27-Apr-2022 10:09:54
 //
 
 // Include Files
@@ -290,17 +290,17 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     // 'InitFeedoptPlan:31' Curv            = ConstrCurvStructType();
     ConstrCurvStructType(&Curv);
     // 'InitFeedoptPlan:32' Spline          = CalcBspline_Lee(cfg, [[0,0,0]', [1,1,1]']);
-    // 'CalcBspline_Lee:3' [~, N] = size(points);
+    // 'CalcBspline_Lee:2' [~, N] = size(points);
     //  number of points in 3D space
-    // 'CalcBspline_Lee:4' du     = sum((diff(points.').^2).');
+    // 'CalcBspline_Lee:3' du     = sum((diff(points.').^2).');
     z1_tmp = std::pow(1.0, 2.0);
-    // 'CalcBspline_Lee:5' u      = cumsum([0,du.^(1/4)]);
+    // 'CalcBspline_Lee:4' u      = cumsum([0,du.^(1/4)]);
     u[0] = 0.0;
     u[1] = std::pow((z1_tmp + z1_tmp) + z1_tmp, 0.25);
-    // 'CalcBspline_Lee:6' u      = u / u(end);
+    // 'CalcBspline_Lee:5' u      = u / u(end);
     //  normalize knots to interval [0...1]
-    // 'CalcBspline_Lee:7' knots  = [zeros(1, 3), u, ones(1, 3)];
-    // 'CalcBspline_Lee:9' Bl = bspline_create(cfg.LeeSplineDegree, u);
+    // 'CalcBspline_Lee:6' knots  = [zeros(1, 3), u, ones(1, 3)];
+    // 'CalcBspline_Lee:8' Bl = bspline_create(cfg.LeeSplineDegree, u);
     // 'bspline_create:2' if coder.target('rtw') || coder.target('mex')
     // 'bspline_create:3' nbreak = length(breakpoints);
     // 'bspline_create:4' ncoeff = nbreak + degree - 2;
@@ -323,30 +323,30 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     // 'bspline_create:13' Bl.handle = h;
     // 'bspline_create:14' Bl.degree = int32(degree);
     // 'bspline_create:15' coder.varsize('Bl.breakpoints', [1, Inf], [0, 1]);
-    // 'CalcBspline_Lee:11' BasisVal    = zeros(N, N+2);
+    // 'CalcBspline_Lee:10' BasisVal    = zeros(N, N+2);
     //  preallocation
-    // 'CalcBspline_Lee:12' BasisValDD0 = zeros(1, N+2);
+    // 'CalcBspline_Lee:11' BasisValDD0 = zeros(1, N+2);
     //  preallocation
-    // 'CalcBspline_Lee:13' BasisValDD1 = zeros(1, N+2);
+    // 'CalcBspline_Lee:12' BasisValDD1 = zeros(1, N+2);
     //  preallocation
     //
-    // 'CalcBspline_Lee:15' for k = 1:N+2
+    // 'CalcBspline_Lee:14' for k = 1:N+2
     d = u[0];
     d1 = u[1];
     for (int c_k{0}; c_k < 4; c_k++) {
         double x_idx_0;
         double xk;
         //  evaluate basis functions at the knots
-        // 'CalcBspline_Lee:16' coef           = zeros(1, N+2);
+        // 'CalcBspline_Lee:15' coef           = zeros(1, N+2);
         coef[0] = 0.0;
         coef[1] = 0.0;
         coef[2] = 0.0;
         coef[3] = 0.0;
-        // 'CalcBspline_Lee:17' coef(:, k)     = 1;
+        // 'CalcBspline_Lee:16' coef(:, k)     = 1;
         coef[c_k] = 1.0;
         //      sp             = spmak(knots, coef);
         //      BasisVal(:, k) = spval(sp, u);          % tridiagonal matrix
-        // 'CalcBspline_Lee:20' BasisVal(:, k) = bspline_eval_vec(Bl, coef, u);
+        // 'CalcBspline_Lee:19' BasisVal(:, k) = bspline_eval_vec(Bl, coef, u);
         // 'bspline_eval_vec:3' x = zeros(size(u));
         // 'bspline_eval_vec:4' xd = zeros(size(u));
         // 'bspline_eval_vec:5' xdd = zeros(size(u));
@@ -427,7 +427,7 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
         b_BasisVal[c_k][1] = X[0];
         //      sp2D           = fnder(sp, 2);          % evaluate 2nd derivative of basis functions
         //      @u=0,1
-        // 'CalcBspline_Lee:24' [~, ~, BasisValDD0(k)] = bspline_eval(Bl, coef, 0);
+        // 'CalcBspline_Lee:23' [~, ~, BasisValDD0(k)] = bspline_eval(Bl, coef, 0);
         //  void c_bspline_eval(uint64_t *handle, const double *c, double x, double X[3]);
         // 'bspline_eval:3' X = zeros(1, 4);
         // 'bspline_eval:4' if coder.target('matlab')
@@ -444,7 +444,7 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
         // 'bspline_eval:22' xdd = X(3);
         BasisValDD0[c_k] = X[2];
         // 'bspline_eval:23' xddd = X(4);
-        // 'CalcBspline_Lee:25' [~, ~, BasisValDD1(k)] = bspline_eval(Bl, coef, 1);
+        // 'CalcBspline_Lee:24' [~, ~, BasisValDD1(k)] = bspline_eval(Bl, coef, 1);
         //  void c_bspline_eval(uint64_t *handle, const double *c, double x, double X[3]);
         // 'bspline_eval:3' X = zeros(1, 4);
         // 'bspline_eval:4' if coder.target('matlab')
@@ -465,19 +465,19 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
         //      BasisValDD1(k) = spval(sp2D, 1);
     }
     //
-    // 'CalcBspline_Lee:30' A = [BasisValDD0; BasisVal; BasisValDD1];
+    // 'CalcBspline_Lee:29' A = [BasisValDD0; BasisVal; BasisValDD1];
     //  warning('NOT using a sparse matrix here because it pulled the CXSparse project into
     //  generation') A = sparse(A); figure; spy(A)
     //
-    // 'CalcBspline_Lee:37' bx = [0; points(1, :)'; 0];
-    // 'CalcBspline_Lee:38' by = [0; points(2, :)'; 0];
-    // 'CalcBspline_Lee:39' bz = [0; points(3, :)'; 0];
+    // 'CalcBspline_Lee:36' bx = [0; points(1, :)'; 0];
+    // 'CalcBspline_Lee:37' by = [0; points(2, :)'; 0];
+    // 'CalcBspline_Lee:38' bz = [0; points(3, :)'; 0];
     //
     //  mmdflag = spparms('autommd'); % protect current spparms setting
     //  spparms('autommd',0);         % suppress pivoting
     //
     // tic
-    // 'CalcBspline_Lee:46' cx = A\bx;
+    // 'CalcBspline_Lee:45' cx = A\bx;
     for (int b_i{0}; b_i < 4; b_i++) {
         A[b_i][0] = BasisValDD0[b_i];
         A[b_i][1] = b_BasisVal[b_i][0];
@@ -582,9 +582,9 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
         }
     }
     //  solve sparse banded linear system
-    // 'CalcBspline_Lee:47' cy = A\by;
+    // 'CalcBspline_Lee:46' cy = A\by;
     //  solve sparse banded linear system
-    // 'CalcBspline_Lee:48' cz = A\bz;
+    // 'CalcBspline_Lee:47' cz = A\bz;
     //  solve sparse banded linear system
     // toc
     //
@@ -592,11 +592,11 @@ void InitFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     //
     //  sp3D = spmak(knots, [cx'; cy'; cz']);
     //  coder.varsize('cx', 'cy', 'cz', [1, Inf], [0, 1]);
-    // 'CalcBspline_Lee:55' sp3D.CoeffX = cx.';
-    // 'CalcBspline_Lee:56' sp3D.CoeffY = cy.';
-    // 'CalcBspline_Lee:57' sp3D.CoeffZ = cz.';
-    // 'CalcBspline_Lee:58' sp3D.Bl = Bl;
-    // 'CalcBspline_Lee:59' sp3D.knots = knots;
+    // 'CalcBspline_Lee:54' sp3D.CoeffX = cx.';
+    // 'CalcBspline_Lee:55' sp3D.CoeffY = cy.';
+    // 'CalcBspline_Lee:56' sp3D.CoeffZ = cz.';
+    // 'CalcBspline_Lee:57' sp3D.Bl = Bl;
+    // 'CalcBspline_Lee:58' sp3D.knots = knots;
     // 'InitFeedoptPlan:33' Curv.sp         = Spline;
     Curv.sp.CoeffX.set_size(1, 4);
     Curv.sp.CoeffY.set_size(1, 4);

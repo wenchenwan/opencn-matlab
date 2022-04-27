@@ -5,7 +5,7 @@
 // File: BuildConstr_v4.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 12-Apr-2022 10:46:02
+// C/C++ source code generated on  : 27-Apr-2022 10:09:54
 //
 
 // Include Files
@@ -37,7 +37,7 @@
 namespace ocn {
 static void binary_expand_op(::coder::array<double, 1U> &b, const ::coder::array<double, 2U> &ramp);
 
-static void d_binary_expand_op(::coder::array<double, 2U> &R3, const ::coder::array<double, 2U> &r,
+static void c_binary_expand_op(::coder::array<double, 2U> &R3, const ::coder::array<double, 2U> &r,
                                const ::coder::array<double, 2U> &r1);
 
 } // namespace ocn
@@ -88,7 +88,7 @@ static void binary_expand_op(::coder::array<double, 1U> &b, const ::coder::array
 //                const ::coder::array<double, 2U> &r1
 // Return Type  : void
 //
-static void d_binary_expand_op(::coder::array<double, 2U> &R3, const ::coder::array<double, 2U> &r,
+static void c_binary_expand_op(::coder::array<double, 2U> &R3, const ::coder::array<double, 2U> &r,
                                const ::coder::array<double, 2U> &r1)
 {
     int aux_0_1;
@@ -337,9 +337,13 @@ void BuildConstr_v4(const queue_coder *ctx_q_splines, bool ctx_cfg_UseDynamicBre
         double varargin_1;
         // 'BuildConstr_v4:9' NBreak = max(floor(LengthCurv(ctx, CurvStructs(1), 0,
         // 1)/ctx.cfg.DynamicBreakpointsDistance), 4);
-        varargin_1 = LengthCurv(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
-                                &CurvStructs[0]) /
-                     ctx_cfg_DynamicBreakpointsDistance;
+        varargin_1 =
+            LengthCurv(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
+                       CurvStructs[0].Type, CurvStructs[0].P0, CurvStructs[0].P1,
+                       CurvStructs[0].CorrectedHelixCenter, CurvStructs[0].evec,
+                       CurvStructs[0].theta, CurvStructs[0].pitch, CurvStructs[0].CoeffP5,
+                       CurvStructs[0].sp_index, CurvStructs[0].a_param, CurvStructs[0].b_param) /
+            ctx_cfg_DynamicBreakpointsDistance;
         // 'BuildConstr_v4:10' if ctx.cfg.UseLinearBreakpoints
         if (ctx_cfg_UseLinearBreakpoints) {
             double delta1;
@@ -512,7 +516,7 @@ void BuildConstr_v4(const queue_coder *ctx_q_splines, bool ctx_cfg_UseDynamicBre
             }
         }
     } else {
-        d_binary_expand_op(R1, r1, r2);
+        c_binary_expand_op(R1, r1, r2);
     }
     // 'BuildConstr_v4:55' R2 = bsxfun(@times, r2D(2, :)' , BasisVal) + 0.5*bsxfun(@times, r1D(2,
     // :)' , BasisValD);
@@ -554,7 +558,7 @@ void BuildConstr_v4(const queue_coder *ctx_q_splines, bool ctx_cfg_UseDynamicBre
             }
         }
     } else {
-        d_binary_expand_op(R2, r1, r2);
+        c_binary_expand_op(R2, r1, r2);
     }
     // 'BuildConstr_v4:56' R3 = bsxfun(@times, r2D(3, :)' , BasisVal) + 0.5*bsxfun(@times, r1D(3,
     // :)' , BasisValD);
@@ -596,7 +600,7 @@ void BuildConstr_v4(const queue_coder *ctx_q_splines, bool ctx_cfg_UseDynamicBre
             }
         }
     } else {
-        d_binary_expand_op(R3, r1, r2);
+        c_binary_expand_op(R3, r1, r2);
     }
     //
     // 'BuildConstr_v4:59' A(1:7*M, 1:N)  = [BasisVal;
@@ -1031,9 +1035,15 @@ void BuildConstr_v4(const queue_coder *ctx_q_splines, bool ctx_cfg_UseDynamicBre
             double varargin_2;
             // 'BuildConstr_v4:93' NBreak = max(4, floor(LengthCurv(ctx, CurvStructs(k+1), 0,
             // 1)/ctx.cfg.DynamicBreakpointsDistance));
-            varargin_2 = LengthCurv(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
-                                    &CurvStructs[b_k + 1]) /
-                         ctx_cfg_DynamicBreakpointsDistance;
+            varargin_2 =
+                LengthCurv(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
+                           CurvStructs[b_k + 1].Type, CurvStructs[b_k + 1].P0,
+                           CurvStructs[b_k + 1].P1, CurvStructs[b_k + 1].CorrectedHelixCenter,
+                           CurvStructs[b_k + 1].evec, CurvStructs[b_k + 1].theta,
+                           CurvStructs[b_k + 1].pitch, CurvStructs[b_k + 1].CoeffP5,
+                           CurvStructs[b_k + 1].sp_index, CurvStructs[b_k + 1].a_param,
+                           CurvStructs[b_k + 1].b_param) /
+                ctx_cfg_DynamicBreakpointsDistance;
             // 'BuildConstr_v4:94' if ctx.cfg.UseLinearBreakpoints
             if (ctx_cfg_UseLinearBreakpoints) {
                 double b_delta1;
@@ -1172,7 +1182,7 @@ void BuildConstr_v4(const queue_coder *ctx_q_splines, bool ctx_cfg_UseDynamicBre
                 }
             }
         } else {
-            d_binary_expand_op(R1, r1, r2);
+            c_binary_expand_op(R1, r1, r2);
         }
         // 'BuildConstr_v4:109' R2 = bsxfun(@times, r2Dn(2, :)' , BasisVal) + 0.5*bsxfun(@times,
         // r1Dn(2, :)' , BasisValD);
@@ -1214,7 +1224,7 @@ void BuildConstr_v4(const queue_coder *ctx_q_splines, bool ctx_cfg_UseDynamicBre
                 }
             }
         } else {
-            d_binary_expand_op(R2, r1, r2);
+            c_binary_expand_op(R2, r1, r2);
         }
         // 'BuildConstr_v4:110' R3 = bsxfun(@times, r2Dn(3, :)' , BasisVal) + 0.5*bsxfun(@times,
         // r1Dn(3, :)' , BasisValD);
@@ -1256,7 +1266,7 @@ void BuildConstr_v4(const queue_coder *ctx_q_splines, bool ctx_cfg_UseDynamicBre
                 }
             }
         } else {
-            d_binary_expand_op(R3, r1, r2);
+            c_binary_expand_op(R3, r1, r2);
         }
         //
         // 'BuildConstr_v4:112' A(k*7*M+1:(k+1)*7*M, k*N+1:(k+1)*N) = ...

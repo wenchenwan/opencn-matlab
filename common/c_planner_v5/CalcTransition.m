@@ -130,8 +130,8 @@ end
 status = TransitionResult.Ok;
 
 % Cut the curve structures
-CurvStruct1_C = CutCurvStruct(ctx, CurvStruct1, 0, CutOff);
-CurvStruct2_C = CutCurvStruct(ctx, CurvStruct2, CutOff, 0);
+CurvStruct1_C = CutCurvStruct( ctx, CurvStruct1, 0, CutOff );
+CurvStruct2_C = CutCurvStruct( ctx, CurvStruct2, CutOff, 0 );
 
 if IsEnabledDebugLog(DebugCfg.Global)
     PrintCurvStruct(ctx, CurvStruct1_C)
@@ -260,5 +260,31 @@ else
     
 end
     CurvStruct_T.gcode_source_line = line2;    
-    CurvStruct_T.SpindleSpeed = min(CurvStruct1.SpindleSpeed, CurvStruct2.SpindleSpeed);    
+    CurvStruct_T.SpindleSpeed = min(CurvStruct1.SpindleSpeed, CurvStruct2.SpindleSpeed); 
+    if( coder.target("MATLAB") )
+        check_continuity( ctx, CurvStruct1_C, CurvStruct_T );
+        check_continuity( ctx, CurvStruct_T, CurvStruct2_C );
+    end
+end
+
+
+function [] = check_continuity( ctx, CurvStruct1, CurvStruct2 )
+    tol = 1E-9;
+    [ r11, r1d1, r1dd1 ] = EvalCurvStruct( ctx, CurvStruct1, 1 );
+    [ r21, r2d1, r2dd1 ] = EvalCurvStruct( ctx, CurvStruct2, 0 );
+
+    [t1, ~,  kappa1] = CalcFrenet( r1d1, r1dd1 );
+    [t2, ~,  kappa2] = CalcFrenet( r2d1, r2dd1 );
+
+    diff_r      = abs( r11    -r21 )        < tol;
+    diff_rd     = norm( cross( t1, t2 ) )    < tol;
+    diff_rdd    = abs( kappa1 -kappa2 )     < tol;
+
+    assert( all( diff_r ), mfilename + ...
+                        ".m : continuity C0 failed " + mat2str( diff_r' ) );
+    assert( diff_rd  , mfilename + ...
+                        " : continuity G1 failed "  + diff_rd );
+    assert( diff_rdd , mfilename + ...
+                        " : continuity G2 failed "  + mat2str( diff_rdd' ) );
+
 end

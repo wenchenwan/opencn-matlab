@@ -38,8 +38,8 @@ if Ncrv > 1
                 CurvStruct2 = NextCurv;
 %                 SaveTransition;
 %                 If the transition fails, force a zero-stop
-                [CurvStruct1_C, CurvStruct2_C] = CutZeroEnd(ctx, CurvStruct1, k);
-                [CurvStruct3_C, CurvStruct4_C] = CutZeroStart(ctx, NextCurv, k);
+                [CurvStruct1_C, CurvStruct2_C] = cutZeroEnd(ctx, CurvStruct1);
+                [CurvStruct3_C, CurvStruct4_C] = cutZeroStart(ctx, NextCurv);
                 ctx.q_smooth.push(CurvStruct1_C);
                 ctx.q_smooth.push(CurvStruct2_C);
                 ctx.q_smooth.push(CurvStruct3_C);                
@@ -67,8 +67,8 @@ if Ncrv > 1
 elseif Ncrv==1
     CurvStruct1 = ctx.q_compress.get(1);
     if CurvStruct1.zspdmode == ZSpdMode.ZZ
-        [CurvStruct1_C, CurvStruct2_C] = CutZeroStart(ctx, CurvStruct1, 1);
-        [CurvStruct2_C, CurvStruct3_C] = CutZeroEnd(ctx, CurvStruct2_C, 1);
+        [CurvStruct1_C, CurvStruct2_C] = cutZeroStart(ctx, CurvStruct1);
+        [CurvStruct2_C, CurvStruct3_C] = cutZeroEnd(ctx, CurvStruct2_C);
         ctx.q_smooth.push(CurvStruct1_C);
         ctx.q_smooth.push(CurvStruct2_C);
         ctx.q_smooth.push(CurvStruct3_C);

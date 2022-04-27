@@ -5,47 +5,13 @@
 // File: minOrMax.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 12-Apr-2022 10:51:01
+// C/C++ source code generated on  : 27-Apr-2022 10:08:40
 //
 
 // Include Files
 #include "minOrMax.h"
-#include <cmath>
 
 // Function Definitions
-//
-// Arguments    : unsigned long x
-// Return Type  : unsigned long
-//
-namespace ocn {
-namespace coder {
-namespace internal {
-unsigned long maximum2(unsigned long x)
-{
-    double DBLMAXFLINT;
-    unsigned long ex;
-    bool alarge;
-    bool blarge;
-    bool p;
-    p = false;
-    DBLMAXFLINT = std::pow(2.0, 52.0);
-    blarge = (1.0 >= DBLMAXFLINT);
-    alarge = (x >= static_cast<unsigned long>(std::round(DBLMAXFLINT)));
-    if ((!alarge) && blarge) {
-        p = true;
-    } else if (alarge && blarge) {
-        p = (x < 1UL);
-    } else if (!alarge) {
-        p = (x < 1.0);
-    }
-    if (p) {
-        ex = 1UL;
-    } else {
-        ex = x;
-    }
-    return ex;
-}
-
 //
 // Arguments    : const double x_data[]
 //                int x_size
@@ -53,6 +19,9 @@ unsigned long maximum2(unsigned long x)
 //                int *idx
 // Return Type  : void
 //
+namespace ocn {
+namespace coder {
+namespace internal {
 void minimum(const double x_data[], int x_size, double *ex, int *idx)
 {
     if (x_size <= 2) {

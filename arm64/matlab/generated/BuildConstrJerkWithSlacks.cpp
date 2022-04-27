@@ -5,7 +5,7 @@
 // File: BuildConstrJerkWithSlacks.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 12-Apr-2022 10:51:01
+// C/C++ source code generated on  : 27-Apr-2022 10:08:40
 //
 
 // Include Files
@@ -15,10 +15,12 @@
 #include "bsxfun.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_types1.h"
+#include "opencn_matlab_types2.h"
 #include "queue_coder.h"
 #include "sparse.h"
 #include "sparse1.h"
 #include "coder_array.h"
+#include <algorithm>
 #include <cmath>
 
 // Function Definitions
@@ -72,6 +74,16 @@ void BuildConstrJerkWithSlacks(const queue_coder *ctx_q_splines,
     ::coder::array<double, 1U> b_r3D;
     ::coder::array<double, 1U> r3;
     ::coder::array<double, 1U> y_tmp;
+    double dv4[6][3];
+    double dv9[6][3];
+    double dv[3];
+    double dv1[3];
+    double dv2[3];
+    double dv3[3];
+    double dv5[3];
+    double dv6[3];
+    double dv7[3];
+    double dv8[3];
     double b_b;
     double d;
     int BasisVal_idx_0;
@@ -160,7 +172,22 @@ void BuildConstrJerkWithSlacks(const queue_coder *ctx_q_splines,
     for (int i1{0}; i1 <= loop_ub; i1++) {
         b_u_vec[i1] = u_vec[i1];
     }
-    b_EvalCurvStruct(ctx_q_splines, &CurvStructs[0], b_u_vec, a__1, r1D, r2D, r3D);
+    dv[0] = CurvStructs[0].P0[0];
+    dv[1] = CurvStructs[0].P0[1];
+    dv[2] = CurvStructs[0].P0[2];
+    dv1[0] = CurvStructs[0].P1[0];
+    dv1[1] = CurvStructs[0].P1[1];
+    dv1[2] = CurvStructs[0].P1[2];
+    dv2[0] = CurvStructs[0].CorrectedHelixCenter[0];
+    dv2[1] = CurvStructs[0].CorrectedHelixCenter[1];
+    dv2[2] = CurvStructs[0].CorrectedHelixCenter[2];
+    dv3[0] = CurvStructs[0].evec[0];
+    dv3[1] = CurvStructs[0].evec[1];
+    dv3[2] = CurvStructs[0].evec[2];
+    std::copy(&CurvStructs[0].CoeffP5[0][0], &CurvStructs[0].CoeffP5[0][0] + 18U, &dv4[0][0]);
+    b_EvalCurvStruct(ctx_q_splines, CurvStructs[0].Type, dv, dv1, dv2, dv3, CurvStructs[0].theta,
+                     CurvStructs[0].pitch, dv4, CurvStructs[0].sp_index, CurvStructs[0].a_param,
+                     CurvStructs[0].b_param, b_u_vec, a__1, r1D, r2D, r3D);
     //
     // 'BuildConstrJerkWithSlacks:22' R1 = bsxfun(@times, (bsxfun(@times, BasisVal , r3D(1, :)') +
     // ... 'BuildConstrJerkWithSlacks:23'       1.5*bsxfun(@times, BasisValD , r2D(1, :)') + ...
@@ -600,7 +627,24 @@ void BuildConstrJerkWithSlacks(const queue_coder *ctx_q_splines,
         for (int i53{0}; i53 <= gb_loop_ub; i53++) {
             c_u_vec[i53] = u_vec[i53];
         }
-        b_EvalCurvStruct(ctx_q_splines, &CurvStructs[c_k + 1], c_u_vec, a__2, r1D, r2D, r3D);
+        dv5[0] = CurvStructs[c_k + 1].P0[0];
+        dv5[1] = CurvStructs[c_k + 1].P0[1];
+        dv5[2] = CurvStructs[c_k + 1].P0[2];
+        dv6[0] = CurvStructs[c_k + 1].P1[0];
+        dv6[1] = CurvStructs[c_k + 1].P1[1];
+        dv6[2] = CurvStructs[c_k + 1].P1[2];
+        dv7[0] = CurvStructs[c_k + 1].CorrectedHelixCenter[0];
+        dv7[1] = CurvStructs[c_k + 1].CorrectedHelixCenter[1];
+        dv7[2] = CurvStructs[c_k + 1].CorrectedHelixCenter[2];
+        dv8[0] = CurvStructs[c_k + 1].evec[0];
+        dv8[1] = CurvStructs[c_k + 1].evec[1];
+        dv8[2] = CurvStructs[c_k + 1].evec[2];
+        std::copy(&CurvStructs[c_k + 1].CoeffP5[0][0], &CurvStructs[c_k + 1].CoeffP5[0][0] + 18U,
+                  &dv9[0][0]);
+        b_EvalCurvStruct(ctx_q_splines, CurvStructs[c_k + 1].Type, dv5, dv6, dv7, dv8,
+                         CurvStructs[c_k + 1].theta, CurvStructs[c_k + 1].pitch, dv9,
+                         CurvStructs[c_k + 1].sp_index, CurvStructs[c_k + 1].a_param,
+                         CurvStructs[c_k + 1].b_param, c_u_vec, a__2, r1D, r2D, r3D);
         //
         //      q_opt  = Function(Bl, Coeff(:, k+1));
         //      q_val  = q_opt.fast_eval(u_vec);

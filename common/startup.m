@@ -7,6 +7,8 @@ addpath Tests/Unit
 addpath Validate_OpenCN
 addpath arc_center
 addpath Tests
-addpath dev/
+
+if( exist( "dev" , 'dir' ) ), addpath( "dev/" ); end
+
 genPath = genpath( 'gen_mex' );
 addpath( genPath );

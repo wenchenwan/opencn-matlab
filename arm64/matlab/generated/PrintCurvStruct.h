@@ -5,7 +5,7 @@
 // File: PrintCurvStruct.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 12-Apr-2022 10:51:01
+// C/C++ source code generated on  : 27-Apr-2022 10:08:40
 //
 
 #ifndef PRINTCURVSTRUCT_H
@@ -28,8 +28,9 @@ struct CurvStruct;
 
 // Function Declarations
 namespace ocn {
-void PrintCurvStruct(const queue_coder *ctx_q_splines, const double ctx_cfg_GaussLegendreX[5],
-                     const double ctx_cfg_GaussLegendreW[5], const CurvStruct *S);
+void PrintCurvStruct(const queue_coder *ctx_q_splines, double ctx_cfg_dt,
+                     const double ctx_cfg_GaussLegendreX[5], const double ctx_cfg_GaussLegendreW[5],
+                     const CurvStruct *S);
 
 }
 

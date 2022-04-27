@@ -1,11 +1,15 @@
 #pragma once
 
+// #define MEX_FEEDOPTPLANRUN
 
+#ifndef MEX_FEEDOPTPLANRUN
+    #define MEX_READGCODE
+#endif
 
-#if defined(MEX_FEEDOPTPLANRUN)
+#ifdef MEX_FEEDOPTPLANRUN
     #include <FeedoptPlanRun_mex.h>
 #else
-    #if defined(MEX_READGCODE)
+    #ifdef MEX_READGCODE
         #include <ReadGCode_mex.h>
     #endif
 #endif

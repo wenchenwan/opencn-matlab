@@ -2,15 +2,16 @@ clear; clc;
 
 % We need first to choose what we whant to MEX.
 % Several options are possible.
-GenerateAll = false;
+GenerateAll = true;
 
 if( ~GenerateAll )
     GenerateConstrFunctions     = false;
-    GenerateFeedoptPlanRun      = false;
-    GenerateGCodeInterpreter    = true;
-    GenerateQueues              = true;
-    GenerateSimplex             = true;
-    GenerateSpline              = true;
+    GenerateResampling          = false;
+    GenerateGCodeInterpreter    = false;
+    GenerateQueues              = false;
+    GenerateSimplex             = false;
+    GenerateSpline              = false;
+%     GenerateFeedoptPlanRun      = false; % Does not work now
 end
 
 % Prepares the Coder to generate source files intended to be built,
@@ -108,14 +109,14 @@ cfg.CustomInclude = [...
 % when executing MEX files.
 
 % Remove gen from path
-genPath = genpath( 'gen_mex' );
-rmpath( genPath );
 
 if( GenerateAll || GenerateConstrFunctions )
     name = "Debug Constr functions : ";
     disp(name + "start" );
     try
-        codegen('-config', cfg,'-d', 'gen_mex/debug', ...
+        DebugRep = 'gen_mex/debug';
+        path_mex = genpath( DebugRep );
+        codegen('-config', cfg,'-d', DebugRep , ...
             'ConstrCurvStructType',...
             'ConstrLineStruct', '-args', {trafo, HSC, P0, P0 P0, Doff, P0, P0, P0, P0, P0, P0, 1.0, ZSpdMode.NN},...
             'ConstrHelixStruct', '-args', {trafo, HSC, P0, P0 P0, Doff, P0, P0, P0, P0, P0, P0, P0, 1.0, P0, 1.0, 1.0, 1.0, ZSpdMode.NN},...
@@ -133,7 +134,10 @@ if( GenerateAll || GenerateGCodeInterpreter )
     name = "Mexing gcode interpreter : ";
     disp(name + "start" );
     try
-        codegen('-config', cfg,'-d', 'gen_mex/readgcode', ...
+        ReadGCodeRep = 'gen_mex/readgcode';
+        path_mex = genpath( ReadGCodeRep );
+        rmpath( path_mex );
+        codegen('-config', cfg,'-d', ReadGCodeRep, ...
             'ConstrCurvStructType',...
             'ReadGCode', '-args', {ReadGCodeCmd.Load, coder.typeof(' ', [1,1024], [0, 1])},...
             'ConstrLineStruct', '-args', {trafo, HSC, P0, P0 P0, Doff, P0, P0, P0, P0, P0, P0, 1.0, ZSpdMode.NN},...
@@ -148,33 +152,13 @@ if( GenerateAll || GenerateGCodeInterpreter )
     end
 end
 
-if( GenerateAll || GenerateFeedoptPlanRun )
-    name = "Mexing FeedoptPlanRun : ";
-    disp(name + "start" );
-    try
-        codegen('-config', cfg, '-d', 'gen_mex/feedoptplanrun',...
-            'ReadGCode', '-args', {ReadGCodeCmd.Load, coder.typeof(' ', [1,1024], [0, 1])},...
-            'ConstrLineStruct', '-args', {trafo, HSC, P0, P0 P0, Doff, P0, P0, P0, P0, P0, P0, 1.0, ZSpdMode.NN},...
-            'ConstrHelixStruct', '-args', {trafo, HSC, P0, P0 P0, Doff, P0, P0, P0, P0, P0, P0, P0, 1.0, P0, 1.0, 1.0, 1.0, ZSpdMode.NN},...
-            'ConstrHelixStructFromArcFeed', '-args', {trafo, HSC, P0, P0 P0, Doff, 0,0,0,  0,0,0,  0,0,0,  P0, P0, P0, P0, 0,[0,0,0]'},...
-            'CopyCurvStruct','-args', C,...
-            'ConstrCurvStructType',...
-            'FeedoptPlanRun', '-args', fctx, ...
-            'FeedoptDefaultConfig', ...
-            'InitFeedoptPlan', '-args', fcfg,...
-            '-o', 'FeedoptPlanRun_mex');
-        disp(name + "success" );
-        delete( 'FeedoptPlanRun_mex.mexa64' );
-    catch ME
-        disp(name + "failed : " + ME.message );
-    end
-end
-
 if( GenerateAll || GenerateQueues )
     name = "Mexing queues : ";
     disp(name + "start" );
     try
-
+        QueueRep = 'gen_mex/queue';
+        path_mex = genpath( QueueRep );
+        rmpath( path_mex );
         mex mex/queue/queue_new.cpp     -output queue_new_mex    -outdir gen_mex/queue
         mex mex/queue/queue_delete.cpp  -output queue_delete_mex -outdir gen_mex/queue
         mex mex/queue/queue_push.cpp    -output queue_push_mex   -outdir gen_mex/queue
@@ -191,12 +175,41 @@ if( GenerateAll || GenerateQueues )
     end
 end
 
+if( GenerateAll || GenerateResampling )
+    name = "Mexing resampling : ";
+    disp(name + "start" );
+
+    try
+        ResamplingRep = 'gen_mex/resampling';
+        path_mex = genpath( ResamplingRep );
+        rmpath( path_mex );
+        my_cfg  = FeedoptDefaultConfig;
+        ctx     = InitFeedoptPlan( my_cfg );
+        dt      = my_cfg.dt;
+        state   = ResampleState( dt );
+        Curv    = ConstrCurvStructType;        
+        codegen('-config', cfg,'-d', ResamplingRep,...
+            'resampleCurv', '-args', {state, ctx.Bl, Curv.zspdmode, ...
+             coder.typeof(0.0, [Inf, 1], [1,0]), ...
+             Curv.ConstJerk, dt,  Curv.a_param, Curv.b_param }, ...
+            '-o', 'resampling_mex');
+        disp(name + "success" );
+        delete( 'resampling_mex.mexa64' );
+
+    catch ME
+        disp(name + "failed : " + ME.message );
+    end
+end
+
 if( GenerateAll || GenerateSimplex )
     name = "Mexing simplex solver : ";
     disp(name + "start" );
 
     try
-        codegen('-config', cfg,'-d', 'gen_mex/c_simplex',...
+        CSimplexRep = 'gen_mex/c_simplex';
+        path_mex = genpath( CSimplexRep );
+        rmpath( path_mex );
+        codegen('-config', cfg,'-d', CSimplexRep,...
             'c_simplex.m', '-args', {...
             coder.typeof(0.0,         [Inf, Inf],   [1,1]), ...
             coder.typeof(sparse(0.0), [Inf, Inf],   [1,1]), ...    % A
@@ -216,8 +229,11 @@ if( GenerateAll || GenerateSpline )
     name = "Mexing bspline_create : ";
     disp(name + "start" );
     try
-        fcfg = FeedoptDefaultConfig;
         splineRep = "gen_mex/spline/";
+        path_mex = genpath( splineRep );
+        rmpath( path_mex );
+
+        fcfg = FeedoptDefaultConfig;
         codegen('-config', cfg,'-d', splineRep + "/bspline_create",...
             'bspline_create', '-args',...
             {fcfg.SplineDegree, coder.typeof(0.0, [1, Inf], [0, 1])},...
@@ -254,5 +270,38 @@ if( GenerateAll || GenerateSpline )
     end
 end
 
+% Does not work for now
+% if( GenerateFeedoptPlanRun )
+%     name = "Mexing FeedoptPlanRun : ";
+%     disp(name + "start" );
+%     try
+%         global sqrt_calls sin_calls cos_calls cot_calls DebugConfig
+%         sqrt_calls = 0;
+%         sin_calls = 0;
+%         cos_calls = 0;
+%         cot_calls = 0;
+%         DebugConfig = 0;
+%         FeedoptPlanRep = 'gen_mex/feedoptplanrun';
+%         path_mex = genpath( FeedoptPlanRep );
+%         rmpath( path_mex );
+%         codegen('-config', cfg, '-d', FeedoptPlanRep,...
+%             'ConstrCurvStructType',...
+%             'ReadGCode', '-args', {ReadGCodeCmd.Load, coder.typeof(' ', [1,1024], [0, 1])},...
+%             'ConstrLineStruct', '-args', {trafo, HSC, P0, P0 P0, Doff, P0, P0, P0, P0, P0, P0, 1.0, ZSpdMode.NN},...
+%             'ConstrHelixStruct', '-args', {trafo, HSC, P0, P0 P0, Doff, P0, P0, P0, P0, P0, P0, P0, 1.0, P0, 1.0, 1.0, 1.0, ZSpdMode.NN},...
+%             'ConstrHelixStructFromArcFeed', '-args', {trafo,  HSC, P0, P0 P0, Doff, 0,0,0,  0,0,0,  0,0,0,  P0, P0, P0, P0, 0,[0,0,0]'},...
+%             'CopyCurvStruct','-args', C,...
+%             'FeedoptPlanRun', '-args', fctx, ...
+%             'FeedoptDefaultConfig', ...
+%             'InitFeedoptPlan', '-args', fcfg,...
+%             '-o', 'FeedoptPlanRun_mex');
+%         disp(name + "success" );
+%         delete( 'FeedoptPlanRun_mex.mexa64' );
+%     catch ME
+%         disp(name + "failed : " + ME.message );
+%     end
+% end
+
 % Add path to current working directory
+genPath = genpath( 'gen_mex' );
 addpath( genPath );

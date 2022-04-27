@@ -5,14 +5,14 @@
 // File: PrintCurvStruct.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 12-Apr-2022 10:51:01
+// C/C++ source code generated on  : 27-Apr-2022 10:08:40
 //
 
 // Include Files
 #include "PrintCurvStruct.h"
-#include "CalcZeroStartConstraints.h"
 #include "EvalCurvStruct.h"
 #include "LengthCurv.h"
+#include "calcZeroStartConstraints.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_internal_types.h"
 #include "opencn_matlab_types1.h"
@@ -27,14 +27,16 @@
 // function PrintCurvStruct(ctx, S)
 //
 // Arguments    : const queue_coder *ctx_q_splines
+//                double ctx_cfg_dt
 //                const double ctx_cfg_GaussLegendreX[5]
 //                const double ctx_cfg_GaussLegendreW[5]
 //                const CurvStruct *S
 // Return Type  : void
 //
 namespace ocn {
-void PrintCurvStruct(const queue_coder *ctx_q_splines, const double ctx_cfg_GaussLegendreX[5],
-                     const double ctx_cfg_GaussLegendreW[5], const CurvStruct *S)
+void PrintCurvStruct(const queue_coder *ctx_q_splines, double ctx_cfg_dt,
+                     const double ctx_cfg_GaussLegendreX[5], const double ctx_cfg_GaussLegendreW[5],
+                     const CurvStruct *S)
 {
     static const char b_cv[9]{'<', 'U', 'N', 'K', 'N', 'O', 'W', 'N', '>'};
     static const char b_cv2[7]{'T', 'r', 'a', 'n', 's', 'P', '5'};
@@ -189,7 +191,9 @@ void PrintCurvStruct(const queue_coder *ctx_q_splines, const double ctx_cfg_Gaus
     fflush(stdout);
     // 'PrintCurvStruct:32' fprintf('%10s: %e\n', 'Length', LengthCurv(ctx, S, 0, 1));
     validatedHoleFilling_f2 =
-        LengthCurv(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, S);
+        LengthCurv(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, S->Type, S->P0,
+                   S->P1, S->CorrectedHelixCenter, S->evec, S->theta, S->pitch, S->CoeffP5,
+                   S->sp_index, S->a_param, S->b_param);
     printf("%10s: %e\n", "Length", validatedHoleFilling_f2);
     fflush(stdout);
     // 'PrintCurvStruct:33' fprintf('ZSpdMode: %s\n', PrintZSpdMode(S.zspdmode))
@@ -231,10 +235,10 @@ void PrintCurvStruct(const queue_coder *ctx_q_splines, const double ctx_cfg_Gaus
     fflush(stdout);
     // 'PrintCurvStruct:35' if S.UseConstJerk
     if (S->UseConstJerk) {
-        // 'PrintCurvStruct:36' [v_0, at_0] = CalcZeroStartConstraints(ctx, S, 1);
-        CalcZeroStartConstraints(ctx_q_splines, S->Type, S->P0, S->P1, S->CorrectedHelixCenter,
-                                 S->evec, S->theta, S->pitch, S->CoeffP5, S->sp_index,
-                                 S->UseConstJerk, S->ConstJerk, S->a_param, S->b_param, 1.0,
+        // 'PrintCurvStruct:36' [v_0, at_0] = calcZeroStartConstraints( ctx, S );
+        calcZeroStartConstraints(ctx_q_splines, ctx_cfg_dt, S->Type, S->P0, S->P1,
+                                 S->CorrectedHelixCenter, S->evec, S->theta, S->pitch, S->CoeffP5,
+                                 S->sp_index, S->ConstJerk, S->a_param, S->b_param,
                                  &validatedHoleFilling_idx_0, &b_validatedHoleFilling_idx_0);
         // 'PrintCurvStruct:37' fprintf('ConstJerk: %e\n', S.ConstJerk)
         printf("ConstJerk: %e\n", S->ConstJerk);

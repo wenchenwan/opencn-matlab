@@ -1,5 +1,4 @@
 function sp3D = CalcBspline_Lee(cfg, points)
-
 [~, N] = size(points); % number of points in 3D space
 du     = sum((diff(points.').^2).');
 u      = cumsum([0,du.^(1/4)]);

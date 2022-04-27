@@ -33,7 +33,7 @@ fprintf('%10s: %e\n', 'Length', LengthCurv(ctx, S, 0, 1));
 fprintf('ZSpdMode: %s\n', PrintZSpdMode(S.zspdmode))
 fprintf('FeedRate: %.2f\n', S.FeedRate)
 if S.UseConstJerk
-    [v_0, at_0] = CalcZeroStartConstraints(ctx, S, 1);
+    [v_0, at_0] = calcZeroStartConstraints( ctx, S );
     fprintf('ConstJerk: %e\n', S.ConstJerk)
     fprintf('v_0      : %f\n', v_0)
     fprintf('at_0     : %f\n', at_0)

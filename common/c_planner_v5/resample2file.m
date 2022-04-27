@@ -1,5 +1,5 @@
 function [ ] = resample2file( ctx, fileName )
-% resample2file : Performe the resampling on the whole queue q_opt.
+% resample2fileDebug : Performe the resampling on the whole queue q_opt.
 % The resampled data are stored in a file.
 % 
 % Inputs : 
@@ -24,12 +24,16 @@ for k = 1 : N
     Curv                        = ctx.q_opt.get( k );
     SplineCurv                  = ctx.q_splines.get( Curv.sp_index );
     Curv.MaxConstantFeedRate    = GetCurvMaxFeedrate( ctx, Curv );
-
+        
     while ~state.go_next
 
-        [state, qk, qd_k, qdd_k] = resampleCurv( state, ctx.Bl, Curv, dt );
+         [ state, ud, udd, uddd ] = resampleCurv(state, ctx.Bl, ...
+                                    Curv.zspdmode, Curv.Coeff, ...
+                                    Curv.ConstJerk, dt, Curv.a_param, ...
+                                    Curv.b_param);
         
         if( ~state.isOutsideRange )
+            state.dt = dt;
             t = t + 1;
             ind = ind + 1;
             if( ind > sizeBuffer )
@@ -37,14 +41,11 @@ for k = 1 : N
                 firstTime = write2files( firstTime, buffer, fileName );
             end
     
-            [r, rd, rdd, rddd]  = EvalCurvStructNoCtx( Curv, SplineCurv, state.u );
             u       = state.u + double(k) - 1 ; 
             cf      = GetCurvMaxFeedrate(ctx, Curv);
             f       = Curv.FeedRate;
-            feed    = vecnorm( rd * mysqrt( qk ) );
-            a       = rdd * qk + rd * qd_k /2;
-            j       = ( rddd * qk + 3 * rdd * qd_k / 2 + rd * qdd_k / 2 ) * mysqrt( qk );
-            
+            [ r, v, a, j ] = calcRVAJfromU( ctx, Curv, state.u, ud, udd, uddd );
+            feed    = vecnorm( v );   
             feed    = feed / Curv.FeedRate;
             a       = abs( a ./ ctx.cfg.amax' );
             j       = abs( j ./ ctx.cfg.jmax' );
@@ -52,7 +53,8 @@ for k = 1 : N
             buffer( ind, : ) = [ t, u, feed, f, cf, r', a', j' ];
         end
     end
-
+    state.u = 0;
+    state.isOutsideRange = false;
     state.go_next = false;
 end
 

@@ -5,7 +5,7 @@
 // File: SplineLengthApproxGL_tot.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 12-Apr-2022 10:46:02
+// C/C++ source code generated on  : 27-Apr-2022 10:09:54
 //
 
 // Include Files
@@ -18,17 +18,66 @@
 
 // Function Declarations
 namespace ocn {
+static void b_binary_expand_op(::coder::array<double, 2U> &Umat,
+                               const ::coder::array<double, 2U> &c,
+                               const ::coder::array<double, 2U> &b_c);
+
 static void binary_expand_op(::coder::array<double, 2U> &Lk, const ::coder::array<double, 2U> &y,
                              const ::coder::array<double, 2U> &Curv_sp_knots, int i4, int i5,
                              int i6);
 
-static void c_binary_expand_op(::coder::array<double, 2U> &Umat,
-                               const ::coder::array<double, 2U> &c,
-                               const ::coder::array<double, 2U> &b_c);
-
 } // namespace ocn
 
 // Function Definitions
+//
+// Arguments    : ::coder::array<double, 2U> &Umat
+//                const ::coder::array<double, 2U> &c
+//                const ::coder::array<double, 2U> &b_c
+// Return Type  : void
+//
+namespace ocn {
+static void b_binary_expand_op(::coder::array<double, 2U> &Umat,
+                               const ::coder::array<double, 2U> &c,
+                               const ::coder::array<double, 2U> &b_c)
+{
+    int aux_0_1;
+    int aux_1_1;
+    int i;
+    int loop_ub;
+    int stride_0_1;
+    int stride_1_1;
+    if (b_c.size(1) == 1) {
+        i = c.size(1);
+    } else {
+        i = b_c.size(1);
+    }
+    Umat.set_size(5, i);
+    stride_0_1 = (c.size(1) != 1);
+    stride_1_1 = (b_c.size(1) != 1);
+    aux_0_1 = 0;
+    aux_1_1 = 0;
+    if (b_c.size(1) == 1) {
+        loop_ub = c.size(1);
+    } else {
+        loop_ub = b_c.size(1);
+    }
+    for (int i1{0}; i1 < loop_ub; i1++) {
+        __m128d r;
+        __m128d r1;
+        __m128d r2;
+        r = _mm_loadu_pd((const double *)&c[5 * aux_0_1]);
+        r1 = _mm_loadu_pd((const double *)&b_c[5 * aux_1_1]);
+        r2 = _mm_set1_pd(2.0);
+        _mm_storeu_pd(&Umat[5 * i1], _mm_div_pd(_mm_add_pd(r, r1), r2));
+        r = _mm_loadu_pd((const double *)&c[5 * aux_0_1 + 2]);
+        r1 = _mm_loadu_pd((const double *)&b_c[5 * aux_1_1 + 2]);
+        _mm_storeu_pd(&Umat[5 * i1 + 2], _mm_div_pd(_mm_add_pd(r, r1), r2));
+        Umat[5 * i1 + 4] = (c[5 * aux_0_1 + 4] + b_c[5 * aux_1_1 + 4]) / 2.0;
+        aux_1_1 += stride_1_1;
+        aux_0_1 += stride_0_1;
+    }
+}
+
 //
 // Arguments    : ::coder::array<double, 2U> &Lk
 //                const ::coder::array<double, 2U> &y
@@ -38,7 +87,6 @@ static void c_binary_expand_op(::coder::array<double, 2U> &Umat,
 //                int i6
 // Return Type  : void
 //
-namespace ocn {
 static void binary_expand_op(::coder::array<double, 2U> &Lk, const ::coder::array<double, 2U> &y,
                              const ::coder::array<double, 2U> &Curv_sp_knots, int i4, int i5,
                              int i6)
@@ -82,54 +130,6 @@ static void binary_expand_op(::coder::array<double, 2U> &Lk, const ::coder::arra
         Lk[i3] = y[i3 * stride_0_1] *
                  (Curv_sp_knots[(i4 + i3 * stride_1_1) + 3] - Curv_sp_knots[i3 * stride_2_1 + 3]) /
                  2.0;
-    }
-}
-
-//
-// Arguments    : ::coder::array<double, 2U> &Umat
-//                const ::coder::array<double, 2U> &c
-//                const ::coder::array<double, 2U> &b_c
-// Return Type  : void
-//
-static void c_binary_expand_op(::coder::array<double, 2U> &Umat,
-                               const ::coder::array<double, 2U> &c,
-                               const ::coder::array<double, 2U> &b_c)
-{
-    int aux_0_1;
-    int aux_1_1;
-    int i;
-    int loop_ub;
-    int stride_0_1;
-    int stride_1_1;
-    if (b_c.size(1) == 1) {
-        i = c.size(1);
-    } else {
-        i = b_c.size(1);
-    }
-    Umat.set_size(5, i);
-    stride_0_1 = (c.size(1) != 1);
-    stride_1_1 = (b_c.size(1) != 1);
-    aux_0_1 = 0;
-    aux_1_1 = 0;
-    if (b_c.size(1) == 1) {
-        loop_ub = c.size(1);
-    } else {
-        loop_ub = b_c.size(1);
-    }
-    for (int i1{0}; i1 < loop_ub; i1++) {
-        __m128d r;
-        __m128d r1;
-        __m128d r2;
-        r = _mm_loadu_pd((const double *)&c[5 * aux_0_1]);
-        r1 = _mm_loadu_pd((const double *)&b_c[5 * aux_1_1]);
-        r2 = _mm_set1_pd(2.0);
-        _mm_storeu_pd(&Umat[5 * i1], _mm_div_pd(_mm_add_pd(r, r1), r2));
-        r = _mm_loadu_pd((const double *)&c[5 * aux_0_1 + 2]);
-        r1 = _mm_loadu_pd((const double *)&b_c[5 * aux_1_1 + 2]);
-        _mm_storeu_pd(&Umat[5 * i1 + 2], _mm_div_pd(_mm_add_pd(r, r1), r2));
-        Umat[5 * i1 + 4] = (c[5 * aux_0_1 + 4] + b_c[5 * aux_1_1 + 4]) / 2.0;
-        aux_1_1 += stride_1_1;
-        aux_0_1 += stride_0_1;
     }
 }
 
@@ -282,7 +282,7 @@ void SplineLengthApproxGL_tot(double ctx_cfg_GaussLegendreN, const double ctx_cf
             Umat[5 * i5 + 4] = (c[5 * i5 + 4] + b_c[5 * i5 + 4]) / 2.0;
         }
     } else {
-        c_binary_expand_op(Umat, c, b_c);
+        b_binary_expand_op(Umat, c, b_c);
     }
     // 'SplineLengthApproxGL_tot:21' Uvec   = Umat(:)';
     //  all evaluation points as row vector
@@ -297,7 +297,6 @@ void SplineLengthApproxGL_tot(double ctx_cfg_GaussLegendreN, const double ctx_cf
     // 'SplineLengthApproxGL_tot:24' r1Dnorm   = MyNorm(r1D);
     // 'MyNorm:2' coder.inline('always');
     // 'MyNorm:3' n = mysqrt(sum(x.^2));
-    // 'mysqrt:3' y = sqrt(x);
     r8.set_size(3, r1D.size(1));
     c_loop_ub = r1D.size(1);
     for (int i8{0}; i8 < c_loop_ub; i8++) {
@@ -323,6 +322,7 @@ void SplineLengthApproxGL_tot(double ctx_cfg_GaussLegendreN, const double ctx_cf
             r1Dnorm[c_k] = r1Dnorm[c_k] + r8[3 * c_k + 2];
         }
     }
+    // 'mysqrt:3' y = sqrt(x);
     i10 = r1Dnorm.size(1);
     scalarLB = (r1Dnorm.size(1) / 2) << 1;
     vectorUB = scalarLB - 2;

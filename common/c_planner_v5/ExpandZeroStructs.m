@@ -18,16 +18,16 @@ for k = 1:Ncrv
     Curv = ctx.q_gcode.get(k);
 
     if Curv.zspdmode == ZSpdMode.ZN
-        [CurvStruct1_C, CurvStruct2_C] = CutZeroStart(ctx, Curv, k);
+        [CurvStruct1_C, CurvStruct2_C] = cutZeroStart( ctx, Curv );
         ctx.q_compress.push(CurvStruct1_C);
         ctx.q_compress.push(CurvStruct2_C);
     elseif Curv.zspdmode == ZSpdMode.NZ
-        [CurvStruct1_C, CurvStruct2_C] = CutZeroEnd(ctx, Curv, k);
+        [CurvStruct1_C, CurvStruct2_C] = cutZeroEnd( ctx, Curv );
         ctx.q_compress.push(CurvStruct1_C);
         ctx.q_compress.push(CurvStruct2_C);
     elseif Curv.zspdmode == ZSpdMode.ZZ
-        [CurvStruct1_C, CurvStruct2_C] = CutZeroStart(ctx, Curv, k);
-        [CurvStruct2_C, CurvStruct3_C] = CutZeroEnd(ctx, CurvStruct2_C, k);
+        [CurvStruct1_C, CurvStruct2_C] = cutZeroStart( ctx, Curv );
+        [CurvStruct2_C, CurvStruct3_C] = cutZeroEnd( ctx, CurvStruct2_C );
         ctx.q_compress.push(CurvStruct1_C);
         ctx.q_compress.push(CurvStruct2_C);
         ctx.q_compress.push(CurvStruct3_C);

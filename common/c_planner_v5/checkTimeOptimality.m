@@ -29,14 +29,19 @@ for k = 1 : N
     
     while ~state.go_next
 
-        [state, qk, qd_k, qdd_k] = resampleCurv( state, ctx.Bl, Curv, dt );
+         [ state, ud, udd, uddd ] = resampleCurv(state, ctx.Bl, ...
+                                    Curv.zspdmode, Curv.Coeff, ...
+                                    Curv.ConstJerk, dt, Curv.a_param, ...
+                                    Curv.b_param);
         
         if( ~state.isOutsideRange )
-            [r, rd, rdd, rddd]  = EvalCurvStructNoCtx( Curv, SplineCurv, state.u );
-            feed    = vecnorm( rd * mysqrt( qk ) );
-            a       = rdd * qk + rd * qd_k /2;
-            j       = ( rddd * qk + 3 * rdd * qd_k / 2 + rd * qdd_k / 2 ) * mysqrt( qk );
-            
+            state.dt = dt;
+
+            u       = state.u + double(k) - 1 ; 
+            cf      = GetCurvMaxFeedrate(ctx, Curv);
+            f       = Curv.FeedRate;
+            [ r, v, a, j ] = calcRVAJfromU( ctx, Curv, state.u, ud, udd, uddd );
+            feed    = vecnorm( v );   
             feed    = feed / Curv.FeedRate;
             a       = abs( a ./ ctx.cfg.amax' );
             j       = abs( j ./ ctx.cfg.jmax' );
@@ -52,6 +57,8 @@ for k = 1 : N
         end
     end
 
+    state.u = 0;
+    state.isOutsideRange = false;
     state.go_next = false;
 end
 

@@ -1,0 +1,46 @@
+function [ CurvStruct1, CurvStruct2 ] = cutZeroStart( ctx, CurvStruct )
+% cutZeroStart : Cut the start of the given to handle the zero speed.
+    [ u, jps ] = zeroSpeedCurv( ctx, CurvStruct, false );
+    
+    CurvStruct1 = CurvStruct;
+    CurvStruct1.a_param = u;
+    CurvStruct1.b_param = 0;
+    CurvStruct1.UseConstJerk = true;
+    CurvStruct1.ConstJerk = jps;
+    CurvStruct1.zspdmode = ZSpdMode.ZN;
+    CurvStruct1.ConstJerkMaxIterations = int32(0);
+    CurvStruct1.gcode_source_line = CurvStruct.gcode_source_line;
+    
+    CurvStruct2 = CurvStruct1;
+    CurvStruct2.UseConstJerk = false;
+    CurvStruct2.b_param = CurvStruct1.a_param + CurvStruct1.b_param;
+    CurvStruct2.a_param = 1 - CurvStruct2.b_param;
+    CurvStruct2.zspdmode = ZSpdMode.NN;
+
+    if( coder.target("MATLAB") )
+        check_continuity( ctx, CurvStruct1, CurvStruct2 );
+    end
+end
+
+function [] = check_continuity( ctx, CurvStruct1, CurvStruct2 )
+    [ r11, r1d1, r1dd1 ] = EvalCurvStruct( ctx, CurvStruct1, 1 );
+    [ r21, r2d1, r2dd1 ] = EvalCurvStruct( ctx, CurvStruct2, 0 );
+    
+    r1d1    = r1d1 / CurvStruct1.a_param;
+    r1dd1   = r1dd1 / CurvStruct1.a_param^2;
+    r2d1    = r2d1 / CurvStruct2.a_param;
+    r2dd1   = r2dd1 / CurvStruct2.a_param^2;
+
+    diff_r      = abs( r11    -r21    );
+    diff_rd     = abs( r1d1   -r2d1   );
+    diff_rdd    = abs( r1dd1  -r2dd1  );
+    
+    tol = 1E-12;
+
+    assert( all( diff_r    < tol ), mfilename + ...
+                        ".m : continuity C0 failed " + mat2str( diff_r' ) );
+    assert( all( diff_rd   < tol ), mfilename + ...
+                        " : continuity C1 failed"  + mat2str( diff_rd' ) );
+    assert( all( diff_rdd  < tol ), mfilename + ...
+                        " : continuity C2 failed"  + mat2str( diff_rdd' ) );
+end

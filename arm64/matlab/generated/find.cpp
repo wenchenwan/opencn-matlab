@@ -5,7 +5,7 @@
 // File: find.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 12-Apr-2022 10:51:01
+// C/C++ source code generated on  : 27-Apr-2022 10:08:40
 //
 
 // Include Files
@@ -15,89 +15,15 @@
 
 // Function Definitions
 //
-// Arguments    : const ::coder::array<bool, 2U> &x
-//                int i_data[]
-//                int i_size[2]
-// Return Type  : void
-//
-namespace ocn {
-namespace coder {
-void b_eml_find(const ::coder::array<bool, 2U> &x, int i_data[], int i_size[2])
-{
-    int idx;
-    int ii;
-    int k;
-    bool exitg1;
-    k = (1 <= x.size(1));
-    idx = 0;
-    i_size[0] = 1;
-    i_size[1] = k;
-    ii = 0;
-    exitg1 = false;
-    while ((!exitg1) && (ii <= x.size(1) - 1)) {
-        if (x[ii]) {
-            idx = 1;
-            i_data[0] = ii + 1;
-            exitg1 = true;
-        } else {
-            ii++;
-        }
-    }
-    if (k == 1) {
-        if (idx == 0) {
-            i_size[0] = 1;
-            i_size[1] = 0;
-        }
-    } else {
-        i_size[1] = (1 <= idx);
-    }
-}
-
-//
-// Arguments    : const ::coder::array<bool, 2U> &x
-//                int i_data[]
-//                int i_size[2]
-// Return Type  : void
-//
-void c_eml_find(const ::coder::array<bool, 2U> &x, int i_data[], int i_size[2])
-{
-    int idx;
-    int ii;
-    int k;
-    bool exitg1;
-    k = (1 <= x.size(1));
-    ii = x.size(1);
-    idx = 0;
-    i_size[0] = 1;
-    i_size[1] = k;
-    exitg1 = false;
-    while ((!exitg1) && (ii > 0)) {
-        if (x[ii - 1]) {
-            idx = 1;
-            i_data[0] = ii;
-            exitg1 = true;
-        } else {
-            ii--;
-        }
-    }
-    if (k == 1) {
-        if (idx == 0) {
-            i_size[0] = 1;
-            i_size[1] = 0;
-        }
-    } else {
-        i_size[1] = (1 <= idx);
-    }
-}
-
-//
 // Arguments    : const sparse *x
 //                ::coder::array<int, 1U> &i
 //                ::coder::array<int, 1U> &j
 //                ::coder::array<double, 1U> &v
 // Return Type  : void
 //
-void d_eml_find(const sparse *x, ::coder::array<int, 1U> &i, ::coder::array<int, 1U> &j,
+namespace ocn {
+namespace coder {
+void b_eml_find(const sparse *x, ::coder::array<int, 1U> &i, ::coder::array<int, 1U> &j,
                 ::coder::array<double, 1U> &v)
 {
     int nx;

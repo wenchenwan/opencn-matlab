@@ -57,16 +57,16 @@ while k <= Ncrv
             % Depending of the speed at the boundary, the segment is split
             % and then send to q_compress.
             if Curv.zspdmode == ZSpdMode.ZN
-                [CurvStruct1_C, CurvStruct2_C] = CutZeroStart(ctx, Curv, k);
+                [CurvStruct1_C, CurvStruct2_C] = cutZeroStart(ctx, Curv);
                 ctx.q_compress.push(CurvStruct1_C);
                 ctx.q_compress.push(CurvStruct2_C);
             elseif Curv.zspdmode == ZSpdMode.NZ
-                [CurvStruct1_C, CurvStruct2_C] = CutZeroEnd(ctx, Curv, k);
+                [CurvStruct1_C, CurvStruct2_C] = cutZeroEnd(ctx, Curv);
                 ctx.q_compress.push(CurvStruct1_C);
                 ctx.q_compress.push(CurvStruct2_C);
             elseif Curv.zspdmode == ZSpdMode.ZZ
-                [CurvStruct1_C, CurvStruct2_C] = CutZeroStart(ctx, Curv, k);
-                [CurvStruct2_C, CurvStruct3_C] = CutZeroEnd(ctx, CurvStruct2_C, k);
+                [CurvStruct1_C, CurvStruct2_C] = cutZeroStart(ctx, Curv);
+                [CurvStruct2_C, CurvStruct3_C] = cutZeroEnd(ctx, CurvStruct2_C);
                 ctx.q_compress.push(CurvStruct1_C);
                 ctx.q_compress.push(CurvStruct2_C);
                 ctx.q_compress.push(CurvStruct3_C);
@@ -101,7 +101,7 @@ while k <= Ncrv
                 ctx.q_compress.push(spline);
 
                 if Curv.zspdmode == ZSpdMode.NZ
-                    [CurvStruct1_C, CurvStruct2_C] = CutZeroEnd(ctx, Curv, k);
+                    [CurvStruct1_C, CurvStruct2_C] = cutZeroEnd(ctx, Curv);
                     ctx.q_compress.push(CurvStruct1_C);
                     ctx.q_compress.push(CurvStruct2_C);
                 else
@@ -114,7 +114,7 @@ while k <= Ncrv
                 ctx.q_compress.push(C);     % push segment to q_compress
 
                 if Curv.zspdmode == ZSpdMode.NZ % split if zero end
-                    [CurvStruct1_C, CurvStruct2_C] = CutZeroEnd(ctx, Curv, k);
+                    [CurvStruct1_C, CurvStruct2_C] = cutZeroEnd(ctx, Curv);
                     ctx.q_compress.push(CurvStruct1_C);
                     ctx.q_compress.push(CurvStruct2_C);
                 else

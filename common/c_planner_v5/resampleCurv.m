@@ -1,99 +1,82 @@
-function [state, qk, qd_k, qdd_k] = resampleCurv(state, Bl, Curv, dt)
-% resampleCurv : 
-% 
-% Inputs : 
+function [ state, ud, udd, uddd ] = resampleCurv(state, Bl, curv_mode, ...
+    coeff, constJerk, dt, ...
+    curv_a, curv_b)
+
+% resampleCurvDebug :
 %
-% state     : Structure about the current state 
+% Inputs :
+%
+% state         : Structure about the current state
 %           u :       curv parameter [0,1]
 %           go_next : {0 : stay at on the same curve, 1 : move to the next}
 %           dt :      time step used for the discretization
 %           isOutsideRange : {true : if u is out of range}
-% Bl        : Structure for the spline object used during the optimization
-% Curv      : Structure of the geometric curve
-% dt        : Sampling time 
+% Bl            : Structure for the spline object used during the optimization
+% curv_mode     : Zero speed mode for the curve
+% coeff         : The resulting coeff of the optimization
+% useConstJerk  : ( Boolean ) Use a constant jerk for u
+% constJerk     : The actual value of the const jerk
+% dt            : Sampling time
+% curv_a        :  Curve parameter a for affine transform
+% curv_b        :  Curve parameter b for affine transform
 %
-% Outputs : 
-% state     : Updated input state
-% qk        : Spline basis evaluated at k
-% qd_k      : First order time derivative spline basis evaluated at k
-% qdd_k     : Second order time derivative spline basis evaluated at k
+% Outputs :
+% state         : Updated input state
+% ud            : Derivative of u
+% udd           : Second derivative of u
+% uddd          : Third derivatibe of u
+
 coder.inline( "never" );
 
-% Compute uk based on the typed of curves
-
-if Curv.zspdmode == ZSpdMode.ZN
-    [ukp1, qk, qd_k, qdd_k, q_1] = ResampleZN(Curv, state.u, state.dt);
-elseif Curv.zspdmode == ZSpdMode.NN
-    [ukp1, qk, qd_k, qdd_k] = ResampleNN(Curv, Bl, state.u, state.dt);
-elseif Curv.zspdmode == ZSpdMode.NZ
-    [ukp1, qk, qd_k, qdd_k, q_1] = ResampleNZ(Curv, state.u, state.dt);
+if coder.target( "MATLAB" )
+    [ state, ud, udd, uddd ] = resampling_mex( state, Bl, curv_mode, ...
+    coeff, constJerk, dt, ...
+    curv_a, curv_b);
 else
-    ukp1 = 0; qk   = 0; qd_k = 0; qdd_k  = 0; q_1 = 0;
-    error('Should not get here');
-end
 
-du      = ukp1 - state.u;
-du_min  = check_minimum_precision( du );
-
-if( du_min > du )
-    ukp1 = state.u + du_min; 
-end
-
-state.isOutsideRange = ( ukp1 > 1.0 );
-
-% Handle case of uk is out of range
-if( state.isOutsideRange ) % if uk is not in [0,1]
-    % Compute Tr remaining in the current struct
-    if( Curv.zspdmode == ZSpdMode.NN )
-        q_1 = bspline_eval(Bl, Curv.Coeff', 1);
+    if      ( curv_mode == ZSpdMode.ZN )
+        [ u, ud, udd, uddd ] = constJerkU( constJerk, dt, false, ...
+            curv_a, curv_b );
+    elseif  ( curv_mode == ZSpdMode.NZ )
+        T = dt - min( state.dt, dt );
+        [ u, ud, udd, uddd ] = constJerkU( constJerk, T, true, ...
+            curv_a, curv_b );
+    else
+        [ u,  ud, udd, uddd ] = ResampleNN( coeff, Bl, state.u, state.dt );
     end
-    Tr = 2 * ( 1 - state.u )  / ( mysqrt(q_1) + mysqrt(qk) );
-    state.dt        = check_minimum_precision( state.dt - Tr );
-    state.u         = 0;
-    state.go_next   = true;
-else 
-    state.dt        = dt;
-    state.u         = ukp1;
-    state.go_next   = false;
+
+    du      = u - state.u;
+    du_min  = check_minimum_precision( du );
+    if( du_min > du ), u = state.u + du_min; end
+
+    if( u > 1 )
+        [ q ]    = bspline_eval_vec( Bl, coeff', [ state.u, 1 ] );
+        Tr       = 2 * ( 1 - state.u ) / ( sqrt( q( end ) ) + sqrt( q( 1 ) ) );
+        state.dt = check_minimum_precision( state.dt - Tr );
+        state.isOutsideRange = true;
+    end
+
+    state.u = u;
+
+    if( state.u >= 1 )
+        state.go_next = true;
+    else
+        state.go_next = false;
+    end
+end
 end
 
-end
+function [ u,  ud, udd, uddd ] = ResampleNN( coeff, Bl, uk, dt )
 
-function [uk1,  q_uk, qd_uk, qdd_uk, q_1] = ResampleZN( ...
-                                            CurOptStruct, uk, dt)
-c_assert(CurOptStruct.UseConstJerk, 'ZN is not using const jerk');
+[ q, qd, qdd ] = bspline_eval( Bl, coeff', uk );
 
-t       = ( 6 * uk / CurOptStruct.ConstJerk )^(1/3);
-uk1     = CurOptStruct.ConstJerk / 6 * (t + dt)^3;
-q_uk    = ( CurOptStruct.ConstJerk^2 * t^4 ) / 4;
-qd_uk   = ( CurOptStruct.ConstJerk^2 * t^3 ) * 3 / 4;
-qdd_uk  = ( CurOptStruct.ConstJerk^2 * t^2 ) * 3 / 2;
-q_1     = ( CurOptStruct.ConstJerk^2 ) / 4;
-end
+[ ud, udd, uddd ] = calcUfromQ( q, qd, qdd );
 
-function [uk1,  q_uk, qd_uk, qdd_uk, q_1] = ResampleNZ( ...
-                                            CurOptStruct, uk, dt)
-c_assert(CurOptStruct.UseConstJerk, 'NZ is not using const jerk');
-
-[uk1,  q_uk, qd_uk, qdd_uk] = ResampleZN(CurOptStruct, 1-uk, -dt);
-uk1 = 1-uk1;
-q_1 = 0;
-end
-
-function [uk1,  q_uk, qd_uk, qdd_uk ] = ResampleNN( ...
-                                        CurOptStruct, Bl, uk, dt)
-c_assert(~CurOptStruct.UseConstJerk, 'NN is using jerk');
-
-[q_uk, qd_uk, qdd_uk , ~ ] = bspline_eval(Bl, CurOptStruct.Coeff', uk);
-
-uk1 = uk + mysqrt( q_uk ) * dt + (qd_uk * dt^2 )/4;
+u = uk + mysqrt( q ) * dt + (qd * dt ^ 2 ) / 4;
 end
 
 function [ d ] = check_minimum_precision( d )
-
-MIN_PRES = 1E-7;
-if(d < MIN_PRES)
-    d = MIN_PRES;
-%     disp("Minimum supported precision reached...");
-end
+% check_minimum_precision : Avoid effect numerical problem
+MIN_PRES = eps;
+if(d < MIN_PRES), d = MIN_PRES; end
 end

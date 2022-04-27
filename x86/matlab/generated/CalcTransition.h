@@ -5,7 +5,7 @@
 // File: CalcTransition.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 12-Apr-2022 10:46:02
+// C/C++ source code generated on  : 27-Apr-2022 10:09:54
 //
 
 #ifndef CALCTRANSITION_H
@@ -33,7 +33,7 @@ extern void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStru
                            CurvStruct *CurvStruct_T, CurvStruct *CurvStruct2_C,
                            TransitionResult *status);
 
-void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
+void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff, double ctx_cfg_dt,
                       double ctx_cfg_ColTolCos, const double ctx_cfg_GaussLegendreX[5],
                       const double ctx_cfg_GaussLegendreW[5], const CurvStruct *CurvStruct1,
                       const CurvStruct *CurvStruct2, CurvStruct *CurvStruct1_C,

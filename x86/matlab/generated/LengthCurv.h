@@ -5,13 +5,14 @@
 // File: LengthCurv.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 12-Apr-2022 10:46:02
+// C/C++ source code generated on  : 27-Apr-2022 10:09:54
 //
 
 #ifndef LENGTHCURV_H
 #define LENGTHCURV_H
 
 // Include Files
+#include "opencn_matlab_types2.h"
 #include "rtwtypes.h"
 #include <cstddef>
 #include <cstdlib>
@@ -22,14 +23,16 @@
 namespace ocn {
 class queue_coder;
 
-struct CurvStruct;
-
-} // namespace ocn
+}
 
 // Function Declarations
 namespace ocn {
 double LengthCurv(const queue_coder *ctx_q_splines, const double ctx_cfg_GaussLegendreX[5],
-                  const double ctx_cfg_GaussLegendreW[5], const CurvStruct *Curv);
+                  const double ctx_cfg_GaussLegendreW[5], CurveType Curv_Type,
+                  const double Curv_P0[3], const double Curv_P1[3],
+                  const double Curv_CorrectedHelixCenter[3], const double Curv_evec[3],
+                  double Curv_theta, double Curv_pitch, const double Curv_CoeffP5[6][3],
+                  int Curv_sp_index, double Curv_a_param, double Curv_b_param);
 
 }
 

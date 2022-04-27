@@ -5,7 +5,7 @@
 // File: CalcTransition.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 12-Apr-2022 10:46:02
+// C/C++ source code generated on  : 27-Apr-2022 10:09:54
 //
 
 // Include Files
@@ -113,11 +113,11 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
     if (u != 0UL) {
         // 'IsEnabledDebugLog:7' value = true;
         // 'CalcTransition:31' PrintCurvStruct(ctx, CurvStruct1);
-        PrintCurvStruct(&ctx->q_splines, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW,
-                        CurvStruct1);
+        PrintCurvStruct(&ctx->q_splines, ctx->cfg.dt, ctx->cfg.GaussLegendreX,
+                        ctx->cfg.GaussLegendreW, CurvStruct1);
         // 'CalcTransition:32' PrintCurvStruct(ctx, CurvStruct2);
-        PrintCurvStruct(&ctx->q_splines, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW,
-                        CurvStruct2);
+        PrintCurvStruct(&ctx->q_splines, ctx->cfg.dt, ctx->cfg.GaussLegendreX,
+                        ctx->cfg.GaussLegendreW, CurvStruct2);
     }
     // 'CalcTransition:35' CurvStruct_T = CurvStruct1;
     *CurvStruct_T = *CurvStruct1;
@@ -129,7 +129,10 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
                      CurvStruct1->a_param, CurvStruct1->b_param, r0D0_1, r0D1_1);
     //  Curv1 @0
     // 'CalcTransition:38' [r0D0_2, r0D1_2] = EvalCurvStruct(ctx, CurvStruct1, 1);
-    b_EvalCurvStruct(&ctx->q_splines, CurvStruct1, r0D0_2, r0D1_2);
+    c_EvalCurvStruct(&ctx->q_splines, CurvStruct1->Type, CurvStruct1->P0, CurvStruct1->P1,
+                     CurvStruct1->CorrectedHelixCenter, CurvStruct1->evec, CurvStruct1->theta,
+                     CurvStruct1->pitch, CurvStruct1->CoeffP5, CurvStruct1->sp_index,
+                     CurvStruct1->a_param, CurvStruct1->b_param, r0D0_2, r0D1_2);
     //  Curv1 @1
     // 'CalcTransition:39' [r1D0_1, r1D1_1] = EvalCurvStruct(ctx, CurvStruct2, 0);
     b_EvalCurvStruct(&ctx->q_splines, CurvStruct2->Type, CurvStruct2->P0, CurvStruct2->P1,
@@ -138,7 +141,10 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
                      CurvStruct2->a_param, CurvStruct2->b_param, r1D0_1, r1D1_1);
     //  Curv2 @0
     // 'CalcTransition:40' [r1D0_2, r1D1_2] = EvalCurvStruct(ctx, CurvStruct2, 1);
-    b_EvalCurvStruct(&ctx->q_splines, CurvStruct2, r1D0_2, r1D1_2);
+    c_EvalCurvStruct(&ctx->q_splines, CurvStruct2->Type, CurvStruct2->P0, CurvStruct2->P1,
+                     CurvStruct2->CorrectedHelixCenter, CurvStruct2->evec, CurvStruct2->theta,
+                     CurvStruct2->pitch, CurvStruct2->CoeffP5, CurvStruct2->sp_index,
+                     CurvStruct2->a_param, CurvStruct2->b_param, r1D0_2, r1D1_2);
     //  Curv2 @1
     //  colinearity test
     // 'CalcTransition:43' if  CurvStruct1.Type ~= CurveType.Helix ...
@@ -258,10 +264,16 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
         double L2;
         // 'CalcTransition:55' L1 = LengthCurv(ctx, CurvStruct1, 0, 1);
         L1 = LengthCurv(&ctx->q_splines, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW,
-                        CurvStruct1);
+                        CurvStruct1->Type, CurvStruct1->P0, CurvStruct1->P1,
+                        CurvStruct1->CorrectedHelixCenter, CurvStruct1->evec, CurvStruct1->theta,
+                        CurvStruct1->pitch, CurvStruct1->CoeffP5, CurvStruct1->sp_index,
+                        CurvStruct1->a_param, CurvStruct1->b_param);
         // 'CalcTransition:56' L2 = LengthCurv(ctx, CurvStruct2, 0, 1);
         L2 = LengthCurv(&ctx->q_splines, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW,
-                        CurvStruct2);
+                        CurvStruct2->Type, CurvStruct2->P0, CurvStruct2->P1,
+                        CurvStruct2->CorrectedHelixCenter, CurvStruct2->evec, CurvStruct2->theta,
+                        CurvStruct2->pitch, CurvStruct2->CoeffP5, CurvStruct2->sp_index,
+                        CurvStruct2->a_param, CurvStruct2->b_param);
         //  CutOff calculation
         // 'CalcTransition:59' if CurvStruct1.Type ~= CurveType.Spline ...
         // 'CalcTransition:60'    && CurvStruct2.Type ~= CurveType.Spline
@@ -373,11 +385,11 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
         }
         // 'CalcTransition:130' status = TransitionResult.Ok;
         //  Cut the curve structures
-        // 'CalcTransition:133' CurvStruct1_C = CutCurvStruct(ctx, CurvStruct1, 0, CutOff);
+        // 'CalcTransition:133' CurvStruct1_C = CutCurvStruct( ctx, CurvStruct1, 0, CutOff );
         *CurvStruct1_C = *CurvStruct1;
         CutCurvStruct(&ctx->q_splines, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW,
                       CurvStruct1_C, CutOff);
-        // 'CalcTransition:134' CurvStruct2_C = CutCurvStruct(ctx, CurvStruct2, CutOff, 0);
+        // 'CalcTransition:134' CurvStruct2_C = CutCurvStruct( ctx, CurvStruct2, CutOff, 0 );
         *CurvStruct2_C = *CurvStruct2;
         b_CutCurvStruct(&ctx->q_splines, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW,
                         CurvStruct2_C, CutOff);
@@ -387,11 +399,11 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
         if (u != 0UL) {
             // 'IsEnabledDebugLog:7' value = true;
             // 'CalcTransition:137' PrintCurvStruct(ctx, CurvStruct1_C)
-            PrintCurvStruct(&ctx->q_splines, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW,
-                            CurvStruct1_C);
+            PrintCurvStruct(&ctx->q_splines, ctx->cfg.dt, ctx->cfg.GaussLegendreX,
+                            ctx->cfg.GaussLegendreW, CurvStruct1_C);
             // 'CalcTransition:138' PrintCurvStruct(ctx, CurvStruct2_C)
-            PrintCurvStruct(&ctx->q_splines, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW,
-                            CurvStruct2_C);
+            PrintCurvStruct(&ctx->q_splines, ctx->cfg.dt, ctx->cfg.GaussLegendreX,
+                            ctx->cfg.GaussLegendreW, CurvStruct2_C);
         }
         // 'CalcTransition:141' [r0D0, r0D1, r0D2] = EvalCurvStruct(ctx, CurvStruct1_C, 1);
         b_EvalCurvStruct(&ctx->q_splines, CurvStruct1_C->Type, CurvStruct1_C->P0, CurvStruct1_C->P1,
@@ -609,6 +621,7 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
         // CurvStruct2.SpindleSpeed);
         CurvStruct_T->SpindleSpeed =
             std::fmin(CurvStruct1->SpindleSpeed, CurvStruct2->SpindleSpeed);
+        // 'CalcTransition:264' if( coder.target("MATLAB") )
     }
     *status = b_status;
 }
@@ -631,6 +644,7 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
 //
 // Arguments    : const queue_coder *ctx_q_splines
 //                double ctx_cfg_CutOff
+//                double ctx_cfg_dt
 //                double ctx_cfg_ColTolCos
 //                const double ctx_cfg_GaussLegendreX[5]
 //                const double ctx_cfg_GaussLegendreW[5]
@@ -642,7 +656,7 @@ void CalcTransition(const FeedoptContext *ctx, const CurvStruct *CurvStruct1,
 //                TransitionResult *status
 // Return Type  : void
 //
-void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
+void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff, double ctx_cfg_dt,
                       double ctx_cfg_ColTolCos, const double ctx_cfg_GaussLegendreX[5],
                       const double ctx_cfg_GaussLegendreW[5], const CurvStruct *CurvStruct1,
                       const CurvStruct *CurvStruct2, CurvStruct *CurvStruct1_C,
@@ -698,9 +712,11 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
     if (u != 0UL) {
         // 'IsEnabledDebugLog:7' value = true;
         // 'CalcTransition:31' PrintCurvStruct(ctx, CurvStruct1);
-        PrintCurvStruct(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, CurvStruct1);
+        PrintCurvStruct(ctx_q_splines, ctx_cfg_dt, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
+                        CurvStruct1);
         // 'CalcTransition:32' PrintCurvStruct(ctx, CurvStruct2);
-        PrintCurvStruct(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, CurvStruct2);
+        PrintCurvStruct(ctx_q_splines, ctx_cfg_dt, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
+                        CurvStruct2);
     }
     // 'CalcTransition:35' CurvStruct_T = CurvStruct1;
     *CurvStruct_T = *CurvStruct1;
@@ -712,7 +728,10 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
                      CurvStruct1->a_param, CurvStruct1->b_param, r0D0_1, r0D1_1);
     //  Curv1 @0
     // 'CalcTransition:38' [r0D0_2, r0D1_2] = EvalCurvStruct(ctx, CurvStruct1, 1);
-    b_EvalCurvStruct(ctx_q_splines, CurvStruct1, r0D0_2, r0D1_2);
+    c_EvalCurvStruct(ctx_q_splines, CurvStruct1->Type, CurvStruct1->P0, CurvStruct1->P1,
+                     CurvStruct1->CorrectedHelixCenter, CurvStruct1->evec, CurvStruct1->theta,
+                     CurvStruct1->pitch, CurvStruct1->CoeffP5, CurvStruct1->sp_index,
+                     CurvStruct1->a_param, CurvStruct1->b_param, r0D0_2, r0D1_2);
     //  Curv1 @1
     // 'CalcTransition:39' [r1D0_1, r1D1_1] = EvalCurvStruct(ctx, CurvStruct2, 0);
     b_EvalCurvStruct(ctx_q_splines, CurvStruct2->Type, CurvStruct2->P0, CurvStruct2->P1,
@@ -721,7 +740,10 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
                      CurvStruct2->a_param, CurvStruct2->b_param, r1D0_1, r1D1_1);
     //  Curv2 @0
     // 'CalcTransition:40' [r1D0_2, r1D1_2] = EvalCurvStruct(ctx, CurvStruct2, 1);
-    b_EvalCurvStruct(ctx_q_splines, CurvStruct2, r1D0_2, r1D1_2);
+    c_EvalCurvStruct(ctx_q_splines, CurvStruct2->Type, CurvStruct2->P0, CurvStruct2->P1,
+                     CurvStruct2->CorrectedHelixCenter, CurvStruct2->evec, CurvStruct2->theta,
+                     CurvStruct2->pitch, CurvStruct2->CoeffP5, CurvStruct2->sp_index,
+                     CurvStruct2->a_param, CurvStruct2->b_param, r1D0_2, r1D1_2);
     //  Curv2 @1
     //  colinearity test
     // 'CalcTransition:43' if  CurvStruct1.Type ~= CurveType.Helix ...
@@ -840,9 +862,17 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
         double L1;
         double L2;
         // 'CalcTransition:55' L1 = LengthCurv(ctx, CurvStruct1, 0, 1);
-        L1 = LengthCurv(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, CurvStruct1);
+        L1 = LengthCurv(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
+                        CurvStruct1->Type, CurvStruct1->P0, CurvStruct1->P1,
+                        CurvStruct1->CorrectedHelixCenter, CurvStruct1->evec, CurvStruct1->theta,
+                        CurvStruct1->pitch, CurvStruct1->CoeffP5, CurvStruct1->sp_index,
+                        CurvStruct1->a_param, CurvStruct1->b_param);
         // 'CalcTransition:56' L2 = LengthCurv(ctx, CurvStruct2, 0, 1);
-        L2 = LengthCurv(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, CurvStruct2);
+        L2 = LengthCurv(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
+                        CurvStruct2->Type, CurvStruct2->P0, CurvStruct2->P1,
+                        CurvStruct2->CorrectedHelixCenter, CurvStruct2->evec, CurvStruct2->theta,
+                        CurvStruct2->pitch, CurvStruct2->CoeffP5, CurvStruct2->sp_index,
+                        CurvStruct2->a_param, CurvStruct2->b_param);
         //  CutOff calculation
         // 'CalcTransition:59' if CurvStruct1.Type ~= CurveType.Spline ...
         // 'CalcTransition:60'    && CurvStruct2.Type ~= CurveType.Spline
@@ -954,11 +984,11 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
         }
         // 'CalcTransition:130' status = TransitionResult.Ok;
         //  Cut the curve structures
-        // 'CalcTransition:133' CurvStruct1_C = CutCurvStruct(ctx, CurvStruct1, 0, CutOff);
+        // 'CalcTransition:133' CurvStruct1_C = CutCurvStruct( ctx, CurvStruct1, 0, CutOff );
         *CurvStruct1_C = *CurvStruct1;
         CutCurvStruct(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, CurvStruct1_C,
                       CutOff);
-        // 'CalcTransition:134' CurvStruct2_C = CutCurvStruct(ctx, CurvStruct2, CutOff, 0);
+        // 'CalcTransition:134' CurvStruct2_C = CutCurvStruct( ctx, CurvStruct2, CutOff, 0 );
         *CurvStruct2_C = *CurvStruct2;
         b_CutCurvStruct(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
                         CurvStruct2_C, CutOff);
@@ -968,11 +998,11 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
         if (u != 0UL) {
             // 'IsEnabledDebugLog:7' value = true;
             // 'CalcTransition:137' PrintCurvStruct(ctx, CurvStruct1_C)
-            PrintCurvStruct(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
-                            CurvStruct1_C);
+            PrintCurvStruct(ctx_q_splines, ctx_cfg_dt, ctx_cfg_GaussLegendreX,
+                            ctx_cfg_GaussLegendreW, CurvStruct1_C);
             // 'CalcTransition:138' PrintCurvStruct(ctx, CurvStruct2_C)
-            PrintCurvStruct(ctx_q_splines, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
-                            CurvStruct2_C);
+            PrintCurvStruct(ctx_q_splines, ctx_cfg_dt, ctx_cfg_GaussLegendreX,
+                            ctx_cfg_GaussLegendreW, CurvStruct2_C);
         }
         // 'CalcTransition:141' [r0D0, r0D1, r0D2] = EvalCurvStruct(ctx, CurvStruct1_C, 1);
         b_EvalCurvStruct(ctx_q_splines, CurvStruct1_C->Type, CurvStruct1_C->P0, CurvStruct1_C->P1,
@@ -1190,6 +1220,7 @@ void b_CalcTransition(const queue_coder *ctx_q_splines, double ctx_cfg_CutOff,
         // CurvStruct2.SpindleSpeed);
         CurvStruct_T->SpindleSpeed =
             std::fmin(CurvStruct1->SpindleSpeed, CurvStruct2->SpindleSpeed);
+        // 'CalcTransition:264' if( coder.target("MATLAB") )
     }
     *status = b_status;
 }

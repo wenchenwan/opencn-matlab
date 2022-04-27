@@ -10,7 +10,7 @@ if coder.target('mex')
     coder.updateBuildInfo('addDefines', '_POSIX_C_SOURCE=199309L')
     pathRs274Src = '$(START_DIR)/../../rs274ngc/src';
     % coder.updateBuildInfo('addDefines', 'DEBUG_RS274')
-    coder.updateBuildInfo('addDefines', 'MEX_READGCODE')
+%     coder.updateBuildInfo('addDefines', '#define MEX_READGCODE')
     coder.updateBuildInfo('addCompileFlags', '-fdiagnostics-color=always')
     coder.updateBuildInfo('addSourceFiles','cpp_interp.cpp', '$(START_DIR)/../common/src');
     coder.updateBuildInfo('addSourceFiles','directives.cc', pathRs274Src);
@@ -35,7 +35,7 @@ if coder.target('mex')
     coder.updateBuildInfo('addSourceFiles','rs274ngc_pre.cc', pathRs274Src);
     coder.updateBuildInfo('addSourceFiles','inifile.cc', pathRs274Src);
     coder.updateBuildInfo('addLinkFlags', '-ldl');
-   coder.updateBuildInfo('addIncludePaths', '$(START_DIR)/gen_mex/readgcode');
+%    coder.updateBuildInfo('addIncludePaths', '$(START_DIR)/gen_mex/readgcode');
     coder.cinclude('cpp_interp.hpp');
     
     status = int32(0);

@@ -5,7 +5,7 @@
 // File: LengthCurv.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 12-Apr-2022 10:51:01
+// C/C++ source code generated on  : 27-Apr-2022 10:08:40
 //
 
 // Include Files
@@ -13,7 +13,6 @@
 #include "EvalCurvStruct.h"
 #include "SplineLengthApproxGL_bounds.h"
 #include "opencn_matlab_data.h"
-#include "opencn_matlab_types1.h"
 #include "opencn_matlab_types2.h"
 #include "queue_coder.h"
 #include <cmath>
@@ -25,12 +24,26 @@
 // Arguments    : const queue_coder *ctx_q_splines
 //                const double ctx_cfg_GaussLegendreX[5]
 //                const double ctx_cfg_GaussLegendreW[5]
-//                const CurvStruct *Curv
+//                CurveType Curv_Type
+//                const double Curv_P0[3]
+//                const double Curv_P1[3]
+//                const double Curv_CorrectedHelixCenter[3]
+//                const double Curv_evec[3]
+//                double Curv_theta
+//                double Curv_pitch
+//                const double Curv_CoeffP5[6][3]
+//                int Curv_sp_index
+//                double Curv_a_param
+//                double Curv_b_param
 // Return Type  : double
 //
 namespace ocn {
 double LengthCurv(const queue_coder *ctx_q_splines, const double ctx_cfg_GaussLegendreX[5],
-                  const double ctx_cfg_GaussLegendreW[5], const CurvStruct *Curv)
+                  const double ctx_cfg_GaussLegendreW[5], CurveType Curv_Type,
+                  const double Curv_P0[3], const double Curv_P1[3],
+                  const double Curv_CorrectedHelixCenter[3], const double Curv_evec[3],
+                  double Curv_theta, double Curv_pitch, const double Curv_CoeffP5[6][3],
+                  int Curv_sp_index, double Curv_a_param, double Curv_b_param)
 {
     static const double a[9]{
         0.055555555555555552, 0.16666666666666666, 0.27777777777777779, 0.38888888888888884, 0.5,
@@ -50,11 +63,10 @@ double LengthCurv(const queue_coder *ctx_q_splines, const double ctx_cfg_GaussLe
     double L;
     char message[29];
     // 'LengthCurv:3' if (Curv.Type == CurveType.Helix) || (Curv.Type == CurveType.Line)
-    if ((Curv->Type == CurveType_Helix) || (Curv->Type == CurveType_Line)) {
+    if ((Curv_Type == CurveType_Helix) || (Curv_Type == CurveType_Line)) {
         // 'LengthCurv:4' [~, r1D, ~, ~] = EvalCurvStruct(ctx, Curv, u0);
-        b_EvalCurvStruct(Curv->Type, Curv->P0, Curv->P1, Curv->CorrectedHelixCenter, Curv->evec,
-                         Curv->theta, Curv->pitch, Curv->a_param, Curv->b_param, a__1, r1D, a__2,
-                         a__3);
+        b_EvalCurvStruct(Curv_Type, Curv_P0, Curv_P1, Curv_CorrectedHelixCenter, Curv_evec,
+                         Curv_theta, Curv_pitch, Curv_a_param, Curv_b_param, a__1, r1D, a__2, a__3);
         // 'LengthCurv:5' L = MyNorm(r1D)*(u1-u0);
         // 'MyNorm:2' coder.inline('always');
         // 'MyNorm:3' n = mysqrt(sum(x.^2));
@@ -62,7 +74,7 @@ double LengthCurv(const queue_coder *ctx_q_splines, const double ctx_cfg_GaussLe
         L = std::sqrt((std::pow(r1D[0], 2.0) + std::pow(r1D[1], 2.0)) + std::pow(r1D[2], 2.0));
         // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
         sqrt_calls++;
-    } else if (Curv->Type == CurveType_Spline) {
+    } else if (Curv_Type == CurveType_Spline) {
         // 'LengthCurv:6' elseif Curv.Type == CurveType.Spline
         // 'LengthCurv:7' a = Curv.a_param;
         // 'LengthCurv:8' b = Curv.b_param;
@@ -70,9 +82,9 @@ double LengthCurv(const queue_coder *ctx_q_splines, const double ctx_cfg_GaussLe
         // 'LengthCurv:10' u1_tilda = a*u1+b;
         // 'LengthCurv:11' L = SplineLengthApproxGL_bounds(ctx, Curv, u0_tilda, u1_tilda);
         L = SplineLengthApproxGL_bounds(ctx_q_splines, ctx_cfg_GaussLegendreX,
-                                        ctx_cfg_GaussLegendreW, Curv->sp_index, Curv->b_param,
-                                        Curv->a_param + Curv->b_param);
-    } else if (Curv->Type == CurveType_TransP5) {
+                                        ctx_cfg_GaussLegendreW, Curv_sp_index, Curv_b_param,
+                                        Curv_a_param + Curv_b_param);
+    } else if (Curv_Type == CurveType_TransP5) {
         double b_y;
         double d;
         double d1;
@@ -92,9 +104,9 @@ double LengthCurv(const queue_coder *ctx_q_splines, const double ctx_cfg_GaussLe
         // 'mypolyder:8' else
         // 'mypolyder:9' a = u(:, 1:nu-1) .* repmat(nu-1:-1:1, nD, 1);
         for (int k{0}; k < 5; k++) {
-            p5_1D[k][0] = Curv->CoeffP5[k][0] * (5.0 - static_cast<double>(k));
-            p5_1D[k][1] = Curv->CoeffP5[k][1] * (5.0 - static_cast<double>(k));
-            p5_1D[k][2] = Curv->CoeffP5[k][2] * (5.0 - static_cast<double>(k));
+            p5_1D[k][0] = Curv_CoeffP5[k][0] * (5.0 - static_cast<double>(k));
+            p5_1D[k][1] = Curv_CoeffP5[k][1] * (5.0 - static_cast<double>(k));
+            p5_1D[k][2] = Curv_CoeffP5[k][2] * (5.0 - static_cast<double>(k));
         }
         //  Derivative
         // 'TransP5LengthApprox:5' u_vec     = linspace(0,1,10);

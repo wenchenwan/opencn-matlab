@@ -5,7 +5,7 @@
 // File: opencn_matlab_types1.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 12-Apr-2022 10:46:02
+// C/C++ source code generated on  : 27-Apr-2022 10:09:54
 //
 
 #ifndef OPENCN_MATLAB_TYPES1_H
@@ -50,7 +50,6 @@ struct CurvStruct {
     int i_begin_sp;
     int i_end_sp;
     int gcode_source_line;
-    int index_smooth;
     bool UseConstJerk;
     double ConstJerk;
     int ConstJerkMaxIterations;
