@@ -5,7 +5,7 @@ clear; clc;
 GenerateAll = true;
 
 if( ~GenerateAll )
-    GenerateConstrFunctions     = true;
+    GenerateConstrFunctions     = false;
     GenerateResampling          = false;
     GenerateGCodeInterpreter    = false;
     GenerateQueues              = false;
@@ -109,6 +109,7 @@ cfg.CustomInclude = [...
 % when executing MEX files.
 
 % Remove gen from path
+ERROR_COLOR = 2;
 
 if( GenerateAll || GenerateConstrFunctions )
     name = "Debug Constr functions : ";
@@ -116,26 +117,14 @@ if( GenerateAll || GenerateConstrFunctions )
     try
         DebugRep = 'gen_mex/debug';
         path_mex = genpath( DebugRep );
-
         codegen('-config', cfg,'-d', DebugRep , ...
             'anglesNormDin', '-args', paramsDefaultAnglesNormDim( StructTypeName.MEX ),...
             '-o', 'debug_mex' );
-%         codegen('-config', cfg,'-d', DebugRep , ...
-%             'constrTransP5Struct', '-args', paramsDefaultTransition( StructTypeName.MEX ),...
-%             'constrGcodeInfoStructType',...
-%             'constrGcodeInfoStruct', '-args', paramsDefaultGCodeInfo( StructTypeName.MEX ),...
-%             'constrBaseSplineType',...
-%             'constrBaseSpline', '-args', paramsDefaultBaseSpline( StructTypeName.MEX ),...
-%             'constrSplineType',...
-%             'constrSpline', '-args', paramsDefaultSpline( StructTypeName.MEX ),...
-%             'constrCurvStructType',...
-%             'constrCurvStruct', '-args', paramsDefaultCurv( StructTypeName.MEX ),...
-%             '-o', 'debug_mex' );
         disp(name + "success" );
         delete( 'debug_mex.mexa64' );
         addpath( path_mex );
     catch ME
-        disp(name + "failed : " + ME.message );
+        fprintf( ERROR_COLOR, name + "failed : " + ME.message );
     end
 end
 
@@ -158,7 +147,7 @@ if( GenerateAll || GenerateQueues )
         disp(name + "success" );
         addpath( path_mex );
     catch ME
-        disp(name + "failed : " + ME.message );
+        fprintf( ERROR_COLOR, name + "failed : " + ME.message );
     end
 end
 
@@ -226,7 +215,7 @@ if( GenerateAll || GenerateGCodeInterpreter )
         delete( 'ReadGCode_mex.mexa64' );
         addpath( path_mex );
     catch ME
-        disp(name + "failed : " + ME.message );
+        fprintf( ERROR_COLOR, name + "failed : " + ME.message );
     end
 end
 
@@ -252,7 +241,7 @@ if( GenerateAll || GenerateResampling )
         delete( 'resampling_mex.mexa64' );
         addpath( path_mex );
     catch ME
-        disp(name + "failed : " + ME.message );
+        fprintf( ERROR_COLOR, name + "failed : " + ME.message );
     end
 end
 
@@ -276,10 +265,9 @@ if( GenerateAll || GenerateSimplex )
         delete( 'c_simplex_mex.mexa64' );
         addpath( path_mex );
     catch ME
-        disp(name + "failed : " + ME.message );
+        fprintf( ERROR_COLOR, name + "failed : " + ME.message );
     end
 end
-
 
 % Does not work for now
 % if( GenerateFeedoptPlanRun )
@@ -309,7 +297,7 @@ end
 %         disp(name + "success" );
 %         delete( 'FeedoptPlanRun_mex.mexa64' );
 %     catch ME
-%         disp(name + "failed : " + ME.message );
+%         fprintf( ERROR_COLOR, name + "failed : " + ME.message );
 %     end
 % end
 
