@@ -36,7 +36,7 @@ try
     analyse_optimality( res, indFeed, indAcc, indJerk, ctx.cfg.dt );
 
     % Plot the resulting trajectories
-    plotTrajectories(ctx, res_struct);
+    plotTrajectories( ctx, res_struct );
 
 catch ME
     warning( ME.message );
