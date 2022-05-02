@@ -116,37 +116,23 @@ if( GenerateAll || GenerateConstrFunctions )
     try
         DebugRep = 'gen_mex/debug';
         path_mex = genpath( DebugRep );
-        codegen('-config', cfg,'-d', DebugRep , ...
-            'ConstrCurvStructType',...
-            'ConstrLineStruct', '-args', {trafo, HSC, P0, P0 P0, Doff, P0, P0, P0, P0, P0, P0, 1.0, ZSpdMode.NN},...
-            'ConstrHelixStruct', '-args', {trafo, HSC, P0, P0 P0, Doff, P0, P0, P0, P0, P0, P0, P0, 1.0, P0, 1.0, 1.0, 1.0, ZSpdMode.NN},...
-            'ConstrHelixStructFromArcFeed', '-args', {trafo,  HSC, P0, P0 P0, Doff, 0,0,0,  0,0,0,  0,0,0,  P0, P0, P0, P0, 0,[0,0,0]'},...
-            'CopyCurvStruct','-args', C,...
-            '-o', 'debug_mex');
+
+%         codegen('-config', cfg,'-d', DebugRep , ...
+%             'constrLineStruct', '-args', paramsDefaultLine( StructTypeName.MEX ),...
+%             '-o', 'debug_mex' ); 
+%         codegen('-config', cfg,'-d', DebugRep , ...
+%             'constrGcodeInfoStructType',...
+%             'constrGcodeInfoStruct', '-args', paramsDefaultGCodeInfo( StructTypeName.MEX ),...
+%             'constrBaseSplineType',...
+%             'constrBaseSpline', '-args', paramsDefaultBaseSpline( StructTypeName.MEX ),...
+%             'constrSplineType',...
+%             'constrSpline', '-args', paramsDefaultSpline( StructTypeName.MEX ),...
+%             'constrCurvStructType',...
+%             'constrCurvStruct', '-args', paramsDefaultCurv( StructTypeName.MEX ),...
+%             '-o', 'debug_mex' );
         disp(name + "success" );
         delete( 'debug_mex.mexa64' );
-    catch ME
-        disp(name + "failed : " + ME.message );
-    end
-end
-
-if( GenerateAll || GenerateGCodeInterpreter )
-    name = "Mexing gcode interpreter : ";
-    disp(name + "start" );
-    try
-        ReadGCodeRep = 'gen_mex/readgcode';
-        path_mex = genpath( ReadGCodeRep );
-        rmpath( path_mex );
-        codegen('-config', cfg,'-d', ReadGCodeRep, ...
-            'ConstrCurvStructType',...
-            'ReadGCode', '-args', {ReadGCodeCmd.Load, coder.typeof(' ', [1,1024], [0, 1])},...
-            'ConstrLineStruct', '-args', {trafo, HSC, P0, P0 P0, Doff, P0, P0, P0, P0, P0, P0, 1.0, ZSpdMode.NN},...
-            'ConstrHelixStruct', '-args', {trafo, HSC, P0, P0 P0, Doff, P0, P0, P0, P0, P0, P0, P0, 1.0, P0, 1.0, 1.0, 1.0, ZSpdMode.NN},...
-            'ConstrHelixStructFromArcFeed', '-args', {trafo,  HSC, P0, P0 P0, Doff, 0,0,0,  0,0,0,  0,0,0,  P0, P0, P0, P0, 0,[0,0,0]'},...
-            'CopyCurvStruct','-args', C,...
-            '-o', 'ReadGCode_mex');
-        disp(name + "success" );
-        delete( 'ReadGCode_mex.mexa64' );
+        addpath( path_mex );
     catch ME
         disp(name + "failed : " + ME.message );
     end
@@ -169,57 +155,7 @@ if( GenerateAll || GenerateQueues )
         mex mex/queue/queue_get_all.cpp -output queue_get_all_mex -outdir gen_mex/queue
 
         disp(name + "success" );
-
-    catch ME
-        disp(name + "failed : " + ME.message );
-    end
-end
-
-if( GenerateAll || GenerateResampling )
-    name = "Mexing resampling : ";
-    disp(name + "start" );
-
-    try
-        ResamplingRep = 'gen_mex/resampling';
-        path_mex = genpath( ResamplingRep );
-        rmpath( path_mex );
-        my_cfg  = FeedoptDefaultConfig;
-        ctx     = InitFeedoptPlan( my_cfg );
-        dt      = my_cfg.dt;
-        state   = ResampleState( dt );
-        Curv    = ConstrCurvStructType;        
-        codegen('-config', cfg,'-d', ResamplingRep,...
-            'resampleCurv', '-args', {state, ctx.Bl, Curv.zspdmode, ...
-             coder.typeof(0.0, [Inf, 1], [1,0]), ...
-             Curv.ConstJerk, dt,  Curv.a_param, Curv.b_param }, ...
-            '-o', 'resampling_mex');
-        disp(name + "success" );
-        delete( 'resampling_mex.mexa64' );
-
-    catch ME
-        disp(name + "failed : " + ME.message );
-    end
-end
-
-if( GenerateAll || GenerateSimplex )
-    name = "Mexing simplex solver : ";
-    disp(name + "start" );
-
-    try
-        CSimplexRep = 'gen_mex/c_simplex';
-        path_mex = genpath( CSimplexRep );
-        rmpath( path_mex );
-        codegen('-config', cfg,'-d', CSimplexRep,...
-            'c_simplex.m', '-args', {...
-            coder.typeof(0.0,         [Inf, Inf],   [1,1]), ...
-            coder.typeof(sparse(0.0), [Inf, Inf],   [1,1]), ...    % A
-            coder.typeof(0.0,         [Inf, 1],     [1,0]), ...    % b
-            coder.typeof( 0.0,        [Inf, Inf],   [1,1]), ...    % Aeq
-            coder.typeof(0.0,         [Inf, 1],     [1,0])},...    % beq
-            '-o', 'c_simplex_mex');
-        disp(name + "success" );
-        delete( 'c_simplex_mex.mexa64' );
-
+        addpath( path_mex );
     catch ME
         disp(name + "failed : " + ME.message );
     end
@@ -264,11 +200,85 @@ if( GenerateAll || GenerateSpline )
         delete( 'bspline_destroy_mex.mexa64' );
         delete( 'bspline_base_eval_mex.mexa64' );
         delete( 'bspline_eval_mex.mexa64' );
-
+        addpath( path_mex );
     catch
         disp(name + "failed" );
     end
 end
+
+if( GenerateAll || GenerateGCodeInterpreter )
+    name = "Mexing gcode interpreter : ";
+    disp(name + "start" );
+    try
+        ReadGCodeRep = 'gen_mex/readgcode';
+        path_mex = genpath( ReadGCodeRep );
+        rmpath( path_mex );
+        codegen('-config', cfg,'-d', ReadGCodeRep, ...
+            'ConstrCurvStructType',...
+            'ReadGCode', '-args', {ReadGCodeCmd.Load, coder.typeof(' ', [1,1024], [0, 1])},...
+            'ConstrLineStruct', '-args', {trafo, HSC, P0, P0 P0, Doff, P0, P0, P0, P0, P0, P0, 1.0, ZSpdMode.NN},...
+            'ConstrHelixStruct', '-args', {trafo, HSC, P0, P0 P0, Doff, P0, P0, P0, P0, P0, P0, P0, 1.0, P0, 1.0, 1.0, 1.0, ZSpdMode.NN},...
+            'ConstrHelixStructFromArcFeed', '-args', {trafo,  HSC, P0, P0 P0, Doff, 0,0,0,  0,0,0,  0,0,0,  P0, P0, P0, P0, 0,[0,0,0]'},...
+            'CopyCurvStruct','-args', C,...
+            '-o', 'ReadGCode_mex');
+        disp(name + "success" );
+        delete( 'ReadGCode_mex.mexa64' );
+        addpath( path_mex );
+    catch ME
+        disp(name + "failed : " + ME.message );
+    end
+end
+
+if( GenerateAll || GenerateResampling )
+    name = "Mexing resampling : ";
+    disp(name + "start" );
+
+    try
+        ResamplingRep = 'gen_mex/resampling';
+        path_mex = genpath( ResamplingRep );
+        rmpath( path_mex );
+        my_cfg  = FeedoptDefaultConfig;
+        ctx     = InitFeedoptPlan( my_cfg );
+        dt      = my_cfg.dt;
+        state   = ResampleState( dt );
+        Curv    = ConstrCurvStructType;        
+        codegen('-config', cfg,'-d', ResamplingRep,...
+            'resampleCurv', '-args', {state, ctx.Bl, Curv.zspdmode, ...
+             coder.typeof(0.0, [Inf, 1], [1,0]), ...
+             Curv.ConstJerk, dt,  Curv.a_param, Curv.b_param }, ...
+            '-o', 'resampling_mex');
+        disp(name + "success" );
+        delete( 'resampling_mex.mexa64' );
+        addpath( path_mex );
+    catch ME
+        disp(name + "failed : " + ME.message );
+    end
+end
+
+if( GenerateAll || GenerateSimplex )
+    name = "Mexing simplex solver : ";
+    disp(name + "start" );
+
+    try
+        CSimplexRep = 'gen_mex/c_simplex';
+        path_mex = genpath( CSimplexRep );
+        rmpath( path_mex );
+        codegen('-config', cfg,'-d', CSimplexRep,...
+            'c_simplex.m', '-args', {...
+            coder.typeof(0.0,         [Inf, Inf],   [1,1]), ...
+            coder.typeof(sparse(0.0), [Inf, Inf],   [1,1]), ...    % A
+            coder.typeof(0.0,         [Inf, 1],     [1,0]), ...    % b
+            coder.typeof( 0.0,        [Inf, Inf],   [1,1]), ...    % Aeq
+            coder.typeof(0.0,         [Inf, 1],     [1,0])},...    % beq
+            '-o', 'c_simplex_mex');
+        disp(name + "success" );
+        delete( 'c_simplex_mex.mexa64' );
+        addpath( path_mex );
+    catch ME
+        disp(name + "failed : " + ME.message );
+    end
+end
+
 
 % Does not work for now
 % if( GenerateFeedoptPlanRun )
