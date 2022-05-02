@@ -2,17 +2,18 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: CorrectArcCenter.h
+// File: anglesNormDin.h
 //
 // MATLAB Coder version            : 5.3
 // C/C++ source code generated on  : 02-May-2022 15:55:36
 //
 
-#ifndef CORRECTARCCENTER_H
-#define CORRECTARCCENTER_H
+#ifndef ANGLESNORMDIN_H
+#define ANGLESNORMDIN_H
 
 // Include Files
 #include "rtwtypes.h"
+#include "coder_array.h"
 #include <cstddef>
 #include <cstdlib>
 
@@ -20,14 +21,16 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-void CorrectArcCenter(const double P0[2], const double P1[2], double C[2], double *R,
-                      double *delta);
+extern void anglesNormDin(const ::coder::array<double, 1U> &A0_deg,
+                          const ::coder::array<double, 1U> &A1_deg,
+                          const ::coder::array<int, 1U> &A1_mode, bool G90,
+                          ::coder::array<double, 1U> &angles_deg);
 
 }
 
 #endif
 //
-// File trailer for CorrectArcCenter.h
+// File trailer for anglesNormDin.h
 //
 // [EOF]
 //

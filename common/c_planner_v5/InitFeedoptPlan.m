@@ -31,6 +31,7 @@ coder.inline("never");
     Curv            = ConstrCurvStructType();
     Spline          = CalcBspline_Lee(cfg, [[0,0,0]', [1,1,1]']);
     Curv.sp         = Spline;
+    Curv.sp.knots   = 0;
     Curv.sp.Ltot    = 0;
     Curv.sp.Lk      = 0;
     

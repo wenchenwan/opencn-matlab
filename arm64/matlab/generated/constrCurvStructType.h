@@ -2,16 +2,17 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: CorrectArcCenter.h
+// File: constrCurvStructType.h
 //
 // MATLAB Coder version            : 5.3
 // C/C++ source code generated on  : 02-May-2022 15:55:36
 //
 
-#ifndef CORRECTARCCENTER_H
-#define CORRECTARCCENTER_H
+#ifndef CONSTRCURVSTRUCTTYPE_H
+#define CONSTRCURVSTRUCTTYPE_H
 
 // Include Files
+#include "opencn_matlab_types.h"
 #include "rtwtypes.h"
 #include <cstddef>
 #include <cstdlib>
@@ -20,14 +21,13 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-void CorrectArcCenter(const double P0[2], const double P1[2], double C[2], double *R,
-                      double *delta);
+extern void constrCurvStructType(double a__1, CurvStruct *C);
 
 }
 
 #endif
 //
-// File trailer for CorrectArcCenter.h
+// File trailer for constrCurvStructType.h
 //
 // [EOF]
 //
