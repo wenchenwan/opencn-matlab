@@ -1,16 +1,12 @@
 addpath '.'
-addpath c_planner_v5
-addpath Tests/Full
-addpath Tests/Unit/CutStruct
-addpath Tests/Unit/ZSpdMode
-addpath Tests/Unit
-addpath Validate_OpenCN
-addpath arc_center
-addpath Tests
-addpath types/
-addpath interp/
+
+pathOfInterest = { 'c_planner_v5', 'Tests/Full', 'Tests', 'arc_center', ... 
+    'Tests', 'types/', 'interp/', 'kinematics/', 'gen_mex' };
 
 if( exist( "dev" , 'dir' ) ), addpath( "dev/" ); end
 
-genPath = genpath( 'gen_mex' );
-addpath( genPath );
+for t = 1 : length( pathOfInterest )
+    genPath = genpath( pathOfInterest{ t } );
+    addpath( genPath );
+end
+
