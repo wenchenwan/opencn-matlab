@@ -5,7 +5,7 @@
 // File: constrBaseSpline.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 03-May-2022 09:04:10
+// C/C++ source code generated on  : 03-May-2022 09:31:27
 //
 
 #ifndef CONSTRBASESPLINE_H

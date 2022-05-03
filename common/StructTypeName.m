@@ -23,6 +23,15 @@ classdef ( Sealed ) StructTypeName < handle
         dimCoeffOpt = { [Inf, 1], [1, 0] };
         % Default size for the vector of angles
         dimADeg     = { [Inf, 1], [1, 0] };
+        % Default size for the b-spline basis
+        dimBasis    = { [Inf, Inf], [1, 1] };
+        dimBasisInt = { [Inf, 1],   [1, 0] };
+        % Default size for uvec in ctx
+        dimCtxUvec  = { [1, Inf], [0, 1] };
+        % Default size for Coeff in ctx
+        dimCtxCoeff = { [1, Inf], [0, 1] };
+        % Default size for breakpoints in Bl in ctx
+        dimCtxBlBreaks = { [1, Inf], [0, 1] };
     end
 
     methods (Access = private)
