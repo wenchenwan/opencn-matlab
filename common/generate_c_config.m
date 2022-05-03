@@ -1,4 +1,4 @@
-function [cfg, output_root] = generate_c_config(generate_for_arm_32, generate_for_arm_64, generate_for_x86_64) %#codegen
+function [cfg, output_root] = generate_c_config(generate_for_arm_32, generate_for_arm_64, generate_for_x86_64, Lang) %#codegen
 % generate_c_config
 % 
 % Comments from the Mathworks coder reference documentation.
@@ -50,10 +50,18 @@ cfg.SupportNonFinite = false;
 % Language to use in generated code, specified as 'C' or 'C++'.
 % If you specify C++, the code generator wraps the C code into .cpp files,
 % so that you can use a C++ compiler and interface with external C++ applications.
-cfg.TargetLang = 'C++';
-% Language standard to use for the generated code.
-% For C++, the default library is 'C++11 (ISO).
-cfg.TargetLangStandard = 'C++11 (ISO)';
+if Lang == 1
+    cfg.TargetLang = 'C++';
+    % Language standard to use for the generated code.
+    % For C++, the default library is 'C++11 (ISO)'.
+    cfg.TargetLangStandard = 'C++11 (ISO)';
+else
+    cfg.TargetLang = 'C';
+    % Language standard to use for the generated code.
+    % For C, the default library is 'C99 (ISO)'.
+    cfg.TargetLangStandard = 'C99 (ISO)';
+end
+
 % The code generator inserts MATLAB source code as comments in the generated code.
 % A traceability tag immediately precedes each line of source code.
 % The traceability tag helps you to locate the corresponding MATLAB source code.

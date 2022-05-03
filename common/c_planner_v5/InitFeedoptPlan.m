@@ -10,19 +10,19 @@ coder.inline("never");
 % - q_opt:      Queue after optimization
 
     if cfg.UseLinearBreakpoints
-        Bl = bspline_create(cfg.SplineDegree, linspace(0, 1, cfg.NBreak));
-        u_vec = linspace(0, 1, cfg.NDiscr);
+        Bl = bspline_create(cfg.SplineDegree, linspace( 0, 1, cfg.NBreak ) );
+        u_vec = linspace( 0, 1, cfg.NDiscr );
     else
-        Bl = bspline_create(cfg.SplineDegree, sinspace(0, 1, cfg.NBreak));
-        u_vec = sinspace(0, 1, cfg.NDiscr);
+        Bl = bspline_create( cfg.SplineDegree, sinspace( 0, 1, cfg.NBreak ) );
+        u_vec = sinspace( 0, 1, cfg.NDiscr );
     end
     
     
     if ~coder.target('matlab')
-        coder.varsize('BasisVal', [Inf, Inf], [1, 1]);
-        coder.varsize('BasisValD', [Inf, Inf], [1, 1]);
-        coder.varsize('BasisValDD', [Inf, Inf], [1, 1]);
-        coder.varsize('BasisIntegr', [Inf, 1], [1 0]);
+        coder.varsize('BasisVal',       StructTypeName.dimBasis{ : } );
+        coder.varsize('BasisValD',      StructTypeName.dimBasis{ : } );
+        coder.varsize('BasisValDD',     StructTypeName.dimBasis{ : } );
+        coder.varsize('BasisIntegr',    StructTypeName.dimBasisInt{ : } );
     end
     [BasisVal, BasisValD, BasisValDD, ~, BasisIntegr] = bspline_base_eval(Bl, u_vec);
 
@@ -31,6 +31,7 @@ coder.inline("never");
     Curv            = ConstrCurvStructType();
     Spline          = CalcBspline_Lee(cfg, [[0,0,0]', [1,1,1]']);
     Curv.sp         = Spline;
+    Curv.sp.knots   = 0;
     Curv.sp.Ltot    = 0;
     Curv.sp.Lk      = 0;
     
@@ -65,18 +66,18 @@ coder.inline("never");
 
     
     if ~coder.target('matlab')
-        coder.varsize('ctx.BasisVal', [Inf, Inf], [1, 1]);
-        coder.varsize('ctx.BasisValD', [Inf, Inf], [1, 1]);
-        coder.varsize('ctx.BasisValDD', [Inf, Inf], [1, 1]);
-        coder.varsize('ctx.BasisIntegr', [Inf, 1], [1 0]);
-        coder.varsize('ctx.u_vec', [1, Inf], [0, 1]);
-        coder.varsize('ctx.Coeff', [Inf, Inf], [1 1]);
-        coder.varsize('ctx.Bl.breakpoints', [1, Inf], [0, 1]);
+        coder.varsize('ctx.BasisVal',   StructTypeName.dimBasis{ : } );
+        coder.varsize('ctx.BasisValD',  StructTypeName.dimBasis{ : } );
+        coder.varsize('ctx.BasisValDD', StructTypeName.dimBasis{ : } );
+        coder.varsize('ctx.BasisIntegr',StructTypeName.dimBasisInt{ : } );
+        coder.varsize('ctx.u_vec',      StructTypeName.dimCtxUvec{ : } );
+        coder.varsize('ctx.Coeff',      StructTypeName.dimCtxCoeff{ : } );
+        coder.varsize('ctx.Bl.breakpoints', StructTypeName.dimCtxBlBreaks{ : } );
     end
     
-    ctx.BasisVal = BasisVal;
-    ctx.BasisValD = BasisValD;
-    ctx.BasisValDD = BasisValDD;
+    ctx.BasisVal    = BasisVal;
+    ctx.BasisValD   = BasisValD;
+    ctx.BasisValDD  = BasisValDD;
     ctx.BasisIntegr = BasisIntegr;
     
     ctx.Coeff = Coeff;
@@ -84,6 +85,6 @@ coder.inline("never");
     coder.cstructname(ctx, 'FeedoptContext');
     
     % Push the dummy spline curv
-    ctx.q_splines.push(Curv);
+    ctx.q_splines.push( Curv );
     
 end

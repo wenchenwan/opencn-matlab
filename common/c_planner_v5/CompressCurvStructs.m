@@ -27,7 +27,7 @@ DebugLog(DebugCfg.Validate, 'Compressing...\n');
 % Satisfy coder
 if coder.target('rtw') || coder.target('mex')
     pvec = zeros(3, 0);
-    coder.varsize('pvec', [3, Inf], [0, 1]);
+    coder.varsize('pvec', [3, Inf], [1, 1]);
     CurvStruct1 = ctx.q_gcode.get(1);
 end
 

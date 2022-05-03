@@ -49,6 +49,9 @@ bz = [0; points(3, :)'; 0];
 if nD == 5
     bb = [0; points(4, :)'; 0];
     bc = [0; points(5, :)'; 0];
+else
+    bb = 0;
+    bc = 0;
 end
 %
 
@@ -62,6 +65,9 @@ cz = A\bz;              % solve sparse banded linear system
 if nD == 5
     cb = A\bb;          % solve sparse banded linear system
     cc = A\bc;          % solve sparse banded linear system
+else
+    cb = 0;
+    cc = 0;
 end
 %toc
 %
@@ -75,5 +81,8 @@ spnD.CoeffZ = cz.';
 if nD == 5
     spnD.CoeffB = cb.';
     spnD.CoeffC = cc.';
+else
+    spnD.CoeffB = 0;
+    spnD.CoeffC = 0;
 end
 spnD.Bl = Bl;
