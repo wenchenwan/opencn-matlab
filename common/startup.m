@@ -7,6 +7,8 @@ addpath Tests/Unit
 addpath Validate_OpenCN
 addpath arc_center
 addpath Tests
+addpath kinematics
+addpath kinematics/M5Matrix/
 
 if( exist( "dev" , 'dir' ) ), addpath( "dev/" ); end
 

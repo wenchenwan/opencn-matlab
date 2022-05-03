@@ -2,7 +2,7 @@ clear; clc;
 
 % We need first to choose what we whant to MEX.
 % Several options are possible.
-GenerateAll = true;
+GenerateAll = false;
 
 if( ~GenerateAll )
     GenerateConstrFunctions     = false;
@@ -12,6 +12,7 @@ if( ~GenerateAll )
     GenerateSimplex             = false;
     GenerateSpline              = false;
 %     GenerateFeedoptPlanRun      = false; % Does not work now
+    GenerateKinematic           = true;
 end
 
 cfg = generate_mex_config();
@@ -256,6 +257,62 @@ end
 %         disp(name + "failed : " + ME.message );
 %     end
 % end
+
+if( GenerateAll || GenerateKinematic )
+    name = "Mexing kinematics functions : ";
+    disp(name + "start" );
+    
+    try
+        KinematicRep = "gen_mex/kinematic";
+    
+        fprintf('Mexing MGD\n')
+        codegen('-config', cfg, '-d', KinematicRep + "/MGD",...
+                'MGD', '-args', {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},...
+                '-o', 'MGD_mex');
+        
+        fprintf('Mexing MGI\n')
+        codegen('-config', cfg, '-d', KinematicRep + "/MGI",...
+                'MGI', '-args', {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},...
+                '-o', 'MGI_mex');
+        
+        fprintf('Mexing J_ar\n')
+        codegen('-config', cfg, '-d', KinematicRep + "/J_ar",...
+                'J_ar', '-args', {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},...
+                '-o', 'J_ar_mex');
+
+        fprintf('Mexing J_arP\n')
+        codegen('-config', cfg, '-d', KinematicRep + "/J_arP",...
+                'J_arP', '-args', {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},...
+                '-o', 'J_arP_mex');
+
+        fprintf('Mexing J_arPP\n')
+        codegen('-config', cfg, '-d', KinematicRep + "/J_arPP",...
+                'J_arPP', '-args', {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},...
+                '-o', 'J_arPP_mex');
+        
+%         fprintf('Mexing BackwardJacobian\n')
+%         codegen('-config', cfg, '-d', KinematicRep + "/BackwardJacobian",...
+%                 'BackwardJacobian', '-args', {d51},...
+%                 '-o', 'BackwardJacobian_mex');
+
+%         fprintf('Mexing Velocity\n')
+%         codegen('-config', cfg, '-d', KinematicRep + "/Velocity",...
+%                 'Velocity', '-args', {d51, d35},...
+%                 '-o', 'Velocity_mex');
+
+        disp(name + "success" );
+
+        delete('MGD_mex.mexa64');
+        delete('MGI_mex.mexa64');
+        delete('J_ar_mex.mexa64');
+        delete('J_arP_mex.mexa64');
+        delete('J_arPP_mex.mexa64');
+%         delete('Velocity_mex.mexa64');
+
+    catch
+        disp(name + "failed" );
+    end
+end
 
 % Add path to current working directory
 genPath = genpath( 'gen_mex' );

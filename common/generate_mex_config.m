@@ -1,4 +1,4 @@
-function [cfg] = generate_mex_config()
+function [cfg] = generate_mex_config() %#codegen
 % generate_mex_config
 % 
 % Prepares the Coder to generate source files intended to be built,

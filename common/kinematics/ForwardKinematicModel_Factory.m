@@ -23,6 +23,6 @@ r_r(3) = FW_RTCP_sym(3, 4);
 r_r(4) = b;
 r_r(5) = c;
 
-matlabFunction(r_r, 'vars', [x y z b c mx my mz tx ty tz px p_y pz d1 d2 t_l], 'file', "dev/fct/Fct_MGD");
+matlabFunction(r_r, 'vars', [x y z b c mx my mz tx ty tz px p_y pz d1 d2 t_l], 'file', "kinematics/MGD");
 
 end
