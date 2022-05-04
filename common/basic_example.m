@@ -12,7 +12,6 @@ cfg.NCart = 3;
 cfg.NRot = 0;
 cfg.indCart = [ 1, 2, 3 ];
 cfg.indRot = 0;
-
 % For testing B spline
 cfg.Compressing.Skip = 0;
 cfg.Compressing.ColTolCos = 0.1*cfg.Compressing.ColTolCos;

@@ -22,7 +22,7 @@ r3D = zeros(nD, N);
 a=CurvStruct.a_param;
 b=CurvStruct.b_param;
 
-u_vec_tilda = a*u_vec+b
+u_vec_tilda = a*u_vec+b;
 
 switch Type
     case CurveType.Line % line (G01)
