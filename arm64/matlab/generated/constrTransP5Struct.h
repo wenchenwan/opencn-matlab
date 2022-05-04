@@ -5,14 +5,15 @@
 // File: constrTransP5Struct.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 03-May-2022 09:31:06
+// C/C++ source code generated on  : 04-May-2022 13:15:59
 //
 
 #ifndef CONSTRTRANSP5STRUCT_H
 #define CONSTRTRANSP5STRUCT_H
 
 // Include Files
-#include "opencn_matlab_types.h"
+#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types2.h"
 #include "rtwtypes.h"
 #include "coder_array.h"
 #include <cstddef>
@@ -22,10 +23,9 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-extern void constrTransP5Struct(GcodeInfoStruct *gcodeInfoStruct,
-                                const ::coder::array<double, 1U> &R0,
-                                const ::coder::array<double, 1U> &R1,
-                                const ::coder::array<double, 2U> &CoeffP5, CurvStruct *CStrct);
+extern void constrTransP5Struct(GcodeInfoStruct *gcodeInfoStruct, const double R0[6],
+                                const double R1[6], const ::coder::array<double, 2U> &CoeffP5,
+                                CurvStruct *CStrct);
 
 }
 

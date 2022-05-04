@@ -14,7 +14,7 @@ CurvStruct = ConstrLineStruct(trafo, HSC, Poff, Aoff, Uoff, ...
                                Doff, [1,2,3]', [4,5,6]', A0, A1, U0, ...
                                U1, 0.7, ZSpdMode.NN);
 
-CurvStruct.Type = CurveType.None;
+CurvStruct.Info.Type = CurveType.None;
 coder.cstructname(CurvStruct, 'CurvStruct');
 
 BusElem = Simulink.Bus.createObject(CurvStruct);

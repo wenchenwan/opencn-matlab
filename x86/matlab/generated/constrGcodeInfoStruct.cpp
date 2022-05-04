@@ -5,20 +5,21 @@
 // File: constrGcodeInfoStruct.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 03-May-2022 09:31:27
+// C/C++ source code generated on  : 04-May-2022 13:16:18
 //
 
 // Include Files
 #include "constrGcodeInfoStruct.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_initialize.h"
-#include "opencn_matlab_types.h"
+#include "opencn_matlab_types2.h"
+#include "opencn_matlab_types3.h"
 
 // Function Definitions
 //
 // function [ GCodeInfoStrct ] = constrGcodeInfoStruct( Type, ...
-//     ZSpdMode, trafo, HSC, FeedRate, SpindleSpeed, gcode_source_line, ...
-//     G91, G91_1 )
+//     ZSpdMode, trafo, HSC, G91, G91_1 , FeedRate, SpindleSpeed, ...
+//     gcode_source_line )
 //
 // Construct a struct containing the information from the Gcode.
 //
@@ -40,18 +41,18 @@
 //                ZSpdMode b_ZSpdMode
 //                bool trafo
 //                bool HSC
-//                bool FeedRate
-//                bool SpindleSpeed
-//                double gcode_source_line
-//                double G91
-//                unsigned long G91_1
+//                bool G91
+//                bool G91_1
+//                double FeedRate
+//                double SpindleSpeed
+//                unsigned long gcode_source_line
 //                GcodeInfoStruct *GCodeInfoStrct
 // Return Type  : void
 //
 namespace ocn {
-void constrGcodeInfoStruct(CurveType Type, ZSpdMode b_ZSpdMode, bool trafo, bool HSC, bool FeedRate,
-                           bool SpindleSpeed, double gcode_source_line, double G91,
-                           unsigned long G91_1, GcodeInfoStruct *GCodeInfoStrct)
+void constrGcodeInfoStruct(CurveType Type, ZSpdMode b_ZSpdMode, bool trafo, bool HSC, bool G91,
+                           bool G91_1, double FeedRate, double SpindleSpeed,
+                           unsigned long gcode_source_line, GcodeInfoStruct *GCodeInfoStrct)
 {
     if (!isInitialized_opencn_matlab) {
         opencn_matlab_initialize();

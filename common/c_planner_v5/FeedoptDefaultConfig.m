@@ -2,8 +2,8 @@ function cfg = FeedoptDefaultConfig()
 
 coder.inline("never");
 
-tol_col_compress_deg = 1e-2;
-tol_col_smooth_deg = 1e-2;
+tol_col_compress_deg    = 1e-2;
+tol_col_smooth_deg      = 1e-2;
 
 % Computation of Gauss-Legendre knots and weights for numerical integration
 GaussLegendreN = 5;  % number of evaluation points

@@ -30,7 +30,7 @@ for k = 1 : N
     while ~state.go_next
 
          [ state, ud, udd, uddd ] = resampleCurv(state, ctx.Bl, ...
-                                    Curv.zspdmode, Curv.Coeff, ...
+                                    Curv.Info.zspdmode, Curv.Coeff, ...
                                     Curv.ConstJerk, dt, Curv.a_param, ...
                                     Curv.b_param);
         
@@ -46,7 +46,7 @@ for k = 1 : N
             a       = abs( a ./ ctx.cfg.amax' );
             j       = abs( j ./ ctx.cfg.jmax' );
             
-            if(  (Curv.zspdmode == ZSpdMode.NN) && max(j) > maxJerk )
+            if(  (Curv.Info.zspdmode == ZSpdMode.NN) && max(j) > maxJerk )
                 maxJerk = max(j); 
             end
 

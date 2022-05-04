@@ -5,7 +5,7 @@
 // File: constrHelixStructFromArcFeed.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 03-May-2022 09:31:27
+// C/C++ source code generated on  : 04-May-2022 13:16:18
 //
 
 // Include Files
@@ -14,8 +14,8 @@
 #include "constrHelixStruct.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_initialize.h"
-#include "opencn_matlab_types.h"
-#include "coder_array.h"
+#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types2.h"
 #include <cmath>
 #include <emmintrin.h>
 
@@ -46,8 +46,8 @@
 //                const double P0[3]
 //                const double P1[3]
 //                const double C[3]
-//                const ::coder::array<double, 1U> &A0
-//                const ::coder::array<double, 1U> &A1
+//                const double A0[3]
+//                const double A1[3]
 //                double rotation
 //                const double evec[3]
 //                CurvStruct *CStrct
@@ -55,16 +55,13 @@
 //
 namespace ocn {
 void constrHelixStructFromArcFeed(const GcodeInfoStruct *gcodeInfoStruct, const double P0[3],
-                                  const double P1[3], const double C[3],
-                                  const ::coder::array<double, 1U> &A0,
-                                  const ::coder::array<double, 1U> &A1, double rotation,
-                                  const double evec[3], CurvStruct *CStrct)
+                                  const double P1[3], const double C[3], const double A0[3],
+                                  const double A1[3], double rotation, const double evec[3],
+                                  CurvStruct *CStrct)
 {
-    ::coder::array<double, 2U> b_A0;
-    ::coder::array<double, 2U> b_A1;
-    ::coder::array<double, 1U> c_P0;
-    ::coder::array<double, 1U> c_P1;
     GcodeInfoStruct b_gcodeInfoStruct;
+    double c_P0[6];
+    double c_P1[6];
     double b[3];
     double b_Cprim[3];
     double Cprim[2];
@@ -79,8 +76,6 @@ void constrHelixStructFromArcFeed(const GcodeInfoStruct *gcodeInfoStruct, const 
     double phi1;
     double pitch;
     double theta;
-    int b_input_sizes_idx_0;
-    int input_sizes_idx_0;
     if (!isInitialized_opencn_matlab) {
         opencn_matlab_initialize();
     }
@@ -96,36 +91,12 @@ void constrHelixStructFromArcFeed(const GcodeInfoStruct *gcodeInfoStruct, const 
     // 'constrHelixStructFromArcFeed:92' col_vec = vec;
     // 'constrHelixStructFromArcFeed:25' A0 = getColVec( A0 );
     // 'constrHelixStructFromArcFeed:89' if( isrow( vec ) )
-    if (A0.size(0) == 1) {
-        // 'constrHelixStructFromArcFeed:90' col_vec = vec';
-        b_A0.set_size(1, 1);
-        b_A0[0] = A0[0];
-    } else {
-        int A0_idx_0;
-        // 'constrHelixStructFromArcFeed:91' else
-        // 'constrHelixStructFromArcFeed:92' col_vec = vec;
-        A0_idx_0 = A0.size(0);
-        b_A0.set_size(A0.size(0), 1);
-        for (int i{0}; i < A0_idx_0; i++) {
-            b_A0[i] = A0[i];
-        }
-    }
+    // 'constrHelixStructFromArcFeed:91' else
+    // 'constrHelixStructFromArcFeed:92' col_vec = vec;
     // 'constrHelixStructFromArcFeed:26' A1 = getColVec( A1 );
     // 'constrHelixStructFromArcFeed:89' if( isrow( vec ) )
-    if (A1.size(0) == 1) {
-        // 'constrHelixStructFromArcFeed:90' col_vec = vec';
-        b_A1.set_size(1, 1);
-        b_A1[0] = A1[0];
-    } else {
-        int A1_idx_0;
-        // 'constrHelixStructFromArcFeed:91' else
-        // 'constrHelixStructFromArcFeed:92' col_vec = vec;
-        A1_idx_0 = A1.size(0);
-        b_A1.set_size(A1.size(0), 1);
-        for (int i1{0}; i1 < A1_idx_0; i1++) {
-            b_A1[i1] = A1[i1];
-        }
-    }
+    // 'constrHelixStructFromArcFeed:91' else
+    // 'constrHelixStructFromArcFeed:92' col_vec = vec;
     // 'constrHelixStructFromArcFeed:27' C  = getColVec( C );
     // 'constrHelixStructFromArcFeed:89' if( isrow( vec ) )
     // 'constrHelixStructFromArcFeed:91' else
@@ -275,34 +246,22 @@ void constrHelixStructFromArcFeed(const GcodeInfoStruct *gcodeInfoStruct, const 
         }
     }
     // 'constrHelixStructFromArcFeed:81' R0 = [ P0; A0 ];
-    if (b_A0.size(0) != 0) {
-        input_sizes_idx_0 = b_A0.size(0);
-    } else {
-        input_sizes_idx_0 = 0;
-    }
     // 'constrHelixStructFromArcFeed:82' R1 = [ P1; A1 ];
-    if (b_A1.size(0) != 0) {
-        b_input_sizes_idx_0 = b_A1.size(0);
-    } else {
-        b_input_sizes_idx_0 = 0;
-    }
     // 'constrHelixStructFromArcFeed:84' [ CStrct ] = constrHelixStruct( gcodeInfoStruct, R0, R1,
     // Cprim, delta, ... 'constrHelixStructFromArcFeed:85'                                     evec,
     // theta, pitch );
-    c_P0.set_size(input_sizes_idx_0 + 3);
     c_P0[0] = P0[0];
-    c_P0[1] = P0[1];
-    c_P0[2] = P0[2];
-    for (int i2{0}; i2 < input_sizes_idx_0; i2++) {
-        c_P0[i2 + 3] = b_A0[i2];
-    }
-    c_P1.set_size(b_input_sizes_idx_0 + 3);
+    c_P0[3] = A0[0];
     c_P1[0] = P1[0];
+    c_P1[3] = A1[0];
+    c_P0[1] = P0[1];
+    c_P0[4] = A0[1];
     c_P1[1] = P1[1];
+    c_P1[4] = A1[1];
+    c_P0[2] = P0[2];
+    c_P0[5] = A0[2];
     c_P1[2] = P1[2];
-    for (int i3{0}; i3 < b_input_sizes_idx_0; i3++) {
-        c_P1[i3 + 3] = b_A1[i3];
-    }
+    c_P1[5] = A1[2];
     b_gcodeInfoStruct = *gcodeInfoStruct;
     constrHelixStruct(&b_gcodeInfoStruct, c_P0, c_P1, b_Cprim, delta, evec, theta, pitch, CStrct);
 }

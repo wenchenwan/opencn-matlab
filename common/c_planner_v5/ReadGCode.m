@@ -1,11 +1,11 @@
-function [status, CurvStruct] = ReadGCode(cmd, filename)
+function [ status, CurvStruct ] = ReadGCode( cmd, filename )
 %#codegen
 % coder.extrinsic('ReadGCode_mex');
 % Wrapper for pulling the next gcode line from the interpreter
 persistent n data using_mat
 
 if coder.target('mex') 
-    CurvStruct = ConstrCurvStructType;
+    CurvStruct = constrCurvStructType;
 
     coder.updateBuildInfo('addDefines', '_POSIX_C_SOURCE=199309L')
     pathRs274Src = '$(START_DIR)/../../rs274ngc/src';
@@ -41,69 +41,60 @@ if coder.target('mex')
     status = int32(0);
     switch cmd
         case ReadGCodeCmd.Load
-            status = coder.ceval('cpp_interp_init', [filename 0]);
+            status = coder.ceval( 'cpp_interp_init', [filename 0] );
         case ReadGCodeCmd.Read
             is_loaded = int32(0);
-            is_loaded = coder.ceval('cpp_interp_loaded');
+            is_loaded = coder.ceval( 'cpp_interp_loaded' );
             if is_loaded
-                status = coder.ceval('cpp_interp_read', coder.ref(CurvStruct));
+                status = coder.ceval( 'cpp_interp_read', coder.ref( CurvStruct ) );
             else
                 status = int32(0);
             end
     end
 elseif coder.target('matlab') 
     if cmd == ReadGCodeCmd.Load
-        setenv("INI_FILE_NAME", pwd + "/config.ini");
-        disp("The configuration file is located : " + ...
-              getenv("INI_FILE_NAME"));
-        ext = filename(end-3:end);
+        setenv( "INI_FILE_NAME", pwd + "/config.ini" );
+        disp( "The configuration file is located : " + ...
+              getenv("INI_FILE_NAME") );
+        ext = filename( end-3 : end );
         if ext == ".mat"
-            fprintf('Loading CurvStructs ... ')
-            data = load(filename, 'CurvStructs');
-            data = table2struct(data.CurvStructs);
-            fprintf('Done\n')
+            fprintf( 'Loading CurvStructs ... ' )
+            data = load( filename, 'CurvStructs' );
+            data = table2struct( data.CurvStructs );
+            fprintf( 'Done\n' )
             using_mat = true;
             n = 1;
-            status = ~isempty(data);
+            status = ~isempty( data );
         else
             using_mat = false;
-            [status, CurvStruct] = ReadGCode_mex('ReadGCode', cmd, filename);
+            [status, CurvStruct] = ReadGCode_mex( 'ReadGCode', cmd, filename );
         end
     elseif cmd == ReadGCodeCmd.Read
         if using_mat
-            if n < length(data)
-                CurvStruct = data(n);
+            if n < length( data )
+                CurvStruct = data( n );
                 n = n + 1;
                 status = 1;
             else
                 status = 0;
-                CurvStruct = data(1);
+                CurvStruct = data( 1 );
             end
         else
-            [status, CurvStruct] = ReadGCode_mex('ReadGCode', cmd, filename);
+            [ status, CurvStruct ] = ReadGCode_mex( 'ReadGCode', cmd, filename );
         end
     end
 elseif coder.target('rtw')
-    trafo = false; % TRAFO flag disable 
-    HSC = false;
-    Poff = zeros(3, 1); Aoff = Poff; Uoff = Poff; Doff = 0.0;
-    A0 = zeros(3,1); A1 = A0; U0 = A0 ; U1 = A0; 
 
     if cmd == ReadGCodeCmd.Load
 
-        CurvStruct = ConstrLineStruct(trafo, HSC, Poff, Aoff, ...
-                                      Uoff, Doff, [1,2,3]', [4,5,6]', ...
-                                      A0, A1, U0, U1, 0.2, ZSpdMode.NN);
-
-        status = int32(0);
-        status = coder.ceval('c_open_gcode', [filename, 0], coder.ref(CurvStruct));
+        CurvStruct = constrCurvStructType;
+        status = int32( 0 );
+        status = coder.ceval( 'c_open_gcode', [filename, 0], coder.ref( CurvStruct ) );
     elseif cmd == ReadGCodeCmd.Read
 
-        CurvStruct = ConstrLineStruct(trafo, HSC, Poff, Aoff, ...
-                                      Uoff, Doff, [1,2,3]', [4,5,6]', ...
-                                      A0, A1, U0, U1, 0.2, ZSpdMode.NN);
-        status = int32(0);
-        status = coder.ceval('c_read_and_exec_gcode', '', coder.ref(CurvStruct));
+        CurvStruct = constrCurvStructType;
+        status = int32( 0 );
+        status = coder.ceval( 'c_read_and_exec_gcode', '', coder.ref( CurvStruct ) );
     end
 else
     error('Unknown target');

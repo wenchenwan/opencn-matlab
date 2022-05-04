@@ -38,7 +38,7 @@ for i=1:compress_end
     
     Curv = ctx.q_compress.get(i);
     
-    if Curv.Type==CurveType.Spline
+    if Curv.Info.Type==CurveType.Spline
         L_all(i)=LengthCurv(ctx, Curv, 0, 1);
     else
         L_all(i)=0;

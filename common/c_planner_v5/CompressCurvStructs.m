@@ -48,7 +48,7 @@ while k <= Ncrv
     %  - One of the boundaries speed is zero
     % No more segment is added to the list of compressing curves
     if ( LengthCurv(ctx, Curv, 0, 1) >= Length_Threshold ) || ...
-       ( Curv.zspdmode ~= ZSpdMode.NN ) ||...
+       ( Curv.Info.zspdmode ~= ZSpdMode.NN ) ||...
        ( CumulatedLength == 0 && ~Collinear )
 
         % If the cumulated length is zero, no compressing is on-going.
@@ -56,15 +56,15 @@ while k <= Ncrv
         if CumulatedLength == 0
             % Depending of the speed at the boundary, the segment is split
             % and then send to q_compress.
-            if Curv.zspdmode == ZSpdMode.ZN
+            if Curv.Info.zspdmode == ZSpdMode.ZN
                 [CurvStruct1_C, CurvStruct2_C] = cutZeroStart(ctx, Curv);
                 ctx.q_compress.push(CurvStruct1_C);
                 ctx.q_compress.push(CurvStruct2_C);
-            elseif Curv.zspdmode == ZSpdMode.NZ
+            elseif Curv.Info.zspdmode == ZSpdMode.NZ
                 [CurvStruct1_C, CurvStruct2_C] = cutZeroEnd(ctx, Curv);
                 ctx.q_compress.push(CurvStruct1_C);
                 ctx.q_compress.push(CurvStruct2_C);
-            elseif Curv.zspdmode == ZSpdMode.ZZ
+            elseif Curv.Info.zspdmode == ZSpdMode.ZZ
                 [CurvStruct1_C, CurvStruct2_C] = cutZeroStart(ctx, Curv);
                 [CurvStruct2_C, CurvStruct3_C] = cutZeroEnd(ctx, CurvStruct2_C);
                 ctx.q_compress.push(CurvStruct1_C);
@@ -79,28 +79,18 @@ while k <= Ncrv
             % We have more than 2 points, thus constructing a spline 
             % is warranted     
             if size(pvec, 2) > 2
-                SplineCurve = ConstrCurvStructType;
-                SplineCurve.sp = CalcBspline_Lee(ctx.cfg, pvec);
-                SplineCurve.sp.Ltot = 0; % satisfy coder
-                SplineCurve.sp.Lk = 0;   % satisfy coder
-                [Ltot, Lk]    = SplineLengthApproxGL_tot(ctx, SplineCurve);
-                SplineCurve.sp.Ltot = Ltot;                                 
-                SplineCurve.sp.Lk   = Lk;                                  
-                ctx.q_splines.push(SplineCurve);
-                spline = ConstrBSplineStruct(Curv.TRAFO, Curv.HSC,...
-                                             Curv.Poff, ...
-                                             Curv.Aoff, Curv.Uoff, ...
-                                             Curv.Doff, pvec,...
-                                            [Curv.A0,Curv.A1], ...
-                                            [Curv.U0,Curv.U1], ...
-                                            ZSpdMode.NN, Curv.FeedRate);
-                spline.gcode_source_line = Curv.gcode_source_line;
-                spline.sp_index = int32(spline_index);
+                SplineCurve     = constrCurvStructType;
+                SplineCurve.sp  = CalcBspline_Lee(ctx.cfg, pvec);
+                [Ltot, Lk]      = SplineLengthApproxGL_tot(ctx, SplineCurve);
+                SplineCurve.sp.Ltot = Ltot;
+                SplineCurve.sp.Lk   = Lk;
+                ctx.q_splines.push( SplineCurve );
+                spline = constrSplineStruct( Curv.Info, pvec(:,1), ...
+                    pvec(:,end), int32(spline_index) );
                 spline_index = spline_index + 1;
-                spline.SpindleSpeed = spindle_speed;
                 ctx.q_compress.push(spline);
 
-                if Curv.zspdmode == ZSpdMode.NZ
+                if Curv.Info.zspdmode == ZSpdMode.NZ
                     [CurvStruct1_C, CurvStruct2_C] = cutZeroEnd(ctx, Curv);
                     ctx.q_compress.push(CurvStruct1_C);
                     ctx.q_compress.push(CurvStruct2_C);
@@ -113,7 +103,7 @@ while k <= Ncrv
                 C.gcode_source_line=Curv.gcode_source_line;
                 ctx.q_compress.push(C);     % push segment to q_compress
 
-                if Curv.zspdmode == ZSpdMode.NZ % split if zero end
+                if Curv.Info.zspdmode == ZSpdMode.NZ % split if zero end
                     [CurvStruct1_C, CurvStruct2_C] = cutZeroEnd(ctx, Curv);
                     ctx.q_compress.push(CurvStruct1_C);
                     ctx.q_compress.push(CurvStruct2_C);
@@ -126,26 +116,17 @@ while k <= Ncrv
     % If this is the last segment and we have something in the
     % compression list, construct the spline
     elseif (k==Ncrv) && (CumulatedLength ~= 0)
-        SplineCurve = ConstrCurvStructType;
+        SplineCurve = constrCurvStructType;
         SplineCurve.sp=CalcBspline_Lee(ctx.cfg, pvec);
-        SplineCurve.sp.Ltot = 0; % satisfy coder
-        SplineCurve.sp.Lk = 0;   % satisfy coder
         [Ltot, Lk]     = SplineLengthApproxGL_tot(ctx, SplineCurve);
         SplineCurve.sp.Ltot = Ltot;                                 
         SplineCurve.sp.Lk   = Lk;                                    
         ctx.q_splines.push(SplineCurve);
-        spline = ConstrBSplineStruct(Curv.TRAFO, Curv.HSC,...
-                                    Curv.Poff,...
-                                    Curv.Aoff, Curv.Uoff, ...
-                                    Curv.Doff, pvec,...
-                                    [Curv.A0,Curv.A1], ...
-                                    [Curv.U0,Curv.U1], ...
-                                    ZSpdMode.NN, Curv.FeedRate);
-        spline.gcode_source_line = Curv.gcode_source_line;
-        spline.sp_index = int32(spline_index);
-        spline.SpindleSpeed = spindle_speed;
+        spline = constrSplineStruct( Curv.Info, pvec(:,1), ...
+            pvec(:,end), int32(spline_index) );
+        spline_index = spline_index + 1;
         ctx.q_compress.push(spline);
-    
+
     % If this is the first (and elligible) WHAT
     elseif k==1
         ctx.q_compress.push(Curv);

@@ -1,5 +1,6 @@
-function [ CStrct ] = constrCurvStruct( gcodeInfoStruct, R0, R1, Cprim, ...
-                      delta, evec, theta, pitch, CoeffP5, Coeff ) %#codegen
+function [ CStrct ] = constrCurvStruct( gcodeInfoStruct, spline, R0, R1, ...
+                      Cprim, delta, evec, theta, pitch, CoeffP5, Coeff ) 
+%#codegen
 % Construct a struct for the curves.
 %
 % gcodeInfoStruct  : struct containing the information from the Gcode
@@ -19,6 +20,7 @@ function [ CStrct ] = constrCurvStruct( gcodeInfoStruct, R0, R1, Cprim, ...
 coder.inline("never");
 
 CStrct = struct('Info', gcodeInfoStruct, ...
+    'sp', spline,...
     'R0', R0, ...
     'R1', R1, ...
     'CorrectedHelixCenter', Cprim, ...
@@ -43,7 +45,9 @@ if ~coder.target( 'MATLAB' )
     coder.varsize( 'CStrct.R0' ,        StructTypeName.dimR{ : } );
     coder.varsize( 'CStrct.R1' ,        StructTypeName.dimR{ : } ) ;
     coder.varsize( 'CStrct.CoeffP5' ,   StructTypeName.dimCoeffP5{ : } ) ;
-    coder.cstructname( CStrct.Info,     StructTypeName.GCodeInfo );    
+    coder.cstructname( CStrct.Info,     StructTypeName.GCodeInfo ); 
+    coder.cstructname( CStrct.sp,       StructTypeName.Spline );
+    coder.cstructname( CStrct.sp.Bl,    StructTypeName.BaseSpline );    
     coder.cstructname( CStrct, StructTypeName.Curve );
 end
 

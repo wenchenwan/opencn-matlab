@@ -1,10 +1,7 @@
 clear;
 cfg = FeedoptDefaultConfig;
 
-trafo = false; % TRAFO flag disable 
-HSC = false;
-Poff = zeros(3, 1); Aoff = Poff; Uoff = Poff; Doff = 0.0;
-A0 = zeros(3,1); A1 = A0; U0 = A0 ; U1 = A0; 
+A0 = zeros(3,1); A1 = A0;
 
 %% Test Helix 1/4 Circle matlab
 
@@ -14,11 +11,14 @@ cx = 0; cy = 1; cz = 0;
 rotation = 1;
 evec    = [0,0,0]';
 pitch   = 0;
+P0 = [ p0x; p0y; p0z ];
+P1 = [ p1x; p1y; p1z ];
+C  = [ cx; cy; cz ];
 
-c = ConstrHelixStructFromArcFeed(trafo, HSC, ...
-                      Poff, Aoff, Uoff, Doff, p0x, p0y, p0z, ...
-                      p1x, p1y, p1z, cx, cy, cz, A0, A1, U0, U1, rotation,...
-                      evec);
+info          = constrGcodeInfoStructType;
+info.FeedRate = 20;
+info.zspdmode = ZSpdMode.ZZ;
+c   = constrHelixStructFromArcFeed( info, P0, P1, C, A0, A1, rotation, evec );
 
 assert(c.theta == pi/2);
 
@@ -30,11 +30,14 @@ cx = 0; cy = 1; cz = 0;
 rotation = 1;
 evec    = [0,0,0]';
 pitch   = 0;
+P0 = [ p0x; p0y; p0z ];
+P1 = [ p1x; p1y; p1z ];
+C  = [ cx; cy; cz ];
 
-c = ConstrHelixStructFromArcFeed(trafo, HSC, ...
-                      Poff, Aoff, Uoff, Doff, p0x, p0y, p0z, ...
-                      p1x, p1y, p1z, cx, cy, cz, A0, A1, U0, U1, rotation,...
-                      evec);
+info          = constrGcodeInfoStructType;
+info.FeedRate = 20;
+info.zspdmode = ZSpdMode.ZZ;
+c   = constrHelixStructFromArcFeed( info, P0, P1, C, A0, A1, rotation, evec );
 
 assert(c.theta == pi);
 
@@ -48,11 +51,14 @@ rotation = 1;
 evec    = [0,0,0]';
 pitch   = 1;
 
-c = ConstrHelixStructFromArcFeed(trafo, HSC,...
-                      Poff, Aoff, Uoff, Doff, p0x, p0y, p0z, ...
-                      p1x, p1y, p1z, cx, cy, cz, A0, A1, U0, U1, rotation,...
-                      evec);
+P0 = [ p0x; p0y; p0z ];
+P1 = [ p1x; p1y; p1z ];
+C  = [ cx; cy; cz ];
 
+info          = constrGcodeInfoStructType;
+info.FeedRate = 20;
+info.zspdmode = ZSpdMode.ZZ;
+c   = constrHelixStructFromArcFeed( info, P0, P1, C, A0, A1, rotation, evec );
 assert(c.theta == 2*pi);
 
 %% Test Helix 1/4 Circle Pitch1 matlab
@@ -64,10 +70,14 @@ rotation = 2;
 evec    = [0,0,0]';
 pitch   = 4;
 
-c = ConstrHelixStructFromArcFeed(trafo, HSC,...
-                      Poff, Aoff, Uoff, Doff, p0x, p0y, p0z, ...
-                      p1x, p1y, p1z, cx, cy, cz, A0, A1, U0, U1, rotation,...
-                      evec);
+P0 = [ p0x; p0y; p0z ];
+P1 = [ p1x; p1y; p1z ];
+C  = [ cx; cy; cz ];
+
+info          = constrGcodeInfoStructType;
+info.FeedRate = 20;
+info.zspdmode = ZSpdMode.ZZ;
+c   = constrHelixStructFromArcFeed( info, P0, P1, C, A0, A1, rotation, evec );
 
 ctx = InitFeedoptPlan(cfg);
 assert_helix(ctx, c, pi/2);
@@ -81,11 +91,14 @@ rotation = 2;
 evec    = [0,0,0]';
 pitch   = 4;
 
-c = ConstrHelixStructFromArcFeed(trafo, HSC, ...
-                      Poff, Aoff, Uoff, Doff, p0x, p0y, p0z, ...
-                      p1x, p1y, p1z, cx, cy, cz, A0, A1, U0, U1, rotation,...
-                      evec);
+P0 = [ p0x; p0y; p0z ];
+P1 = [ p1x; p1y; p1z ];
+C  = [ cx; cy; cz ];
 
+info          = constrGcodeInfoStructType;
+info.FeedRate = 20;
+info.zspdmode = ZSpdMode.ZZ;
+c   = constrHelixStructFromArcFeed( info, P0, P1, C, A0, A1, rotation, evec );
 ctx = InitFeedoptPlan(cfg);
 assert_helix(ctx, c, 2*pi + pi/2);
 

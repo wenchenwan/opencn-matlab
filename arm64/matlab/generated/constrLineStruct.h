@@ -5,16 +5,16 @@
 // File: constrLineStruct.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 03-May-2022 09:31:06
+// C/C++ source code generated on  : 04-May-2022 13:15:59
 //
 
 #ifndef CONSTRLINESTRUCT_H
 #define CONSTRLINESTRUCT_H
 
 // Include Files
-#include "opencn_matlab_types.h"
+#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types2.h"
 #include "rtwtypes.h"
-#include "coder_array.h"
 #include <cstddef>
 #include <cstdlib>
 
@@ -22,8 +22,8 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-extern void constrLineStruct(GcodeInfoStruct *gcodeInfoStruct, const ::coder::array<double, 1U> &R0,
-                             const ::coder::array<double, 1U> &R1, CurvStruct *CStrct);
+extern void constrLineStruct(GcodeInfoStruct *gcodeInfoStruct, const double R0[6],
+                             const double R1[6], CurvStruct *CStrct);
 
 }
 

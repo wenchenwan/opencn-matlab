@@ -6,11 +6,7 @@ ctx = InitFeedoptPlan(cfg);
 cfg.LSplit = 30;
 N = 1;
 
-trafo = false; % TRAFO flag disable 
-HSC = false;
-Poff = zeros(3, 1); Aoff = Poff; Uoff = Poff; Doff = 0.0;
-A0 = zeros(3,1); A1 = A0; U0 = A0 ; U1 = A0; 
-
+A0      = zeros(3,1); A1 = A0; 
 P0      = zeros(3, 1);
 P1      = [1,1,1 + (N-1)*4]';
 Cprim   = [0,0,1]';
@@ -20,9 +16,11 @@ theta   = (N-1)*pi+pi/2;
 pitch   = 4;
 FeedRate = 15;
 
-gcode1   = ConstrHelixStruct(trafo, HSC, Poff, Aoff, Uoff, Doff,...
-                            P0, P1, A0, A1, U0, U1, Cprim, delta, evec, ...
-                            theta, pitch, FeedRate, ZSpdMode.ZN);
+info          = constrGcodeInfoStructType;
+info.FeedRate = FeedRate;
+info.zspdmode = ZSpdMode.ZN;
+gcode1   = constrHelixStruct( info, [ P0; A0 ], [ P1; A1 ], Cprim, delta, ...
+                             evec, theta, pitch );
 
 gcode2 = ConstrLineStruct(trafo, HSC, Poff, Aoff, Uoff, ...
                                Doff, [1,1,1 + (N-1)*4]', ...

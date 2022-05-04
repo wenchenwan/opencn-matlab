@@ -5,14 +5,15 @@
 // File: constrGcodeInfoStruct.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 03-May-2022 09:31:06
+// C/C++ source code generated on  : 04-May-2022 13:15:59
 //
 
 #ifndef CONSTRGCODEINFOSTRUCT_H
 #define CONSTRGCODEINFOSTRUCT_H
 
 // Include Files
-#include "opencn_matlab_types.h"
+#include "opencn_matlab_types2.h"
+#include "opencn_matlab_types3.h"
 #include "rtwtypes.h"
 #include <cstddef>
 #include <cstdlib>
@@ -22,8 +23,8 @@
 // Function Declarations
 namespace ocn {
 extern void constrGcodeInfoStruct(CurveType Type, ZSpdMode b_ZSpdMode, bool trafo, bool HSC,
-                                  bool FeedRate, bool SpindleSpeed, double gcode_source_line,
-                                  double G91, unsigned long G91_1, GcodeInfoStruct *GCodeInfoStrct);
+                                  bool G91, bool G91_1, double FeedRate, double SpindleSpeed,
+                                  unsigned long gcode_source_line, GcodeInfoStruct *GCodeInfoStrct);
 
 }
 

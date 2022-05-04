@@ -34,7 +34,7 @@ else
     
     
     
-    if CurvStruct.zspdmode == ZSpdMode.ZN
+    if CurvStruct.Info.zspdmode == ZSpdMode.ZN
         t = (6*u_vec/jps).^(1/3);
         uk = u_vec;
         d1uk = jps*t.^2/2;

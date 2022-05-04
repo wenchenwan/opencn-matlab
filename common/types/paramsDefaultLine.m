@@ -8,7 +8,7 @@ else
 end
 
 if( coder.target( 'MATLAB' ) )
-    params = paramLine( 1 : 3 );
+    params = { paramLine{ 1 }, paramLine{ 3 : 4 } };
 end
 
 end

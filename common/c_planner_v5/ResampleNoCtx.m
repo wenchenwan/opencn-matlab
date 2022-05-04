@@ -41,11 +41,11 @@ end
 
 
 function [ukp1, qk, dk] = Resample(CurOptStruct, Bl, u, dt)
-if CurOptStruct.zspdmode == ZSpdMode.ZN
+if CurOptStruct.Info.zspdmode == ZSpdMode.ZN
     [ukp1,qk, dk] = ResampleZN(CurOptStruct, u, dt);
-elseif CurOptStruct.zspdmode == ZSpdMode.NN
+elseif CurOptStruct.Info.zspdmode == ZSpdMode.NN
     [ukp1, qk, dk] = ResampleNN(CurOptStruct, Bl, u, dt);
-elseif CurOptStruct.zspdmode == ZSpdMode.NZ
+elseif CurOptStruct.Info.zspdmode == ZSpdMode.NZ
     [ukp1, qk, dk] = ResampleNZ(CurOptStruct, u, dt);
 else
     error('Should not get here');
