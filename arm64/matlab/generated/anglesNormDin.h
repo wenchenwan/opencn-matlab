@@ -5,7 +5,7 @@
 // File: anglesNormDin.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 04-May-2022 13:15:59
+// C/C++ source code generated on  : 04-May-2022 15:12:49
 //
 
 #ifndef ANGLESNORMDIN_H
@@ -21,10 +21,10 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-extern void anglesNormDin(const ::coder::array<double, 1U> &A0_deg,
-                          const ::coder::array<double, 1U> &A1_deg,
-                          const ::coder::array<int, 1U> &A1_mode, bool G90,
-                          ::coder::array<double, 1U> &angles_deg);
+extern void anglesNormDin(const ::coder::array<double, 1U> &A_prev,
+                          const ::coder::array<double, 1U> &A,
+                          const ::coder::array<int, 1U> &A_mode, bool G90,
+                          ::coder::array<double, 1U> &A_din);
 
 }
 

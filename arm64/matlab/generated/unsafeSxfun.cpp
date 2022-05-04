@@ -5,7 +5,7 @@
 // File: unsafeSxfun.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 04-May-2022 13:15:59
+// C/C++ source code generated on  : 04-May-2022 15:12:49
 //
 
 // Include Files
@@ -15,13 +15,13 @@
 
 // Function Definitions
 //
-// Arguments    : ::coder::array<double, 1U> &delta_CW
+// Arguments    : ::coder::array<double, 1U> &delta
 //                const ::coder::array<double, 1U> &r1
 //                const ::coder::array<double, 1U> &r2
 // Return Type  : void
 //
 namespace ocn {
-void binary_expand_op(::coder::array<double, 1U> &delta_CW, const ::coder::array<double, 1U> &r1,
+void binary_expand_op(::coder::array<double, 1U> &delta, const ::coder::array<double, 1U> &r1,
                       const ::coder::array<double, 1U> &r2)
 {
     ::coder::array<double, 1U> r;
@@ -46,7 +46,7 @@ void binary_expand_op(::coder::array<double, 1U> &delta_CW, const ::coder::array
     for (int i1{0}; i1 < loop_ub; i1++) {
         r[i1] = r1[i1 * stride_0_0] - r2[i1 * stride_1_0];
     }
-    delta_CW.set_size(r.size(0));
+    delta.set_size(r.size(0));
     b_loop_ub = r.size(0);
     for (int i2{0}; i2 < b_loop_ub; i2++) {
         double varargin_1;
@@ -62,7 +62,7 @@ void binary_expand_op(::coder::array<double, 1U> &delta_CW, const ::coder::array
                 varargout_1 += 360.0;
             }
         }
-        delta_CW[i2] = varargout_1;
+        delta[i2] = varargout_1;
     }
 }
 

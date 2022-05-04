@@ -5,7 +5,7 @@
 // File: opencn_matlab_data.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 04-May-2022 13:16:18
+// C/C++ source code generated on  : 04-May-2022 15:12:00
 //
 
 #ifndef OPENCN_MATLAB_DATA_H

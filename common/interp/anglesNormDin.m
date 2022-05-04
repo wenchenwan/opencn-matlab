@@ -1,64 +1,57 @@
-function [ angles_deg ] = anglesNormDin( A0_deg, A1_deg, A1_mode, G90 ) 
+function [ A_din ] = anglesNormDin( A_prev, A, A_mode, G90 ) 
 %#codegen
 % anglesNormDin : Compute the given vector of angles expressed in degree
-% ( A1_deg ) based on the Din norm for the angle used by Beckhoff.
+% ( A_prev ) based on the Din norm for the angle used by Beckhoff.
 %
-% A0_deg    : Vector of angles expressed in degree ( Starting angle )
-% A1_deg    : Vector of angles expressed in degree ( End angle )
-% A1_mode   : Vector mode based on the sign before the value
+% A_prev    : Vector of angles expressed in degree ( Starting angle )
+% A         : Vector of angles expressed in degree ( End angle )
+% A_mode    : Vector mode based on the sign before the value
 % G90       : (boolean) Is the absolute mode enable
 
 if( G90 )   % Absolute mode : Recompute the correct angle
-    angles_deg = recompute_angles( A0_deg, A1_deg, A1_mode );
+    A_din = recompute_angles( A_prev, A, A_mode );
 else        % Incremental   : The angle is already correct
-    angles_deg = A1_deg;
+    A_din = A;
 end
 
 end
 
-function [ angles_deg ] = recompute_angles( A0_deg, A1_deg, A1_mode )
+function [ A_din ] = recompute_angles( A_prev, A, A_mode )
 % recompute_angles : Recompute the angles bases on the Din norm.
 %       - CW        : CLockwise movement        (wrapped)
 %       - CCW       : Counterclockwise movement (wrapped)
 %       - Shortest  : Shorter distance          (wrapped)
-% A0_deg    : See headers
-% A1_deg    : See headers
-% A1_mode   : See headers
 %
-% angles_deg : Correct angle to reach
+% A_din : Corrected angle
 MAX_DEGREE = 360; % Maximum value in degree
 
-angles_deg      = A0_deg;                       % Store actual angles
-A0_deg_wrapped  = mod( A0_deg, MAX_DEGREE );    % Wrapped angle
-A1_deg_wrapped  = mod( A1_deg, MAX_DEGREE );    % Wrapped angle
+A_din           = A_prev;                       % Store actual angles
+A_prev_wrapped  = mod( A_prev, MAX_DEGREE );    % Wrapped angle
+A_wrapped       = mod( A, MAX_DEGREE );         % Wrapped angle
 
 % Compute different distances
-[ delta_CW, delta_CCW ] = computeDeltaDegree( A0_deg_wrapped, ...
-                                       A1_deg_wrapped, MAX_DEGREE );
+[ delta_CW, delta_CCW ] = computeDeltaDegree( A_prev_wrapped, ...
+                                              A_wrapped, MAX_DEGREE );
 
-N = length( A1_mode );
-
-for j = 1 : N   % Loop over the vector elements
-    switch( A1_mode( j ) )
-        case ( AngleMode.CW )       % Clockwise mode
-            angles_deg( j ) = angles_deg( j ) + delta_CW( j );
-        case ( AngleMode.CCW )      % Counterlockwise mode
-            angles_deg( j ) = angles_deg( j ) - delta_CCW( j );
-        case ( AngleMode.Closest )  % Shortest distance mode
-            if( delta_CCW( j ) < delta_CW( j ) )
-                delta = -delta_CCW( j );
-            else
-                delta = delta_CW( j );
-            end
-            angles_deg( j ) = angles_deg( j ) + delta;
-    end
+switch( A_mode )
+    case ( AngleMode.CW )       % Clockwise mode
+        A_din = A_din + delta_CW;
+    case ( AngleMode.CCW )      % Counterlockwise mode
+        A_din = A_din - delta_CCW;
+    case ( AngleMode.Closest )  % Shortest distance mode
+        if( delta_CCW < delta_CW )
+            delta = -delta_CCW;
+        else
+            delta = delta_CW;
+        end
+        A_din = A_din + delta;
 end
 
 end
 
-function [ delta_CW, delta_CCW ] = computeDeltaDegree( A0, A1, MAX_DEGREE )
+function [ delta_CW, delta_CCW ] = computeDeltaDegree( A_prev, A, MAX_DEGREE )
 % computeDeltaDegree : Compute the distance [ 0 , 360 ] between the angles.
-    delta_CW     = mod( A1 - A0, MAX_DEGREE );
+    delta_CW     = mod( A - A_prev, MAX_DEGREE );
     delta_CCW    = MAX_DEGREE - delta_CW; 
 end
 

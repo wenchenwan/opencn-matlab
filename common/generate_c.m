@@ -5,7 +5,7 @@ clear; clc;
 % please choose the target first ( only 1 target is generated at the time )
 generate_for_arm_32 = false;
 generate_for_x86_64 = false;
-generate_for_arm_64 = false;
+generate_for_arm_64 = true;
 
 % Comments from the Mathworks coder reference documentation.
 
@@ -230,7 +230,7 @@ else
     toErase = "toErase";
     if( isfolder( toErase ) ), rmdir( toErase, 's' ); end
     mkdir( toErase );
-    codegen('-config', cfg,'-d', toErase, '-o', 'opencn_matlab',...
+    codegen('-config', cfg,'-d', output_root, '-o', 'opencn_matlab',...
         'constrGcodeInfoStructType',...
         'constrGcodeInfoStruct', '-args', paramsDefaultGCodeInfo( StructTypeName.MEX ),...
         'constrBaseSplineType',...

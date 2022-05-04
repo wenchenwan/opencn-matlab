@@ -5,7 +5,7 @@
 // File: unsafeSxfun.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 04-May-2022 13:15:59
+// C/C++ source code generated on  : 04-May-2022 15:12:49
 //
 
 #ifndef UNSAFESXFUN_H
@@ -21,7 +21,7 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-void binary_expand_op(::coder::array<double, 1U> &delta_CW, const ::coder::array<double, 1U> &r1,
+void binary_expand_op(::coder::array<double, 1U> &delta, const ::coder::array<double, 1U> &r1,
                       const ::coder::array<double, 1U> &r2);
 
 }
