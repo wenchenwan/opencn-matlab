@@ -13,21 +13,22 @@ end
 Type  = CurvStruct.Type;
 %
 N = numel(u_vec);
-r0D = zeros(3, N);
-r1D = zeros(3, N);
-r2D = zeros(3, N);
-r3D = zeros(3, N);
+nD = ctx.cfg.NCart + ctx.cfg.NRot;
+r0D = zeros(nD, N);
+r1D = zeros(nD, N);
+r2D = zeros(nD, N);
+r3D = zeros(nD, N);
 
 a=CurvStruct.a_param;
 b=CurvStruct.b_param;
 
-u_vec_tilda = a*u_vec+b;
+u_vec_tilda = a*u_vec+b
 
 switch Type
     case CurveType.Line % line (G01)
-        [r0D, r1D, r2D, r3D] = EvalLine(CurvStruct, u_vec_tilda);
+        [r0D, r1D, r2D, r3D] = EvalLine(ctx, CurvStruct, u_vec_tilda);
     case CurveType.Helix % arc of circle / helix (G02, G03)
-        [r0D, r1D, r2D, r3D] = EvalHelix(CurvStruct, u_vec_tilda);
+        [r0D, r1D, r2D, r3D] = EvalHelix(ctx, CurvStruct, u_vec_tilda);
     case CurveType.TransP5 % polynomial transition
         [r0D, r1D, r2D, r3D] = EvalTransP5(CurvStruct, u_vec_tilda);
     case CurveType.Spline % BSpline
