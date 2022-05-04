@@ -1,87 +1,38 @@
 clear; clc;
 
+!cd $(START_DIR)
+
 % We need first to choose what we whant to MEX.
 % Several options are possible.
-GenerateAll = true;
+GenerateAll = false;
 
 if( ~GenerateAll )
-    GenerateConstrFunctions     = false;
+    GenerateDebug               = true;
     GenerateType                = false;
     GenerateResampling          = false;
     GenerateGCodeInterpreter    = false;
     GenerateQueues              = false;
     GenerateSimplex             = false;
     GenerateSpline              = false;
+    GenerateKinematic           = false;
 %     GenerateFeedoptPlanRun      = false; % Does not work now
 end
-
-% Prepares the Coder to generate source files intended to be built,
-% and to generate MEX (matlab executable) file in laguage specified
-% by 'cfg.TargetLang' option (hereafter C++).
-% These files can then be built after setting the 'cfg.GenCodeOnly' to false.
-cfg = coder.config('mex');
-% We want to generate MEX files, in order to be able to run
-% G-code Interpreter with MATLAB.
-% Mexing MATLAB functions also much improves execution speed.
-% This helps when doing opencn matlab part validation, and debug.
-cfg.GenCodeOnly = false;
-% The code generator produces a single file for C/C++ functions,
-% that map to MATLAB entry-point functions.
-% The code generator produces separate C/C++ files for utility functions.
-cfg.FilePartitionMethod = 'SingleFile';
-% Generate code that uses N-dimensional indexing.
-cfg.PreserveArrayDimensions = true;
-% Report will only be generated when errors or warnings occur.
-cfg.GenerateReport = false;
-% Source files that will then be built, will be generated in C++.
-% They will not be removed after build.
-cfg.TargetLang = 'C++';
-% Namespace used for opencn, custom code, as well as generated code.
-cfg.CppNamespace = 'ocn';
-% Variable-size arrays will be allowed for code generation.
-cfg.EnableVariableSizing = true;
-% The code generator allocates memory
-% dynamically on the heap for variable-size arrays,
-% whose size (in bytes) is greater than or equal to
-% DynamicMemoryAllocationThreshold = 65536 (default).
-cfg.DynamicMemoryAllocation = 'Threshold';
-% The code generator does not produce code to handle integer overflow.
-cfg.SaturateOnIntegerOverflow = false;
-% Global data synchronization disabled.
-% Before disabling synchronization, verify that your
-% MEX function does not interact with MATLAB global data.
-cfg.GlobalDataSyncMethod = 'NoSync';
-% Disables Just-in-Time (JIT) compilation mode.
-% The code generator creates a C/C++ MEX function
-% by generating and compiling C/C++ code.
-cfg.EnableJIT = false;
-% The code generation report displays potential
-% efficiency issues due to row-major layout.
-cfg.HighlightPotentialRowMajorIssues = true;
-% The generated code does not detect memory integrity violations.
-% Setting 'cfg.IntegrityChecks' to false can improve performance.
-cfg.IntegrityChecks = false;
-% To end a long-running MEX function, you might have to terminate MATLAB.
-cfg.ResponsivenessChecks = false;
-% If possible, the code generator uses the memcpy optimization.
-% To optimize code that copies consecutive array elements,
-% the memcpy optimization replaces the code with a memcpy call.
-cfg.EnableMemcpy = true;
-% If possible, the code generator uses the memset optimization
-% for assignment of floating-point zero to consecutive array elements.
-% To assign consecutive array elements, the memset optimization uses a memset call.
-cfg.InitFltsAndDblsToZero = true;
+cfg = generate_mex_config();
 
 % Some entry-point functions (memebers of codegen functions list)
 % take output of the functions hereafter, as arguments.
 % 'FeedoptDefaultConfig' and 'InitFeedoptPlan' must be entry-points functions, as well.
-fcfg = coder.OutputType('FeedoptDefaultConfig');
-fctx = coder.OutputType('InitFeedoptPlan');
-C = coder.OutputType('constrCurvStructType');
+fcfg    = coder.OutputType('FeedoptDefaultConfig');
+fctx    = coder.OutputType('initFeedoptPlan');
+C       = coder.OutputType('constrCurvStructType');
 
-global DebugActive sqrt_calls
+global DebugActive sqrt_calls sin_calls cos_calls cot_calls DebugConfig
 DebugActive = false;
-sqrt_calls = 0;
+sqrt_calls = 0;  
+sin_calls = 0;
+cos_calls = 0;
+cot_calls = 0;
+DebugConfig = 0;
 
 % An object of this type is an argument to entry-points functions.
 % C++ corresponding generated functions will accept
@@ -112,8 +63,8 @@ cfg.CustomInclude = [...
 % Remove gen from path
 ERROR_COLOR = 2;
 
-if( GenerateAll || GenerateConstrFunctions )
-    name = "Debug Constr functions : ";
+if( GenerateAll || GenerateDebug )
+    name = "Debug functions : ";
     disp(name + "start" );
     try
         DebugRep = 'gen_mex/debug';
@@ -226,7 +177,7 @@ if( GenerateAll || GenerateSpline )
         delete( 'bspline_eval_mex.mexa64' );
         addpath( path_mex );
     catch
-        disp(name + "failed" );
+        fprintf( ERROR_COLOR, name + "failed : " + ME.message + "\n");
     end
 end
 
@@ -256,31 +207,6 @@ if( GenerateAll || GenerateGCodeInterpreter )
         fprintf( ERROR_COLOR, name + "failed : " + ME.message + "\n");
     end
 end
-
-
-% Old version
-% if( GenerateAll || GenerateGCodeInterpreter )
-%     name = "Mexing gcode interpreter : ";
-%     disp(name + "start" );
-%     try
-%         ReadGCodeRep = 'gen_mex/readgcode';
-%         path_mex = genpath( ReadGCodeRep );
-%         rmpath( path_mex );
-%         codegen('-config', cfg,'-d', ReadGCodeRep, ...
-%             'constrCurvStructType',...
-%             'ReadGCode', '-args', {ReadGCodeCmd.Load, coder.typeof(' ', [1,1024], [0, 1])},...
-%             'ConstrLineStruct', '-args', {trafo, HSC, P0, P0 P0, Doff, P0, P0, P0, P0, P0, P0, 1.0, ZSpdMode.NN},...
-%             'ConstrHelixStruct', '-args', {trafo, HSC, P0, P0 P0, Doff, P0, P0, P0, P0, P0, P0, P0, 1.0, P0, 1.0, 1.0, 1.0, ZSpdMode.NN},...
-%             'ConstrHelixStructFromArcFeed', '-args', {trafo,  HSC, P0, P0 P0, Doff, 0,0,0,  0,0,0,  0,0,0,  P0, P0, P0, P0, 0,[0,0,0]'},...
-%             'CopyCurvStruct','-args', C,...
-%             '-o', 'ReadGCode_mex');
-%         disp(name + "success" );
-%         delete( 'ReadGCode_mex.mexa64' );
-%         addpath( path_mex );
-%     catch ME
-%         fprintf( ERROR_COLOR, name + "failed : " + ME.message + "\n");
-%     end
-% end
 
 if( GenerateAll || GenerateResampling )
     name = "Mexing resampling : ";
@@ -329,6 +255,53 @@ if( GenerateAll || GenerateSimplex )
         addpath( path_mex );
     catch ME
         fprintf( ERROR_COLOR, name + "failed : " + ME.message + "\n");
+    end
+end
+
+if( GenerateAll || GenerateKinematic )
+    name = "Mexing kinematics functions : ";
+    disp(name + "start" );
+
+    try
+        KinematicRep = "gen_mex/kinematic/";
+        path_mex = genpath( KinematicRep );
+        rmpath( path_mex );
+
+        fprintf('Mexing MGD\n')
+        codegen('-config', cfg, '-d', KinematicRep + "MGD/",...
+            'MGD', '-args', {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},...
+            '-o', 'MGD_mex');
+
+        fprintf('Mexing MGI\n')
+        codegen('-config', cfg, '-d', KinematicRep + "MGI/",...
+            'MGI', '-args', {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},...
+            '-o', 'MGI_mex');
+
+        fprintf('Mexing J_ar\n')
+        codegen('-config', cfg, '-d', KinematicRep + "J_ar/",...
+            'J_ar', '-args', {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},...
+            '-o', 'J_ar_mex');
+
+        fprintf('Mexing J_arP\n')
+        codegen('-config', cfg, '-d', KinematicRep + "J_arP/",...
+            'J_arP', '-args', {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},...
+            '-o', 'J_arP_mex');
+
+        fprintf('Mexing J_arPP\n')
+        codegen('-config', cfg, '-d', KinematicRep + "J_arPP/",...
+            'J_arPP', '-args', {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},...
+            '-o', 'J_arPP_mex');
+
+        disp(name + "success" );
+        addpath( path_mex );
+
+        delete('MGD_mex.mexa64');
+        delete('MGI_mex.mexa64');
+        delete('J_ar_mex.mexa64');
+        delete('J_arP_mex.mexa64');
+        delete('J_arPP_mex.mexa64');
+    catch
+        disp(name + "failed" );
     end
 end
 

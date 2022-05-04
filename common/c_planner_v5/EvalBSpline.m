@@ -19,7 +19,7 @@ r0D = zeros( M, N ); r1D = r0D; r2D = r1D; r3D = r2D;
 
 for j = 1 : M
     [r0D( j , : ), r1D( j , : ), r2D( j , : ), r3D( j , : ) ] = ... 
-                            bspline_eval_vec( Bl, sp.coeff( j, : ), u_vec );
+                            bspline_eval_vec( sp.Bl, sp.coeff( j, : ), u_vec );
 end
 
 end

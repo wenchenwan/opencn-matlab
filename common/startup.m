@@ -1,5 +1,4 @@
 addpath '.'
-
 pathOfInterest = { 'c_planner_v5', 'Tests/Full', 'Tests', 'arc_center', ... 
     'Tests', 'types/', 'interp/', 'kinematics/', 'gen_mex' };
 

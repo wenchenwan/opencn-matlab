@@ -23,7 +23,7 @@ classdef ( Sealed ) StructTypeName < handle
         % Default size for the coefficient of the optimization
         dimCoeffOpt = { [Inf, 1], [1, 0] };
         % Default size for the vector of angles
-        dimADeg     = { [Inf, 1], [1, 0] };
+        dimADeg     = { [1, 1], [0, 0] };
         % Default size for the b-spline basis
         dimBasis    = { [Inf, Inf], [1, 1] };
         dimBasisInt = { [Inf, 1],   [1, 0] };

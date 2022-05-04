@@ -20,5 +20,4 @@ r_a(2) = -BW_RTCP_sym(2, 4);
 r_a(3) = BW_RTCP_sym(3, 4);
 r_a(4) = b;
 r_a(5) = c;
-
 end

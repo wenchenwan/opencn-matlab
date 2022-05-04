@@ -32,6 +32,3 @@ r1D = repmat( P1 - P0, 1, N );
 %
 r2D = zeros(nD, N);
 r3D = zeros(nD, N);
-
-   
-    

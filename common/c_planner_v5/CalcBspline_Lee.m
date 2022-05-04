@@ -8,7 +8,8 @@ function spnD = CalcBspline_Lee(cfg, points)
 % OUTPUT
 % spnD      : struct : Output spline structure
 
-[nD, N] = size(points); % number of points in 3D/5D space
+[~, N] = size(points); % number of points in 3D/5D space
+nD = cfg.NCart + cfg.NRot;
 
 du     = sum((diff(points.').^2).');
 u      = cumsum([0,du.^(1/4)]);
@@ -86,3 +87,5 @@ else
     spnD.CoeffC = 0;
 end
 spnD.Bl = Bl;
+spnD.knots = knots;
+end

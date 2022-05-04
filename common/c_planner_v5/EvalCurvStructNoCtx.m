@@ -25,16 +25,26 @@ u_vec_tilda = a * u_vec + b;
 
 indC   = cfg.indCart;
 indR   = cfg.indRot;
-indTot = [ indC, indR ];
+
+if( cfg.NCart == 0 )    % Only rotation
+    indTot = indR;
+elseif( cfg.NRot == 0 ) % Only cartesian
+    indTot = indC;
+else
+    indTot = [ indR, indC ];
+end
 
 switch Type
     case CurveType.Line     % Line (G01)
         [r0D, r1D, r2D, r3D] = EvalLine( CurvStruct, u_vec_tilda, indTot );
     case CurveType.Helix    % Arc of circle / helix (G02, G03)
-        [r0D( indR, : ), r1D( indR, : ), r2D( indR, : ), r3D( indR, : )] = ...
-                                EvalLine( CurvStruct, u_vec_tilda, indR );    
-        [r0D( indC, : ), r1D( indC, : ), r2D( indC, : ), r3D( indC, : )] = ...
-                                EvalHelix( CurvStruct, u_vec_tilda );
+        if( cfg.NCart > 0 )         % Only rotation
+            [r0D( indC, : ), r1D( indC, : ), r2D( indC, : ), r3D( indC, : )] = ...
+                EvalHelix( CurvStruct, u_vec_tilda );
+        elseif( cfg.NRot > 0 )      % Only cartesian
+            [r0D( indR, : ), r1D( indR, : ), r2D( indR, : ), r3D( indR, : )] = ...
+                EvalLine( CurvStruct, u_vec_tilda, indR );
+        end
     case CurveType.TransP5  % Polynomial transition
         [r0D, r1D, r2D, r3D] = EvalTransP5( CurvStruct, u_vec_tilda );
     case CurveType.Spline   % Spline
