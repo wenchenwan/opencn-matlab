@@ -40,8 +40,8 @@ CurvStruct_T = CurvStruct1; %default value
 [r1D0_2, r1D1_2] = EvalCurvStruct(ctx, CurvStruct2, 1); % Curv2 @1
 
 % colinearity test
-if  CurvStruct1.Type ~= CurveType.Helix ...
-    && CurvStruct2.Type ~= CurveType.Helix ...
+if  CurvStruct1.Info.Type ~= CurveType.Helix ...
+    && CurvStruct2.Info.Type ~= CurveType.Helix ...
     && collinear(r0D1_2, r1D1_1, ColTolCos)
 
     status = TransitionResult.Collinear;    
@@ -56,14 +56,14 @@ L1 = LengthCurv(ctx, CurvStruct1, 0, 1);
 L2 = LengthCurv(ctx, CurvStruct2, 0, 1);
 
 % CutOff calculation
-if CurvStruct1.Type ~= CurveType.Spline ...
-   && CurvStruct2.Type ~= CurveType.Spline
+if CurvStruct1.Info.Type ~= CurveType.Spline ...
+   && CurvStruct2.Info.Type ~= CurveType.Spline
     % If L1 or L2 is smaller than 3*CutOff
     if L1 < Length_Threshold || L2 < Length_Threshold
         CutOff = min (L1,L2)/3;
     end
 else
-    if CurvStruct1.Type == CurveType.Spline
+    if CurvStruct1.Info.Type == CurveType.Spline
         Spline=ctx.q_splines.get(CurvStruct1.sp_index);
         sp = Spline.sp;
         a = CurvStruct1.a_param;
@@ -93,7 +93,7 @@ else
         end
     end
     
-    if CurvStruct2.Type == CurveType.Spline
+    if CurvStruct2.Info.Type == CurveType.Spline
         Spline=ctx.q_splines.get(CurvStruct2.sp_index);
         sp = Spline.sp;
         a = CurvStruct2.a_param;

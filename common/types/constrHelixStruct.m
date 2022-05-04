@@ -21,10 +21,11 @@ coder.inline( "never" );
 
 gcodeInfoStruct.Type = CurveType.Helix;
 
+spline  = constrSplineType();
 CoeffP5 = zeros( 1, 6 );
 Coeff   = zeros( 1, 1 );
 
-CStrct = constrCurvStruct( gcodeInfoStruct, R0, R1, Cprim, delta, evec, ...
-                           theta, pitch, CoeffP5, Coeff );
+CStrct = constrCurvStruct( gcodeInfoStruct, spline, R0, R1, Cprim, delta, ...
+                            evec, theta, pitch, CoeffP5, Coeff );
 
 end

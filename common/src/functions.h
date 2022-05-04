@@ -16,7 +16,7 @@
 #endif
 
 #if defined(MATLAB_MEX_FILE)
-#include "../gen_mex/readgcode/ReadGCode_mex_types.h"
+#include "../gen_mex/types/Type_mex_types.h"
 #endif
 
 namespace ocn {

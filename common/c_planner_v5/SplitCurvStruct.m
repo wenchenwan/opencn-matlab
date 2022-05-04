@@ -1,7 +1,7 @@
 function ctx = SplitCurvStruct(ctx, CurvStrct)
 % coder.varsize('CrvStructs', [1, 100], [0, 1]);
 %
-Type  = CurvStrct.Type;
+Type  = CurvStrct.Info.Type;
 
 if Type~=CurveType.TransP5 && CurvStrct.UseConstJerk == 0
     

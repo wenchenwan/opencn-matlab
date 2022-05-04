@@ -1,8 +1,5 @@
 function [] = TestHelixSplit()
-trafo = false; % TRAFO flag disable 
-HSC = false;
-Poff = zeros(3, 1); Aoff = Poff; Uoff = Poff; Doff = 0.0;
-A0 = zeros(3,1); A1 = A0; U0 = A0 ; U1 = A0; 
+A0 = zeros(3,1); A1 = A0;
 
 P0      = zeros(3, 1);
 P1      = ones(3, 1);
@@ -13,15 +10,17 @@ theta   = pi/2;
 pitch   = 4;
 FeedRate = 15;
 
-gcode   = ConstrHelixStruct(trafo, HSC, Poff, Aoff, Uoff, Doff,...
-                            P0, P1, A0, A1, U0, U1, Cprim, delta, evec,...
-                            theta, pitch, FeedRate, ZSpdMode.ZZ);
+info          = constrGcodeInfoStructType;
+info.FeedRate = FeedRate;
+info.zspdmode = ZSpdMode.ZZ;
+gcode   = constrHelixStruct( info, [ P0; A0 ], [ P1; A1 ], Cprim, delta, ...
+                             evec, theta, pitch);
 
 cfg = FeedoptDefaultConfig;
-cfg.LSplit = LengthCurv(gcode)/3;
-ctx = InitFeedoptPlan(cfg);
+cfg.LSplit = LengthCurv( gcode ) / 3;
+ctx = InitFeedoptPlan( cfg );
 
-ctx = SplitCurvStruct(ctx, gcode, cfg.LSplit);
+ctx = SplitCurvStruct( ctx, gcode, cfg.LSplit );
 CurvStructs = ctx.q_split.getall();
-PlotCurvStructs(ctx, CurvStructs);
+PlotCurvStructs( ctx, CurvStructs );
 end

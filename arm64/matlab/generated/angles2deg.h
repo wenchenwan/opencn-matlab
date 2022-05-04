@@ -5,7 +5,7 @@
 // File: angles2deg.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 03-May-2022 09:31:06
+// C/C++ source code generated on  : 04-May-2022 13:15:59
 //
 
 #ifndef ANGLES2DEG_H

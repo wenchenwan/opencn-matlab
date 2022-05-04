@@ -5,16 +5,16 @@
 // File: constrHelixStructFromArcFeed.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 03-May-2022 09:31:27
+// C/C++ source code generated on  : 04-May-2022 13:16:18
 //
 
 #ifndef CONSTRHELIXSTRUCTFROMARCFEED_H
 #define CONSTRHELIXSTRUCTFROMARCFEED_H
 
 // Include Files
-#include "opencn_matlab_types.h"
+#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types2.h"
 #include "rtwtypes.h"
-#include "coder_array.h"
 #include <cstddef>
 #include <cstdlib>
 
@@ -23,10 +23,9 @@
 // Function Declarations
 namespace ocn {
 extern void constrHelixStructFromArcFeed(const GcodeInfoStruct *gcodeInfoStruct, const double P0[3],
-                                         const double P1[3], const double C[3],
-                                         const ::coder::array<double, 1U> &A0,
-                                         const ::coder::array<double, 1U> &A1, double rotation,
-                                         const double evec[3], CurvStruct *CStrct);
+                                         const double P1[3], const double C[3], const double A0[3],
+                                         const double A1[3], double rotation, const double evec[3],
+                                         CurvStruct *CStrct);
 
 }
 

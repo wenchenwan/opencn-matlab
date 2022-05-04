@@ -6,7 +6,7 @@ function [ CurvStruct1, CurvStruct2 ] = cutZeroEnd( ctx, CurvStruct )
     CurvStruct1.b_param = 0;
     CurvStruct1.a_param = u;
     CurvStruct1.UseConstJerk = false;
-    CurvStruct1.zspdmode = ZSpdMode.NN;
+    CurvStruct1.Info.zspdmode = ZSpdMode.NN;
     CurvStruct1.ConstJerkMaxIterations = int32(0);
     CurvStruct1.gcode_source_line = CurvStruct.gcode_source_line;
     
@@ -15,10 +15,10 @@ function [ CurvStruct1, CurvStruct2 ] = cutZeroEnd( ctx, CurvStruct )
     CurvStruct2.ConstJerk = jps;
     CurvStruct2.b_param = CurvStruct1.a_param + CurvStruct1.b_param;
     CurvStruct2.a_param = 1 - CurvStruct2.b_param;
-    CurvStruct2.zspdmode = ZSpdMode.NZ;
+    CurvStruct2.Info.zspdmode = ZSpdMode.NZ;
     
     if( coder.target("MATLAB") )
-        check_continuity( ctx, CurvStruct1, CurvStruct2 );
+%         check_continuity( ctx, CurvStruct1, CurvStruct2 );
     end
 end
 

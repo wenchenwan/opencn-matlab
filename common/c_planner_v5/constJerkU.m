@@ -25,7 +25,7 @@ udd     = pseudoJerk .* k_vec;
 ud      = pseudoJerk .* k_vec .^2 / 2;
 u       = pseudoJerk .* k_vec .^3 / 6;
 
-if( isEnd ) % Reverse time ( Backward integration )
+if( isEnd ) % Reverse time ( Backward-like integration )
     u    = 1 - u;
     ud   = -ud;
     udd  = -udd;

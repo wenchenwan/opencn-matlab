@@ -5,20 +5,22 @@
 // File: constrCurvStruct.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 03-May-2022 09:31:06
+// C/C++ source code generated on  : 04-May-2022 13:15:59
 //
 
 // Include Files
 #include "constrCurvStruct.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_initialize.h"
-#include "opencn_matlab_types.h"
+#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types2.h"
+#include "opencn_matlab_types3.h"
 #include "coder_array.h"
 
 // Function Definitions
 //
-// function [ CStrct ] = constrCurvStruct( gcodeInfoStruct, R0, R1, Cprim, ...
-//                       delta, evec, theta, pitch, CoeffP5, Coeff )
+// function [ CStrct ] = constrCurvStruct( gcodeInfoStruct, spline, R0, R1, ...
+//                       Cprim, delta, evec, theta, pitch, CoeffP5, Coeff )
 //
 // Construct a struct for the curves.
 //
@@ -36,58 +38,122 @@
 //  Ouputs:
 //  CStrct    : The resulting structure
 //
-// Arguments    : CurvStruct *CStrct
+// Arguments    : CurveType gcodeInfoStruct_Type
+//                ZSpdMode gcodeInfoStruct_zspdmode
+//                bool gcodeInfoStruct_TRAFO
+//                bool gcodeInfoStruct_HSC
+//                double gcodeInfoStruct_FeedRate
+//                double gcodeInfoStruct_SpindleSpeed
+//                unsigned long gcodeInfoStruct_gcode_source_line
+//                bool gcodeInfoStruct_G91
+//                bool gcodeInfoStruct_G91_1
+//                int spline_Bl_ncoeff
+//                const ::coder::array<double, 2U> &spline_Bl_breakpoints
+//                unsigned long spline_Bl_handle
+//                int spline_Bl_order
+//                const ::coder::array<double, 2U> &spline_coeff
+//                const ::coder::array<double, 2U> &spline_knots
+//                double spline_Ltot
+//                const ::coder::array<double, 2U> &spline_Lk
+//                const double R0[6]
+//                const double R1[6]
+//                const double Cprim[3]
+//                const double evec[3]
+//                const double CoeffP5[6]
+//                CurvStruct *CStrct
 // Return Type  : void
 //
 namespace ocn {
-void b_constrCurvStruct(CurvStruct *CStrct)
+void b_constrCurvStruct(CurveType gcodeInfoStruct_Type, ZSpdMode gcodeInfoStruct_zspdmode,
+                        bool gcodeInfoStruct_TRAFO, bool gcodeInfoStruct_HSC,
+                        double gcodeInfoStruct_FeedRate, double gcodeInfoStruct_SpindleSpeed,
+                        unsigned long gcodeInfoStruct_gcode_source_line, bool gcodeInfoStruct_G91,
+                        bool gcodeInfoStruct_G91_1, int spline_Bl_ncoeff,
+                        const ::coder::array<double, 2U> &spline_Bl_breakpoints,
+                        unsigned long spline_Bl_handle, int spline_Bl_order,
+                        const ::coder::array<double, 2U> &spline_coeff,
+                        const ::coder::array<double, 2U> &spline_knots, double spline_Ltot,
+                        const ::coder::array<double, 2U> &spline_Lk, const double R0[6],
+                        const double R1[6], const double Cprim[3], const double evec[3],
+                        const double CoeffP5[6], CurvStruct *CStrct)
 {
-    static const unsigned long t0_G91_1{0UL};
-    // 'constrCurvStruct:19' coder.inline("never");
-    // 'constrCurvStruct:21' CStrct = struct('Info', gcodeInfoStruct, ...
-    // 'constrCurvStruct:22'     'R0', R0, ...
-    // 'constrCurvStruct:23'     'R1', R1, ...
-    // 'constrCurvStruct:24'     'CorrectedHelixCenter', Cprim, ...
-    // 'constrCurvStruct:25'     'delta', delta, ...
-    // 'constrCurvStruct:26'     'evec', evec,...
-    // 'constrCurvStruct:27'     'theta', theta,...
-    // 'constrCurvStruct:28'     'pitch', pitch,...
-    // 'constrCurvStruct:29'     'CoeffP5', CoeffP5,...
-    // 'constrCurvStruct:30'     'sp_index', int32(1),...
-    // 'constrCurvStruct:31'     'i_begin_sp', int32(0),...
-    // 'constrCurvStruct:32'     'i_end_sp', int32(0),...
-    // 'constrCurvStruct:33'     'index_smooth', int32(0),...
-    // 'constrCurvStruct:34'     'UseConstJerk', false,...
-    // 'constrCurvStruct:35'     'ConstJerk', 0,...
-    // 'constrCurvStruct:36'     'Coeff', Coeff,...
-    // 'constrCurvStruct:37'     'a_param', 1,...
-    // 'constrCurvStruct:38'     'b_param', 0 ...
-    // 'constrCurvStruct:39'     );
-    CStrct->Info.Type = CurveType_Line;
-    CStrct->Info.zspdmode = ZSpdMode_NN;
-    CStrct->Info.TRAFO = false;
-    CStrct->Info.HSC = false;
-    CStrct->Info.FeedRate = false;
-    CStrct->Info.SpindleSpeed = true;
-    CStrct->Info.gcode_source_line = 0.0;
-    CStrct->Info.G91 = 0.0;
-    CStrct->Info.G91_1 = t0_G91_1;
-    CStrct->R0.set_size(1);
-    CStrct->R0[0] = 0.0;
-    CStrct->R1.set_size(1);
-    CStrct->R1[0] = 0.0;
+    int b_loop_ub;
+    int d_loop_ub;
+    int e_loop_ub;
+    int loop_ub;
+    // 'constrCurvStruct:20' coder.inline("never");
+    // 'constrCurvStruct:22' CStrct = struct('Info', gcodeInfoStruct, ...
+    // 'constrCurvStruct:23'     'sp', spline,...
+    // 'constrCurvStruct:24'     'R0', R0, ...
+    // 'constrCurvStruct:25'     'R1', R1, ...
+    // 'constrCurvStruct:26'     'CorrectedHelixCenter', Cprim, ...
+    // 'constrCurvStruct:27'     'delta', delta, ...
+    // 'constrCurvStruct:28'     'evec', evec,...
+    // 'constrCurvStruct:29'     'theta', theta,...
+    // 'constrCurvStruct:30'     'pitch', pitch,...
+    // 'constrCurvStruct:31'     'CoeffP5', CoeffP5,...
+    // 'constrCurvStruct:32'     'sp_index', int32(1),...
+    // 'constrCurvStruct:33'     'i_begin_sp', int32(0),...
+    // 'constrCurvStruct:34'     'i_end_sp', int32(0),...
+    // 'constrCurvStruct:35'     'index_smooth', int32(0),...
+    // 'constrCurvStruct:36'     'UseConstJerk', false,...
+    // 'constrCurvStruct:37'     'ConstJerk', 0,...
+    // 'constrCurvStruct:38'     'Coeff', Coeff,...
+    // 'constrCurvStruct:39'     'a_param', 1,...
+    // 'constrCurvStruct:40'     'b_param', 0 ...
+    // 'constrCurvStruct:41'     );
+    CStrct->Info.Type = gcodeInfoStruct_Type;
+    CStrct->Info.zspdmode = gcodeInfoStruct_zspdmode;
+    CStrct->Info.TRAFO = gcodeInfoStruct_TRAFO;
+    CStrct->Info.HSC = gcodeInfoStruct_HSC;
+    CStrct->Info.FeedRate = gcodeInfoStruct_FeedRate;
+    CStrct->Info.SpindleSpeed = gcodeInfoStruct_SpindleSpeed;
+    CStrct->Info.gcode_source_line = gcodeInfoStruct_gcode_source_line;
+    CStrct->Info.G91 = gcodeInfoStruct_G91;
+    CStrct->Info.G91_1 = gcodeInfoStruct_G91_1;
+    CStrct->sp.Bl.ncoeff = spline_Bl_ncoeff;
+    CStrct->sp.Bl.breakpoints.set_size(1, spline_Bl_breakpoints.size(1));
+    loop_ub = spline_Bl_breakpoints.size(1);
+    for (int i{0}; i < loop_ub; i++) {
+        CStrct->sp.Bl.breakpoints[i] = spline_Bl_breakpoints[i];
+    }
+    CStrct->sp.Bl.handle = spline_Bl_handle;
+    CStrct->sp.Bl.order = spline_Bl_order;
+    CStrct->sp.coeff.set_size(spline_coeff.size(0), spline_coeff.size(1));
+    b_loop_ub = spline_coeff.size(1);
+    for (int i1{0}; i1 < b_loop_ub; i1++) {
+        int c_loop_ub;
+        c_loop_ub = spline_coeff.size(0);
+        for (int i2{0}; i2 < c_loop_ub; i2++) {
+            CStrct->sp.coeff[i2 + CStrct->sp.coeff.size(0) * i1] =
+                spline_coeff[i2 + spline_coeff.size(0) * i1];
+        }
+    }
+    CStrct->sp.knots.set_size(1, spline_knots.size(1));
+    d_loop_ub = spline_knots.size(1);
+    for (int i3{0}; i3 < d_loop_ub; i3++) {
+        CStrct->sp.knots[i3] = spline_knots[i3];
+    }
+    CStrct->sp.Ltot = spline_Ltot;
+    CStrct->sp.Lk.set_size(1, spline_Lk.size(1));
+    e_loop_ub = spline_Lk.size(1);
+    for (int i4{0}; i4 < e_loop_ub; i4++) {
+        CStrct->sp.Lk[i4] = spline_Lk[i4];
+    }
     CStrct->delta = 0.0;
-    CStrct->CorrectedHelixCenter[0] = 0.0;
-    CStrct->evec[0] = 0.0;
-    CStrct->CorrectedHelixCenter[1] = 0.0;
-    CStrct->evec[1] = 0.0;
-    CStrct->CorrectedHelixCenter[2] = 0.0;
-    CStrct->evec[2] = 0.0;
+    CStrct->CorrectedHelixCenter[0] = Cprim[0];
+    CStrct->evec[0] = evec[0];
+    CStrct->CorrectedHelixCenter[1] = Cprim[1];
+    CStrct->evec[1] = evec[1];
+    CStrct->CorrectedHelixCenter[2] = Cprim[2];
+    CStrct->evec[2] = evec[2];
     CStrct->theta = 0.0;
     CStrct->pitch = 0.0;
     CStrct->CoeffP5.set_size(1, 6);
-    for (int i{0}; i < 6; i++) {
-        CStrct->CoeffP5[CStrct->CoeffP5.size(0) * i] = 0.0;
+    for (int b_i{0}; b_i < 6; b_i++) {
+        CStrct->R0[b_i] = R0[b_i];
+        CStrct->R1[b_i] = R1[b_i];
+        CStrct->CoeffP5[CStrct->CoeffP5.size(0) * b_i] = CoeffP5[b_i];
     }
     CStrct->sp_index = 1;
     CStrct->i_begin_sp = 0;
@@ -99,18 +165,20 @@ void b_constrCurvStruct(CurvStruct *CStrct)
     CStrct->Coeff[0] = 0.0;
     CStrct->a_param = 1.0;
     CStrct->b_param = 0.0;
-    // 'constrCurvStruct:41' if ~coder.target( 'MATLAB' )
-    // 'constrCurvStruct:42' coder.varsize( 'CStrct.Coeff',      StructTypeName.dimCoeffOpt{ : } );
-    // 'constrCurvStruct:43' coder.varsize( 'CStrct.R0' ,        StructTypeName.dimR{ : } );
-    // 'constrCurvStruct:44' coder.varsize( 'CStrct.R1' ,        StructTypeName.dimR{ : } ) ;
-    // 'constrCurvStruct:45' coder.varsize( 'CStrct.CoeffP5' ,   StructTypeName.dimCoeffP5{ : } ) ;
-    // 'constrCurvStruct:46' coder.cstructname( CStrct.Info,     StructTypeName.GCodeInfo );
-    // 'constrCurvStruct:47' coder.cstructname( CStrct, StructTypeName.Curve );
+    // 'constrCurvStruct:43' if ~coder.target( 'MATLAB' )
+    // 'constrCurvStruct:44' coder.varsize( 'CStrct.Coeff',      StructTypeName.dimCoeffOpt{ : } );
+    // 'constrCurvStruct:45' coder.varsize( 'CStrct.R0' ,        StructTypeName.dimR{ : } );
+    // 'constrCurvStruct:46' coder.varsize( 'CStrct.R1' ,        StructTypeName.dimR{ : } ) ;
+    // 'constrCurvStruct:47' coder.varsize( 'CStrct.CoeffP5' ,   StructTypeName.dimCoeffP5{ : } ) ;
+    // 'constrCurvStruct:48' coder.cstructname( CStrct.Info,     StructTypeName.GCodeInfo );
+    // 'constrCurvStruct:49' coder.cstructname( CStrct.sp,       StructTypeName.Spline );
+    // 'constrCurvStruct:50' coder.cstructname( CStrct.sp.Bl,    StructTypeName.BaseSpline );
+    // 'constrCurvStruct:51' coder.cstructname( CStrct, StructTypeName.Curve );
 }
 
 //
-// function [ CStrct ] = constrCurvStruct( gcodeInfoStruct, R0, R1, Cprim, ...
-//                       delta, evec, theta, pitch, CoeffP5, Coeff )
+// function [ CStrct ] = constrCurvStruct( gcodeInfoStruct, spline, R0, R1, ...
+//                       Cprim, delta, evec, theta, pitch, CoeffP5, Coeff )
 //
 // Construct a struct for the curves.
 //
@@ -129,53 +197,46 @@ void b_constrCurvStruct(CurvStruct *CStrct)
 //  CStrct    : The resulting structure
 //
 // Arguments    : const GcodeInfoStruct gcodeInfoStruct
-//                const ::coder::array<double, 1U> &R0
-//                const ::coder::array<double, 1U> &R1
+//                const SplineStruct *spline
+//                const double R0[6]
+//                const double R1[6]
 //                const double Cprim[3]
 //                double delta
 //                const double evec[3]
 //                double theta
 //                double pitch
+//                const double CoeffP5[6]
 //                CurvStruct *CStrct
 // Return Type  : void
 //
-void b_constrCurvStruct(const GcodeInfoStruct gcodeInfoStruct, const ::coder::array<double, 1U> &R0,
-                        const ::coder::array<double, 1U> &R1, const double Cprim[3], double delta,
-                        const double evec[3], double theta, double pitch, CurvStruct *CStrct)
+void c_constrCurvStruct(const GcodeInfoStruct gcodeInfoStruct, const SplineStruct *spline,
+                        const double R0[6], const double R1[6], const double Cprim[3], double delta,
+                        const double evec[3], double theta, double pitch, const double CoeffP5[6],
+                        CurvStruct *CStrct)
 {
-    int b_loop_ub;
-    int loop_ub;
-    // 'constrCurvStruct:19' coder.inline("never");
-    // 'constrCurvStruct:21' CStrct = struct('Info', gcodeInfoStruct, ...
-    // 'constrCurvStruct:22'     'R0', R0, ...
-    // 'constrCurvStruct:23'     'R1', R1, ...
-    // 'constrCurvStruct:24'     'CorrectedHelixCenter', Cprim, ...
-    // 'constrCurvStruct:25'     'delta', delta, ...
-    // 'constrCurvStruct:26'     'evec', evec,...
-    // 'constrCurvStruct:27'     'theta', theta,...
-    // 'constrCurvStruct:28'     'pitch', pitch,...
-    // 'constrCurvStruct:29'     'CoeffP5', CoeffP5,...
-    // 'constrCurvStruct:30'     'sp_index', int32(1),...
-    // 'constrCurvStruct:31'     'i_begin_sp', int32(0),...
-    // 'constrCurvStruct:32'     'i_end_sp', int32(0),...
-    // 'constrCurvStruct:33'     'index_smooth', int32(0),...
-    // 'constrCurvStruct:34'     'UseConstJerk', false,...
-    // 'constrCurvStruct:35'     'ConstJerk', 0,...
-    // 'constrCurvStruct:36'     'Coeff', Coeff,...
-    // 'constrCurvStruct:37'     'a_param', 1,...
-    // 'constrCurvStruct:38'     'b_param', 0 ...
-    // 'constrCurvStruct:39'     );
+    // 'constrCurvStruct:20' coder.inline("never");
+    // 'constrCurvStruct:22' CStrct = struct('Info', gcodeInfoStruct, ...
+    // 'constrCurvStruct:23'     'sp', spline,...
+    // 'constrCurvStruct:24'     'R0', R0, ...
+    // 'constrCurvStruct:25'     'R1', R1, ...
+    // 'constrCurvStruct:26'     'CorrectedHelixCenter', Cprim, ...
+    // 'constrCurvStruct:27'     'delta', delta, ...
+    // 'constrCurvStruct:28'     'evec', evec,...
+    // 'constrCurvStruct:29'     'theta', theta,...
+    // 'constrCurvStruct:30'     'pitch', pitch,...
+    // 'constrCurvStruct:31'     'CoeffP5', CoeffP5,...
+    // 'constrCurvStruct:32'     'sp_index', int32(1),...
+    // 'constrCurvStruct:33'     'i_begin_sp', int32(0),...
+    // 'constrCurvStruct:34'     'i_end_sp', int32(0),...
+    // 'constrCurvStruct:35'     'index_smooth', int32(0),...
+    // 'constrCurvStruct:36'     'UseConstJerk', false,...
+    // 'constrCurvStruct:37'     'ConstJerk', 0,...
+    // 'constrCurvStruct:38'     'Coeff', Coeff,...
+    // 'constrCurvStruct:39'     'a_param', 1,...
+    // 'constrCurvStruct:40'     'b_param', 0 ...
+    // 'constrCurvStruct:41'     );
     CStrct->Info = gcodeInfoStruct;
-    CStrct->R0.set_size(R0.size(0));
-    loop_ub = R0.size(0);
-    for (int i{0}; i < loop_ub; i++) {
-        CStrct->R0[i] = R0[i];
-    }
-    CStrct->R1.set_size(R1.size(0));
-    b_loop_ub = R1.size(0);
-    for (int i1{0}; i1 < b_loop_ub; i1++) {
-        CStrct->R1[i1] = R1[i1];
-    }
+    CStrct->sp = *spline;
     CStrct->delta = delta;
     CStrct->CorrectedHelixCenter[0] = Cprim[0];
     CStrct->evec[0] = evec[0];
@@ -186,8 +247,10 @@ void b_constrCurvStruct(const GcodeInfoStruct gcodeInfoStruct, const ::coder::ar
     CStrct->theta = theta;
     CStrct->pitch = pitch;
     CStrct->CoeffP5.set_size(1, 6);
-    for (int i2{0}; i2 < 6; i2++) {
-        CStrct->CoeffP5[CStrct->CoeffP5.size(0) * i2] = 0.0;
+    for (int i{0}; i < 6; i++) {
+        CStrct->R0[i] = R0[i];
+        CStrct->R1[i] = R1[i];
+        CStrct->CoeffP5[CStrct->CoeffP5.size(0) * i] = CoeffP5[i];
     }
     CStrct->sp_index = 1;
     CStrct->i_begin_sp = 0;
@@ -199,18 +262,20 @@ void b_constrCurvStruct(const GcodeInfoStruct gcodeInfoStruct, const ::coder::ar
     CStrct->Coeff[0] = 0.0;
     CStrct->a_param = 1.0;
     CStrct->b_param = 0.0;
-    // 'constrCurvStruct:41' if ~coder.target( 'MATLAB' )
-    // 'constrCurvStruct:42' coder.varsize( 'CStrct.Coeff',      StructTypeName.dimCoeffOpt{ : } );
-    // 'constrCurvStruct:43' coder.varsize( 'CStrct.R0' ,        StructTypeName.dimR{ : } );
-    // 'constrCurvStruct:44' coder.varsize( 'CStrct.R1' ,        StructTypeName.dimR{ : } ) ;
-    // 'constrCurvStruct:45' coder.varsize( 'CStrct.CoeffP5' ,   StructTypeName.dimCoeffP5{ : } ) ;
-    // 'constrCurvStruct:46' coder.cstructname( CStrct.Info,     StructTypeName.GCodeInfo );
-    // 'constrCurvStruct:47' coder.cstructname( CStrct, StructTypeName.Curve );
+    // 'constrCurvStruct:43' if ~coder.target( 'MATLAB' )
+    // 'constrCurvStruct:44' coder.varsize( 'CStrct.Coeff',      StructTypeName.dimCoeffOpt{ : } );
+    // 'constrCurvStruct:45' coder.varsize( 'CStrct.R0' ,        StructTypeName.dimR{ : } );
+    // 'constrCurvStruct:46' coder.varsize( 'CStrct.R1' ,        StructTypeName.dimR{ : } ) ;
+    // 'constrCurvStruct:47' coder.varsize( 'CStrct.CoeffP5' ,   StructTypeName.dimCoeffP5{ : } ) ;
+    // 'constrCurvStruct:48' coder.cstructname( CStrct.Info,     StructTypeName.GCodeInfo );
+    // 'constrCurvStruct:49' coder.cstructname( CStrct.sp,       StructTypeName.Spline );
+    // 'constrCurvStruct:50' coder.cstructname( CStrct.sp.Bl,    StructTypeName.BaseSpline );
+    // 'constrCurvStruct:51' coder.cstructname( CStrct, StructTypeName.Curve );
 }
 
 //
-// function [ CStrct ] = constrCurvStruct( gcodeInfoStruct, R0, R1, Cprim, ...
-//                       delta, evec, theta, pitch, CoeffP5, Coeff )
+// function [ CStrct ] = constrCurvStruct( gcodeInfoStruct, spline, R0, R1, ...
+//                       Cprim, delta, evec, theta, pitch, CoeffP5, Coeff )
 //
 // Construct a struct for the curves.
 //
@@ -229,64 +294,104 @@ void b_constrCurvStruct(const GcodeInfoStruct gcodeInfoStruct, const ::coder::ar
 //  CStrct    : The resulting structure
 //
 // Arguments    : const GcodeInfoStruct gcodeInfoStruct
-//                const ::coder::array<double, 1U> &R0
-//                const ::coder::array<double, 1U> &R1
+//                int spline_Bl_ncoeff
+//                const ::coder::array<double, 2U> &spline_Bl_breakpoints
+//                unsigned long spline_Bl_handle
+//                int spline_Bl_order
+//                const ::coder::array<double, 2U> &spline_coeff
+//                const ::coder::array<double, 2U> &spline_knots
+//                double spline_Ltot
+//                const ::coder::array<double, 2U> &spline_Lk
+//                const double R0[6]
+//                const double R1[6]
+//                const double Cprim[3]
+//                const double evec[3]
 //                const ::coder::array<double, 2U> &CoeffP5
 //                CurvStruct *CStrct
 // Return Type  : void
 //
-void b_constrCurvStruct(const GcodeInfoStruct gcodeInfoStruct, const ::coder::array<double, 1U> &R0,
-                        const ::coder::array<double, 1U> &R1,
+void c_constrCurvStruct(const GcodeInfoStruct gcodeInfoStruct, int spline_Bl_ncoeff,
+                        const ::coder::array<double, 2U> &spline_Bl_breakpoints,
+                        unsigned long spline_Bl_handle, int spline_Bl_order,
+                        const ::coder::array<double, 2U> &spline_coeff,
+                        const ::coder::array<double, 2U> &spline_knots, double spline_Ltot,
+                        const ::coder::array<double, 2U> &spline_Lk, const double R0[6],
+                        const double R1[6], const double Cprim[3], const double evec[3],
                         const ::coder::array<double, 2U> &CoeffP5, CurvStruct *CStrct)
 {
     int b_loop_ub;
-    int c_loop_ub;
+    int d_loop_ub;
+    int e_loop_ub;
+    int f_loop_ub;
     int loop_ub;
-    // 'constrCurvStruct:19' coder.inline("never");
-    // 'constrCurvStruct:21' CStrct = struct('Info', gcodeInfoStruct, ...
-    // 'constrCurvStruct:22'     'R0', R0, ...
-    // 'constrCurvStruct:23'     'R1', R1, ...
-    // 'constrCurvStruct:24'     'CorrectedHelixCenter', Cprim, ...
-    // 'constrCurvStruct:25'     'delta', delta, ...
-    // 'constrCurvStruct:26'     'evec', evec,...
-    // 'constrCurvStruct:27'     'theta', theta,...
-    // 'constrCurvStruct:28'     'pitch', pitch,...
-    // 'constrCurvStruct:29'     'CoeffP5', CoeffP5,...
-    // 'constrCurvStruct:30'     'sp_index', int32(1),...
-    // 'constrCurvStruct:31'     'i_begin_sp', int32(0),...
-    // 'constrCurvStruct:32'     'i_end_sp', int32(0),...
-    // 'constrCurvStruct:33'     'index_smooth', int32(0),...
-    // 'constrCurvStruct:34'     'UseConstJerk', false,...
-    // 'constrCurvStruct:35'     'ConstJerk', 0,...
-    // 'constrCurvStruct:36'     'Coeff', Coeff,...
-    // 'constrCurvStruct:37'     'a_param', 1,...
-    // 'constrCurvStruct:38'     'b_param', 0 ...
-    // 'constrCurvStruct:39'     );
+    // 'constrCurvStruct:20' coder.inline("never");
+    // 'constrCurvStruct:22' CStrct = struct('Info', gcodeInfoStruct, ...
+    // 'constrCurvStruct:23'     'sp', spline,...
+    // 'constrCurvStruct:24'     'R0', R0, ...
+    // 'constrCurvStruct:25'     'R1', R1, ...
+    // 'constrCurvStruct:26'     'CorrectedHelixCenter', Cprim, ...
+    // 'constrCurvStruct:27'     'delta', delta, ...
+    // 'constrCurvStruct:28'     'evec', evec,...
+    // 'constrCurvStruct:29'     'theta', theta,...
+    // 'constrCurvStruct:30'     'pitch', pitch,...
+    // 'constrCurvStruct:31'     'CoeffP5', CoeffP5,...
+    // 'constrCurvStruct:32'     'sp_index', int32(1),...
+    // 'constrCurvStruct:33'     'i_begin_sp', int32(0),...
+    // 'constrCurvStruct:34'     'i_end_sp', int32(0),...
+    // 'constrCurvStruct:35'     'index_smooth', int32(0),...
+    // 'constrCurvStruct:36'     'UseConstJerk', false,...
+    // 'constrCurvStruct:37'     'ConstJerk', 0,...
+    // 'constrCurvStruct:38'     'Coeff', Coeff,...
+    // 'constrCurvStruct:39'     'a_param', 1,...
+    // 'constrCurvStruct:40'     'b_param', 0 ...
+    // 'constrCurvStruct:41'     );
     CStrct->Info = gcodeInfoStruct;
-    CStrct->R0.set_size(R0.size(0));
-    loop_ub = R0.size(0);
+    CStrct->sp.Bl.ncoeff = spline_Bl_ncoeff;
+    CStrct->sp.Bl.breakpoints.set_size(1, spline_Bl_breakpoints.size(1));
+    loop_ub = spline_Bl_breakpoints.size(1);
     for (int i{0}; i < loop_ub; i++) {
-        CStrct->R0[i] = R0[i];
+        CStrct->sp.Bl.breakpoints[i] = spline_Bl_breakpoints[i];
     }
-    CStrct->R1.set_size(R1.size(0));
-    b_loop_ub = R1.size(0);
+    CStrct->sp.Bl.handle = spline_Bl_handle;
+    CStrct->sp.Bl.order = spline_Bl_order;
+    CStrct->sp.coeff.set_size(spline_coeff.size(0), spline_coeff.size(1));
+    b_loop_ub = spline_coeff.size(1);
     for (int i1{0}; i1 < b_loop_ub; i1++) {
-        CStrct->R1[i1] = R1[i1];
+        int c_loop_ub;
+        c_loop_ub = spline_coeff.size(0);
+        for (int i2{0}; i2 < c_loop_ub; i2++) {
+            CStrct->sp.coeff[i2 + CStrct->sp.coeff.size(0) * i1] =
+                spline_coeff[i2 + spline_coeff.size(0) * i1];
+        }
+    }
+    CStrct->sp.knots.set_size(1, spline_knots.size(1));
+    d_loop_ub = spline_knots.size(1);
+    for (int i3{0}; i3 < d_loop_ub; i3++) {
+        CStrct->sp.knots[i3] = spline_knots[i3];
+    }
+    CStrct->sp.Ltot = spline_Ltot;
+    CStrct->sp.Lk.set_size(1, spline_Lk.size(1));
+    e_loop_ub = spline_Lk.size(1);
+    for (int i4{0}; i4 < e_loop_ub; i4++) {
+        CStrct->sp.Lk[i4] = spline_Lk[i4];
     }
     CStrct->delta = 0.0;
-    CStrct->CorrectedHelixCenter[0] = 0.0;
-    CStrct->evec[0] = 0.0;
-    CStrct->CorrectedHelixCenter[1] = 0.0;
-    CStrct->evec[1] = 0.0;
-    CStrct->CorrectedHelixCenter[2] = 0.0;
-    CStrct->evec[2] = 0.0;
+    CStrct->CorrectedHelixCenter[0] = Cprim[0];
+    CStrct->evec[0] = evec[0];
+    CStrct->CorrectedHelixCenter[1] = Cprim[1];
+    CStrct->evec[1] = evec[1];
+    CStrct->CorrectedHelixCenter[2] = Cprim[2];
+    CStrct->evec[2] = evec[2];
     CStrct->theta = 0.0;
     CStrct->pitch = 0.0;
     CStrct->CoeffP5.set_size(CoeffP5.size(0), 6);
-    c_loop_ub = CoeffP5.size(0);
-    for (int i2{0}; i2 < 6; i2++) {
-        for (int i3{0}; i3 < c_loop_ub; i3++) {
-            CStrct->CoeffP5[i3 + CStrct->CoeffP5.size(0) * i2] = CoeffP5[i3 + CoeffP5.size(0) * i2];
+    f_loop_ub = CoeffP5.size(0);
+    for (int b_i{0}; b_i < 6; b_i++) {
+        CStrct->R0[b_i] = R0[b_i];
+        CStrct->R1[b_i] = R1[b_i];
+        for (int i5{0}; i5 < f_loop_ub; i5++) {
+            CStrct->CoeffP5[i5 + CStrct->CoeffP5.size(0) * b_i] =
+                CoeffP5[i5 + CoeffP5.size(0) * b_i];
         }
     }
     CStrct->sp_index = 1;
@@ -299,18 +404,20 @@ void b_constrCurvStruct(const GcodeInfoStruct gcodeInfoStruct, const ::coder::ar
     CStrct->Coeff[0] = 0.0;
     CStrct->a_param = 1.0;
     CStrct->b_param = 0.0;
-    // 'constrCurvStruct:41' if ~coder.target( 'MATLAB' )
-    // 'constrCurvStruct:42' coder.varsize( 'CStrct.Coeff',      StructTypeName.dimCoeffOpt{ : } );
-    // 'constrCurvStruct:43' coder.varsize( 'CStrct.R0' ,        StructTypeName.dimR{ : } );
-    // 'constrCurvStruct:44' coder.varsize( 'CStrct.R1' ,        StructTypeName.dimR{ : } ) ;
-    // 'constrCurvStruct:45' coder.varsize( 'CStrct.CoeffP5' ,   StructTypeName.dimCoeffP5{ : } ) ;
-    // 'constrCurvStruct:46' coder.cstructname( CStrct.Info,     StructTypeName.GCodeInfo );
-    // 'constrCurvStruct:47' coder.cstructname( CStrct, StructTypeName.Curve );
+    // 'constrCurvStruct:43' if ~coder.target( 'MATLAB' )
+    // 'constrCurvStruct:44' coder.varsize( 'CStrct.Coeff',      StructTypeName.dimCoeffOpt{ : } );
+    // 'constrCurvStruct:45' coder.varsize( 'CStrct.R0' ,        StructTypeName.dimR{ : } );
+    // 'constrCurvStruct:46' coder.varsize( 'CStrct.R1' ,        StructTypeName.dimR{ : } ) ;
+    // 'constrCurvStruct:47' coder.varsize( 'CStrct.CoeffP5' ,   StructTypeName.dimCoeffP5{ : } ) ;
+    // 'constrCurvStruct:48' coder.cstructname( CStrct.Info,     StructTypeName.GCodeInfo );
+    // 'constrCurvStruct:49' coder.cstructname( CStrct.sp,       StructTypeName.Spline );
+    // 'constrCurvStruct:50' coder.cstructname( CStrct.sp.Bl,    StructTypeName.BaseSpline );
+    // 'constrCurvStruct:51' coder.cstructname( CStrct, StructTypeName.Curve );
 }
 
 //
-// function [ CStrct ] = constrCurvStruct( gcodeInfoStruct, R0, R1, Cprim, ...
-//                       delta, evec, theta, pitch, CoeffP5, Coeff )
+// function [ CStrct ] = constrCurvStruct( gcodeInfoStruct, spline, R0, R1, ...
+//                       Cprim, delta, evec, theta, pitch, CoeffP5, Coeff )
 //
 // Construct a struct for the curves.
 //
@@ -329,8 +436,9 @@ void b_constrCurvStruct(const GcodeInfoStruct gcodeInfoStruct, const ::coder::ar
 //  CStrct    : The resulting structure
 //
 // Arguments    : const GcodeInfoStruct *gcodeInfoStruct
-//                const ::coder::array<double, 1U> &R0
-//                const ::coder::array<double, 1U> &R1
+//                const SplineStruct *spline
+//                const double R0[6]
+//                const double R1[6]
 //                const double Cprim[3]
 //                double delta
 //                const double evec[3]
@@ -341,50 +449,40 @@ void b_constrCurvStruct(const GcodeInfoStruct gcodeInfoStruct, const ::coder::ar
 //                CurvStruct *CStrct
 // Return Type  : void
 //
-void constrCurvStruct(const GcodeInfoStruct *gcodeInfoStruct, const ::coder::array<double, 1U> &R0,
-                      const ::coder::array<double, 1U> &R1, const double Cprim[3], double delta,
+void constrCurvStruct(const GcodeInfoStruct *gcodeInfoStruct, const SplineStruct *spline,
+                      const double R0[6], const double R1[6], const double Cprim[3], double delta,
                       const double evec[3], double theta, double pitch,
                       const ::coder::array<double, 2U> &CoeffP5,
                       const ::coder::array<double, 1U> &Coeff, CurvStruct *CStrct)
 {
     int b_loop_ub;
-    int c_loop_ub;
-    int d_loop_ub;
     int loop_ub;
     if (!isInitialized_opencn_matlab) {
         opencn_matlab_initialize();
     }
-    // 'constrCurvStruct:19' coder.inline("never");
-    // 'constrCurvStruct:21' CStrct = struct('Info', gcodeInfoStruct, ...
-    // 'constrCurvStruct:22'     'R0', R0, ...
-    // 'constrCurvStruct:23'     'R1', R1, ...
-    // 'constrCurvStruct:24'     'CorrectedHelixCenter', Cprim, ...
-    // 'constrCurvStruct:25'     'delta', delta, ...
-    // 'constrCurvStruct:26'     'evec', evec,...
-    // 'constrCurvStruct:27'     'theta', theta,...
-    // 'constrCurvStruct:28'     'pitch', pitch,...
-    // 'constrCurvStruct:29'     'CoeffP5', CoeffP5,...
-    // 'constrCurvStruct:30'     'sp_index', int32(1),...
-    // 'constrCurvStruct:31'     'i_begin_sp', int32(0),...
-    // 'constrCurvStruct:32'     'i_end_sp', int32(0),...
-    // 'constrCurvStruct:33'     'index_smooth', int32(0),...
-    // 'constrCurvStruct:34'     'UseConstJerk', false,...
-    // 'constrCurvStruct:35'     'ConstJerk', 0,...
-    // 'constrCurvStruct:36'     'Coeff', Coeff,...
-    // 'constrCurvStruct:37'     'a_param', 1,...
-    // 'constrCurvStruct:38'     'b_param', 0 ...
-    // 'constrCurvStruct:39'     );
+    // 'constrCurvStruct:20' coder.inline("never");
+    // 'constrCurvStruct:22' CStrct = struct('Info', gcodeInfoStruct, ...
+    // 'constrCurvStruct:23'     'sp', spline,...
+    // 'constrCurvStruct:24'     'R0', R0, ...
+    // 'constrCurvStruct:25'     'R1', R1, ...
+    // 'constrCurvStruct:26'     'CorrectedHelixCenter', Cprim, ...
+    // 'constrCurvStruct:27'     'delta', delta, ...
+    // 'constrCurvStruct:28'     'evec', evec,...
+    // 'constrCurvStruct:29'     'theta', theta,...
+    // 'constrCurvStruct:30'     'pitch', pitch,...
+    // 'constrCurvStruct:31'     'CoeffP5', CoeffP5,...
+    // 'constrCurvStruct:32'     'sp_index', int32(1),...
+    // 'constrCurvStruct:33'     'i_begin_sp', int32(0),...
+    // 'constrCurvStruct:34'     'i_end_sp', int32(0),...
+    // 'constrCurvStruct:35'     'index_smooth', int32(0),...
+    // 'constrCurvStruct:36'     'UseConstJerk', false,...
+    // 'constrCurvStruct:37'     'ConstJerk', 0,...
+    // 'constrCurvStruct:38'     'Coeff', Coeff,...
+    // 'constrCurvStruct:39'     'a_param', 1,...
+    // 'constrCurvStruct:40'     'b_param', 0 ...
+    // 'constrCurvStruct:41'     );
     CStrct->Info = *gcodeInfoStruct;
-    CStrct->R0.set_size(R0.size(0));
-    loop_ub = R0.size(0);
-    for (int i{0}; i < loop_ub; i++) {
-        CStrct->R0[i] = R0[i];
-    }
-    CStrct->R1.set_size(R1.size(0));
-    b_loop_ub = R1.size(0);
-    for (int i1{0}; i1 < b_loop_ub; i1++) {
-        CStrct->R1[i1] = R1[i1];
-    }
+    CStrct->sp = *spline;
     CStrct->delta = delta;
     CStrct->CorrectedHelixCenter[0] = Cprim[0];
     CStrct->evec[0] = evec[0];
@@ -395,10 +493,12 @@ void constrCurvStruct(const GcodeInfoStruct *gcodeInfoStruct, const ::coder::arr
     CStrct->theta = theta;
     CStrct->pitch = pitch;
     CStrct->CoeffP5.set_size(CoeffP5.size(0), 6);
-    c_loop_ub = CoeffP5.size(0);
-    for (int i2{0}; i2 < 6; i2++) {
-        for (int i3{0}; i3 < c_loop_ub; i3++) {
-            CStrct->CoeffP5[i3 + CStrct->CoeffP5.size(0) * i2] = CoeffP5[i3 + CoeffP5.size(0) * i2];
+    loop_ub = CoeffP5.size(0);
+    for (int i{0}; i < 6; i++) {
+        CStrct->R0[i] = R0[i];
+        CStrct->R1[i] = R1[i];
+        for (int b_i{0}; b_i < loop_ub; b_i++) {
+            CStrct->CoeffP5[b_i + CStrct->CoeffP5.size(0) * i] = CoeffP5[b_i + CoeffP5.size(0) * i];
         }
     }
     CStrct->sp_index = 1;
@@ -408,19 +508,21 @@ void constrCurvStruct(const GcodeInfoStruct *gcodeInfoStruct, const ::coder::arr
     CStrct->UseConstJerk = false;
     CStrct->ConstJerk = 0.0;
     CStrct->Coeff.set_size(Coeff.size(0));
-    d_loop_ub = Coeff.size(0);
-    for (int i4{0}; i4 < d_loop_ub; i4++) {
-        CStrct->Coeff[i4] = Coeff[i4];
+    b_loop_ub = Coeff.size(0);
+    for (int i1{0}; i1 < b_loop_ub; i1++) {
+        CStrct->Coeff[i1] = Coeff[i1];
     }
     CStrct->a_param = 1.0;
     CStrct->b_param = 0.0;
-    // 'constrCurvStruct:41' if ~coder.target( 'MATLAB' )
-    // 'constrCurvStruct:42' coder.varsize( 'CStrct.Coeff',      StructTypeName.dimCoeffOpt{ : } );
-    // 'constrCurvStruct:43' coder.varsize( 'CStrct.R0' ,        StructTypeName.dimR{ : } );
-    // 'constrCurvStruct:44' coder.varsize( 'CStrct.R1' ,        StructTypeName.dimR{ : } ) ;
-    // 'constrCurvStruct:45' coder.varsize( 'CStrct.CoeffP5' ,   StructTypeName.dimCoeffP5{ : } ) ;
-    // 'constrCurvStruct:46' coder.cstructname( CStrct.Info,     StructTypeName.GCodeInfo );
-    // 'constrCurvStruct:47' coder.cstructname( CStrct, StructTypeName.Curve );
+    // 'constrCurvStruct:43' if ~coder.target( 'MATLAB' )
+    // 'constrCurvStruct:44' coder.varsize( 'CStrct.Coeff',      StructTypeName.dimCoeffOpt{ : } );
+    // 'constrCurvStruct:45' coder.varsize( 'CStrct.R0' ,        StructTypeName.dimR{ : } );
+    // 'constrCurvStruct:46' coder.varsize( 'CStrct.R1' ,        StructTypeName.dimR{ : } ) ;
+    // 'constrCurvStruct:47' coder.varsize( 'CStrct.CoeffP5' ,   StructTypeName.dimCoeffP5{ : } ) ;
+    // 'constrCurvStruct:48' coder.cstructname( CStrct.Info,     StructTypeName.GCodeInfo );
+    // 'constrCurvStruct:49' coder.cstructname( CStrct.sp,       StructTypeName.Spline );
+    // 'constrCurvStruct:50' coder.cstructname( CStrct.sp.Bl,    StructTypeName.BaseSpline );
+    // 'constrCurvStruct:51' coder.cstructname( CStrct, StructTypeName.Curve );
 }
 
 } // namespace ocn

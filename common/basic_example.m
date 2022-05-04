@@ -23,7 +23,7 @@ cfg.source = 'ngc_test/012_spline.ngc';
 setupLogs( cfg.LogFileName ); diary on;
 
 % Initialization of the feed operator
-ctx = InitFeedoptPlan( cfg );
+ctx = initFeedoptPlan( cfg );
 
 try
 
@@ -48,7 +48,8 @@ try
     plotTrajectories( ctx, res_struct );
 
 catch ME
-    warning( ME.message );
+    error( '%s\n%s\n%s\n', ME.message, "File name : " + ME.stack(1).name, ...
+                           "Line : " + ME.stack(1).line );
 end
 % Free external memory (see queue function)
 DestroyContext(ctx);

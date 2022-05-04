@@ -44,7 +44,7 @@ beq    = zeros(Nec, 1);    % preallocation
 % Compute the partial derivatives 
 [~, r1D, r2D] = EvalCurvStruct(ctx, CurvStructs(1), u_vec);
 
-vmax = CurvStructs(1).FeedRate;
+vmax = CurvStructs(1).Info.FeedRate;
 
 r1D_sqnorm    = sum(r1D.^2);      % squared norm
 %

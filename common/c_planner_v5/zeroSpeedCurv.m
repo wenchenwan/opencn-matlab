@@ -47,8 +47,8 @@ if( isempty( ratio ) ), ratio = 0.9; end
 
 [ ~, V, A, J ] = calcRVAJfromU( ctx, curv, u, ud, udd, uddd );
 
-if( norm( V ) > curv.FeedRate )
-    jps = jps * ratio * ( curv.FeedRate / norm( V ) ) ^ ( 1 / 2 );
+if( norm( V ) > curv.Info.FeedRate )
+    jps = jps * ratio * ( curv.Info.FeedRate / norm( V ) ) ^ ( 1 / 2 );
 elseif( max( abs( A ) ) > max( ctx.cfg.amax ) )
     jps = jps * ratio * ( max( abs( A ) ) / max( abs( ctx.cfg.amax ) ) ) ^ ( 1 / 4 );
 elseif( max( abs( J ) ) > max( ctx.cfg.jmax ) )

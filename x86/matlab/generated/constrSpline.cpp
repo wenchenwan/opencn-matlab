@@ -5,14 +5,15 @@
 // File: constrSpline.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 03-May-2022 09:31:27
+// C/C++ source code generated on  : 04-May-2022 13:16:18
 //
 
 // Include Files
 #include "constrSpline.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_initialize.h"
-#include "opencn_matlab_types.h"
+#include "opencn_matlab_types2.h"
+#include "opencn_matlab_types3.h"
 #include "coder_array.h"
 
 // Function Definitions
@@ -53,7 +54,7 @@ void constrSpline(const ::coder::array<double, 2U> &coeff, const ::coder::array<
     // 'constrSpline:17'                     'coeff', coeff,...
     // 'constrSpline:18'                     'knots', knots,...
     // 'constrSpline:19'                     'Ltot', 0.0, ...
-    // 'constrSpline:20'                     'Lk', zeros( 1, size( knots, 2 ) -1 )...
+    // 'constrSpline:20'                     'Lk', knots...
     // 'constrSpline:21'                     );
     SplineStrct->Bl = *BlStruct;
     SplineStrct->coeff.set_size(coeff.size(0), coeff.size(1));
@@ -71,10 +72,10 @@ void constrSpline(const ::coder::array<double, 2U> &coeff, const ::coder::array<
         SplineStrct->knots[i2] = knots[i2];
     }
     SplineStrct->Ltot = 0.0;
-    SplineStrct->Lk.set_size(1, knots.size(1) - 1);
-    d_loop_ub = knots.size(1) - 1;
+    SplineStrct->Lk.set_size(1, knots.size(1));
+    d_loop_ub = knots.size(1);
     for (int i3{0}; i3 < d_loop_ub; i3++) {
-        SplineStrct->Lk[i3] = 0.0;
+        SplineStrct->Lk[i3] = knots[i3];
     }
     // 'constrSpline:23' if ~coder.target( 'MATLAB' )
     // 'constrSpline:24' coder.varsize( 'SplineStrct.Lk',    StructTypeName.dimLk{ : } );

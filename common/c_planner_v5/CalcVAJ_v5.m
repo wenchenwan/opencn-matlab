@@ -36,17 +36,17 @@ for k = 1:1
     % TODO: Optimize this with a single call to eval, and maybe a basis
     % precompute?
     for iu = 1:numel(u_vec)
-        if CurvStructs.zspdmode==ZSpdMode.ZN
+        if CurvStructs.Info.zspdmode==ZSpdMode.ZN
             t = (6*u_vec(iu)/CurvStructs.ConstJerk)^(1/3);
             q_val(iu) = (CurvStructs.ConstJerk*t^2/2)^2;
             qD_val(iu) = 2*CurvStructs.ConstJerk*t; 
             qDD_val(iu) = 4/t^2;
-        elseif CurvStructs.zspdmode==ZSpdMode.NZ
+        elseif CurvStructs.Info.zspdmode==ZSpdMode.NZ
             t = (6*(1-u_vec(iu))/CurvStructs.ConstJerk)^(1/3);
             q_val(iu) = (CurvStructs.ConstJerk*t^2/2)^2;
             qD_val(iu) = -2*CurvStructs.ConstJerk*t;
             qDD_val(iu) = 4/t^2;
-        elseif CurvStructs.zspdmode==ZSpdMode.ZZ
+        elseif CurvStructs.Info.zspdmode==ZSpdMode.ZZ
             error('Should not get here');
         else %% ZSpdMode.NN
             [v1, v2, v3] = bspline_eval(Bl, Coeff(:, k)', u_vec(iu));

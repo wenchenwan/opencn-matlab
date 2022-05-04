@@ -6,7 +6,7 @@ pvec = [];
 
 for i = 1:N
   
-    if CurvStructs(i).Type == CurveType.Line
+    if CurvStructs(i).Info.Type == CurveType.Line
         
         uvec = [0 1];
         P0P1 = EvalCurvStruct(ctx, CurvStructs(i), uvec);        
@@ -15,7 +15,7 @@ for i = 1:N
         plot3(P0P1(1, :), P0P1(2, :), P0P1(3, :), '-r');
         hold on;
         
-    elseif CurvStructs(i).Type == CurveType.Helix        
+    elseif CurvStructs(i).Info.Type == CurveType.Helix        
         uvec = linspace(0,1,1000);
         P = EvalCurvStruct(ctx, CurvStructs(i), uvec);
         pvec = [pvec P];
@@ -23,7 +23,7 @@ for i = 1:N
         plot3(P(1, :), P(2, :), P(3, :), '-b');
         hold on;
     
-    elseif CurvStructs(i).Type == CurveType.TransP5
+    elseif CurvStructs(i).Info.Type == CurveType.TransP5
         
         uvec = linspace(0,1,1000);
         P = EvalCurvStruct(ctx, CurvStructs(i), uvec);
@@ -32,7 +32,7 @@ for i = 1:N
         plot3(P(1, :), P(2, :), P(3, :), '-m');
         hold on;
                 
-    elseif CurvStructs(i).Type == CurveType.Spline
+    elseif CurvStructs(i).Info.Type == CurveType.Spline
 
         Spline=ctx.q_splines.get(CurvStructs(i).sp_index);
         sp = Spline.sp;

@@ -8,10 +8,10 @@ classdef ResampleStateClass
     
     methods
         function this = ResampleStateClass(dt)
-            this.u = 0;
-            this.go_next = false;
+            this.u              = 0;
+            this.go_next        = false;
             this.isOutsideRange = false;
-            this.dt = dt;
+            this.dt             = dt;
         end
     end
 end

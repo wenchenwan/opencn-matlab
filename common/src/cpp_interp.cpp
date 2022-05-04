@@ -34,7 +34,7 @@ int cpp_interp_init(const char* filename) {
 }
 
 int cpp_interp_read(ocn::CurvStruct* curv_struct) {
-    curv.Type = ocn::CurveType_None;
+    curv.Info.Type = ocn::CurveType_None;
     int status = 0;
     status = interp.read();
 

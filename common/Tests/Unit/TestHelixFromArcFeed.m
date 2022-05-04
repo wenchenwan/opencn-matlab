@@ -7,21 +7,23 @@ close all
 phi0 = 0;
 phi1 = pi/2;
 rotation = -2;
-
-trafo = false; % TRAFO flag disable 
-HSC = false;
-Poff = zeros(3, 1); Aoff = Poff; Uoff = Poff; Doff = 0.0;
-A0 = zeros(3,1); A1 = A0; U0 = A0 ; U1 = A0; 
+A0 = zeros(3,1); A1 = A0;
 
 p0x = cos(phi0); p0y = sin(phi0) + 1; p0z = 0;
 p1x = cos(phi1); p1y = sin(phi1) + 1; p1z = -1;
+
 cx = 0; cy = 1; cz = 0;
+
+P0 = [ p0x; p0y; p0z ];
+P1 = [ p1x; p1y; p1z ];
+C  = [ cx; cy; cz ];
+
 evec = [0,0,1]';
 
-Curv = ConstrHelixStructFromArcFeed(trafo, HSC, ...
-                                   Poff, Aoff, Uoff, Doff, p0x, p0y, p0z,...
-                                   p1x, p1y, p1z, cx, cy, cz, A0, A1, U0,...
-                                   U1, rotation, evec);
+info          = constrGcodeInfoStructType;
+info.FeedRate = 20;
+info.zspdmode = ZSpdMode.ZZ;
+Curv   = constrHelixStructFromArcFeed( info, P0, P1, C, A0, A1, rotation, evec );
 
 PlotCurvStructs(ctx, Curv);
 grid

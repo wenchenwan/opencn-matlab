@@ -2,19 +2,21 @@ clc; close all; clear;
 %
 vmax   = 10; % max feedrate in [mm/s]
 %
+info          = constrGcodeInfoStructType;
+info.FeedRate = vmax;
+info.zspdmode = ZSpdMode.NN;
+A0 = zeros(3,1); A1 = A0;
 
-trafo = false; % TRAFO flag disable 
-HSC = false;
-Poff = zeros(3, 1); Aoff = Poff; Uoff = Poff; Doff = 0.0;
-A0 = zeros(3,1); A1 = A0; U0 = A0 ; U1 = A0; 
-
-Curv1 = ConstrLineStruct(trafo, HSC, Poff, Aoff, Uoff, ...
+Curv1 = ConstrLineStruct( trafo, HSC, Poff, Aoff, Uoff, ...
                                Doff, [-1;0;0], [0;0;0], A0, A1, U0, ...
-                               U1, vmax, ZSpdMode.NN);
+                               U1, vmax, ZSpdMode.NN); 
+delta   = 0;
+evec    = [0,0,0]';
+theta   = pi/2;
+pitch   = 4;
 
-Curv2 = ConstrHelixStruct(trafo, HSC, Poff, Aoff, Uoff, Doff,...
-                            [0;0;0], [0;1;0], A0, A1, U0, U1, [0;0;1], ...
-                            0, [0;0;0], pi, 0, vmax, ZSpdMode.NN);
+Curv2 = constrHelixStruct( info, [ [0;0;0]; A0 ], [ [0;1;0]; A1 ], Cprim, delta, ...
+                             [0;0;1], evec, pitch );
 
 Curv3 = ConstrLineStruct(trafo, HSC, Poff, Aoff, Uoff, ...
                                Doff, [0;1;0], [-1;1;0], A0, A1, U0, ...

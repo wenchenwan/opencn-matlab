@@ -40,7 +40,7 @@ if ctx.n_optimized < ctx.q_split.size
         OptSegment = repmat(ctx.q_split.get(1), 1, ctx.cfg.NHorz);
 
         first = ctx.q_split.get(ctx.k0);
-        if first.zspdmode == ZSpdMode.ZN
+        if first.Info.zspdmode == ZSpdMode.ZN
             opt_struct = first;
             optimized = true;
             [v_0, at_0] = calcZeroStartConstraints(ctx, first);
@@ -65,7 +65,7 @@ if ctx.n_optimized < ctx.q_split.size
         kend = ctx.k0;
         for k = ctx.k0:k1
             NextCurv = ctx.q_split.get(k);
-            if NextCurv.zspdmode == ZSpdMode.NZ
+            if NextCurv.Info.zspdmode == ZSpdMode.NZ
                 % If we reach an NZ segment, we set the final velocity
                 % and tangent acceleration constraints to the ones
                 % specified by the segment, and pretend this is the
@@ -77,7 +77,7 @@ if ctx.n_optimized < ctx.q_split.size
                 ctx.reached_end = true;
                 kend = k;
                 break;
-            elseif NextCurv.zspdmode == ZSpdMode.NN
+            elseif NextCurv.Info.zspdmode == ZSpdMode.NN
                 nopt = nopt + 1;
                 OptSegment(nopt) = NextCurv;
 
@@ -172,7 +172,7 @@ if ctx.n_optimized < ctx.q_split.size
     opt_struct = ctx.q_split.get(ctx.n_optimized + 1);
     opt_struct.Coeff = ctx.Coeff(:, 1);
 
-    if opt_struct.zspdmode == ZSpdMode.NZ
+    if opt_struct.Info.zspdmode == ZSpdMode.NZ
         ctx.reached_end = false;
     end
 

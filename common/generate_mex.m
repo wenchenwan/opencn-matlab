@@ -6,6 +6,7 @@ GenerateAll = true;
 
 if( ~GenerateAll )
     GenerateConstrFunctions     = false;
+    GenerateType                = false;
     GenerateResampling          = false;
     GenerateGCodeInterpreter    = false;
     GenerateQueues              = false;
@@ -22,7 +23,7 @@ cfg = generate_mex_config();
 % 'FeedoptDefaultConfig' and 'InitFeedoptPlan' must be entry-points functions, as well.
 fcfg = coder.OutputType('FeedoptDefaultConfig');
 fctx = coder.OutputType('InitFeedoptPlan');
-C = coder.OutputType('ConstrCurvStructType');
+C = coder.OutputType('constrCurvStructType');
 
 global DebugActive sqrt_calls
 DebugActive = false;
@@ -63,24 +64,46 @@ if( GenerateAll || GenerateConstrFunctions )
         DebugRep = 'gen_mex/debug';
         path_mex = genpath( DebugRep );
 
-%         codegen('-config', cfg,'-d', DebugRep , ...
-%             'constrLineStruct', '-args', paramsDefaultLine( StructTypeName.MEX ),...
-%             '-o', 'debug_mex' ); 
-%         codegen('-config', cfg,'-d', DebugRep , ...
-%             'constrGcodeInfoStructType',...
-%             'constrGcodeInfoStruct', '-args', paramsDefaultGCodeInfo( StructTypeName.MEX ),...
-%             'constrBaseSplineType',...
-%             'constrBaseSpline', '-args', paramsDefaultBaseSpline( StructTypeName.MEX ),...
-%             'constrSplineType',...
-%             'constrSpline', '-args', paramsDefaultSpline( StructTypeName.MEX ),...
-%             'constrCurvStructType',...
-%             'constrCurvStruct', '-args', paramsDefaultCurv( StructTypeName.MEX ),...
-%             '-o', 'debug_mex' );
+%         curve = coder.OutputType('constrCurvStructType');
+
+        codegen('-config', cfg,'-d', DebugRep , ...
+            'constrCurvStructType',...
+            'FeedoptDefaultConfig',...
+            '-o', 'debug_mex' );
         disp(name + "success" );
         delete( 'debug_mex.mexa64' );
         addpath( path_mex );
     catch ME
-        disp(name + "failed : " + ME.message );
+        fprintf( ERROR_COLOR, name + "failed : " + ME.message + "\n" );
+    end
+end
+
+if( GenerateAll || GenerateType )
+    name = "Mexing Types : ";
+    disp(name + "start" );
+    try
+        TypeRep = 'gen_mex/types';
+        path_mex = genpath( TypeRep );
+        rmpath( path_mex );
+        codegen('-config', cfg,'-d', TypeRep, ...
+            'constrGcodeInfoStructType',...
+            'constrGcodeInfoStruct', '-args', paramsDefaultGCodeInfo( StructTypeName.MEX ),...
+            'constrBaseSplineType',...
+            'constrBaseSpline', '-args', paramsDefaultBaseSpline( StructTypeName.MEX ),...
+            'constrSplineType',...
+            'constrSpline', '-args', paramsDefaultSpline( StructTypeName.MEX ),...
+            'constrCurvStructType',...
+            'constrCurvStruct', '-args', paramsDefaultCurv( StructTypeName.MEX ),...
+            'constrHelixStruct', '-args', paramsDefaultHelix( StructTypeName.MEX ),...
+            'constrHelixStructFromArcFeed', '-args', paramsDefaultHelixFromArcFeed( StructTypeName.MEX ), ...
+            'constrLineStruct', '-args', paramsDefaultLine( StructTypeName.MEX ), ...
+            'constrTransP5Struct', '-args', paramsDefaultTransition( StructTypeName.MEX ),...
+            '-o', 'Type_mex');
+        disp(name + "success" );
+        delete( 'Type_mex.mexa64' );
+        addpath( path_mex );
+    catch ME
+        fprintf( ERROR_COLOR, name + "failed : " + ME.message + "\n");
     end
 end
 
@@ -103,7 +126,7 @@ if( GenerateAll || GenerateQueues )
         disp(name + "success" );
         addpath( path_mex );
     catch ME
-        disp(name + "failed : " + ME.message );
+        fprintf( ERROR_COLOR, name + "failed : " + ME.message + "\n");
     end
 end
 
@@ -115,15 +138,7 @@ if( GenerateAll || GenerateSpline )
         path_mex = genpath( splineRep );
         rmpath( path_mex );
 
-        fcfg = FeedoptDefaultConfig;
-        codegen('-config', cfg,'-d', splineRep + "/bspline_create",...
-            'bspline_create', '-args',...
-            {fcfg.SplineDegree, coder.typeof(0.0, [1, Inf], [0, 1])},...
-            '-o', 'bspline_create_mex');
-        %fcfg.SplineDegree, linspace(0, 1, fcfg.NBreak)
-        BlType = coder.OutputType('bspline_create');
         %
-        fprintf('Mexing bspline_destroy\n')
         codegen('-config', cfg,'-d', splineRep + "/bspline_destroy",...
             'bspline_destroy', '-args', BlType,....
             'bspline_create', '-args', {fcfg.SplineDegree, coder.typeof(0.0, [1, Inf], [0, 1])},...
@@ -159,21 +174,34 @@ if( GenerateAll || GenerateGCodeInterpreter )
         ReadGCodeRep = 'gen_mex/readgcode';
         path_mex = genpath( ReadGCodeRep );
         rmpath( path_mex );
+        curve = coder.OutputType( 'constrCurvStructType' );
         codegen('-config', cfg,'-d', ReadGCodeRep, ...
-            'ConstrCurvStructType',...
-            'ReadGCode', '-args', {ReadGCodeCmd.Load, coder.typeof(' ', [1,1024], [0, 1])},...
-            'ConstrLineStruct', '-args', {trafo, HSC, P0, P0 P0, Doff, P0, P0, P0, P0, P0, P0, 1.0, ZSpdMode.NN},...
-            'ConstrHelixStruct', '-args', {trafo, HSC, P0, P0 P0, Doff, P0, P0, P0, P0, P0, P0, P0, 1.0, P0, 1.0, 1.0, 1.0, ZSpdMode.NN},...
-            'ConstrHelixStructFromArcFeed', '-args', {trafo,  HSC, P0, P0 P0, Doff, 0,0,0,  0,0,0,  0,0,0,  P0, P0, P0, P0, 0,[0,0,0]'},...
-            'CopyCurvStruct','-args', C,...
+            'constrGcodeInfoStructType',...
+            'constrGcodeInfoStruct', '-args', paramsDefaultGCodeInfo( StructTypeName.MEX ),...
+            'constrCurvStructType',...
+            'constrCurvStruct', '-args', paramsDefaultCurv( StructTypeName.MEX ),...
+            'constrHelixStruct', '-args', paramsDefaultHelix( StructTypeName.MEX ),...
+            'constrHelixStructFromArcFeed', '-args', paramsDefaultHelixFromArcFeed( StructTypeName.MEX ), ...
+            'constrLineStruct', '-args', paramsDefaultLine( StructTypeName.MEX ), ...
+            'CopyCurvStruct','-args', curve,...
+            'ReadGCode', '-args', { ReadGCodeCmd.Load, coder.typeof(' ', [1,1024], [0, 1]) },...
             '-o', 'ReadGCode_mex');
         disp(name + "success" );
         delete( 'ReadGCode_mex.mexa64' );
         addpath( path_mex );
     catch ME
-        disp(name + "failed : " + ME.message );
+        fprintf( ERROR_COLOR, name + "failed : " + ME.message + "\n");
     end
 end
+
+
+% Old version
+% if( GenerateAll || GenerateGCodeInterpreter )
+%     name = "Mexing gcode interpreter : ";
+%         addpath( path_mex );
+%         fprintf( ERROR_COLOR, name + "failed : " + ME.message + "\n");
+%     end
+% end
 
 if( GenerateAll || GenerateResampling )
     name = "Mexing resampling : ";
@@ -184,12 +212,12 @@ if( GenerateAll || GenerateResampling )
         path_mex = genpath( ResamplingRep );
         rmpath( path_mex );
         my_cfg  = FeedoptDefaultConfig;
-        ctx     = InitFeedoptPlan( my_cfg );
+        ctx     = initFeedoptPlan( my_cfg );
         dt      = my_cfg.dt;
         state   = ResampleState( dt );
-        Curv    = ConstrCurvStructType;        
+        Curv    = constrCurvStructType;        
         codegen('-config', cfg,'-d', ResamplingRep,...
-            'resampleCurv', '-args', {state, ctx.Bl, Curv.zspdmode, ...
+            'resampleCurv', '-args', {state, ctx.Bl, Curv.Info.zspdmode, ...
              coder.typeof(0.0, [Inf, 1], [1,0]), ...
              Curv.ConstJerk, dt,  Curv.a_param, Curv.b_param }, ...
             '-o', 'resampling_mex');
@@ -197,7 +225,7 @@ if( GenerateAll || GenerateResampling )
         delete( 'resampling_mex.mexa64' );
         addpath( path_mex );
     catch ME
-        disp(name + "failed : " + ME.message );
+        fprintf( ERROR_COLOR, name + "failed : " + ME.message + "\n");
     end
 end
 
@@ -221,11 +249,10 @@ if( GenerateAll || GenerateSimplex )
         delete( 'c_simplex_mex.mexa64' );
         addpath( path_mex );
     catch ME
+<<<<<<< HEAD
         disp(name + "failed : " + ME.message );
-    end
-end
-
-
+=======
+        fprintf( ERROR_COLOR, name + "failed : " + ME.message + "\n");
 % Does not work for now
 % if( GenerateFeedoptPlanRun )
 %     name = "Mexing FeedoptPlanRun : ";
@@ -241,7 +268,7 @@ end
 %         path_mex = genpath( FeedoptPlanRep );
 %         rmpath( path_mex );
 %         codegen('-config', cfg, '-d', FeedoptPlanRep,...
-%             'ConstrCurvStructType',...
+%             'constrCurvStructType',...
 %             'ReadGCode', '-args', {ReadGCodeCmd.Load, coder.typeof(' ', [1,1024], [0, 1])},...
 %             'ConstrLineStruct', '-args', {trafo, HSC, P0, P0 P0, Doff, P0, P0, P0, P0, P0, P0, 1.0, ZSpdMode.NN},...
 %             'ConstrHelixStruct', '-args', {trafo, HSC, P0, P0 P0, Doff, P0, P0, P0, P0, P0, P0, P0, 1.0, P0, 1.0, 1.0, 1.0, ZSpdMode.NN},...
@@ -254,7 +281,11 @@ end
 %         disp(name + "success" );
 %         delete( 'FeedoptPlanRun_mex.mexa64' );
 %     catch ME
+<<<<<<< HEAD
 %         disp(name + "failed : " + ME.message );
+=======
+%         fprintf( ERROR_COLOR, name + "failed : " + ME.message + "\n");
+>>>>>>> 628ddae114382a1f0119d134e8f35f84e6768ef4
 %     end
 % end
 

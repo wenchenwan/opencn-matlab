@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 function [r0D, r1D, r2D, r3D] = EvalHelix(ctx, CurvStruct, u_vec)
+=======
+function [r0D, r1D, r2D, r3D] = EvalHelix( CurvStruct, u_vec )
+>>>>>>> 628ddae114382a1f0119d134e8f35f84e6768ef4
 % EvalHelix : Evalue the helix curv and its corresponding parametric
 % derivatives. The evaluation occurs on the specified points in the u
 % vector.
@@ -21,8 +25,9 @@ if ~coder.target('MATLAB')
     coder.ceval('ZoneScopedN', coder.opaque('const char*', '"EvalHelix"'));
 end
 % Extract parameters from the struct
-P0      = CurvStruct.P0;
-P1      = CurvStruct.P1;
+indCart = 1 : 3;
+P0      = CurvStruct.R0( indCart );
+P1      = CurvStruct.R1( indCart );
 evec    = CurvStruct.evec;
 theta   = CurvStruct.theta;
 pitch   = CurvStruct.pitch;
@@ -34,6 +39,7 @@ nD      = NCart + NRot;
 [P0_cart ,P0_rot] = SplitCartRot(ctx, P0);
 [P1_cart ,P1_rot] = SplitCartRot(ctx, P1);
 
+<<<<<<< HEAD
 N       = length(u_vec);
 P0P1    = P0_cart - P1_cart;
 
@@ -49,13 +55,24 @@ phi_vec     = theta*u_vec;
 EcrCP0      = cross(evec, CP0); % clockwise tangent vector
 cphi        = mycos(phi_vec);
 sphi        = mysin(phi_vec);
+=======
+P0P1    = P0 - P1;
+
+%
+C           = CurvStruct.CorrectedHelixCenter;
+CP0         = P0 - C;
+phi_vec     = theta * u_vec;
+EcrCP0      = cross( evec, CP0 ); % clockwise tangent vector
+cphi        = mycos( phi_vec );
+sphi        = mysin( phi_vec );
+>>>>>>> 628ddae114382a1f0119d134e8f35f84e6768ef4
 %
 
 cphiTCP0    = CP0 * cphi;
 sphiTCP0    = CP0 * sphi;
 cphiTEcrCP0 = EcrCP0 * cphi;
 sphiTEcrCP0 = EcrCP0 * sphi;
-Sign        = sign(P0P1'*evec);
+Sign        = sign( P0P1'*evec );
 %
 r0D_cart    = bsxfun(@plus, C, cphiTCP0  + sphiTEcrCP0  + ...
                    pitch/(2*pi)*evec*phi_vec);

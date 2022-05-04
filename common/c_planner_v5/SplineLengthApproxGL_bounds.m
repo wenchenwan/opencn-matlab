@@ -4,9 +4,9 @@ function L  = SplineLengthApproxGL_bounds(ctx, Curv, u1, u2)
 % This function takes usage of the precalculated arc lengths between knots.
 %
 % get the sp structure
-Spline = ctx.q_splines.get(Curv.sp_index);
+Spline = ctx.q_splines.get( Curv.sp_index );
 sp     = Spline.sp;
-Knots  = sp.knots(4:end-3);  % eliminate multiplicities at the end points
+Knots  = sp.knots( 4 : end-3 );  % eliminate multiplicities at the end points
 Lk     = sp.Lk;
 %
 c_assert(u2 > u1,          'u2 must be greater than u1');

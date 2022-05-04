@@ -5,14 +5,15 @@
 // File: constrSplineType.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 03-May-2022 09:31:06
+// C/C++ source code generated on  : 04-May-2022 13:15:59
 //
 
 // Include Files
 #include "constrSplineType.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_initialize.h"
-#include "opencn_matlab_types.h"
+#include "opencn_matlab_types2.h"
+#include "opencn_matlab_types3.h"
 #include "coder_array.h"
 
 // Function Definitions
@@ -89,7 +90,7 @@ void constrSplineType(double, SplineStruct *C)
     // 'constrSpline:17'                     'coeff', coeff,...
     // 'constrSpline:18'                     'knots', knots,...
     // 'constrSpline:19'                     'Ltot', 0.0, ...
-    // 'constrSpline:20'                     'Lk', zeros( 1, size( knots, 2 ) -1 )...
+    // 'constrSpline:20'                     'Lk', knots...
     // 'constrSpline:21'                     );
     C->Bl.ncoeff = 0;
     C->Bl.breakpoints.set_size(1, 1);
@@ -101,7 +102,8 @@ void constrSplineType(double, SplineStruct *C)
     C->knots.set_size(1, 1);
     C->knots[0] = 0.0;
     C->Ltot = 0.0;
-    C->Lk.set_size(1, 0);
+    C->Lk.set_size(1, 1);
+    C->Lk[0] = 0.0;
     // 'constrSpline:23' if ~coder.target( 'MATLAB' )
     // 'constrSpline:24' coder.varsize( 'SplineStrct.Lk',    StructTypeName.dimLk{ : } );
     // 'constrSpline:25' coder.varsize( 'SplineStrct.coeff', StructTypeName.dimCoeffs{ : } );

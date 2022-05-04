@@ -4,10 +4,10 @@ c_prof_block('BuildConstrJerk_v4');
                                  % import splines.*
 %
 Ncrv   = length(CurvStructs);
-[M, N] = size(BasisVal);
+[M, N] = size(BasisVal);    
 %
-A      = sparse(6*M*Ncrv,   N*Ncrv);  % preallocation
-b      = zeros(6*M*Ncrv,   1);       % preallocation
+A      = sparse(6 * M * Ncrv,   N * Ncrv);  % preallocation
+b      = zeros( 6 * M * Ncrv,   1);         % preallocation
 
 % coder.varsize('A', [6*FeedoptLimits.MaxNDiscr*FeedoptLimits.MaxNHorz, FeedoptLimits.MaxNCoeff*FeedoptLimits.MaxNHorz], [1,1]);
 % coder.varsize('b', [6*FeedoptLimits.MaxNDiscr*FeedoptLimits.MaxNHorz, 1], [1,0]);

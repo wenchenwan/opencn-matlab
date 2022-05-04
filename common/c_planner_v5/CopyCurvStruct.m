@@ -1,3 +1,3 @@
-function Copy = CopyCurvStruct(Curv)
+function Copy = CopyCurvStruct( Curv )
     Copy = Curv;
 end

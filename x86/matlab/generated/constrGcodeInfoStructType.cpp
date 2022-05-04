@@ -5,7 +5,7 @@
 // File: constrGcodeInfoStructType.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 03-May-2022 09:31:27
+// C/C++ source code generated on  : 04-May-2022 13:16:18
 //
 
 // Include Files
@@ -13,7 +13,8 @@
 #include "constrGcodeInfoStruct.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_initialize.h"
-#include "opencn_matlab_types.h"
+#include "opencn_matlab_types2.h"
+#include "opencn_matlab_types3.h"
 
 // Function Definitions
 //

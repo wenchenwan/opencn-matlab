@@ -5,13 +5,15 @@
 // File: opencn_matlab_types.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 03-May-2022 09:31:06
+// C/C++ source code generated on  : 04-May-2022 13:15:59
 //
 
 #ifndef OPENCN_MATLAB_TYPES_H
 #define OPENCN_MATLAB_TYPES_H
 
 // Include Files
+#include "opencn_matlab_types3.h"
+#include "queue_coder.h"
 #include "rtwtypes.h"
 #include "coder_array.h"
 
@@ -19,69 +21,120 @@
 #include "functions.h"
 // Type Definitions
 namespace ocn {
-struct BaseSplineStruct {
-    int ncoeff;
-    ::coder::array<double, 2U> breakpoints;
-    unsigned long handle;
-    int order;
+struct struct0_T {
+    bool Skip;
+    double ColTolCos;
 };
 
-struct SplineStruct {
+struct struct1_T {
+    char Type[2];
+    bool EnableFindReasonInfeasibility;
+    double ACC_RAMP_OVER_WINDOWS;
+    double VEL_RAMP_OVER_WINDOWS;
+    bool USE_SLACK_ON_JERK;
+    double SLACK_PENALTY;
+    bool USE_LINPROG;
+};
+
+struct FeedoptConfig {
+    int NumberAxis;
+    int NCart;
+    int NRot;
+    int indCart[3];
+    int indRot[2];
+    int NDiscr;
+    int NBreak;
+    bool UseDynamicBreakpoints;
+    bool UseLinearBreakpoints;
+    double DynamicBreakpointsDistance;
+    int NHorz;
+    double vmax;
+    double amax[3];
+    double jmax[3];
+    int LeeSplineDegree;
+    int SplineDegree;
+    double CutOff;
+    double LSplit;
+    double LThreshold;
+    double CuspThreshold;
+    double v_0;
+    double at_0;
+    double v_1;
+    double at_1;
+    double dt;
+    double ZeroStartAccLimit;
+    double ZeroStartJerkLimit;
+    double ZeroStartVelLimit;
+    char source[1024];
+    bool DebugCutZero;
+    struct0_T Compressing;
+    double ColTolCos;
+    double GaussLegendreN;
+    double GaussLegendreX[5];
+    double GaussLegendreW[5];
+    struct1_T opt;
+    char LogFileName[9];
+};
+
+struct emxArray_real_T_1x1 {
+    double data[1];
+    int size[2];
+};
+
+enum Fopt : int
+{
+    Fopt_Init = 0, // Default value
+    Fopt_GCode = 1,
+    Fopt_Check = 2,
+    Fopt_Compress = 3,
+    Fopt_Smooth = 4,
+    Fopt_Split = 5,
+    Fopt_Opt = 6,
+    Fopt_Finished = 67
+};
+
+enum FeedoptPlanError : int
+{
+    FeedoptPlanError_Success = 0, // Default value
+    FeedoptPlanError_SmoothingFailed,
+    FeedoptPlanError_SplittingFailed,
+    FeedoptPlanError_OptimizationFailed
+};
+
+struct FeedoptContext {
+    ::coder::array<double, 2U> BasisVal;
+    ::coder::array<double, 2U> BasisValD;
+    ::coder::array<double, 2U> BasisValDD;
+    ::coder::array<double, 2U> BasisValDDD;
+    ::coder::array<double, 1U> BasisIntegr;
     BaseSplineStruct Bl;
-    ::coder::array<double, 2U> coeff;
-    ::coder::array<double, 2U> knots;
-    double Ltot;
-    ::coder::array<double, 2U> Lk;
-};
-
-enum CurveType : int
-{
-    CurveType_None = 0, // Default value
-    CurveType_Line,
-    CurveType_Helix,
-    CurveType_Spline,
-    CurveType_TransP5
-};
-
-enum ZSpdMode : int
-{
-    ZSpdMode_NN = 0, // Default value
-    ZSpdMode_ZN,
-    ZSpdMode_NZ,
-    ZSpdMode_ZZ
-};
-
-struct GcodeInfoStruct {
-    CurveType Type;
-    ZSpdMode zspdmode;
-    bool TRAFO;
-    bool HSC;
-    bool FeedRate;
-    bool SpindleSpeed;
-    double gcode_source_line;
-    double G91;
-    unsigned long G91_1;
-};
-
-struct CurvStruct {
-    GcodeInfoStruct Info;
-    ::coder::array<double, 1U> R0;
-    ::coder::array<double, 1U> R1;
-    double CorrectedHelixCenter[3];
-    double delta;
-    double evec[3];
-    double theta;
-    double pitch;
-    ::coder::array<double, 2U> CoeffP5;
-    int sp_index;
-    int i_begin_sp;
-    int i_end_sp;
-    int index_smooth;
-    bool UseConstJerk;
-    double ConstJerk;
-    ::coder::array<double, 1U> Coeff;
-    double a_param;
-    double b_param;
+    ::coder::array<double, 2U> u_vec;
+    queue_coder q_spline;
+    queue_coder q_gcode;
+    queue_coder q_compress;
+    queue_coder q_smooth;
+    queue_coder q_split;
+    queue_coder q_opt;
+    Fopt op;
+    bool go_next;
+    bool try_push_again;
+    int n_optimized;
+    bool reached_end;
+    int k0;
+    double v_0;
+    double v_1;
+    double at_0;
+    double at_1;
+    FeedoptConfig cfg;
+    FeedoptPlanError errcode;
+    int jmax_increase_count;
+    bool zero_start;
+    bool zero_end;
+    int simplex_calls;
+    int forced_stop;
+    int programmed_stop;
+    emxArray_real_T_1x1 Coeff;
+    int Skipped;
 };
 
 } // namespace ocn
