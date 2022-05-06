@@ -5,7 +5,7 @@
 // File: angles2deg.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 04-May-2022 16:43:14
+// C/C++ source code generated on  : 05-May-2022 09:00:19
 //
 
 #ifndef ANGLES2DEG_H
@@ -13,7 +13,6 @@
 
 // Include Files
 #include "rtwtypes.h"
-#include "coder_array.h"
 #include <cstddef>
 #include <cstdlib>
 
@@ -21,8 +20,7 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-extern void angles2deg(const ::coder::array<double, 2U> &angles_rad,
-                       ::coder::array<double, 2U> &angles_deg);
+extern void angles2deg(double angles[3]);
 
 }
 

@@ -17,7 +17,7 @@ ty = 0;                 % [mm]     Y tool offset
 tz = t_l-d2-d1;         % [mm]     Z tool offset (tool on the table)
 
 l = load('r_a_and_r_r.mat');
-N = 1000;%length(l.r_a);
+N = 100;%length(l.r_a);
 
 %% Kinematic model
 r_ax = -80;
