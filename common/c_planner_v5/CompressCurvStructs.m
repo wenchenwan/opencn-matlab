@@ -15,7 +15,7 @@ if ctx.q_gcode.isempty()
     return;
 end
 
-spline_index = ctx.q_splines.size() + 1;    % New index in q_spline
+spline_index = ctx.q_spline.size() + 1;    % New index in q_spline
 Ncrv = ctx.q_gcode.size;                    % Number of curve in g-code queue
 Length_Threshold = ctx.cfg.LThreshold;      % in [mm]
 
@@ -39,7 +39,7 @@ while k <= Ncrv
     % we need to stop growing the compressing list and create the spline
     Collinear = false;                  % Set down collinear flag
     if k > 1      % Check colinearity with previous segment
-        Collinear = CurvCollinear(ctx, ctx.q_gcode.get(k-1), Curv, ...
+        Collinear = curvCollinear(ctx, ctx.q_gcode.get(k-1), Curv, ...
                                   ctx.cfg.Compressing.ColTolCos);
     end
     
@@ -80,11 +80,12 @@ while k <= Ncrv
             % is warranted     
             if size(pvec, 2) > 2
                 SplineCurve     = constrCurvStructType;
+                SplineCurve.sp_index = spline_index;
                 SplineCurve.sp  = CalcBspline_Lee(ctx.cfg, pvec);
                 [Ltot, Lk]      = SplineLengthApproxGL_tot(ctx, SplineCurve);
                 SplineCurve.sp.Ltot = Ltot;
                 SplineCurve.sp.Lk   = Lk;
-                ctx.q_splines.push( SplineCurve );
+                ctx.q_spline.push( SplineCurve );
                 spline = constrSplineStruct( Curv.Info, pvec(:,1), ...
                     pvec(:,end), int32(spline_index) );
                 spline_index = spline_index + 1;
@@ -121,7 +122,7 @@ while k <= Ncrv
         [Ltot, Lk]     = SplineLengthApproxGL_tot(ctx, SplineCurve);
         SplineCurve.sp.Ltot = Ltot;                                 
         SplineCurve.sp.Lk   = Lk;                                    
-        ctx.q_splines.push(SplineCurve);
+        ctx.q_spline.push(SplineCurve);
         spline = constrSplineStruct( Curv.Info, pvec(:,1), ...
             pvec(:,end), int32(spline_index) );
         spline_index = spline_index + 1;
@@ -137,13 +138,13 @@ while k <= Ncrv
         if CumulatedLength == 0
             P0 = EvalCurvStruct(ctx, Curv, 0);
             pvec = P0;
-            spindle_speed = Curv.SpindleSpeed;
+            spindle_speed = Curv.Info.SpindleSpeed;
         end
 
         CumulatedLength = CumulatedLength + LengthCurv(ctx, Curv, 0, 1);
         P1 = EvalCurvStruct(ctx, Curv, 1);
         pvec = [pvec P1];
-        spindle_speed = min(spindle_speed, Curv.SpindleSpeed);
+        spindle_speed = min(spindle_speed, Curv.Info.SpindleSpeed);
     end
     k = k + 1;
 end

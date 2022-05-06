@@ -27,7 +27,7 @@ switch ctx.op
                     % check for undefined feedrate
                     CurvStruct.Info.FeedRate = ctx.cfg.vmax;
                 end
-                PrintCurvStruct( ctx, CurvStruct );
+%                 PrintCurvStruct( ctx, CurvStruct );
                 ctx.q_gcode.push( CurvStruct );
             end
         end
@@ -43,7 +43,9 @@ switch ctx.op
         elseif last.Info.zspdmode == ZSpdMode.ZN
             last.Info.zspdmode = ZSpdMode.ZZ;
         end
-        ctx.q_gcode.set( ctx.q_gcode.size, last );
+        % For testing
+%         ctx.q_gcode.set( ctx.q_gcode.size, last );
+%         sizeGcode = ctx.q_gcode.size
         ctx.op = Fopt.Check;
     
     case Fopt.Check
@@ -56,18 +58,25 @@ switch ctx.op
         else
             ctx = CompressCurvStructs(ctx);
         end
+        % For testing
+%         sizeCompress = ctx.q_compress.size
+%         geometricPlot( ctx )
         ctx.op = Fopt.Smooth;
         if( coder.target( 'MATLAB') ), ctx.q_gcode.delete(); end        
     
     case Fopt.Smooth
         ctx = SmoothCurvStructs(ctx);
+        % For testing
+%         sizeSmooth = ctx.q_smooth.size
+%         geometricPlot( ctx )
         ctx.op = Fopt.Split;
         if( coder.target( 'MATLAB') ), ctx.q_compress.delete(); end        
             
     case Fopt.Split
         ctx = SplitCurvStructs(ctx);
-        
-        ctx.op = Fopt.Opt;
+        % For testing
+%         sizeSplit = ctx.q_split.size
+        ctx.op = Fopt.Finished; % SAUTE L'OPTIMISATION
         if( coder.target( 'MATLAB') ), ctx.q_smooth.delete(); end        
     
         DebugLog(DebugCfg.Validate, 'Feedrate Planning...\n');

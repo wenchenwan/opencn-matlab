@@ -1,5 +1,5 @@
 function [CurvStruct1_C, CurvStruct_T, CurvStruct2_C, status]  = ...
-    CalcTransition(ctx, CurvStruct1, CurvStruct2)
+    calcTransition(ctx, CurvStruct1, CurvStruct2)
 % CalcTransition : Compute a transition curve using on a polynome of degree
 % 5.
 %
@@ -24,8 +24,8 @@ ColTolCos           = ctx.cfg.ColTolCos;                % Tol for colinear
 % with: new CutOff at beginning = rest of Curve = new CutOff at end, approx.
 Length_Threshold    = 3*CutOff;                         % 
     
-line1 = CurvStruct1.gcode_source_line;
-line2 = CurvStruct2.gcode_source_line;
+line1 = CurvStruct1.Info.gcode_source_line;
+line2 = CurvStruct2.Info.gcode_source_line;
 
 if IsEnabledDebugLog(DebugCfg.Global)
     PrintCurvStruct(ctx, CurvStruct1);
@@ -64,7 +64,7 @@ if CurvStruct1.Info.Type ~= CurveType.Spline ...
     end
 else
     if CurvStruct1.Info.Type == CurveType.Spline
-        Spline=ctx.q_splines.get(CurvStruct1.sp_index);
+        Spline=ctx.q_spline.get(CurvStruct1.sp_index);
         sp = Spline.sp;
         a = CurvStruct1.a_param;
         b = CurvStruct1.b_param;
@@ -94,7 +94,7 @@ else
     end
     
     if CurvStruct2.Info.Type == CurveType.Spline
-        Spline=ctx.q_splines.get(CurvStruct2.sp_index);
+        Spline=ctx.q_spline.get(CurvStruct2.sp_index);
         sp = Spline.sp;
         a = CurvStruct2.a_param;
         b = CurvStruct2.b_param;
@@ -130,8 +130,8 @@ end
 status = TransitionResult.Ok;
 
 % Cut the curve structures
-CurvStruct1_C = CutCurvStruct( ctx, CurvStruct1, 0, CutOff );
-CurvStruct2_C = CutCurvStruct( ctx, CurvStruct2, CutOff, 0 );
+CurvStruct1_C = cutCurvStruct( ctx, CurvStruct1, 0, CutOff );
+CurvStruct2_C = cutCurvStruct( ctx, CurvStruct2, CutOff, 0 );
 
 if IsEnabledDebugLog(DebugCfg.Global)
     PrintCurvStruct(ctx, CurvStruct1_C)
@@ -148,13 +148,8 @@ if ret==1
 
     % standard case
     % transition CurvStruct calculation
-    CurvStruct_T = ConstrTransP5Struct(CurvStruct1.TRAFO,...
-                   CurvStruct1.HSC, ...
-                   CurvStruct1.Poff, CurvStruct1.Aoff, ...
-                   CurvStruct1.Uoff, CurvStruct1.Doff,...
-                   [CurvStruct1.A0, CurvStruct1.A1], ...
-                   [CurvStruct1.U0, CurvStruct1.U1], ...
-                   p5, CurvStruct1.FeedRate);
+    CurvStruct_T = constrTransP5Struct(CurvStruct1.Info, CurvStruct1.R0,...
+                                       CurvStruct1.R1, p5);
     status = TransitionResult.Ok;
     
 elseif ret==2
@@ -195,13 +190,8 @@ elseif ret==6
     
     % TODO: decide in the future...
     % Now we ignore and construct the transition curve anyway
-    CurvStruct_T = ConstrTransP5Struct(CurvStruct1.TRAFO,...
-                   CurvStruct1.HSC, ...
-                   CurvStruct1.Poff, CurvStruct1.Aoff, ...
-                   CurvStruct1.Uoff, CurvStruct1.Doff,...
-                   [CurvStruct1.A0, CurvStruct1.A1], ...
-                   [CurvStruct1.U0, CurvStruct1.U1], ...
-                   p5, CurvStruct1.FeedRate);
+    CurvStruct_T = constrTransP5Struct(CurvStruct1.Info, CurvStruct1.R0,...
+                                       CurvStruct1.R1, p5);
     status = TransitionResult.Ok;
               
     DebugLog(DebugCfg.Warning, '========== CalcTransition ==========\n');
@@ -259,8 +249,8 @@ else
     end
     
 end
-    CurvStruct_T.gcode_source_line = line2;    
-    CurvStruct_T.SpindleSpeed = min(CurvStruct1.SpindleSpeed, CurvStruct2.SpindleSpeed); 
+    CurvStruct_T.Info.gcode_source_line = line2;    
+    CurvStruct_T.Info.SpindleSpeed = min(CurvStruct1.Info.SpindleSpeed, CurvStruct2.Info.SpindleSpeed); 
     if( coder.target("MATLAB") )
         check_continuity( ctx, CurvStruct1_C, CurvStruct_T );
         check_continuity( ctx, CurvStruct_T, CurvStruct2_C );
@@ -277,7 +267,7 @@ function [] = check_continuity( ctx, CurvStruct1, CurvStruct2 )
     [t2, ~,  kappa2] = CalcFrenet( r2d1, r2dd1 );
 
     diff_r      = abs( r11    -r21 )        < tol;
-    diff_rd     = norm( cross( t1, t2 ) )    < tol;
+    diff_rd     = norm( cross( t1, t2 ) )   < tol;
     diff_rdd    = abs( kappa1 -kappa2 )     < tol;
 
     assert( all( diff_r ), mfilename + ...

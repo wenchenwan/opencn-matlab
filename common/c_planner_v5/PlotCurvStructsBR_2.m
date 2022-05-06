@@ -28,7 +28,7 @@ for i = 1:N
                 
     elseif CurvStructs(i).Info.Type == CurveType.Spline
 
-        Spline=ctx.q_splines.get(CurvStructs(i).sp_index);
+        Spline=ctx.q_spline.get(CurvStructs(i).sp_index);
         sp = Spline.sp;
                
         uvec = linspace(0,1,1000);

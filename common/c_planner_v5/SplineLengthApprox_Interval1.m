@@ -4,7 +4,7 @@ function L = SplineLengthApprox_Interval1(ctx, Curv, u0, u1)
 % The computation is based on numerical Gauss Legendre integration 
 %
 % get the spline
-Spline = ctx.q_splines.get(Curv.sp_index);
+Spline = ctx.q_spline.get(Curv.sp_index);
 % get Gauss-Legendre knots and weights
 GL_X   = ctx.cfg.GaussLegendreX;
 GL_W   = ctx.cfg.GaussLegendreW;

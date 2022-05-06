@@ -6,7 +6,7 @@ function [L, Lk]  = SplineLengthApproxGL_tot(ctx, Curv)
 % of the computation is stored and reused later.
 
 % get the sp structure
-% Spline = ctx.q_splines.get(Curv.sp_index);
+% Spline = ctx.q_spline.get(Curv.sp_index);
 % sp     = Spline.sp;
 sp     = Curv.sp;
 Knots  = sp.knots(4:end-3);  % eliminate multiplicities at the end points
@@ -20,7 +20,7 @@ GL_W   = ctx.cfg.GaussLegendreW;
 Umat   = (bsxfun(@times, a, (1-GL_X)) + bsxfun(@times, b, (1+GL_X)))/2;
 Uvec   = Umat(:)';  % all evaluation points as row vector
 
-[~, r1D]  = EvalBSplineNoCtx(Curv, Uvec);
+[~, r1D]  = EvalBSpline(Curv, Uvec);
 r1Dnorm   = MyNorm(r1D);
 r1DnormM  = reshape(r1Dnorm, GL_N, length(Knots)-1); 
 Lk        = sum(bsxfun(@times, GL_W, r1DnormM)) .* (b-a)/2; % Gauss Legendre integration

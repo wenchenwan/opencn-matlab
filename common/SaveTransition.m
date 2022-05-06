@@ -27,12 +27,12 @@ function do_save(ctx, CurvStruct1, CurvStruct2)
     
     save(filename, 'cfg', 'CurvStruct1', 'CurvStruct2');
     if CurvStruct1.Info.Type == CurveType.Spline
-        Spline1 = ctx.q_splines.get(CurvStruct1.sp_index);
+        Spline1 = ctx.q_spline.get(CurvStruct1.sp_index);
         save(filename, '-append', 'Spline1');
     end
     
     if CurvStruct2.Info.Type == CurveType.Spline
-        Spline2 = ctx.q_splines.get(CurvStruct2.sp_index);
+        Spline2 = ctx.q_spline.get(CurvStruct2.sp_index);
         save(filename, '-append', 'Spline2');
     end
 end

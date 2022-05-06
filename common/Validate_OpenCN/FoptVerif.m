@@ -44,7 +44,7 @@ for k=1:k_max
         Curv = ctx.q_opt.get(ceil(ucum));
     end
             
-    SplineCurv = ctx.q_splines.get(Curv.sp_index);
+    SplineCurv = ctx.q_spline.get(Curv.sp_index);
     
     pvec(k, :) = EvalPosition(Curv, SplineCurv, u);
     

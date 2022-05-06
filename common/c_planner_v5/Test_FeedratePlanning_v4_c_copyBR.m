@@ -3,7 +3,7 @@ clear; clc; close all;
 
 load('EbaucheSplineOscillations.mat');
 
-sp = ctx.q_splines.get(1);
+sp = ctx.q_spline.get(1);
 
 knots = sp.knots(4:end-3);
 

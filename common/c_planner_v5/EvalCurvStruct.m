@@ -42,7 +42,7 @@ switch Type
     case CurveType.Helix    % Arc of circle / helix (G02, G03)
         if( ctx.cfg.NCart > 0 )         % Only rotation
             [r0D( indC, : ), r1D( indC, : ), r2D( indC, : ), r3D( indC, : )] = ...
-                EvalHelix( CurvStruct, u_vec_tilda );
+                EvalHelix( CurvStruct, u_vec_tilda, indC );
         elseif( ctx.cfg.NRot > 0 )      % Only cartesian
             [r0D( indR, : ), r1D( indR, : ), r2D( indR, : ), r3D( indR, : )] = ...
                 EvalLine( CurvStruct, u_vec_tilda, indR );
