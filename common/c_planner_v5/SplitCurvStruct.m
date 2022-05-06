@@ -8,7 +8,7 @@ if Type~=CurveType.TransP5 && CurvStrct.UseConstJerk == 0
     if Type==CurveType.Line || Type==CurveType.Helix
         ctx = SplitLineHelix(ctx, CurvStrct);
     else
-        ctx = SplitSpline(ctx, CurvStrct);
+        ctx = splitSpline(ctx, CurvStrct);
     end
     
 else

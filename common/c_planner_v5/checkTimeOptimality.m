@@ -23,7 +23,7 @@ for k = 1 : N
     countInPercent = printAvancement(countInPercent, k, N);
 
     Curv                        = ctx.q_opt.get( k );
-    SplineCurv                  = ctx.q_splines.get( Curv.sp_index );
+    SplineCurv                  = ctx.q_spline.get( Curv.sp_index );
     Curv.MaxConstantFeedRate    = GetCurvMaxFeedrate( ctx, Curv );
     
     

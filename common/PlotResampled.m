@@ -38,7 +38,7 @@ sqrt_calls = 0;
 for k = 1:N
     DebugLog(DebugCfg.OptimProgress, '%4d/%d\n', k, N);
     Curv = ctx.q_opt.get(k);
-    SplineCurv = ctx.q_splines.get(Curv.sp_index);
+    SplineCurv = ctx.q_spline.get(Curv.sp_index);
     Curv.MaxConstantFeedRate = GetCurvMaxFeedrate(ctx, Curv);
     
     tstart = tic;

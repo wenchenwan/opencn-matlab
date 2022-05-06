@@ -13,7 +13,7 @@ IND_KNOTS_MULT  = 4;         % Index used to remove multiple knots
 %                              (ONLY TRUE FOR CUBIC SPLINE)
 
 % Get the sp structure
-Spline = ctx.q_splines.get(Curv.sp_index);
+Spline = ctx.q_spline.get(Curv.sp_index);
 sp     = Spline.sp;
 
 % Eliminate multiplicities at the end points

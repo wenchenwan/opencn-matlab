@@ -1,3 +1,4 @@
+
 function ctx = SmoothCurvStructs(ctx)
 % Optimal transitions calculation between segments whith G2 continuity
 
@@ -23,7 +24,7 @@ if Ncrv > 1
         if CurvStruct1.Info.zspdmode == ZSpdMode.NN ...
            && NextCurv.Info.zspdmode == ZSpdMode.NN
             [CurvStruct1_C, CurvStruct_T, CurvStruct2_C, status] = ...
-                CalcTransition(ctx, CurvStruct1, NextCurv);
+                calcTransition(ctx, CurvStruct1, NextCurv);
             
             if status == TransitionResult.Ok
                 ctx.q_smooth.push(CurvStruct1_C);

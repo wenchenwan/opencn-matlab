@@ -13,7 +13,7 @@ IND_KNOTS_MULT  = 4;         % Index used to remove multiple knots
 %                              (ONLY TRUE FOR CUBIC SPLINE)
 
 % Get the sp structure
-Spline = ctx.q_splines.get(Curv.sp_index);
+Spline = ctx.q_spline.get(Curv.sp_index);
 sp     = Spline.sp;
 
 % Eliminate multiplicities at the end points
@@ -57,7 +57,7 @@ uk_old = 2;
 while abs(uk - uk_old) > DEFAULT_TOL_NR  
     % Evaluation of function which should become zero
     fk = SplineLengthApprox_Interval1(ctx, Curv, u0, uk) - Lremain;
-    [~, r1D]  = EvalBSplineNoCtx(Spline, uk);
+    [~, r1D]  = EvalBSpline(Spline, uk);
     % Evaluation of the derivative of the function which should become zero
     Dfk       = MyNorm(r1D);   
     %

@@ -10,16 +10,16 @@ generate_for_arm_64 = false;
 [cfg, output_root] = generate_c_config( generate_for_arm_32, ...
     generate_for_arm_64, ...
     generate_for_x86_64 );
-% please choose the libraries to generate ( All can be generated )
 
-GenerateAll = false;
+% please choose the libraries to generate ( All can be generated )
+GenerateAll = true;
 
 if( ~GenerateAll )
     GenerateFeedopt    = false;
-    GenerateKinematics = true;
+    GenerateKinematics = false;
 end
 
-DEBUG = false;
+DEBUG = true;
 
 output_root = output_root + "/matlab/generated/";
 

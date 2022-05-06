@@ -7,14 +7,14 @@ clear; clc;
 GenerateAll = false;
 
 if( ~GenerateAll )
-    GenerateDebug               = true;
+    GenerateDebug               = false;
     GenerateType                = false;
     GenerateResampling          = false;
     GenerateGCodeInterpreter    = false;
     GenerateQueues              = false;
     GenerateSimplex             = false;
     GenerateSpline              = false;
-    GenerateKinematic           = false;
+    GenerateKinematic           = true;
 %     GenerateFeedoptPlanRun      = false; % Does not work now
 end
 cfg = generate_mex_config();

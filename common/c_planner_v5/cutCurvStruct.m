@@ -1,11 +1,11 @@
-function CurvStruct1 = CutCurvStruct(ctx, CurvStruct, d0, d1)
+function CurvStruct1 = cutCurvStruct(ctx, CurvStruct, d0, d1)
 % We cut d0 [mm] in the beginning and d1 [mm] in the end of the segment
 % We determine a new value of the parameter u_tilda
 
 a = CurvStruct.a_param;
 b = CurvStruct.b_param;
 
-if CurvStruct.Type == CurveType.Spline
+if CurvStruct.Info.Type == CurveType.Spline
         
     u0_tilda = a*0+b;
     u1_tilda = a*1+b;
