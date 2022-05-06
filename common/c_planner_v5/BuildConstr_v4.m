@@ -1,7 +1,9 @@
-function [A, b, Aeq, beq ] = BuildConstr_v4(ctx, CurvStructs, amax, v_0, at_0, v_1, at_1, ...
-    BasisVal, BasisValD, u_vec)
+function [A, b, Aeq, beq ] = BuildConstr_v4(ctx, CurvStructs, amax, v_0, ...
+    at_0, v_1, at_1, BasisVal, BasisValD, u_vec)
+%#codegen
 
-DebugLog(DebugCfg.Global, 'BuildConstr_v4 with Ncrv = %d, amax = [%f, %f, %f], v_0 = %f, at_0 = %f, v_1 = %f, at_1 = %f\n', ...
+DebugLog(DebugCfg.Global, ['BuildConstr_v4 with Ncrv = %d, amax = [%f, %f, ' ...
+    '                   %f], v_0 = %f, at_0 = %f, v_1 = %f, at_1 = %f\n'], ...
     int32(numel(CurvStructs)), amax(1), amax(2), amax(3), v_0, at_0, v_1, at_1);
 
 Bl = ctx.Bl;
@@ -56,13 +58,22 @@ R2 = bsxfun(@times, r2D(2, :)' , BasisVal) + 0.5*bsxfun(@times, r1D(2, :)' , Bas
 R3 = bsxfun(@times, r2D(3, :)' , BasisVal) + 0.5*bsxfun(@times, r1D(3, :)' , BasisValD);
 
 %
+% A(1:7*M, 1:N)  = [BasisVal;
+%     R1;
+%     -R1;
+%     R2;
+%     -R2;
+%     R3;
+%     -R3];
+
 A(1:7*M, 1:N)  = [BasisVal;
     R1;
-    -R1;
     R2;
-    -R2;
     R3;
+    -R1;
+    -R2;
     -R3];
+%
 %
 bC1 = (vmax)^2./r1D_sqnorm';
 bC2 = amax(1)*ones(M, 1);
@@ -77,11 +88,11 @@ b(1:7*M)       = [bC1;
     bC4;
     bC4];
 %
-Aeq(1:2, 1:N)   = [BasisVal(1, :);
+Aeq(1:2, 1:N)   = [BasisVal(1, :) * r1D_sqnorm(1);
     t_0' * [r2D(1, 1)   * BasisVal(1, :)   + 0.5*r1D(1, 1)   * BasisValD(1, :);
     r2D(2, 1)   * BasisVal(1, :)   + 0.5*r1D(2, 1)   * BasisValD(1, :);
     r2D(3, 1)   * BasisVal(1, :)   + 0.5*r1D(3, 1)   * BasisValD(1, :)]];
-beq(1:2)       = [(v_0(1)^2)/r1D_sqnorm(1);
+beq(1:2)       = [(v_0(1)^2);
     at_0(1)];
 
 % This should be the correct behavior for a single segment,
@@ -100,7 +111,7 @@ for k = 1:Ncrv-1
     [M, N] = size(BasisVal);
     
     [~, r1Dn, r2Dn] = EvalCurvStruct(ctx, CurvStructs(k+1), u_vec);
-    vmax            = CurvStructs(k+1).FeedRate;
+    vmax            = CurvStructs(k+1).Info.FeedRate;
     r1Dn_sqnorm     = sum(r1Dn.^2);        % squared norm
     bC1 = (vmax)^2./r1Dn_sqnorm';
     t_1 = r1D(:, end)/norm(r1D(:, end));   % unit tangent vector @ end of previous piece
@@ -109,14 +120,22 @@ for k = 1:Ncrv-1
     R2 = bsxfun(@times, r2Dn(2, :)' , BasisVal) + 0.5*bsxfun(@times, r1Dn(2, :)' , BasisValD);
     R3 = bsxfun(@times, r2Dn(3, :)' , BasisVal) + 0.5*bsxfun(@times, r1Dn(3, :)' , BasisValD);
     %
-    A(k*7*M+1:(k+1)*7*M, k*N+1:(k+1)*N) = ...
+        A(k*7*M+1:(k+1)*7*M, k*N+1:(k+1)*N) = ...
         [BasisVal;
         R1;
-        -R1;
         R2;
-        -R2;
         R3;
+        -R1;
+        -R2;
         -R3];
+%     A(k*7*M+1:(k+1)*7*M, k*N+1:(k+1)*N) = ...
+%         [BasisVal;
+%         R1;
+%         -R1;
+%         R2;
+%         -R2;
+%         R3;
+%         -R3];
     %
     b(k*7*M+1:(k+1)*7*M) = [bC1;
         bC2;
@@ -145,13 +164,13 @@ end
 %
 t_1 = r1D(:, end)/norm(r1D(:, end));   % unit tangent vector @ end of previous piece
 %
-Aeq(end-1:end, end-N+1:end)   = [BasisVal(end, :);
+Aeq(end-1:end, end-N+1:end)   = [BasisVal(end, :) * r1Dn_sqnorm(end);
     t_1' * [...
     r2D(1, end) * BasisVal(end, :) + 0.5*r1D(1, end) * BasisValD(end, :);
     r2D(2, end) * BasisVal(end, :) + 0.5*r1D(2, end) * BasisValD(end, :);
     r2D(3, end) * BasisVal(end, :) + 0.5*r1D(3, end) * BasisValD(end, :)]];
 %
-beq(end-1:end) = [(v_1^2)/r1Dn_sqnorm(end);
+beq(end-1:end) = [(v_1^2);
     at_1];
 
 c_prof_out(mfilename);

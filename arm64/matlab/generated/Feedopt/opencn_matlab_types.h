@@ -5,7 +5,7 @@
 // File: opencn_matlab_types.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-May-2022 09:00:02
+// C/C++ source code generated on  : 06-May-2022 16:41:55
 //
 
 #ifndef OPENCN_MATLAB_TYPES_H
@@ -41,7 +41,7 @@ struct FeedoptConfig {
     int NCart;
     int NRot;
     int indCart[3];
-    int indRot[2];
+    int indRot;
     int NDiscr;
     int NBreak;
     bool UseDynamicBreakpoints;

@@ -5,7 +5,7 @@
  * File: opencn_matlab_terminate.h
  *
  * MATLAB Coder version            : 5.3
- * C/C++ source code generated on  : 05-May-2022 09:14:12
+ * C/C++ source code generated on  : 06-May-2022 16:42:44
  */
 
 #ifndef OPENCN_MATLAB_TERMINATE_H

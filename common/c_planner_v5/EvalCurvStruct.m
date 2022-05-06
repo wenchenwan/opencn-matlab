@@ -33,7 +33,7 @@ if( ctx.cfg.NCart == 0 )    % Only rotation
 elseif( ctx.cfg.NRot == 0 ) % Only cartesian
     indTot = indC;
 else
-    indTot = [ indR, indC ];
+    indTot = [ indC; indR ];
 end
 
 switch Type

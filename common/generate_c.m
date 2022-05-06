@@ -5,7 +5,7 @@ clear; clc;
 % please choose the target first ( only 1 target is generated at the time )
 generate_for_arm_32 = false;
 generate_for_x86_64 = false;
-generate_for_arm_64 = true;
+generate_for_arm_64 = false;
 
 [cfg, output_root] = generate_c_config( generate_for_arm_32, ...
     generate_for_arm_64, ...
