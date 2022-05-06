@@ -23,6 +23,7 @@ BW_RTCP_sym = simplify( Translation( [0, 0, P(3, 4)]) * M5_T0M(P(1, 1),...
 r_a(1) = BW_RTCP_sym(1, 4);
 r_a(2) = -BW_RTCP_sym(2, 4);
 r_a(3) = BW_RTCP_sym(3, 4);
-r_a(4) = R(5);
-r_a(5) = R(6);
+r_a(4) = 0;
+r_a(5) = R(5);
+r_a(6) = R(6);
 end

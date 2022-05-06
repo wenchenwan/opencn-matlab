@@ -24,6 +24,7 @@ FW_RTCP_sym = simplify( inv( M5_TCP( P(1, 3), P(2, 3), P(3, 3) ) ) * ...
 r_r(1) = FW_RTCP_sym(1, 4);
 r_r(2) = -FW_RTCP_sym(2, 4);
 r_r(3) = FW_RTCP_sym(3, 4);
-r_r(4) = R(5);
-r_r(5) = R(6);
+r_r(4) = 0;
+r_r(5) = R(5);
+r_r(6) = R(6);
 end
