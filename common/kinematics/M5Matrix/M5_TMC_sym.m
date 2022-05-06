@@ -1,6 +1,5 @@
-function T = M5_TMC_sym(d1)
+function T = M5_TMC_sym(y, b, c, d1)
 % M5_TMC
-syms y b c
 
 T1 = [1, 0, 0, 0;
       0, 1, 0, y;

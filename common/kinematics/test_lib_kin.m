@@ -46,13 +46,13 @@ r_a = fun5;%(u);
 r_r = zeros(size(r_a)); r_av = r_r; r_rv = r_r;
 
 for i = 1:length(r_a)
-%     r_r(:, i)  = Fct_MGD(r_a(1, i),r_a(2, i),r_a(3, i),r_a(4, i),r_a(5, i),mx,my,mz,tx,ty,tz,px,py,pz,d1,d2,t_l);
-%     r_av(:, i) = Fct_MGI(r_r(1, i),r_r(2, i),r_r(3, i),r_r(4, i),r_r(5, i),mx,my,mz,tx,ty,tz,px,py,pz,d1,d2,t_l);
-%     r_rv(:, i) = Fct_MGD(r_av(1, i),r_av(2, i),r_av(3, i),r_av(4, i),r_av(5, i),mx,my,mz,tx,ty,tz,px,py,pz,d1,d2,t_l);
+    r_r(:, i)  = MGD(r_a,mx,my,mz,tx,ty,tz,px,py,pz,d1,d2,t_l);
+    r_av(:, i) = MGI(r_r,mx,my,mz,tx,ty,tz,px,py,pz,d1,d2,t_l);
+    r_rv(:, i) = MGD(r_av,mx,my,mz,tx,ty,tz,px,py,pz,d1,d2,t_l);
 
-    r_r(:, i)  = Fct_LinuxMGD(r_a(1, i),r_a(2, i),r_a(3, i),r_a(4, i),r_a(5, i), 0, d1);
-    r_av(:, i) = Fct_LinuxMGI(r_r(1, i),r_r(2, i),r_r(3, i),r_r(4, i),r_r(5, i), 0, d1);
-    r_rv(:, i) = Fct_LinuxMGD(r_av(1, i),r_av(2, i),r_av(3, i),r_av(4, i),r_av(5, i), 0, d1);
+%     r_r(:, i)  = Fct_LinuxMGD(r_a(1, i),r_a(2, i),r_a(3, i),r_a(4, i),r_a(5, i), 0, d1);
+%     r_av(:, i) = Fct_LinuxMGI(r_r(1, i),r_r(2, i),r_r(3, i),r_r(4, i),r_r(5, i), 0, d1);
+%     r_rv(:, i) = Fct_LinuxMGD(r_av(1, i),r_av(2, i),r_av(3, i),r_av(4, i),r_av(5, i), 0, d1);
 
 end
 

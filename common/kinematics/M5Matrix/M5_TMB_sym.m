@@ -1,6 +1,5 @@
-function T = M5_TMB_sym(d2)
+function T = M5_TMB_sym(x, z, d2)
 % M5_TMB
-syms x z
 
 T = [1, 0, 0,      x;
      0, 1, 0,      0;
