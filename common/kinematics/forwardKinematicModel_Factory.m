@@ -1,8 +1,3 @@
-
-
-
-
-
 function [r_r] = forwardKinematicModel_Factory( R, P )
 % ForwardKinematicModel_Factory
 %

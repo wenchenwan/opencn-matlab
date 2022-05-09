@@ -9,7 +9,7 @@ u_vec = linspace(0, 1, N);
 figure;
 sizeGcode = ctx.q_gcode.size;
 if sizeGcode
-    dataGcode = zeros(3, sizeGcode *N);
+    dataGcode = zeros(ctx.cfg.NumberAxis, sizeGcode *N);
     for i = 1:sizeGcode 
         Curve = ctx.q_gcode.get(i);
         
@@ -22,7 +22,7 @@ end
 
 sizeComp = ctx.q_compress.size;
 if sizeComp
-    dataComp = zeros(3, sizeComp *N);
+    dataComp = zeros(ctx.cfg.NumberAxis, sizeComp *N);
     for i = 1:sizeComp 
         Curve = ctx.q_compress.get(i);
         
@@ -35,7 +35,7 @@ end
 
 sizeSmooth = ctx.q_smooth.size;
 if sizeSmooth
-    dataSmooth = zeros(3, sizeSmooth *N);
+    dataSmooth = zeros(ctx.cfg.NumberAxis, sizeSmooth *N);
     for i = 1:sizeSmooth 
         Curve = ctx.q_compress.get(i);
         
@@ -48,7 +48,7 @@ end
 
 sizeSplit = ctx.q_split.size;
 if sizeSplit
-    dataSplit = zeros(3, sizeSplit*N);
+    dataSplit = zeros(ctx.cfg.NumberAxis, sizeSplit*N);
     for i = 1:sizeSplit
         Curve = ctx.q_split.get(i);
         

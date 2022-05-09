@@ -1,14 +1,10 @@
-
-
-
-
 function [r_a] = backwardKinematicModel_Factory( R, P )
 % BackwardKinematicModel_Factory
 %
 % Variable :         unit : size : description
 % OUTPUT 
 % Fct_MGI  :                     : Function for the Backward Kinematic Model
-% r_a   : [mm and rad] :  1x5 : 
+% r_a      : [mm and rad] :  1x5 : 
 
 BW_RTCP_sym = simplify( Translation( [0, 0, P(3, 4)]) * M5_T0M(P(1, 1),...
                         P(2, 1), P(3, 1)+P(1, 4)) ...

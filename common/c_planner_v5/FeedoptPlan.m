@@ -43,9 +43,10 @@ switch ctx.op
         elseif last.Info.zspdmode == ZSpdMode.ZN
             last.Info.zspdmode = ZSpdMode.ZZ;
         end
+        ctx.q_gcode.set( ctx.q_gcode.size, last );
         % For testing
-%         ctx.q_gcode.set( ctx.q_gcode.size, last );
-%         sizeGcode = ctx.q_gcode.size
+        sizeGcode = ctx.q_gcode.size
+%         geometricPlot( ctx )
         ctx.op = Fopt.Check;
     
     case Fopt.Check
@@ -59,7 +60,7 @@ switch ctx.op
             ctx = CompressCurvStructs(ctx);
         end
         % For testing
-%         sizeCompress = ctx.q_compress.size
+        sizeCompress = ctx.q_compress.size
 %         geometricPlot( ctx )
         ctx.op = Fopt.Smooth;
         if( coder.target( 'MATLAB') ), ctx.q_gcode.delete(); end        
