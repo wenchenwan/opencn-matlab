@@ -6,7 +6,7 @@ clear; clc;
 GenerateAll = true;
 
 if( ~GenerateAll )
-    GenerateDebug               = true;
+    GenerateDebug               = false;
     GenerateType                = false;
     GenerateResampling          = false;
     GenerateGCodeInterpreter    = false;
@@ -267,6 +267,7 @@ if( GenerateAll || GenerateSimplex )
 end
 
 if( GenerateAll || GenerateKinematic )
+    [R, P] = varTypeKinematic;
     name = "Mexing kinematics functions : ";
     disp(name + "start" );
 
@@ -277,27 +278,27 @@ if( GenerateAll || GenerateKinematic )
 
         fprintf('Mexing MGD\n')
         codegen('-config', cfg, '-d', KinematicRep + "MGD/",...
-            'MGD', '-args', {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},...
+            'MGD', '-args', {R, P},...
             '-o', 'MGD_mex');
 
         fprintf('Mexing MGI\n')
         codegen('-config', cfg, '-d', KinematicRep + "MGI/",...
-            'MGI', '-args', {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},...
+            'MGI', '-args', {R, P},...
             '-o', 'MGI_mex');
 
         fprintf('Mexing J_ar\n')
         codegen('-config', cfg, '-d', KinematicRep + "J_ar/",...
-            'J_ar', '-args', {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},...
+            'J_ar', '-args', {R, P},...
             '-o', 'J_ar_mex');
 
         fprintf('Mexing J_arP\n')
         codegen('-config', cfg, '-d', KinematicRep + "J_arP/",...
-            'J_arP', '-args', {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},...
+            'J_arP', '-args', {R, R, P},...
             '-o', 'J_arP_mex');
 
         fprintf('Mexing J_arPP\n')
         codegen('-config', cfg, '-d', KinematicRep + "J_arPP/",...
-            'J_arPP', '-args', {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},...
+            'J_arPP', '-args', {R, R, R, P},...
             '-o', 'J_arPP_mex');
 
         disp(name + "success" );
