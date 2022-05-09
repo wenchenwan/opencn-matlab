@@ -27,11 +27,11 @@ Nec         = 2 * ( Nwindow + 1 );
 % Aeq   : Matrix for inequality constraints
 % beq   : Vector for inequality constraints
 % b_amax: Vector for maximum acceleration
-A      = zeros( Nc * M * Nwindow,  Nx ); 
-b      = zeros( Nc * M * Nwindow,  1 );   
-Aeq    = zeros( Nec, Nx );
-beq    = zeros( Nec, 1 ); 
-b_amax = repmat( amax, M, 1 );
+A           = zeros( Nc * M * Nwindow,  Nx ); 
+b           = zeros( Nc * M * Nwindow,  1 );   
+Aeq         = zeros( Nec, Nx );
+beq         = zeros( Nec, 1 );  
+b_amax      = repmat( amax, M, 1 );
 
 % at_norm   : Norm of tangential acceleration vector
 % t_vec     : Unit vector tangential to the curve
@@ -40,10 +40,10 @@ b_amax = repmat( amax, M, 1 );
 % bw        : Cell of the vector of inequality const. by window
 % indAT     : Indexis for at_norm at continuity points
 % mask_continuity : Mask used in the recursive form the continuity equ.
-at_norm = zeros( 2, N, Nwindow );
-t_vec   = zeros( Ndim, 2, Nwindow );
-Acc     = zeros( M * Ndim , N );
-indAT   = ( int32( 1 : Ndim ) - 1 ) * M  + int32( [ 1 ; M ] );
+at_norm     = zeros( 2, N, Nwindow );
+t_vec       = zeros( Ndim, 2, Nwindow );
+Acc         = zeros( M * Ndim , N );
+indAT       = ( int32( 1 : Ndim ) - 1 ) * M  + int32( [ 1 ; M ] );
 mask_continuity = [ 1; 1; -1; -1 ];
 
 for k = 1 : Nwindow
@@ -67,12 +67,13 @@ for k = 1 : Nwindow
     b( indAL )          = [ v_max'; b_amax( : ); b_amax( : ) ];
 
     % Continuity equations
-    v_2_vec = normR1D( [1, end] ).^2' .* BasisVal( [ 1; end ], :);
     indAEL  = int32( 1 : 4 ) + ( k - 1 ) * 2 ;      % Line   index
     indAEC  = int32( 1 : N ) + ( k - 1 ) * N ;      % Column index
     at_norm( 1, :, k )   = t_vec( : , 1, k )' * Acc( indAT( 1, : ) , : );
     at_norm( 2, :, k )   = t_vec( : , 2, k )' * Acc( indAT( 2, : ) , : );
-    continuity = [ v_2_vec( 1, : ); at_norm( 1, :, k ); v_2_vec( 2, : ); at_norm( 2, :, k )];
+
+    v2_vec = normR1D( [1, end] ).^2' .* BasisVal( [ 1; end ], :);
+    continuity = [ v2_vec( 1, : ); at_norm( 1, :, k ); v2_vec( 2, : ); at_norm( 2, :, k )];
     Aeq( indAEL, indAEC ) = Aeq( indAEL, indAEC ) + continuity.* mask_continuity;
 end
 

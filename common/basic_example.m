@@ -17,7 +17,7 @@ cfg.Compressing.Skip = 0;
 cfg.Compressing.ColTolCos = 0.1*cfg.Compressing.ColTolCos;
 
 % Set the path to the gcode file
-cfg.source = 'ngc_test/012_spline.ngc';
+cfg.source = 'ngc_test/unit/012_spline.ngc';
 
 % Logging
 setupLogs( cfg.LogFileName ); diary on;
