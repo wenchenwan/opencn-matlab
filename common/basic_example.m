@@ -30,6 +30,7 @@ try
     % Run the geometrics operations, then solve the LP problem
     ctx = FeedoptPlanRun( ctx );                                     
     
+    % Plot path before resampling
     geometricPlot( ctx )
 
     % Resampling of the parameter
