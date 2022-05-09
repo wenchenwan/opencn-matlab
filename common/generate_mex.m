@@ -6,14 +6,14 @@ clear; clc;
 GenerateAll = true;
 
 if( ~GenerateAll )
-    GenerateDebug               = false;
+    GenerateDebug               = true;
     GenerateType                = false;
     GenerateResampling          = false;
     GenerateGCodeInterpreter    = false;
     GenerateQueues              = false;
     GenerateSimplex             = false;
     GenerateSpline              = false;
-    GenerateKinematic           = true;
+    GenerateKinematic           = false;
 %     GenerateFeedoptPlanRun      = false; % Does not work now
 end
 cfg = generate_mex_config();
@@ -62,7 +62,7 @@ cfg.CustomInclude = [...
 % Remove gen from path
 ERROR_COLOR = 2;
 
-if( GenerateDebug )
+if( ~GenerateAll && GenerateDebug )
     name = "Debug functions : ";
     disp(name + "start" );
     try

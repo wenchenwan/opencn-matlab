@@ -2,10 +2,6 @@ function [ A, b, Aeq, beq ] = buildConstr( ctx, windowCurv, amax, ...
     v_0, at_0, v_1, at_1, BasisVal, BasisValD, u_vec )
 %#codegen
 
-DebugLog(DebugCfg.Global, ['BuildConstr_v4 with Nwindow = %d, amax = [%f, %f, ' ...
-    '                   %f], v_0 = %f, at_0 = %f, v_1 = %f, at_1 = %f\n'], ...
-    int32(numel(windowCurv)), amax(1), amax(2), amax(3), v_0, at_0, v_1, at_1);
-
 c_prof_in(mfilename);
 % Ndim     : number of dimention
 % NWindow  : number of axes
@@ -22,16 +18,18 @@ Nx          = N * Nwindow;
 Nc          = ( 1 + 2 * Ndim );
 Nec         = 2 * ( Nwindow + 1 );
 
-% A     : Matrix for equality constraints
-% b     : Vector for equality constraints
-% Aeq   : Matrix for inequality constraints
-% beq   : Vector for inequality constraints
-% b_amax: Vector for maximum acceleration
+% A         : Matrix for equality constraints
+% b         : Vector for equality constraints
+% Aeq       : Matrix for inequality constraints
+% beq       : Vector for inequality constraints
+% amaxTot   : Acceleration max total ( cart + rot )
+% b_amax    : Vector for maximum acceleration
 A           = zeros( Nc * M * Nwindow,  Nx ); 
 b           = zeros( Nc * M * Nwindow,  1 );   
 Aeq         = zeros( Nec, Nx );
-beq         = zeros( Nec, 1 );  
-b_amax      = repmat( amax, M, 1 );
+beq         = zeros( Nec, 1 );
+amaxTot     = amax( ctx.cfg.indTot );
+b_amax      = repmat( amaxTot, M, 1 );
 
 % at_norm   : Norm of tangential acceleration vector
 % t_vec     : Unit vector tangential to the curve
