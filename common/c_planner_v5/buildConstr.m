@@ -1,0 +1,93 @@
+function [ A, b, Aeq, beq ] = buildConstr( ctx, windowCurv, amax, ...
+    v_0, at_0, v_1, at_1, BasisVal, BasisValD, u_vec )
+%#codegen
+
+c_prof_in(mfilename);
+% Ndim     : number of dimention
+% NWindow  : number of axes
+Ndim        = ctx.cfg.NumberAxis;
+Nwindow     = length( windowCurv );
+
+% M     : number of discretization
+% N     : number of coefficients
+% Nx    : number of decision variable
+% Nc    : number of inequality constraints
+% Nec   : number of equality constraints
+[ M, N ]    = size(BasisVal);               
+Nx          = N * Nwindow;
+Nc          = ( 1 + 2 * Ndim );
+Nec         = 2 * ( Nwindow + 1 );
+
+% A         : Matrix for equality constraints
+% b         : Vector for equality constraints
+% Aeq       : Matrix for inequality constraints
+% beq       : Vector for inequality constraints
+% amaxTot   : Acceleration max total ( cart + rot )
+% b_amax    : Vector for maximum acceleration
+A           = zeros( Nc * M * Nwindow,  Nx ); 
+b           = zeros( Nc * M * Nwindow,  1 );   
+Aeq         = zeros( Nec, Nx );
+beq         = zeros( Nec, 1 );
+amaxTot     = amax( ctx.cfg.indTot );
+b_amax      = repmat( amaxTot, M, 1 );
+
+% at_norm   : Norm of tangential acceleration vector
+% t_vec     : Unit vector tangential to the curve
+% Acc       : Matrix of the acceleration by axis
+% Aw        : Cell of the matrix of inequality const. by window
+% bw        : Cell of the vector of inequality const. by window
+% indAT     : Indexis for at_norm at continuity points
+% mask_continuity : Mask used in the recursive form the continuity equ.
+at_norm     = zeros( 2, N, Nwindow );
+t_vec       = zeros( Ndim, 2, Nwindow );
+Acc         = zeros( M * Ndim , N );
+indAT       = ( int32( 1 : Ndim ) - 1 ) * M  + int32( [ 1 ; M ] );
+mask_continuity = [ 1; 1; -1; -1 ];
+
+for k = 1 : Nwindow
+    % Compute the partial derivatives
+    [ ~, r1D, r2D, ~ ] = EvalCurvStruct( ctx, windowCurv( k ), u_vec );
+    % Tangent unit vector at start and at end
+    normR1D = vecnorm( r1D );
+    t_vec( : , :, k ) = r1D( :, [ 1, end ] ) ./ normR1D( [1, end] );
+    % Maximum constraint on the speed
+    v_max = ( windowCurv( k ).Info.FeedRate ./ normR1D ).^2;
+
+    for j = 1 : Ndim    % Compute the acceleration matrix
+        ind = int32( 1 : M ) + ( j - 1 ) * M ;
+        Acc( ind, : ) = r2D( j, : )' .* BasisVal + 0.5 * r1D( j, : )' .* BasisValD;
+    end
+
+    % Inequality constraints
+    indAL   = int32( 1 : Nc * M ) + ( k - 1 ) * Nc * M;
+    indAC   = int32( 1 : N  ) + ( k - 1 ) * N;
+    A( indAL, indAC )   = [ BasisVal ; Acc ; -Acc ];
+    b( indAL )          = [ v_max'; b_amax( : ); b_amax( : ) ];
+
+    % Continuity equations
+    indAEL  = int32( 1 : 4 ) + ( k - 1 ) * 2 ;      % Line   index
+    indAEC  = int32( 1 : N ) + ( k - 1 ) * N ;      % Column index
+    at_norm( 1, :, k )   = t_vec( : , 1, k )' * Acc( indAT( 1, : ) , : );
+    at_norm( 2, :, k )   = t_vec( : , 2, k )' * Acc( indAT( 2, : ) , : );
+
+    v2_vec = normR1D( [1, end] ).^2' .* BasisVal( [ 1; end ], :);
+    continuity = [ v2_vec( 1, : ); at_norm( 1, :, k ); v2_vec( 2, : ); at_norm( 2, :, k )];
+    Aeq( indAEL, indAEC ) = Aeq( indAEL, indAEC ) + continuity.* mask_continuity;
+end
+
+beq( [ 1, 2, end-1, end ] ) = [ v_0^2; at_0; v_1^2; at_1 ] .* mask_continuity;
+
+% Add a ramp on the acceleration and speed limits
+vel_ramp = linspace( 1, ctx.cfg.opt.VEL_RAMP_OVER_WINDOWS, M )';
+acc_ramp = repmat( linspace( 1, ctx.cfg.opt.ACC_RAMP_OVER_WINDOWS, M )',1, Nc -1 );
+
+if( Nwindow > 1 )
+    ramp = [ones(M, Nc ), vel_ramp, acc_ramp, ...
+            repmat([vel_ramp(end), acc_ramp(end,:)], M, Nwindow-2)];
+    b  = b .* ramp(:);
+end
+
+c_prof_out(mfilename);
+
+end
+

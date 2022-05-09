@@ -2,8 +2,8 @@ function [ctx, Coeff, NCoeff, success, status, msg] = ...
     FeedratePlanning_LP( ctx, CurvStructsArray, amax, jmax, BasisVal, ...
     BasisValD, BasisValDD, BasisIntegr, Bl, u_vec, N_Hor)
 % FeedratePlanning_LP : Perform the feedrate planning based on the LP
-% formulation. A two stage scheme is performed (with and without jerk
-% constraints).
+% formulation. A two stages scheme is performed ( with and without jerk
+% constraints ).
 %
 % Inputs
 % ctx               : The context

@@ -27,14 +27,7 @@ u_vec_tilda = a * u_vec + b;
 
 indC   = ctx.cfg.indCart;
 indR   = ctx.cfg.indRot;
-
-if( ctx.cfg.NCart == 0 )    % Only rotation
-    indTot = indR;
-elseif( ctx.cfg.NRot == 0 ) % Only cartesian
-    indTot = indC;
-else
-    indTot = [ indC, indR ];
-end
+indTot = ctx.cfg.indTot;
 
 switch Type
     case CurveType.Line     % Line (G01)

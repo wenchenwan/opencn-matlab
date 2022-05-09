@@ -5,6 +5,7 @@ classdef ( Sealed ) StructTypeName < handle
         Spline     = 'SplineStruct';
         GCodeInfo  = 'GcodeInfoStruct';
         FeedoptCtx = 'FeedoptContext';
+        FeedoptCfg = 'FeedoptConfig';
         MEX        = 'MEX';
     end
     properties ( Constant )
@@ -33,6 +34,10 @@ classdef ( Sealed ) StructTypeName < handle
         dimCtxCoeff = { [1, Inf], [0, 1] };
         % Default size for breakpoints in Bl in ctx
         dimCtxBlBreaks = { [1, Inf], [0, 1] };
+        % Default size for index vector ( cart and rot )
+        dimIndTot   = { [6, 1], [1, 0] };
+        % Default size for index vector ( cart or rot )
+        dimInd      = { [3, 1], [1, 0] };
     end
 
     methods (Access = private)

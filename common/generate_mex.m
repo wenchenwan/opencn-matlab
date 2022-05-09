@@ -6,14 +6,14 @@ clear; clc;
 GenerateAll = true;
 
 if( ~GenerateAll )
-    GenerateDebug               = false;
+    GenerateDebug               = true;
     GenerateType                = false;
     GenerateResampling          = false;
     GenerateGCodeInterpreter    = false;
     GenerateQueues              = false;
     GenerateSimplex             = false;
     GenerateSpline              = false;
-    GenerateKinematic           = true;
+    GenerateKinematic           = false;
 %     GenerateFeedoptPlanRun      = false; % Does not work now
 end
 cfg = generate_mex_config();
@@ -62,7 +62,7 @@ cfg.CustomInclude = [...
 % Remove gen from path
 ERROR_COLOR = 2;
 
-if( GenerateAll || GenerateDebug )
+if( ~GenerateAll && GenerateDebug )
     name = "Debug functions : ";
     disp(name + "start" );
     try
@@ -74,6 +74,12 @@ if( GenerateAll || GenerateDebug )
         codegen('-config', cfg,'-d', DebugRep , ...
             'constrCurvStructType',...
             'FeedoptDefaultConfig',...
+            'initFeedoptPlan', '-args', fcfg,...
+            'buildConstr', '-args', {fctx, coder.typeof([constrCurvStructType], [1, Inf], [0,1]), ...
+            coder.typeof(zeros(1,3) , [1, Inf], [0,1]),0.0,0.0,0.0,0.0, ...
+            coder.typeof(zeros(1,1) , [Inf, Inf], [1,1]), ...
+            coder.typeof(zeros(1,1) , [Inf, Inf], [1,1]), ...
+            coder.typeof(zeros(1,1) , [1, Inf], [0,1])} ,...
             '-o', 'debug_mex' );
         disp(name + "success" );
         delete( 'debug_mex.mexa64' );

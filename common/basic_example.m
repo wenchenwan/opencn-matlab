@@ -6,15 +6,10 @@ clc; clear all; close all;
 
 % Load default configuration parameters
 cfg = FeedoptDefaultConfig;
-% For EvalHelix test
-cfg.NumberAxis = 5;
-cfg.NCart = 3;
-cfg.NRot  = 2;
-cfg.indCart = [ 1, 2, 3 ];
-cfg.indRot  = [ 4, 5 ];
+
 % For testing B spline
 cfg.Compressing.Skip = 0;
-cfg.Compressing.ColTolCos = 0.1*cfg.Compressing.ColTolCos;
+cfg.Compressing.ColTolCos = 0.1 * cfg.Compressing.ColTolCos;
 
 % Set the path to the gcode file
 cfg.source = 'ngc_test/test_CreatGcode.ngc';

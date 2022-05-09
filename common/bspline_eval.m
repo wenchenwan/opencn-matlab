@@ -1,4 +1,4 @@
-function [x, xd, xdd, xddd] = bspline_eval(Bl, coeffs, x) %#codegen
+function [ x, xd, xdd, xddd ] = bspline_eval( Bl, coeffs, x ) %#codegen
 % void c_bspline_eval(uint64_t *handle, const double *c, double x, double X[3]);
     X = zeros(1, 4);
     if coder.target('matlab')
@@ -16,11 +16,11 @@ function [x, xd, xdd, xddd] = bspline_eval(Bl, coeffs, x) %#codegen
         coder.updateBuildInfo('addLinkFlags', LibInfo.gsl.lflags);
         coder.cinclude('src/c_spline.h');
         coder.ceval('c_bspline_eval', coder.rref(Bl.handle), coder.rref(coeffs),...
-            x, coder.wref(X));
-        x = X(1);
-        xd = X(2);
-        xdd = X(3);
-        xddd = X(4);
+                    x, coder.wref(X));
+        x       = X(1);
+        xd      = X(2);
+        xdd     = X(3);
+        xddd    = X(4);
     else
         [x, xd, xdd, xddd] = bspline_eval_mex('bspline_eval', Bl, coeffs, x);
     end

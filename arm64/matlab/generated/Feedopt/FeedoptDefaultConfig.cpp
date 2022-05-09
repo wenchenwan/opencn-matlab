@@ -5,7 +5,7 @@
 // File: FeedoptDefaultConfig.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-May-2022 09:00:02
+// C/C++ source code generated on  : 06-May-2022 16:41:55
 //
 
 // Include Files
@@ -70,18 +70,19 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     cfg->opt.SLACK_PENALTY = 100.0;
     cfg->opt.USE_LINPROG = false;
     // 'FeedoptDefaultConfig:22' cfg = struct(...
-    // 'FeedoptDefaultConfig:23'         'NumberAxis', int32( 5 ), ...
+    // 'FeedoptDefaultConfig:23'         'NumberAxis', int32( 3 ), ...
     // 'FeedoptDefaultConfig:24'         'NCart', int32( 3 ), ...
-    // 'FeedoptDefaultConfig:25'         'NRot', int32( 2 ), ...
-    // 'FeedoptDefaultConfig:26'         'indCart', int32( [ 1 , 2, 3 ] ), ...
-    // 'FeedoptDefaultConfig:27'         'indRot', int32( [ 4 , 5 ] ),...
+    // 'FeedoptDefaultConfig:25'         'NRot', int32( 0 ), ...
+    // 'FeedoptDefaultConfig:26'         'indCart', int32( [ 1 , 2, 3 ]' ), ...
+    // 'FeedoptDefaultConfig:27'         'indRot', int32( [ 0 ] ),...
     // 'FeedoptDefaultConfig:28' 		'NDiscr', int32( 20 ),...
     // 'FeedoptDefaultConfig:29' 		'NBreak', int32( 10 ),...
-    // 'FeedoptDefaultConfig:30'         'UseDynamicBreakpoints',false,... % Use a variable number
-    // of breakpoints for different lengths 'FeedoptDefaultConfig:31'
-    // 'UseLinearBreakpoints',false,...   % Use a linear distribution of breakpoints (else sinspace)
-    // 'FeedoptDefaultConfig:32'         'DynamicBreakpointsDistance', 0.1,... % Distance between
-    // two breakpoints in mm 'FeedoptDefaultConfig:33' 		'NHorz', int32( 5 ),...
+    // 'FeedoptDefaultConfig:30'         'UseDynamicBreakpoints',false,...       % Use a variable
+    // number of breakpoints for different lengths 'FeedoptDefaultConfig:31'
+    // 'UseLinearBreakpoints',false,...        % Use a linear distribution of breakpoints (else
+    // sinspace) 'FeedoptDefaultConfig:32'         'DynamicBreakpointsDistance', 0.1,...   %
+    // Distance between two breakpoints in mm
+    // 'FeedoptDefaultConfig:33' 		'NHorz', int32( 5 ),...
     // 'FeedoptDefaultConfig:34' 		'vmax', 150,...
     // 'FeedoptDefaultConfig:35' 		'amax', [20000,20000,20000],...
     // 'FeedoptDefaultConfig:36' 		'jmax', [1500000,1500000,1500000] / 10,...
@@ -108,14 +109,10 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     // 'FeedoptDefaultConfig:57'         'GaussLegendreW', GaussLegendreW, ...
     // 'FeedoptDefaultConfig:58'         'opt', LP,...
     // 'FeedoptDefaultConfig:59'         'LogFileName', 'logs/logs');
-    cfg->NumberAxis = 5;
+    cfg->NumberAxis = 3;
     cfg->NCart = 3;
-    cfg->NRot = 2;
-    cfg->indCart[0] = 1;
-    cfg->indCart[1] = 2;
-    cfg->indCart[2] = 3;
-    cfg->indRot[0] = 4;
-    cfg->indRot[1] = 5;
+    cfg->NRot = 0;
+    cfg->indRot = 0;
     cfg->NDiscr = 20;
     cfg->NBreak = 10;
     cfg->UseDynamicBreakpoints = false;
@@ -123,10 +120,13 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     cfg->DynamicBreakpointsDistance = 0.1;
     cfg->NHorz = 5;
     cfg->vmax = 150.0;
+    cfg->indCart[0] = 1;
     cfg->amax[0] = 20000.0;
     cfg->jmax[0] = 150000.0;
+    cfg->indCart[1] = 2;
     cfg->amax[1] = 20000.0;
     cfg->jmax[1] = 150000.0;
+    cfg->indCart[2] = 3;
     cfg->amax[2] = 20000.0;
     cfg->jmax[2] = 150000.0;
     cfg->LeeSplineDegree = 4;
@@ -155,10 +155,12 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     for (int c_i{0}; c_i < 9; c_i++) {
         cfg->LogFileName[c_i] = cv[c_i];
     }
-    //  % Use a variable number of breakpoints for different lengths
-    //    % Use a linear distribution of breakpoints (else sinspace)
-    //  % Distance between two breakpoints in mm
-    // 'FeedoptDefaultConfig:61' coder.cstructname(cfg, 'FeedoptConfig');
+    //        % Use a variable number of breakpoints for different lengths
+    //         % Use a linear distribution of breakpoints (else sinspace)
+    //    % Distance between two breakpoints in mm
+    //  if( isrow( cfg.indRot ) ),  cfg.indRot = cfg.indRot'; end
+    //  if( isrow( cfg.indCart ) ), cfg.indCart = cfg.indCart'; end
+    // 'FeedoptDefaultConfig:64' coder.cstructname(cfg, 'FeedoptConfig');
 }
 
 } // namespace ocn

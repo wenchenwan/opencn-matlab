@@ -5,7 +5,7 @@
  * File: opencn_matlab_types.h
  *
  * MATLAB Coder version            : 5.3
- * C/C++ source code generated on  : 05-May-2022 09:13:57
+ * C/C++ source code generated on  : 06-May-2022 16:42:55
  */
 
 #ifndef OPENCN_MATLAB_TYPES_H

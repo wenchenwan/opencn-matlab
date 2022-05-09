@@ -23,16 +23,9 @@ b = CurvStruct.b_param;
 
 u_vec_tilda = a * u_vec + b;
 
-indC   = cfg.indCart;
-indR   = cfg.indRot;
-
-if( cfg.NCart == 0 )    % Only rotation
-    indTot = indR;
-elseif( cfg.NRot == 0 ) % Only cartesian
-    indTot = indC;
-else
-    indTot = [ indR, indC ];
-end
+indC   = ctx.cfg.indCart;
+indR   = ctx.cfg.indRot;
+indTot = ctx.cfg.indTot;
 
 switch Type
     case CurveType.Line     % Line (G01)
