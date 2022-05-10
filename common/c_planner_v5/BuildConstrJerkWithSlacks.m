@@ -38,21 +38,21 @@ R3 = bsxfun(@times, (bsxfun(@times, BasisVal , r3D(3, :)') + ...
 %       0.5*BasisValDD.*r1D(3, :)') .* mysqrt(q_val);
 %
 A(1:6*M, 1:N)  = [R1;
-                 -R1;
                   R2;
-                 -R2;
                   R3;
+                 -R1;     
+                 -R2;
                  -R3];
 %
 bC2 = jmax(1)*ones(M, 1);
 bC3 = jmax(2)*ones(M, 1);
 bC4 = jmax(3)*ones(M, 1);
 %
-b(1:6*M)       = [bC2;
-                  bC2;
-                  bC3;
+b(1:6*M)       =  [bC2;
                   bC3;
                   bC4;
+                  bC2;
+                  bC3;
                   bC4];
 %
 for k = 1:Ncrv-1
@@ -81,19 +81,19 @@ for k = 1:Ncrv-1
 %           0.5*BasisValDD.*r1D(3, :)') .* mysqrt(q_val);
     %
     A(k*6*M+1:(k+1)*6*M, k*N+1:(k+1)*N) = ...
-      [R1;
-      -R1;
-       R2;
-      -R2;
-       R3;
-      -R3];
+        [R1;
+        R2;
+        R3;
+        -R1;
+        -R2;
+        -R3];
     %
-    b(k*6*M+1:(k+1)*6*M) = [bC2;
-                            bC2;
-                            bC3;
-                            bC3;
-                            bC4;
-                            bC4];
+    b(k*6*M+1:(k+1)*6*M) = [ bC2;
+    bC3;
+    bC4;
+    bC2;
+    bC3;
+    bC4];
     %
 end
 

@@ -15,7 +15,7 @@ uk = 0; if( isEnd ), uk = 1; end
 [ ~, r1D ] = EvalCurvStruct( ctx, curv, uk );
 
 % Compute pseudo jerk based on max allowed jerk
-jps = min( ctx.cfg.jmax ) / max( abs( r1D ) );
+jps = min( ctx.cfg.jmax( ctx.cfg.indTot ) ) / max( abs( r1D ) );
 
 searchU = true; u = 0;
 
@@ -49,10 +49,10 @@ if( isempty( ratio ) ), ratio = 0.9; end
 
 if( norm( V ) > curv.Info.FeedRate )
     jps = jps * ratio * ( curv.Info.FeedRate / norm( V ) ) ^ ( 1 / 2 );
-elseif( max( abs( A ) ) > max( ctx.cfg.amax ) )
-    jps = jps * ratio * ( max( abs( A ) ) / max( abs( ctx.cfg.amax ) ) ) ^ ( 1 / 4 );
-elseif( max( abs( J ) ) > max( ctx.cfg.jmax ) )
-    jps = jps * ratio * ( max( abs( J ) ) / max( abs( ctx.cfg.jmax ) ) ) ^ ( 1 / 6 );
+elseif( max( abs( A ) ) > max( ctx.cfg.amax( ctx.cfg.indTot ) ) )
+    jps = jps * ratio * ( max( abs( A ) ) / max( abs( ctx.cfg.amax( ctx.cfg.indTot ) ) ) ) ^ ( 1 / 4 );
+elseif( max( abs( J ) ) > max( ctx.cfg.jmax( ctx.cfg.indTot ) ) )
+    jps = jps * ratio * ( max( abs( J ) ) / max( abs( ctx.cfg.jmax( ctx.cfg.indTot ) ) ) ) ^ ( 1 / 6 );
 else
     searchU = false;
 end

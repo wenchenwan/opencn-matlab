@@ -75,19 +75,18 @@ switch ctx.op
             
     case Fopt.Split
         ctx = SplitCurvStructs(ctx);
-        % For testing
-%         sizeSplit = ctx.q_split.size
-        ctx.op = Fopt.Finished; % SAUTE L'OPTIMISATION
         if( coder.target( 'MATLAB') ), ctx.q_smooth.delete(); end        
-    
+        
+        ctx.op = Fopt.Opt;
+
         DebugLog(DebugCfg.Validate, 'Feedrate Planning...\n');
         if coder.target('matlab')
             diary off;
         end
     
     case Fopt.Opt
-        [ ctx, optimized, opt_curv, quit ] = feedratePlanning( ctx );
-        
+%         [ ctx, optimized, opt_curv, quit ] = feedratePlanning( ctx );
+        [ ctx, optimized, opt_curv, quit ] = feedratePlanning_new( ctx );
         if optimized
             ctx.go_next = true;
             ctx.q_opt.push( opt_curv );

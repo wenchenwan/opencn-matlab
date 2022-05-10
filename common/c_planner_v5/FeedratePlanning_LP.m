@@ -34,7 +34,7 @@ LP = ctx.cfg.opt;   % Load parameters of the LP
 
 [~, NCoeff0] = size( BasisVal ); % Extract size of the problem
 
-CurvStructs = CurvStructsArray( 1 : N_Hor ); % Extract window of interest
+CurvStructs  = CurvStructsArray( 1 : N_Hor ); % Extract window of interest
 
 f = -repmat( BasisIntegr, 1, N_Hor ); % Linear pernalty
 

@@ -22,7 +22,13 @@ mkdir( outputDir );
 addpath( path_mex );
 
 % Create function
-matlabFunction(MGD, 'vars', {R, P}, 'file', outputDir + "MGD");
+TO_REPLACE  = 'TO_REPLACE';
+fileName    = outputDir + "MGD" + ".m";
+matlabFunction( MGD, 'vars', {R, P}, 'file', fileName, 'Comments', TO_REPLACE );
+comments    = [ "Direct Kinematics (Model Geometrique Direct) : ", ...
+                "R : 6 x 1 : vector of pose", "P : parameters" ];
+write_comments( fileName, TO_REPLACE, comments );
+
 matlabFunction(MGI, 'vars', {R, P}, 'file', outputDir + "MGI");
 
 %% Jacobian
@@ -35,6 +41,17 @@ matlabFunction(J_ar,  'vars',  {R, P}, 'file', outputDir + "/J_ar");
 matlabFunction(J_arP, 'vars',  {R, Rp, P}, 'file', outputDir + "/J_arP");
 matlabFunction(J_arPP,'vars',  {R, Rp, Rpp, P}, 'file', outputDir + "/J_arPP");
 
+
+function [] = write_comments( fileName, to_replace, comments )
+comments= join( comments , "\n%" );
+fid     = fopen( fileName, 'r' );
+f       =fread( fid, '*char' )';
+fclose( fid );
+f       = regexprep( f, to_replace, comments );
+fid     = fopen( fileName, 'w' );
+fprintf( fid, '%s', f );
+fclose( fid );
+end
 
 
 

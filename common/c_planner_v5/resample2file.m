@@ -47,8 +47,8 @@ for k = 1 : N
             [ r, v, a, j ] = calcRVAJfromU( ctx, Curv, state.u, ud, udd, uddd );
             feed    = vecnorm( v );   
             feed    = feed / Curv.FeedRate;
-            a       = abs( a ./ ctx.cfg.amax' );
-            j       = abs( j ./ ctx.cfg.jmax' );
+            a       = abs( a ./ ctx.cfg.amax( ctx.cfg.indTot )' );
+            j       = abs( j ./ ctx.cfg.jmax( ctx.cfg.indTot )' );
             
             buffer( ind, : ) = [ t, u, feed, f, cf, r', a', j' ];
         end

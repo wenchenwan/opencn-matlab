@@ -15,9 +15,8 @@ if ctx.q_gcode.isempty()
     return;
 end
 
-spline_index = ctx.q_spline.size() + 1;    % New index in q_spline
+spline_index = ctx.q_spline.size() + 1;     % New index in q_spline
 Ncrv = ctx.q_gcode.size;                    % Number of curve in g-code queue
-Length_Threshold = ctx.cfg.LThreshold;      % in [mm]
 
 CumulatedLength = 0;                        % Accumulator for the length
 spindle_speed = 75000;                      % in [rpm]

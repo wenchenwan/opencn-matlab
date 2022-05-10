@@ -1,6 +1,6 @@
 function [ vNorm, atNorm ] = calcZeroConstraints( ctx, Curv, isEnd )
 %#codegen
-% calcZeroStartConstraints : Compute the velocity and acceleration
+% calcZeroConstraints : Compute the velocity and acceleration
 % required for the continuity at zero start.
 % Inputs :
 % ctx   : The context

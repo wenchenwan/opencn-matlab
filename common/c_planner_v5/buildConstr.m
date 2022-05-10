@@ -1,4 +1,4 @@
-function [ A, b, Aeq, beq ] = buildConstr( ctx, windowCurv, amax, ...
+function [ A, b, Aeq, beq, continuity ] = buildConstr( ctx, windowCurv, amax, ...
     v_0, at_0, v_1, at_1, BasisVal, BasisValD, u_vec )
 %#codegen
 
@@ -13,7 +13,7 @@ Nwindow     = length( windowCurv );
 % Nx    : number of decision variable
 % Nc    : number of inequality constraints
 % Nec   : number of equality constraints
-[ M, N ]    = size(BasisVal);               
+[ M, N ]    = size( BasisVal );               
 Nx          = N * Nwindow;
 Nc          = ( 1 + 2 * Ndim );
 Nec         = 2 * ( Nwindow + 1 );
@@ -40,6 +40,7 @@ b_amax      = repmat( amaxTot, M, 1 );
 % mask_continuity : Mask used in the recursive form the continuity equ.
 at_norm     = zeros( 2, N, Nwindow );
 t_vec       = zeros( Ndim, 2, Nwindow );
+v2_vec      = zeros( 2, N, Nwindow );
 Acc         = zeros( M * Ndim , N );
 indAT       = ( int32( 1 : Ndim ) - 1 ) * M  + int32( [ 1 ; M ] );
 mask_continuity = [ 1; 1; -1; -1 ];
@@ -70,8 +71,9 @@ for k = 1 : Nwindow
     at_norm( 1, :, k )   = t_vec( : , 1, k )' * Acc( indAT( 1, : ) , : );
     at_norm( 2, :, k )   = t_vec( : , 2, k )' * Acc( indAT( 2, : ) , : );
 
-    v2_vec = normR1D( [1, end] ).^2' .* BasisVal( [ 1; end ], :);
-    continuity = [ v2_vec( 1, : ); at_norm( 1, :, k ); v2_vec( 2, : ); at_norm( 2, :, k )];
+    v2_vec( :, :, k ) = normR1D( [1, end] ).^2' .* BasisVal( [ 1; end ], :);
+    continuity = [ v2_vec( 1, :, k ); at_norm( 1, :, k ); ...
+                   v2_vec( 2, :, k ); at_norm( 2, :, k ) ];
     Aeq( indAEL, indAEC ) = Aeq( indAEL, indAEC ) + continuity.* mask_continuity;
 end
 
@@ -86,6 +88,9 @@ if( Nwindow > 1 )
             repmat([vel_ramp(end), acc_ramp(end,:)], M, Nwindow-2)];
     b  = b .* ramp(:);
 end
+
+% Continuity equations
+continuity = [ v2_vec( 2, : , 1 ); at_norm( 2, :, 1 )];
 
 c_prof_out(mfilename);
 
