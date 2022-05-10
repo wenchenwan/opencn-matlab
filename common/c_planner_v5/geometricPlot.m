@@ -6,7 +6,6 @@ function geometricPlot( ctx )
 N = 20;
 u_vec = linspace(0, 1, N);
 
-figure;
 sizeGcode = ctx.q_gcode.size;
 if sizeGcode
     dataGcode = zeros(ctx.cfg.NumberAxis, sizeGcode *N);
@@ -16,8 +15,8 @@ if sizeGcode
         [r0D, ~, ~, ~] = EvalCurvStruct( ctx, Curve, u_vec );
         dataGcode(:, N*(i-1)+1 : N*(i)) = r0D;
     end
-    plot3(dataGcode(1, :), dataGcode(2, :), dataGcode(3, :));
-    hold on
+    plot5Axis([dataGcode(1, :); dataGcode(2, :); dataGcode(3, :);...
+               dataGcode(4, :); dataGcode(5, :)], 1, 10);
 end
 
 sizeComp = ctx.q_compress.size;
@@ -29,8 +28,8 @@ if sizeComp
         [r0D, ~, ~, ~] = EvalCurvStruct( ctx, Curve, u_vec );
         dataComp(:, N*(i-1)+1 : N*(i)) = r0D;
     end
-    plot3(dataComp(1, :), dataComp(2, :), dataComp(3, :));
-    hold on
+    plot5Axis([dataComp(1, :); dataComp(2, :); dataComp(3, :);...
+               dataComp(4, :); dataComp(5, :)], 1, 10);
 end
 
 sizeSmooth = ctx.q_smooth.size;
@@ -42,8 +41,8 @@ if sizeSmooth
         [r0D, ~, ~, ~] = EvalCurvStruct( ctx, Curve, u_vec );
         dataSmooth(:, N*(i-1)+1 : N*(i)) = r0D;
     end
-    plot3(dataSmooth(1, :), dataSmooth(2, :), dataSmooth(3, :));
-    hold on
+    plot5Axis([dataSmooth(1, :); dataSmooth(2, :); dataSmooth(3, :);...
+               dataSmooth(4, :); dataSmooth(5, :)], 1, 10);
 end
 
 sizeSplit = ctx.q_split.size;
@@ -55,12 +54,8 @@ if sizeSplit
         [r0D, ~, ~, ~] = EvalCurvStruct( ctx, Curve, u_vec );
         dataSplit(:, N*(i-1)+1 : N*(i)) = r0D;
     end
-    plot3(dataSplit(1, :), dataSplit(2, :), dataSplit(3, :));
-    hold on
+    plot5Axis([dataSplit(1, :); dataSplit(2, :); dataSplit(3, :);...
+               dataSplit(4, :); dataSplit(5, :)], 1, 10);
 end
-
-xlabel('x [mm]'); ylabel('y [mm]'); zlabel('z [mm]');
-grid;
-hold off
 
 end

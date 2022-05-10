@@ -7,10 +7,6 @@ clc; clear all; close all;
 % Load default configuration parameters
 cfg = FeedoptDefaultConfig;
 
-% For testing B spline
-cfg.Compressing.Skip = 0;
-cfg.Compressing.ColTolCos = 0.1 * cfg.Compressing.ColTolCos;
-
 % Set the path to the gcode file
 cfg.source = 'ngc_test/test_CreatGcode.ngc';
 
@@ -26,7 +22,7 @@ try
     ctx = FeedoptPlanRun( ctx );                                     
     
     % Plot path before resampling
-    geometricPlot( ctx )
+    geometricPlot( ctx );
 
     % Resampling of the parameter
     fileName = '.tmp.csv' ;

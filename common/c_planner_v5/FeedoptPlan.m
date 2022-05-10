@@ -57,10 +57,12 @@ switch ctx.op
         if ctx.cfg.Compressing.Skip
             ctx = ExpandZeroStructs(ctx);
         else
-            ctx = CompressCurvStructs(ctx);
+            ctx = compressCurvStructs(ctx);
         end
         % For testing
         sizeCompress = ctx.q_compress.size
+        curv = ctx.q_compress.get(1);
+        curv.Info.zspdmode
 %         geometricPlot( ctx )
         ctx.op = Fopt.Smooth;
         if( coder.target( 'MATLAB') ), ctx.q_gcode.delete(); end        
@@ -68,7 +70,7 @@ switch ctx.op
     case Fopt.Smooth
         ctx = SmoothCurvStructs(ctx);
         % For testing
-%         sizeSmooth = ctx.q_smooth.size
+        sizeSmooth = ctx.q_smooth.size
 %         geometricPlot( ctx )
         ctx.op = Fopt.Split;
         if( coder.target( 'MATLAB') ), ctx.q_compress.delete(); end        
