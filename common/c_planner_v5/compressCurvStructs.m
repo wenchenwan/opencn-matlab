@@ -16,14 +16,16 @@ if ctx.q_gcode.isempty()
 end
 
 spline_index = ctx.q_spline.size() + 1;    % New index in q_spline
-Ncrv = ctx.q_gcode.size;                    % Number of curve in g-code queue
-Length_Threshold = ctx.cfg.LThreshold;      % in [mm]
-NAxis = ctx.cfg.NumberAxis;
+Ncrv = ctx.q_gcode.size;                   % Number of curve in g-code queue
+Length_Threshold = ctx.cfg.LThreshold;     % in [mm]
+NAxis = ctx.cfg.NumberAxis;                % Number of axis
+zspdmodevec = [10 10];                     % Vector for the speed mode of the first and the last segment of the spline
 
-CumulatedLength = 0;                        % Accumulator for the length
-spindle_speed = 75000;                      % in [rpm]
+CumulatedLength = 0;                       % Accumulator for the length
+spindle_speed = 75000;                     % in [rpm]
 
 DebugLog(DebugCfg.Validate, 'Compressing...\n');
+
 
 % Satisfy coder
 if coder.target('rtw') || coder.target('mex')
@@ -42,7 +44,7 @@ while k <= Ncrv
     if k > 1      % Check colinearity with previous segment
         prevCurv = ctx.q_gcode.get(k-1);
         Collinear = curvCollinear(ctx, prevCurv, Curv, ...
-                                  ctx.cfg.Compressing.ColTolCos);
+                                  ctx.cfg.Compressing.ColTolCosLee);
     end
     
     % A new spline is created if one of the following conditions is met :
@@ -56,19 +58,18 @@ while k <= Ncrv
        ( ~Collinear && (k ~= 1) )                                   % Not collinear and not 1rst segment
 
         % In this case add the last segment
-        if ( Curv.Info.zspdmode == ZSpdMode.NZ ) || ...             % Zero stop
-           ( (k==Ncrv) && (CumulatedLength ~= 0) ) && ...           % Last segment and on-going compression
-           ( CumulatedLength ~= 0 )
+        if ( ( Curv.Info.zspdmode == ZSpdMode.NZ ) || ...           % Zero stop OR Last segment
+           ( k==Ncrv ) ) && ( CumulatedLength ~= 0 )                % AND on-going compression
             P1 = EvalCurvStruct(ctx, Curv, 1);
             pvec = [pvec P1];
-            zspdmodevec = [zspdmodevec Curv.Info.zspdmode];
+            zspdmodevec(end) =  Curv.Info.zspdmode;
             spindle_speed = min(spindle_speed, Curv.Info.SpindleSpeed);
         end
 
         % If the cumulated length is zero, no compressing is on-going.
         % The segment is treated individually 
         if CumulatedLength == 0
-                ctx.q_compress.push(Curv);
+            ctx.q_compress.push(Curv);
 
         % If there was an on-going compression
         else           
@@ -122,13 +123,13 @@ while k <= Ncrv
             P0 = EvalCurvStruct(ctx, Curv, 0);
             pvec = P0;
             spindle_speed = Curv.Info.SpindleSpeed;
-            zspdmodevec = Curv.Info.zspdmode;
+            zspdmodevec(1) = Curv.Info.zspdmode;
         end
 
         CumulatedLength = CumulatedLength + LengthCurv(ctx, Curv, 0, 1);
         P1 = EvalCurvStruct(ctx, Curv, 1);
         pvec = [pvec P1];
-        zspdmodevec = [zspdmodevec Curv.Info.zspdmode];
+        zspdmodevec(end) = Curv.Info.zspdmode;
         spindle_speed = min(spindle_speed, Curv.Info.SpindleSpeed);
     end
     k = k + 1;

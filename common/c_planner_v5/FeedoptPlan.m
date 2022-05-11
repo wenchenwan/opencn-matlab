@@ -59,27 +59,46 @@ switch ctx.op
         else
             ctx = compressCurvStructs(ctx);
         end
+
         % For testing
         sizeCompress = ctx.q_compress.size
-        curv = ctx.q_compress.get(1);
-        curv.Info.zspdmode
 %         geometricPlot( ctx )
+
         ctx.op = Fopt.Smooth;
         if( coder.target( 'MATLAB') ), ctx.q_gcode.delete(); end        
     
     case Fopt.Smooth
-        ctx = SmoothCurvStructs(ctx);
+        ctx = smoothCurvStructs(ctx);
+
         % For testing
         sizeSmooth = ctx.q_smooth.size
 %         geometricPlot( ctx )
+         % Check of the zspdmode
+        zspmodevec = zeros(1, sizeSmooth);
+        for i = 1:sizeSmooth
+            Curv = ctx.q_smooth.get(i);      % Get Curv in the queue
+            Curv.Info.zspdmode
+            zspmodevec(i) = Curv.Info.zspdmode;
+        end
+
         ctx.op = Fopt.Split;
         if( coder.target( 'MATLAB') ), ctx.q_compress.delete(); end        
             
     case Fopt.Split
         ctx = SplitCurvStructs(ctx);
+
         % For testing
-%         sizeSplit = ctx.q_split.size
+        sizeSplit = ctx.q_split.size
         ctx.op = Fopt.Finished; % SAUTE L'OPTIMISATION
+
+        % Check of the zspdmode
+        zspmodevec = zeros(1, sizeSplit);
+        for i = 1:sizeSplit
+            Curv = ctx.q_split.get(i);      % Get Curv in the queue
+            Curv.Info.zspdmode
+            zspmodevec(i) = Curv.Info.zspdmode;
+        end
+
         if( coder.target( 'MATLAB') ), ctx.q_smooth.delete(); end        
     
         DebugLog(DebugCfg.Validate, 'Feedrate Planning...\n');

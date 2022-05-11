@@ -15,7 +15,7 @@ function [CurvStruct1_C, CurvStruct_T, CurvStruct2_C, status]  = ...
 coder.inline("never");
 
 CutOff              = ctx.cfg.CutOff;                   % Length removed
-ColTolCos           = ctx.cfg.ColTolCos;                % Tol for colinear
+ColTolCos           = ctx.cfg.ColTolCosSmooth;          % Tol for colinear
 
 % If the 1st or the 2nd Curve lenth is shorter than 3*CutOff,
 % we will recalculate Cutoff. This new value will be smaller than before.
@@ -32,7 +32,8 @@ if IsEnabledDebugLog(DebugCfg.Global)
     PrintCurvStruct(ctx, CurvStruct2);
 end
 
-CurvStruct_T = CurvStruct1; %default value
+CurvStruct_T = CurvStruct1; % default value
+CurvStruct_T.Info.zspdmode = ZSpdMode.NN; % only value possible for a transition
 
 [r0D0_1, r0D1_1] = EvalCurvStruct(ctx, CurvStruct1, 0); % Curv1 @0
 [r0D0_2, r0D1_2] = EvalCurvStruct(ctx, CurvStruct1, 1); % Curv1 @1
@@ -150,6 +151,7 @@ if ret==1
     % transition CurvStruct calculation
     CurvStruct_T = constrTransP5Struct(CurvStruct1.Info, CurvStruct1.R0,...
                                        CurvStruct1.R1, p5);
+    CurvStruct_T.Info.zspdmode = ZSpdMode.NN; % only value possible for a transition
     status = TransitionResult.Ok;
     
 elseif ret==2
@@ -192,6 +194,7 @@ elseif ret==6
     % Now we ignore and construct the transition curve anyway
     CurvStruct_T = constrTransP5Struct(CurvStruct1.Info, CurvStruct1.R0,...
                                        CurvStruct1.R1, p5);
+    CurvStruct_T.Info.zspdmode = ZSpdMode.NN; % only value possible for a transition
     status = TransitionResult.Ok;
               
     DebugLog(DebugCfg.Warning, '========== CalcTransition ==========\n');
