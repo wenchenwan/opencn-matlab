@@ -90,7 +90,11 @@ if( Nwindow > 1 )
 end
 
 % Continuity equations
-continuity = [ v2_vec( 2, : , 1 ); at_norm( 2, :, 1 )];
+continuity = [ v2_vec( 2, : , 1 ); at_norm( 2, :, 1 ) ];
+
+% A = [ A ; Aeq( end, : ) ];
+% b = [ b ; beq( end ) ];
+% Aeq( end, : ) = 0; beq( end-1 : end ) = 0;
 
 c_prof_out(mfilename);
 

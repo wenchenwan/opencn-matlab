@@ -2,7 +2,7 @@ clc; clear;
 
 R   = sym('R', [6, 1], 'real');
 Rp  = sym('Rp', [6, 1], 'real');
-Rpp = sym('RpP', [6, 1], 'real');
+Rpp = sym('Rpp', [6, 1], 'real');
 P   = sym('P', [3, 4], 'real');
 % P = [mx, tx,  px,  d1;
 %      my, ty, p_y,  d2;

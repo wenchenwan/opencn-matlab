@@ -7,10 +7,6 @@ clc; clear all; close all;
 % Load default configuration parameters
 cfg = FeedoptDefaultConfig;
 
-% For testing B spline
-cfg.Compressing.Skip = 0;
-cfg.Compressing.ColTolCos = 0.1 * cfg.Compressing.ColTolCos;
-
 % Set the path to the gcode file
 cfg.source = 'ngc_test/unit/012_spline.ngc';
 
@@ -25,9 +21,6 @@ try
     % Run the geometrics operations, then solve the LP problem
     ctx = FeedoptPlanRun( ctx );                                     
     
-    % Plot path before resampling
-    geometricPlot( ctx )
-
     % Resampling of the parameter
     fileName = '.tmp.csv' ;
     resample2file( ctx, fileName ); ctx.q_opt.delete();
@@ -37,7 +30,7 @@ try
     delete( fileName );
 
     % Transforms structure into vector for analysis
-    [res_struct, indFeed, indAcc, indJerk] = get_res_struct( res );
+    [res_struct, indFeed, indAcc, indJerk] = get_res_struct( res, ctx.cfg.indTot );
 
     % Analyse time optimality and constraints satisfaction
     analyse_optimality( res, indFeed, indAcc, indJerk, ctx.cfg.dt );
@@ -119,11 +112,12 @@ disp("Optimality jerk : "           + sum( t_opt_res(:, 3) ) / ...
     res(end, 1) * 100 + "[%]" );
 end
 
-function [res_struct, indFeed, indAcc, indJerk] = get_res_struct( res )
+function [res_struct, indFeed, indAcc, indJerk] = get_res_struct( res, indTot )
+ind     = 1 : numel( indTot );
 indFeed = 3;
-indR    = 5  + [ 1 : 3 ];
-indAcc  = 8  + [ 1 : 3 ];
-indJerk = 11 + [ 1 : 3 ];
+indR    = 5  + ind;
+indAcc  = indR( end )    + ind;
+indJerk = indAcc( end )  + ind;
 
 res_struct.tvec       = res( :, 1 );
 res_struct.uvec       = res( :, 2 );
@@ -196,8 +190,8 @@ if( PLOT_DIFF )
         computeNumericalDerivation( res_struct.pvec, ctx.cfg.dt );
 
     v_diff = vecnorm( v_diff )';
-    a_diff = a_diff ./ ctx.cfg.amax';
-    j_diff = j_diff ./ ctx.cfg.jmax';
+    a_diff = a_diff ./ ctx.cfg.amax( ctx.cfg.indTot )';
+    j_diff = j_diff ./ ctx.cfg.jmax( ctx.cfg.indTot )';
     %     fOpt_vec.uvec = fOpt_vec.tvec;
 end
 

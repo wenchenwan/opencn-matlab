@@ -65,6 +65,7 @@ else
             'OptimalityTolerance', 1e-6, ...
             'ConstraintTolerance', 1e-6, ...
             'Display', 'none');
+%         [C, ~, exitflag] = linprog(f, A, b, Aeq, beq, [], [], options);
                     [C, ~, exitflag] = linprog(f, A, b, Aeq, beq, zeros(numel(f),1), [], options);
         success = exitflag == 1;
         status = exitflag;

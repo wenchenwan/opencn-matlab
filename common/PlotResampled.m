@@ -60,7 +60,7 @@ for k = 1:N
         jvec(ktick, :) = Jerk;
         fvec(ktick, :) = Curv.FeedRate*60;
         cfvec(ktick, :) = Curv.MaxConstantFeedRate*60;
-        gvec(ktick, :) = Curv.gcode_source_line;
+        gvec(ktick, :) = Curv.Info.gcode_source_line;
         ktick = ktick + 1;
         tstart = tic;
         state = ResampleNoCtx(state, ctx.Bl, ctx.q_opt.get(k));
@@ -241,5 +241,5 @@ txt = {['X: ',num2str(pos(1))],...
        sprintf('Jerk: %3.0f%%', max(abs(data.jvec(I)))*100),...
        sprintf('F%d', int32(data.fvec(I))),...
        sprintf('L = %5.3f', LengthCurv(ctx, Curve, 0, 1)),...
-       sprintf('GCode line: %d', Curve.gcode_source_line)};
+       sprintf('GCode line: %d', Curve.Info.gcode_source_line)};
 end
