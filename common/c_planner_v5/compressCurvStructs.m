@@ -1,4 +1,4 @@
-function ctx = compressCurvStructs(ctx)
+function ctx = compressCurvStructs(ctx) %#codegen
 % CompressCurvStructs : 
 % - Is feeded by the queue : q_gcode
 % - Check if a compression is possible based on the individual curves 
@@ -18,7 +18,7 @@ end
 spline_index = ctx.q_spline.size() + 1;    % New index in q_spline
 Ncrv = ctx.q_gcode.size;                   % Number of curve in g-code queue
 Length_Threshold = ctx.cfg.LThreshold;     % in [mm]
-NAxis = ctx.cfg.NumberAxis;                % Number of axis
+NAxis = 6;                                 % Number of axis
 zspdmodevec = [10 10];                     % Vector for the speed mode of the first and the last segment of the spline
 
 CumulatedLength = 0;                       % Accumulator for the length
@@ -26,14 +26,14 @@ spindle_speed = 75000;                     % in [rpm]
 
 DebugLog(DebugCfg.Validate, 'Compressing...\n');
 
-
 % Satisfy coder
 if coder.target('rtw') || coder.target('mex')
     pvec = zeros(NAxis, 0);
-    coder.varsize('pvec', [NAxis, Inf], [1, 1]);
+    coder.varsize('pvec', [6, Inf], [0, 1]);
     CurvStruct1 = ctx.q_gcode.get(1);
 end
 
+SplineCurve = constrCurvStructType;
 k = 1; % index for the Gcode queue
 
 while k <= Ncrv
@@ -60,8 +60,7 @@ while k <= Ncrv
         % In this case add the last segment
         if ( ( Curv.Info.zspdmode == ZSpdMode.NZ ) || ...           % Zero stop OR Last segment
            ( k==Ncrv ) ) && ( CumulatedLength ~= 0 )                % AND on-going compression
-            P1 = EvalCurvStruct(ctx, Curv, 1);
-            pvec = [pvec P1];
+            pvec = [pvec Curv.R1];
             zspdmodevec(end) =  Curv.Info.zspdmode;
             spindle_speed = min(spindle_speed, Curv.Info.SpindleSpeed);
         end
@@ -77,8 +76,8 @@ while k <= Ncrv
             % is warranted     
             if size(pvec, 2) > 2
                 SplineCurve          = constrCurvStructType;
-                SplineCurve.sp_index = spline_index;
-                SplineCurve.sp       = CalcBspline_Lee(ctx.cfg, pvec);
+                SplineCurve.sp_index = int32(spline_index);
+                SplineCurve.sp       = CalcBspline_Lee(ctx.cfg, pvec(ctx.cfg.indTot, :));
                 [Ltot, Lk]           = SplineLengthApproxGL_tot(ctx, SplineCurve);
                 SplineCurve.sp.Ltot  = Ltot;
                 SplineCurve.sp.Lk    = Lk;
@@ -110,6 +109,7 @@ while k <= Ncrv
 
             % With only two points, construct a line
             else
+                prevCurv = ctx.q_gcode.get(k-1);
                 prevCurv.Info.gcode_source_line = Curv.Info.gcode_source_line;
                 ctx.q_compress.push(prevCurv); % push segment to q_compress
                 ctx.q_compress.push(Curv);     % push segment to q_compress
@@ -120,15 +120,13 @@ while k <= Ncrv
     % compression list
     else
         if CumulatedLength == 0
-            P0 = EvalCurvStruct(ctx, Curv, 0);
-            pvec = P0;
+            pvec = Curv.R0;
             spindle_speed = Curv.Info.SpindleSpeed;
             zspdmodevec(1) = Curv.Info.zspdmode;
         end
 
         CumulatedLength = CumulatedLength + LengthCurv(ctx, Curv, 0, 1);
-        P1 = EvalCurvStruct(ctx, Curv, 1);
-        pvec = [pvec P1];
+        pvec = [pvec Curv.R1];
         zspdmodevec(end) = Curv.Info.zspdmode;
         spindle_speed = min(spindle_speed, Curv.Info.SpindleSpeed);
     end

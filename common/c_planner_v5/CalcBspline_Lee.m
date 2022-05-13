@@ -41,7 +41,9 @@ b = [zeros(1, nAxis);
 %
 c = A \ b;
 %
-spnD.coeff = c.';
 spnD.Bl = Bl;
+spnD.coeff = c.';
 spnD.knots = knots;
+spnD.Ltot = 0;
+spnD.Lk = 0;
 end

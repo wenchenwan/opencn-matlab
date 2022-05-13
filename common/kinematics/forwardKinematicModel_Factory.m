@@ -7,7 +7,7 @@ function [r_r] = forwardKinematicModel_Factory( R, P )
 % r_r      : [mm and rad] :  1x5 : 
 
 T = [1, 0, 0,         R(1);
-     0, 1, 0,        -R(1);
+     0, 1, 0,        -R(2);
      0, 0, 1, R(3)-P(3, 4);
      0, 0, 0,            1];
 

@@ -3,7 +3,7 @@ clear; clc;
 
 % We need first to choose what we whant to MEX.
 % Several options are possible.
-GenerateAll = true;
+GenerateAll = false;
 
 if( ~GenerateAll )
     GenerateDebug               = false;
@@ -14,6 +14,7 @@ if( ~GenerateAll )
     GenerateSimplex             = false;
     GenerateSpline              = false;
     GenerateKinematic           = false;
+    GenerateFeedoptPlan         = true;
 %     GenerateFeedoptPlanRun      = false; % Does not work now
 end
 cfg = generate_mex_config();
@@ -311,6 +312,29 @@ if( GenerateAll || GenerateKinematic )
         delete('J_arPP_mex.mexa64');
     catch
         disp(name + "failed" );
+    end
+end
+
+if( GenerateAll || GenerateFeedoptPlan )
+    name = "FeedOptPlan functions : ";
+    disp(name + "start" );
+    try
+        FeedOptPlanRep = 'gen_mex/FeedOptPlan';
+        path_mex = genpath( FeedOptPlanRep );
+
+%         curve = coder.OutputType('constrCurvStructType');
+
+        codegen('-config', cfg,'-d', FeedOptPlanRep, ...
+            'FeedoptDefaultConfig', ...
+            'initFeedoptPlan', '-args', fcfg,...
+            'compressCurvStructs', '-args', fctx, ...
+            '-o', 'FeedOptPlan_mex' );
+
+        disp(name + "success" );
+        delete( 'FeedOptPlan_mex.mexa64' );
+        addpath( path_mex );
+    catch ME
+        fprintf( ERROR_COLOR, name + "failed : " + ME.message + "\n" );
     end
 end
 
