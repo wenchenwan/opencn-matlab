@@ -10,9 +10,10 @@ ctx.op      = Fopt.Opt;                % Current state of the FSM
 % Check if empty queue after splitting. If yes, stop optimization
 if ctx.q_split.isempty, [ ctx.op, quit ] = empty_queue_split(); return; end
 
-
-if IsEnabledDebugLog( DebugCfg.OptimProgress )
-    fprintf( '%4d/%u\n', ctx.k0, ctx.q_split.size );
+if coder.target( 'MATLAB' )
+    if IsEnabledDebugLog( DebugCfg.OptimProgress )
+        fprintf( '%4d/%u\n', ctx.k0, ctx.q_split.size );
+    end
 end
 
 % Increment index on q_split
@@ -72,13 +73,14 @@ if ( ctx.n_optimized < ctx.q_split.size )
             elseif ( NextCurv.Info.zspdmode == ZSpdMode.NN )
                 nopt                = nopt + 1;
                 OptSegment( nopt )  = NextCurv;
-
-                if IsEnabledDebugLog( DebugCfg.Global )
-                    PrintCurvStruct( ctx, OptSegment( k-ctx.k0+1 ) )
-                end
-                if ( k < k1 )
-                    DebugLog(DebugCfg.Global, ...
-                        '-----------------------------------\n')
+                if coder.target( 'MATLAB' )
+                    if IsEnabledDebugLog( DebugCfg.Global )
+                        PrintCurvStruct( ctx, OptSegment( k-ctx.k0+1 ) )
+                    end
+                    if ( k < k1 )
+                        DebugLog(DebugCfg.Global, ...
+                            '-----------------------------------\n')
+                    end
                 end
             else
                 error('Wrong ZspdMode');
@@ -144,12 +146,12 @@ if ( ctx.n_optimized < ctx.q_split.size )
 
         ctx.Coeff = Coeff;
         if success == 0
-            for nprint = 1:ctx.cfg.NHorz
-                if IsEnabledDebugLog(DebugCfg.Global)
-                    PrintCurvStruct(ctx, OptSegment(1));
-                end
-            end
             if coder.target('MATLAB')
+                for nprint = 1:ctx.cfg.NHorz
+                    if IsEnabledDebugLog(DebugCfg.Global)
+                        PrintCurvStruct(ctx, OptSegment(1));
+                    end
+                end
                 c_assert( 'OPTIMIZATION FAILED' );
             else
                 DebugLog( DebugCfg.Global, 'OPTIMIZATION FAILED!\n' );

@@ -16,14 +16,17 @@ if sizeGcode
         [r0D, ~, ~, ~] = EvalCurvStruct( ctx, Curve, u_vec );
         dataGcode(:, N*(i-1)+1 : N*(i)) = r0D;
     end
+    
+    figure;
+    plot3(dataGcode(1, :), dataGcode(2, :), dataGcode(3, :), 'k');
+    legend('parcours', 'Location', 'northeast');
+    xlabel('X [mm]'); ylabel('Y [mm]'); zlabel('Z [mm]');
+    grid;
     if Naxis == 5
-        plot5Axis([dataGcode(1, :); dataGcode(2, :); dataGcode(3, :);...
-                   dataGcode(4, :); dataGcode(5, :)], 1, 10);
-    else
         figure;
-        plot3(dataGcode(1, :), dataGcode(2, :), dataGcode(3, :), 'k');
+        plot(dataGcode(4, :), dataGcode(5, :));
         legend('parcours', 'Location', 'northeast');
-        xlabel('X [mm]'); ylabel('Y [mm]'); zlabel('Z [mm]');
+        xlabel('B [rad]'); ylabel('C [rad]');
         grid;
     end
 end
@@ -37,14 +40,17 @@ if sizeComp
         [r0D, ~, ~, ~] = EvalCurvStruct( ctx, Curve, u_vec );
         dataComp(:, N*(i-1)+1 : N*(i)) = r0D;
     end
+
+    figure;
+    plot3(dataComp(1, :), dataComp(2, :), dataComp(3, :), 'k');
+    legend('parcours', 'Location', 'northeast');
+    xlabel('X [mm]'); ylabel('Y [mm]'); zlabel('Z [mm]');
+    grid;
     if Naxis == 5
-        plot5Axis([dataComp(1, :); dataComp(2, :); dataComp(3, :);...
-                   dataComp(4, :); dataComp(5, :)], 1, 10);
-    else
         figure;
-        plot3(dataComp(1, :), dataComp(2, :), dataComp(3, :), 'k');
+        plot(dataComp(4, :), dataComp(5, :));
         legend('parcours', 'Location', 'northeast');
-        xlabel('X [mm]'); ylabel('Y [mm]'); zlabel('Z [mm]');
+        xlabel('B [rad]'); ylabel('C [rad]');
         grid;
     end
 end
@@ -58,14 +64,17 @@ if sizeSmooth
         [r0D, ~, ~, ~] = EvalCurvStruct( ctx, Curve, u_vec );
         dataSmooth(:, N*(i-1)+1 : N*(i)) = r0D;
     end
+
+    figure;
+    plot3(dataSmooth(1, :), dataSmooth(2, :), dataSmooth(3, :), 'k');
+    legend('parcours', 'Location', 'northeast');
+    xlabel('X [mm]'); ylabel('Y [mm]'); zlabel('Z [mm]');
+    grid;
     if Naxis == 5
-        plot5Axis([dataSmooth(1, :); dataSmooth(2, :); dataSmooth(3, :);...
-                   dataSmooth(4, :); dataSmooth(5, :)], 1, 10);
-    else
         figure;
-        plot3(dataSmooth(1, :), dataSmooth(2, :), dataSmooth(3, :), 'k');
+        plot(dataSmooth(4, :), dataSmooth(5, :));
         legend('parcours', 'Location', 'northeast');
-        xlabel('X [mm]'); ylabel('Y [mm]'); zlabel('Z [mm]');
+        xlabel('B [rad]'); ylabel('C [rad]');
         grid;
     end
 end
@@ -79,14 +88,17 @@ if sizeSplit
         [r0D, ~, ~, ~] = EvalCurvStruct( ctx, Curve, u_vec );
         dataSplit(:, N*(i-1)+1 : N*(i)) = r0D;
     end
+
+    figure;
+    plot3(dataSplit(1, :), dataSplit(2, :), dataSplit(3, :), 'k');
+    legend('parcours', 'Location', 'northeast');
+    xlabel('X [mm]'); ylabel('Y [mm]'); zlabel('Z [mm]');
+    grid;
     if Naxis == 5
-        plot5Axis([dataSplit(1, :); dataSplit(2, :); dataSplit(3, :);...
-                   dataSplit(4, :); dataSplit(5, :)], 1, 10);
-    else
         figure;
-        plot3(dataSplit(1, :), dataSplit(2, :), dataSplit(3, :), 'k');
+        plot(dataSplit(4, :), dataSplit(5, :));
         legend('parcours', 'Location', 'northeast');
-        xlabel('X [mm]'); ylabel('Y [mm]'); zlabel('Z [mm]');
+        xlabel('B [rad]'); ylabel('C [rad]');
         grid;
     end
 end

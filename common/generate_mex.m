@@ -3,7 +3,7 @@ clear; clc;
 
 % We need first to choose what we whant to MEX.
 % Several options are possible.
-GenerateAll = false;
+GenerateAll = true;
 
 if( ~GenerateAll )
     GenerateDebug               = false;
@@ -14,7 +14,7 @@ if( ~GenerateAll )
     GenerateSimplex             = false;
     GenerateSpline              = false;
     GenerateKinematic           = false;
-    GenerateFeedoptPlan         = true;
+    GenerateFeedoptPlan         = false;
 %     GenerateFeedoptPlanRun      = false; % Does not work now
 end
 cfg = generate_mex_config();
@@ -315,19 +315,20 @@ if( GenerateAll || GenerateKinematic )
     end
 end
 
-if( GenerateAll || GenerateFeedoptPlan )
+if( ~GenerateAll && GenerateFeedoptPlan ) % NOT WORKING
     name = "FeedOptPlan functions : ";
     disp(name + "start" );
     try
         FeedOptPlanRep = 'gen_mex/FeedOptPlan';
         path_mex = genpath( FeedOptPlanRep );
 
-%         curve = coder.OutputType('constrCurvStructType');
+        coder.extrinsic( 'queue', 'queue_coder', 'queue_new', 'queue_push',...
+                         'queue_get', 'queue_set', 'queue_size',...
+                         'queue_get_all', 'queue_delete' );
 
         codegen('-config', cfg,'-d', FeedOptPlanRep, ...
             'FeedoptDefaultConfig', ...
-            'initFeedoptPlan', '-args', fcfg,...
-            'compressCurvStructs', '-args', fctx, ...
+            'initFeedoptPlan', '-args', fcfg,...%'FeedoptPlanRun', '-args', fctx, ...
             '-o', 'FeedOptPlan_mex' );
 
         disp(name + "success" );

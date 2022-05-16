@@ -58,7 +58,7 @@ uk_old = 2;
 while abs(uk - uk_old) > DEFAULT_TOL_NR 
     % Evaluation of function which should become zero
     fk = SplineLengthApprox_Interval1(ctx, Curv, uk, u1) - Lremain; 
-    [~, r1D]  = EvalBSplineNoCtx(Spline, uk);
+    [~, r1D]  = EvalBSpline(Spline, uk);
     % Evaluation of the derivative of the function which should become zero
     Dfk       = -MyNorm(r1D);   
     %

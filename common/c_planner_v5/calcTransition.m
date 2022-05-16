@@ -27,9 +27,11 @@ Length_Threshold    = 3*CutOff;                         %
 line1 = CurvStruct1.Info.gcode_source_line;
 line2 = CurvStruct2.Info.gcode_source_line;
 
-if IsEnabledDebugLog(DebugCfg.Global)
-    PrintCurvStruct(ctx, CurvStruct1);
-    PrintCurvStruct(ctx, CurvStruct2);
+if coder.target( 'MATLAB' )
+    if IsEnabledDebugLog(DebugCfg.Global)
+        PrintCurvStruct(ctx, CurvStruct1);
+        PrintCurvStruct(ctx, CurvStruct2);
+    end
 end
 
 CurvStruct_T = CurvStruct1; % default value
@@ -134,9 +136,11 @@ status = TransitionResult.Ok;
 CurvStruct1_C = cutCurvStruct( ctx, CurvStruct1, 0, CutOff );
 CurvStruct2_C = cutCurvStruct( ctx, CurvStruct2, CutOff, 0 );
 
-if IsEnabledDebugLog(DebugCfg.Global)
-    PrintCurvStruct(ctx, CurvStruct1_C)
-    PrintCurvStruct(ctx, CurvStruct2_C)
+if coder.target( 'MATLAB' )
+    if IsEnabledDebugLog(DebugCfg.Global)
+        PrintCurvStruct(ctx, CurvStruct1_C)
+        PrintCurvStruct(ctx, CurvStruct2_C)
+    end
 end
 
 [r0D0, r0D1, r0D2] = EvalCurvStruct(ctx, CurvStruct1_C, 1);
@@ -159,9 +163,11 @@ elseif ret==2
     % badly conditioned matrix in G2_Hermite()
     status = TransitionResult.NoSolution;
     
-    DebugLog(DebugCfg.Error, '========== CalcTransition ==========\n');
-    DebugLog(DebugCfg.Error, '=========== Badly Cond. Matrix in G2_Hermite() ==========\n');
-    DebugLog(DebugCfg.Error, 'Lines: %d, %d\n\n', line1, line2);
+    if coder.target( 'MATLAB' )
+        DebugLog(DebugCfg.Error, '========== CalcTransition ==========\n');
+        DebugLog(DebugCfg.Error, '=========== Badly Cond. Matrix in G2_Hermite() ==========\n');
+        DebugLog(DebugCfg.Error, 'Lines: %d, %d\n\n', line1, line2);
+    end
     
     if coder.target('matlab')
     if IsEnabledDebugLog(DebugCfg.Plots)
@@ -196,10 +202,12 @@ elseif ret==6
                                        CurvStruct1.R1, p5);
     CurvStruct_T.Info.zspdmode = ZSpdMode.NN; % only value possible for a transition
     status = TransitionResult.Ok;
-              
-    DebugLog(DebugCfg.Warning, '========== CalcTransition ==========\n');
-    DebugLog(DebugCfg.Warning, '=========== status = 6 ==========\n');
-    DebugLog(DebugCfg.Warning, 'Lines: %d, %d\n\n', line1, line2);
+    
+    if coder.target( 'MATLAB' )
+        DebugLog(DebugCfg.Warning, '========== CalcTransition ==========\n');
+        DebugLog(DebugCfg.Warning, '=========== status = 6 ==========\n');
+        DebugLog(DebugCfg.Warning, 'Lines: %d, %d\n\n', line1, line2);
+    end
     
     if coder.target('matlab')
     if  IsEnabledDebugLog(DebugCfg.Plots)
@@ -221,10 +229,11 @@ elseif ret==6
 else
     
     status = TransitionResult.NoSolution;
-
-    DebugLog(DebugCfg.Error, '========== CalcTransition ==========\n');
-    DebugLog(DebugCfg.Error, '=========== No Solution ==========\n');
-    DebugLog(DebugCfg.Error, 'Lines: %d, %d\n\n', line1, line2);
+    if coder.target( 'MATLAB' )
+        DebugLog(DebugCfg.Error, '========== CalcTransition ==========\n');
+        DebugLog(DebugCfg.Error, '=========== No Solution ==========\n');
+        DebugLog(DebugCfg.Error, 'Lines: %d, %d\n\n', line1, line2);
+    end
     
     if coder.target('matlab')
     if IsEnabledDebugLog(DebugCfg.Plots)

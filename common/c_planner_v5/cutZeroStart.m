@@ -8,7 +8,8 @@ function [ CurvStruct1, CurvStruct2 ] = cutZeroStart( ctx, CurvStruct )
     CurvStruct1.UseConstJerk = true;
     CurvStruct1.ConstJerk = jps;
     CurvStruct1.Info.zspdmode = ZSpdMode.ZN;
-    CurvStruct1.ConstJerkMaxIterations = int32(0);
+%     CurvStruct1.ConstJerkMaxIterations = int32(0);
+    CurvStruct1.ConstJerk = double(0);
     CurvStruct1.Info.gcode_source_line = CurvStruct.Info.gcode_source_line;
     
     CurvStruct2 = CurvStruct1;

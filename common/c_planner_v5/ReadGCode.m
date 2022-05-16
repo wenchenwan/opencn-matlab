@@ -95,6 +95,10 @@ elseif coder.target('rtw')
         CurvStruct = constrCurvStructType;
         status = int32( 0 );
         status = coder.ceval( 'c_read_and_exec_gcode', '', coder.ref( CurvStruct ) );
+
+        CurvStruct.R0( 4 : end ) = rad2deg( CurvStruct.R0( 4 : end ) );
+        CurvStruct.R1( 4 : end ) = rad2deg( CurvStruct.R1( 4 : end ) );
+
     end
 else
     error('Unknown target');

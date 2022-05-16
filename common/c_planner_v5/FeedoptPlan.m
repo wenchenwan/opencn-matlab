@@ -46,7 +46,7 @@ switch ctx.op
         ctx.q_gcode.set( ctx.q_gcode.size, last );
         % For testing
         sizeGcode = ctx.q_gcode.size
-%         geometricPlot( ctx )
+        geometricPlot( ctx )
         ctx.op = Fopt.Check;
     
     case Fopt.Check
@@ -107,14 +107,14 @@ switch ctx.op
         end
     
     case Fopt.Opt
-        [ ctx, optimized, opt_curv, quit ] = feedratePlanning( ctx );
-        
-        if optimized
-            ctx.go_next = true;
-            ctx.q_opt.push( opt_curv );
-        end
-
-        if( quit ), return; end
+%         [ ctx, optimized, opt_curv, quit ] = feedratePlanning( ctx );
+%         
+%         if optimized
+%             ctx.go_next = true;
+%             ctx.q_opt.push( opt_curv );
+%         end
+% 
+%         if( quit ), return; end
 
     case Fopt.Finished
         ctx.op = Fopt.Finished;
