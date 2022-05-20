@@ -12,18 +12,20 @@ generate_for_arm_64 = false;
     generate_for_x86_64 );
 
 % please choose the libraries to generate ( All can be generated )
-GenerateAll = true;
+GenerateAll = false;
 
 if( ~GenerateAll )
     GenerateFeedopt    = false;
-    GenerateKinematics = false;
+    GenerateKinematics = true;
 end
 
-DEBUG = true;
+DEBUG = false;
 
 output_root = output_root + "/matlab/generated/";
 
 ERROR_COLOR = 2;
+
+if( ~strcmp( flip( strtok( flip( pwd ) , '/' ) ), 'common') ), error( 'Wrong directory, you should run the script from working driectory' ); end
 
 if( GenerateAll || GenerateFeedopt )
     name = "Feedopt Code generation : ";
