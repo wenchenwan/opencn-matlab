@@ -6,7 +6,7 @@ Type  = CurvStrct.Info.Type;
 if Type~=CurveType.TransP5 && CurvStrct.UseConstJerk == 0
     
     if Type==CurveType.Line || Type==CurveType.Helix
-        ctx = SplitLineHelix(ctx, CurvStrct);
+        ctx = splitLineHelix(ctx, CurvStrct);
     else
         ctx = splitSpline(ctx, CurvStrct);
     end

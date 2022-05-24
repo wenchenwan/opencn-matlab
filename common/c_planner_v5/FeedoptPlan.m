@@ -44,9 +44,7 @@ switch ctx.op
             last.Info.zspdmode = ZSpdMode.ZZ;
         end
         ctx.q_gcode.set( ctx.q_gcode.size, last );
-        % For testing
-        sizeGcode = ctx.q_gcode.size
-%         geometricPlot( ctx )
+        
         ctx.op = Fopt.Check;
     
     case Fopt.Check
@@ -59,28 +57,21 @@ switch ctx.op
         else
             ctx = compressCurvStructs(ctx);
         end
-        % For testing
-        sizeCompress = ctx.q_compress.size
-        curv = ctx.q_compress.get(1);
-        curv.Info.zspdmode
-%         geometricPlot( ctx )
+
         ctx.op = Fopt.Smooth;
         if( coder.target( 'MATLAB') ), ctx.q_gcode.delete(); end        
     
     case Fopt.Smooth
-        ctx = SmoothCurvStructs(ctx);
-        % For testing
-        sizeSmooth = ctx.q_smooth.size
-%         geometricPlot( ctx )
+        ctx = smoothCurvStructs(ctx);
         ctx.op = Fopt.Split;
         if( coder.target( 'MATLAB') ), ctx.q_compress.delete(); end        
             
     case Fopt.Split
-        ctx = SplitCurvStructs(ctx);
+        ctx = splitQueue( ctx );
         if( coder.target( 'MATLAB') ), ctx.q_smooth.delete(); end        
         
         ctx.op = Fopt.Opt;
-
+        
         DebugLog(DebugCfg.Validate, 'Feedrate Planning...\n');
         if coder.target('matlab')
             diary off;
