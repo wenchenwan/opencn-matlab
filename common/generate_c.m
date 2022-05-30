@@ -15,11 +15,11 @@ generate_for_arm_64 = false;
 GenerateAll = false;
 
 if( ~GenerateAll )
-    GenerateFeedopt    = false;
-    GenerateKinematics = true;
+    GenerateFeedopt    = true;
+    GenerateKinematics = false;
 end
 
-DEBUG = false;
+DEBUG = true;
 
 output_root = output_root + "/matlab/generated/";
 

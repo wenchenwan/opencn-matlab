@@ -69,6 +69,10 @@ Curv.Info.Type = CurveType.Spline;
 Curv.sp.Bl     = Bl;
 
 if ~coder.target('matlab')
+    coder.varsize( 'ctx.cfg.indCart',   StructTypeName.dimInd{ : } );
+    coder.varsize( 'ctx.cfg.indRot',    StructTypeName.dimInd{ : } );
+    coder.varsize( 'ctx.cfg.indTot',    StructTypeName.dimIndTot{ : } );
+
     coder.varsize('ctx.BasisVal',   StructTypeName.dimBasis{ : } );
     coder.varsize('ctx.BasisValD',  StructTypeName.dimBasis{ : } );
     coder.varsize('ctx.BasisValDD', StructTypeName.dimBasis{ : } );

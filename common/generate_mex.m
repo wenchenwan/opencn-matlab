@@ -3,13 +3,13 @@ clear; clc;
 
 % We need first to choose what we whant to MEX.
 % Several options are possible.
-GenerateAll = true;
+GenerateAll = false;
 
 if( ~GenerateAll )
     GenerateDebug               = false;
     GenerateType                = false;
     GenerateResampling          = false;
-    GenerateGCodeInterpreter    = false;
+    GenerateGCodeInterpreter    = true;
     GenerateQueues              = false;
     GenerateSimplex             = false;
     GenerateSpline              = false;

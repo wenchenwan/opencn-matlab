@@ -19,6 +19,16 @@ switch ctx.op
         %
         while status
             [ status, CurvStruct ] = ReadGCode( ReadGCodeCmd.Read, '' );
+
+            for i = 1:6
+                if isnan(CurvStruct.R0(i))
+                    CurvStruct.R0(i) = 0;
+                end
+                if isnan(CurvStruct.R1(i))
+                    CurvStruct.R1(i) = 0;
+                end
+            end
+
             if( CurvStruct.Info.FeedRate == 0 )
                 CurvStruct.Info.FeedRate = ctx.cfg.vmax; 
             end
@@ -46,7 +56,7 @@ switch ctx.op
         ctx.q_gcode.set( ctx.q_gcode.size, last );
         % For testing
         sizeGcode = ctx.q_gcode.size
-        geometricPlot( ctx )
+%         geometricPlot( ctx )
         ctx.op = Fopt.Check;
     
     case Fopt.Check
