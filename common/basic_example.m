@@ -8,7 +8,7 @@ clc; clear all; close all;
 cfg = FeedoptDefaultConfig;
 
 % Set the path to the gcode file
-cfg.source = 'ngc_test/test_CreatGcode.ngc';
+cfg.source = 'ngc_test/anchor.ngc';
 
 % Logging
 setupLogs( cfg.LogFileName ); diary on;
