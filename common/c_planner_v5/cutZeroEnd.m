@@ -2,9 +2,10 @@ function [ curv1, curv2 ] = cutZeroEnd( ctx, curv )
 % cutZeroEnd : Cut the end of the given to handle the zero speed.
     u  = cutCurvStructU( ctx, curv, 1, ctx.cfg.LSplitZero, true );
     
-    if( u >= 1 )
+    if( u >= curv.b_param + curv.a_param || u <= curv.b_param)
         u = curv.a_param / 2 + curv.b_param;
     end
+
     curv2                   = curv;
     curv2.UseConstJerk      = true;
     curv2.b_param           = u;
