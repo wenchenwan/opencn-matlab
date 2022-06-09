@@ -1,4 +1,4 @@
-function [ u1_tilda ] = cutCurvStruct( ctx, curv, u0, L, isEnd )
+function [ curvC ] = cutCurvStruct( ctx, curv, u0, L, isEnd )
 % cutCurvStruct: Cut a piece of the structure with a size of L
 % starting at point u0
 % Inputs :
@@ -13,23 +13,15 @@ function [ u1_tilda ] = cutCurvStruct( ctx, curv, u0, L, isEnd )
 a = curv.a_param;
 b = curv.b_param;
 
-if ( curv.Info.Type == CurveType.Spline )
-    u1_tilda = splineLengthFindU( ctx, curv, L, a * u0 + b, isEnd );
+u1_tilda = cutCurvStructU( ctx, curv, u0, L, isEnd );
+
+curvC = curv;
+
+if( isEnd )
+    curvC.b_param = u1_tilda;
+    curvC.a_param = a + b - curvC.b_param;
 else
-    
-    % In case of helix and line, ||r'(u)||=const,
-    % for 0 < u < 1
-    if( isEnd )
-        [ ~, r1D1 ] = EvalCurvStruct( ctx, curv, 1 );
-        u1 = u0 - L / MyNorm( r1D1 );
-    else
-        [ ~, r1D0 ] = EvalCurvStruct( ctx, curv, 0 );
-        u1 = u0 + L / MyNorm( r1D0 );
-    end
-    u1_tilda = a * u1 + b;
+    curvC.a_param = u1_tilda - curvC.b_param;
 end
 
-if( u1_tilda >= 1 )
-    u1_tilda = curv.a_param / 2 + curv.b_param;
-end
 end

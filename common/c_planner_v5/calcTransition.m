@@ -131,8 +131,8 @@ end
 status = TransitionResult.Ok;
 
 % Cut the curve structures
-CurvStruct1_C = cutCurvStruct( ctx, CurvStruct1, 0, CutOff );
-CurvStruct2_C = cutCurvStruct( ctx, CurvStruct2, CutOff, 0 );
+CurvStruct1_C = cutCurvStruct( ctx, CurvStruct1, 0, CutOff, false );
+CurvStruct2_C = cutCurvStruct( ctx, CurvStruct2, 1, CutOff, true  );
 
 if IsEnabledDebugLog(DebugCfg.Global)
     PrintCurvStruct(ctx, CurvStruct1_C)

@@ -9,15 +9,14 @@ N = ceil( L / L_split );
 % Length of the sub segments
 L_split = L / N;
 
-l1 =  0;
+u0 = curv.b_param;
 % Loop
 for k = 1 : N
     
-    l0 = l1;
-    l1 = l1 + L_split;
+    curvSplited = cutCurvStruct( ctx, curv, u0, L_split, false );
 
-    curvSplited = cutCurvStruct( ctx, curv, l0, l1 );
-
+    u0 = curvSplited.a_param + curvSplited.b_param; 
+    
     ctx.q_split.push( curvSplited );
     
 end

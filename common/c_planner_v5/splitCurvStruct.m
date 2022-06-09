@@ -27,7 +27,7 @@ L_split = L / N;
 u0 = 0;
 
 for k = 1 : N - 1
-    u1_tilda  = cutCurvStruct( ctx, curv, u0, L_split, false );
+    u1_tilda  = cutCurvStructU( ctx, curv, u0, L_split, false );
     u1 = ( u1_tilda - curv.b_param ) / curv.a_param;
     
     if( u1 < 1 )

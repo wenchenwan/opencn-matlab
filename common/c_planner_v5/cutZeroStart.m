@@ -1,6 +1,10 @@
 function [ curv1, curv2 ] = cutZeroStart( ctx, curv )
 % cutZeroStart : Cut the start of the given to handle the zero speed.
-    u  = cutCurvStruct( ctx, curv, 0, ctx.cfg.LSplitZero, false );
+    u  = cutCurvStructU( ctx, curv, 0, ctx.cfg.LSplitZero, false );
+    
+    if( u >= 1 )
+        u = curv.a_param / 2 + curv.b_param;
+    end
     
     curv1               = curv;
     curv1.a_param       = u -curv1.b_param;

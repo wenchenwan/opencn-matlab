@@ -80,7 +80,7 @@ switch ctx.op
         end
     
     case Fopt.Opt
-        [ ctx, optimized, opt_curv, quit ] = FeedratePlanning( ctx );
+        [ ctx, optimized, opt_curv, quit ] = feedratePlanning( ctx );
         if optimized
             ctx.go_next = true;
             ctx.q_opt.push( opt_curv );
