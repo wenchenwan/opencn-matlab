@@ -3,7 +3,7 @@ function [ctx, optimized, opt_struct] = FeedoptPlan(ctx)
 % See InitFeedoptPlan for information about the context variable ctx
 
 c_assert( ctx.errcode == FeedoptPlanError.Success, ...
-                                'FeedoptPlan: error code was not handled' );
+    'FeedoptPlan: error code was not handled' );
 
 optimized = false;
 
@@ -19,15 +19,25 @@ switch ctx.op
         %
         while status
             [ status, CurvStruct ] = ReadGCode( ReadGCodeCmd.Read, '' );
+
+            for i = 1:6
+                if isnan(CurvStruct.R0(i))
+                    CurvStruct.R0(i) = 0;
+                end
+                if isnan(CurvStruct.R1(i))
+                    CurvStruct.R1(i) = 0;
+                end
+            end
+
             if( CurvStruct.Info.FeedRate == 0 )
-                CurvStruct.Info.FeedRate = ctx.cfg.vmax; 
+                CurvStruct.Info.FeedRate = ctx.cfg.vmax;
             end
             if( status == 1 && CurvStruct.Info.Type ~= 0 )
-                if ( CurvStruct.Info.FeedRate == 0.0 ) 
+                if ( CurvStruct.Info.FeedRate == 0.0 )
                     % check for undefined feedrate
                     CurvStruct.Info.FeedRate = ctx.cfg.vmax;
                 end
-%                 PrintCurvStruct( ctx, CurvStruct );
+                %                 PrintCurvStruct( ctx, CurvStruct );
                 ctx.q_gcode.push( CurvStruct );
             end
         end
@@ -44,9 +54,9 @@ switch ctx.op
             last.Info.zspdmode = ZSpdMode.ZZ;
         end
         ctx.q_gcode.set( ctx.q_gcode.size, last );
-        
+
         ctx.op = Fopt.Check;
-    
+
     case Fopt.Check
         ctx     = CheckCurvStructs( ctx );
         ctx.op  = Fopt.Compress;
@@ -62,23 +72,23 @@ switch ctx.op
 
         ctx.op = Fopt.Smooth;
         if( coder.target( 'MATLAB') ), ctx.q_gcode.delete(); end
-    
+
     case Fopt.Smooth
         ctx = smoothCurvStructs(ctx);
         ctx.op = Fopt.Split;
         if( coder.target( 'MATLAB') ), ctx.q_compress.delete(); end
-            
+
     case Fopt.Split
         ctx = splitQueue( ctx );
-        if( coder.target( 'MATLAB' ) ), ctx.q_smooth.delete(); end        
-        
+        if( coder.target( 'MATLAB' ) ), ctx.q_smooth.delete(); end
+
         ctx.op = Fopt.Opt;
-        
+
         DebugLog(DebugCfg.Validate, 'Feedrate Planning...\n');
         if coder.target('matlab')
             diary off;
         end
-    
+
     case Fopt.Opt
         [ ctx, optimized, opt_curv, quit ] = feedratePlanning( ctx );
         if optimized
@@ -90,11 +100,11 @@ switch ctx.op
 
     case Fopt.Finished
         ctx.op = Fopt.Finished;
-        
+
     otherwise
         DebugLog(DebugCfg.Global, 'FEEDOPT: WRONG STATE\n')
         ctx.op = Fopt.Finished;
-        
+
 end
 
 end

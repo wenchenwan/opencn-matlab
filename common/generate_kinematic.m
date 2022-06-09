@@ -1,4 +1,5 @@
 clc; clear;
+check_wkdir();
 
 R   = sym('R', [6, 1], 'real');
 Rp  = sym('Rp', [6, 1], 'real');

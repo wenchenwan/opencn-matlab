@@ -12,9 +12,10 @@ ctx.op      = Fopt.Opt;                % Current state of the FSM
 % Check if empty queue after splitting. If yes, stop optimization
 if ctx.q_split.isempty, [ ctx.op, quit ] = empty_queue_split(); return; end
 
-
-if IsEnabledDebugLog( DebugCfg.OptimProgress )
-    fprintf( '%4d/%u\n', ctx.k0, ctx.q_split.size );
+if coder.target( 'MATLAB' )
+    if IsEnabledDebugLog( DebugCfg.OptimProgress )
+        fprintf( '%4d/%u\n', ctx.k0, ctx.q_split.size );
+    end
 end
 
 % Increment index on q_split

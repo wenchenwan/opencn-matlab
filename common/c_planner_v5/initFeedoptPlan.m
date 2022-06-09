@@ -9,6 +9,10 @@ function ctx = initFeedoptPlan( cfg )
 % - q_opt:      Queue after optimization
 coder.inline("never");
 
+% if coder.target( 'MEX' )
+%     coder.extrinsic( 'queue' );
+% end
+
 if cfg.UseLinearBreakpoints
     Bl      = bspline_create( cfg.SplineDegree, linspace( 0, 1, ...
                                   cfg.NBreak ) );

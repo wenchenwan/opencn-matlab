@@ -36,7 +36,8 @@ alpha0 = 0;
 alpha1 = 0;
 
 %% compute Frenet frame
-[t0, n0, kappa0] = CalcFrenet(r0D1(1:3), r0D2(1:3));
+[t0, n0, kappa0] = CalcFrenet(r0D1(1:3), r0D2(1:3))
+[t, nk, kappa] = calc_t_nk_kappa(r0D1(1:3), r0D2(1:3))
 [t1, n1, kappa1] = CalcFrenet(r1D1(1:3), r1D2(1:3));
 %% reduce to polynomial system of 2 equations in unknowns alpha0 and alpha1
 % p1   = (a1*alpha1+a0)*alpha0^2 + (b1*alpha1+b0)*alpha0 + 

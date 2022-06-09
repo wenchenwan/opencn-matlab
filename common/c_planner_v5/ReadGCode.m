@@ -68,6 +68,9 @@ elseif coder.target('matlab')
         else
             using_mat = false;
             [status, CurvStruct] = ReadGCode_mex( 'ReadGCode', cmd, filename );
+
+            CurvStruct.R0( 4 : end ) = deg2rad( CurvStruct.R0( 4 : end ) );
+            CurvStruct.R1( 4 : end ) = deg2rad( CurvStruct.R1( 4 : end ) );
         end
     elseif cmd == ReadGCodeCmd.Read
         if using_mat
@@ -95,8 +98,6 @@ elseif coder.target('rtw')
         CurvStruct = constrCurvStructType;
         status = int32( 0 );
         status = coder.ceval( 'c_read_and_exec_gcode', '', coder.ref( CurvStruct ) );
-
-
         CurvStruct.R0( 4 : end ) = deg2rad( CurvStruct.R0( 4 : end ) );
         CurvStruct.R1( 4 : end ) = deg2rad( CurvStruct.R1( 4 : end ) );
 

@@ -5,18 +5,18 @@ check_wkdir();
 
 % please choose the target first ( only 1 target is generated at the time )
 generate_for_arm_32 = false;
-generate_for_x86_64 = false;
-generate_for_arm_64 = true;
+generate_for_x86_64 = true;
+generate_for_arm_64 = false;
 
 [cfg, output_root] = generate_c_config( generate_for_arm_32, ...
     generate_for_arm_64, ...
     generate_for_x86_64 );
 
 % please choose the libraries to generate ( All can be generated )
-GenerateAll = true;
+GenerateAll = false;
 
 if( ~GenerateAll )
-    GenerateFeedopt    = false;
+    GenerateFeedopt    = true;
     GenerateKinematics = false;
 end
 
@@ -25,6 +25,8 @@ DEBUG = true;
 output_root = output_root + "/matlab/generated/";
 
 ERROR_COLOR = 2;
+
+if( ~strcmp( flip( strtok( flip( pwd ) , '/' ) ), 'common') ), error( 'Wrong directory, you should run the script from working driectory' ); end
 
 if( GenerateAll || GenerateFeedopt )
     name    = "Feedopt Code generation : ";
