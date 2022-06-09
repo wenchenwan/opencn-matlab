@@ -8,7 +8,7 @@ G91          = false;
 G91_1        = true;
 FeedRate     = 0.0;
 SpindleSpeed = 0.0;
-gcode_source_line = uint64( 0 );
+gcode_source_line = int32( 0 );
 
 if( coder.target( 'MATLAB' ) )
     params = { Type, zspdmode, TRAFO, HSC, G91, G91_1, FeedRate, ...

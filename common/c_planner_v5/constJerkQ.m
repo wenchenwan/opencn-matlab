@@ -21,7 +21,9 @@ if( coder.target( "MATLAB" ) )
 end
 
 % Compute u and its derivatives based on constant jerk
-[ u, ud, udd, uddd ] = constJerkU( pseudoJerk, [ k_vec, 1 ], isEnd, a, b );
+[ u, ud, udd, uddd ] = constJerkU( pseudoJerk, [ k_vec, 1 ], isEnd );
+
+% [ u, ud, udd, uddd ] = tilda2u( u, ud, udd, uddd, a, b );
 
 indK = 1 : length( k_vec );
 

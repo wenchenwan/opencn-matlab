@@ -1,11 +1,12 @@
 clear; clc;
 
 % the current folder must be 'opencn/agency/usr/matlab/common'
+check_wkdir();
 
 % please choose the target first ( only 1 target is generated at the time )
 generate_for_arm_32 = false;
 generate_for_x86_64 = false;
-generate_for_arm_64 = false;
+generate_for_arm_64 = true;
 
 [cfg, output_root] = generate_c_config( generate_for_arm_32, ...
     generate_for_arm_64, ...
@@ -26,7 +27,7 @@ output_root = output_root + "/matlab/generated/";
 ERROR_COLOR = 2;
 
 if( GenerateAll || GenerateFeedopt )
-    name = "Feedopt Code generation : ";
+    name    = "Feedopt Code generation : ";
     dirName = output_root + "Feedopt/";
     disp(name + "start" );
     try

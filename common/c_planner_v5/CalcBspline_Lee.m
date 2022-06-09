@@ -41,7 +41,7 @@ b = [zeros(1, nAxis);
 %
 c = A \ b;
 %
-spnD.coeff = c.';
-spnD.Bl = Bl;
-spnD.knots = knots;
+
+spnD = constrSpline( c.', knots, Bl );
+
 end

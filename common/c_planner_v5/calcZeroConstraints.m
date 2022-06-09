@@ -1,4 +1,4 @@
-function [ vNorm, atNorm ] = calcZeroConstraints( ctx, Curv, isEnd )
+function [ vNorm, atNorm ] = calcZeroConstraints( ctx, curv, isEnd )
 %#codegen
 % calcZeroConstraints : Compute the velocity and acceleration
 % required for the continuity at zero start.
@@ -9,15 +9,20 @@ function [ vNorm, atNorm ] = calcZeroConstraints( ctx, Curv, isEnd )
 % Outputs :
 % v_0   : Norm of the velocity
 % at_0  : Norm of the tangential acceleration
-jps = Curv.ConstJerk;
+jps = curv.ConstJerk;
 
-[ u, ud, udd, uddd ]   = constJerkU( jps, ctx.cfg.dt, isEnd, ...
-    Curv.a_param, Curv.b_param );
+if( isEnd )
+    k  = 0;
+else
+    k   = ( 6 / jps )^( 1 / 3 );
+end
 
-[ r0D, r1D, r2D, r3D ]  = EvalCurvStruct( ctx, Curv, u );
+[ u, ud, udd, uddd ]    = constJerkU( jps, k, isEnd );
 
-[ ~, V, A, ~ ]          = calcRVAJfromUWithoutCurv( ud, ...
-    udd, uddd, r0D, r1D, r2D, r3D );
+[ r0D, r1D, r2D, r3D ]  = EvalCurvStruct( ctx, curv, u );
 
-[ vNorm, atNorm ]   = calcNormVNormAT( V, A, r1D );
+[ ~, V, A, ~ ]          = calcRVAJfromUWithoutCurv( ud, udd, uddd, r0D, ...
+                          r1D, r2D, r3D );
+
+[ vNorm, atNorm ]       = calcNormVNormAT( V, A, r1D );
 end

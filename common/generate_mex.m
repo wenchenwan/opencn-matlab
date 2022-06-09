@@ -9,11 +9,11 @@ if( ~GenerateAll )
     GenerateDebug               = false;
     GenerateType                = false;
     GenerateResampling          = false;
-    GenerateGCodeInterpreter    = false;
+    GenerateGCodeInterpreter    = true;
     GenerateQueues              = false;
     GenerateSimplex             = false;
     GenerateSpline              = false;
-    GenerateKinematic           = true;
+    GenerateKinematic           = false;
 %     GenerateFeedoptPlanRun      = false; % Does not work now
 end
 cfg = generate_mex_config();

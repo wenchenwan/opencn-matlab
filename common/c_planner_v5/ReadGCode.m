@@ -4,13 +4,14 @@ function [ status, CurvStruct ] = ReadGCode( cmd, filename )
 % Wrapper for pulling the next gcode line from the interpreter
 persistent n data using_mat
 
-if coder.target('mex') 
-    CurvStruct = constrCurvStructType;
+status = int32(0);
+CurvStruct = constrCurvStructType;
 
+if coder.target('mex') 
     coder.updateBuildInfo('addDefines', '_POSIX_C_SOURCE=199309L')
+
     pathRs274Src = '$(START_DIR)/../../rs274ngc/src';
-    % coder.updateBuildInfo('addDefines', 'DEBUG_RS274')
-%     coder.updateBuildInfo('addDefines', '#define MEX_READGCODE')
+%     coder.updateBuildInfo('addDefines', '-DMEX_READGCODE')
     coder.updateBuildInfo('addCompileFlags', '-fdiagnostics-color=always')
     coder.updateBuildInfo('addSourceFiles','cpp_interp.cpp', '$(START_DIR)/../common/src');
     coder.updateBuildInfo('addSourceFiles','directives.cc', pathRs274Src);
@@ -38,7 +39,6 @@ if coder.target('mex')
 %    coder.updateBuildInfo('addIncludePaths', '$(START_DIR)/gen_mex/readgcode');
     coder.cinclude('cpp_interp.hpp');
     
-    status = int32(0);
     switch cmd
         case ReadGCodeCmd.Load
             status = coder.ceval( 'cpp_interp_init', [filename 0] );
@@ -95,6 +95,11 @@ elseif coder.target('rtw')
         CurvStruct = constrCurvStructType;
         status = int32( 0 );
         status = coder.ceval( 'c_read_and_exec_gcode', '', coder.ref( CurvStruct ) );
+
+
+        CurvStruct.R0( 4 : end ) = deg2rad( CurvStruct.R0( 4 : end ) );
+        CurvStruct.R1( 4 : end ) = deg2rad( CurvStruct.R1( 4 : end ) );
+
     end
 else
     error('Unknown target');

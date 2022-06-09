@@ -1,47 +1,50 @@
-function [r0D, r1D, r2D, r3D] = EvalCurvStructNoCtx( cfg, CurvStruct, ...
-                                                        CurvSpline, u_vec )
-if any(u_vec - 1.0 > 10*eps)
-    u_vec(u_vec > 1.0) = 1.0; printMsg("Error : u_vec > 1\n");
+function [r0D, r1D, r2D, r3D] = EvalCurvStructNoCtx( cfg, curv, spline, u_vec )
+% 
+%#codegen
+
+coder.inline("never");
+if any( u_vec - 1.0 > 10 * eps )
+    u_vec( u_vec > 1.0 ) = 1.0; printMsg( "Error : u_vec > 1\n" );
 end
 
-if any(u_vec < 0.0)
-    u_vec(u_vec < 0.0) = 0.0; printMsg("Error : u_vec < 0\n");
+if any( u_vec < 0.0 )
+    u_vec( u_vec < 0.0 ) = 0.0; printMsg( "Error : u_vec < 0\n" );
 end
 
 %
-Type  = CurvStruct.Info.Type;
+Type  = curv.Info.Type;
 %
 N   = numel( u_vec );
 M   = cfg.NumberAxis;
-r0D = zeros(M, N);
-r1D = zeros(M, N);
-r2D = zeros(M, N);
-r3D = zeros(M, N);
+r0D = zeros( M, N );
+r1D = r0D;
+r2D = r0D;
+r3D = r0D;
 
-a = CurvStruct.a_param;
-b = CurvStruct.b_param;
+a = curv.a_param;
+b = curv.b_param;
 
 u_vec_tilda = a * u_vec + b;
 
-indC   = ctx.cfg.indCart;
-indR   = ctx.cfg.indRot;
-indTot = ctx.cfg.indTot;
+indC   = cfg.indCart;
+indR   = cfg.indRot;
+indTot = cfg.indTot;
 
 switch Type
     case CurveType.Line     % Line (G01)
-        [r0D, r1D, r2D, r3D] = EvalLine( CurvStruct, u_vec_tilda, indTot );
+        [r0D, r1D, r2D, r3D] = EvalLine( curv, u_vec_tilda, indTot );
     case CurveType.Helix    % Arc of circle / helix (G02, G03)
         if( cfg.NCart > 0 )         % Only rotation
             [r0D( indC, : ), r1D( indC, : ), r2D( indC, : ), r3D( indC, : )] = ...
-                EvalHelix( CurvStruct, u_vec_tilda );
+                EvalHelix( curv, u_vec_tilda, indC );
         elseif( cfg.NRot > 0 )      % Only cartesian
             [r0D( indR, : ), r1D( indR, : ), r2D( indR, : ), r3D( indR, : )] = ...
-                EvalLine( CurvStruct, u_vec_tilda, indR );
+                EvalLine( curv, u_vec_tilda, indR );
         end
     case CurveType.TransP5  % Polynomial transition
-        [r0D, r1D, r2D, r3D] = EvalTransP5( CurvStruct, u_vec_tilda );
+        [r0D, r1D, r2D, r3D]    = EvalTransP5( curv, u_vec_tilda );
     case CurveType.Spline   % Spline
-        [r0D, r1D, r2D, r3D] = EvalBSpline( CurvSpline.sp, u_vec_tilda );
+        [ r0D, r1D, r2D, r3D ]  = EvalBSpline( spline, u_vec_tilda );
     otherwise
         c_assert( false, 'Unknown Curve Type for Eval.\n' );
 end

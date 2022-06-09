@@ -3,7 +3,7 @@ function [ctx, optimized, opt_struct] = FeedoptPlan(ctx)
 % See InitFeedoptPlan for information about the context variable ctx
 
 c_assert( ctx.errcode == FeedoptPlanError.Success, ...
-                                'FeedoptPlan: error code was not handled');
+                                'FeedoptPlan: error code was not handled' );
 
 optimized = false;
 
@@ -53,22 +53,24 @@ switch ctx.op
 
     case Fopt.Compress
         if ctx.cfg.Compressing.Skip
-            ctx = ExpandZeroStructs(ctx);
+            for j = 1 : ctx.q_gcode.size % Copy queue GCode in queue Compress
+                ctx.q_compress.push( ctx.q_gcode.get( j ) );
+            end
         else
             ctx = compressCurvStructs(ctx);
         end
 
         ctx.op = Fopt.Smooth;
-        if( coder.target( 'MATLAB') ), ctx.q_gcode.delete(); end        
+        if( coder.target( 'MATLAB') ), ctx.q_gcode.delete(); end
     
     case Fopt.Smooth
         ctx = smoothCurvStructs(ctx);
         ctx.op = Fopt.Split;
-        if( coder.target( 'MATLAB') ), ctx.q_compress.delete(); end        
+        if( coder.target( 'MATLAB') ), ctx.q_compress.delete(); end
             
     case Fopt.Split
         ctx = splitQueue( ctx );
-        if( coder.target( 'MATLAB') ), ctx.q_smooth.delete(); end        
+        if( coder.target( 'MATLAB' ) ), ctx.q_smooth.delete(); end        
         
         ctx.op = Fopt.Opt;
         
@@ -78,8 +80,7 @@ switch ctx.op
         end
     
     case Fopt.Opt
-%         [ ctx, optimized, opt_curv, quit ] = feedratePlanning( ctx );
-        [ ctx, optimized, opt_curv, quit ] = feedratePlanning_new( ctx );
+        [ ctx, optimized, opt_curv, quit ] = FeedratePlanning( ctx );
         if optimized
             ctx.go_next = true;
             ctx.q_opt.push( opt_curv );

@@ -33,7 +33,6 @@ for k = 1 : N
                                     Curv.b_param);
         
         if( ~state.isOutsideRange )
-            state.dt = dt;
             t = t + 1;
             ind = ind + 1;
             if( ind > sizeBuffer )
@@ -54,6 +53,7 @@ for k = 1 : N
         end
     end
     state.u = 0;
+    state.ud = 0;
     state.isOutsideRange = false;
     state.go_next = false;
 end

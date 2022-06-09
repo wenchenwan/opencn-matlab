@@ -1,39 +1,67 @@
-function [ CurvStruct1, CurvStruct2 ] = cutZeroStart( ctx, CurvStruct )
+function [ curv1, curv2 ] = cutZeroStart( ctx, curv )
 % cutZeroStart : Cut the start of the given to handle the zero speed.
-    [ u, jps ] = zeroSpeedCurv( ctx, CurvStruct, false );
+    u  = cutCurvStruct( ctx, curv, 0, ctx.cfg.LSplitZero, false );
     
-    CurvStruct1 = CurvStruct;
-    CurvStruct1.a_param = u;
-    CurvStruct1.b_param = 0;
-    CurvStruct1.UseConstJerk = true;
-    CurvStruct1.ConstJerk = jps;
-    CurvStruct1.Info.zspdmode = ZSpdMode.ZN;
-    CurvStruct1.Info.gcode_source_line = CurvStruct.Info.gcode_source_line;
+    curv1               = curv;
+    curv1.a_param       = u -curv1.b_param;
+    curv1.UseConstJerk  = true;
+    [ ~, ~, ~, jps ]    = zeroSpeedCurv( ctx, curv1, false );
+    curv1.ConstJerk     = jps;
+    curv1.Info.zspdmode = ZSpdMode.ZN;
+    curv1.Info.gcode_source_line = curv.Info.gcode_source_line;
     
-    CurvStruct2 = CurvStruct1;
-    CurvStruct2.UseConstJerk = false;
-    CurvStruct2.b_param = CurvStruct1.a_param + CurvStruct1.b_param;
-    CurvStruct2.a_param = 1 - CurvStruct2.b_param;
-    CurvStruct2.Info.zspdmode = ZSpdMode.NN;
+    curv2               = curv;
+    curv2.UseConstJerk  = false;
+    curv2.b_param       = u;
+    curv2.a_param       = curv.a_param  + curv.b_param - curv2.b_param;
+
+    if( isAZeroEnd( curv ) )
+        curv2.Info.zspdmode = ZSpdMode.NZ;
+    else
+        curv2.Info.zspdmode = ZSpdMode.NN;
+    end
 
     if( coder.target("MATLAB") )
-%         check_continuity( ctx, CurvStruct1, CurvStruct2 );
+        check_continuity( ctx, curv, curv1, curv2 );
     end
 end
 
-function [] = check_continuity( ctx, CurvStruct1, CurvStruct2 )
-    [ r11, r1d1, r1dd1 ] = EvalCurvStruct( ctx, CurvStruct1, 1 );
-    [ r21, r2d1, r2dd1 ] = EvalCurvStruct( ctx, CurvStruct2, 0 );
-    
-    r1d1    = r1d1 / CurvStruct1.a_param;
-    r1dd1   = r1dd1 / CurvStruct1.a_param^2;
-    r2d1    = r2d1 / CurvStruct2.a_param;
-    r2dd1   = r2dd1 / CurvStruct2.a_param^2;
+function [] = check_continuity( ctx, curv, curv1, curv2 )
+    curv_vec    = [ curv; curv1; curv2 ];
+    u_vec       = [ 0, 1 ];
+    r           = repmat( curv.R0( ctx.cfg.indTot ), 1, 2, 3 );
+    rd          = r;
+    rdd         = r;
 
-    diff_r      = abs( r11    -r21    );
-    diff_rd     = abs( r1d1   -r2d1   );
-    diff_rdd    = abs( r1dd1  -r2dd1  );
+    for j = 1 : 3
+        [ r( :, :, j ) , rd( :, :, j ), rdd( :, :, j ) ] = ...
+                            EvalCurvStruct( ctx, curv_vec( j ),  u_vec );
+        rd( :, :, j )    = rd( :, :, j )  / curv_vec( j ).a_param;
+        rdd( :, :, j )   = rdd( :, :, j ) / curv_vec( j ).a_param^2;
+   
+    end
+
+    ind1 = [ 1, 1; 1, 2; 2, 2 ];
+    ind2 = [ 2, 1; 3, 2; 3, 1 ];
     
+    for j = 1 : 3
+        r1   = r( : , ind1( j, 2 ), ind1( j, 1 ) );
+        r1d  = rd( : , ind1( j, 2 ), ind1( j, 1 ) );
+        r1dd = rdd( : , ind1( j, 2 ), ind1( j, 1 ) );
+        r2   = r( : , ind2( j, 2 ), ind2( j, 1 ) );
+        r2d  = rd( : , ind2( j, 2 ), ind2( j, 1 ) );
+        r2dd = rdd( : , ind2( j, 2 ), ind2( j, 1 ) );
+        assert_continuity( r1, r1d, r1dd, r2, r2d, r2dd );
+    end
+    
+end
+
+
+function [] = assert_continuity( r1, r1d, r1dd, r2, r2d, r2dd )
+    diff_r      = abs( r1    -r2 );
+    diff_rd     = abs( r1d   -r2d );
+    diff_rdd    = abs( r1dd  -r2dd );
+
     tol = 1E-12;
 
     assert( all( diff_r    < tol ), mfilename + ...

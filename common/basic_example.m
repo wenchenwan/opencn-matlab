@@ -4,11 +4,13 @@
 %
 clc; clear all; close all;
 
+check_wkdir(); % If current directory is the working directory
+
 % Load default configuration parameters
 cfg = FeedoptDefaultConfig;
 
 % Set the path to the gcode file
-cfg.source = 'ngc_test/unit/012_spline.ngc';
+cfg.source = 'ngc_test/unit/004_single_segment.ngc';
 
 % Logging
 setupLogs( cfg.LogFileName ); diary on;
@@ -21,15 +23,15 @@ try
     % Run the geometrics operations, then solve the LP problem
     ctx = FeedoptPlanRun( ctx );                                     
     
-    % Resampling of the parameter
+%     % Resampling of the parameter
     fileName = '.tmp.csv' ;
     resample2file( ctx, fileName ); ctx.q_opt.delete();
 
     % Load resampled data points
     res = readmatrix( fileName );
     delete( fileName );
-
-    % Transforms structure into vector for analysis
+% 
+%     % Transforms structure into vector for analysis
     [res_struct, indFeed, indAcc, indJerk] = get_res_struct( res, ctx.cfg.indTot );
 
     % Analyse time optimality and constraints satisfaction

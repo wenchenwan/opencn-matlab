@@ -1,6 +1,6 @@
-function [ u, jps ] = zeroSpeedCurv( ctx, curv, isEnd )
+function [ u, ud, udd, jps ] = zeroSpeedCurv( ctx, curv, isEnd )
 % zeroSpeedCurv : Compute the profile paramater u in case of zero start / 
-% stop. This approach assume a constant pseudo jerk. The resulting profile
+% stop. This approach assumes a constant pseudo jerk. The resulting profile
 % will respect the velocity, acceleration and jerk constraints.
 % Inputs  :
 %   ctx     : The context
@@ -10,30 +10,70 @@ function [ u, jps ] = zeroSpeedCurv( ctx, curv, isEnd )
 %   u       : Resulting U for constant jerk
 %   jps     : Resulting Pseudo jerk
 
-uk = 0; if( isEnd ), uk = 1; end
+uk = 0; 
+
+if( isEnd ), uk = 1 - uk ;  end
 
 [ ~, r1D ] = EvalCurvStruct( ctx, curv, uk );
 
 % Compute pseudo jerk based on max allowed jerk
 jps = min( ctx.cfg.jmax( ctx.cfg.indTot ) ) / max( abs( r1D ) );
 
-searchU = true; u = 0;
+% searchU   = true;
 
-while searchU
- [ searchU, jps, u ] = calcU( isEnd, searchU, jps, ctx, curv );
+%while searchU
+searchJps = true;
+
+ind = 0;
+while searchJps
+    ind = ind + 1;
+    [ k_vec ]         = compute_k( jps, ctx.cfg.dt, 1 );
+    [ searchJps, jps] = calc_u( isEnd, searchJps, jps, ctx, curv, k_vec );
+end
+jps = jps /2;
+[ k_vec ]             = compute_k( jps, ctx.cfg.dt, 1 );
+[ u, ud, udd ]        = constJerkU( jps, k_vec * ctx.cfg.dt, isEnd );
+
+% [ k ]               = computeContinuityMat( ctx, curv, u, ud, udd, isEnd );
+% 
+% if( k > 1 )
+%     u   = u( k );
+%     ud  = ud( k );
+%     udd = udd( k );
+%     break; 
+% else
+%     jps = jps / 2;
+% end
+%
+% end
+
+end
+
+function [ k_vec ] = compute_k( jps, dt, uk )
+% compute_k : Compute the vector of time steps required by the paramter u to
+% go from 0 to 1.
+k       = ( 6 * uk / jps )^( 1 / 3 ) / dt;
+
+if( k > 0 )
+    k_vec = 1 : k;
+    if( k_vec( end ) < k ), k_vec = [ k_vec, k ]; end
+else
+    k_vec = 1;
 end
 
 end
 
-function [ searchU, jps, u ] = calcU( isEnd, searchU, jps, ctx, curv )
-% calcU : Calcule u for a given pseudo jerk. U is assured to give velocity,
+function [ searchJps, jps, u, ud, udd ] = calc_u( isEnd, searchJps, jps, ctx, ...
+                                        curv, k_vec  )
+% calc_u : Calcule u for a given pseudo jerk. U is assured to give velocity,
 % acceleration and jerk below the provided limits.
 % Inputs : 
 %   isEnd : ( Boolean ) is the end of the curve.
-%   searchU : ( Boolean ) is searching a U
-%   jps : The constant pseudo jerk
-%   ctx : The context
-%   curv : The curve
+%   searchJps : ( Boolean ) is searching a Jps
+%   jps   : The constant pseudo jerk
+%   ctx   : The context
+%   curv  : The curve
+%   k_vec : The vector of index
 % Outputs : 
 %   searchU : ( Boolean ) is searching a U
 %   jps : The constant pseudo jerk
@@ -41,20 +81,23 @@ function [ searchU, jps, u ] = calcU( isEnd, searchU, jps, ctx, curv )
 persistent ratio
 if( isempty( ratio ) ), ratio = 0.9; end
 
+[ u, ud, udd, uddd ]  = constJerkU( jps, k_vec * ctx.cfg.dt, isEnd );
 
-[ u, ud, udd, uddd ]  = constJerkU( jps, ctx.cfg.dt, isEnd, curv.a_param, ...
-                                                            curv.b_param );
+[ ~, V, A, J ]        = calcRVAJfromU( ctx, curv, u, ud, udd, uddd );
 
-[ ~, V, A, J ] = calcRVAJfromU( ctx, curv, u, ud, udd, uddd );
+amax =  ctx.cfg.amax( ctx.cfg.indTot )';
+jmax =  ctx.cfg.jmax( ctx.cfg.indTot )';
 
-if( norm( V ) > curv.Info.FeedRate )
-    jps = jps * ratio * ( curv.Info.FeedRate / norm( V ) ) ^ ( 1 / 2 );
-elseif( max( abs( A ) ) > max( ctx.cfg.amax( ctx.cfg.indTot ) ) )
-    jps = jps * ratio * ( max( abs( A ) ) / max( abs( ctx.cfg.amax( ctx.cfg.indTot ) ) ) ) ^ ( 1 / 4 );
-elseif( max( abs( J ) ) > max( ctx.cfg.jmax( ctx.cfg.indTot ) ) )
-    jps = jps * ratio * ( max( abs( J ) ) / max( abs( ctx.cfg.jmax( ctx.cfg.indTot ) ) ) ) ^ ( 1 / 6 );
+if( any( vecnorm( V ) > curv.Info.FeedRate ) )
+    [ v_delta, ind ] = max( vecnorm( V ) - curv.Info.FeedRate );
+    jps = jps * ( 1 - ratio * ( 1 - v_delta / vecnorm( V( :, ind ) ) ) );
+elseif( any( abs( A ) > amax, 'all' ) )
+    [ a_delta, ind ] = max( abs( A ) - amax, [], 'all' );
+    jps = jps * ( 1 - ratio * ( 1 - a_delta / abs( A( ind ) ) ) );
+elseif( any( abs( J ) > jmax, 'all' ) )
+    [ j_delta, ind ] = max( abs( J ) - jmax, [], 'all' );
+    jps = jps * ( 1 - ratio * ( 1 - j_delta / abs( J( ind ) ) ) );
 else
-    searchU = false;
+    searchJps = false;
 end
-
 end

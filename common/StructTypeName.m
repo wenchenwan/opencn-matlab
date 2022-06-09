@@ -6,6 +6,7 @@ classdef ( Sealed ) StructTypeName < handle
         GCodeInfo  = 'GcodeInfoStruct';
         FeedoptCtx = 'FeedoptContext';
         FeedoptCfg = 'FeedoptConfig';
+        LPCfg      = 'LPCfg';
         MEX        = 'MEX';
     end
     properties ( Constant )

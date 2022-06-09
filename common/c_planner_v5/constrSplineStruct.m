@@ -25,5 +25,5 @@ else
                            params.Cprim, ...
                            params.delta, params.evec, params.theta, ...
                            params.pitch, params.CoeffP5, params.Coeff );
-    CStrct.sp_index = sp_index;
+    CStrct.sp_index = uint32( sp_index );
 end

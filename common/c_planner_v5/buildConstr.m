@@ -15,7 +15,7 @@ Nwindow     = length( windowCurv );
 % Nec   : number of equality constraints
 [ M, N ]    = size( BasisVal );               
 Nx          = N * Nwindow;
-Nc          = ( 1 + 2 * Ndim );
+Nc          = ( 2 + 2 * Ndim );
 Nec         = 2 * ( Nwindow + 1 );
 
 % A         : Matrix for equality constraints
@@ -62,8 +62,9 @@ for k = 1 : Nwindow
     % Inequality constraints
     indAL   = int32( 1 : Nc * M ) + ( k - 1 ) * Nc * M;
     indAC   = int32( 1 : N  ) + ( k - 1 ) * N;
-    A( indAL, indAC )   = [ BasisVal ; Acc ; -Acc ];
-    b( indAL )          = [ v_max'; b_amax( : ); b_amax( : ) ];
+    A( indAL, indAC )   = [ BasisVal; -BasisVal ; Acc ; -Acc ];
+    b( indAL )          = [ v_max'; zeros( size(v_max) )'; 
+                            b_amax( : ); b_amax( : ) ];
 
     % Continuity equations
     indAEL  = int32( 1 : 4 ) + ( k - 1 ) * 2 ;      % Line   index
@@ -89,12 +90,11 @@ if( Nwindow > 1 )
     b  = b .* ramp(:);
 end
 
+A = [ -ones( size( A, 2 ) );      A ];
+b = [ zeros( size( A, 2 ), 1 );   b ];
+
 % Continuity equations
 continuity = [ v2_vec( 2, : , 1 ); at_norm( 2, :, 1 ) ];
-
-% A = [ A ; Aeq( end, : ) ];
-% b = [ b ; beq( end ) ];
-% Aeq( end, : ) = 0; beq( end-1 : end ) = 0;
 
 c_prof_out(mfilename);
 
