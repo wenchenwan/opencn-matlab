@@ -63,7 +63,6 @@ cfg = struct(...
     'opt', LP,...
     'LogFileName', 'logs/logs');
 
-
 if ~coder.target( 'MATLAB' )
     coder.varsize( 'cfg.indCart',   StructTypeName.dimInd{ : } );
     coder.varsize( 'cfg.indRot',    StructTypeName.dimInd{ : } );

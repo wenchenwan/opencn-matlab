@@ -80,15 +80,15 @@ switch ctx.op
         end
     
     case Fopt.Opt
-        ctx.op = Fopt.Finished;
-        return;
-%         [ ctx, optimized, opt_curv, quit ] = feedratePlanning( ctx );
-%         if optimized
-%             ctx.go_next = true;
-%             ctx.q_opt.push( opt_curv );
-%         end
-% 
-%         if( quit ), return; end
+%         ctx.op = Fopt.Finished;
+%         return;
+        [ ctx, optimized, opt_curv, quit ] = feedratePlanning( ctx );
+        if optimized
+            ctx.go_next = true;
+            ctx.q_opt.push( opt_curv );
+        end
+
+        if( quit ), return; end
 
     case Fopt.Finished
         ctx.op = Fopt.Finished;

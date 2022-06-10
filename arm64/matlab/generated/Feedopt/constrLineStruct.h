@@ -5,7 +5,7 @@
 // File: constrLineStruct.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 06-May-2022 16:41:55
+// C/C++ source code generated on  : 10-Jun-2022 11:30:18
 //
 
 #ifndef CONSTRLINESTRUCT_H

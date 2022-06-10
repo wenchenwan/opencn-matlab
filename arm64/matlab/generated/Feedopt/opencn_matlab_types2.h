@@ -5,7 +5,7 @@
 // File: opencn_matlab_types2.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 06-May-2022 16:41:55
+// C/C++ source code generated on  : 10-Jun-2022 11:30:18
 //
 
 #ifndef OPENCN_MATLAB_TYPES2_H
@@ -37,7 +37,7 @@ struct GcodeInfoStruct {
     bool HSC;
     double FeedRate;
     double SpindleSpeed;
-    unsigned long gcode_source_line;
+    int gcode_source_line;
     bool G91;
     bool G91_1;
 };
