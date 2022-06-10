@@ -5,7 +5,7 @@
 // File: opencn_matlab_types1.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 06-May-2022 16:42:15
+// C/C++ source code generated on  : 10-Jun-2022 11:28:52
 //
 
 #ifndef OPENCN_MATLAB_TYPES1_H
@@ -33,7 +33,7 @@ struct CurvStruct {
     double theta;
     double pitch;
     ::coder::array<double, 2U> CoeffP5;
-    int sp_index;
+    unsigned int sp_index;
     int i_begin_sp;
     int i_end_sp;
     int index_smooth;

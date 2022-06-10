@@ -69,16 +69,16 @@ Curv.Info.Type = CurveType.Spline;
 Curv.sp.Bl     = Bl;
 
 if ~coder.target('matlab')
-    coder.varsize( 'cfg.indCart',   StructTypeName.dimInd{ : } );
-    coder.varsize( 'cfg.indRot',    StructTypeName.dimInd{ : } );
-    coder.varsize( 'cfg.indTot',    StructTypeName.dimIndTot{ : } );
-    coder.varsize('ctx.BasisVal',   StructTypeName.dimBasis{ : } );
-    coder.varsize('ctx.BasisValD',  StructTypeName.dimBasis{ : } );
-    coder.varsize('ctx.BasisValDD', StructTypeName.dimBasis{ : } );
-    coder.varsize('ctx.BasisIntegr',StructTypeName.dimBasisInt{ : } );
-    coder.varsize('ctx.u_vec',      StructTypeName.dimCtxUvec{ : } );
+    coder.varsize('ctx.cfg.indCart',    StructTypeName.dimInd{ : } );
+    coder.varsize('ctx.cfg.indRot',     StructTypeName.dimInd{ : } );
+    coder.varsize('ctx.cfg.indTot',     StructTypeName.dimIndTot{ : } );
+    coder.varsize('ctx.BasisVal',       StructTypeName.dimBasis{ : } );
+    coder.varsize('ctx.BasisValD',      StructTypeName.dimBasis{ : } );
+    coder.varsize('ctx.BasisValDD',     StructTypeName.dimBasis{ : } );
+    coder.varsize('ctx.BasisIntegr',    StructTypeName.dimBasisInt{ : } );
+    coder.varsize('ctx.u_vec',          StructTypeName.dimCtxUvec{ : } );
     coder.varsize('ctx.Bl.breakpoints', StructTypeName.dimCtxBlBreaks{ : } );
-    coder.varsize('ctx.Coeff',      StructTypeName.dimCtxCoeff{ : } );
+    coder.varsize('ctx.Coeff',          StructTypeName.dimCtxCoeff{ : } );
     coder.cstructname(ctx, StructTypeName.FeedoptCtx );
 end
 

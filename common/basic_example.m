@@ -10,7 +10,7 @@ check_wkdir(); % If current directory is the working directory
 cfg = FeedoptDefaultConfig;
 
 % Set the path to the gcode file
-cfg.source = 'ngc_test/unit/004_single_segment.ngc';
+cfg.source = 'ngc_test/unit/012_spline.ngc';
 
 % Logging
 setupLogs( cfg.LogFileName ); diary on;

@@ -5,7 +5,7 @@
 // File: linspace.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 06-May-2022 16:41:55
+// C/C++ source code generated on  : 10-Jun-2022 11:30:18
 //
 
 #ifndef LINSPACE_H
@@ -24,7 +24,11 @@ namespace ocn {
 namespace coder {
 void b_linspace(int n, ::coder::array<double, 2U> &y);
 
-void linspace(int n, ::coder::array<double, 2U> &y);
+void b_linspace(double d2, double n, ::coder::array<double, 2U> &y);
+
+void c_linspace(int n, ::coder::array<double, 2U> &y);
+
+extern void linspace(double d1, double d2, double n, ::coder::array<double, 2U> &y);
 
 } // namespace coder
 } // namespace ocn

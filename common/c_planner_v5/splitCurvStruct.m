@@ -5,13 +5,25 @@ function [ ctx ] = splitCurvStruct( ctx, curv )
 % curv  : The curv struct
 % Output  : 
 % ctx   : The modified context
+%#codegen
+
+if( ~coder.target( 'MATLAB' ) ), curvE = constrCurvStructType; end
 
 if ( curv.Info.Type == CurveType.TransP5 )    
     ctx.q_split.push( curv ); return;
 end
 
-if      ( isAZeroSpeed( curv ) )
-    [ ctx ] = split_zero_speed_curv( ctx, curv ); return;
+if( isAZeroStart( curv ) )
+    % cut zero Start
+    [ curvS, curv ] = cutZeroStart( ctx, curv );
+    ctx.q_split.push( curvS );
+end
+
+hasEndSpeed = false;
+if( isAZeroEnd( curv ) )
+    % cut zero End
+    [ curv, curvE ] = cutZeroEnd( ctx, curv );
+    hasEndSpeed     = true;
 end
 
 L       = LengthCurv( ctx, curv, 0, 1 );
@@ -58,16 +70,7 @@ end
 
 ctx.q_split.push( curv );
 
-end
-
-function [ ctx ] = split_zero_speed_curv( ctx, curv )
-% split_zero_speed_curv : Split the curv structs with a zero speed.
-[ curvS, curvM, curvE ] = cutZeroSpeed( ctx, curv );
-
-if( isAZeroStart( curv ) ), ctx.q_split.push( curvS ); end
-
-ctx = splitCurvStruct( ctx, curvM );
-
-if( isAZeroEnd( curv ) ),   ctx.q_split.push( curvE ); end
-
+if( hasEndSpeed )
+    % cut zero End
+    ctx.q_split.push( curvE );
 end

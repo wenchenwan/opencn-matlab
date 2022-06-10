@@ -90,6 +90,8 @@ switch ctx.op
         end
 
     case Fopt.Opt
+%         ctx.op = Fopt.Finished;
+%         return;
         [ ctx, optimized, opt_curv, quit ] = feedratePlanning( ctx );
         if optimized
             ctx.go_next = true;

@@ -5,7 +5,7 @@
 // File: constrGcodeInfoStructType.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 06-May-2022 16:42:15
+// C/C++ source code generated on  : 10-Jun-2022 11:28:52
 //
 
 // Include Files
@@ -41,7 +41,7 @@ void constrGcodeInfoStructType(double, GcodeInfoStruct *C)
     // params.TRAFO, ... 'constrGcodeInfoStructType:15'         params.HSC, params.G91,
     // params.G91_1, params.FeedRate, ... 'constrGcodeInfoStructType:16' params.SpindleSpeed,
     // params.gcode_source_line );
-    constrGcodeInfoStruct(CurveType_Line, ZSpdMode_NN, false, false, false, true, 0.0, 0.0, 0UL, C);
+    constrGcodeInfoStruct(CurveType_Line, ZSpdMode_NN, false, false, false, true, 0.0, 0.0, 0, C);
 }
 
 } // namespace ocn

@@ -5,7 +5,7 @@
 // File: constrCurvStruct.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 06-May-2022 16:41:55
+// C/C++ source code generated on  : 10-Jun-2022 11:30:18
 //
 
 #ifndef CONSTRCURVSTRUCT_H
@@ -27,7 +27,7 @@ namespace ocn {
 void b_constrCurvStruct(CurveType gcodeInfoStruct_Type, ZSpdMode gcodeInfoStruct_zspdmode,
                         bool gcodeInfoStruct_TRAFO, bool gcodeInfoStruct_HSC,
                         double gcodeInfoStruct_FeedRate, double gcodeInfoStruct_SpindleSpeed,
-                        unsigned long gcodeInfoStruct_gcode_source_line, bool gcodeInfoStruct_G91,
+                        int gcodeInfoStruct_gcode_source_line, bool gcodeInfoStruct_G91,
                         bool gcodeInfoStruct_G91_1, int spline_Bl_ncoeff,
                         const ::coder::array<double, 2U> &spline_Bl_breakpoints,
                         unsigned long spline_Bl_handle, int spline_Bl_order,
@@ -56,6 +56,18 @@ extern void constrCurvStruct(const GcodeInfoStruct *gcodeInfoStruct, const Splin
                              double delta, const double evec[3], double theta, double pitch,
                              const ::coder::array<double, 2U> &CoeffP5,
                              const ::coder::array<double, 1U> &Coeff, CurvStruct *CStrct);
+
+void d_constrCurvStruct(ZSpdMode gcodeInfoStruct_zspdmode, bool gcodeInfoStruct_TRAFO,
+                        bool gcodeInfoStruct_HSC, double gcodeInfoStruct_FeedRate,
+                        double gcodeInfoStruct_SpindleSpeed, int gcodeInfoStruct_gcode_source_line,
+                        bool gcodeInfoStruct_G91, bool gcodeInfoStruct_G91_1, int spline_Bl_ncoeff,
+                        const ::coder::array<double, 2U> &spline_Bl_breakpoints,
+                        unsigned long spline_Bl_handle, int spline_Bl_order,
+                        const ::coder::array<double, 2U> &spline_coeff,
+                        const ::coder::array<double, 2U> &spline_knots, double spline_Ltot,
+                        const ::coder::array<double, 2U> &spline_Lk, const double R0[6],
+                        const double R1[6], const double Cprim[3], const double evec[3],
+                        const double CoeffP5[6][3], CurvStruct *CStrct);
 
 } // namespace ocn
 

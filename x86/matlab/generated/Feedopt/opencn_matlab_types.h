@@ -5,7 +5,7 @@
 // File: opencn_matlab_types.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 06-May-2022 16:42:15
+// C/C++ source code generated on  : 10-Jun-2022 11:28:52
 //
 
 #ifndef OPENCN_MATLAB_TYPES_H
@@ -23,25 +23,35 @@
 namespace ocn {
 struct struct0_T {
     bool Skip;
-    double ColTolCos;
+    double ColTolCosLee;
 };
 
-struct struct1_T {
+struct LPCfg {
     char Type[2];
     bool EnableFindReasonInfeasibility;
     double ACC_RAMP_OVER_WINDOWS;
     double VEL_RAMP_OVER_WINDOWS;
-    bool USE_SLACK_ON_JERK;
     double SLACK_PENALTY;
     bool USE_LINPROG;
+};
+
+struct emxArray_int32_T_3 {
+    int data[3];
+    int size[1];
+};
+
+struct emxArray_int32_T_6 {
+    int data[6];
+    int size[1];
 };
 
 struct FeedoptConfig {
     int NumberAxis;
     int NCart;
     int NRot;
-    int indCart[3];
-    int indRot;
+    emxArray_int32_T_3 indCart;
+    emxArray_int32_T_3 indRot;
+    emxArray_int32_T_6 indTot;
     int NDiscr;
     int NBreak;
     bool UseDynamicBreakpoints;
@@ -49,12 +59,13 @@ struct FeedoptConfig {
     double DynamicBreakpointsDistance;
     int NHorz;
     double vmax;
-    double amax[3];
-    double jmax[3];
+    double amax[6];
+    double jmax[6];
     int LeeSplineDegree;
     int SplineDegree;
     double CutOff;
     double LSplit;
+    double LSplitZero;
     double LThreshold;
     double CuspThreshold;
     double v_0;
@@ -68,17 +79,18 @@ struct FeedoptConfig {
     char source[1024];
     bool DebugCutZero;
     struct0_T Compressing;
-    double ColTolCos;
+    double ColTolCosSmooth;
     double GaussLegendreN;
     double GaussLegendreX[5];
     double GaussLegendreW[5];
-    struct1_T opt;
+    LPCfg opt;
     char LogFileName[9];
 };
 
-struct emxArray_real_T_1x1 {
-    double data[1];
-    int size[2];
+enum ReadGCodeCmd : int
+{
+    ReadGCodeCmd_Load = 1, // Default value
+    ReadGCodeCmd_Read
 };
 
 enum Fopt : int
@@ -133,7 +145,7 @@ struct FeedoptContext {
     int simplex_calls;
     int forced_stop;
     int programmed_stop;
-    emxArray_real_T_1x1 Coeff;
+    ::coder::array<double, 2U> Coeff;
     int Skipped;
 };
 

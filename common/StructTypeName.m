@@ -32,7 +32,7 @@ classdef ( Sealed ) StructTypeName < handle
         % Default size for uvec in ctx
         dimCtxUvec  = { [1, Inf], [0, 1] };
         % Default size for Coeff in ctx
-        dimCtxCoeff = { [1, Inf], [0, 1] };
+        dimCtxCoeff = { [Inf, Inf], [1, 1] };
         % Default size for breakpoints in Bl in ctx
         dimCtxBlBreaks = { [1, Inf], [0, 1] };
         % Default size for index vector ( cart and rot )

@@ -20,8 +20,20 @@ curvC = curv;
 if( isEnd )
     curvC.b_param = u1_tilda;
     curvC.a_param = a + b - curvC.b_param;
+    
+    if( isAZeroEnd( curvC ) )
+        curvC.Info.zspdmode = ZSpdMode.NZ;
+    else
+        curvC.Info.zspdmode = ZSpdMode.NN;
+    end
+
 else
     curvC.a_param = u1_tilda - curvC.b_param;
+    if( isAZeroStart( curvC ) )
+        curvC.Info.zspdmode = ZSpdMode.ZN;
+    else
+        curvC.Info.zspdmode = ZSpdMode.NN;
+    end
 end
 
 end

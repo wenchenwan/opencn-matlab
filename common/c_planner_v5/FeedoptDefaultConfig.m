@@ -18,6 +18,10 @@ LP = struct(...
     'SLACK_PENALTY', 100, ...
     'USE_LINPROG', false);
 
+if( ~coder.target('MATLAB') )
+    coder.cstructname( LP,          StructTypeName.LPCfg );
+end
+
 cfg = struct(...
     'NumberAxis', int32( 3 ), ...
     'NCart', int32( 3 ), ...
@@ -59,12 +63,10 @@ cfg = struct(...
     'opt', LP,...
     'LogFileName', 'logs/logs');
 
-
 if ~coder.target( 'MATLAB' )
     coder.varsize( 'cfg.indCart',   StructTypeName.dimInd{ : } );
     coder.varsize( 'cfg.indRot',    StructTypeName.dimInd{ : } );
     coder.varsize( 'cfg.indTot',    StructTypeName.dimIndTot{ : } );
-    coder.cstructname( LP,          StructTypeName.LPCfg );
     coder.cstructname( cfg,         StructTypeName.FeedoptCfg );
 end
 

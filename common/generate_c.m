@@ -20,13 +20,11 @@ if( ~GenerateAll )
     GenerateKinematics = false;
 end
 
-DEBUG = true;
+DEBUG = false;
 
 output_root = output_root + "/matlab/generated/";
 
 ERROR_COLOR = 2;
-
-if( ~strcmp( flip( strtok( flip( pwd ) , '/' ) ), 'common') ), error( 'Wrong directory, you should run the script from working driectory' ); end
 
 if( GenerateAll || GenerateFeedopt )
     name    = "Feedopt Code generation : ";
@@ -55,7 +53,8 @@ function [ cfg ] = configure_kernel( cfg )
 cfg.TargetLang = 'C';
 % Language standard to use for the generated code.
 % For C, the default library is 'C99 (ISO)'.
-cfg.TargetLangStandard = 'C89/C90 (ANSI)';
+cfg.TargetLangStandard  = 'C89/C90 (ANSI)';
+cfg.FilePartitionMethod = 'SingleFile';
 end
 
 function [cfg, output_root] = generate_c_config(generate_for_arm_32, ...

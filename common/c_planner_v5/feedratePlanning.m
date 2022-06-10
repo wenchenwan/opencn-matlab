@@ -19,11 +19,7 @@ if coder.target( 'MATLAB' )
 end
 
 % Increment index on q_split
-if ctx.go_next
-    ctx.k0          = ctx.k0 + 1;
-end
-
-disp( "k0 : " + ctx.k0 );
+if ctx.go_next, ctx.k0 = ctx.k0 + 1; end
 
 if ( ctx.k0 <= ctx.q_split.size )
     if ctx.try_push_again

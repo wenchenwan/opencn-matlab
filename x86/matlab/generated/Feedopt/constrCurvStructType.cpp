@@ -5,7 +5,7 @@
 // File: constrCurvStructType.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 06-May-2022 16:42:15
+// C/C++ source code generated on  : 10-Jun-2022 11:28:52
 //
 
 // Include Files
@@ -47,8 +47,8 @@ void constrCurvStructType(double, CurvStruct *C)
     double params_gcodeInfoStruct_FeedRate;
     double params_gcodeInfoStruct_SpindleSpeed;
     double params_spline_Ltot;
-    unsigned long params_gcodeInfoStruct_gcode_source_line;
     unsigned long params_spline_Bl_handle;
+    int params_gcodeInfoStruct_gcode_source_line;
     int params_spline_Bl_ncoeff;
     int params_spline_Bl_order;
     bool params_gcodeInfoStruct_G91;
