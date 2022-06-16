@@ -40,8 +40,8 @@ r_r = zeros(size(fr_a));
 
 [~, l] = size(fr_r);
 for i = 1:l
-    r_a(:, i) = MGI(fr_r(:, i), P)';
-    r_r(:, i) = MGD(fr_a(:, i), P)';
+    r_a(:, i) = kin_inverse_xyzbc(fr_r(:, i), P)';
+    r_r(:, i) = kin_forward_xyzbc(fr_a(:, i), P)';
 end
 
 figure;
@@ -80,6 +80,22 @@ figure;
 plot(180/pi*fr_r(5, :), 180/pi*fr_r(6, :));
 hold on
 plot(180/pi*r_r(5, :), 180/pi*r_r(6, :));
+title('Orientation de l''outil relatif');
+xlabel('B [degré]'); ylabel('C [degré]');
+grid;
+
+figure;
+plot3(fr_a(1, :), fr_a(2, :), fr_a(3, :));
+hold on
+plot3(r_a(1, :), r_a(2, :), r_a(3, :));
+title('Parcours de l''outil relatif');
+xlabel('X [mm]'); ylabel('Y [mm]'); zlabel('Z [mm]');
+grid;
+
+figure;
+plot(180/pi*fr_a(5, :), 180/pi*fr_a(6, :));
+hold on
+plot(180/pi*r_a(5, :), 180/pi*r_a(6, :));
 title('Orientation de l''outil relatif');
 xlabel('B [degré]'); ylabel('C [degré]');
 grid;

@@ -35,11 +35,11 @@ matlabFunction(world, 'vars', {A, P}, 'file', outputDir + "kin_forward_xyzbc");
 matlabFunction(joint, 'vars', {R, P}, 'file', outputDir + "kin_inverse_xyzbc");
 
 %% Jacobian
-J_ra   = simplify(jacobian(joint( 1 : 3 ), A));
+J_ra   = simplify(jacobian(world( 1 : 3 ), A));
 J_raP  = simplify(jacobian(J_ra * Ap,  A));
 J_raPP = simplify(jacobian(J_raP * Ap, A) + jacobian(J_raP * App, Ap));
 
-J_ar   = simplify(jacobian(world( 1 : 3 ), R));
+J_ar   = simplify(jacobian(joint( 1 : 3 ), R));
 J_arP  = simplify(jacobian(J_ar * Rp,  R));
 J_arPP = simplify(jacobian(J_arP * Rp, R) + jacobian(J_arP * Rpp, Rp));
 
