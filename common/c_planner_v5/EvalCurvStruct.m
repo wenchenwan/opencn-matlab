@@ -36,12 +36,13 @@ switch Type
         if( ctx.cfg.NCart > 0 )         % Only rotation
             [r0D( indC, : ), r1D( indC, : ), r2D( indC, : ), r3D( indC, : )] = ...
                 EvalHelix( CurvStruct, u_vec_tilda, indC );
-        elseif( ctx.cfg.NRot > 0 )      % Only cartesian
-            [r0D( indR, : ), r1D( indR, : ), r2D( indR, : ), r3D( indR, : )] = ...
+        end
+        if( ctx.cfg.NRot > 0 )      % Only cartesian
+            [r0D( ctx.cfg.NCart+1:end, : ), r1D( ctx.cfg.NCart+1:end, : ), r2D( ctx.cfg.NCart+1:end, : ), r3D( ctx.cfg.NCart+1:end, : )] = ...
                 EvalLine( CurvStruct, u_vec_tilda, indR );
         end
     case CurveType.TransP5  % Polynomial transition
-        [r0D, r1D, r2D, r3D] = EvalTransP5( CurvStruct, u_vec_tilda );
+        [r0D, r1D, r2D, r3D] = EvalTransP5( CurvStruct, u_vec_tilda, M );
     case CurveType.Spline   % Spline
         [r0D, r1D, r2D, r3D] = EvalSpline( CurvStruct, u_vec_tilda, ...
                                                             ctx.q_spline );

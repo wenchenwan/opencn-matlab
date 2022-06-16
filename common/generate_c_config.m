@@ -19,7 +19,10 @@ cfg.BuildConfiguration = 'Faster Runs';
 % This value is the default value.
 % The code generator produces separate C/C++
 % files for each MATLAB language file.
-cfg.FilePartitionMethod = 'MapMFileToCFile';
+
+% cfg.FilePartitionMethod = 'MapMFileToCFile';
+cfg.FilePartitionMethod = 'SingleFile';
+
 % The code generator produces a single file for C/C++.
 % functions that map to your MATLAB entry-point functions.
 % The code generator produces separate C/C++ files for utility functions.

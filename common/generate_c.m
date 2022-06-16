@@ -15,8 +15,8 @@ generate_for_arm_64 = false;
 GenerateAll = false;
 
 if( ~GenerateAll )
-    GenerateFeedopt    = true;
-    GenerateKinematics = false;
+    GenerateFeedopt    = false;
+    GenerateKinematics = true;
 end
 
 DEBUG = true;

@@ -20,6 +20,7 @@ Ncrv = ctx.q_gcode.size;                   % Number of curve in g-code queue
 Length_Threshold = ctx.cfg.LThreshold;     % in [mm]
 NAxis = 6;                                 % Number of axis
 zspdmodevec = [10 10];                     % Vector for the speed mode of the first and the last segment of the spline
+notLastSeg = 0;                            % If this is not the laste segment do push him after spline
 
 CumulatedLength = 0;                       % Accumulator for the length
 spindle_speed = 75000;                     % in [rpm]
@@ -63,6 +64,9 @@ while k <= Ncrv
             pvec = [pvec Curv.R1];
             zspdmodevec(end) =  Curv.Info.zspdmode;
             spindle_speed = min(spindle_speed, Curv.Info.SpindleSpeed);
+            notLastSeg = 0;
+        else
+            notLastSeg = 1;
         end
 
         % If the cumulated length is zero, no compressing is on-going.
@@ -115,6 +119,11 @@ while k <= Ncrv
                 ctx.q_compress.push(Curv);     % push segment to q_compress
             end
             CumulatedLength = 0;
+
+            if( notLastSeg == 1 )
+                ctx.q_compress.push(Curv);
+                notLastSeg = 0;
+            end
         end
     % In the general case with an elligible segment, add it to the
     % compression list

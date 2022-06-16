@@ -85,6 +85,7 @@ switch ctx.op
 %         geometricPlot( ctx )
          % Check of the zspdmode
         zspmodevec = zeros(1, sizeSmooth);
+
         for i = 1:sizeSmooth
             Curv = ctx.q_smooth.get(i);      % Get Curv in the queue
             Curv.Info.zspdmode
@@ -100,14 +101,6 @@ switch ctx.op
         % For testing
         sizeSplit = ctx.q_split.size
         ctx.op = Fopt.Finished; % SAUTE L'OPTIMISATION
-
-        % Check of the zspdmode
-        zspmodevec = zeros(1, sizeSplit);
-        for i = 1:sizeSplit
-            Curv = ctx.q_split.get(i);      % Get Curv in the queue
-            Curv.Info.zspdmode
-            zspmodevec(i) = Curv.Info.zspdmode;
-        end
 
         if( coder.target( 'MATLAB') ), ctx.q_smooth.delete(); end        
     
