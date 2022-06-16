@@ -29,13 +29,13 @@ switch ctx.op
                 end
             end
 
-            if( CurvStruct.Info.FeedRate == 0 )
-                CurvStruct.Info.FeedRate = ctx.cfg.vmax;
+            if( CurvStruct.Info.FeedRate == 0.0 )
+                CurvStruct.Info.FeedRate = ctx.cfg.fmax;
             end
             if( status == 1 && CurvStruct.Info.Type ~= 0 )
                 if ( CurvStruct.Info.FeedRate == 0.0 )
                     % check for undefined feedrate
-                    CurvStruct.Info.FeedRate = ctx.cfg.vmax;
+                    CurvStruct.Info.FeedRate = ctx.cfg.fmax;
                 end
                 %                 PrintCurvStruct( ctx, CurvStruct );
                 ctx.q_gcode.push( CurvStruct );
@@ -83,7 +83,6 @@ switch ctx.op
         if( coder.target( 'MATLAB' ) ), ctx.q_smooth.delete(); end
 
         ctx.op = Fopt.Opt;
-
         DebugLog(DebugCfg.Validate, 'Feedrate Planning...\n');
         if coder.target('matlab')
             diary off;

@@ -43,11 +43,17 @@ for k = 1 : N
             u       = state.u + double(k) - 1 ; 
             cf      = 0; %GetCurvMaxFeedrate(ctx, Curv);
             f       = Curv.Info.FeedRate;
-            [ r, v, a, j ] = calcRVAJfromU( ctx, Curv, state.u, ud, udd, uddd );
-            feed    = vecnorm( v );   
+            [ r, ~, a, j ]  = calcRVAJfromU( ctx, Curv, state.u, ud, udd, uddd );
+            [ r0D, r1D ]    = EvalCurvStruct( ctx, Curv, state.u );
+            
+            if( ~Curv.Info.TRAFO )
+                r1D = ctx.kin.v_relative( r0D, r1D );
+            end
+            v       = r1D .* state.ud;
+            feed    = vecnorm( v( ctx.cfg.indCart ) );   
             feed    = feed / Curv.Info.FeedRate;
-            a       = abs( a ./ ctx.cfg.amax( ctx.cfg.indTot )' );
-            j       = abs( j ./ ctx.cfg.jmax( ctx.cfg.indTot )' );
+            a       = abs( a ./ ctx.cfg.amax( ctx.cfg.maskTot )' );
+            j       = abs( j ./ ctx.cfg.jmax( ctx.cfg.maskTot )' );
             
             buffer( ind, : ) = [ t, u, feed, f, cf, r', a', j' ];
         end

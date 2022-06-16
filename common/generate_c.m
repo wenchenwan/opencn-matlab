@@ -5,8 +5,8 @@ check_wkdir();
 
 % please choose the target first ( only 1 target is generated at the time )
 generate_for_arm_32 = false;
-generate_for_x86_64 = true;
-generate_for_arm_64 = false;
+generate_for_x86_64 = false;
+generate_for_arm_64 = true;
 
 [cfg, output_root] = generate_c_config( generate_for_arm_32, ...
     generate_for_arm_64, ...
@@ -196,11 +196,11 @@ cfg.CustomHeaderCode = '#include "functions.h"';
 
 if  generate_for_x86_64
     %     Manufacturer and type of the target (test) hardware board
-    cfg.HardwareImplementation.TargetHWDeviceType = 'Intel->x86-64 (Linux 64)';
+    cfg.HardwareImplementation.TargetHWDeviceType   = 'Intel->x86-64 (Linux 64)';
     %     Manufacturer and type of the production hardware board.
     %     Specifying the ProdHWDeviceType property sets device-specific properties
     %     for the production hardware.
-    cfg.HardwareImplementation.ProdHWDeviceType = 'Intel->x86-64 (Linux 64)';
+    cfg.HardwareImplementation.ProdHWDeviceType     = 'Intel->x86-64 (Linux 64)';
     %     Code replacement library for generated code.
     %     Generates calls to a specific platform, compiler,
     %     or standards code replacement library. The list of
@@ -214,12 +214,12 @@ if  generate_for_x86_64
     cfg.CodeReplacementLibrary = 'Intel SSE (Linux)';
     output_root = '../x86';
 elseif generate_for_arm_32
-    cfg.HardwareImplementation.TargetHWDeviceType = 'ARM Compatible->ARM Cortex';
-    cfg.HardwareImplementation.ProdHWDeviceType = 'ARM Compatible->ARM Cortex';
+    cfg.HardwareImplementation.TargetHWDeviceType   = 'ARM Compatible->ARM Cortex';
+    cfg.HardwareImplementation.ProdHWDeviceType     = 'ARM Compatible->ARM Cortex';
     output_root = '../arm';
 elseif generate_for_arm_64
-    cfg.HardwareImplementation.TargetHWDeviceType = 'ARM Compatible->ARM 64-bit (LP64)';
-    cfg.HardwareImplementation.ProdHWDeviceType = 'ARM Compatible->ARM 64-bit (LP64)';
+    cfg.HardwareImplementation.TargetHWDeviceType   = 'ARM Compatible->ARM 64-bit (LP64)';
+    cfg.HardwareImplementation.ProdHWDeviceType     = 'ARM Compatible->ARM 64-bit (LP64)';
     output_root = '../arm64';
 end
 

@@ -9,7 +9,7 @@ if( ~GenerateAll )
     GenerateDebug               = false;
     GenerateType                = false;
     GenerateResampling          = false;
-    GenerateGCodeInterpreter    = true;
+    GenerateGCodeInterpreter    = false;
     GenerateQueues              = false;
     GenerateSimplex             = false;
     GenerateSpline              = false;
@@ -292,14 +292,14 @@ if( GenerateAll || GenerateKinematic )
             '-o', 'J_ar_mex');
 
         fprintf('Mexing J_arP\n')
-        codegen('-config', cfg, '-d', KinematicRep + "J_arP/",...
-            'J_arP', '-args', {R, R, P},...
-            '-o', 'J_arP_mex');
+        codegen('-config', cfg, '-d', KinematicRep + "JP_ar/",...
+            'JP_ar', '-args', {R, R, P},...
+            '-o', 'JP_ar_mex');
 
         fprintf('Mexing J_arPP\n')
-        codegen('-config', cfg, '-d', KinematicRep + "J_arPP/",...
-            'J_arPP', '-args', {R, R, R, P},...
-            '-o', 'J_arPP_mex');
+        codegen('-config', cfg, '-d', KinematicRep + "J2P_ar/",...
+            'J2P_ar', '-args', {R, R, R, P},...
+            '-o', 'J2P_ar_mex');
 
         disp(name + "success" );
         addpath( path_mex );
@@ -307,8 +307,8 @@ if( GenerateAll || GenerateKinematic )
         delete('MGD_mex.mexa64');
         delete('MGI_mex.mexa64');
         delete('J_ar_mex.mexa64');
-        delete('J_arP_mex.mexa64');
-        delete('J_arPP_mex.mexa64');
+        delete('JP_ar_mex.mexa64');
+        delete('J2P_ar_mex.mexa64');
     catch
         disp(name + "failed" );
     end

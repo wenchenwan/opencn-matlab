@@ -85,12 +85,12 @@ r_rPPP = diff(r_rPP, 1, 2)*(N-1)/(u_stop-u_start);
 r_aP = zeros(3, length(r_rPPP)); r_aPP = r_aP; r_aPPP = r_aP; v_a = r_aP; a_a = r_aP; j_a = r_aP; 
 for k = 1:length(r_rPPP)
     Jar   = J_ar(r_r(:, k), P);
-    JarP  = J_arP(r_r(:, k), r_rP(:, k), P);
-    JarPP = J_arPP(r_r(:, k), r_rP(:, k), r_rPP(:, k), P);
+    JarP  = JP_ar(r_r(:, k), r_rP(:, k), P);
+    JarPP = J2P_ar(r_r(:, k), r_rP(:, k), r_rPP(:, k), P);
     
 %     J_ar   = Fct_LinuxJ_ar(r_r(1, k),r_r(2, k),r_r(3, k),r_r(4, k),r_r(5, k), 0, d1);
-%     J_arP  = Fct_LinuxJ_arP(r_r(1, k),r_r(2, k),r_r(3, k),r_r(4, k),r_r(5, k),r_rP(1, k),r_rP(2, k),r_rP(3, k),r_rP(4, k),r_rP(5, k), 0, d1);
-%     J_arPP = Fct_LinuxJ_arPP(r_r(1, k),r_r(2, k),r_r(3, k),r_r(4, k),r_r(5, k),r_rP(1, k),r_rP(2, k),r_rP(3, k),r_rP(4, k),r_rP(5, k),r_rPP(1, k),r_rPP(2, k),r_rPP(3, k),r_rPP(4, k),r_rPP(5, k), 0, d1);
+%     JP_ar  = Fct_LinuxJP_ar(r_r(1, k),r_r(2, k),r_r(3, k),r_r(4, k),r_r(5, k),r_rP(1, k),r_rP(2, k),r_rP(3, k),r_rP(4, k),r_rP(5, k), 0, d1);
+%     J2P_ar = Fct_LinuxJ2P_ar(r_r(1, k),r_r(2, k),r_r(3, k),r_r(4, k),r_r(5, k),r_rP(1, k),r_rP(2, k),r_rP(3, k),r_rP(4, k),r_rP(5, k),r_rPP(1, k),r_rPP(2, k),r_rPP(3, k),r_rPP(4, k),r_rPP(5, k), 0, d1);
 
     r_aP(:, k)   = Jar*r_rP(:, k);
     r_aPP(:, k)  = JarP*r_rP(:, k) + Jar*r_rPP(:, k);

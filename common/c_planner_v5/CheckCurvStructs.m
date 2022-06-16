@@ -9,8 +9,8 @@ for k = 1:N-1
     Curv1 = ctx.q_gcode.get(k);
     Curv2 = ctx.q_gcode.get(k+1);
     
-    [~, r0D1] = EvalCurvStruct(ctx, Curv1, 1);
-    [~, r1D1] = EvalCurvStruct(ctx, Curv2, 0);
+    [~, r0D1] = EvalCurvStruct( ctx, Curv1, 1 );
+    [~, r1D1] = EvalCurvStruct( ctx, Curv2, 0 );
     
     if iscusp(r0D1, r1D1, ctx.cfg.CuspThreshold)
         switch Curv1.Info.zspdmode

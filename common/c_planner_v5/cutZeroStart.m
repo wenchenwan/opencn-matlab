@@ -33,7 +33,7 @@ end
 function [] = check_continuity( ctx, curv, curv1, curv2 )
     curv_vec    = [ curv; curv1; curv2 ];
     u_vec       = [ 0, 1 ];
-    r           = repmat( curv.R0( ctx.cfg.indTot ), 1, 2, 3 );
+    r           = repmat( curv.R0( ctx.cfg.maskTot ), 1, 2, 3 );
     rd          = r;
     rdd         = r;
 

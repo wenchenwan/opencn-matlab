@@ -57,8 +57,8 @@ if ( ctx.k0 <= ctx.q_split.size )
             ctx.zero_end    = false;
         end
 
-    [ctx, Coeff, success, status, msg] = ...
-    FeedratePlanning_LP( ctx, window, ctx.cfg.amax, ctx.cfg.jmax,  ...
+    [ ctx, Coeff, success, status, msg ] = ...
+    FeedratePlanning_LP( ctx, window, ctx.cfg.amax, ctx.cfg.jmax, ...
     ctx.BasisVal, ctx.BasisValD, ctx.BasisValDD, ctx.BasisIntegr, ...
     ctx.u_vec, NWindow );
 
@@ -71,6 +71,7 @@ if ( ctx.k0 <= ctx.q_split.size )
             if( ctx.zero_end && ( ctx.k0 + NWindow ) >= ctx.q_split.size )
                 ctx.reached_end = true;
             end
+
         else
             [ quit, ctx ] = opt_error( ctx, msg ); return;
         end

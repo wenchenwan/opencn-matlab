@@ -47,6 +47,8 @@ if coder.target('mex')
             is_loaded = coder.ceval( 'cpp_interp_loaded' );
             if is_loaded
                 status = coder.ceval( 'cpp_interp_read', coder.ref( CurvStruct ) );
+                CurvStruct.R0( 4 : end ) = deg2rad( CurvStruct.R0( 4 : end ) );
+                CurvStruct.R1( 4 : end ) = deg2rad( CurvStruct.R1( 4 : end ) );
             else
                 status = int32(0);
             end
@@ -68,9 +70,6 @@ elseif coder.target('matlab')
         else
             using_mat = false;
             [status, CurvStruct] = ReadGCode_mex( 'ReadGCode', cmd, filename );
-
-            CurvStruct.R0( 4 : end ) = deg2rad( CurvStruct.R0( 4 : end ) );
-            CurvStruct.R1( 4 : end ) = deg2rad( CurvStruct.R1( 4 : end ) );
         end
     elseif cmd == ReadGCodeCmd.Read
         if using_mat

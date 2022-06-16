@@ -16,6 +16,7 @@ Type  = curv.Info.Type;
 %
 N   = numel( u_vec );
 M   = cfg.NumberAxis;
+
 r0D = zeros( M, N );
 r1D = r0D;
 r2D = r0D;
@@ -26,20 +27,22 @@ b = curv.b_param;
 
 u_vec_tilda = a * u_vec + b;
 
-indC   = cfg.indCart;
-indR   = cfg.indRot;
-indTot = cfg.indTot;
+indC     = cfg.indCart;
+indR     = cfg.indRot;
+maskTot  = cfg.maskTot;
+maskRot  = cfg.maskRot;
+maskCart = cfg.maskCart;
 
 switch Type
     case CurveType.Line     % Line (G01)
-        [r0D, r1D, r2D, r3D] = EvalLine( curv, u_vec_tilda, indTot );
+        [r0D, r1D, r2D, r3D] = EvalLine( curv, u_vec_tilda, maskTot );
     case CurveType.Helix    % Arc of circle / helix (G02, G03)
         if( cfg.NCart > 0 )         % Only rotation
             [r0D( indC, : ), r1D( indC, : ), r2D( indC, : ), r3D( indC, : )] = ...
-                EvalHelix( curv, u_vec_tilda, indC );
+                EvalHelix( curv, u_vec_tilda, maskCart );
         elseif( cfg.NRot > 0 )      % Only cartesian
             [r0D( indR, : ), r1D( indR, : ), r2D( indR, : ), r3D( indR, : )] = ...
-                EvalLine( curv, u_vec_tilda, indR );
+                EvalLine( curv, u_vec_tilda, maskRot );
         end
     case CurveType.TransP5  % Polynomial transition
         [r0D, r1D, r2D, r3D]    = EvalTransP5( curv, u_vec_tilda );
@@ -52,6 +55,7 @@ end
 r1D = a   .* r1D;
 r2D = a^2 .* r2D;
 r3D = a^3 .* r3D;
+
 
 function [] = printMsg( err_msg )
 % printMsg : Print erro message according to the coder.target.

@@ -64,6 +64,7 @@ ctx.programmed_stop = int32(0);
 
 ctx.Coeff   = zeros( 1, 1 );
 ctx.Skipped = int32(0);
+ctx.kin     = Kinematics( cfg.kin_type, cfg.kin_params );
 
 Curv.Info.Type = CurveType.Spline;
 Curv.sp.Bl     = Bl;
@@ -71,7 +72,7 @@ Curv.sp.Bl     = Bl;
 if ~coder.target('matlab')
     coder.varsize('ctx.cfg.indCart',    StructTypeName.dimInd{ : } );
     coder.varsize('ctx.cfg.indRot',     StructTypeName.dimInd{ : } );
-    coder.varsize('ctx.cfg.indTot',     StructTypeName.dimIndTot{ : } );
+    coder.varsize('ctx.cfg.maskTot',     StructTypeName.dimMask{ : } );
     coder.varsize('ctx.BasisVal',       StructTypeName.dimBasis{ : } );
     coder.varsize('ctx.BasisValD',      StructTypeName.dimBasis{ : } );
     coder.varsize('ctx.BasisValDD',     StructTypeName.dimBasis{ : } );

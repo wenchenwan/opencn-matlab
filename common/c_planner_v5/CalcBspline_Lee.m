@@ -36,7 +36,7 @@ end
 A = [ BasisValDD0; BasisVal; BasisValDD1 ];
 %
 b = [zeros(1, nAxis);
-             points';
+            points.';
      zeros(1, nAxis)];
 %
 c = A \ b;

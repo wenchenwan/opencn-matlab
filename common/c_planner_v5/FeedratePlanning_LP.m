@@ -20,24 +20,30 @@ f = -repmat( BasisIntegr, 1, NWindow );
 [ A, b, Aeq, beq, continuity ] = buildConstr( ctx, CurvArray, amax, ctx.v_0, ...
     ctx.at_0, ctx.v_1, ctx.at_1, BasisVal, BasisValD, u_vec);
 
+% Slack variables
+fSlack = [ f( : ); LP.SLACK_PENALTY ];
+[ nAL, nAc ] = size( A );
+ASlack = [ A, - ones( nAL, 1 ) ; zeros( 1, nAc ), -1 ];
+bSlack = [ b ; 0 ];
+AeqSlack   = [ Aeq, zeros( size( Aeq, 1), 1 ) ];
+
 % C. Solve the optimization problem
-[ Coeff0, success, status, msg ] = c_simplex( f, sparse( A ), b, Aeq, beq, ctx );
+[ Coeff0, success, status, msg ] = c_simplex( fSlack, sparse( ASlack ), ...
+    bSlack, AeqSlack, beq, ctx );
+
 
 if( ~success )
-    Coeff0 = zeros( size( A, 2),  1);
-    M = Aeq( 1 : 2, 1 : 2 );
-    m = beq( 1 : 2 );
-    Coeff0( 1 : 2 ) = M \ m;
-    M1 = Aeq( end- 1:end, end- 1:end);
-    m1 = beq( end-1 : end );
-    Coeff0( end-1 :end ) = M1 \ m1;
-    CoeffInt = linspace( Coeff0(2), Coeff0(3), size( A, 2) -2 );
-    Coeff0( 3 :end -2 ) = CoeffInt( 2 : end -1 );
-    resIneq = A* Coeff0 -b;
-    errIneq = find( resIneq >= 0 );
+%     Coeff0 = zeros( size( A, 2),  1);
+%     M = Aeq( 1 : 2, 1 : 2 );
+%     m = beq( 1 : 2 );
+%     CStart = M \ m;
+%     M1 = Aeq( end- 1:end, end- 1:end);
+%     m1 = beq( end-1 : end );
+%     CEnd = M1 \ m1;
+    fprintf( msg );
     error("First LP failed...");
-else 
-    Coeff  = reshape( Coeff0, N, NWindow );
+else
+    Coeff   = reshape( Coeff0( 1 : end -1 ), N, NWindow );
 end
 
 % 2) Optimization : second LP with jerk constraints and slack
@@ -50,7 +56,7 @@ ftot = [ f( : ); LP.SLACK_PENALTY ];
 [ Aj, bj ] =  buildConstrJerk( ctx, CurvArray, Coeff, jmax, ...
     BasisVal, BasisValD, BasisValDD, u_vec );
 
-Atot    = [ A, zeros( size( A, 1), 1 ) ;
+Atot    = [ A, -ones( size( A, 1), 1 ) ;
     Aj ];
 btot    = [ b; bj ];
 
@@ -61,10 +67,11 @@ AEtot   = [ Aeq, zeros( size( Aeq, 1), 1 ) ];
 
 
 if( ~success ) % The optimization successed
+    fprintf( msg );
     error( "Second LP failed..." );
 else
     Coeff   = reshape( Coeff2( 1 : end -1 ), N, NWindow );
-    disp( "slack : " + Coeff2(end) );
+    fprintf( "slack : " + Coeff2(end) + "\n");
 end
 
 % Compute the continuity equations

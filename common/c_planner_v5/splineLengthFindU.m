@@ -30,7 +30,7 @@ C_ASSERT_MSG = 'u1 must be %s or equal than the first spline knot';
 c_assert( u1 >= Knots(1),   sprintf(C_ASSERT_MSG, 'greater') );
 c_assert( u1 <= Knots(end), sprintf(C_ASSERT_MSG, 'smaller') );
 %
-k_vec = find( Knots < u1 );
+k_vec = find( Knots <= u1, 1, "last" );
 if( isempty( k_vec ) )
     k = 1; 
 else
@@ -53,10 +53,13 @@ while ( Lcum < L ) && ( k < KMax )
     Lcum = Lcum + Lk( k );  % Sum up precalculated length between knots
 end
 
-% undo last increment
-k         = k - 1;
-Lcum      = Lcum - Lk( k );
-Lremain   = L - Lcum;
+if( k > 1 )
+    % undo last increment
+    k         = k - 1;
+    Lcum      = Lcum - Lk( k );
+else 
+    Lremain = L;
+end
 %
 
 u1     = Knots( k+1 );

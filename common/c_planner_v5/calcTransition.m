@@ -87,7 +87,8 @@ else
             k = k - 1;
         end
         u0_tilda = sp.knots(k);
-        l1  = SplineLengthApproxGL_bounds(ctx, CurvStruct1, u0_tilda, u1_tilda)/2;     
+        spline = ctx.q_spline.get( CurvStruct1.sp_index );
+        [ l1 ] = splineLength( ctx.cfg, spline, u0_tilda, u1_tilda ) / 2 ;
     else
         if L1<Length_Threshold
             l1 = L1/3;
@@ -117,7 +118,8 @@ else
             k = k + 1;
         end
         u1_tilda = sp.knots(k);
-        l2 = SplineLengthApproxGL_bounds(ctx, CurvStruct2, u0_tilda, u1_tilda)/2;
+        spline = ctx.q_spline.get( CurvStruct2.sp_index );
+        [ l2 ] = splineLength( ctx.cfg, spline, u0_tilda, u1_tilda ) / 2 ;
     else
         if L2<Length_Threshold
             l2 = L2/3;

@@ -43,8 +43,8 @@ for k = 1 : N
             [ r, v, a, j ] = calcRVAJfromU( ctx, Curv, state.u, ud, udd, uddd );
             feed    = vecnorm( v );   
             feed    = feed / Curv.Info.FeedRate;
-            a       = abs( a ./ ctx.cfg.amax( ctx.cfg.indTot )' );
-            j       = abs( j ./ ctx.cfg.jmax( ctx.cfg.indTot )' );
+            a       = abs( a ./ ctx.cfg.amax( ctx.cfg.maskTot )' );
+            j       = abs( j ./ ctx.cfg.jmax( ctx.cfg.maskTot )' );
             
             if(  (Curv.Info.zspdmode == ZSpdMode.NN) && max(j) > maxJerk )
                 maxJerk = max(j); 

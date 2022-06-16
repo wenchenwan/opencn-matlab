@@ -27,8 +27,8 @@ DebugLog(DebugCfg.Validate, 'Compressing...\n');
 
 % Satisfy coder
 if ( ~ coder.target( 'MATLAB' ) )
-    pvec    = zeros( 6, 1 );
-    coder.varsize( 'pvec', [ 6, Inf ], [0, 1] );
+    pvec    = zeros( StructTypeName.NumberAxisMax, 1 );
+    coder.varsize( 'pvec', StructTypeName.dimPvec{ : } );
 end
 
 for k = 1 : Ncrv
@@ -77,7 +77,7 @@ for k = 1 : Ncrv
                 splineCurve             = constrCurvStructType;
                 splineCurve.Info.Type   = CurveType.Spline;
                 splineCurve.sp_index    = spline_index;
-                splineCurve.sp          = CalcBspline_Lee( ctx.cfg, pvec( ctx.cfg.indTot, : ) );
+                splineCurve.sp          = CalcBspline_Lee( ctx.cfg, pvec( ctx.cfg.maskTot, : ) );
                 [Ltot, Lk]              = SplineLengthApproxGL_tot( ctx, splineCurve );
                 splineCurve.sp.Ltot     = Ltot;
                 splineCurve.sp.Lk       = Lk;

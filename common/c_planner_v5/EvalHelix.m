@@ -1,4 +1,4 @@
-function [r0D, r1D, r2D, r3D] = EvalHelix( CurvStruct, u_vec, indC )
+function [r0D, r1D, r2D, r3D] = EvalHelix( CurvStruct, u_vec, maskCart )
 % EvalHelix : Evalue the helix curv and its corresponding parametric
 % derivatives. The evaluation occurs on the specified points in the u
 % vector.
@@ -21,9 +21,8 @@ if ~coder.target('MATLAB')
     coder.ceval('ZoneScopedN', coder.opaque('const char*', '"EvalHelix"'));
 end
 % Extract parameters from the struct
-indCart = indC;
-P0      = CurvStruct.R0( indCart );
-P1      = CurvStruct.R1( indCart );
+P0      = CurvStruct.R0( maskCart );
+P1      = CurvStruct.R1( maskCart );
 evec    = CurvStruct.evec;
 theta   = CurvStruct.theta;
 pitch   = CurvStruct.pitch;

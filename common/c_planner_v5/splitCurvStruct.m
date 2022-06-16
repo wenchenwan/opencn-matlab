@@ -41,7 +41,6 @@ u0 = 0;
 for k = 1 : N - 1
     u1_tilda  = cutCurvStructU( ctx, curv, u0, L_split, false );
     u1 = ( u1_tilda - curv.b_param ) / curv.a_param;
-    
     if( u1 < 1 )
         curvSplited         = curv;
         curvSplited.a_param = u1_tilda - curvSplited.b_param;
@@ -51,8 +50,9 @@ for k = 1 : N - 1
         else
             curvSplited.Info.zspdmode = ZSpdMode.NN;
         end
-
-        curv.a_param        = curv.a_param  + curv.b_param - u1_tilda;
+        
+        curv.a_param        = curv.a_param  + curv.b_param... 
+                              - u1_tilda;
         curv.b_param        = u1_tilda;
 
         if( isAZeroEnd( curv ) )
@@ -60,8 +60,8 @@ for k = 1 : N - 1
         else
             curv.Info.zspdmode = ZSpdMode.NN;
         end
-    else 
-        curvSplited         = curv;
+    else
+        break;
     end
 
     ctx.q_split.push( curvSplited );
