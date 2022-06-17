@@ -62,4 +62,4 @@ figure(1)
 PlotCurvStructs(ctx, Curv);
 hold off
 
-line_number = Curv.gcode_source_line;
+line_number = Curv.Info.gcode_source_line;

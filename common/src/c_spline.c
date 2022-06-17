@@ -17,7 +17,7 @@
 #include "c_spline.h"
 
 static const int nderiv = 3;
-static c_bspline_knots (const gsl_vector * breakpts, gsl_bspline_workspace * w);
+static int c_bspline_knots (const gsl_vector * breakpts, gsl_bspline_workspace * w);
 
 void c_bspline_create(void *handle_, double x0, double x1, int32_t degree, int32_t nbreak)
 {

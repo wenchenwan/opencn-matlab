@@ -1,4 +1,4 @@
-function [r0D, r1D, r2D, r3D] = EvalLine( CurvStruct, u_vec, ind )
+function [r0D, r1D, r2D, r3D] = EvalLine( CurvStruct, u_vec, mask )
 %#codegen
 % EvalLine :
 %
@@ -20,15 +20,15 @@ if ~coder.target('MATLAB')
 end
 %
 % parametrization of a straight line between P0 and P1
-P0  = CurvStruct.R0( ind );
-P1  = CurvStruct.R1( ind );
+P0  = CurvStruct.R0( mask );
+P1  = CurvStruct.R1( mask );
 % Calculate the numbre of dimension 
-nD = length( ind );
+nD  = sum( mask );
 %
-r0D = P1.*u_vec + P0.*(1-u_vec);
+r0D = P1 .* u_vec + P0.*( 1 - u_vec );
 %
 N   = length( u_vec );
 r1D = repmat( P1 - P0, 1, N );
 %
-r2D = zeros(nD, N);
-r3D = zeros(nD, N);
+r2D = zeros( nD, N );
+r3D = zeros( nD, N );

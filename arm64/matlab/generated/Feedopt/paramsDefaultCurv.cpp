@@ -5,7 +5,7 @@
 // File: paramsDefaultCurv.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 06-May-2022 16:41:55
+// C/C++ source code generated on  : 17-Jun-2022 15:07:56
 //
 
 // Include Files
@@ -26,7 +26,7 @@
 //                bool *params_gcodeInfoStruct_HSC
 //                double *params_gcodeInfoStruct_FeedRate
 //                double *params_gcodeInfoStruct_SpindleSpeed
-//                unsigned long *params_gcodeInfoStruct_gcode_source_line
+//                int *params_gcodeInfoStruct_gcode_source_line
 //                bool *params_gcodeInfoStruct_G91
 //                bool *params_gcodeInfoStruct_G91_1
 //                int *params_spline_Bl_ncoeff
@@ -53,7 +53,7 @@ void paramsDefaultCurv(
     CurveType *params_gcodeInfoStruct_Type, ZSpdMode *params_gcodeInfoStruct_zspdmode,
     bool *params_gcodeInfoStruct_TRAFO, bool *params_gcodeInfoStruct_HSC,
     double *params_gcodeInfoStruct_FeedRate, double *params_gcodeInfoStruct_SpindleSpeed,
-    unsigned long *params_gcodeInfoStruct_gcode_source_line, bool *params_gcodeInfoStruct_G91,
+    int *params_gcodeInfoStruct_gcode_source_line, bool *params_gcodeInfoStruct_G91,
     bool *params_gcodeInfoStruct_G91_1, int *params_spline_Bl_ncoeff,
     ::coder::array<double, 2U> &params_spline_Bl_breakpoints,
     unsigned long *params_spline_Bl_handle, int *params_spline_Bl_order,
@@ -63,7 +63,6 @@ void paramsDefaultCurv(
     double params_Cprim[3], double *params_delta, double params_evec[3], double *params_theta,
     double *params_pitch, double params_CoeffP5[6], double *params_Coeff)
 {
-    static const unsigned long t0_gcode_source_line{0UL};
     // 'paramsDefaultCurv:3' R0      = zeros( 6, 1 );
     // 'paramsDefaultCurv:4' R1      = zeros( 6, 1 );
     // 'paramsDefaultCurv:5' Cprim   = zeros( 3, 1 );
@@ -183,7 +182,7 @@ void paramsDefaultCurv(
     *params_gcodeInfoStruct_HSC = false;
     *params_gcodeInfoStruct_FeedRate = 0.0;
     *params_gcodeInfoStruct_SpindleSpeed = 0.0;
-    *params_gcodeInfoStruct_gcode_source_line = t0_gcode_source_line;
+    *params_gcodeInfoStruct_gcode_source_line = 0;
     *params_gcodeInfoStruct_G91 = false;
     *params_gcodeInfoStruct_G91_1 = true;
     *params_spline_Bl_ncoeff = 0;

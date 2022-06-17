@@ -1,4 +1,4 @@
-function [ R, V, A, J ] = calcRVAJfromU( ctx, Curv, u_vec, ud_vec, udd_vec, ...
+function [ R, V, A, J ] = calcRVAJfromU( ctx, curv, u_vec, ud_vec, udd_vec, ...
                           uddd_vec )
 %#codegen
 % calcRVAJfromU : Compute the pose, the velocity, the acceleration and the
@@ -14,7 +14,12 @@ function [ R, V, A, J ] = calcRVAJfromU( ctx, Curv, u_vec, ud_vec, udd_vec, ...
 %   V   : [ N x M ] velocity
 %   A   : [ N x M ] acceleration
 %   J   : [ N x M ] jerk
-[ r0D, r1D, r2D, r3D ]  = EvalCurvStruct( ctx, Curv, u_vec );
+[ r0D, r1D, r2D, r3D ]  = EvalCurvStruct( ctx, curv, u_vec );
+
+if( curv.Info.TRAFO )
+    [ r0D, r1D, r2D, r3D ] = ctx.kin.joint( r0D, r1D, r2D, r3D );
+end
+
 [ R, V, A, J ]          = calcRVAJfromUWithoutCurv( ud_vec, ...
                           udd_vec, uddd_vec, r0D, r1D, r2D, r3D );
 end

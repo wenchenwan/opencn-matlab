@@ -1,10 +1,11 @@
 clear; clc;
 
 % the current folder must be 'opencn/agency/usr/matlab/common'
+check_wkdir();
 
 % please choose the target first ( only 1 target is generated at the time )
-generate_for_arm_32 = false;
-generate_for_x86_64 = true;
+generate_for_arm_32 = true;
+generate_for_x86_64 = false;
 generate_for_arm_64 = false;
 
 [cfg, output_root] = generate_c_config( generate_for_arm_32, ...
@@ -12,23 +13,21 @@ generate_for_arm_64 = false;
     generate_for_x86_64 );
 
 % please choose the libraries to generate ( All can be generated )
-GenerateAll = false;
+GenerateAll = true;
 
 if( ~GenerateAll )
-    GenerateFeedopt    = false;
-    GenerateKinematics = true;
+    GenerateFeedopt    = true;
+    GenerateKinematics = false;
 end
 
-DEBUG = true;
+DEBUG = false;
 
 output_root = output_root + "/matlab/generated/";
 
 ERROR_COLOR = 2;
 
-if( ~strcmp( flip( strtok( flip( pwd ) , '/' ) ), 'common') ), error( 'Wrong directory, you should run the script from working driectory' ); end
-
 if( GenerateAll || GenerateFeedopt )
-    name = "Feedopt Code generation : ";
+    name    = "Feedopt Code generation : ";
     dirName = output_root + "Feedopt/";
     disp(name + "start" );
     try
@@ -54,7 +53,8 @@ function [ cfg ] = configure_kernel( cfg )
 cfg.TargetLang = 'C';
 % Language standard to use for the generated code.
 % For C, the default library is 'C99 (ISO)'.
-cfg.TargetLangStandard = 'C89/C90 (ANSI)';
+cfg.TargetLangStandard  = 'C89/C90 (ANSI)';
+cfg.FilePartitionMethod = 'SingleFile';
 end
 
 function [cfg, output_root] = generate_c_config(generate_for_arm_32, ...
@@ -196,11 +196,11 @@ cfg.CustomHeaderCode = '#include "functions.h"';
 
 if  generate_for_x86_64
     %     Manufacturer and type of the target (test) hardware board
-    cfg.HardwareImplementation.TargetHWDeviceType = 'Intel->x86-64 (Linux 64)';
+    cfg.HardwareImplementation.TargetHWDeviceType   = 'Intel->x86-64 (Linux 64)';
     %     Manufacturer and type of the production hardware board.
     %     Specifying the ProdHWDeviceType property sets device-specific properties
     %     for the production hardware.
-    cfg.HardwareImplementation.ProdHWDeviceType = 'Intel->x86-64 (Linux 64)';
+    cfg.HardwareImplementation.ProdHWDeviceType     = 'Intel->x86-64 (Linux 64)';
     %     Code replacement library for generated code.
     %     Generates calls to a specific platform, compiler,
     %     or standards code replacement library. The list of
@@ -214,12 +214,12 @@ if  generate_for_x86_64
     cfg.CodeReplacementLibrary = 'Intel SSE (Linux)';
     output_root = '../x86';
 elseif generate_for_arm_32
-    cfg.HardwareImplementation.TargetHWDeviceType = 'ARM Compatible->ARM Cortex';
-    cfg.HardwareImplementation.ProdHWDeviceType = 'ARM Compatible->ARM Cortex';
+    cfg.HardwareImplementation.TargetHWDeviceType   = 'ARM Compatible->ARM Cortex';
+    cfg.HardwareImplementation.ProdHWDeviceType     = 'ARM Compatible->ARM Cortex';
     output_root = '../arm';
 elseif generate_for_arm_64
-    cfg.HardwareImplementation.TargetHWDeviceType = 'ARM Compatible->ARM 64-bit (LP64)';
-    cfg.HardwareImplementation.ProdHWDeviceType = 'ARM Compatible->ARM 64-bit (LP64)';
+    cfg.HardwareImplementation.TargetHWDeviceType   = 'ARM Compatible->ARM 64-bit (LP64)';
+    cfg.HardwareImplementation.ProdHWDeviceType     = 'ARM Compatible->ARM 64-bit (LP64)';
     output_root = '../arm64';
 end
 

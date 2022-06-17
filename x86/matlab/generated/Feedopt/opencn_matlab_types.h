@@ -5,16 +5,18 @@
 // File: opencn_matlab_types.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 06-May-2022 16:42:15
+// C/C++ source code generated on  : 17-Jun-2022 15:17:54
 //
 
 #ifndef OPENCN_MATLAB_TYPES_H
 #define OPENCN_MATLAB_TYPES_H
 
 // Include Files
+#include "Kinematics.h"
 #include "opencn_matlab_types3.h"
 #include "queue_coder.h"
 #include "rtwtypes.h"
+#include "string1.h"
 #include "coder_array.h"
 
 // Custom Header Code
@@ -23,62 +25,37 @@
 namespace ocn {
 struct struct0_T {
     bool Skip;
-    double ColTolCos;
+    double ColTolCosLee;
 };
 
-struct struct1_T {
+struct LPCfg {
     char Type[2];
     bool EnableFindReasonInfeasibility;
     double ACC_RAMP_OVER_WINDOWS;
     double VEL_RAMP_OVER_WINDOWS;
-    bool USE_SLACK_ON_JERK;
     double SLACK_PENALTY;
     bool USE_LINPROG;
 };
 
-struct FeedoptConfig {
-    int NumberAxis;
-    int NCart;
-    int NRot;
-    int indCart[3];
-    int indRot;
-    int NDiscr;
-    int NBreak;
-    bool UseDynamicBreakpoints;
-    bool UseLinearBreakpoints;
-    double DynamicBreakpointsDistance;
-    int NHorz;
-    double vmax;
-    double amax[3];
-    double jmax[3];
-    int LeeSplineDegree;
-    int SplineDegree;
-    double CutOff;
-    double LSplit;
-    double LThreshold;
-    double CuspThreshold;
-    double v_0;
-    double at_0;
-    double v_1;
-    double at_1;
-    double dt;
-    double ZeroStartAccLimit;
-    double ZeroStartJerkLimit;
-    double ZeroStartVelLimit;
-    char source[1024];
-    bool DebugCutZero;
-    struct0_T Compressing;
-    double ColTolCos;
-    double GaussLegendreN;
-    double GaussLegendreX[5];
-    double GaussLegendreW[5];
-    struct1_T opt;
-    char LogFileName[9];
+struct emxArray_boolean_T_1x6 {
+    bool data[6];
+    int size[2];
 };
 
-struct emxArray_real_T_1x1 {
-    double data[1];
-    int size[2];
+struct emxArray_int32_T_3 {
+    int data[3];
+    int size[1];
+};
+
+struct emxArray_real_T_32 {
+    double data[32];
+    int size[1];
+};
+
+enum ReadGCodeCmd : int
+{
+    ReadGCodeCmd_Load = 1, // Default value
+    ReadGCodeCmd_Read
 };
 
 enum Fopt : int
@@ -99,6 +76,102 @@ enum FeedoptPlanError : int
     FeedoptPlanError_SmoothingFailed,
     FeedoptPlanError_SplittingFailed,
     FeedoptPlanError_OptimizationFailed
+};
+
+struct FeedoptConfig {
+    emxArray_boolean_T_1x6 maskTot;
+    emxArray_boolean_T_1x6 maskCart;
+    emxArray_boolean_T_1x6 maskRot;
+    emxArray_int32_T_3 indCart;
+    emxArray_int32_T_3 indRot;
+    int NumberAxis;
+    int NCart;
+    int NRot;
+    emxArray_real_T_32 kin_params;
+    coder::rtString kin_type;
+    int NDiscr;
+    int NBreak;
+    bool UseDynamicBreakpoints;
+    bool UseLinearBreakpoints;
+    double DynamicBreakpointsDistance;
+    int NHorz;
+    double fmax;
+    double smax;
+    double vmax[6];
+    double amax[6];
+    double jmax[6];
+    int LeeSplineDegree;
+    int SplineDegree;
+    double CutOff;
+    double LSplit;
+    double LSplitZero;
+    double LThreshold;
+    double CuspThreshold;
+    double v_0;
+    double at_0;
+    double v_1;
+    double at_1;
+    double dt;
+    double ZeroStartAccLimit;
+    double ZeroStartJerkLimit;
+    double ZeroStartVelLimit;
+    char source[1024];
+    bool DebugCutZero;
+    struct0_T Compressing;
+    double ColTolCosSmooth;
+    double GaussLegendreN;
+    double GaussLegendreX[5];
+    double GaussLegendreW[5];
+    LPCfg opt;
+    char LogFileName[9];
+};
+
+struct b_FeedoptConfig {
+    emxArray_boolean_T_1x6 maskTot;
+    ::coder::array<bool, 2U> maskCart;
+    ::coder::array<bool, 2U> maskRot;
+    emxArray_int32_T_3 indCart;
+    emxArray_int32_T_3 indRot;
+    int NumberAxis;
+    int NCart;
+    int NRot;
+    ::coder::array<double, 1U> kin_params;
+    coder::rtString kin_type;
+    int NDiscr;
+    int NBreak;
+    bool UseDynamicBreakpoints;
+    bool UseLinearBreakpoints;
+    double DynamicBreakpointsDistance;
+    int NHorz;
+    double fmax;
+    double smax;
+    double vmax[6];
+    double amax[6];
+    double jmax[6];
+    int LeeSplineDegree;
+    int SplineDegree;
+    double CutOff;
+    double LSplit;
+    double LSplitZero;
+    double LThreshold;
+    double CuspThreshold;
+    double v_0;
+    double at_0;
+    double v_1;
+    double at_1;
+    double dt;
+    double ZeroStartAccLimit;
+    double ZeroStartJerkLimit;
+    double ZeroStartVelLimit;
+    char source[1024];
+    bool DebugCutZero;
+    struct0_T Compressing;
+    double ColTolCosSmooth;
+    double GaussLegendreN;
+    double GaussLegendreX[5];
+    double GaussLegendreW[5];
+    LPCfg opt;
+    char LogFileName[9];
 };
 
 struct FeedoptContext {
@@ -125,7 +198,7 @@ struct FeedoptContext {
     double v_1;
     double at_0;
     double at_1;
-    FeedoptConfig cfg;
+    b_FeedoptConfig cfg;
     FeedoptPlanError errcode;
     int jmax_increase_count;
     bool zero_start;
@@ -133,8 +206,9 @@ struct FeedoptContext {
     int simplex_calls;
     int forced_stop;
     int programmed_stop;
-    emxArray_real_T_1x1 Coeff;
+    ::coder::array<double, 2U> Coeff;
     int Skipped;
+    Kinematics kin;
 };
 
 } // namespace ocn

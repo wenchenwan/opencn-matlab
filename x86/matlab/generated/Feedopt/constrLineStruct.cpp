@@ -5,7 +5,7 @@
 // File: constrLineStruct.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 06-May-2022 16:42:15
+// C/C++ source code generated on  : 17-Jun-2022 15:17:54
 //
 
 // Include Files
@@ -55,8 +55,8 @@ void constrLineStruct(GcodeInfoStruct *gcodeInfoStruct, const double R0[6], cons
     double f_expl_temp;
     double g_expl_temp;
     double params_spline_Ltot;
-    unsigned long expl_temp_gcode_source_line;
     unsigned long params_spline_Bl_handle;
+    int expl_temp_gcode_source_line;
     int params_spline_Bl_ncoeff;
     int params_spline_Bl_order;
     bool expl_temp_G91;

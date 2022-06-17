@@ -5,7 +5,7 @@
 // File: paramsDefaultCurv.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 06-May-2022 16:42:15
+// C/C++ source code generated on  : 17-Jun-2022 15:17:54
 //
 
 #ifndef PARAMSDEFAULTCURV_H
@@ -26,7 +26,7 @@ void paramsDefaultCurv(
     CurveType *params_gcodeInfoStruct_Type, ZSpdMode *params_gcodeInfoStruct_zspdmode,
     bool *params_gcodeInfoStruct_TRAFO, bool *params_gcodeInfoStruct_HSC,
     double *params_gcodeInfoStruct_FeedRate, double *params_gcodeInfoStruct_SpindleSpeed,
-    unsigned long *params_gcodeInfoStruct_gcode_source_line, bool *params_gcodeInfoStruct_G91,
+    int *params_gcodeInfoStruct_gcode_source_line, bool *params_gcodeInfoStruct_G91,
     bool *params_gcodeInfoStruct_G91_1, int *params_spline_Bl_ncoeff,
     ::coder::array<double, 2U> &params_spline_Bl_breakpoints,
     unsigned long *params_spline_Bl_handle, int *params_spline_Bl_order,

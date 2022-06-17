@@ -1,27 +1,84 @@
 clc; clear;
 
-R    = sym('R', [6, 1], 'real');
-Rp   = sym('Rp', [6, 1], 'real');
-Rpp  = sym('Rpp', [6, 1], 'real');
-Rppp = sym('Rppp', [6, 1], 'real');
+[ outputDir ] = setup();
+%% Matlab symbolic tool box
+R   = sym( 'R',  [5, 1], 'real' );
+Rp  = sym( 'Rp', [5, 1], 'real' );
+Rpp = sym( 'Rpp',[5, 1], 'real' );
 
-A    = sym('A', [6, 1], 'real');
-Ap   = sym('Ap', [6, 1], 'real');
-App  = sym('App', [6, 1], 'real');
-Appp = sym('Appp', [6, 1], 'real');
+A   = sym( 'R',  [5, 1], 'real' );
+Ap  = sym( 'Ap', [5, 1], 'real' );
+App = sym( 'App',[5, 1], 'real' );
 
-P   = sym('P', [3, 4], 'real');
-% P = [mx, tx,  px,  d1;
-%      my, ty, p_y,  d2;
-%      mz, tz,  pz, t_l];
+P   = sym( 'P',  [3, 4], 'real' );
 
-%% Interface paramètre OpenCN -> mondel
-% P = paramInter(P_ocn);
+% Kinematic basic models
+[ world ] = forwardKinematicModel_Factory( A, P );
+[ joint ] = backwardKinematicModel_Factory( R, P );
 
-%% Kinematic models
-world = forwardKinematicModel_Factory( A, P );
-joint = backwardKinematicModel_Factory( R, P );
+% Jacobians
+J_ar   = simplify( jacobian( joint,  R ) );
+JP_ar  = simplify( jacobian( J_ar  * Rp, R ) );
+J2P_ar = simplify( jacobian( JP_ar * Rp, R ) + jacobian( JP_ar * Rpp, Rp ) );
 
+J_ra   = simplify( jacobian( world,  A) );
+JP_ra  = simplify( jacobian( J_ra  * Ap, A ) );
+J2P_ra = simplify( jacobian( JP_ra * Ap, A) + jacobian( JP_ra * App, Ap ) );
+
+%% Matlab code generation
+TO_REPLACE  = 'TO_REPLACE';
+
+% Backward kinematics
+fileName    = outputDir + ...
+              KinematicsTypeName.get_fun_name( KinFunctionName.MGI ) + ".m";
+matlabFunction( joint, 'vars', {R, P}, 'file', fileName, 'Comments', TO_REPLACE );
+write_comments( fileName, TO_REPLACE, KinFunctionName.MGI );
+
+% Forward kinematics
+fileName    = outputDir + ...
+              KinematicsTypeName.get_fun_name( KinFunctionName.MGD ) + ".m";
+matlabFunction( world, 'vars', {A, P}, 'file', fileName, 'Comments', TO_REPLACE );
+write_comments( fileName, TO_REPLACE, KinFunctionName.MGD );
+
+% Jacobian ( backward )
+fileName    = outputDir + ...
+              KinematicsTypeName.get_fun_name( KinFunctionName.J_ar ) + ".m";
+matlabFunction( J_ar,  'vars',  {R, P}, 'file', fileName, 'Comments', TO_REPLACE );
+write_comments( fileName, TO_REPLACE, KinFunctionName.J_ar );
+
+% Jacobian ( forward )
+fileName    = outputDir + ...
+              KinematicsTypeName.get_fun_name( KinFunctionName.J_ra ) + ".m";
+matlabFunction( J_ra,  'vars',  {A, P}, 'file', fileName, 'Comments', TO_REPLACE );
+write_comments( fileName, TO_REPLACE, KinFunctionName.J_ra );
+
+% Jacobian first derivative ( backward )
+fileName    = outputDir + ...
+              KinematicsTypeName.get_fun_name( KinFunctionName.JP_ar ) + ".m";
+matlabFunction( JP_ar,  'vars',  {R, Rp, P}, 'file', fileName, 'Comments', TO_REPLACE );
+write_comments( fileName, TO_REPLACE, KinFunctionName.JP_ar );
+
+% Jacobian first derivative ( forward )
+fileName    = outputDir + ...
+              KinematicsTypeName.get_fun_name( KinFunctionName.JP_ra ) + ".m";
+matlabFunction( JP_ra,  'vars',  {A, Ap, P}, 'file', fileName, 'Comments', TO_REPLACE );
+write_comments( fileName, TO_REPLACE, KinFunctionName.JP_ra );
+
+% Jacobian second derivative ( backward )
+fileName    = outputDir + ...
+              KinematicsTypeName.get_fun_name( KinFunctionName.J2P_ar ) + ".m";
+matlabFunction( J2P_ar,  'vars',  {R, Rp, Rpp, P}, 'file', fileName, 'Comments', TO_REPLACE );
+write_comments( fileName, TO_REPLACE, KinFunctionName.J2P_ar );
+
+% Jacobian second derivative ( forward )
+fileName    = outputDir + ...
+              KinematicsTypeName.get_fun_name( KinFunctionName.J2P_ra ) + ".m";
+matlabFunction( J2P_ra,  'vars',  {A, Ap, App, P}, 'file', fileName, 'Comments', TO_REPLACE );
+write_comments( fileName, TO_REPLACE, KinFunctionName.J2P_ra );
+
+function [ outputDir ] = setup()
+
+check_wkdir();
 outputDir = "kinematics/gen_fun/";
 path_mex = genpath( outputDir );
 rmpath( path_mex );
@@ -30,38 +87,114 @@ if( isfolder( outputDir ) ), rmdir( outputDir, 's' ); end
 mkdir( outputDir );
 addpath( path_mex );
 
-% Create function
-matlabFunction(world, 'vars', {A, P}, 'file', outputDir + "kin_forward_xyzbc");
-matlabFunction(joint, 'vars', {R, P}, 'file', outputDir + "kin_inverse_xyzbc");
+end
 
-%% Jacobian
-J_ra   = simplify(jacobian(world( 1 : 3 ), A));
-J_raP  = simplify(jacobian(J_ra * Ap,  A));
-J_raPP = simplify(jacobian(J_raP * Ap, A) + jacobian(J_raP * App, Ap));
+function [] = write_comments( fileName, to_replace, name )
+[ comments ] = get_comments( name );
+comments     = join( comments , "\n%" );
+fid          = fopen( fileName, 'r' );
+f            = fread( fid, '*char' )';
+fclose( fid );
+f            = regexprep( f, to_replace, comments );
+fid          = fopen( fileName, 'w' );
+fprintf( fid, '%s', f );
+fclose( fid );
+end
 
-J_ar   = simplify(jacobian(joint( 1 : 3 ), R));
-J_arP  = simplify(jacobian(J_ar * Rp,  R));
-J_arPP = simplify(jacobian(J_arP * Rp, R) + jacobian(J_arP * Rpp, Rp));
+function [ c ] = get_comments( name )
 
-speed_w = J_ra*Ap;
-speed_j = J_ar*Rp;
+comments.r_a        =  "\tr_a : 5 x 1 : pose vector( joint )";
+comments.v_a        =  "\tv_a : 5 x 1 : speed vector( joint )";
+comments.a_a        =  "\ta_a : 5 x 1 : acceleration vector( joint )";
+comments.j_a        =  "\tj_a : 5 x 1 : jerk vector( joint )";
+comments.r_r        =  "\tr_r : 5 x 1 : pose vector ( relative )";
+comments.v_r        =  "\tv_r : 5 x 1 : speed vector ( relative )";
+comments.a_r        =  "\ta_a : 5 x 1 : acceleration vector( relative )";
+comments.j_r        =  "\tj_r : 5 x 1 : jerk vector( relative )";
+comments.p          =  "\tp   : 5 x 1 : parameters";
+comments.M          =  "\tM   : 5 x 5 : resulting matrix";
+comments.inputs     = "INPUTS : ";
+comments.outputs    = "OUTPUTS : ";
+comments.codegen    = "#codegen";
 
-acc_w   = J_raP*Ap + J_ra*App;
-acc_j   = J_arP*Rp + J_ar*Rpp;
-
-jerk_w  = J_raPP*Ap + 2*J_raP*App + J_ra*Appp;
-jerk_j  = J_arPP*Rp + 2*J_arP*Rpp + J_ar*Rppp;
-
-% Create function
-matlabFunction(speed_w, 'vars',  {A, Ap, P}, 'file', outputDir + "/kin_forward_jacobian_xyzbc");
-matlabFunction(speed_j, 'vars',  {R, Rp, P}, 'file', outputDir + "/kin_inverse_jacobian_xyzbc");
-
-matlabFunction(acc_w,   'vars',  {A, Ap, App, P}, 'file', outputDir + "/kin_forward_jacobian_1pd_xyzbc");
-matlabFunction(acc_j,   'vars',  {R, Rp, Rpp, P}, 'file', outputDir + "/kin_inverse_jacobian_1pd_xyzbc");
-
-matlabFunction(jerk_w,  'vars',  {A, Ap, App, Appp, P}, 'file', outputDir + "/kin_forward_jacobian_2pd_xyzbc");
-matlabFunction(jerk_j,  'vars',  {R, Rp, Rpp, Rppp, P}, 'file', outputDir + "/kin_inverse_jacobian_2pd_xyzbc");
-
-
-
-
+switch( name )
+    case KinFunctionName.MGI
+        c = [ "Backward Kinematics ( Inverse Geometrique Model ) : ", ...
+            comments.inputs, ...
+            comments.r_r, ...
+            comments.p ,...
+            comments.outputs,...
+            comments.r_a, ...
+            comments.codegen];
+    case KinFunctionName.MGD
+        c = [ "Forward Kinematics ( Direct Geometrique Model )  : ", ...
+            comments.inputs, ...
+            comments.r_a, ...
+            comments.p ,...
+            comments.outputs,...
+            comments.r_r, ...
+            comments.codegen];
+    case KinFunctionName.J_ar
+        c = [ "Jacobian Kinematics ( backward ) : ", ...
+            comments.inputs, ...
+            comments.r_r, ...
+            comments.v_r, ...
+            comments.p ,...
+            comments.outputs,...
+            comments.M , ...
+            comments.codegen];
+    case KinFunctionName.J_ra
+        c = [ "Jacobian Kinematics ( forward ) : ", ...
+            comments.inputs, ...
+            comments.r_a, ...
+            comments.v_a, ...
+            comments.p ,...
+            comments.outputs,...
+            comments.M , ...
+            comments.codegen];
+    case KinFunctionName.JP_ar
+        c = [ "Jacobian first derivative ( backward ) : ", ...
+            comments.inputs, ...
+            comments.r_r, ...
+            comments.v_r, ...
+            comments.a_r, ...
+            comments.p ,...
+            comments.outputs,...
+            comments.M , ...
+            comments.codegen];
+    case KinFunctionName.JP_ra
+        c = [ "Jacobian first derivative ( forward ) : ", ...
+            comments.inputs, ...
+            comments.r_a, ...
+            comments.v_a, ...
+            comments.a_a, ...
+            comments.p ,...
+            comments.outputs,...
+            comments.M , ...
+            comments.codegen];
+    case KinFunctionName.J2P_ar
+        c = [ "Jacobian second derivative ( backward ) : ", ...
+            comments.inputs, ...
+            comments.r_r, ...
+            comments.v_r, ...
+            comments.a_r, ...
+            comments.j_r, ...
+            comments.p ,...
+            comments.outputs,...
+            comments.M , ...
+            comments.codegen];
+    case KinFunctionName.J2P_ra
+        c = [ "Jacobian second derivative ( forward ) : ", ...
+            comments.inputs, ...
+            comments.r_a, ...
+            comments.v_a, ...
+            comments.a_a, ...
+            comments.j_a, ...
+            comments.p ,...
+            comments.outputs,...
+            comments.M , ...
+            comments.codegen];
+    otherwise
+        error( string( name ) + " : Is not a valide function name" );
+end
+end

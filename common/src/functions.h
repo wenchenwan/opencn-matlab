@@ -3,7 +3,7 @@
 
 #include "c_spline.h"
 
-#include <matlab_headers.h>
+// #include <matlab_headers.h>
 
 #ifdef __KERNEL__
 #error "This should not be used in the kernel"

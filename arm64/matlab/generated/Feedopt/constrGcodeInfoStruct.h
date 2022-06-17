@@ -5,7 +5,7 @@
 // File: constrGcodeInfoStruct.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 06-May-2022 16:41:55
+// C/C++ source code generated on  : 17-Jun-2022 15:07:56
 //
 
 #ifndef CONSTRGCODEINFOSTRUCT_H
@@ -24,7 +24,7 @@
 namespace ocn {
 extern void constrGcodeInfoStruct(CurveType Type, ZSpdMode b_ZSpdMode, bool trafo, bool HSC,
                                   bool G91, bool G91_1, double FeedRate, double SpindleSpeed,
-                                  unsigned long gcode_source_line, GcodeInfoStruct *GCodeInfoStrct);
+                                  int gcode_source_line, GcodeInfoStruct *GCodeInfoStrct);
 
 }
 

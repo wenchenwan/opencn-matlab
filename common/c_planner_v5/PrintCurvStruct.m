@@ -13,9 +13,10 @@ switch S.Info.Type
     case CurveType.TransP5
         fprintf( ' CoeffP5: \n' );
         fprintf( '| ' )
-        for CoeffRow = S.CoeffP5'
-            for v = CoeffRow
-                fprintf( '%.3f ', v( 1 ) )
+        [ NLine, NRow ] = size( S.CoeffP5 );
+        for j = 1 : NLine
+            for k = 1 : NRow
+                fprintf( '%.3f ', S.CoeffP5( j, k ) )
             end
             fprintf( '| ' )
         end

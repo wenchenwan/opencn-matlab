@@ -1,5 +1,7 @@
 clc; clear; close all;
 
+check_wkdir(); % If current directory is the working directory
+
 d         = datestr(datetime('now'));
 Cd        = cd;                             % current folder
 
@@ -126,7 +128,7 @@ for k = 1:NGcodes
         cfg.amax = Comb(i).a_max;
         cfg.jmax = Comb(i).j_max;
         cfg.CutOff = Comb(i).Cut_Off;
-        ctx = InitFeedoptPlan(cfg);
+        ctx = initFeedoptPlan(cfg);
         
         % Log file header
         DebugLog(DebugCfg.Validate, [cfg.source, '\n']);

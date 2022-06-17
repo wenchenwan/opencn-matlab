@@ -70,7 +70,7 @@ int c_open_gcode(const char* filename, ocn::CurvStruct*)
 
 int c_read_and_exec_gcode(const char *, ocn::CurvStruct *value)
 {
-    Curv.Type = ocn::CurveType_None;
+    Curv.Info.Type = ocn::CurveType_None;
     int status = INTERP_OK;
     status = interp.read();
     

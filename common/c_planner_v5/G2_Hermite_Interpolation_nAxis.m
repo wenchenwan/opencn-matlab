@@ -256,7 +256,7 @@ else
         alpha1   = alpha1_u(1);
         [beta0, beta1] = Calc_beta0_beta1(alpha0, alpha1, ...
                                           r0D0, t0, n0, ...
-                                          r1D0, t1, n1);
+                                          r1D0, t1, n1, D);
 
     end
 

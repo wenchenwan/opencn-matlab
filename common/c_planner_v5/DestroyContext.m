@@ -7,11 +7,9 @@ function DestroyContext(ctx)
     
     bspline_destroy(ctx.Bl);
     
-%     if coder.target('rtw') || coder.target('mex')
-        for k = 1:ctx.q_spline.size
-            bspline_destroy(ctx.q_spline.get(k).sp.Bl);
-        end
-%     end
+    for k = 2 : ctx.q_spline.size
+        bspline_destroy( ctx.q_spline.get(k).sp.Bl );
+    end
     
     ctx.q_spline.delete();
     

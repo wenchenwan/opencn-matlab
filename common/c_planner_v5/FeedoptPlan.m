@@ -3,7 +3,7 @@ function [ctx, optimized, opt_struct] = FeedoptPlan(ctx)
 % See InitFeedoptPlan for information about the context variable ctx
 
 c_assert( ctx.errcode == FeedoptPlanError.Success, ...
-                                'FeedoptPlan: error code was not handled');
+    'FeedoptPlan: error code was not handled' );
 
 optimized = false;
 
@@ -20,24 +20,24 @@ switch ctx.op
         while status
             [ status, CurvStruct ] = ReadGCode( ReadGCodeCmd.Read, '' );
 
-            for i = 1:6
-                if isnan(CurvStruct.R0(i))
-                    CurvStruct.R0(i) = 0;
+            for j = 1 : StructTypeName.NumberAxisMax
+                if isnan( CurvStruct.R0( j ) )
+                    CurvStruct.R0( j ) = 0 ;
                 end
-                if isnan(CurvStruct.R1(i))
-                    CurvStruct.R1(i) = 0;
+                if isnan( CurvStruct.R1( j ) )
+                    CurvStruct.R1( j ) = 0;
                 end
             end
 
-            if( CurvStruct.Info.FeedRate == 0 )
-                CurvStruct.Info.FeedRate = ctx.cfg.vmax; 
+            if( CurvStruct.Info.FeedRate == 0.0 )
+                CurvStruct.Info.FeedRate = ctx.cfg.fmax;
             end
             if( status == 1 && CurvStruct.Info.Type ~= 0 )
-                if ( CurvStruct.Info.FeedRate == 0.0 ) 
+                if ( CurvStruct.Info.FeedRate == 0.0 )
                     % check for undefined feedrate
-                    CurvStruct.Info.FeedRate = ctx.cfg.vmax;
+                    CurvStruct.Info.FeedRate = ctx.cfg.fmax;
                 end
-%                 PrintCurvStruct( ctx, CurvStruct );
+                %                 PrintCurvStruct( ctx, CurvStruct );
                 ctx.q_gcode.push( CurvStruct );
             end
         end
@@ -54,78 +54,55 @@ switch ctx.op
             last.Info.zspdmode = ZSpdMode.ZZ;
         end
         ctx.q_gcode.set( ctx.q_gcode.size, last );
-        % For testing
-        sizeGcode = ctx.q_gcode.size
-%         geometricPlot( ctx )
+
         ctx.op = Fopt.Check;
-    
+        
     case Fopt.Check
         ctx     = CheckCurvStructs( ctx );
         ctx.op  = Fopt.Compress;
 
     case Fopt.Compress
         if ctx.cfg.Compressing.Skip
-            ctx = ExpandZeroStructs(ctx);
+            for j = 1 : ctx.q_gcode.size % Copy queue GCode in queue Compress
+                ctx.q_compress.push( ctx.q_gcode.get( j ) );
+            end
         else
-            ctx = compressCurvStructs(ctx);
+            ctx = compressCurvStructs_new(ctx);
         end
-
-        % For testing
-        sizeCompress = ctx.q_compress.size
-%         geometricPlot( ctx )
+        
+%         if( ctx.q_compress.size > 1 )
+%             error( "should be only compressing"); 
+%         end
 
         ctx.op = Fopt.Smooth;
-        if( coder.target( 'MATLAB') ), ctx.q_gcode.delete(); end        
-    
+        if( coder.target( 'MATLAB') ), ctx.q_gcode.delete(); end
+
     case Fopt.Smooth
         ctx = smoothCurvStructs(ctx);
-
-        % For testing
-        sizeSmooth = ctx.q_smooth.size
-%         geometricPlot( ctx )
-         % Check of the zspdmode
-        zspmodevec = zeros(1, sizeSmooth);
-
-        for i = 1:sizeSmooth
-            Curv = ctx.q_smooth.get(i);      % Get Curv in the queue
-            Curv.Info.zspdmode
-            zspmodevec(i) = Curv.Info.zspdmode;
-        end
-
         ctx.op = Fopt.Split;
-        if( coder.target( 'MATLAB') ), ctx.q_compress.delete(); end        
-            
+        if( coder.target( 'MATLAB') ), ctx.q_compress.delete(); end
+
     case Fopt.Split
-        ctx = SplitCurvStructs(ctx);
+        ctx = splitQueue( ctx );
+        if( coder.target( 'MATLAB' ) ), ctx.q_smooth.delete(); end
+        ctx.op = Fopt.Opt;
 
-        % For testing
-        sizeSplit = ctx.q_split.size
-        ctx.op = Fopt.Finished; % SAUTE L'OPTIMISATION
-
-        if( coder.target( 'MATLAB') ), ctx.q_smooth.delete(); end        
-    
-        DebugLog(DebugCfg.Validate, 'Feedrate Planning...\n');
-        if coder.target('matlab')
-            diary off;
-        end
-    
     case Fopt.Opt
-%         [ ctx, optimized, opt_curv, quit ] = feedratePlanning( ctx );
-%         
-%         if optimized
-%             ctx.go_next = true;
-%             ctx.q_opt.push( opt_curv );
-%         end
-% 
-%         if( quit ), return; end
+        [ ctx, optimized, opt_curv, quit ] = feedratePlanning( ctx );
+        if optimized
+            ctx.go_next = true;
+            ctx.q_opt.push( opt_curv );
+        end
+
+        if( quit ), return; end
 
     case Fopt.Finished
         ctx.op = Fopt.Finished;
-        
+
     otherwise
         DebugLog(DebugCfg.Global, 'FEEDOPT: WRONG STATE\n')
         ctx.op = Fopt.Finished;
-        
+
 end
 
 end

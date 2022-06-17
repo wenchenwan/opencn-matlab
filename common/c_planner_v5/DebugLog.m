@@ -3,7 +3,7 @@ function DebugLog(cfg, varargin)
     % 2 -> stderr
     
     if IsEnabledDebugLog(cfg)
-        fprintf(1, varargin{:});        
+        fprintf( 1, varargin{:} );        
     end
 
 end

@@ -5,7 +5,7 @@
 // File: opencn_matlab_data.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 06-May-2022 16:41:55
+// C/C++ source code generated on  : 17-Jun-2022 15:07:56
 //
 
 // Include Files
@@ -14,6 +14,17 @@
 // Variable Definitions
 namespace ocn {
 double sqrt_calls;
+
+double cos_calls;
+
+double sin_calls;
+
+double DebugConfig;
+
+const char cv1[54]{'u', '1', ' ', 'm', 'u', 's', 't', ' ', 'b', 'e', ' ', 'g', 'r', 'e',
+                   'a', 't', 'e', 'r', ' ', 'o', 'r', ' ', 'e', 'q', 'u', 'a', 'l', ' ',
+                   't', 'h', 'a', 'n', ' ', 't', 'h', 'e', ' ', 'f', 'i', 'r', 's', 't',
+                   ' ', 's', 'p', 'l', 'i', 'n', 'e', ' ', 'k', 'n', 'o', 't'};
 
 bool isInitialized_opencn_matlab{false};
 

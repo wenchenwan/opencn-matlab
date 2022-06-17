@@ -1,0 +1,9 @@
+function [ state ] = resampleCurvOCN(state, Bl, curv_mode, ...
+    coeff, constJerk, dt, ...
+    curv_a, curv_b)
+% resampleCurvOCN :
+% Interface for the resampling in ocn
+[ state ] = resampleCurv(state, Bl, curv_mode, coeff, constJerk, dt, ...
+            curv_a, curv_b);
+
+end

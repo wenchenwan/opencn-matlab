@@ -11,5 +11,5 @@ function [ vNorm, atNorm ] = calcNormVNormAT( V, A, r1D )
 % atNorm  : Norm of the tangential acceleration
 vNorm   = mysqrt( sum( V.^2, 1 ) );
 t       = r1D / MyNorm( r1D );
-atNorm  = norm( A.*t );
+atNorm  = MyNorm( A.*t );
 end

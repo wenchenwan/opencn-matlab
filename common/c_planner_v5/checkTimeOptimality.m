@@ -24,7 +24,7 @@ for k = 1 : N
 
     Curv                        = ctx.q_opt.get( k );
     SplineCurv                  = ctx.q_spline.get( Curv.sp_index );
-    Curv.MaxConstantFeedRate    = GetCurvMaxFeedrate( ctx, Curv );
+    Curv.MaxConstantFeedRate    = 0; %GetCurvMaxFeedrate( ctx, Curv );
     
     
     while ~state.go_next
@@ -38,13 +38,13 @@ for k = 1 : N
             state.dt = dt;
 
             u       = state.u + double(k) - 1 ; 
-            cf      = GetCurvMaxFeedrate(ctx, Curv);
-            f       = Curv.FeedRate;
+            cf      = 0;%GetCurvMaxFeedrate(ctx, Curv);
+            f       = Curv.Info.FeedRate;
             [ r, v, a, j ] = calcRVAJfromU( ctx, Curv, state.u, ud, udd, uddd );
             feed    = vecnorm( v );   
-            feed    = feed / Curv.FeedRate;
-            a       = abs( a ./ ctx.cfg.amax' );
-            j       = abs( j ./ ctx.cfg.jmax' );
+            feed    = feed / Curv.Info.FeedRate;
+            a       = abs( a ./ ctx.cfg.amax( ctx.cfg.maskTot )' );
+            j       = abs( j ./ ctx.cfg.jmax( ctx.cfg.maskTot )' );
             
             if(  (Curv.Info.zspdmode == ZSpdMode.NN) && max(j) > maxJerk )
                 maxJerk = max(j); 

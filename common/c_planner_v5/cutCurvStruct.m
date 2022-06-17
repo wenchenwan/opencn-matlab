@@ -1,50 +1,39 @@
-function CurvStruct1 = cutCurvStruct(ctx, CurvStruct, d0, d1)
-% We cut d0 [mm] in the beginning and d1 [mm] in the end of the segment
-% We determine a new value of the parameter u_tilda
+function [ curvC ] = cutCurvStruct( ctx, curv, u0, L, isEnd )
+% cutCurvStruct: Cut a piece of the structure with a size of L
+% starting at point u0
+% Inputs :
+% ctx   : Context
+% curv  : Curvature
+% u0    : Starting point of the spline
+% L     : Length of the segment of curv
+% isEnd : Is a zero stop curv
+% Outputs :
+% u1    : The last point of the splitted curv
 
-a = CurvStruct.a_param;
-b = CurvStruct.b_param;
+a = curv.a_param;
+b = curv.b_param;
 
-if CurvStruct.Info.Type == CurveType.Spline
-        
-    u0_tilda = a*0+b;
-    u1_tilda = a*1+b;
+u1_tilda = cutCurvStructU( ctx, curv, u0, L, isEnd );
+
+curvC = curv;
+
+if( isEnd )
+    curvC.b_param = u1_tilda;
+    curvC.a_param = a + b - curvC.b_param;
     
-    if d0 ~= 0        
-        u0_tilda  = SplineLengthFindU_up(ctx, CurvStruct, d0, u0_tilda);
+    if( isAZeroEnd( curvC ) )
+        curvC.Info.zspdmode = ZSpdMode.NZ;
     else
-        u0_tilda = a*0+b;
-    end
-    
-    if d1 ~= 0
-        u1_tilda  = SplineLengthFindU_down(ctx, CurvStruct, d1, u1_tilda);
-    else
-        u1_tilda = a*1+b; 
+        curvC.Info.zspdmode = ZSpdMode.NN;
     end
 
 else
-    
-    % In case of helix and line, ||r'(u)||=const,
-    % for 0 < u < 1
-    
-    % r1D0 and r1D1 are with respect to u
-    [~, r1D0] = EvalCurvStruct(ctx, CurvStruct, 0);
-    [~, r1D1] = EvalCurvStruct(ctx, CurvStruct, 1);
-
-    % d0 = Integral_0_u0 ||r'(u)||du
-    % d1 = Integral_u1_1 ||r'(u)||du
-    u0 = d0/MyNorm(r1D0);
-    u1 = 1 - d1/MyNorm(r1D1);
-    
-    % conversion to native curve parameter u_tilda
-    u0_tilda = a*u0+b;
-    u1_tilda = a*u1+b;
-        
+    curvC.a_param = u1_tilda - curvC.b_param;
+    if( isAZeroStart( curvC ) )
+        curvC.Info.zspdmode = ZSpdMode.ZN;
+    else
+        curvC.Info.zspdmode = ZSpdMode.NN;
+    end
 end
-
-CurvStruct1 = CurvStruct;
-
-CurvStruct1.a_param = u1_tilda - u0_tilda;
-CurvStruct1.b_param = u0_tilda;
 
 end

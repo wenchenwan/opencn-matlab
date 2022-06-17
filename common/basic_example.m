@@ -4,11 +4,13 @@
 %
 clc; clear all; close all;
 
+check_wkdir(); % If current directory is the working directory
+
 % Load default configuration parameters
 cfg = FeedoptDefaultConfig;
 
 % Set the path to the gcode file
-cfg.source = 'ngc_test/anchor.ngc';
+cfg.source = 'ngc_test/unit/004_single_segment.ngc';
 
 % Logging
 setupLogs( cfg.LogFileName ); diary on;
@@ -21,8 +23,9 @@ try
     % Run the geometrics operations, then solve the LP problem
     ctx = FeedoptPlanRun( ctx );                                     
     
-    % Plot path before resampling
-    geometricPlot( ctx );
+    % Plot geometry
+    plotGeometry(ctx, ctx.cfg, ctx.q_opt, ctx.q_spline );
+    pause( 0.5 );
 
     % Resampling of the parameter
     fileName = '.tmp.csv' ;
@@ -31,9 +34,9 @@ try
     % Load resampled data points
     res = readmatrix( fileName );
     delete( fileName );
-
+ 
     % Transforms structure into vector for analysis
-    [res_struct, indFeed, indAcc, indJerk] = get_res_struct( res );
+    [res_struct, indFeed, indAcc, indJerk] = get_res_struct( res, ctx.cfg.maskTot );
 
     % Analyse time optimality and constraints satisfaction
     analyse_optimality( res, indFeed, indAcc, indJerk, ctx.cfg.dt );
@@ -115,15 +118,16 @@ disp("Optimality jerk : "           + sum( t_opt_res(:, 3) ) / ...
     res(end, 1) * 100 + "[%]" );
 end
 
-function [res_struct, indFeed, indAcc, indJerk] = get_res_struct( res )
+function [res_struct, indFeed, indAcc, indJerk] = get_res_struct( res, mask )
+ind     = 1 : sum( mask );
 indFeed = 3;
-indR    = 5  + [ 1 : 3 ];
-indAcc  = 8  + [ 1 : 3 ];
-indJerk = 11 + [ 1 : 3 ];
+indR    = 5  + ind;
+indAcc  = indR( end )    + ind;
+indJerk = indAcc( end )  + ind;
 
 res_struct.tvec       = res( :, 1 );
 res_struct.uvec       = res( :, 2 );
-res_struct.vvec       = res( :, 3 );
+res_struct.vvec       = res( :, 3 ) .* res( :, 4 ) * 60;
 res_struct.fvec       = res( :, 4 ) * 60;
 res_struct.cfvec      = res( :, 5 ) * 60;
 res_struct.pvec       = res( :, indR );
@@ -156,100 +160,6 @@ end
 if bitand(status, 8) ~= 0
     msg = 'Not time optimal!\n';
 end
-end
-
-function plotTrajectories(ctx, res_struct)
-% plotTrajectories :
-%
-% Plot the resluting trajectory of the optimization problem.
-%
-% ctx       : The contex
-% fOpt_vec  : A structure of the resulting trajectories
-PLOT_DIFF = true;
-
-data = table(res_struct.uvec, res_struct.tvec, res_struct.pvec, res_struct.vvec,...
-    res_struct.avec, res_struct.jvec, res_struct.fvec, res_struct.cfvec);
-
-figure
-subplot(3,3,[1,2,4,5,7,8])
-scatter3(res_struct.pvec(:, 1), res_struct.pvec(:, 2), res_struct.pvec(:, 3), 1,...
-    res_struct.vvec*60, 'o')
-colormap jet
-set(gca, 'Projection','orthographic')
-% axis vis3d
-% equal
-xlabel('x')
-ylabel('y')
-zlabel('z')
-colorbar
-
-dcm_obj = datacursormode(gcf);
-set(dcm_obj,'UpdateFcn',{@myupdatefcn,ctx, data})
-
-if( PLOT_DIFF )
-    %     fOpt_vec.uvec = 1 : length(fOpt_vec.uvec);
-    [ v_diff, a_diff, j_diff ] = ...
-        computeNumericalDerivation( res_struct.pvec, ctx.cfg.dt );
-
-    v_diff = vecnorm( v_diff )';
-    a_diff = a_diff ./ ctx.cfg.amax';
-    j_diff = j_diff ./ ctx.cfg.jmax';
-    %     fOpt_vec.uvec = fOpt_vec.tvec;
-end
-
-ax(1) = subplot(3,3,3);
-
-if( PLOT_DIFF )
-    plot(res_struct.uvec(2:end), v_diff * 60, 'b.', res_struct.uvec(2:end), ...
-        res_struct.fvec(2:end), 'r');
-else
-    plot(res_struct.uvec, res_struct.vvec*60, 'b', res_struct.uvec, ...
-        res_struct.fvec, 'r');
-end
-
-title('Velocity in mm/min')
-xlabel('Cumulative u')
-legend('norm', 'Specified Feedrate')
-grid
-
-ax(2) = subplot(3,3,6);
-
-if( PLOT_DIFF )
-    plot(res_struct.uvec(3:end), a_diff);
-else
-    plot(res_struct.uvec, res_struct.avec);
-end
-
-title('Normalized acceleration in mm/s^2')
-xlabel('Cumulative u')
-legend('x', 'y', 'z')
-ylim([-1.2 1.2])
-grid
-%
-% ax(3) = subplot(3,3,9);
-% plot(fOpt_vec.uvec, fOpt_vec.pvec)
-% title('Position')
-% xlabel('Cumulative u')
-% legend('x', 'y', 'z')
-% grid
-
-
-ax(3) = subplot(3,3,9);
-
-if( PLOT_DIFF )
-    plot(res_struct.uvec(4:end), j_diff);
-else
-    plot(res_struct.uvec, res_struct.jvec);
-end
-title('Normalized jerk in mm/s^3')
-xlabel('Cumulative u')
-ylim([-1.4 1.4])
-legend('x', 'y', 'z')
-grid
-
-
-linkaxes(ax, 'x');
-xlim([res_struct.uvec(1) res_struct.uvec(end)])
 end
 
 function [] = setupLogs( logFileName )

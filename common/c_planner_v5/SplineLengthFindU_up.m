@@ -1,4 +1,4 @@
-function u  = SplineLengthFindU_up(ctx, Curv, L, u1)
+function u  = SplineLengthFindU_up(ctx, curv, L, u1)
 % computes approximately the value of curve parameter u such that the arc 
 % length starting from u1 equals L.
 % This function takes usage of the precalculated arc lengths between knots.
@@ -13,8 +13,8 @@ IND_KNOTS_MULT  = 4;         % Index used to remove multiple knots
 %                              (ONLY TRUE FOR CUBIC SPLINE)
 
 % Get the sp structure
-Spline = ctx.q_spline.get(Curv.sp_index);
-sp     = Spline.sp;
+spline = ctx.q_spline.get( curv.sp_index );
+sp     = spline.sp;
 
 % Eliminate multiplicities at the end points
 Knots  = sp.knots( IND_KNOTS_MULT : end - IND_KNOTS_MULT + 1 ); 
@@ -32,7 +32,7 @@ while u1 > Knots(k)
 end
 %
 % Length to next break point
-Lcum = SplineLengthApprox_Interval1(ctx, Curv, u1, Knots(k)); 
+Lcum = SplineLengthApprox_Interval1(ctx, curv, u1, Knots(k)); 
 %
 while Lcum < L
     if k > N-1
@@ -56,8 +56,8 @@ uk_old = 2;
 % Iterate until new value of uk is close to old value
 while abs(uk - uk_old) > DEFAULT_TOL_NR  
     % Evaluation of function which should become zero
-    fk = SplineLengthApprox_Interval1(ctx, Curv, u0, uk) - Lremain;
-    [~, r1D]  = EvalBSpline(Spline, uk);
+    fk = SplineLengthApprox_Interval1(ctx, curv, u0, uk) - Lremain;
+    [~, r1D]  = EvalBSpline(spline, uk);
     % Evaluation of the derivative of the function which should become zero
     Dfk       = MyNorm(r1D);   
     %

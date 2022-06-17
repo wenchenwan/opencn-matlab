@@ -36,14 +36,12 @@ end
 A = [ BasisValDD0; BasisVal; BasisValDD1 ];
 %
 b = [zeros(1, nAxis);
-             points';
+            points.';
      zeros(1, nAxis)];
 %
 c = A \ b;
 %
-spnD.Bl = Bl;
-spnD.coeff = c.';
-spnD.knots = knots;
-spnD.Ltot = 0;
-spnD.Lk = 0;
+
+spnD = constrSpline( c.', knots, Bl );
+
 end

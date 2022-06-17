@@ -1,20 +1,19 @@
 clear; clc;
-
+check_wkdir();
 
 % We need first to choose what we whant to MEX.
 % Several options are possible.
-GenerateAll = false;
+GenerateAll = true;
 
 if( ~GenerateAll )
     GenerateDebug               = false;
     GenerateType                = false;
     GenerateResampling          = false;
-    GenerateGCodeInterpreter    = true;
+    GenerateGCodeInterpreter    = false;
     GenerateQueues              = false;
     GenerateSimplex             = false;
     GenerateSpline              = false;
     GenerateKinematic           = false;
-    GenerateFeedoptPlan         = false;
 %     GenerateFeedoptPlanRun      = false; % Does not work now
 end
 cfg = generate_mex_config();
@@ -293,14 +292,14 @@ if( GenerateAll || GenerateKinematic )
             '-o', 'J_ar_mex');
 
         fprintf('Mexing J_arP\n')
-        codegen('-config', cfg, '-d', KinematicRep + "J_arP/",...
-            'J_arP', '-args', {R, R, P},...
-            '-o', 'J_arP_mex');
+        codegen('-config', cfg, '-d', KinematicRep + "JP_ar/",...
+            'JP_ar', '-args', {R, R, P},...
+            '-o', 'JP_ar_mex');
 
         fprintf('Mexing J_arPP\n')
-        codegen('-config', cfg, '-d', KinematicRep + "J_arPP/",...
-            'J_arPP', '-args', {R, R, R, P},...
-            '-o', 'J_arPP_mex');
+        codegen('-config', cfg, '-d', KinematicRep + "J2P_ar/",...
+            'J2P_ar', '-args', {R, R, R, P},...
+            '-o', 'J2P_ar_mex');
 
         disp(name + "success" );
         addpath( path_mex );
@@ -308,34 +307,10 @@ if( GenerateAll || GenerateKinematic )
         delete('MGD_mex.mexa64');
         delete('MGI_mex.mexa64');
         delete('J_ar_mex.mexa64');
-        delete('J_arP_mex.mexa64');
-        delete('J_arPP_mex.mexa64');
+        delete('JP_ar_mex.mexa64');
+        delete('J2P_ar_mex.mexa64');
     catch
         disp(name + "failed" );
-    end
-end
-
-if( ~GenerateAll && GenerateFeedoptPlan ) % NOT WORKING
-    name = "FeedOptPlan functions : ";
-    disp(name + "start" );
-    try
-        FeedOptPlanRep = 'gen_mex/FeedOptPlan';
-        path_mex = genpath( FeedOptPlanRep );
-
-        coder.extrinsic( 'queue', 'queue_coder', 'queue_new', 'queue_push',...
-                         'queue_get', 'queue_set', 'queue_size',...
-                         'queue_get_all', 'queue_delete' );
-
-        codegen('-config', cfg,'-d', FeedOptPlanRep, ...
-            'FeedoptDefaultConfig', ...
-            'initFeedoptPlan', '-args', fcfg,...%'FeedoptPlanRun', '-args', fctx, ...
-            '-o', 'FeedOptPlan_mex' );
-
-        disp(name + "success" );
-        delete( 'FeedOptPlan_mex.mexa64' );
-        addpath( path_mex );
-    catch ME
-        fprintf( ERROR_COLOR, name + "failed : " + ME.message + "\n" );
     end
 end
 

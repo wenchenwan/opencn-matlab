@@ -2,7 +2,11 @@ function [ x, xd, xdd, xddd ] = bspline_eval( Bl, coeffs, x ) %#codegen
 % void c_bspline_eval(uint64_t *handle, const double *c, double x, double X[3]);
     X = zeros(1, 4);
     if coder.target('matlab')
-        assert(numel(coeffs) == Bl.ncoeff);
+        cond = numel(coeffs) == Bl.ncoeff;
+        if( ~cond )
+            disp( "error" );
+        end
+%         assert();
     end
     if coder.target('rtw') || coder.target('mex')
         if x < 0

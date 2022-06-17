@@ -23,7 +23,7 @@ for k = 1 : N
 
     Curv                        = ctx.q_opt.get( k );
     SplineCurv                  = ctx.q_spline.get( Curv.sp_index );
-    Curv.MaxConstantFeedRate    = GetCurvMaxFeedrate( ctx, Curv );
+    Curv.MaxConstantFeedRate    = 0;%GetCurvMaxFeedrate( ctx, Curv );
         
     while ~state.go_next
 
@@ -33,7 +33,6 @@ for k = 1 : N
                                     Curv.b_param);
         
         if( ~state.isOutsideRange )
-            state.dt = dt;
             t = t + 1;
             ind = ind + 1;
             if( ind > sizeBuffer )
@@ -42,18 +41,25 @@ for k = 1 : N
             end
     
             u       = state.u + double(k) - 1 ; 
-            cf      = GetCurvMaxFeedrate(ctx, Curv);
-            f       = Curv.FeedRate;
-            [ r, v, a, j ] = calcRVAJfromU( ctx, Curv, state.u, ud, udd, uddd );
-            feed    = vecnorm( v );   
-            feed    = feed / Curv.FeedRate;
-            a       = abs( a ./ ctx.cfg.amax' );
-            j       = abs( j ./ ctx.cfg.jmax' );
+            cf      = 0; %GetCurvMaxFeedrate(ctx, Curv);
+            f       = Curv.Info.FeedRate;
+            [ r, ~, a, j ]  = calcRVAJfromU( ctx, Curv, state.u, ud, udd, uddd );
+            [ r0D, r1D ]    = EvalCurvStruct( ctx, Curv, state.u );
+            
+            if( ~Curv.Info.TRAFO )
+                r1D = ctx.kin.v_relative( r0D, r1D );
+            end
+            v       = r1D .* state.ud;
+            feed    = vecnorm( v( ctx.cfg.indCart ) );   
+            feed    = feed / Curv.Info.FeedRate;
+            a       = abs( a ./ ctx.cfg.amax( ctx.cfg.maskTot )' );
+            j       = abs( j ./ ctx.cfg.jmax( ctx.cfg.maskTot )' );
             
             buffer( ind, : ) = [ t, u, feed, f, cf, r', a', j' ];
         end
     end
     state.u = 0;
+    state.ud = 0;
     state.isOutsideRange = false;
     state.go_next = false;
 end
