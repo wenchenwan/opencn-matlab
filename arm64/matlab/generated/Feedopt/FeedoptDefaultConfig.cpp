@@ -5,7 +5,7 @@
 // File: FeedoptDefaultConfig.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 17-Jun-2022 15:07:56
+// C/C++ source code generated on  : 20-Jun-2022 16:00:50
 //
 
 // Include Files
@@ -28,8 +28,7 @@
 namespace ocn {
 void FeedoptDefaultConfig(FeedoptConfig *cfg)
 {
-    static const double dv[12]{0.0, 0.0, 0.0, 0.0,    0.0,    -82.377,
-                               0.0, 0.0, 0.0, 24.876, 57.501, 0.0};
+    static const double dv[12]{0.0, 0.0, 0.0, 0.0, 0.0, -24.876, 0.0, 0.0, 0.0, 24.876, 0.0, 0.0};
     static const double GaussLegendreW[5]{0.23692688505618911, 0.47862867049936625,
                                           0.56888888888888889, 0.47862867049936625,
                                           0.23692688505618911};
@@ -83,8 +82,8 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     // 'FeedoptDefaultConfig:31'     'NumberAxis', int32( 0 ), ...                   % Do not modify
     // 'FeedoptDefaultConfig:32'     'NCart',   int32( 0 ), ...                      % Do not modify
     // 'FeedoptDefaultConfig:33'     'NRot',    int32( 0 ), ...                      % Do not modify
-    // 'FeedoptDefaultConfig:34'     'kin_params', reshape( [ 0, 0, 0, 24.8760; 0, 0, 0, 57.5010; 0,
-    // -82.3770, 0, 0 ], [], 1 ), ... 'FeedoptDefaultConfig:35'     'kin_type', "xyzbc", ...
+    // 'FeedoptDefaultConfig:34'     'kin_params', reshape( [ 0, 0, 0, 24.8760; 0, 0, 0, 0; 0,
+    // -24.8760, 0, 0 ], [], 1 ), ... 'FeedoptDefaultConfig:35'     'kin_type', "xyzbc", ...
     // 'FeedoptDefaultConfig:36'     'NDiscr', int32( 10 ),...
     // 'FeedoptDefaultConfig:37'     'NBreak', int32( 5 ),...
     // 'FeedoptDefaultConfig:38'     'UseDynamicBreakpoints',false,...       % Use a variable number
@@ -106,7 +105,7 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     // 'FeedoptDefaultConfig:53'     'CuspThreshold', 45,...
     // 'FeedoptDefaultConfig:54'     'v_0', 0, 'at_0', 0,...
     // 'FeedoptDefaultConfig:55'     'v_1', 0, 'at_1', 0,...
-    // 'FeedoptDefaultConfig:56'     'dt', 1e-3, ...
+    // 'FeedoptDefaultConfig:56'     'dt', 1e-4, ...
     // 'FeedoptDefaultConfig:57'     'ZeroStartAccLimit', 0.01, ...
     // 'FeedoptDefaultConfig:58'     'ZeroStartJerkLimit', 1E6, ...
     // 'FeedoptDefaultConfig:59'     'ZeroStartVelLimit', 0.5, ...
@@ -274,7 +273,7 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     cfg->at_0 = 0.0;
     cfg->v_1 = 0.0;
     cfg->at_1 = 0.0;
-    cfg->dt = 0.001;
+    cfg->dt = 0.0001;
     cfg->ZeroStartAccLimit = 0.01;
     cfg->ZeroStartJerkLimit = 1.0E+6;
     cfg->ZeroStartVelLimit = 0.5;

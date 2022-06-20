@@ -11,7 +11,7 @@ end
 
 
 function [ param ] = load_param()
-    param.Nu    = 20;
+    param.Nu    = 10;
 end
 
 function [ point ] = eval_points( ctx, cfg, q_curv, q_spline, param )

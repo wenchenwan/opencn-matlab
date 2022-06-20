@@ -5,7 +5,7 @@
 // File: cutCurvStructU.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 17-Jun-2022 15:45:22
+// C/C++ source code generated on  : 20-Jun-2022 15:51:08
 //
 
 // Include Files
@@ -100,10 +100,8 @@ double b_cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_mask
     double d6;
     double u1_tilda;
     int kEndVec_size[2];
-    int tmp_size[2];
     int kEndVec_data;
     int kStartVec_data;
-    int tmp_data;
     char message[54];
     // 'cutCurvStructU:13' a = curv.a_param;
     // 'cutCurvStructU:14' b = curv.b_param;
@@ -111,11 +109,7 @@ double b_cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_mask
     if (curv->Info.Type == CurveType_Spline) {
         double LStart;
         double d;
-        double kEnd;
         double u1;
-        double uRight;
-        double uRightOld;
-        double uRight_tmp;
         int b_loop_ub;
         int c_loop_ub;
         int d_loop_ub;
@@ -310,179 +304,188 @@ double b_cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_mask
         for (int i14{0}; i14 < g_loop_ub; i14++) {
             b_x[i14] = (x[i14] - LStart >= L);
         }
-        // 'splineLenghtFindU_new:34' kEnd    = kEndVec( 1 );
-        // 'splineLenghtFindU_new:35' if( isempty( kEnd ) )
-        // 'splineLenghtFindU_new:36' kEnd = kEnd + kStart;
-        coder::b_eml_find(b_x, (int *)&tmp_data, tmp_size);
-        kEnd = static_cast<double>(tmp_data) + static_cast<double>(kStartVec_data);
-        // 'splineLenghtFindU_new:38' uLeft       = u1;
-        // 'splineLenghtFindU_new:39' uRight      = Knots( kEnd );
-        uRight_tmp = Knots[static_cast<int>(kEnd) - 1];
-        uRight = uRight_tmp;
-        // 'splineLenghtFindU_new:40' uRightOld   = uLeft;
-        uRightOld = u1;
-        // 'splineLenghtFindU_new:42' while( abs( uRightOld - uRight ) > DEFAULT_TOL_NR )
-        while (std::abs(uRightOld - uRight) > 1.0E-12) {
-            double c_r1Dnorm;
-            int i24;
-            int i_loop_ub;
-            int j_loop_ub;
-            int k_loop_ub;
-            int l_loop_ub;
-            int m_loop_ub;
-            int o_loop_ub;
-            //  Evaluation of function which should become zero
-            // 'splineLenghtFindU_new:44' fk  = splineLengthApprox_Interval( cfg, spline, uLeft,
-            // uRight, isEnd ) - L;
-            //  computes approximately the arc length L with integration bounds u1 and u2.
-            //  IMPORTANT : u0 and u1 should lie in the same knot interval.
-            //  The computation is based on numerical Gauss Legendre integration
-            //
-            //  get Gauss-Legendre knots and weights
-            // 'splineLengthApprox_Interval:7' GL_X   = cfg.GaussLegendreX;
-            // 'splineLengthApprox_Interval:8' GL_W   = cfg.GaussLegendreW;
-            // 'splineLengthApprox_Interval:10' if( isEnd )
-            // 'splineLengthApprox_Interval:11' a   = 1 - u0;
-            // 'splineLengthApprox_Interval:12' u0  = 1 - u1;
-            // 'splineLengthApprox_Interval:13' u1  = a;
-            //  apply linear map from[-1, 1] to [u0, u1]
-            // 'splineLengthApprox_Interval:17' uvec   = ( ( u0 * ( 1 - GL_X ) + u1 * ( 1 + GL_X ) )
-            // / 2 ).';
-            //
-            // 'splineLengthApprox_Interval:20' [ ~, r1D ]  = EvalBSpline( spline, uvec );
-            for (int i17{0}; i17 < 5; i17++) {
-                double d3;
-                d3 = ctx_cfg_GaussLegendreX[i17];
-                dv[i17] = ((1.0 - uRight) * (1.0 - d3) + (1.0 - u1) * (d3 + 1.0)) / 2.0;
-            }
-            EvalBSpline(expl_temp.sp.Bl.handle, expl_temp.sp.coeff, dv, b_a__1, r1D);
-            // 'splineLengthApprox_Interval:21' r1Dnorm     = MyNorm( r1D );
-            // 'MyNorm:2' coder.inline('always');
-            // 'MyNorm:3' n = mysqrt(sum(x.^2));
-            r1.set_size(r1D.size(0), 5);
-            i_loop_ub = r1D.size(0);
-            for (int i18{0}; i18 < 5; i18++) {
-                for (int i19{0}; i19 < i_loop_ub; i19++) {
-                    double c_varargin_1;
-                    c_varargin_1 = r1D[i19 + r1D.size(0) * i18];
-                    r1[i19 + r1.size(0) * i18] = std::pow(c_varargin_1, 2.0);
+        coder::b_eml_find(b_x, (int *)&kEndVec_data, kEndVec_size);
+        // 'splineLenghtFindU_new:34' if( isempty( kEndVec ) )
+        if (kEndVec_size[1] == 0) {
+            // 'splineLenghtFindU_new:34' u = 1;
+            u1_tilda = 1.0;
+        } else {
+            double kEnd;
+            double uRight;
+            double uRightOld;
+            double uRight_tmp;
+            // 'splineLenghtFindU_new:35' kEnd    = kEndVec( 1 );
+            // 'splineLenghtFindU_new:36' kEnd = kEnd + kStart;
+            kEnd = static_cast<double>(kEndVec_data) + static_cast<double>(kStartVec_data);
+            // 'splineLenghtFindU_new:38' uLeft       = u1;
+            // 'splineLenghtFindU_new:39' uRight      = Knots( kEnd );
+            uRight_tmp = Knots[static_cast<int>(kEnd) - 1];
+            uRight = uRight_tmp;
+            // 'splineLenghtFindU_new:40' uRightOld   = uLeft;
+            uRightOld = u1;
+            // 'splineLenghtFindU_new:42' while( abs( uRightOld - uRight ) > DEFAULT_TOL_NR )
+            while (std::abs(uRightOld - uRight) > 1.0E-12) {
+                double c_r1Dnorm;
+                int i24;
+                int i_loop_ub;
+                int j_loop_ub;
+                int k_loop_ub;
+                int l_loop_ub;
+                int m_loop_ub;
+                int o_loop_ub;
+                //  Evaluation of function which should become zero
+                // 'splineLenghtFindU_new:44' fk  = splineLengthApprox_Interval( cfg, spline, uLeft,
+                // uRight, isEnd ) - L;
+                //  computes approximately the arc length L with integration bounds u1 and u2.
+                //  IMPORTANT : u0 and u1 should lie in the same knot interval.
+                //  The computation is based on numerical Gauss Legendre integration
+                //
+                //  get Gauss-Legendre knots and weights
+                // 'splineLengthApprox_Interval:7' GL_X   = cfg.GaussLegendreX;
+                // 'splineLengthApprox_Interval:8' GL_W   = cfg.GaussLegendreW;
+                // 'splineLengthApprox_Interval:10' if( isEnd )
+                // 'splineLengthApprox_Interval:11' a   = 1 - u0;
+                // 'splineLengthApprox_Interval:12' u0  = 1 - u1;
+                // 'splineLengthApprox_Interval:13' u1  = a;
+                //  apply linear map from[-1, 1] to [u0, u1]
+                // 'splineLengthApprox_Interval:17' uvec   = ( ( u0 * ( 1 - GL_X ) + u1 * ( 1 + GL_X
+                // ) ) / 2 ).';
+                //
+                // 'splineLengthApprox_Interval:20' [ ~, r1D ]  = EvalBSpline( spline, uvec );
+                for (int i17{0}; i17 < 5; i17++) {
+                    double d3;
+                    d3 = ctx_cfg_GaussLegendreX[i17];
+                    dv[i17] = ((1.0 - uRight) * (1.0 - d3) + (1.0 - u1) * (d3 + 1.0)) / 2.0;
+                }
+                EvalBSpline(expl_temp.sp.Bl.handle, expl_temp.sp.coeff, dv, b_a__1, r1D);
+                // 'splineLengthApprox_Interval:21' r1Dnorm     = MyNorm( r1D );
+                // 'MyNorm:2' coder.inline('always');
+                // 'MyNorm:3' n = mysqrt(sum(x.^2));
+                r1.set_size(r1D.size(0), 5);
+                i_loop_ub = r1D.size(0);
+                for (int i18{0}; i18 < 5; i18++) {
+                    for (int i19{0}; i19 < i_loop_ub; i19++) {
+                        double c_varargin_1;
+                        c_varargin_1 = r1D[i19 + r1D.size(0) * i18];
+                        r1[i19 + r1.size(0) * i18] = std::pow(c_varargin_1, 2.0);
+                    }
+                }
+                coder::sum(r1, r1Dnorm);
+                // 'mysqrt:3' y = sqrt(x);
+                for (int e_k{0}; e_k < 5; e_k++) {
+                    r1Dnorm[e_k] = std::sqrt(r1Dnorm[e_k]);
+                }
+                // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
+                sqrt_calls++;
+                // 'splineLengthApprox_Interval:22' L           = r1Dnorm * GL_W * ( u1 - u0 ) / 2;
+                //  Gauss Legendre integration
+                // 'splineLengthApprox_Interval:23' L = L( 1 );
+                //  to satisfy Matlab Coder
+                // 'splineLenghtFindU_new:45' [ ~, r1D ] = EvalBSpline( spline, uRight );
+                //  EvalBSpline
+                //
+                //  INPUT
+                //  spline        : struct : Spline structure
+                //  u_vec         :    1xn : Vector for evaluation of the curv
+                //
+                //  OUTPUT
+                //  r0D           :   nDxn : The evaluated B spline at u\_vec points
+                //  r1D           :   nDxn : 1rst order parametric derivative for the B spline at
+                //  u\_vec points r2D           :   nDxn : 2nd order parametric derivative for the B
+                //  spline at u\_vec points r3D           :   nDxn : 3rd order parametric derivative
+                //  for the B spline at u\_vec points
+                // 'EvalBSpline:14' sp = spline.sp;
+                // 'EvalBSpline:15' N  = length( u_vec );
+                // 'EvalBSpline:16' M  = size( sp.coeff, 1 );
+                // 'EvalBSpline:18' r0D = zeros( M, N );
+                a__1.set_size(expl_temp.sp.coeff.size(0));
+                j_loop_ub = expl_temp.sp.coeff.size(0);
+                for (int i20{0}; i20 < j_loop_ub; i20++) {
+                    a__1[i20] = 0.0;
+                }
+                // 'EvalBSpline:18' r1D = r0D;
+                b_r1D.set_size(expl_temp.sp.coeff.size(0));
+                k_loop_ub = expl_temp.sp.coeff.size(0);
+                for (int i21{0}; i21 < k_loop_ub; i21++) {
+                    b_r1D[i21] = 0.0;
+                }
+                // 'EvalBSpline:18' r2D = r1D;
+                r2D.set_size(expl_temp.sp.coeff.size(0));
+                l_loop_ub = expl_temp.sp.coeff.size(0);
+                for (int i22{0}; i22 < l_loop_ub; i22++) {
+                    r2D[i22] = 0.0;
+                }
+                // 'EvalBSpline:18' r3D = r2D;
+                r3D.set_size(expl_temp.sp.coeff.size(0));
+                m_loop_ub = expl_temp.sp.coeff.size(0);
+                for (int i23{0}; i23 < m_loop_ub; i23++) {
+                    r3D[i23] = 0.0;
+                }
+                // 'EvalBSpline:20' for j = 1 : M
+                i24 = expl_temp.sp.coeff.size(0);
+                for (int j{0}; j < i24; j++) {
+                    int n_loop_ub;
+                    // 'EvalBSpline:21' [r0D( j , : ), r1D( j , : ), r2D( j , : ), r3D( j , : ) ] =
+                    // ... 'EvalBSpline:22'                             bspline_eval_vec( sp.Bl,
+                    // sp.coeff( j, : ), u_vec ); 'bspline_eval_vec:3' x       = zeros(size(u));
+                    // 'bspline_eval_vec:4' xd      = zeros(size(u));
+                    // 'bspline_eval_vec:5' xdd     = zeros(size(u));
+                    // 'bspline_eval_vec:6' xddd    = zeros(size(u));
+                    // 'bspline_eval_vec:8' for k = 1:length(u)
+                    // 'bspline_eval_vec:9' [xk, xdk, xddk, xdddk] = bspline_eval(Bl, coeffs, u(k));
+                    a__1[j] = uRight;
+                    n_loop_ub = expl_temp.sp.coeff.size(1);
+                    b_expl_temp.set_size(1, expl_temp.sp.coeff.size(1));
+                    for (int i26{0}; i26 < n_loop_ub; i26++) {
+                        b_expl_temp[i26] = expl_temp.sp.coeff[j + expl_temp.sp.coeff.size(0) * i26];
+                    }
+                    bspline_eval(expl_temp.sp.Bl.handle, b_expl_temp, &a__1[j], &d4, &d5, &d6);
+                    r3D[j] = d6;
+                    r2D[j] = d5;
+                    b_r1D[j] = d4;
+                    // 'bspline_eval_vec:10' x(k)    = xk;
+                    // 'bspline_eval_vec:11' xd(k)   = xdk;
+                    // 'bspline_eval_vec:12' xdd(k)  = xddk;
+                    // 'bspline_eval_vec:13' xddd(k) = xdddk;
+                }
+                // 'splineLenghtFindU_new:46' Dfk = MyNorm( r1D );
+                // 'MyNorm:2' coder.inline('always');
+                // 'MyNorm:3' n = mysqrt(sum(x.^2));
+                // 'mysqrt:3' y = sqrt(x);
+                // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
+                sqrt_calls++;
+                // 'splineLenghtFindU_new:47' uRightOld = uRight;
+                uRightOld = uRight;
+                // 'splineLenghtFindU_new:48' uRight    = uRight - fk / Dfk;
+                r.set_size(b_r1D.size(0));
+                o_loop_ub = b_r1D.size(0);
+                for (int i25{0}; i25 < o_loop_ub; i25++) {
+                    double d_varargin_1;
+                    d_varargin_1 = b_r1D[i25];
+                    r[i25] = std::pow(d_varargin_1, 2.0);
+                }
+                c_r1Dnorm = 0.0;
+                for (int i27{0}; i27 < 5; i27++) {
+                    c_r1Dnorm += r1Dnorm[i27] * ctx_cfg_GaussLegendreW[i27];
+                }
+                uRight -= (c_r1Dnorm * ((1.0 - u1) - (1.0 - uRight)) / 2.0 - L) /
+                          std::sqrt(coder::combineVectorElements(r));
+                // 'splineLenghtFindU_new:49' if( uRight > Knots( kEnd ) )
+                if (uRight > uRight_tmp) {
+                    // 'splineLenghtFindU_new:49' uRight = Knots( kEnd );
+                    uRight = Knots[static_cast<int>(kEnd) - 1];
+                }
+                // 'splineLenghtFindU_new:50' if( uRight < Knots( kStart ) )
+                if (uRight < Knots[kStart]) {
+                    // 'splineLenghtFindU_new:50' uRight = Knots( kStart );
+                    uRight = Knots[kStart];
                 }
             }
-            coder::sum(r1, r1Dnorm);
-            // 'mysqrt:3' y = sqrt(x);
-            for (int e_k{0}; e_k < 5; e_k++) {
-                r1Dnorm[e_k] = std::sqrt(r1Dnorm[e_k]);
-            }
-            // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-            sqrt_calls++;
-            // 'splineLengthApprox_Interval:22' L           = r1Dnorm * GL_W * ( u1 - u0 ) / 2;
-            //  Gauss Legendre integration
-            // 'splineLengthApprox_Interval:23' L = L( 1 );
-            //  to satisfy Matlab Coder
-            // 'splineLenghtFindU_new:45' [ ~, r1D ] = EvalBSpline( spline, uRight );
-            //  EvalBSpline
-            //
-            //  INPUT
-            //  spline        : struct : Spline structure
-            //  u_vec         :    1xn : Vector for evaluation of the curv
-            //
-            //  OUTPUT
-            //  r0D           :   nDxn : The evaluated B spline at u\_vec points
-            //  r1D           :   nDxn : 1rst order parametric derivative for the B spline at u\_vec
-            //  points r2D           :   nDxn : 2nd order parametric derivative for the B spline at
-            //  u\_vec points r3D           :   nDxn : 3rd order parametric derivative for the B
-            //  spline at u\_vec points
-            // 'EvalBSpline:14' sp = spline.sp;
-            // 'EvalBSpline:15' N  = length( u_vec );
-            // 'EvalBSpline:16' M  = size( sp.coeff, 1 );
-            // 'EvalBSpline:18' r0D = zeros( M, N );
-            a__1.set_size(expl_temp.sp.coeff.size(0));
-            j_loop_ub = expl_temp.sp.coeff.size(0);
-            for (int i20{0}; i20 < j_loop_ub; i20++) {
-                a__1[i20] = 0.0;
-            }
-            // 'EvalBSpline:18' r1D = r0D;
-            b_r1D.set_size(expl_temp.sp.coeff.size(0));
-            k_loop_ub = expl_temp.sp.coeff.size(0);
-            for (int i21{0}; i21 < k_loop_ub; i21++) {
-                b_r1D[i21] = 0.0;
-            }
-            // 'EvalBSpline:18' r2D = r1D;
-            r2D.set_size(expl_temp.sp.coeff.size(0));
-            l_loop_ub = expl_temp.sp.coeff.size(0);
-            for (int i22{0}; i22 < l_loop_ub; i22++) {
-                r2D[i22] = 0.0;
-            }
-            // 'EvalBSpline:18' r3D = r2D;
-            r3D.set_size(expl_temp.sp.coeff.size(0));
-            m_loop_ub = expl_temp.sp.coeff.size(0);
-            for (int i23{0}; i23 < m_loop_ub; i23++) {
-                r3D[i23] = 0.0;
-            }
-            // 'EvalBSpline:20' for j = 1 : M
-            i24 = expl_temp.sp.coeff.size(0);
-            for (int j{0}; j < i24; j++) {
-                int n_loop_ub;
-                // 'EvalBSpline:21' [r0D( j , : ), r1D( j , : ), r2D( j , : ), r3D( j , : ) ] = ...
-                // 'EvalBSpline:22'                             bspline_eval_vec( sp.Bl, sp.coeff(
-                // j, : ), u_vec ); 'bspline_eval_vec:3' x       = zeros(size(u));
-                // 'bspline_eval_vec:4' xd      = zeros(size(u));
-                // 'bspline_eval_vec:5' xdd     = zeros(size(u));
-                // 'bspline_eval_vec:6' xddd    = zeros(size(u));
-                // 'bspline_eval_vec:8' for k = 1:length(u)
-                // 'bspline_eval_vec:9' [xk, xdk, xddk, xdddk] = bspline_eval(Bl, coeffs, u(k));
-                a__1[j] = uRight;
-                n_loop_ub = expl_temp.sp.coeff.size(1);
-                b_expl_temp.set_size(1, expl_temp.sp.coeff.size(1));
-                for (int i26{0}; i26 < n_loop_ub; i26++) {
-                    b_expl_temp[i26] = expl_temp.sp.coeff[j + expl_temp.sp.coeff.size(0) * i26];
-                }
-                bspline_eval(expl_temp.sp.Bl.handle, b_expl_temp, &a__1[j], &d4, &d5, &d6);
-                r3D[j] = d6;
-                r2D[j] = d5;
-                b_r1D[j] = d4;
-                // 'bspline_eval_vec:10' x(k)    = xk;
-                // 'bspline_eval_vec:11' xd(k)   = xdk;
-                // 'bspline_eval_vec:12' xdd(k)  = xddk;
-                // 'bspline_eval_vec:13' xddd(k) = xdddk;
-            }
-            // 'splineLenghtFindU_new:46' Dfk = MyNorm( r1D );
-            // 'MyNorm:2' coder.inline('always');
-            // 'MyNorm:3' n = mysqrt(sum(x.^2));
-            // 'mysqrt:3' y = sqrt(x);
-            // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-            sqrt_calls++;
-            // 'splineLenghtFindU_new:47' uRightOld = uRight;
-            uRightOld = uRight;
-            // 'splineLenghtFindU_new:48' uRight    = uRight - fk / Dfk;
-            r.set_size(b_r1D.size(0));
-            o_loop_ub = b_r1D.size(0);
-            for (int i25{0}; i25 < o_loop_ub; i25++) {
-                double d_varargin_1;
-                d_varargin_1 = b_r1D[i25];
-                r[i25] = std::pow(d_varargin_1, 2.0);
-            }
-            c_r1Dnorm = 0.0;
-            for (int i27{0}; i27 < 5; i27++) {
-                c_r1Dnorm += r1Dnorm[i27] * ctx_cfg_GaussLegendreW[i27];
-            }
-            uRight -= (c_r1Dnorm * ((1.0 - u1) - (1.0 - uRight)) / 2.0 - L) /
-                      std::sqrt(coder::combineVectorElements(r));
-            // 'splineLenghtFindU_new:49' if( uRight > Knots( kEnd ) )
-            if (uRight > uRight_tmp) {
-                // 'splineLenghtFindU_new:49' uRight = Knots( kEnd );
-                uRight = Knots[static_cast<int>(kEnd) - 1];
-            }
-            // 'splineLenghtFindU_new:50' if( uRight < Knots( kStart ) )
-            if (uRight < Knots[kStart]) {
-                // 'splineLenghtFindU_new:50' uRight = Knots( kStart );
-                uRight = Knots[kStart];
-            }
+            // 'splineLenghtFindU_new:53' u = uRight;
+            // 'splineLenghtFindU_new:55' if( isEnd )
+            // 'splineLenghtFindU_new:56' u = 1 -u;
+            u1_tilda = 1.0 - uRight;
         }
-        // 'splineLenghtFindU_new:53' u = uRight;
-        // 'splineLenghtFindU_new:55' if( isEnd )
-        // 'splineLenghtFindU_new:56' u = 1 -u;
-        u1_tilda = 1.0 - uRight;
     } else {
         int loop_ub;
         // 'cutCurvStructU:19' else
@@ -576,10 +579,8 @@ double cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
     double d5;
     double u1_tilda;
     int kEndVec_size[2];
-    int tmp_size[2];
     int kEndVec_data;
     int kStartVec_data;
-    int tmp_data;
     char message[54];
     // 'cutCurvStructU:13' a = curv.a_param;
     // 'cutCurvStructU:14' b = curv.b_param;
@@ -587,8 +588,6 @@ double cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
     // 'cutCurvStructU:16' if ( curv.Info.Type == CurveType.Spline )
     if (curv->Info.Type == CurveType_Spline) {
         double LStart;
-        double uRight;
-        double uRightOld;
         int b_loop_ub;
         int c_loop_ub;
         int d_loop_ub;
@@ -599,7 +598,6 @@ double cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
         int i2;
         int i8;
         int i9;
-        int uRight_tmp;
         // 'cutCurvStructU:17' spline = ctx.q_spline.get( curv.sp_index );
         ctx_q_spline->get(curv->sp_index, &expl_temp);
         // 'cutCurvStructU:18' u1_tilda = splineLenghtFindU_new( ctx.cfg, spline, L, a * u0 + b,
@@ -742,176 +740,184 @@ double cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
         for (int i13{0}; i13 < e_loop_ub; i13++) {
             b_x[i13] = (x[i13] - LStart >= L);
         }
-        // 'splineLenghtFindU_new:34' kEnd    = kEndVec( 1 );
-        // 'splineLenghtFindU_new:35' if( isempty( kEnd ) )
-        // 'splineLenghtFindU_new:36' kEnd = kEnd + kStart;
-        // 'splineLenghtFindU_new:38' uLeft       = u1;
-        // 'splineLenghtFindU_new:39' uRight      = Knots( kEnd );
-        coder::b_eml_find(b_x, (int *)&tmp_data, tmp_size);
-        uRight_tmp = ((i1 + tmp_data) + kStartVec_data) - 1;
-        uRight = expl_temp.sp.knots[uRight_tmp];
-        // 'splineLenghtFindU_new:40' uRightOld   = uLeft;
-        uRightOld = curv->b_param;
-        // 'splineLenghtFindU_new:42' while( abs( uRightOld - uRight ) > DEFAULT_TOL_NR )
-        while (std::abs(uRightOld - uRight) > 1.0E-12) {
-            double c_r1Dnorm;
-            int g_loop_ub;
-            int h_loop_ub;
-            int i23;
-            int i27;
-            int i_loop_ub;
-            int j_loop_ub;
-            int k_loop_ub;
-            int m_loop_ub;
-            //  Evaluation of function which should become zero
-            // 'splineLenghtFindU_new:44' fk  = splineLengthApprox_Interval( cfg, spline, uLeft,
-            // uRight, isEnd ) - L;
-            //  computes approximately the arc length L with integration bounds u1 and u2.
-            //  IMPORTANT : u0 and u1 should lie in the same knot interval.
-            //  The computation is based on numerical Gauss Legendre integration
-            //
-            //  get Gauss-Legendre knots and weights
-            // 'splineLengthApprox_Interval:7' GL_X   = cfg.GaussLegendreX;
-            // 'splineLengthApprox_Interval:8' GL_W   = cfg.GaussLegendreW;
-            // 'splineLengthApprox_Interval:10' if( isEnd )
-            //  apply linear map from[-1, 1] to [u0, u1]
-            // 'splineLengthApprox_Interval:17' uvec   = ( ( u0 * ( 1 - GL_X ) + u1 * ( 1 + GL_X ) )
-            // / 2 ).';
-            //
-            // 'splineLengthApprox_Interval:20' [ ~, r1D ]  = EvalBSpline( spline, uvec );
-            for (int i16{0}; i16 < 5; i16++) {
-                double d2;
-                d2 = ctx_cfg_GaussLegendreX[i16];
-                b_b[i16] = (b * (1.0 - d2) + uRight * (d2 + 1.0)) / 2.0;
-            }
-            EvalBSpline(expl_temp.sp.Bl.handle, expl_temp.sp.coeff, b_b, a__1, r1D);
-            // 'splineLengthApprox_Interval:21' r1Dnorm     = MyNorm( r1D );
-            // 'MyNorm:2' coder.inline('always');
-            // 'MyNorm:3' n = mysqrt(sum(x.^2));
-            r1.set_size(r1D.size(0), 5);
-            g_loop_ub = r1D.size(0);
-            for (int i17{0}; i17 < 5; i17++) {
-                for (int i18{0}; i18 < g_loop_ub; i18++) {
-                    double c_varargin_1;
-                    c_varargin_1 = r1D[i18 + r1D.size(0) * i17];
-                    r1[i18 + r1.size(0) * i17] = std::pow(c_varargin_1, 2.0);
+        coder::b_eml_find(b_x, (int *)&kEndVec_data, kEndVec_size);
+        // 'splineLenghtFindU_new:34' if( isempty( kEndVec ) )
+        if (kEndVec_size[1] == 0) {
+            // 'splineLenghtFindU_new:34' u = 1;
+            u1_tilda = 1.0;
+        } else {
+            double uRight;
+            double uRightOld;
+            int uRight_tmp;
+            // 'splineLenghtFindU_new:35' kEnd    = kEndVec( 1 );
+            // 'splineLenghtFindU_new:36' kEnd = kEnd + kStart;
+            // 'splineLenghtFindU_new:38' uLeft       = u1;
+            // 'splineLenghtFindU_new:39' uRight      = Knots( kEnd );
+            uRight_tmp = ((i1 + kEndVec_data) + kStartVec_data) - 1;
+            uRight = expl_temp.sp.knots[uRight_tmp];
+            // 'splineLenghtFindU_new:40' uRightOld   = uLeft;
+            uRightOld = curv->b_param;
+            // 'splineLenghtFindU_new:42' while( abs( uRightOld - uRight ) > DEFAULT_TOL_NR )
+            while (std::abs(uRightOld - uRight) > 1.0E-12) {
+                double c_r1Dnorm;
+                int g_loop_ub;
+                int h_loop_ub;
+                int i23;
+                int i27;
+                int i_loop_ub;
+                int j_loop_ub;
+                int k_loop_ub;
+                int m_loop_ub;
+                //  Evaluation of function which should become zero
+                // 'splineLenghtFindU_new:44' fk  = splineLengthApprox_Interval( cfg, spline, uLeft,
+                // uRight, isEnd ) - L;
+                //  computes approximately the arc length L with integration bounds u1 and u2.
+                //  IMPORTANT : u0 and u1 should lie in the same knot interval.
+                //  The computation is based on numerical Gauss Legendre integration
+                //
+                //  get Gauss-Legendre knots and weights
+                // 'splineLengthApprox_Interval:7' GL_X   = cfg.GaussLegendreX;
+                // 'splineLengthApprox_Interval:8' GL_W   = cfg.GaussLegendreW;
+                // 'splineLengthApprox_Interval:10' if( isEnd )
+                //  apply linear map from[-1, 1] to [u0, u1]
+                // 'splineLengthApprox_Interval:17' uvec   = ( ( u0 * ( 1 - GL_X ) + u1 * ( 1 + GL_X
+                // ) ) / 2 ).';
+                //
+                // 'splineLengthApprox_Interval:20' [ ~, r1D ]  = EvalBSpline( spline, uvec );
+                for (int i16{0}; i16 < 5; i16++) {
+                    double d2;
+                    d2 = ctx_cfg_GaussLegendreX[i16];
+                    b_b[i16] = (b * (1.0 - d2) + uRight * (d2 + 1.0)) / 2.0;
+                }
+                EvalBSpline(expl_temp.sp.Bl.handle, expl_temp.sp.coeff, b_b, a__1, r1D);
+                // 'splineLengthApprox_Interval:21' r1Dnorm     = MyNorm( r1D );
+                // 'MyNorm:2' coder.inline('always');
+                // 'MyNorm:3' n = mysqrt(sum(x.^2));
+                r1.set_size(r1D.size(0), 5);
+                g_loop_ub = r1D.size(0);
+                for (int i17{0}; i17 < 5; i17++) {
+                    for (int i18{0}; i18 < g_loop_ub; i18++) {
+                        double c_varargin_1;
+                        c_varargin_1 = r1D[i18 + r1D.size(0) * i17];
+                        r1[i18 + r1.size(0) * i17] = std::pow(c_varargin_1, 2.0);
+                    }
+                }
+                coder::sum(r1, r1Dnorm);
+                // 'mysqrt:3' y = sqrt(x);
+                for (int c_k{0}; c_k < 5; c_k++) {
+                    r1Dnorm[c_k] = std::sqrt(r1Dnorm[c_k]);
+                }
+                // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
+                sqrt_calls++;
+                // 'splineLengthApprox_Interval:22' L           = r1Dnorm * GL_W * ( u1 - u0 ) / 2;
+                //  Gauss Legendre integration
+                // 'splineLengthApprox_Interval:23' L = L( 1 );
+                //  to satisfy Matlab Coder
+                // 'splineLenghtFindU_new:45' [ ~, r1D ] = EvalBSpline( spline, uRight );
+                //  EvalBSpline
+                //
+                //  INPUT
+                //  spline        : struct : Spline structure
+                //  u_vec         :    1xn : Vector for evaluation of the curv
+                //
+                //  OUTPUT
+                //  r0D           :   nDxn : The evaluated B spline at u\_vec points
+                //  r1D           :   nDxn : 1rst order parametric derivative for the B spline at
+                //  u\_vec points r2D           :   nDxn : 2nd order parametric derivative for the B
+                //  spline at u\_vec points r3D           :   nDxn : 3rd order parametric derivative
+                //  for the B spline at u\_vec points
+                // 'EvalBSpline:14' sp = spline.sp;
+                // 'EvalBSpline:15' N  = length( u_vec );
+                // 'EvalBSpline:16' M  = size( sp.coeff, 1 );
+                // 'EvalBSpline:18' r0D = zeros( M, N );
+                b_a__1.set_size(expl_temp.sp.coeff.size(0));
+                h_loop_ub = expl_temp.sp.coeff.size(0);
+                for (int i19{0}; i19 < h_loop_ub; i19++) {
+                    b_a__1[i19] = 0.0;
+                }
+                // 'EvalBSpline:18' r1D = r0D;
+                b_r1D.set_size(expl_temp.sp.coeff.size(0));
+                i_loop_ub = expl_temp.sp.coeff.size(0);
+                for (int i20{0}; i20 < i_loop_ub; i20++) {
+                    b_r1D[i20] = 0.0;
+                }
+                // 'EvalBSpline:18' r2D = r1D;
+                r2D.set_size(expl_temp.sp.coeff.size(0));
+                j_loop_ub = expl_temp.sp.coeff.size(0);
+                for (int i21{0}; i21 < j_loop_ub; i21++) {
+                    r2D[i21] = 0.0;
+                }
+                // 'EvalBSpline:18' r3D = r2D;
+                r3D.set_size(expl_temp.sp.coeff.size(0));
+                k_loop_ub = expl_temp.sp.coeff.size(0);
+                for (int i22{0}; i22 < k_loop_ub; i22++) {
+                    r3D[i22] = 0.0;
+                }
+                // 'EvalBSpline:20' for j = 1 : M
+                i23 = expl_temp.sp.coeff.size(0);
+                for (int j{0}; j < i23; j++) {
+                    int l_loop_ub;
+                    // 'EvalBSpline:21' [r0D( j , : ), r1D( j , : ), r2D( j , : ), r3D( j , : ) ] =
+                    // ... 'EvalBSpline:22'                             bspline_eval_vec( sp.Bl,
+                    // sp.coeff( j, : ), u_vec ); 'bspline_eval_vec:3' x       = zeros(size(u));
+                    // 'bspline_eval_vec:4' xd      = zeros(size(u));
+                    // 'bspline_eval_vec:5' xdd     = zeros(size(u));
+                    // 'bspline_eval_vec:6' xddd    = zeros(size(u));
+                    // 'bspline_eval_vec:8' for k = 1:length(u)
+                    // 'bspline_eval_vec:9' [xk, xdk, xddk, xdddk] = bspline_eval(Bl, coeffs, u(k));
+                    b_a__1[j] = uRight;
+                    l_loop_ub = expl_temp.sp.coeff.size(1);
+                    e_expl_temp.set_size(1, expl_temp.sp.coeff.size(1));
+                    for (int i25{0}; i25 < l_loop_ub; i25++) {
+                        e_expl_temp[i25] = expl_temp.sp.coeff[j + expl_temp.sp.coeff.size(0) * i25];
+                    }
+                    bspline_eval(expl_temp.sp.Bl.handle, e_expl_temp, &b_a__1[j], &d3, &d4, &d5);
+                    r3D[j] = d5;
+                    r2D[j] = d4;
+                    b_r1D[j] = d3;
+                    // 'bspline_eval_vec:10' x(k)    = xk;
+                    // 'bspline_eval_vec:11' xd(k)   = xdk;
+                    // 'bspline_eval_vec:12' xdd(k)  = xddk;
+                    // 'bspline_eval_vec:13' xddd(k) = xdddk;
+                }
+                // 'splineLenghtFindU_new:46' Dfk = MyNorm( r1D );
+                // 'MyNorm:2' coder.inline('always');
+                // 'MyNorm:3' n = mysqrt(sum(x.^2));
+                // 'mysqrt:3' y = sqrt(x);
+                // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
+                sqrt_calls++;
+                // 'splineLenghtFindU_new:47' uRightOld = uRight;
+                uRightOld = uRight;
+                // 'splineLenghtFindU_new:48' uRight    = uRight - fk / Dfk;
+                r.set_size(b_r1D.size(0));
+                m_loop_ub = b_r1D.size(0);
+                for (int i24{0}; i24 < m_loop_ub; i24++) {
+                    double d_varargin_1;
+                    d_varargin_1 = b_r1D[i24];
+                    r[i24] = std::pow(d_varargin_1, 2.0);
+                }
+                c_r1Dnorm = 0.0;
+                for (int i26{0}; i26 < 5; i26++) {
+                    c_r1Dnorm += r1Dnorm[i26] * ctx_cfg_GaussLegendreW[i26];
+                }
+                uRight -= (c_r1Dnorm * (uRight - b) / 2.0 - L) /
+                          std::sqrt(coder::combineVectorElements(r));
+                // 'splineLenghtFindU_new:49' if( uRight > Knots( kEnd ) )
+                if (uRight > expl_temp.sp.knots[uRight_tmp]) {
+                    // 'splineLenghtFindU_new:49' uRight = Knots( kEnd );
+                    uRight = expl_temp.sp.knots[uRight_tmp];
+                }
+                // 'splineLenghtFindU_new:50' if( uRight < Knots( kStart ) )
+                i27 = (i1 + kStartVec_data) - 1;
+                if (uRight < expl_temp.sp.knots[i27]) {
+                    // 'splineLenghtFindU_new:50' uRight = Knots( kStart );
+                    uRight = expl_temp.sp.knots[i27];
                 }
             }
-            coder::sum(r1, r1Dnorm);
-            // 'mysqrt:3' y = sqrt(x);
-            for (int c_k{0}; c_k < 5; c_k++) {
-                r1Dnorm[c_k] = std::sqrt(r1Dnorm[c_k]);
-            }
-            // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-            sqrt_calls++;
-            // 'splineLengthApprox_Interval:22' L           = r1Dnorm * GL_W * ( u1 - u0 ) / 2;
-            //  Gauss Legendre integration
-            // 'splineLengthApprox_Interval:23' L = L( 1 );
-            //  to satisfy Matlab Coder
-            // 'splineLenghtFindU_new:45' [ ~, r1D ] = EvalBSpline( spline, uRight );
-            //  EvalBSpline
-            //
-            //  INPUT
-            //  spline        : struct : Spline structure
-            //  u_vec         :    1xn : Vector for evaluation of the curv
-            //
-            //  OUTPUT
-            //  r0D           :   nDxn : The evaluated B spline at u\_vec points
-            //  r1D           :   nDxn : 1rst order parametric derivative for the B spline at u\_vec
-            //  points r2D           :   nDxn : 2nd order parametric derivative for the B spline at
-            //  u\_vec points r3D           :   nDxn : 3rd order parametric derivative for the B
-            //  spline at u\_vec points
-            // 'EvalBSpline:14' sp = spline.sp;
-            // 'EvalBSpline:15' N  = length( u_vec );
-            // 'EvalBSpline:16' M  = size( sp.coeff, 1 );
-            // 'EvalBSpline:18' r0D = zeros( M, N );
-            b_a__1.set_size(expl_temp.sp.coeff.size(0));
-            h_loop_ub = expl_temp.sp.coeff.size(0);
-            for (int i19{0}; i19 < h_loop_ub; i19++) {
-                b_a__1[i19] = 0.0;
-            }
-            // 'EvalBSpline:18' r1D = r0D;
-            b_r1D.set_size(expl_temp.sp.coeff.size(0));
-            i_loop_ub = expl_temp.sp.coeff.size(0);
-            for (int i20{0}; i20 < i_loop_ub; i20++) {
-                b_r1D[i20] = 0.0;
-            }
-            // 'EvalBSpline:18' r2D = r1D;
-            r2D.set_size(expl_temp.sp.coeff.size(0));
-            j_loop_ub = expl_temp.sp.coeff.size(0);
-            for (int i21{0}; i21 < j_loop_ub; i21++) {
-                r2D[i21] = 0.0;
-            }
-            // 'EvalBSpline:18' r3D = r2D;
-            r3D.set_size(expl_temp.sp.coeff.size(0));
-            k_loop_ub = expl_temp.sp.coeff.size(0);
-            for (int i22{0}; i22 < k_loop_ub; i22++) {
-                r3D[i22] = 0.0;
-            }
-            // 'EvalBSpline:20' for j = 1 : M
-            i23 = expl_temp.sp.coeff.size(0);
-            for (int j{0}; j < i23; j++) {
-                int l_loop_ub;
-                // 'EvalBSpline:21' [r0D( j , : ), r1D( j , : ), r2D( j , : ), r3D( j , : ) ] = ...
-                // 'EvalBSpline:22'                             bspline_eval_vec( sp.Bl, sp.coeff(
-                // j, : ), u_vec ); 'bspline_eval_vec:3' x       = zeros(size(u));
-                // 'bspline_eval_vec:4' xd      = zeros(size(u));
-                // 'bspline_eval_vec:5' xdd     = zeros(size(u));
-                // 'bspline_eval_vec:6' xddd    = zeros(size(u));
-                // 'bspline_eval_vec:8' for k = 1:length(u)
-                // 'bspline_eval_vec:9' [xk, xdk, xddk, xdddk] = bspline_eval(Bl, coeffs, u(k));
-                b_a__1[j] = uRight;
-                l_loop_ub = expl_temp.sp.coeff.size(1);
-                e_expl_temp.set_size(1, expl_temp.sp.coeff.size(1));
-                for (int i25{0}; i25 < l_loop_ub; i25++) {
-                    e_expl_temp[i25] = expl_temp.sp.coeff[j + expl_temp.sp.coeff.size(0) * i25];
-                }
-                bspline_eval(expl_temp.sp.Bl.handle, e_expl_temp, &b_a__1[j], &d3, &d4, &d5);
-                r3D[j] = d5;
-                r2D[j] = d4;
-                b_r1D[j] = d3;
-                // 'bspline_eval_vec:10' x(k)    = xk;
-                // 'bspline_eval_vec:11' xd(k)   = xdk;
-                // 'bspline_eval_vec:12' xdd(k)  = xddk;
-                // 'bspline_eval_vec:13' xddd(k) = xdddk;
-            }
-            // 'splineLenghtFindU_new:46' Dfk = MyNorm( r1D );
-            // 'MyNorm:2' coder.inline('always');
-            // 'MyNorm:3' n = mysqrt(sum(x.^2));
-            // 'mysqrt:3' y = sqrt(x);
-            // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-            sqrt_calls++;
-            // 'splineLenghtFindU_new:47' uRightOld = uRight;
-            uRightOld = uRight;
-            // 'splineLenghtFindU_new:48' uRight    = uRight - fk / Dfk;
-            r.set_size(b_r1D.size(0));
-            m_loop_ub = b_r1D.size(0);
-            for (int i24{0}; i24 < m_loop_ub; i24++) {
-                double d_varargin_1;
-                d_varargin_1 = b_r1D[i24];
-                r[i24] = std::pow(d_varargin_1, 2.0);
-            }
-            c_r1Dnorm = 0.0;
-            for (int i26{0}; i26 < 5; i26++) {
-                c_r1Dnorm += r1Dnorm[i26] * ctx_cfg_GaussLegendreW[i26];
-            }
-            uRight -=
-                (c_r1Dnorm * (uRight - b) / 2.0 - L) / std::sqrt(coder::combineVectorElements(r));
-            // 'splineLenghtFindU_new:49' if( uRight > Knots( kEnd ) )
-            if (uRight > expl_temp.sp.knots[uRight_tmp]) {
-                // 'splineLenghtFindU_new:49' uRight = Knots( kEnd );
-                uRight = expl_temp.sp.knots[uRight_tmp];
-            }
-            // 'splineLenghtFindU_new:50' if( uRight < Knots( kStart ) )
-            i27 = (i1 + kStartVec_data) - 1;
-            if (uRight < expl_temp.sp.knots[i27]) {
-                // 'splineLenghtFindU_new:50' uRight = Knots( kStart );
-                uRight = expl_temp.sp.knots[i27];
-            }
+            // 'splineLenghtFindU_new:53' u = uRight;
+            u1_tilda = uRight;
+            // 'splineLenghtFindU_new:55' if( isEnd )
         }
-        // 'splineLenghtFindU_new:53' u = uRight;
-        u1_tilda = uRight;
-        // 'splineLenghtFindU_new:55' if( isEnd )
     } else {
         int loop_ub;
         // 'cutCurvStructU:19' else

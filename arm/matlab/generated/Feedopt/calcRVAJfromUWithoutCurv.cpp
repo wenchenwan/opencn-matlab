@@ -5,7 +5,7 @@
 // File: calcRVAJfromUWithoutCurv.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 17-Jun-2022 15:45:22
+// C/C++ source code generated on  : 20-Jun-2022 15:51:08
 //
 
 // Include Files
@@ -14,6 +14,48 @@
 
 // Function Definitions
 //
+// Arguments    : ::coder::array<double, 2U> &V
+//                const ::coder::array<double, 2U> &r1D
+//                const ::coder::array<double, 2U> &ud
+// Return Type  : void
+//
+namespace ocn {
+void b_times(::coder::array<double, 2U> &V, const ::coder::array<double, 2U> &r1D,
+             const ::coder::array<double, 2U> &ud)
+{
+    int aux_0_1;
+    int aux_1_1;
+    int i;
+    int loop_ub;
+    int stride_0_1;
+    int stride_1_1;
+    if (ud.size(1) == 1) {
+        i = r1D.size(1);
+    } else {
+        i = ud.size(1);
+    }
+    V.set_size(r1D.size(0), i);
+    stride_0_1 = (r1D.size(1) != 1);
+    stride_1_1 = (ud.size(1) != 1);
+    aux_0_1 = 0;
+    aux_1_1 = 0;
+    if (ud.size(1) == 1) {
+        loop_ub = r1D.size(1);
+    } else {
+        loop_ub = ud.size(1);
+    }
+    for (int i1{0}; i1 < loop_ub; i1++) {
+        int b_loop_ub;
+        b_loop_ub = r1D.size(0);
+        for (int i2{0}; i2 < b_loop_ub; i2++) {
+            V[i2 + V.size(0) * i1] = r1D[i2 + r1D.size(0) * aux_0_1] * ud[aux_1_1];
+        }
+        aux_1_1 += stride_1_1;
+        aux_0_1 += stride_0_1;
+    }
+}
+
+//
 // Arguments    : ::coder::array<double, 2U> &A
 //                const ::coder::array<double, 2U> &r2D
 //                const ::coder::array<double, 2U> &r
@@ -21,7 +63,6 @@
 //                const ::coder::array<double, 2U> &udd_vec
 // Return Type  : void
 //
-namespace ocn {
 void binary_expand_op(::coder::array<double, 2U> &A, const ::coder::array<double, 2U> &r2D,
                       const ::coder::array<double, 2U> &r, const ::coder::array<double, 2U> &r1D,
                       const ::coder::array<double, 2U> &udd_vec)

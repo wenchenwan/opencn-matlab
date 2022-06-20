@@ -5,7 +5,7 @@
  * File: kinematics.h
  *
  * MATLAB Coder version            : 5.3
- * C/C++ source code generated on  : 17-Jun-2022 15:21:53
+ * C/C++ source code generated on  : 20-Jun-2022 16:00:34
  */
 
 #ifndef KINEMATICS_H

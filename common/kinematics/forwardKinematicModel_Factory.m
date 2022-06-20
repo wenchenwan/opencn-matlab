@@ -11,7 +11,7 @@ function [r_r] = forwardKinematicModel_Factory( R, P )
 % r_r      : [mm and rad] :  1x5 : 
 
 T = [1, 0, 0,         R(1);
-     0, 1, 0,        -R(1);
+     0, 1, 0,        -R(2);
      0, 0, 1, R(3)-P(3, 4);
      0, 0, 0,            1];
 
@@ -21,9 +21,9 @@ FW_RTCP_sym = simplify( inv(Translation( [P(1, 2), P(2, 2), P(3, 2) + P(1, 4) + 
               inv( M5_T0M( P(1, 1), P(2, 1), P(3, 1) + P(1, 4) ) ) * T );
 
 % Output vector assignation
-r_r( 1, 1 ) = FW_RTCP_sym(1, 4);
-r_r( 2, 1 ) = -FW_RTCP_sym(2, 4);
-r_r( 3, 1 ) = FW_RTCP_sym(3, 4);
-r_r( 4, 1 ) = R(4);
-r_r( 5, 1 ) = R(5);
+r_r( 1 ) = FW_RTCP_sym(1, 4);
+r_r( 2 ) = -FW_RTCP_sym(2, 4);
+r_r( 3 ) = FW_RTCP_sym(3, 4);
+r_r( 4 ) = R(4);
+r_r( 5 ) = R(5);
 end

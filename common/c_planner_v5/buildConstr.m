@@ -63,7 +63,7 @@ for k = 1 : Nwindow
     normR1D = vecnorm( r1D );
     t_vec( : , :, k ) = r1D( :, [ 1, end ] ) ./ normR1D( [1, end] );
    
-    v_max( 1 : Ndim, : ) = ctx.cfg.vmax( ctx.cfg.maskTot ).'./ r1D_a.^2;
+    v_max( 1 : Ndim, : ) = ( ctx.cfg.vmax( ctx.cfg.maskTot ).'./ r1D_a ).^2;
 
     % Maximum constraint on the speed
     v_max( end, : ) = ( windowCurv( k ).Info.FeedRate ./ ...

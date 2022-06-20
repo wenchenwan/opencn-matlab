@@ -5,7 +5,7 @@
 // File: div.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 17-Jun-2022 15:07:56
+// C/C++ source code generated on  : 20-Jun-2022 16:00:50
 //
 
 // Include Files
@@ -615,40 +615,6 @@ void binary_expand_op(double alpha0_t_data[], int *alpha0_t_size, const double C
                               d_CoefPS * alpha1_t_data[i * stride_2_0]) +
                              e_CoefPS) /
                            (f_CoefPS * alpha1_t_data[i * stride_3_0] + g_CoefPS);
-    }
-}
-
-//
-// Arguments    : ::coder::array<double, 2U> &v_max
-//                const double ctx_cfg_vmax[6]
-//                const signed char _data[]
-//                const int _size[2]
-//                const ::coder::array<double, 2U> &r
-// Return Type  : void
-//
-void binary_expand_op(::coder::array<double, 2U> &v_max, const double ctx_cfg_vmax[6],
-                      const signed char _data[], const int _size[2],
-                      const ::coder::array<double, 2U> &r)
-{
-    int loop_ub;
-    int stride_0_0;
-    int stride_1_0;
-    int unnamed_idx_0;
-    unnamed_idx_0 = _size[1];
-    stride_0_0 = (unnamed_idx_0 != 1);
-    stride_1_0 = (r.size(0) != 1);
-    loop_ub = r.size(1);
-    for (int i{0}; i < loop_ub; i++) {
-        int b_loop_ub;
-        if (r.size(0) == 1) {
-            b_loop_ub = unnamed_idx_0;
-        } else {
-            b_loop_ub = r.size(0);
-        }
-        for (int i1{0}; i1 < b_loop_ub; i1++) {
-            v_max[i1 + v_max.size(0) * i] =
-                ctx_cfg_vmax[_data[i1 * stride_0_0] - 1] / r[i1 * stride_1_0 + r.size(0) * i];
-        }
     }
 }
 

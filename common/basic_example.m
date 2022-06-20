@@ -10,7 +10,7 @@ check_wkdir(); % If current directory is the working directory
 cfg = FeedoptDefaultConfig;
 
 % Set the path to the gcode file
-cfg.source = 'ngc_test/unit/004_single_segment.ngc';
+cfg.source = 'ngc_test/anchor.ngc';
 
 % Logging
 setupLogs( cfg.LogFileName ); diary on;
@@ -27,8 +27,12 @@ try
     plotGeometry(ctx, ctx.cfg, ctx.q_opt, ctx.q_spline );
     pause( 0.5 );
 
+%     % Resampling of the parameter
+%     fileName = 'splineRTCOff.csv' ;
+%     resample4sampler( ctx, fileName );
+% 
     % Resampling of the parameter
-    fileName = '.tmp.csv' ;
+    fileName = 'splineRTCOff.csv' ;
     resample2file( ctx, fileName ); ctx.q_opt.delete();
 
     % Load resampled data points

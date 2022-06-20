@@ -76,16 +76,14 @@ if( isempty( ratio ) ), ratio = 0.9; end
 
 [ u, ud, udd, uddd ]  = constJerkU( jps, k_vec * ctx.cfg.dt, isEnd );
 
-[ ~, ~, A, J ]        = calcRVAJfromU( ctx, curv, u, ud, udd, uddd );
+[ ~, V, A, J ]        = calcRVAJfromU( ctx, curv, u, ud, udd, uddd );
 
 [ r0D, r1D ]          = EvalCurvStruct( ctx, curv, u );
 
 if( curv.Info.TRAFO )
-    [ r1D_a ] = ctx.kin.v_joint( r0D, r1D );
     r1D_r     = r1D;
 else
     [ r1D_r ] = ctx.kin.v_relative( r0D, r1D );
-    r1D_a     = r1D;
 end
 
 safetyFactor = 0.5;
@@ -95,7 +93,6 @@ amax =  ctx.cfg.amax( ctx.cfg.maskTot ).' * safetyFactor;
 jmax =  ctx.cfg.jmax( ctx.cfg.maskTot ).' * safetyFactor;
 
 feed  = vecnorm( r1D_r( ctx.cfg.indCart, : ) ) .* ud ;
-V     = r1D_a .* ud;
 
 if( any( feed > fmax ) )
     [ f_delta, ind ] = max( feed - fmax );

@@ -5,7 +5,7 @@
 // File: initFeedoptPlan.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 17-Jun-2022 15:07:56
+// C/C++ source code generated on  : 20-Jun-2022 16:00:50
 //
 
 // Include Files
@@ -464,14 +464,14 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     // ----------------------------------------------------------------%
     //  Kinematics Wrapper class to C interfaces
     // ----------------------------------------------------------------%
-    // 'Kinematics:26' this.type       = type;
-    // 'Kinematics:27' this.parameters = parameters( : );
+    // 'Kinematics:17' this.type       = type;
+    // 'Kinematics:18' this.parameters = parameters( : );
     ctx->kin.parameters.set_size(cfg.kin_params.size[0]);
     y_loop_ub = cfg.kin_params.size[0];
     for (int i26{0}; i26 < y_loop_ub; i26++) {
         ctx->kin.parameters[i26] = cfg.kin_params.data[i26];
     }
-    // 'Kinematics:28' [ this ] = set_function_ptr( this );
+    // 'Kinematics:19' [ this ] = set_function_ptr( this );
     //  Not implemented due to problem of support in code
     //  generation...
     // ----------------------------------------------------------------%

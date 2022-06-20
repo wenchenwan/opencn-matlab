@@ -5,7 +5,7 @@
 // File: buildConstr.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 17-Jun-2022 15:17:54
+// C/C++ source code generated on  : 20-Jun-2022 15:55:52
 //
 
 // Include Files
@@ -13,7 +13,6 @@
 #include "EvalCurvStruct.h"
 #include "Kinematics.h"
 #include "colon.h"
-#include "div.h"
 #include "linspace.h"
 #include "minOrMax.h"
 #include "opencn_matlab_data.h"
@@ -33,6 +32,10 @@ static void b_binary_expand_op(::coder::array<double, 3U> &Acc, const ::coder::a
                                const ::coder::array<double, 2U> &BasisVal,
                                const ::coder::array<double, 1U> &r1,
                                const ::coder::array<double, 2U> &BasisValD);
+
+static void binary_expand_op(::coder::array<double, 2U> &v_max, const double ctx_cfg_vmax[6],
+                             const signed char _data[], const int _size[2],
+                             const ::coder::array<double, 2U> &r1D_a);
 
 static void binary_expand_op(::coder::array<double, 3U> &Acc, const ::coder::array<int, 1U> &r,
                              const ::coder::array<double, 2U> &r2D, int j, int i4,
@@ -132,6 +135,60 @@ static void b_binary_expand_op(::coder::array<double, 3U> &Acc, const ::coder::a
         }
         aux_3_1 += stride_3_1;
         aux_1_1 += stride_1_1;
+    }
+}
+
+//
+// Arguments    : ::coder::array<double, 2U> &v_max
+//                const double ctx_cfg_vmax[6]
+//                const signed char _data[]
+//                const int _size[2]
+//                const ::coder::array<double, 2U> &r1D_a
+// Return Type  : void
+//
+static void binary_expand_op(::coder::array<double, 2U> &v_max, const double ctx_cfg_vmax[6],
+                             const signed char _data[], const int _size[2],
+                             const ::coder::array<double, 2U> &r1D_a)
+{
+    ::coder::array<double, 2U> b_ctx_cfg_vmax;
+    int b_loop_ub;
+    int i;
+    int loop_ub;
+    int stride_0_0;
+    int stride_1_0;
+    int unnamed_idx_0;
+    unnamed_idx_0 = _size[1];
+    if (r1D_a.size(0) == 1) {
+        i = unnamed_idx_0;
+    } else {
+        i = r1D_a.size(0);
+    }
+    b_ctx_cfg_vmax.set_size(i, r1D_a.size(1));
+    stride_0_0 = (unnamed_idx_0 != 1);
+    stride_1_0 = (r1D_a.size(0) != 1);
+    loop_ub = r1D_a.size(1);
+    for (int i1{0}; i1 < loop_ub; i1++) {
+        int c_loop_ub;
+        if (r1D_a.size(0) == 1) {
+            c_loop_ub = unnamed_idx_0;
+        } else {
+            c_loop_ub = r1D_a.size(0);
+        }
+        for (int i3{0}; i3 < c_loop_ub; i3++) {
+            b_ctx_cfg_vmax[i3 + b_ctx_cfg_vmax.size(0) * i1] =
+                ctx_cfg_vmax[_data[i3 * stride_0_0] - 1] /
+                r1D_a[i3 * stride_1_0 + r1D_a.size(0) * i1];
+        }
+    }
+    b_loop_ub = b_ctx_cfg_vmax.size(1);
+    for (int i2{0}; i2 < b_loop_ub; i2++) {
+        int d_loop_ub;
+        d_loop_ub = b_ctx_cfg_vmax.size(0);
+        for (int i4{0}; i4 < d_loop_ub; i4++) {
+            double varargin_1;
+            varargin_1 = b_ctx_cfg_vmax[i4 + b_ctx_cfg_vmax.size(0) * i2];
+            v_max[i4 + v_max.size(0) * i2] = std::pow(varargin_1, 2.0);
+        }
     }
 }
 
@@ -397,6 +454,7 @@ void buildConstr(
     ::coder::array<double, 2U> b_Aeq;
     ::coder::array<double, 2U> b_amax;
     ::coder::array<double, 2U> b_b;
+    ::coder::array<double, 2U> b_ctx_cfg_vmax;
     ::coder::array<double, 2U> b_r1D_r;
     ::coder::array<double, 2U> b_v2_vec;
     ::coder::array<double, 2U> b_vel_ramp;
@@ -453,30 +511,30 @@ void buildConstr(
     int g_loop_ub;
     int h_loop_ub;
     int i24;
-    int i67;
-    int i70;
+    int i66;
+    int i68;
     int ib_loop_ub;
     int input_sizes_idx_0;
     int j_loop_ub;
     int k_loop_ub;
     int l_loop_ub;
-    int lb_loop_ub;
     int loop_ub;
+    int mb_loop_ub;
     int n_loop_ub;
     int nc_loop_ub;
     int o_loop_ub;
-    int ob_loop_ub;
     int p_loop_ub;
     int partialTrueCount;
+    int pb_loop_ub;
     int q_loop_ub;
     int qb_loop_ub;
     int r_loop_ub;
     int result;
-    int sb_loop_ub;
     int scalarLB;
     int tb_loop_ub;
     int tmp_data_idx_1;
     int trueCount;
+    int ub_loop_ub;
     int varargin_1;
     int vb_loop_ub;
     int vectorUB;
@@ -713,21 +771,20 @@ void buildConstr(
         int e_scalarLB;
         int e_vectorUB;
         int f_y;
-        int fb_loop_ub;
         int fc_loop_ub;
+        int hb_loop_ub;
         int hc_loop_ub;
-        int i71;
+        int i69;
         int i81;
         int i84;
         int ic_loop_ub;
         int inner;
-        int kb_loop_ub;
         int kc_loop_ub;
         int lc_loop_ub;
         int mc_loop_ub;
         int nc;
+        int ob_loop_ub;
         int oc_loop_ub;
-        int pb_loop_ub;
         int pc_loop_ub;
         int qc_loop_ub;
         int rc_loop_ub;
@@ -819,7 +876,7 @@ void buildConstr(
                     x[i40 + x.size(0) * i39] / d_y[i39];
             }
         }
-        // 'buildConstr:66' v_max( 1 : Ndim, : ) = ctx.cfg.vmax( ctx.cfg.maskTot ).'./ r1D_a.^2;
+        // 'buildConstr:66' v_max( 1 : Ndim, : ) = ( ctx.cfg.vmax( ctx.cfg.maskTot ).'./ r1D_a ).^2;
         b_trueCount = 0;
         b_partialTrueCount = 0;
         for (int c_i{0}; c_i <= end; c_i++) {
@@ -830,49 +887,50 @@ void buildConstr(
             }
         }
         tmp_size[1] = b_trueCount;
-        r.set_size(r1D_a.size(0), r1D_a.size(1));
-        fb_loop_ub = r1D_a.size(1);
-        for (int i42{0}; i42 < fb_loop_ub; i42++) {
+        if (r1D_a.size(0) == b_trueCount) {
+            int fb_loop_ub;
             int gb_loop_ub;
-            gb_loop_ub = r1D_a.size(0);
-            for (int i45{0}; i45 < gb_loop_ub; i45++) {
-                double d_varargin_1;
-                d_varargin_1 = r1D_a[i45 + r1D_a.size(0) * i42];
-                r[i45 + r.size(0) * i42] = std::pow(d_varargin_1, 2.0);
+            b_ctx_cfg_vmax.set_size(b_trueCount, r1D_a.size(1));
+            fb_loop_ub = r1D_a.size(1);
+            for (int i42{0}; i42 < fb_loop_ub; i42++) {
+                for (int i45{0}; i45 < b_trueCount; i45++) {
+                    b_ctx_cfg_vmax[i45 + b_ctx_cfg_vmax.size(0) * i42] =
+                        ctx_cfg_vmax[b_tmp_data[i45] - 1] / r1D_a[i45 + r1D_a.size(0) * i42];
+                }
             }
-        }
-        if (r.size(0) == b_trueCount) {
-            int hb_loop_ub;
-            hb_loop_ub = r.size(1);
-            for (int i47{0}; i47 < hb_loop_ub; i47++) {
-                for (int i49{0}; i49 < b_trueCount; i49++) {
-                    v_max[i49 + v_max.size(0) * i47] =
-                        ctx_cfg_vmax[b_tmp_data[i49] - 1] / r[i49 + r.size(0) * i47];
+            gb_loop_ub = b_ctx_cfg_vmax.size(1);
+            for (int i47{0}; i47 < gb_loop_ub; i47++) {
+                int jb_loop_ub;
+                jb_loop_ub = b_ctx_cfg_vmax.size(0);
+                for (int i50{0}; i50 < jb_loop_ub; i50++) {
+                    double d_varargin_1;
+                    d_varargin_1 = b_ctx_cfg_vmax[i50 + b_ctx_cfg_vmax.size(0) * i47];
+                    v_max[i50 + v_max.size(0) * i47] = std::pow(d_varargin_1, 2.0);
                 }
             }
         } else {
-            binary_expand_op(v_max, ctx_cfg_vmax, b_tmp_data, tmp_size, r);
+            binary_expand_op(v_max, ctx_cfg_vmax, b_tmp_data, tmp_size, r1D_a);
         }
         //  Maximum constraint on the speed
         // 'buildConstr:69' v_max( end, : ) = ( windowCurv( k ).Info.FeedRate ./ ...
         // 'buildConstr:70'         vecnorm( r1D_r( ctx.cfg.indCart, : ) ) ).^2;
-        kb_loop_ub = r1D_r.size(1);
+        hb_loop_ub = r1D_r.size(1);
         b_r1D_r.set_size(ctx_cfg_indCart.size(0), r1D_r.size(1));
-        for (int i53{0}; i53 < kb_loop_ub; i53++) {
-            int nb_loop_ub;
-            nb_loop_ub = ctx_cfg_indCart.size(0);
-            for (int i58{0}; i58 < nb_loop_ub; i58++) {
-                b_r1D_r[i58 + b_r1D_r.size(0) * i53] =
-                    r1D_r[(ctx_cfg_indCart[i58] + r1D_r.size(0) * i53) - 1];
+        for (int i49{0}; i49 < hb_loop_ub; i49++) {
+            int lb_loop_ub;
+            lb_loop_ub = ctx_cfg_indCart.size(0);
+            for (int i53{0}; i53 < lb_loop_ub; i53++) {
+                b_r1D_r[i53 + b_r1D_r.size(0) * i49] =
+                    r1D_r[(ctx_cfg_indCart[i53] + r1D_r.size(0) * i49) - 1];
             }
         }
         coder::vecnorm(b_r1D_r, r2);
         b_v_max = v_max.size(0) - 1;
-        pb_loop_ub = r2.size(1);
-        for (int i62{0}; i62 < pb_loop_ub; i62++) {
+        ob_loop_ub = r2.size(1);
+        for (int i57{0}; i57 < ob_loop_ub; i57++) {
             double e_varargin_1;
-            e_varargin_1 = windowCurv[b_k].Info.FeedRate / r2[i62];
-            v_max[b_v_max + v_max.size(0) * i62] = std::pow(e_varargin_1, 2.0);
+            e_varargin_1 = windowCurv[b_k].Info.FeedRate / r2[i57];
+            v_max[b_v_max + v_max.size(0) * i57] = std::pow(e_varargin_1, 2.0);
         }
         // 'buildConstr:72' f_max = min( v_max, [], 1 );
         coder::internal::minimum(v_max, f_max);
@@ -881,17 +939,17 @@ void buildConstr(
             if (M < 1) {
                 e_y.set_size(1, 0);
             } else {
-                int ub_loop_ub;
+                int sb_loop_ub;
                 e_y.set_size(1, M);
-                ub_loop_ub = M - 1;
-                for (int i66{0}; i66 <= ub_loop_ub; i66++) {
-                    e_y[i66] = i66 + 1U;
+                sb_loop_ub = M - 1;
+                for (int i65{0}; i65 <= sb_loop_ub; i65++) {
+                    e_y[i65] = i65 + 1U;
                 }
             }
-            i67 = r1D_a.size(1);
-            vb_loop_ub = r1D_a.size(1);
-            wb_loop_ub = e_y.size(1);
-            i70 = r1D.size(1);
+            i66 = r1D_a.size(1);
+            tb_loop_ub = r1D_a.size(1);
+            vb_loop_ub = e_y.size(1);
+            i68 = r1D.size(1);
             xb_loop_ub = r1D.size(1);
             yb_loop_ub = BasisVal.size(1);
             ac_loop_ub = BasisVal.size(1);
@@ -907,12 +965,12 @@ void buildConstr(
             g_y = static_cast<int>((static_cast<double>(j + 1) - 1.0) * static_cast<double>(M));
             // 'buildConstr:76' Acc( ind, :, 1 ) = r2D_a( j, : )' .* BasisVal + 0.5 * r1D_a( j, : )'
             // .* BasisValD;
-            r3.set_size(i67);
-            for (int i72{0}; i72 < vb_loop_ub; i72++) {
-                r3[i72] = 0.5 * r1D_a[j + r1D_a.size(0) * i72];
+            r3.set_size(i66);
+            for (int i71{0}; i71 < tb_loop_ub; i71++) {
+                r3[i71] = 0.5 * r1D_a[j + r1D_a.size(0) * i71];
             }
             r8.set_size(e_y.size(1));
-            for (int i73{0}; i73 < wb_loop_ub; i73++) {
+            for (int i73{0}; i73 < vb_loop_ub; i73++) {
                 r8[i73] = static_cast<int>(e_y[i73]) + g_y;
             }
             if (r2D_a.size(1) == 1) {
@@ -942,7 +1000,7 @@ void buildConstr(
             }
             // 'buildConstr:77' Acc( ind, :, 2 ) = r2D( j, : )'   .* BasisVal + 0.5 * r1D( j, : )'
             // .* BasisValD;
-            r3.set_size(i70);
+            r3.set_size(i68);
             for (int i80{0}; i80 < xb_loop_ub; i80++) {
                 r3[i80] = 0.5 * r1D[j + r1D.size(0) * i80];
             }
@@ -978,13 +1036,13 @@ void buildConstr(
                                                  static_cast<double>(y_tmp + 2))) *
             static_cast<double>(M));
         indAL.set_size(1, r1.size(1));
-        for (i71 = 0; i71 <= vectorUB; i71 += 4) {
+        for (i69 = 0; i69 <= vectorUB; i69 += 4) {
             __m128i r7;
-            r7 = _mm_loadu_si128((const __m128i *)&r1[i71]);
-            _mm_storeu_si128((__m128i *)&indAL[i71], _mm_add_epi32(r7, _mm_set1_epi32(f_y)));
+            r7 = _mm_loadu_si128((const __m128i *)&r1[i69]);
+            _mm_storeu_si128((__m128i *)&indAL[i69], _mm_add_epi32(r7, _mm_set1_epi32(f_y)));
         }
-        for (i71 = scalarLB; i71 < n_loop_ub; i71++) {
-            indAL[i71] = r1[i71] + f_y;
+        for (i69 = scalarLB; i69 < n_loop_ub; i69++) {
+            indAL[i69] = r1[i69] + f_y;
         }
         // 'buildConstr:82' indAC   = int32( 1 : N  ) + ( k - 1 ) * N;
         if (N < 1) {
@@ -1325,7 +1383,7 @@ void buildConstr(
         int c_input_sizes_idx_1;
         int d_input_sizes_idx_1;
         int input_sizes_idx_1;
-        int mb_loop_ub;
+        int nb_loop_ub;
         signed char b_input_sizes_idx_1;
         bool b_empty_non_axis_sizes;
         // 'buildConstr:106' ramp = [ones(M, Nc ), vel_ramp, acc_ramp, ...
@@ -1378,47 +1436,47 @@ void buildConstr(
         }
         ramp.set_size(b_result, ((input_sizes_idx_1 + b_input_sizes_idx_1) + c_input_sizes_idx_1) +
                                     d_input_sizes_idx_1);
-        for (int i50{0}; i50 < input_sizes_idx_1; i50++) {
-            for (int i52{0}; i52 < b_result; i52++) {
-                ramp[i52 + ramp.size(0) * i50] = 1.0;
+        for (int i51{0}; i51 < input_sizes_idx_1; i51++) {
+            for (int i54{0}; i54 < b_result; i54++) {
+                ramp[i54 + ramp.size(0) * i51] = 1.0;
             }
         }
-        mb_loop_ub = b_input_sizes_idx_1;
-        for (int i55{0}; i55 < mb_loop_ub; i55++) {
-            for (int i57{0}; i57 < b_result; i57++) {
-                ramp[i57 + ramp.size(0) * input_sizes_idx_1] = vel_ramp[i57];
+        nb_loop_ub = b_input_sizes_idx_1;
+        for (int i56{0}; i56 < nb_loop_ub; i56++) {
+            for (int i59{0}; i59 < b_result; i59++) {
+                ramp[i59 + ramp.size(0) * input_sizes_idx_1] = vel_ramp[i59];
             }
         }
-        for (int i56{0}; i56 < c_input_sizes_idx_1; i56++) {
-            for (int i61{0}; i61 < b_result; i61++) {
-                ramp[i61 + ramp.size(0) * ((i56 + input_sizes_idx_1) + b_input_sizes_idx_1)] =
-                    acc_ramp[i61 + b_result * i56];
+        for (int i58{0}; i58 < c_input_sizes_idx_1; i58++) {
+            for (int i62{0}; i62 < b_result; i62++) {
+                ramp[i62 + ramp.size(0) * ((i58 + input_sizes_idx_1) + b_input_sizes_idx_1)] =
+                    acc_ramp[i62 + b_result * i58];
             }
         }
-        for (int i60{0}; i60 < d_input_sizes_idx_1; i60++) {
+        for (int i61{0}; i61 < d_input_sizes_idx_1; i61++) {
             for (int i63{0}; i63 < b_result; i63++) {
-                ramp[i63 + ramp.size(0) * (((i60 + input_sizes_idx_1) + b_input_sizes_idx_1) +
-                                           c_input_sizes_idx_1)] = varargin_4[i63 + b_result * i60];
+                ramp[i63 + ramp.size(0) * (((i61 + input_sizes_idx_1) + b_input_sizes_idx_1) +
+                                           c_input_sizes_idx_1)] = varargin_4[i63 + b_result * i61];
             }
         }
         // 'buildConstr:108' b  = b .* ramp(:);
         if (b.size(0) == ramp.size(0) * ramp.size(1)) {
             int c_scalarLB;
             int c_vectorUB;
-            int i65;
+            int i67;
             int rb_loop_ub;
             rb_loop_ub = b.size(0);
             c_scalarLB = (b.size(0) / 2) << 1;
             c_vectorUB = c_scalarLB - 2;
-            for (i65 = 0; i65 <= c_vectorUB; i65 += 2) {
+            for (i67 = 0; i67 <= c_vectorUB; i67 += 2) {
                 __m128d r5;
                 __m128d r6;
-                r5 = _mm_loadu_pd(&b[i65]);
-                r6 = _mm_loadu_pd(&ramp[i65]);
-                _mm_storeu_pd(&b[i65], _mm_mul_pd(r5, r6));
+                r5 = _mm_loadu_pd(&b[i67]);
+                r6 = _mm_loadu_pd(&ramp[i67]);
+                _mm_storeu_pd(&b[i67], _mm_mul_pd(r5, r6));
             }
-            for (i65 = c_scalarLB; i65 < rb_loop_ub; i65++) {
-                b[i65] = b[i65] * ramp[i65];
+            for (i67 = c_scalarLB; i67 < rb_loop_ub; i67++) {
+                b[i67] = b[i67] * ramp[i67];
             }
         } else {
             binary_expand_op(b, ramp);
@@ -1470,21 +1528,21 @@ void buildConstr(
     A.set_size(c_varargin_1.size(0), c_varargin_1.size(1));
     ib_loop_ub = c_varargin_1.size(1);
     for (int i48{0}; i48 < ib_loop_ub; i48++) {
-        int jb_loop_ub;
-        jb_loop_ub = c_varargin_1.size(0);
-        for (int i51{0}; i51 < jb_loop_ub; i51++) {
-            A[i51 + A.size(0) * i48] = c_varargin_1[i51 + c_varargin_1.size(0) * i48];
+        int kb_loop_ub;
+        kb_loop_ub = c_varargin_1.size(0);
+        for (int i52{0}; i52 < kb_loop_ub; i52++) {
+            A[i52 + A.size(0) * i48] = c_varargin_1[i52 + c_varargin_1.size(0) * i48];
         }
     }
     // 'buildConstr:112' b = [ zeros( size( A, 2 ), 1 );   b ];
     r3.set_size(b.size(0) + A.size(1));
-    lb_loop_ub = A.size(1);
-    for (int i54{0}; i54 < lb_loop_ub; i54++) {
-        r3[i54] = 0.0;
+    mb_loop_ub = A.size(1);
+    for (int i55{0}; i55 < mb_loop_ub; i55++) {
+        r3[i55] = 0.0;
     }
-    ob_loop_ub = b.size(0);
-    for (int i59{0}; i59 < ob_loop_ub; i59++) {
-        r3[i59 + A.size(1)] = b[i59];
+    pb_loop_ub = b.size(0);
+    for (int i60{0}; i60 < pb_loop_ub; i60++) {
+        r3[i60 + A.size(1)] = b[i60];
     }
     b.set_size(r3.size(0));
     qb_loop_ub = r3.size(0);
@@ -1493,14 +1551,14 @@ void buildConstr(
     }
     //  Continuity equations
     // 'buildConstr:115' continuity = [ v2_vec( 2, : , 1 ); at_norm( 2, :, 1 ) ];
-    sb_loop_ub = v2_vec.size(1);
-    tb_loop_ub = at_norm.size(1);
+    ub_loop_ub = v2_vec.size(1);
+    wb_loop_ub = at_norm.size(1);
     continuity.set_size(2, v2_vec.size(1));
-    for (int i68{0}; i68 < sb_loop_ub; i68++) {
-        continuity[2 * i68] = v2_vec[2 * i68 + 1];
+    for (int i70{0}; i70 < ub_loop_ub; i70++) {
+        continuity[2 * i70] = v2_vec[2 * i70 + 1];
     }
-    for (int i69{0}; i69 < tb_loop_ub; i69++) {
-        continuity[2 * i69 + 1] = at_norm[2 * i69 + 1];
+    for (int i72{0}; i72 < wb_loop_ub; i72++) {
+        continuity[2 * i72 + 1] = at_norm[2 * i72 + 1];
     }
     // 'buildConstr:117' c_prof_out(mfilename);
 }

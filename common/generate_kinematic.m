@@ -6,7 +6,7 @@ R   = sym( 'R',  [5, 1], 'real' );
 Rp  = sym( 'Rp', [5, 1], 'real' );
 Rpp = sym( 'Rpp',[5, 1], 'real' );
 
-A   = sym( 'R',  [5, 1], 'real' );
+A   = sym( 'A',  [5, 1], 'real' );
 Ap  = sym( 'Ap', [5, 1], 'real' );
 App = sym( 'App',[5, 1], 'real' );
 
@@ -14,7 +14,7 @@ P   = sym( 'P',  [3, 4], 'real' );
 
 % Kinematic basic models
 [ world ] = forwardKinematicModel_Factory( A, P );
-[ joint ] = backwardKinematicModel_Factory( R, P );
+[ joint ] = backwardKinematicModel_Factory_new( R, P );
 
 % Jacobians
 J_ar   = simplify( jacobian( joint,  R ) );

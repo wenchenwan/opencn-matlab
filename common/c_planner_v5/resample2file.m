@@ -1,5 +1,5 @@
 function [ ] = resample2file( ctx, fileName )
-% resample2fileDebug : Performe the resampling on the whole queue q_opt.
+% resample2file : Performe the resampling on the whole queue q_opt.
 % The resampled data are stored in a file.
 % 
 % Inputs : 
@@ -22,7 +22,6 @@ for k = 1 : N
     countInPercent = printAvancement(countInPercent, k, N);
 
     Curv                        = ctx.q_opt.get( k );
-    SplineCurv                  = ctx.q_spline.get( Curv.sp_index );
     Curv.MaxConstantFeedRate    = 0;%GetCurvMaxFeedrate( ctx, Curv );
         
     while ~state.go_next

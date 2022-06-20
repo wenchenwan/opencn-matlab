@@ -4,7 +4,7 @@ clear; clc;
 check_wkdir();
 
 % please choose the target first ( only 1 target is generated at the time )
-generate_for_arm_32 = true;
+generate_for_arm_32 = false;
 generate_for_x86_64 = false;
 generate_for_arm_64 = false;
 

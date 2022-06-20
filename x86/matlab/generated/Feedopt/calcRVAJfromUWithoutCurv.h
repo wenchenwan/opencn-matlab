@@ -5,7 +5,7 @@
 // File: calcRVAJfromUWithoutCurv.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 17-Jun-2022 15:17:54
+// C/C++ source code generated on  : 20-Jun-2022 15:55:52
 //
 
 #ifndef CALCRVAJFROMUWITHOUTCURV_H
@@ -21,6 +21,9 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
+void b_times(::coder::array<double, 2U> &V, const ::coder::array<double, 2U> &r1D,
+             const ::coder::array<double, 2U> &ud);
+
 void binary_expand_op(::coder::array<double, 2U> &A, const ::coder::array<double, 2U> &r2D,
                       const ::coder::array<double, 2U> &r, const ::coder::array<double, 2U> &r1D,
                       const ::coder::array<double, 2U> &udd_vec);

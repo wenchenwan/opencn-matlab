@@ -5,7 +5,7 @@
 // File: zeroSpeedCurv.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 17-Jun-2022 15:45:22
+// C/C++ source code generated on  : 20-Jun-2022 15:51:08
 //
 
 #ifndef ZEROSPEEDCURV_H
@@ -21,13 +21,10 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-void b_times(::coder::array<double, 2U> &feed, const ::coder::array<double, 2U> &y,
-             const ::coder::array<double, 2U> &ud);
-
 void d_binary_expand_op(::coder::array<bool, 2U> &x, const ::coder::array<double, 2U> &r,
                         const double jmax_data[], const int *jmax_size);
 
-void times(::coder::array<double, 2U> &V, const ::coder::array<double, 2U> &r1D_a,
+void times(::coder::array<double, 2U> &feed, const ::coder::array<double, 2U> &y,
            const ::coder::array<double, 2U> &ud);
 
 } // namespace ocn

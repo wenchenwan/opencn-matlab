@@ -5,15 +5,6 @@ classdef Kinematics
     properties ( SetAccess = private )
         type                % Kinematics type
         parameters          % Kinematics paramters
-        % Functions pointer
-        MGD
-        MGI
-        J_ar
-        JP_ar
-        J2P_ar
-        J_ra
-        JP_ra
-        J2P_ra
     end
 
     methods ( Access = public )
@@ -85,7 +76,7 @@ classdef Kinematics
                     J2P = kin_J2P_ra_xyzbc( r_a( :, j ), v_a( :, j ), a_a( :, j ), this.parameters );
                     r_r( :, j ) = kin_forward_xyzbc( r_a( :, j ), this.parameters );
                     v_r( :, j ) = J * v_a( :, j );
-                    a_r( :, j ) = JP * v_a( :, j ) + J * a_a( :, j );
+                    a_r( :, j ) = JP * v_a( :, j )  + J * a_a( :, j );
                     j_r( :, j ) = J2P * v_a( :, j ) + 2 * JP * a_a( :, j ) + J * j_a( :, j );
                 end
 %             end

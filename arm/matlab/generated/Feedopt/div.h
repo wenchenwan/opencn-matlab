@@ -5,7 +5,7 @@
 // File: div.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 17-Jun-2022 15:45:22
+// C/C++ source code generated on  : 20-Jun-2022 15:51:08
 //
 
 #ifndef DIV_H
@@ -35,10 +35,6 @@ void binary_expand_op(double alpha0_t_data[], int *alpha0_t_size, const double C
 void binary_expand_op(double alpha0_t_data[], int *alpha0_t_size, const double CoefPS[16],
                       const ::coder::array<double, 1U> &r, const ::coder::array<double, 1U> &r1,
                       const double alpha1_t_data[], const int *alpha1_t_size);
-
-void binary_expand_op(::coder::array<double, 2U> &v_max, const double ctx_cfg_vmax[6],
-                      const signed char _data[], const int _size[2],
-                      const ::coder::array<double, 2U> &r);
 
 } // namespace ocn
 
