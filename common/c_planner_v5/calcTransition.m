@@ -241,25 +241,33 @@ else
     if coder.target('matlab')
     if IsEnabledDebugLog(DebugCfg.Plots)
         
-        figure;
-        PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct2]);
-        hold on;
-        plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
-        hold on;
-        plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
-        hold on;
-        plot3(r0D0_1(1), r0D0_1(2), r0D0_1(3), 'xc', 'LineWidth', 3);
-        hold on;
-        plot3(r0D0_2(1), r0D0_2(2), r0D0_2(3), 'xc', 'LineWidth', 3);
-        hold on;
-        plot3(r1D0_1(1), r1D0_1(2), r1D0_1(3), 'xc', 'LineWidth', 3);
-        hold on;
-        plot3(r1D0_2(1), r1D0_2(2), r1D0_2(3), 'xc', 'LineWidth', 3);
-        str = regexp(ctx.cfg.source, '/', 'split'); % to get only g-code file name
-        title({str{end}, 'No solution', ...
-            ['Lines: ', num2str(line1), ' ', num2str(line2)]}, 'Interpreter', 'none');
-        axis equal;
-        camproj('perspective');
+        q_debug = queue( CurvStruct1 );
+        q_debug.push( CurvStruct1 );
+        q_debug.push( CurvStruct2 );
+        
+        plotGeometry( ctx, ctx.cfg, q_debug, ctx.q_spline );
+        pause( 0.5 );
+        q_debug.delete();
+
+%         figure;
+%         PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct2]);
+%         hold on;
+%         plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
+%         hold on;
+%         plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
+%         hold on;
+%         plot3(r0D0_1(1), r0D0_1(2), r0D0_1(3), 'xc', 'LineWidth', 3);
+%         hold on;
+%         plot3(r0D0_2(1), r0D0_2(2), r0D0_2(3), 'xc', 'LineWidth', 3);
+%         hold on;
+%         plot3(r1D0_1(1), r1D0_1(2), r1D0_1(3), 'xc', 'LineWidth', 3);
+%         hold on;
+%         plot3(r1D0_2(1), r1D0_2(2), r1D0_2(3), 'xc', 'LineWidth', 3);
+%         str = regexp(ctx.cfg.source, '/', 'split'); % to get only g-code file name
+%         title({str{end}, 'No solution', ...
+%             ['Lines: ', num2str(line1), ' ', num2str(line2)]}, 'Interpreter', 'none');
+%         axis equal;
+%         camproj('perspective');
     end
     end
     

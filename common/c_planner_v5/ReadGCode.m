@@ -93,13 +93,11 @@ elseif coder.target('rtw')
         status = int32( 0 );
         status = coder.ceval( 'c_open_gcode', [filename, 0], coder.ref( CurvStruct ) );
     elseif cmd == ReadGCodeCmd.Read
-
         CurvStruct = constrCurvStructType;
         status = int32( 0 );
         status = coder.ceval( 'c_read_and_exec_gcode', '', coder.ref( CurvStruct ) );
         CurvStruct.R0( 4 : end ) = deg2rad( CurvStruct.R0( 4 : end ) );
         CurvStruct.R1( 4 : end ) = deg2rad( CurvStruct.R1( 4 : end ) );
-
     end
 else
     error('Unknown target');

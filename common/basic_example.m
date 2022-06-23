@@ -28,11 +28,11 @@ try
     pause( 0.5 );
 
 %     % Resampling of the parameter
-%     fileName = 'splineRTCOff.csv' ;
+%     fileName = 'PR1_QPT/sampler/OpenCN_spline1_RTCPon.csv' ;
 %     resample4sampler( ctx, fileName );
-% 
+
     % Resampling of the parameter
-    fileName = 'splineRTCOff.csv' ;
+    fileName = '.tmp.csv' ;
     resample2file( ctx, fileName ); ctx.q_opt.delete();
 
     % Load resampled data points
