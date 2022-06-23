@@ -5,7 +5,7 @@ N = ctx.q_gcode.size;
 DebugLog(DebugCfg.Validate, 'Checking for cusps...\n');
 DebugLog(DebugCfg.OptimProgress, 'Checking for cusps...\n');
 
-for k = 1:N-1
+for k = 1 : N-1
     Curv1 = ctx.q_gcode.get(k);
     Curv2 = ctx.q_gcode.get(k+1);
     

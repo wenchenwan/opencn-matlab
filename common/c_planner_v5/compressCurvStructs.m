@@ -1,4 +1,4 @@
-function [ ctx ] = compressCurvStructs( ctx )
+function [ ctx ] = compressCurvStructs_new( ctx )
 % CompressCurvStructs :
 % - Is feeded by the queue : q_gcode
 % - Check if a compression is possible based on the individual curves
@@ -14,117 +14,152 @@ function [ ctx ] = compressCurvStructs( ctx )
 if ctx.q_gcode.isempty(), return; end
 
 spline_index        = ctx.q_spline.size() + 1;  % New index in q_spline
-Length_Threshold    = ctx.cfg.LThreshold;       % in [mm]
 Ncrv                = ctx.q_gcode.size;         % Number of curve in queue
-
-% Vector for the speed mode of the first and the last segment of the spline
-zspdmodevec = [ ZSpdMode.NN, ZSpdMode.NN ];
-
-CumulatedLength = 0;                       % Accumulator for the length
-spindle_speed   = 75000;                   % in [rpm]
+[ batch ]           = batch_init();
 
 DebugLog(DebugCfg.Validate, 'Compressing...\n');
 
-% Satisfy coder
-if ( ~ coder.target( 'MATLAB' ) )
-    pvec    = zeros( StructTypeName.NumberAxisMax, 1 );
-    coder.varsize( 'pvec', StructTypeName.dimPvec{ : } );
-end
-
 for k = 1 : Ncrv
-    curve = ctx.q_gcode.get(k);          % Get next Curv in the queue
-    % If the next curve segment is too long for compressing or it is not an NN,
-    % we need to stop growing the compressing list and create the spline
+    curv = ctx.q_gcode.get( k ); % Get next Curve in the queue
 
-    if k > 1      % Check colinearity with previous segment
-        preCurve    = ctx.q_gcode.get( k-1 );
-        Collinear   = curvCollinear(ctx, preCurve, curve, ...
-            ctx.cfg.Compressing.ColTolCosLee);
-    else % Set default value for the c code generation
-        preCurve    = curve;
-        Collinear   = false;
-    end
+    [ addBatch, addBatchNew ] = check_add_batch( ctx, curv, batch );
+    [ closeBatch ] = check_close_batch( curv, addBatch );
 
-    % A new spline is created if one of the following conditions is met :
-    %  - The length of the current curve is too long for the compressing
-    %  - One of the boundaries speed is zero
-    % No more segment is added to the list of compressing curves
-    if ( curve.Info.Type ~= CurveType.Line )        || ... % Not a Line
-       ( isAZeroEnd( curve ) )                      || ... % Zero stop
-       ( (k ~= 1)  && ~Collinear )                  || ... % Not collinear and not 1rst segment
-       ( (k == Ncrv) && (CumulatedLength ~= 0) )    || ... % Last segment and on-going compression
-       ( LengthCurv(ctx, curve, 0, 1) >= Length_Threshold ) % Too long segment
-
-        % In this case add the last segment
-        if ( ( isAZeroEnd( curve ) ) || ... % Zero stop OR Last segment
-                ( k == Ncrv ) ) && ( CumulatedLength ~= 0 ) % AND on-going compression
-            pvec = [ pvec curve.R1 ];
-            zspdmodevec( end ) =  curve.Info.zspdmode;
-            spindle_speed = min( spindle_speed, curve.Info.SpindleSpeed );
-        end
-
-
-        % If the cumulated length is zero, no compressing is on-going.
-        % The segment is treated individually
-        if ( CumulatedLength == 0 )
-            ctx.q_compress.push( curve );
-
-            % If there was an on-going compression
+    if( addBatch )
+        if( batch.size > 0)
+            [ batch ] = batch_add_curv( batch, curv );
         else
-            % We have more than 2 points, thus constructing a spline
-            % is warranted
-            if ( size( pvec, 2 ) > 2 )
-                splineCurve             = constrCurvStructType;
-                splineCurve.Info.Type   = CurveType.Spline;
-                splineCurve.sp_index    = spline_index;
-                splineCurve.sp          = CalcBspline_Lee( ctx.cfg, pvec( ctx.cfg.maskTot, : ) );
-                [Ltot, Lk]              = SplineLengthApproxGL_tot( ctx, splineCurve );
-                splineCurve.sp.Ltot     = Ltot;
-                splineCurve.sp.Lk       = Lk;
-
-                spline = constrSplineStruct( curve.Info, pvec(:,1), ...
-                    pvec(:,end), uint32( spline_index ) );
-
-                % Calculate the ZSpdMode for the spline
-                first   = zspdmodevec( 1 );
-                last    = zspdmodevec( end );
-
-                if ( first == ZSpdMode.NN ) && ( last == ZSpdMode.NN )
-                    spline.Info.zspdmode = ZSpdMode.NN;
-                elseif  ( first == ZSpdMode.NN ) && ( last == ZSpdMode.NZ )
-                    spline.Info.zspdmode = ZSpdMode.NZ;
-                elseif  ( first == ZSpdMode.ZN ) && ( last == ZSpdMode.NN )
-                    spline.Info.zspdmode = ZSpdMode.ZN;
-                elseif ( first == ZSpdMode.ZN ) && ( last == ZSpdMode.NZ )
-                    spline.Info.zspdmode = ZSpdMode.ZZ;
-                else
-                    fprintf('ERROR IN ZSPDMODE');
-                end
-
-                ctx.q_spline.push( splineCurve );
-                ctx.q_compress.push( spline );
-
-                spline_index = spline_index + 1;
-            else
-                ctx.q_compress.push( preCurve ); % push segment to q_compress
-                ctx.q_compress.push( curve );    % push segment to q_compress
-            end
-            CumulatedLength = 0;
+            [ batch ] = batch_reset( ctx, curv );
         end
-        % In the general case with an elligible segment, add it to the
-        % compression list
-    else
-        if ( CumulatedLength == 0 )
-            pvec    = curve.R0;
-            spindle_speed    = curve.Info.SpindleSpeed;
-            zspdmodevec( 1 ) = curve.Info.zspdmode;
-        end
-
-        CumulatedLength = CumulatedLength + LengthCurv( ctx, curve, 0, 1 );
-        pvec            = [ pvec, curve.R1 ];
-        zspdmodevec( end ) = curve.Info.zspdmode;
-        spindle_speed      = min( spindle_speed, curve.Info.SpindleSpeed );
     end
+
+    if( closeBatch )
+        [ ctx, batch, spline_index ] = batch_close( ctx, batch, spline_index );
+    end
+
+    if( addBatchNew )
+        [ batch ] = batch_reset( ctx, curv );
+    elseif( ~addBatch )
+        ctx.q_compress.push( curv );
+    end
+
+
+end
+
+[ ctx ] = batch_close( ctx, batch, spline_index );
+
+end
+
+%-------------------------------------------------------------------------%
+
+function [ addBatch, addBatchNew ] = check_add_batch( ctx, curv, batch )
+if( coder.target( "MATLAB" ) ), coder.inline( "always" ); end
+
+addBatch    = true;
+addBatchNew = false;
+
+if( curv.Info.Type ~= CurveType.Line )
+    addBatch = false;
+    return;
+end
+
+if( LengthCurv( ctx, curv, 0, 1 ) >  ctx.cfg.LThreshold )
+    addBatch = false; return;
+end
+
+if( batch.size > 0 )
+    if( batch.size > 1 )
+        prevCurv = batch.curvArray( end );
+    else
+        prevCurv = batch.curvArray( 1 );
+    end
+    collinear = curvCollinear( ctx, prevCurv, curv, ...
+        ctx.cfg.Compressing.ColTolCosLee );
+    if( ~collinear ), addBatch = false; addBatchNew = true; return; end
+end
+
+end
+
+function [ closeBatch ] = check_close_batch( curv, addBatch )
+if( coder.target( "MATLAB" ) ), coder.inline( "always" ); end
+
+closeBatch = false;
+
+if( ~addBatch ), closeBatch = true; return; end
+
+if( isAZeroEnd( curv ) ), closeBatch = true; return; end
+
+end
+
+function [ batch ] = batch_init()
+batch = struct( ...
+    'pvec',          zeros( StructTypeName.NumberAxisMax, 1 ),...
+    'curvArray',     repmat( constrCurvStructType, 1, 2 ),...
+    'spindle_speed', 0,...
+    'feedrate',      0,...
+    'size',          0 ...
+    );
+
+if( ~coder.target( "MATLAB" ) )
+    coder.varsize( 'batch.pvec', StructTypeName.dimPvec{ : } );
 end
 end
 
+function [ ctx, batch, spline_index ] = batch_close( ctx, batch, spline_index )
+if( batch.size > 1 )
+    [ curvCompressed, spline, spline_index ] = ...
+        create_spline( ctx, batch, spline_index );
+
+    ctx.q_compress.push( curvCompressed );
+    ctx.q_spline.push( spline );
+
+elseif( batch.size > 0 )
+    ctx.q_compress.push( batch.curvArray( 1 ) );
+end
+batch.size = 0;
+end
+
+function [ batch ] = batch_reset( ctx, curv )
+batch.pvec            = curv.R0;
+batch.curvArray       = [ curv, curv ];
+batch.spindle_speed   = ctx.cfg.smax;
+batch.feedrate        = ctx.cfg.fmax;
+batch.size            = 1;
+end
+
+function [ batch ] = batch_add_curv( batch, curv )
+batch.pvec             = [ batch.pvec, curv.R1 ];
+batch.curvArray( end ) = curv;
+batch.spindle_speed    = min( batch.spindle_speed , curv.Info.SpindleSpeed );
+batch.feedrate         = min( batch.feedrate, curv.Info.FeedRate );
+batch.size             = batch.size + 1;
+end
+
+function [ curv, spline, spline_index ] = create_spline( ctx, batch, spline_index )
+spline            = constrCurvStructType;
+spline.Info.Type  = CurveType.Spline;
+spline.sp_index   = spline_index;
+spline.sp         = CalcBspline_Lee( ctx.cfg, batch.pvec( ctx.cfg.maskTot, : ) );
+[ Ltot, Lk ]      = SplineLengthApproxGL_tot( ctx, spline );
+spline.sp.Ltot    = Ltot;
+spline.sp.Lk      = Lk;
+
+curv    = constrSplineStruct( batch.curvArray( end ).Info, batch.pvec( :, 1 ), ...
+    batch.pvec( :,end ), uint32( spline_index ) );
+
+% Calculate the ZSpdMode for the spline
+first   = batch.curvArray( 1 );
+last    = batch.curvArray( end );
+
+if ( ~isAZeroSpeed( first ) ) && ( ~isAZeroSpeed( last ) )
+    curv.Info.zspdmode = ZSpdMode.NN;
+elseif ( ~isAZeroSpeed( first ) ) && ( isAZeroEnd( last ) )
+    curv.Info.zspdmode = ZSpdMode.NZ;
+elseif ( isAZeroStart( first ) ) && ( ~isAZeroSpeed( last ) )
+    curv.Info.zspdmode = ZSpdMode.ZN;
+else
+    curv.Info.zspdmode = ZSpdMode.ZZ;
+end
+
+spline_index = spline_index + 1;
+end

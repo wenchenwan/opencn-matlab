@@ -22,8 +22,8 @@ end
 end
 
 function my_plot( data, feedrate, labels )
-    plot3( data( 1, : ), data( 2, : ), data( 3, : ), '-' ); grid on; axis square;
-%     scatter3( data( 1, : ), data( 2, : ), data( 3, : ), 1, feedrate, '.' );
+%     plot3( data( 1, : ), data( 2, : ), data( 3, : ), '-' ); grid on; axis square;
+    scatter3( data( 1, : ), data( 2, : ), data( 3, : ), 1, feedrate, '.' );
     colormap jet
     set(gca, 'Projection','orthographic')
     xlabel( labels{ 1 } ); ylabel( labels{ 2 } ); zlabel( labels{ 3 } );

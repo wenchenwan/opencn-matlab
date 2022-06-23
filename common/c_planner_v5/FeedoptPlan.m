@@ -58,6 +58,7 @@ switch ctx.op
         ctx.op = Fopt.Check;
         
     case Fopt.Check
+%         [ ctx.q_gcode ] = checkTrafo( ctx, ctx.q_gcode );
         ctx     = CheckCurvStructs( ctx );
         ctx.op  = Fopt.Compress;
 
@@ -67,11 +68,11 @@ switch ctx.op
                 ctx.q_compress.push( ctx.q_gcode.get( j ) );
             end
         else
-            ctx = compressCurvStructs_new(ctx);
+            ctx = compressCurvStructs(ctx);
         end
         
 %         if( ctx.q_compress.size > 1 )
-%             error( "should be only compressing"); 
+%             error( "should be only compressing");
 %         end
 
         ctx.op = Fopt.Smooth;
