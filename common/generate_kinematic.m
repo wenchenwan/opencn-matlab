@@ -14,7 +14,7 @@ P   = sym( 'P',  [3, 4], 'real' );
 
 % Kinematic basic models
 [ world ] = forwardKinematicModel_Factory( A, P );
-[ joint ] = backwardKinematicModel_Factory_new( R, P );
+[ joint ] = backwardKinematicModel_Factory( R, P );
 
 % Jacobians
 J_ar   = simplify( jacobian( joint,  R ) );
