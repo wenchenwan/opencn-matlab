@@ -37,10 +37,11 @@ switch Type
     case CurveType.Line     % Line (G01)
         [r0D, r1D, r2D, r3D] = EvalLine( curv, u_vec_tilda, maskTot );
     case CurveType.Helix    % Arc of circle / helix (G02, G03)
-        if( cfg.NCart > 0 )         % Only rotation
+        if( cfg.NCart > 0 )         % Cartesian axis
             [r0D( indC, : ), r1D( indC, : ), r2D( indC, : ), r3D( indC, : )] = ...
                 EvalHelix( curv, u_vec_tilda, maskCart );
-        elseif( cfg.NRot > 0 )      % Only cartesian
+        end 
+        if( cfg.NRot > 0 )      % Rotative axis
             [r0D( indR, : ), r1D( indR, : ), r2D( indR, : ), r3D( indR, : )] = ...
                 EvalLine( curv, u_vec_tilda, maskRot );
         end

@@ -31,6 +31,8 @@ cfg = struct(...
     'NumberAxis', int32( 0 ), ...                   % Do not modify
     'NCart',   int32( 0 ), ...                      % Do not modify
     'NRot',    int32( 0 ), ...                      % Do not modify
+    'D', 0, ...                                     % Do not modify
+    'coeffD', 2.5, ...                                % Coefficient between cartésian and rotativ axis
     'kin_params', reshape( [ 0, 0, 0, 24.8760; 0, 0, 0, 0; 0, -24.8760, 0, 0 ], [], 1 ), ...
     'kin_type', "xyzbc", ...
     'NDiscr', int32( 10 ),...
@@ -75,6 +77,7 @@ if ~coder.target( 'MATLAB' )
     coder.varsize( 'cfg.maskTot',   StructTypeName.dimMask{ : } );
     coder.varsize( 'cfg.maskCart',  StructTypeName.dimMask{ : } );
     coder.varsize( 'cfg.maskRot',   StructTypeName.dimMask{ : } );
+    coder.varsize( 'cfg.D',         StructTypeName.dimD{ : } );
     coder.varsize( 'cfg.kin_params',StructTypeName.dimKinParams{ : } );
     coder.cstructname( cfg,         StructTypeName.FeedoptCfg );
 end
@@ -88,6 +91,7 @@ function [ cfg ] = check_values( cfg )
     cfg.NumberAxis = int32( sum( cfg.maskTot ) );
     cfg.NCart      = int32( sum( cfg.maskCart ) );
     cfg.NRot       = cfg.NumberAxis - cfg.NCart;
+    cfg.D          = ones(cfg.NumberAxis, 1);
 
     if( cfg.NCart > 0 )
         cfg.indCart = [ 1 : cfg.NCart ].';
@@ -95,5 +99,6 @@ function [ cfg ] = check_values( cfg )
 
     if( cfg.NRot > 0 )
         cfg.indRot = [ 1 : cfg.NRot ].' + cfg.NCart;
-    end
+        cfg.D(cfg.indRot) = cfg.coeffD;
+    end        
 end

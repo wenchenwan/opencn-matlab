@@ -45,6 +45,8 @@ classdef ( Sealed ) StructTypeName < handle
         dimMask     = { [ 1, StructTypeName.NumberAxisMax ], [ 0, 1 ] };
         % Default size for index vector ( cart or rot )
         dimInd      = { [ 3, 1 ], [ 1, 0 ] };
+        % Default size for diagonale matrix
+        dimD        = { [ StructTypeName.NumberAxisMax, 1 ], [ 1, 0 ] };
         % Default size for the kinematics parameters
         dimKinParams = { [ 32, 1 ], [ 1, 0 ] };
         % Default size for the Pvec used in compressing
