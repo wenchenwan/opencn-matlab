@@ -1,4 +1,4 @@
-function [ u ]  = splineLengthFindU( ctx, curv, L, u1, isEnd )
+function [ u ]  = splineLengthFindU( cfg, spline, L, u1, isEnd )
 % Computes approximately the value of curve parameter u such that the arc 
 % length starting from u1 equals L.
 % This function takes usage of the precalculated arc lengths between knots.
@@ -9,78 +9,60 @@ function [ u ]  = splineLengthFindU( ctx, curv, L, u1, isEnd )
 % Warning : This function works only for B-spline of degree 3
 
 % Get the sp structure
-spline = ctx.q_spline.get( curv.sp_index );
 sp     = spline.sp;
 
-DEFAULT_TOL_NR  = 1e-6;         % Default tolerance for Newton Raphson
-IND_KNOTS_MULT  = sp.Bl.order;  % Index used to remove multiple knots 
-%                              (ONLY TRUE FOR CUBIC SPLINE)
-
+DEFAULT_TOL_NR  = 1e-12;         % Default tolerance for Newton Raphson
+IND_KNOTS_MULT  = sp.Bl.order;  % Index used to remove multiple knots
 % Eliminate multiplicities at the end points
 Knots  = sp.knots( 1, IND_KNOTS_MULT : end - IND_KNOTS_MULT + 1 );
 Lk     = sp.Lk;
-KMax   = length( Lk );
+kMax   = numel( Lk );
 
 if( isEnd )
-    u1 = 1 - u1;
+    u1      = 1 - u1;
+    Knots   = flip( 1 - Knots );
+    Lk      = flip( Lk );
 end
 
-%
 C_ASSERT_MSG = 'u1 must be %s or equal than the first spline knot';
 c_assert( u1 >= Knots(1),   sprintf(C_ASSERT_MSG, 'greater') );
 c_assert( u1 <= Knots(end), sprintf(C_ASSERT_MSG, 'smaller') );
-%
-k_vec = find( Knots <= u1, 1, "last" );
-if( isempty( k_vec ) )
-    k = 1; 
+
+kStartVec = find( Knots <= u1, 1, "last" );
+kStart    = kStartVec( 1 );
+
+if( Knots( kStart ) < u1 )
+    LStart = splineLengthApprox_Interval( cfg, spline, Knots( kStart ), u1, isEnd );
 else
-    k = k_vec( end );
+    LStart = 0;
 end
+
+LEnd = cumsum( Lk( kStart : kMax ) ) - LStart;
+
+kEndVec = find( LEnd >= L, 1, "first" );
+if( isempty( kEndVec ) ), u = 1;   return; end
+kEnd    = kEndVec( 1 );
+kEnd = kEnd + kStart;
+
+uLeft       = u1;
+uRight      = Knots( kEnd );
+uRightOld   = uLeft;
+
+while( abs( uRightOld - uRight ) > DEFAULT_TOL_NR )
+    % Evaluation of function which should become zero
+    fk  = splineLengthApprox_Interval( cfg, spline, uLeft, uRight, isEnd ) - L;
+    [ ~, r1D ] = EvalBSpline( spline, uRight );
+    Dfk = MyNorm( r1D );
+    uRightOld = uRight;
+    uRight    = uRight - fk / Dfk;
+    if( uRight > Knots( kEnd ) ),    uRight = Knots( kEnd );    end
+    if( uRight < Knots( kStart ) ), uRight = Knots( kStart );   end
+end
+
+u = uRight;
 
 if( isEnd )
-    L  = sum( Lk( k : end ) ) - L;
-    if( L < 0 ), u = 1; return; end
-else
-    if( L > sum( Lk( k : end ) ) ), u = 1; return; end
+    u = 1 -u;
 end
 
-%
-% Length to next break point
-Lcum = Lk( k ) - SplineLengthApprox_Interval1( ctx, curv, Knots( k ), u1 ); 
-%
-while ( Lcum < L ) && ( k < KMax )
-    k = k + 1;
-    Lcum = Lcum + Lk( k );  % Sum up precalculated length between knots
 end
-
-if( k > 1 )
-    % undo last increment
-    k         = k - 1;
-    Lcum      = Lcum - Lk( k );
-else 
-    Lremain = L;
-end
-%
-
-u1     = Knots( k+1 );
-% Initial guess for Newton Raphson iteration
-uk     = 0.5 * ( Knots( k ) + Knots( k + 1 ) );  
-% Dummy value to ensure that while loop enters
-uk_old = 2;                            
-
-% Iterate until new value of uk is close to old value
-while abs( uk - uk_old ) > DEFAULT_TOL_NR 
-    % Evaluation of function which should become zero
-    fk = SplineLengthApprox_Interval1( ctx, curv, uk, u1 ) - Lremain; 
-    [ ~, r1D ]  = EvalBSpline( spline, uk );
-    % Evaluation of the derivative of the function which should become zero
-    Dfk    = -MyNorm(r1D);   
-    %
-    uk_old = uk;
-    uk     = uk_old - fk / Dfk;  % Newton Raphson update
-    if uk > u1
-        uk = u1;               % Make sure not to run away
-    end
-end
-%
-u  = uk;
