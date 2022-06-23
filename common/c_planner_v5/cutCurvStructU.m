@@ -15,7 +15,7 @@ b = curv.b_param;
 
 if ( curv.Info.Type == CurveType.Spline )
     spline = ctx.q_spline.get( curv.sp_index );
-    u1_tilda = splineLenghtFindU_new( ctx.cfg, spline, L, a * u0 + b, isEnd );
+    u1_tilda = splineLengthFindU( ctx.cfg, spline, L, a * u0 + b, isEnd );
 else
     
     % In case of helix and line, ||r'(u)||=const,
