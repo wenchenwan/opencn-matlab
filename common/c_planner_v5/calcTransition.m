@@ -282,7 +282,7 @@ end
 
 
 function [] = check_continuity( ctx, CurvStruct1, CurvStruct2 )
-    tol = 1E-6;
+    tol = 2E-6;
     [ r11, r1d1, r1dd1 ] = EvalCurvStruct( ctx, CurvStruct1, 1 );
     [ r21, r2d1, r2dd1 ] = EvalCurvStruct( ctx, CurvStruct2, 0 );
     

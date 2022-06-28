@@ -120,7 +120,7 @@ batch.size = 0;
 end
 
 function [ batch ] = batch_reset( ctx, curv )
-batch.pvec            = curv.R0;
+batch.pvec            = [curv.R0, curv.R1 ];
 batch.curvArray       = [ curv, curv ];
 batch.spindle_speed   = ctx.cfg.smax;
 batch.feedrate        = ctx.cfg.fmax;

@@ -42,11 +42,13 @@ r1D1(1:ctx.cfg.NumberAxis) = r1D1_in;
 r1D2(1:ctx.cfg.NumberAxis) = r1D2_in;
 
 D = ones(5, 1);
-D(ctx.cfg.indRot) = ctx.cfg.coeffD;
+if ctx.cfg.indRot > 0
+    D(ctx.cfg.indRot) = ctx.cfg.coeffD;
+end
 
 status = int32(1); % default success
 
-p5 = zeros(nAxis,6);
+p5 = zeros(5,6);
 
 alpha0 = 0;
 alpha1 = 0;
