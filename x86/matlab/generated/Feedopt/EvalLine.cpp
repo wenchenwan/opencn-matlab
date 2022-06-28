@@ -5,7 +5,7 @@
 // File: EvalLine.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 15:55:52
+// C/C++ source code generated on  : 28-Jun-2022 16:07:49
 //
 
 // Include Files
@@ -24,9 +24,6 @@ static void binary_expand_op(::coder::array<double, 2U> &r0D, const ::coder::arr
 
 static void binary_expand_op(::coder::array<double, 1U> &r0D, const ::coder::array<double, 1U> &P1,
                              double u_vec, const ::coder::array<double, 1U> &P0);
-
-static void minus(::coder::array<double, 1U> &a, const ::coder::array<double, 1U> &P1,
-                  const ::coder::array<double, 1U> &P0);
 
 } // namespace ocn
 
@@ -127,37 +124,6 @@ static void binary_expand_op(::coder::array<double, 1U> &r0D, const ::coder::arr
     }
     for (int i1{0}; i1 < loop_ub; i1++) {
         r0D[i1] = P1[i1 * stride_0_0] * u_vec + P0[i1 * stride_1_0] * (1.0 - u_vec);
-    }
-}
-
-//
-// Arguments    : ::coder::array<double, 1U> &a
-//                const ::coder::array<double, 1U> &P1
-//                const ::coder::array<double, 1U> &P0
-// Return Type  : void
-//
-static void minus(::coder::array<double, 1U> &a, const ::coder::array<double, 1U> &P1,
-                  const ::coder::array<double, 1U> &P0)
-{
-    int i;
-    int loop_ub;
-    int stride_0_0;
-    int stride_1_0;
-    if (P0.size(0) == 1) {
-        i = P1.size(0);
-    } else {
-        i = P0.size(0);
-    }
-    a.set_size(i);
-    stride_0_0 = (P1.size(0) != 1);
-    stride_1_0 = (P0.size(0) != 1);
-    if (P0.size(0) == 1) {
-        loop_ub = P1.size(0);
-    } else {
-        loop_ub = P0.size(0);
-    }
-    for (int i1{0}; i1 < loop_ub; i1++) {
-        a[i1] = P1[i1 * stride_0_0] - P0[i1 * stride_1_0];
     }
 }
 
@@ -545,6 +511,37 @@ void b_EvalLine(const double CurvStruct_R0[6], const double CurvStruct_R1[6], do
     for (int i4{0}; i4 < nz; i4++) {
         r2D[i4] = 0.0;
         r3D[i4] = 0.0;
+    }
+}
+
+//
+// Arguments    : ::coder::array<double, 1U> &a
+//                const ::coder::array<double, 1U> &P1
+//                const ::coder::array<double, 1U> &P0
+// Return Type  : void
+//
+void minus(::coder::array<double, 1U> &a, const ::coder::array<double, 1U> &P1,
+           const ::coder::array<double, 1U> &P0)
+{
+    int i;
+    int loop_ub;
+    int stride_0_0;
+    int stride_1_0;
+    if (P0.size(0) == 1) {
+        i = P1.size(0);
+    } else {
+        i = P0.size(0);
+    }
+    a.set_size(i);
+    stride_0_0 = (P1.size(0) != 1);
+    stride_1_0 = (P0.size(0) != 1);
+    if (P0.size(0) == 1) {
+        loop_ub = P1.size(0);
+    } else {
+        loop_ub = P0.size(0);
+    }
+    for (int i1{0}; i1 < loop_ub; i1++) {
+        a[i1] = P1[i1 * stride_0_0] - P0[i1 * stride_1_0];
     }
 }
 

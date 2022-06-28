@@ -5,13 +5,14 @@
 // File: resampleCurv.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 15:55:52
+// C/C++ source code generated on  : 28-Jun-2022 16:07:49
 //
 
 // Include Files
 #include "resampleCurv.h"
 #include "ResampleStateClass.h"
 #include "bspline_eval.h"
+#include "constJerkU.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_types3.h"
 #include "coder_array.h"
@@ -67,9 +68,13 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
     double q_data[4];
     double c_u[2];
     double x[2];
+    double a__1;
+    double a__2;
+    double a__3;
     double b_u;
     double du;
     double du_min;
+    double u1d;
     double ud;
     double xdddk;
     double xddk;
@@ -306,7 +311,6 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
             q_data[0] = x[0];
             q_data[1] = x[1];
         } else {
-            double b_k_vec;
             bool isEnd;
             // 'resampleCurv:64' else
             // 'resampleCurv:65' if  ( curv_mode == ZSpdMode.NZ )
@@ -319,41 +323,14 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
                 isEnd = false;
             }
             // 'resampleCurv:70' k_max  = ( 6 / constJerk )^( 1 / 3 );
-            b_k_vec = std::pow(6.0 / constJerk, 0.33333333333333331);
             // 'resampleCurv:71' [ ~, u1d, ~, ~ ] = constJerkU( constJerk, k_max, isEnd );
-            //  constJerkU : Compute u and its derivative based on the pseudo jerk
-            //  approximation.
-            //  Inputs :
-            //    pseudoJerk :  [ N x 1 ] The pseudo constant Jerk
-            //    k_vec      :  [ 1 x M ] The time vector
-            //    isEnd      :  ( Boolean ) Is the end of the Curve.
-            //    a          :  Curve parameter a for affine transforme
-            //    b          :  Curve parameter b for affine transforme
-            //  Outputs :
-            //    u          :  [ N x M ]
-            //    ud         :  [ N x M ]
-            //    udd        :  [ N x M ]
-            //    uddd       :  [ N x M ]
-            // 'constJerkU:16' if( coder.target( "MATLAB" ) )
-            // 'constJerkU:22' if( isEnd )
-            if (isEnd) {
-                // 'constJerkU:23' k_max  = ( 6 / pseudoJerk )^( 1 / 3 );
-                // 'constJerkU:24' k_vec  = k_max - k_vec;
-                b_k_vec = 0.0;
-            }
-            //  Compute u and its derivatives based on constant jerk
-            // 'constJerkU:28' uddd    = pseudoJerk .* ones( size( k_vec ) );
-            // 'constJerkU:29' udd     = pseudoJerk .* k_vec;
-            // 'constJerkU:30' ud      = pseudoJerk .* k_vec .^2 / 2;
-            // 'constJerkU:31' u       = pseudoJerk .* k_vec .^3 / 6;
-            // 'constJerkU:33' u( u > 1 ) = 1;
-            // 'constJerkU:34' u( u < 0 ) = 0;
-            // 'constJerkU:36' if( isEnd )
+            constJerkU(constJerk, std::pow(6.0 / constJerk, 0.33333333333333331), isEnd, &a__1,
+                       &u1d, &a__2, &a__3);
             // 'resampleCurv:72' q = [ state.ud; u1d ] .^2;
             q_size_idx_0 = 2;
             q_size_idx_1 = 1;
             q_data[0] = std::pow(state->ud, 2.0);
-            q_data[1] = std::pow(constJerk * std::pow(b_k_vec, 2.0) / 2.0, 2.0);
+            q_data[1] = std::pow(u1d, 2.0);
         }
         // 'resampleCurv:75' Tr       = 2 * ( 1 - state.u ) / ( sqrt( q( end ) ) + sqrt( q( 1 ) ) );
         // 'resampleCurv:76' state.dt = check_minimum_precision( dt - Tr );

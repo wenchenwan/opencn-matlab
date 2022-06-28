@@ -10,7 +10,7 @@ Cd        = cd;                             % current folder
 fs         = filesep; % file separation character
 % Gdir       = uigetdir('.', 'Choose directory with G-code validation files');
 
-Gdir       = char(pwd + "/ngc_test/full");
+Gdir       = char(pwd + "/ngc_test/unit");
 
 dircontent = dir([Gdir, fs, '*.ngc']);
 NGcodes    = length(dircontent);

@@ -66,7 +66,7 @@ function [] = assert_continuity( r1, r1d, r1dd, r2, r2d, r2dd )
     diff_rd     = abs( r1d   -r2d );
     diff_rdd    = abs( r1dd  -r2dd );
 
-    tol = 1E-12;
+    tol = 1E-9;
 
     assert( all( diff_r    < tol ), mfilename + ...
                         ".m : continuity C0 failed " + mat2str( diff_r' ) );

@@ -5,7 +5,7 @@
 // File: evalPositionFromU.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 15:55:52
+// C/C++ source code generated on  : 28-Jun-2022 16:07:49
 //
 
 // Include Files
@@ -32,10 +32,10 @@ namespace ocn {
 void evalPositionFromU(const FeedoptConfig cfg, const CurvStruct *curv, const CurvStruct *spline,
                        double u, ::coder::array<double, 1U> &r0D)
 {
-    ::coder::array<int, 1U> t1_indCart;
-    ::coder::array<int, 1U> t1_indRot;
-    ::coder::array<bool, 2U> t1_maskCart;
-    ::coder::array<bool, 2U> t1_maskRot;
+    ::coder::array<int, 1U> t6_indCart;
+    ::coder::array<int, 1U> t6_indRot;
+    ::coder::array<bool, 2U> t6_maskCart;
+    ::coder::array<bool, 2U> t6_maskRot;
     int b_loop_ub;
     int c_loop_ub;
     int d_loop_ub;
@@ -45,28 +45,28 @@ void evalPositionFromU(const FeedoptConfig cfg, const CurvStruct *curv, const Cu
     }
     // 'evalPositionFromU:3' coder.inline( "never" );
     // 'evalPositionFromU:4' r0D = EvalCurvStructNoCtx( cfg, curv, spline, u );
-    t1_maskCart.set_size(1, cfg.maskCart.size[1]);
+    t6_maskCart.set_size(1, cfg.maskCart.size[1]);
     loop_ub = cfg.maskCart.size[1];
     for (int i{0}; i < loop_ub; i++) {
-        t1_maskCart[i] = cfg.maskCart.data[i];
+        t6_maskCart[i] = cfg.maskCart.data[i];
     }
-    t1_maskRot.set_size(1, cfg.maskRot.size[1]);
+    t6_maskRot.set_size(1, cfg.maskRot.size[1]);
     b_loop_ub = cfg.maskRot.size[1];
     for (int i1{0}; i1 < b_loop_ub; i1++) {
-        t1_maskRot[i1] = cfg.maskRot.data[i1];
+        t6_maskRot[i1] = cfg.maskRot.data[i1];
     }
-    t1_indCart.set_size(cfg.indCart.size[0]);
+    t6_indCart.set_size(cfg.indCart.size[0]);
     c_loop_ub = cfg.indCart.size[0];
     for (int i2{0}; i2 < c_loop_ub; i2++) {
-        t1_indCart[i2] = cfg.indCart.data[i2];
+        t6_indCart[i2] = cfg.indCart.data[i2];
     }
-    t1_indRot.set_size(cfg.indRot.size[0]);
+    t6_indRot.set_size(cfg.indRot.size[0]);
     d_loop_ub = cfg.indRot.size[0];
     for (int i3{0}; i3 < d_loop_ub; i3++) {
-        t1_indRot[i3] = cfg.indRot.data[i3];
+        t6_indRot[i3] = cfg.indRot.data[i3];
     }
-    b_EvalCurvStructNoCtx(cfg.maskTot.data, cfg.maskTot.size, t1_maskCart, t1_maskRot, t1_indCart,
-                          t1_indRot, cfg.NumberAxis, cfg.NCart, cfg.NRot, curv, spline, u, r0D);
+    b_EvalCurvStructNoCtx(cfg.maskTot.data, cfg.maskTot.size, t6_maskCart, t6_maskRot, t6_indCart,
+                          t6_indRot, cfg.NumberAxis, cfg.NCart, cfg.NRot, curv, spline, u, r0D);
 }
 
 } // namespace ocn

@@ -5,7 +5,7 @@
 // File: opencn_matlab_internal_types.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 15:55:52
+// C/C++ source code generated on  : 28-Jun-2022 16:07:49
 //
 
 #ifndef OPENCN_MATLAB_INTERNAL_TYPES_H
@@ -17,18 +17,15 @@
 #include "opencn_matlab_types3.h"
 #include "queue_coder.h"
 #include "rtwtypes.h"
-#include "string1.h"
 #include "coder_array.h"
 
 // Custom Header Code
 #include "functions.h"
 // Type Definitions
 namespace ocn {
-enum TransitionResult : int
-{
-    TransitionResult_Ok = 0, // Default value
-    TransitionResult_Collinear,
-    TransitionResult_NoSolution
+struct emxArray_char_T_1x9 {
+    char data[9];
+    int size[2];
 };
 
 struct c_FeedoptConfig {
@@ -41,7 +38,7 @@ struct c_FeedoptConfig {
     int NCart;
     int NRot;
     ::coder::array<double, 1U> kin_params;
-    coder::rtString kin_type;
+    char kin_type[5];
     int NDiscr;
     int NBreak;
     bool UseDynamicBreakpoints;
@@ -71,12 +68,19 @@ struct c_FeedoptConfig {
     char source[1024];
     bool DebugCutZero;
     struct0_T Compressing;
-    double ColTolCosSmooth;
+    struct1_T Smoothing;
     double GaussLegendreN;
     double GaussLegendreX[5];
     double GaussLegendreW[5];
     LPCfg opt;
     char LogFileName[9];
+};
+
+enum TransitionResult : int
+{
+    TransitionResult_Ok = 0, // Default value
+    TransitionResult_Collinear,
+    TransitionResult_NoSolution
 };
 
 struct b_FeedoptContext {

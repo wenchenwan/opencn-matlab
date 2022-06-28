@@ -1,4 +1,4 @@
-function [ ctx ] = compressCurvStructs_new( ctx )
+function [ ctx ] = compressCurvStructs( ctx )
 % CompressCurvStructs :
 % - Is feeded by the queue : q_gcode
 % - Check if a compression is possible based on the individual curves
@@ -22,7 +22,7 @@ DebugLog(DebugCfg.Validate, 'Compressing...\n');
 for k = 1 : Ncrv
     curv = ctx.q_gcode.get( k ); % Get next Curve in the queue
 
-    [ addBatch, addBatchNew ] = check_add_batch( ctx, curv, batch );
+    [ addBatch, addNewBatch ] = check_add_batch( ctx, curv, batch );
     [ closeBatch ] = check_close_batch( curv, addBatch );
 
     if( addBatch )
@@ -37,7 +37,7 @@ for k = 1 : Ncrv
         [ ctx, batch, spline_index ] = batch_close( ctx, batch, spline_index );
     end
 
-    if( addBatchNew )
+    if( addNewBatch )
         [ batch ] = batch_reset( ctx, curv );
     elseif( ~addBatch )
         ctx.q_compress.push( curv );
@@ -52,11 +52,11 @@ end
 
 %-------------------------------------------------------------------------%
 
-function [ addBatch, addBatchNew ] = check_add_batch( ctx, curv, batch )
+function [ addBatch, addNewBatch ] = check_add_batch( ctx, curv, batch )
 if( coder.target( "MATLAB" ) ), coder.inline( "always" ); end
 
 addBatch    = true;
-addBatchNew = false;
+addNewBatch = false;
 
 if( curv.Info.Type ~= CurveType.Line )
     addBatch = false;
@@ -75,7 +75,7 @@ if( batch.size > 0 )
     end
     collinear = curvCollinear( ctx, prevCurv, curv, ...
         ctx.cfg.Compressing.ColTolCosLee );
-    if( ~collinear ), addBatch = false; addBatchNew = true; return; end
+    if( ~collinear ), addBatch = false; addNewBatch = true; return; end
 end
 
 end

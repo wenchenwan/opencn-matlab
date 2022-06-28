@@ -5,7 +5,7 @@
 // File: initFeedoptPlan.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 15:55:52
+// C/C++ source code generated on  : 28-Jun-2022 16:07:49
 //
 
 // Include Files
@@ -22,7 +22,6 @@
 #include "opencn_matlab_types3.h"
 #include "paramsDefaultCurv.h"
 #include "queue_coder.h"
-#include "string1.h"
 #include "coder_array.h"
 #include "src/c_spline.h"
 #include <algorithm>
@@ -443,7 +442,9 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     for (int i23{0}; i23 < x_loop_ub; i23++) {
         ctx->cfg.kin_params[i23] = cfg.kin_params.data[i23];
     }
-    ctx->cfg.kin_type = cfg.kin_type;
+    for (int i24{0}; i24 < 5; i24++) {
+        ctx->cfg.kin_type[i24] = cfg.kin_type[i24];
+    }
     ctx->cfg.NDiscr = cfg.NDiscr;
     ctx->cfg.NBreak = cfg.NBreak;
     ctx->cfg.UseDynamicBreakpoints = cfg.UseDynamicBreakpoints;
@@ -452,10 +453,10 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     ctx->cfg.NHorz = cfg.NHorz;
     ctx->cfg.fmax = cfg.fmax;
     ctx->cfg.smax = cfg.smax;
-    for (int i24{0}; i24 < 6; i24++) {
-        ctx->cfg.vmax[i24] = cfg.vmax[i24];
-        ctx->cfg.amax[i24] = cfg.amax[i24];
-        ctx->cfg.jmax[i24] = cfg.jmax[i24];
+    for (int i25{0}; i25 < 6; i25++) {
+        ctx->cfg.vmax[i25] = cfg.vmax[i25];
+        ctx->cfg.amax[i25] = cfg.amax[i25];
+        ctx->cfg.jmax[i25] = cfg.jmax[i25];
     }
     ctx->cfg.LeeSplineDegree = cfg.LeeSplineDegree;
     ctx->cfg.SplineDegree = cfg.SplineDegree;
@@ -475,15 +476,15 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     std::copy(&cfg.source[0], &cfg.source[1024], &ctx->cfg.source[0]);
     ctx->cfg.DebugCutZero = cfg.DebugCutZero;
     ctx->cfg.Compressing = cfg.Compressing;
-    ctx->cfg.ColTolCosSmooth = cfg.ColTolCosSmooth;
+    ctx->cfg.Smoothing = cfg.Smoothing;
     ctx->cfg.GaussLegendreN = cfg.GaussLegendreN;
     for (int b_i{0}; b_i < 5; b_i++) {
         ctx->cfg.GaussLegendreX[b_i] = cfg.GaussLegendreX[b_i];
         ctx->cfg.GaussLegendreW[b_i] = cfg.GaussLegendreW[b_i];
     }
     ctx->cfg.opt = cfg.opt;
-    for (int i25{0}; i25 < 9; i25++) {
-        ctx->cfg.LogFileName[i25] = cfg.LogFileName[i25];
+    for (int i26{0}; i26 < 9; i26++) {
+        ctx->cfg.LogFileName[i26] = cfg.LogFileName[i26];
     }
     // 'initFeedoptPlan:56' ctx.errcode         = FeedoptPlanError.Success;
     ctx->errcode = FeedoptPlanError_Success;
@@ -505,7 +506,9 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     // 'initFeedoptPlan:66' ctx.Skipped = int32(0);
     ctx->Skipped = 0;
     // 'initFeedoptPlan:67' ctx.kin     = Kinematics( cfg.kin_type, cfg.kin_params );
-    ctx->kin.type = cfg.kin_type;
+    for (int i27{0}; i27 < 5; i27++) {
+        ctx->kin.type[i27] = cfg.kin_type[i27];
+    }
     // ----------------------------------------------------------------%
     //  Kinematics Wrapper class to C interfaces
     // ----------------------------------------------------------------%
@@ -513,8 +516,8 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     // 'Kinematics:18' this.parameters = parameters( : );
     ctx->kin.parameters.set_size(cfg.kin_params.size[0]);
     y_loop_ub = cfg.kin_params.size[0];
-    for (int i26{0}; i26 < y_loop_ub; i26++) {
-        ctx->kin.parameters[i26] = cfg.kin_params.data[i26];
+    for (int i28{0}; i28 < y_loop_ub; i28++) {
+        ctx->kin.parameters[i28] = cfg.kin_params.data[i28];
     }
     // 'Kinematics:19' [ this ] = set_function_ptr( this );
     //  Not implemented due to problem of support in code

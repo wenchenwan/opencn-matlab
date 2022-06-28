@@ -5,7 +5,7 @@
 // File: opencn_matlab_data.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 15:55:52
+// C/C++ source code generated on  : 28-Jun-2022 16:07:49
 //
 
 // Include Files
@@ -27,6 +27,9 @@ const char cv1[54]{'u', '1', ' ', 'm', 'u', 's', 't', ' ', 'b', 'e', ' ', 'g', '
                    ' ', 's', 'p', 'l', 'i', 'n', 'e', ' ', 'k', 'n', 'o', 't'};
 
 const int iv[4]{0, 1, 2, 3};
+
+const char cv2[29]{'B', 'A', 'D', ' ', 'C', 'U', 'R', 'V', 'E', ' ', 'T', 'Y', 'P', 'E', ' ',
+                   'I', 'N', ' ', 'L', 'E', 'N', 'G', 'T', 'H', ' ', 'C', 'U', 'R', 'V'};
 
 bool isInitialized_opencn_matlab{false};
 

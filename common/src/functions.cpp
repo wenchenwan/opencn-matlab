@@ -34,72 +34,72 @@ void c_assert_(const char *msg) {
 #include <vector>
 #include <iostream>
 
-#include "rs274dev.h"
-#include "rs274ngc_interp.hh"
-#include "rs274ngc_return.hh"
+// #include "rs274dev.h"
+// #include "rs274ngc_interp.hh"
+// #include "rs274ngc_return.hh"
+// 
+// 
+// namespace {
+//     Interp interp;
+//     ocn::CurvStruct Curv;
+// }
 
-
-namespace {
-    Interp interp;
-    ocn::CurvStruct Curv;
-}
-
-void push_curv_struct(const ocn::CurvStruct *c) {
-    Curv = *c;
-}
-
-int c_open_gcode(const char* filename, ocn::CurvStruct*)
-{
-    if (interp.init() != INTERP_OK) {
-        fprintf(stderr, "Failed to init interp\n");
-        return 0;
-    }
-    if (interp.open(filename) != INTERP_OK) {
-        fprintf(stderr, "Failed to open file '%s'\n", filename);
-        return 0;
-    }
-
-    interp.set_loglevel(0);
-
-    interp.execute("G10 L2 P1 X0 Y0 Z0");
-    interp.synch();
-
-    return 1;
-}
-
-
-int c_read_and_exec_gcode(const char *, ocn::CurvStruct *value)
-{
-    Curv.Info.Type = ocn::CurveType_None;
-    int status = INTERP_OK;
-    status = interp.read();
-    
-    if (status == INTERP_ENDFILE) {
-        return 1;
-    }
-    if ((status != INTERP_OK) &&
-        (status != INTERP_EXECUTE_FINISH)) {
-        
-        std::cout << "\033[1;31m[ERROR]\033[0m"<< " Reading line " 
-                << interp.line() << " : " << interp.getSavedError() << std::endl;
-        return 0;
-    }
-
-    status = interp.execute();
-
-    if ((status != INTERP_OK) &&
-        (status != INTERP_EXIT) &&
-        (status != INTERP_EXECUTE_FINISH)) {
-        std::cout << "\033[1;31m[ERROR]\033[0m" << " Executing line " 
-                << interp.line() << " : " << interp.getSavedError() << std::endl;
-        return 0;
-    } else if (status == INTERP_EXIT) {
-        return 1;
-    }
-
-    *value = Curv;
-    return 1;
-}
+// void push_curv_struct(const ocn::CurvStruct *c) {
+//     Curv = *c;
+// }
+// 
+// int c_open_gcode(const char* filename, ocn::CurvStruct*)
+// {
+//     if (interp.init() != INTERP_OK) {
+//         fprintf(stderr, "Failed to init interp\n");
+//         return 0;
+//     }
+//     if (interp.open(filename) != INTERP_OK) {
+//         fprintf(stderr, "Failed to open file '%s'\n", filename);
+//         return 0;
+//     }
+// 
+//     interp.set_loglevel(0);
+// 
+//     interp.execute("G10 L2 P1 X0 Y0 Z0");
+//     interp.synch();
+// 
+//     return 1;
+// }
+// 
+// 
+// int c_read_and_exec_gcode(const char *, ocn::CurvStruct *value)
+// {
+//     Curv.Info.Type = ocn::CurveType_None;
+//     int status = INTERP_OK;
+//     status = interp.read();
+//     
+//     if (status == INTERP_ENDFILE) {
+//         return 1;
+//     }
+//     if ((status != INTERP_OK) &&
+//         (status != INTERP_EXECUTE_FINISH)) {
+//         
+//         std::cout << "\033[1;31m[ERROR]\033[0m"<< " Reading line " 
+//                 << interp.line() << " : " << interp.getSavedError() << std::endl;
+//         return 0;
+//     }
+// 
+//     status = interp.execute();
+// 
+//     if ((status != INTERP_OK) &&
+//         (status != INTERP_EXIT) &&
+//         (status != INTERP_EXECUTE_FINISH)) {
+//         std::cout << "\033[1;31m[ERROR]\033[0m" << " Executing line " 
+//                 << interp.line() << " : " << interp.getSavedError() << std::endl;
+//         return 0;
+//     } else if (status == INTERP_EXIT) {
+//         return 1;
+//     }
+// 
+//     *value = Curv;
+//     return 1;
+// }
 
 using CurveVector = std::vector<ocn::CurvStruct>;
 

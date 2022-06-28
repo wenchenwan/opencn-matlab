@@ -171,31 +171,31 @@ elseif ret==2
         DebugLog(DebugCfg.Error, '=========== Badly Cond. Matrix in G2_Hermite() ==========\n');
         DebugLog(DebugCfg.Error, 'Lines: %d, %d\n\n', line1, line2);
     end
-    
-    if coder.target('matlab')
-    if IsEnabledDebugLog(DebugCfg.Plots)
-        
-        figure;
-        PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct2]);
-        hold on;
-        plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
-        hold on;
-        plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
-        hold on;
-        plot3(r0D0_1(1), r0D0_1(2), r0D0_1(3), 'xc', 'LineWidth', 3);
-        hold on;
-        plot3(r0D0_2(1), r0D0_2(2), r0D0_2(3), 'xc', 'LineWidth', 3);
-        hold on;
-        plot3(r1D0_1(1), r1D0_1(2), r1D0_1(3), 'xc', 'LineWidth', 3);
-        hold on;
-        plot3(r1D0_2(1), r1D0_2(2), r1D0_2(3), 'xc', 'LineWidth', 3);
-        str = regexp(ctx.cfg.source, '/', 'split'); % to get only g-code file name
-        title({str{end}, 'Badly Cond. Matrix', ...
-            ['Lines: ', num2str(line1), ' ', num2str(line2)]}, 'Interpreter', 'none');
-        axis equal;
-        camproj('perspective');
-    end
-    end
+%     
+%     if coder.target('matlab')
+%     if IsEnabledDebugLog(DebugCfg.Plots)
+%         
+%         figure;
+%         PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct2]);
+%         hold on;
+%         plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
+%         hold on;
+%         plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
+%         hold on;
+%         plot3(r0D0_1(1), r0D0_1(2), r0D0_1(3), 'xc', 'LineWidth', 3);
+%         hold on;
+%         plot3(r0D0_2(1), r0D0_2(2), r0D0_2(3), 'xc', 'LineWidth', 3);
+%         hold on;
+%         plot3(r1D0_1(1), r1D0_1(2), r1D0_1(3), 'xc', 'LineWidth', 3);
+%         hold on;
+%         plot3(r1D0_2(1), r1D0_2(2), r1D0_2(3), 'xc', 'LineWidth', 3);
+%         str = regexp(ctx.cfg.source, '/', 'split'); % to get only g-code file name
+%         title({str{end}, 'Badly Cond. Matrix', ...
+%             ['Lines: ', num2str(line1), ' ', num2str(line2)]}, 'Interpreter', 'none');
+%         axis equal;
+%         camproj('perspective');
+%     end
+%     end
     
 elseif ret==6
     
@@ -206,48 +206,48 @@ elseif ret==6
     CurvStruct_T.Info.zspdmode = ZSpdMode.NN; % only value possible for a transition
     status = TransitionResult.Ok;
     
-    if coder.target( 'MATLAB' )
-        DebugLog(DebugCfg.Warning, '========== CalcTransition ==========\n');
-        DebugLog(DebugCfg.Warning, '=========== status = 6 ==========\n');
-        DebugLog(DebugCfg.Warning, 'Lines: %d, %d\n\n', line1, line2);
-    end
-    
-    if coder.target('matlab')
-    if  IsEnabledDebugLog(DebugCfg.Plots)
-
-        figure;
-        PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct_T CurvStruct2]);
-        hold on;
-        plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
-        hold on;
-        plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
-        str = regexp(ctx.cfg.source, '/', 'split'); % to get only g-code file name
-        title({str{end}, 'status_G2_Hermite=6', ...
-            ['Lines: ', num2str(line1), ' ', num2str(line2)]}, 'Interpreter', 'none');
-        axis equal;
-        camproj('perspective');
-    end
-    end
+%     if coder.target( 'MATLAB' )
+%         DebugLog(DebugCfg.Warning, '========== CalcTransition ==========\n');
+%         DebugLog(DebugCfg.Warning, '=========== status = 6 ==========\n');
+%         DebugLog(DebugCfg.Warning, 'Lines: %d, %d\n\n', line1, line2);
+%     end
+%     
+%     if coder.target('matlab')
+%     if  IsEnabledDebugLog(DebugCfg.Plots)
+% 
+%         figure;
+%         PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct_T CurvStruct2]);
+%         hold on;
+%         plot3(r0D0(1), r0D0(2), r0D0(3), 'xr', 'LineWidth', 3);
+%         hold on;
+%         plot3(r1D0(1), r1D0(2), r1D0(3), 'xr', 'LineWidth', 3);
+%         str = regexp(ctx.cfg.source, '/', 'split'); % to get only g-code file name
+%         title({str{end}, 'status_G2_Hermite=6', ...
+%             ['Lines: ', num2str(line1), ' ', num2str(line2)]}, 'Interpreter', 'none');
+%         axis equal;
+%         camproj('perspective');
+%     end
+%     end
        
 else
     
     status = TransitionResult.NoSolution;
-    if coder.target( 'MATLAB' )
-        DebugLog(DebugCfg.Error, '========== CalcTransition ==========\n');
-        DebugLog(DebugCfg.Error, '=========== No Solution ==========\n');
-        DebugLog(DebugCfg.Error, 'Lines: %d, %d\n\n', line1, line2);
-    end
+%     if coder.target( 'MATLAB' )
+%         DebugLog(DebugCfg.Error, '========== CalcTransition ==========\n');
+%         DebugLog(DebugCfg.Error, '=========== No Solution ==========\n');
+%         DebugLog(DebugCfg.Error, 'Lines: %d, %d\n\n', line1, line2);
+%     end
     
-    if coder.target('matlab')
-    if IsEnabledDebugLog(DebugCfg.Plots)
-        
-        q_debug = queue( CurvStruct1 );
-        q_debug.push( CurvStruct1 );
-        q_debug.push( CurvStruct2 );
-        
-        plotGeometry( ctx, ctx.cfg, q_debug, ctx.q_spline );
-        pause( 0.5 );
-        q_debug.delete();
+%     if coder.target('matlab')
+%     if IsEnabledDebugLog(DebugCfg.Plots)
+%         
+%         q_debug = queue( CurvStruct1 );
+%         q_debug.push( CurvStruct1 );
+%         q_debug.push( CurvStruct2 );
+%         
+%         plotGeometry( ctx, ctx.cfg, q_debug, ctx.q_spline );
+%         pause( 0.5 );
+%         q_debug.delete();
 
 %         figure;
 %         PlotCurvStructsBR(ctx, [CurvStruct1 CurvStruct2]);
@@ -268,26 +268,23 @@ else
 %             ['Lines: ', num2str(line1), ' ', num2str(line2)]}, 'Interpreter', 'none');
 %         axis equal;
 %         camproj('perspective');
-    end
-    end
+%     end
+%     end
     
 end
     CurvStruct_T.Info.gcode_source_line = line2;    
     CurvStruct_T.Info.SpindleSpeed = min(CurvStruct1.Info.SpindleSpeed, CurvStruct2.Info.SpindleSpeed); 
-    if( coder.target("MATLAB") )
+    if( coder.target("MATLAB") && TransitionResult.Ok )
         check_continuity( ctx, CurvStruct1_C, CurvStruct_T );
         check_continuity( ctx, CurvStruct_T, CurvStruct2_C );
     end
 end
 
-
 function [] = check_continuity( ctx, CurvStruct1, CurvStruct2 )
-    tol = 2E-6;
+    tol = 1E-3;
     [ r11, r1d1, r1dd1 ] = EvalCurvStruct( ctx, CurvStruct1, 1 );
     [ r21, r2d1, r2dd1 ] = EvalCurvStruct( ctx, CurvStruct2, 0 );
     
-%     [t1F, ~,  kappa1F] = CalcFrenet( r1d1, r1dd1 );
-%     [t2F, ~,  kappa2F] = CalcFrenet( r2d1, r2dd1 );
     [t1, ~,  kappa1] = calc_t_nk_kappa( r1d1, r1dd1 );
     [t2, ~,  kappa2] = calc_t_nk_kappa( r2d1, r2dd1 );
 

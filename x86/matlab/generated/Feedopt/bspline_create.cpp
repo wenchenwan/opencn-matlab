@@ -5,7 +5,7 @@
 // File: bspline_create.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 15:55:52
+// C/C++ source code generated on  : 28-Jun-2022 16:07:49
 //
 
 // Include Files
@@ -30,7 +30,7 @@ namespace ocn {
 void bspline_create(int degree, const double breakpoints[10], BaseSplineStruct *Bl)
 {
     double b_breakpoints[10];
-    unsigned long t2_handle;
+    unsigned long t7_handle;
     if (!isInitialized_opencn_matlab) {
         opencn_matlab_initialize();
     }
@@ -44,7 +44,7 @@ void bspline_create(int degree, const double breakpoints[10], BaseSplineStruct *
     // 'bspline_create:10' coder.ceval('c_bspline_create_with_breakpoints', coder.wref(h), degree,
     // breakpoints, int32(nbreak) );
     std::copy(&breakpoints[0], &breakpoints[10], &b_breakpoints[0]);
-    c_bspline_create_with_breakpoints(&t2_handle, degree, &b_breakpoints[0], 10);
+    c_bspline_create_with_breakpoints(&t7_handle, degree, &b_breakpoints[0], 10);
     // 'bspline_create:11' Bl = constrBaseSpline( ncoeff, breakpoints, h, int32(degree) );
     //  Construct a struct base spline.
     //
@@ -65,7 +65,7 @@ void bspline_create(int degree, const double breakpoints[10], BaseSplineStruct *
     for (int i{0}; i < 10; i++) {
         Bl->breakpoints[i] = breakpoints[i];
     }
-    Bl->handle = t2_handle;
+    Bl->handle = t7_handle;
     Bl->order = degree;
     // 'constrBaseSpline:19' if ~coder.target( 'MATLAB' )
     // 'constrBaseSpline:20' coder.varsize( 'BaseSplineStrct.breakpoints', StructTypeName.dimNBreak{
