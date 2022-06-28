@@ -5,7 +5,7 @@
 // File: constrHelixStruct.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 15:55:52
+// C/C++ source code generated on  : 28-Jun-2022 16:07:49
 //
 
 #ifndef CONSTRHELIXSTRUCT_H

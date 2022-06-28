@@ -5,19 +5,20 @@ function plotGeometry( ctx, cfg, q_curv, q_spline )
 % q_spline  : The queue that contains the spline
 [ param ] = load_param();
 [ point ] = eval_points( ctx, cfg, q_curv, q_spline, param );
-plotCurvCartAndRot( cfg, point, 'Geometry curve' );
+plotCurvCartAndRot( cfg, point( 1 : end -1, : ), 'Geometry curve', ...
+                    point( end, : ) );
 
 end
 
 
 function [ param ] = load_param()
-    param.Nu    = 100;
+    param.Nu    = 500;
 end
 
 function [ point ] = eval_points( ctx, cfg, q_curv, q_spline, param )
 NCurv   = double( q_curv.size );
 NPoints = NCurv * param.Nu;
-NDim    = cfg.NumberAxis;
+NDim    = cfg.NumberAxis + 1;
 
 point   = zeros( NDim, NPoints );
 u_vec  = linspace( 0, 1, param.Nu );
@@ -35,10 +36,11 @@ for j = 1 : NCurv
     end
 
     ind     = [ 1 : param.Nu ] + ( j - 1 ) * param.Nu;
-    point( :, ind ) = EvalCurvStructNoCtx( cfg, curv, spline, u_vec );
+    point( 1 : end -1, ind ) = EvalCurvStructNoCtx( cfg, curv, spline, u_vec );
+    point( end, ind ) = j;
 
     if( curv.Info.TRAFO )
-        [ point( :, ind ) ] = ctx.kin.r_joint( point( :, ind ) );
+        [ point(  1 : end -1, ind ) ] = ctx.kin.r_joint( point(  1 : end -1, ind ) );
     end
 
 end

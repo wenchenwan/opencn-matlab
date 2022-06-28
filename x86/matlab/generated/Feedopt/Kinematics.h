@@ -5,7 +5,7 @@
 // File: Kinematics.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 15:55:52
+// C/C++ source code generated on  : 28-Jun-2022 16:07:49
 //
 
 #ifndef KINEMATICS_H
@@ -13,7 +13,6 @@
 
 // Include Files
 #include "rtwtypes.h"
-#include "string1.h"
 #include "coder_array.h"
 #include <cstddef>
 #include <cstdlib>
@@ -35,7 +34,7 @@ class Kinematics {
                ::coder::array<double, 2U> &v_a, ::coder::array<double, 2U> &a_a) const;
     Kinematics();
     ~Kinematics();
-    coder::rtString type;
+    char type[5];
     ::coder::array<double, 1U> parameters;
 };
 

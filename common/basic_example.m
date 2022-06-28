@@ -28,7 +28,7 @@ try
     pause( 0.5 );
 
 %     % Resampling of the parameter
-%     fileName = 'PR1_QPT/sampler/OpenCN_spline1_RTCPon.csv' ;
+%     fileName = 'PR1_QPT/streamer/OpenCN_spline1_boundaries.csv' ;
 %     resample4sampler( ctx, fileName );
 
     % Resampling of the parameter

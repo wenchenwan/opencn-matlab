@@ -5,7 +5,7 @@
 // File: EvalLine.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 15:55:52
+// C/C++ source code generated on  : 28-Jun-2022 16:07:49
 //
 
 #ifndef EVALLINE_H
@@ -30,6 +30,9 @@ void b_EvalLine(const double CurvStruct_R0[6], const double CurvStruct_R1[6], do
                 const ::coder::array<bool, 2U> &mask, ::coder::array<double, 1U> &r0D,
                 ::coder::array<double, 1U> &r1D, ::coder::array<double, 1U> &r2D,
                 ::coder::array<double, 1U> &r3D);
+
+void minus(::coder::array<double, 1U> &a, const ::coder::array<double, 1U> &P1,
+           const ::coder::array<double, 1U> &P0);
 
 } // namespace ocn
 

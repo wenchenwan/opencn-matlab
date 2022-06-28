@@ -7,7 +7,7 @@ persistent n data using_mat
 status = int32(0);
 CurvStruct = constrCurvStructType;
 
-if coder.target('mex') 
+if ( coder.target('mex') || coder.target('rtw') )
     coder.updateBuildInfo('addDefines', '_POSIX_C_SOURCE=199309L')
 
     pathRs274Src = '$(START_DIR)/../../rs274ngc/src';
@@ -85,20 +85,20 @@ elseif coder.target('matlab')
             [ status, CurvStruct ] = ReadGCode_mex( 'ReadGCode', cmd, filename );
         end
     end
-elseif coder.target('rtw')
-
-    if cmd == ReadGCodeCmd.Load
-
-        CurvStruct = constrCurvStructType;
-        status = int32( 0 );
-        status = coder.ceval( 'c_open_gcode', [filename, 0], coder.ref( CurvStruct ) );
-    elseif cmd == ReadGCodeCmd.Read
-        CurvStruct = constrCurvStructType;
-        status = int32( 0 );
-        status = coder.ceval( 'c_read_and_exec_gcode', '', coder.ref( CurvStruct ) );
-        CurvStruct.R0( 4 : end ) = deg2rad( CurvStruct.R0( 4 : end ) );
-        CurvStruct.R1( 4 : end ) = deg2rad( CurvStruct.R1( 4 : end ) );
-    end
+% elseif coder.target('rtw')
+% 
+%     if cmd == ReadGCodeCmd.Load
+% 
+%         CurvStruct = constrCurvStructType;
+%         status = int32( 0 );
+%         status = coder.ceval( 'c_open_gcode', [filename, 0], coder.ref( CurvStruct ) );
+%     elseif cmd == ReadGCodeCmd.Read
+%         CurvStruct = constrCurvStructType;
+%         status = int32( 0 );
+%         status = coder.ceval( 'c_read_and_exec_gcode', '', coder.ref( CurvStruct ) );
+%         CurvStruct.R0( 4 : end ) = deg2rad( CurvStruct.R0( 4 : end ) );
+%         CurvStruct.R1( 4 : end ) = deg2rad( CurvStruct.R1( 4 : end ) );
+%     end
 else
     error('Unknown target');
 end

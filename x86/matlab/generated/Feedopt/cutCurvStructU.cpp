@@ -5,7 +5,7 @@
 // File: cutCurvStructU.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 15:55:52
+// C/C++ source code generated on  : 28-Jun-2022 16:07:49
 //
 
 // Include Files
@@ -27,7 +27,7 @@
 
 // Variable Definitions
 namespace ocn {
-static const char cv2[54]{'u', '1', ' ', 'm', 'u', 's', 't', ' ', 'b', 'e', ' ', 's', 'm', 'a',
+static const char cv3[54]{'u', '1', ' ', 'm', 'u', 's', 't', ' ', 'b', 'e', ' ', 's', 'm', 'a',
                           'l', 'l', 'e', 'r', ' ', 'o', 'r', ' ', 'e', 'q', 'u', 'a', 'l', ' ',
                           't', 'h', 'a', 'n', ' ', 't', 'h', 'e', ' ', 'f', 'i', 'r', 's', 't',
                           ' ', 's', 'p', 'l', 'i', 'n', 'e', ' ', 'k', 'n', 'o', 't'};
@@ -115,10 +115,10 @@ double b_cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_mask
         int e_loop_ub;
         int f_loop_ub;
         int g_loop_ub;
-        int i;
         int i1;
         int i10;
         int i11;
+        int i2;
         int i3;
         int i4;
         int kStart;
@@ -127,42 +127,49 @@ double b_cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_mask
         // 'cutCurvStructU:17' spline = ctx.q_spline.get( curv.sp_index );
         ctx_q_spline->get(curv->sp_index, &expl_temp);
         spline_sp_Bl_handle = expl_temp.sp.Bl.handle;
-        // 'cutCurvStructU:18' u1_tilda = splineLenghtFindU_new( ctx.cfg, spline, L, a * u0 + b,
-        // isEnd );
+        // 'cutCurvStructU:18' u1_tilda = splineLengthFindU( ctx.cfg, spline, L, a * u0 + b, isEnd
+        // );
+        //  Computes approximately the value of curve parameter u such that the arc
+        //  length starting from u1 equals L.
+        //  This function takes usage of the precalculated arc lengths between knots.
+        //  The last integration interval is approximated by the trapezoidal rule.
+        //  u1 must satisfy 0 < u1 < 1.
+        //  In the normal case, u must satisfy 0 < u < u1. If L is too large, u is
+        //  set to -1
+        //  Warning : This function works only for B-spline of degree 3
         //  Get the sp structure
-        // 'splineLenghtFindU_new:3' sp     = spline.sp;
-        // 'splineLenghtFindU_new:5' DEFAULT_TOL_NR  = 1e-12;
+        // 'splineLengthFindU:12' sp     = spline.sp;
+        // 'splineLengthFindU:14' DEFAULT_TOL_NR  = 1e-12;
         //  Default tolerance for Newton Raphson
-        // 'splineLenghtFindU_new:6' IND_KNOTS_MULT  = sp.Bl.order;
+        // 'splineLengthFindU:15' IND_KNOTS_MULT  = sp.Bl.order;
         //  Index used to remove multiple knots
         //  Eliminate multiplicities at the end points
-        // 'splineLenghtFindU_new:8' Knots  = sp.knots( 1, IND_KNOTS_MULT : end - IND_KNOTS_MULT + 1
-        // );
-        i = (expl_temp.sp.knots.size(1) - expl_temp.sp.Bl.order) + 1;
-        if (expl_temp.sp.Bl.order > i) {
-            i1 = 0;
+        // 'splineLengthFindU:17' Knots  = sp.knots( 1, IND_KNOTS_MULT : end - IND_KNOTS_MULT + 1 );
+        i1 = (expl_temp.sp.knots.size(1) - expl_temp.sp.Bl.order) + 1;
+        if (expl_temp.sp.Bl.order > i1) {
+            i2 = 0;
             i3 = 0;
         } else {
-            i1 = expl_temp.sp.Bl.order - 1;
-            i3 = i;
+            i2 = expl_temp.sp.Bl.order - 1;
+            i3 = i1;
         }
-        // 'splineLenghtFindU_new:9' Lk     = sp.Lk;
-        // 'splineLenghtFindU_new:10' kMax   = numel( Lk );
-        // 'splineLenghtFindU_new:12' if( isEnd )
-        // 'splineLenghtFindU_new:13' u1      = 1 - u1;
+        // 'splineLengthFindU:18' Lk     = sp.Lk;
+        // 'splineLengthFindU:19' kMax   = numel( Lk );
+        // 'splineLengthFindU:21' if( isEnd )
+        // 'splineLengthFindU:22' u1      = 1 - u1;
         u1 = 1.0 - (curv->a_param + curv->b_param);
-        // 'splineLenghtFindU_new:14' Knots   = flip( 1 - Knots );
-        b_loop_ub = i3 - i1;
+        // 'splineLengthFindU:23' Knots   = flip( 1 - Knots );
+        b_loop_ub = i3 - i2;
         Knots.set_size(1, b_loop_ub);
         scalarLB = (b_loop_ub / 2) << 1;
         vectorUB = scalarLB - 2;
         for (i4 = 0; i4 <= vectorUB; i4 += 2) {
             __m128d r1;
-            r1 = _mm_loadu_pd(&expl_temp.sp.knots[i1 + i4]);
+            r1 = _mm_loadu_pd(&expl_temp.sp.knots[i2 + i4]);
             _mm_storeu_pd(&Knots[i4], _mm_sub_pd(_mm_set1_pd(1.0), r1));
         }
         for (i4 = scalarLB; i4 < b_loop_ub; i4++) {
-            Knots[i4] = 1.0 - expl_temp.sp.knots[i1 + i4];
+            Knots[i4] = 1.0 - expl_temp.sp.knots[i2 + i4];
         }
         if ((Knots.size(1) != 0) && (Knots.size(1) > 1)) {
             int lup;
@@ -176,7 +183,7 @@ double b_cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_mask
                 Knots[subs2_idx_1 - 1] = tmp;
             }
         }
-        // 'splineLenghtFindU_new:15' Lk      = flip( Lk );
+        // 'splineLengthFindU:24' Lk      = flip( Lk );
         Lk.set_size(1, expl_temp.sp.Lk.size(1));
         c_loop_ub = expl_temp.sp.Lk.size(1);
         for (int i5{0}; i5 < c_loop_ub; i5++) {
@@ -194,8 +201,8 @@ double b_cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_mask
                 Lk[b_subs2_idx_1 - 1] = b_tmp;
             }
         }
-        // 'splineLenghtFindU_new:18' C_ASSERT_MSG = 'u1 must be %s or equal than the first spline
-        // knot'; 'splineLenghtFindU_new:19' c_assert( u1 >= Knots(1),   sprintf(C_ASSERT_MSG,
+        // 'splineLengthFindU:27' C_ASSERT_MSG = 'u1 must be %s or equal than the first spline
+        // knot'; 'splineLengthFindU:28' c_assert( u1 >= Knots(1),   sprintf(C_ASSERT_MSG,
         // 'greater') ); 'c_assert:2' if coder.target('rtw') 'c_assert:3' if ~condition
         if (u1 < Knots[0]) {
             // 'c_assert:4' coder.ceval('c_assert_', message);
@@ -205,17 +212,18 @@ double b_cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_mask
             c_assert_(&message[0]);
         }
         // 'c_assert:6' value = condition;
-        // 'splineLenghtFindU_new:20' c_assert( u1 <= Knots(end), sprintf(C_ASSERT_MSG, 'smaller')
-        // ); 'c_assert:2' if coder.target('rtw') 'c_assert:3' if ~condition
+        // 'splineLengthFindU:29' c_assert( u1 <= Knots(end), sprintf(C_ASSERT_MSG, 'smaller') );
+        // 'c_assert:2' if coder.target('rtw')
+        // 'c_assert:3' if ~condition
         if (u1 > Knots[Knots.size(1) - 1]) {
             // 'c_assert:4' coder.ceval('c_assert_', message);
             for (int i7{0}; i7 < 54; i7++) {
-                message[i7] = cv2[i7];
+                message[i7] = cv3[i7];
             }
             c_assert_(&message[0]);
         }
         // 'c_assert:6' value = condition;
-        // 'splineLenghtFindU_new:22' kStartVec = find( Knots <= u1, 1, "last" );
+        // 'splineLengthFindU:31' kStartVec = find( Knots <= u1, 1, "last" );
         b_Knots.set_size(1, Knots.size(1));
         d_loop_ub = Knots.size(1);
         for (int i8{0}; i8 < d_loop_ub; i8++) {
@@ -226,9 +234,9 @@ double b_cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_mask
         for (int i9{0}; i9 < e_loop_ub; i9++) {
             kStartVec_data = kEndVec_data;
         }
-        // 'splineLenghtFindU_new:23' kStart    = kStartVec( 1 );
+        // 'splineLengthFindU:32' kStart    = kStartVec( 1 );
         kStart = kStartVec_data - 1;
-        // 'splineLenghtFindU_new:25' if( Knots( kStart ) < u1 )
+        // 'splineLengthFindU:34' if( Knots( kStart ) < u1 )
         d = Knots[kStartVec_data - 1];
         if (d < u1) {
             __m128d r2;
@@ -238,7 +246,7 @@ double b_cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_mask
             __m128d r6;
             double b_r1Dnorm;
             int h_loop_ub;
-            // 'splineLenghtFindU_new:26' LStart = splineLengthApprox_Interval( cfg, spline, Knots(
+            // 'splineLengthFindU:35' LStart = splineLengthApprox_Interval( cfg, spline, Knots(
             // kStart ), u1, isEnd );
             //  computes approximately the arc length L with integration bounds u1 and u2.
             //  IMPORTANT : u0 and u1 should lie in the same knot interval.
@@ -301,11 +309,11 @@ double b_cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_mask
             // 'splineLengthApprox_Interval:23' L = L( 1 );
             //  to satisfy Matlab Coder
         } else {
-            // 'splineLenghtFindU_new:27' else
-            // 'splineLenghtFindU_new:28' LStart = 0;
+            // 'splineLengthFindU:36' else
+            // 'splineLengthFindU:37' LStart = 0;
             LStart = 0.0;
         }
-        // 'splineLenghtFindU_new:31' LEnd = cumsum( Lk( kStart : kMax ) ) - LStart;
+        // 'splineLengthFindU:40' LEnd = cumsum( Lk( kStart : kMax ) ) - LStart;
         if (kStartVec_data > expl_temp.sp.Lk.size(1)) {
             i10 = -1;
             i11 = -1;
@@ -323,32 +331,32 @@ double b_cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_mask
                 x[c_k + 1] = x[c_k] + x[c_k + 1];
             }
         }
-        // 'splineLenghtFindU_new:33' kEndVec = find( LEnd >= L, 1, "first" );
+        // 'splineLengthFindU:42' kEndVec = find( LEnd >= L, 1, "first" );
         b_x.set_size(1, x.size(1));
         g_loop_ub = x.size(1);
         for (int i13{0}; i13 < g_loop_ub; i13++) {
             b_x[i13] = (x[i13] - LStart >= L);
         }
         coder::b_eml_find(b_x, (int *)&kEndVec_data, kEndVec_size);
-        // 'splineLenghtFindU_new:34' if( isempty( kEndVec ) )
+        // 'splineLengthFindU:43' if( isempty( kEndVec ) )
         if (kEndVec_size[1] == 0) {
-            // 'splineLenghtFindU_new:34' u = 1;
+            // 'splineLengthFindU:43' u = 1;
             u1_tilda = 1.0;
         } else {
             double kEnd;
             double uRight;
             double uRightOld;
             double uRight_tmp;
-            // 'splineLenghtFindU_new:35' kEnd    = kEndVec( 1 );
-            // 'splineLenghtFindU_new:36' kEnd = kEnd + kStart;
+            // 'splineLengthFindU:44' kEnd    = kEndVec( 1 );
+            // 'splineLengthFindU:45' kEnd = kEnd + kStart;
             kEnd = static_cast<double>(kEndVec_data) + static_cast<double>(kStartVec_data);
-            // 'splineLenghtFindU_new:38' uLeft       = u1;
-            // 'splineLenghtFindU_new:39' uRight      = Knots( kEnd );
+            // 'splineLengthFindU:47' uLeft       = u1;
+            // 'splineLengthFindU:48' uRight      = Knots( kEnd );
             uRight_tmp = Knots[static_cast<int>(kEnd) - 1];
             uRight = uRight_tmp;
-            // 'splineLenghtFindU_new:40' uRightOld   = uLeft;
+            // 'splineLengthFindU:49' uRightOld   = uLeft;
             uRightOld = u1;
-            // 'splineLenghtFindU_new:42' while( abs( uRightOld - uRight ) > DEFAULT_TOL_NR )
+            // 'splineLengthFindU:51' while( abs( uRightOld - uRight ) > DEFAULT_TOL_NR )
             while (std::abs(uRightOld - uRight) > 1.0E-12) {
                 __m128d r10;
                 __m128d r11;
@@ -364,7 +372,7 @@ double b_cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_mask
                 int m_loop_ub;
                 int o_loop_ub;
                 //  Evaluation of function which should become zero
-                // 'splineLenghtFindU_new:44' fk  = splineLengthApprox_Interval( cfg, spline, uLeft,
+                // 'splineLengthFindU:53' fk  = splineLengthApprox_Interval( cfg, spline, uLeft,
                 // uRight, isEnd ) - L;
                 //  computes approximately the arc length L with integration bounds u1 and u2.
                 //  IMPORTANT : u0 and u1 should lie in the same knot interval.
@@ -424,7 +432,7 @@ double b_cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_mask
                 //  Gauss Legendre integration
                 // 'splineLengthApprox_Interval:23' L = L( 1 );
                 //  to satisfy Matlab Coder
-                // 'splineLenghtFindU_new:45' [ ~, r1D ] = EvalBSpline( spline, uRight );
+                // 'splineLengthFindU:54' [ ~, r1D ] = EvalBSpline( spline, uRight );
                 //  EvalBSpline
                 //
                 //  INPUT
@@ -491,15 +499,15 @@ double b_cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_mask
                     // 'bspline_eval_vec:12' xdd(k)  = xddk;
                     // 'bspline_eval_vec:13' xddd(k) = xdddk;
                 }
-                // 'splineLenghtFindU_new:46' Dfk = MyNorm( r1D );
+                // 'splineLengthFindU:55' Dfk = MyNorm( r1D );
                 // 'MyNorm:2' coder.inline('always');
                 // 'MyNorm:3' n = mysqrt(sum(x.^2));
                 // 'mysqrt:3' y = sqrt(x);
                 // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
                 sqrt_calls++;
-                // 'splineLenghtFindU_new:47' uRightOld = uRight;
+                // 'splineLengthFindU:56' uRightOld = uRight;
                 uRightOld = uRight;
-                // 'splineLenghtFindU_new:48' uRight    = uRight - fk / Dfk;
+                // 'splineLengthFindU:57' uRight    = uRight - fk / Dfk;
                 r.set_size(b_r1D.size(0));
                 o_loop_ub = b_r1D.size(0);
                 for (int i23{0}; i23 < o_loop_ub; i23++) {
@@ -513,20 +521,20 @@ double b_cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_mask
                 }
                 uRight -= (c_r1Dnorm * ((1.0 - u1) - (1.0 - uRight)) / 2.0 - L) /
                           std::sqrt(coder::combineVectorElements(r));
-                // 'splineLenghtFindU_new:49' if( uRight > Knots( kEnd ) )
+                // 'splineLengthFindU:58' if( uRight > Knots( kEnd ) )
                 if (uRight > uRight_tmp) {
-                    // 'splineLenghtFindU_new:49' uRight = Knots( kEnd );
+                    // 'splineLengthFindU:58' uRight = Knots( kEnd );
                     uRight = Knots[static_cast<int>(kEnd) - 1];
                 }
-                // 'splineLenghtFindU_new:50' if( uRight < Knots( kStart ) )
+                // 'splineLengthFindU:59' if( uRight < Knots( kStart ) )
                 if (uRight < Knots[kStart]) {
-                    // 'splineLenghtFindU_new:50' uRight = Knots( kStart );
+                    // 'splineLengthFindU:59' uRight = Knots( kStart );
                     uRight = Knots[kStart];
                 }
             }
-            // 'splineLenghtFindU_new:53' u = uRight;
-            // 'splineLenghtFindU_new:55' if( isEnd )
-            // 'splineLenghtFindU_new:56' u = 1 -u;
+            // 'splineLengthFindU:62' u = uRight;
+            // 'splineLengthFindU:64' if( isEnd )
+            // 'splineLengthFindU:65' u = 1 -u;
             u1_tilda = 1.0 - uRight;
         }
     } else {
@@ -548,10 +556,10 @@ double b_cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_mask
         // 'cutCurvStructU:30' u1_tilda = a * u1 + b;
         r.set_size(r1D1.size(0));
         loop_ub = r1D1.size(0);
-        for (int i2{0}; i2 < loop_ub; i2++) {
+        for (int i{0}; i < loop_ub; i++) {
             double varargin_1;
-            varargin_1 = r1D1[i2];
-            r[i2] = std::pow(varargin_1, 2.0);
+            varargin_1 = r1D1[i];
+            r[i] = std::pow(varargin_1, 2.0);
         }
         u1_tilda =
             curv->a_param * (1.0 - L / std::sqrt(coder::combineVectorElements(r))) + curv->b_param;
@@ -636,41 +644,48 @@ double cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
         int c_loop_ub;
         int d_loop_ub;
         int e_loop_ub;
-        int i;
         int i1;
         int i10;
         int i2;
+        int i3;
         int i8;
         int i9;
         // 'cutCurvStructU:17' spline = ctx.q_spline.get( curv.sp_index );
         ctx_q_spline->get(curv->sp_index, &expl_temp);
         spline_sp_Bl_handle = expl_temp.sp.Bl.handle;
-        // 'cutCurvStructU:18' u1_tilda = splineLenghtFindU_new( ctx.cfg, spline, L, a * u0 + b,
-        // isEnd );
+        // 'cutCurvStructU:18' u1_tilda = splineLengthFindU( ctx.cfg, spline, L, a * u0 + b, isEnd
+        // );
+        //  Computes approximately the value of curve parameter u such that the arc
+        //  length starting from u1 equals L.
+        //  This function takes usage of the precalculated arc lengths between knots.
+        //  The last integration interval is approximated by the trapezoidal rule.
+        //  u1 must satisfy 0 < u1 < 1.
+        //  In the normal case, u must satisfy 0 < u < u1. If L is too large, u is
+        //  set to -1
+        //  Warning : This function works only for B-spline of degree 3
         //  Get the sp structure
-        // 'splineLenghtFindU_new:3' sp     = spline.sp;
-        // 'splineLenghtFindU_new:5' DEFAULT_TOL_NR  = 1e-12;
+        // 'splineLengthFindU:12' sp     = spline.sp;
+        // 'splineLengthFindU:14' DEFAULT_TOL_NR  = 1e-12;
         //  Default tolerance for Newton Raphson
-        // 'splineLenghtFindU_new:6' IND_KNOTS_MULT  = sp.Bl.order;
+        // 'splineLengthFindU:15' IND_KNOTS_MULT  = sp.Bl.order;
         //  Index used to remove multiple knots
         //  Eliminate multiplicities at the end points
-        // 'splineLenghtFindU_new:8' Knots  = sp.knots( 1, IND_KNOTS_MULT : end - IND_KNOTS_MULT + 1
-        // );
-        i = (expl_temp.sp.knots.size(1) - expl_temp.sp.Bl.order) + 1;
-        if (expl_temp.sp.Bl.order > i) {
-            i1 = 0;
+        // 'splineLengthFindU:17' Knots  = sp.knots( 1, IND_KNOTS_MULT : end - IND_KNOTS_MULT + 1 );
+        i1 = (expl_temp.sp.knots.size(1) - expl_temp.sp.Bl.order) + 1;
+        if (expl_temp.sp.Bl.order > i1) {
             i2 = 0;
+            i3 = 0;
         } else {
-            i1 = expl_temp.sp.Bl.order - 1;
-            i2 = i;
+            i2 = expl_temp.sp.Bl.order - 1;
+            i3 = i1;
         }
-        // 'splineLenghtFindU_new:9' Lk     = sp.Lk;
-        // 'splineLenghtFindU_new:10' kMax   = numel( Lk );
-        // 'splineLenghtFindU_new:12' if( isEnd )
-        // 'splineLenghtFindU_new:18' C_ASSERT_MSG = 'u1 must be %s or equal than the first spline
-        // knot'; 'splineLenghtFindU_new:19' c_assert( u1 >= Knots(1),   sprintf(C_ASSERT_MSG,
+        // 'splineLengthFindU:18' Lk     = sp.Lk;
+        // 'splineLengthFindU:19' kMax   = numel( Lk );
+        // 'splineLengthFindU:21' if( isEnd )
+        // 'splineLengthFindU:27' C_ASSERT_MSG = 'u1 must be %s or equal than the first spline
+        // knot'; 'splineLengthFindU:28' c_assert( u1 >= Knots(1),   sprintf(C_ASSERT_MSG,
         // 'greater') ); 'c_assert:2' if coder.target('rtw') 'c_assert:3' if ~condition
-        if (curv->b_param < expl_temp.sp.knots[i1]) {
+        if (curv->b_param < expl_temp.sp.knots[i2]) {
             // 'c_assert:4' coder.ceval('c_assert_', message);
             for (int i4{0}; i4 < 54; i4++) {
                 message[i4] = cv1[i4];
@@ -678,30 +693,31 @@ double cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
             c_assert_(&message[0]);
         }
         // 'c_assert:6' value = condition;
-        // 'splineLenghtFindU_new:20' c_assert( u1 <= Knots(end), sprintf(C_ASSERT_MSG, 'smaller')
-        // ); 'c_assert:2' if coder.target('rtw') 'c_assert:3' if ~condition
-        if (curv->b_param > expl_temp.sp.knots[i2 - 1]) {
+        // 'splineLengthFindU:29' c_assert( u1 <= Knots(end), sprintf(C_ASSERT_MSG, 'smaller') );
+        // 'c_assert:2' if coder.target('rtw')
+        // 'c_assert:3' if ~condition
+        if (curv->b_param > expl_temp.sp.knots[i3 - 1]) {
             // 'c_assert:4' coder.ceval('c_assert_', message);
             for (int i5{0}; i5 < 54; i5++) {
-                message[i5] = cv2[i5];
+                message[i5] = cv3[i5];
             }
             c_assert_(&message[0]);
         }
         // 'c_assert:6' value = condition;
-        // 'splineLenghtFindU_new:22' kStartVec = find( Knots <= u1, 1, "last" );
-        b_loop_ub = i2 - i1;
+        // 'splineLengthFindU:31' kStartVec = find( Knots <= u1, 1, "last" );
+        b_loop_ub = i3 - i2;
         b_expl_temp.set_size(1, b_loop_ub);
         for (int i6{0}; i6 < b_loop_ub; i6++) {
-            b_expl_temp[i6] = (expl_temp.sp.knots[i1 + i6] <= curv->b_param);
+            b_expl_temp[i6] = (expl_temp.sp.knots[i2 + i6] <= curv->b_param);
         }
         coder::eml_find(b_expl_temp, (int *)&kEndVec_data, kEndVec_size);
         c_loop_ub = kEndVec_size[1];
         for (int i7{0}; i7 < c_loop_ub; i7++) {
             kStartVec_data = kEndVec_data;
         }
-        // 'splineLenghtFindU_new:23' kStart    = kStartVec( 1 );
-        // 'splineLenghtFindU_new:25' if( Knots( kStart ) < u1 )
-        i8 = (i1 + kStartVec_data) - 1;
+        // 'splineLengthFindU:32' kStart    = kStartVec( 1 );
+        // 'splineLengthFindU:34' if( Knots( kStart ) < u1 )
+        i8 = (i2 + kStartVec_data) - 1;
         if (expl_temp.sp.knots[i8] < curv->b_param) {
             __m128d r1;
             __m128d r2;
@@ -711,7 +727,7 @@ double cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
             double b_r1Dnorm;
             double c_expl_temp;
             int f_loop_ub;
-            // 'splineLenghtFindU_new:26' LStart = splineLengthApprox_Interval( cfg, spline, Knots(
+            // 'splineLengthFindU:35' LStart = splineLengthApprox_Interval( cfg, spline, Knots(
             // kStart ), u1, isEnd );
             //  computes approximately the arc length L with integration bounds u1 and u2.
             //  IMPORTANT : u0 and u1 should lie in the same knot interval.
@@ -774,11 +790,11 @@ double cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
             // 'splineLengthApprox_Interval:23' L = L( 1 );
             //  to satisfy Matlab Coder
         } else {
-            // 'splineLenghtFindU_new:27' else
-            // 'splineLenghtFindU_new:28' LStart = 0;
+            // 'splineLengthFindU:36' else
+            // 'splineLengthFindU:37' LStart = 0;
             LStart = 0.0;
         }
-        // 'splineLenghtFindU_new:31' LEnd = cumsum( Lk( kStart : kMax ) ) - LStart;
+        // 'splineLengthFindU:40' LEnd = cumsum( Lk( kStart : kMax ) ) - LStart;
         if (kStartVec_data > expl_temp.sp.Lk.size(1)) {
             i9 = -1;
             i10 = -1;
@@ -796,30 +812,30 @@ double cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
                 x[k + 1] = x[k] + x[k + 1];
             }
         }
-        // 'splineLenghtFindU_new:33' kEndVec = find( LEnd >= L, 1, "first" );
+        // 'splineLengthFindU:42' kEndVec = find( LEnd >= L, 1, "first" );
         b_x.set_size(1, x.size(1));
         e_loop_ub = x.size(1);
         for (int i12{0}; i12 < e_loop_ub; i12++) {
             b_x[i12] = (x[i12] - LStart >= L);
         }
         coder::b_eml_find(b_x, (int *)&kEndVec_data, kEndVec_size);
-        // 'splineLenghtFindU_new:34' if( isempty( kEndVec ) )
+        // 'splineLengthFindU:43' if( isempty( kEndVec ) )
         if (kEndVec_size[1] == 0) {
-            // 'splineLenghtFindU_new:34' u = 1;
+            // 'splineLengthFindU:43' u = 1;
             u1_tilda = 1.0;
         } else {
             double uRight;
             double uRightOld;
             int uRight_tmp;
-            // 'splineLenghtFindU_new:35' kEnd    = kEndVec( 1 );
-            // 'splineLenghtFindU_new:36' kEnd = kEnd + kStart;
-            // 'splineLenghtFindU_new:38' uLeft       = u1;
-            // 'splineLenghtFindU_new:39' uRight      = Knots( kEnd );
-            uRight_tmp = ((i1 + kEndVec_data) + kStartVec_data) - 1;
+            // 'splineLengthFindU:44' kEnd    = kEndVec( 1 );
+            // 'splineLengthFindU:45' kEnd = kEnd + kStart;
+            // 'splineLengthFindU:47' uLeft       = u1;
+            // 'splineLengthFindU:48' uRight      = Knots( kEnd );
+            uRight_tmp = ((i2 + kEndVec_data) + kStartVec_data) - 1;
             uRight = expl_temp.sp.knots[uRight_tmp];
-            // 'splineLenghtFindU_new:40' uRightOld   = uLeft;
+            // 'splineLengthFindU:49' uRightOld   = uLeft;
             uRightOld = curv->b_param;
-            // 'splineLenghtFindU_new:42' while( abs( uRightOld - uRight ) > DEFAULT_TOL_NR )
+            // 'splineLengthFindU:51' while( abs( uRightOld - uRight ) > DEFAULT_TOL_NR )
             while (std::abs(uRightOld - uRight) > 1.0E-12) {
                 __m128d r10;
                 __m128d r11;
@@ -836,7 +852,7 @@ double cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
                 int k_loop_ub;
                 int m_loop_ub;
                 //  Evaluation of function which should become zero
-                // 'splineLenghtFindU_new:44' fk  = splineLengthApprox_Interval( cfg, spline, uLeft,
+                // 'splineLengthFindU:53' fk  = splineLengthApprox_Interval( cfg, spline, uLeft,
                 // uRight, isEnd ) - L;
                 //  computes approximately the arc length L with integration bounds u1 and u2.
                 //  IMPORTANT : u0 and u1 should lie in the same knot interval.
@@ -893,7 +909,7 @@ double cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
                 //  Gauss Legendre integration
                 // 'splineLengthApprox_Interval:23' L = L( 1 );
                 //  to satisfy Matlab Coder
-                // 'splineLenghtFindU_new:45' [ ~, r1D ] = EvalBSpline( spline, uRight );
+                // 'splineLengthFindU:54' [ ~, r1D ] = EvalBSpline( spline, uRight );
                 //  EvalBSpline
                 //
                 //  INPUT
@@ -960,15 +976,15 @@ double cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
                     // 'bspline_eval_vec:12' xdd(k)  = xddk;
                     // 'bspline_eval_vec:13' xddd(k) = xdddk;
                 }
-                // 'splineLenghtFindU_new:46' Dfk = MyNorm( r1D );
+                // 'splineLengthFindU:55' Dfk = MyNorm( r1D );
                 // 'MyNorm:2' coder.inline('always');
                 // 'MyNorm:3' n = mysqrt(sum(x.^2));
                 // 'mysqrt:3' y = sqrt(x);
                 // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
                 sqrt_calls++;
-                // 'splineLenghtFindU_new:47' uRightOld = uRight;
+                // 'splineLengthFindU:56' uRightOld = uRight;
                 uRightOld = uRight;
-                // 'splineLenghtFindU_new:48' uRight    = uRight - fk / Dfk;
+                // 'splineLengthFindU:57' uRight    = uRight - fk / Dfk;
                 r.set_size(b_r1D.size(0));
                 m_loop_ub = b_r1D.size(0);
                 for (int i22{0}; i22 < m_loop_ub; i22++) {
@@ -982,21 +998,21 @@ double cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
                 }
                 uRight -= (c_r1Dnorm * (uRight - b) / 2.0 - L) /
                           std::sqrt(coder::combineVectorElements(r));
-                // 'splineLenghtFindU_new:49' if( uRight > Knots( kEnd ) )
+                // 'splineLengthFindU:58' if( uRight > Knots( kEnd ) )
                 if (uRight > expl_temp.sp.knots[uRight_tmp]) {
-                    // 'splineLenghtFindU_new:49' uRight = Knots( kEnd );
+                    // 'splineLengthFindU:58' uRight = Knots( kEnd );
                     uRight = expl_temp.sp.knots[uRight_tmp];
                 }
-                // 'splineLenghtFindU_new:50' if( uRight < Knots( kStart ) )
-                i25 = (i1 + kStartVec_data) - 1;
+                // 'splineLengthFindU:59' if( uRight < Knots( kStart ) )
+                i25 = (i2 + kStartVec_data) - 1;
                 if (uRight < expl_temp.sp.knots[i25]) {
-                    // 'splineLenghtFindU_new:50' uRight = Knots( kStart );
+                    // 'splineLengthFindU:59' uRight = Knots( kStart );
                     uRight = expl_temp.sp.knots[i25];
                 }
             }
-            // 'splineLenghtFindU_new:53' u = uRight;
+            // 'splineLengthFindU:62' u = uRight;
             u1_tilda = uRight;
-            // 'splineLenghtFindU_new:55' if( isEnd )
+            // 'splineLengthFindU:64' if( isEnd )
         }
     } else {
         int loop_ub;
@@ -1018,10 +1034,10 @@ double cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
         // 'cutCurvStructU:30' u1_tilda = a * u1 + b;
         r.set_size(r1D0.size(0));
         loop_ub = r1D0.size(0);
-        for (int i3{0}; i3 < loop_ub; i3++) {
+        for (int i{0}; i < loop_ub; i++) {
             double varargin_1;
-            varargin_1 = r1D0[i3];
-            r[i3] = std::pow(varargin_1, 2.0);
+            varargin_1 = r1D0[i];
+            r[i] = std::pow(varargin_1, 2.0);
         }
         u1_tilda = curv->a_param * (L / std::sqrt(coder::combineVectorElements(r))) + curv->b_param;
     }

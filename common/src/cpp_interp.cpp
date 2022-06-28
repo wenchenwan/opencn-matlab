@@ -1,6 +1,12 @@
 #include "cpp_interp.hpp"
+
+#ifndef MATLAB_MEX_FILE
+#include "rs274ngc_interp.hh"
+#include "interp_return.hh"
+#else
 #include "src/rs274ngc_interp.hh"
 #include "src/interp_return.hh"
+#endif
 
 #include <unistd.h>
 
@@ -51,14 +57,14 @@ int cpp_interp_read(ocn::CurvStruct* curv_struct) {
         fprintf(stderr, "ERROR(execute): %s\n", interp.getSavedError());
         return 0;
     }
-    ocn::CopyCurvStruct(&curv, curv_struct);
-    // *curv_struct = curv;
+//     ocn::CopyCurvStruct(&curv, curv_struct);
+    *curv_struct = curv;
    //printf("cpp_interp_read: type = %d\n", curv_struct->Type);
     return 1;
 }
 
 void push_curv_struct(const ocn::CurvStruct* curv_struct) {
     // printf("push_curv_struct: type = %d\n", curv_struct->Type);
-    //curv = *curv_struct;
-	ocn::CopyCurvStruct(curv_struct, &curv);
+    curv = *curv_struct;
+// 	ocn::CopyCurvStruct(curv_struct, &curv);
 }

@@ -15,6 +15,7 @@ coder.inline( "never" );
 params = paramsDefaultCurv;
 
 gcodeInfoStruct.Type = CurveType.TransP5;
+gcodeInfoStruct.zspdmode = ZSpdMode.NN;
 
 if( coder.target( "MATLAB" ) )
     CStrct = constrCurvStruct( gcodeInfoStruct, params{ 2 },  R0, R1, ...

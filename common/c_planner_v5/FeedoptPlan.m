@@ -32,7 +32,7 @@ switch ctx.op
             if( CurvStruct.Info.FeedRate == 0.0 )
                 CurvStruct.Info.FeedRate = ctx.cfg.fmax;
             end
-            if( status == 1 && CurvStruct.Info.Type ~= 0 )
+            if( status == 1 && CurvStruct.Info.Type ~= CurveType.None )
                 if ( CurvStruct.Info.FeedRate == 0.0 )
                     % check for undefined feedrate
                     CurvStruct.Info.FeedRate = ctx.cfg.fmax;

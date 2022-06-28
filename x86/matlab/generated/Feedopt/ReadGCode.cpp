@@ -5,7 +5,7 @@
 // File: ReadGCode.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 15:55:52
+// C/C++ source code generated on  : 28-Jun-2022 16:07:49
 //
 
 // Include Files
@@ -18,6 +18,7 @@
 #include "opencn_matlab_types3.h"
 #include "paramsDefaultCurv.h"
 #include "coder_array.h"
+#include "cpp_interp.hpp"
 #include <algorithm>
 #include <emmintrin.h>
 
@@ -51,11 +52,7 @@ void ReadGCode(ReadGCodeCmd cmd, const char filename_data[], const int filename_
     double b_expl_temp;
     double c_expl_temp;
     double d_expl_temp;
-    double e_expl_temp;
     double expl_temp;
-    double f_expl_temp;
-    double g_expl_temp;
-    double h_expl_temp;
     double params_gcodeInfoStruct_FeedRate;
     double params_gcodeInfoStruct_SpindleSpeed;
     double params_spline_Ltot;
@@ -76,98 +73,102 @@ void ReadGCode(ReadGCodeCmd cmd, const char filename_data[], const int filename_
     }
     // 'ReadGCode:7' status = int32(0);
     // 'ReadGCode:8' CurvStruct = constrCurvStructType;
-    // 'ReadGCode:10' if coder.target('mex')
-    // 'ReadGCode:88' elseif coder.target('rtw')
-    // 'ReadGCode:90' if cmd == ReadGCodeCmd.Load
+    //  constrCurvStructType : Constructs a constrCurvStruct with default values.
+    // 'constrCurvStructType:4' if( nargin > 0 )
+    // 'constrCurvStructType:6' else
+    // 'constrCurvStructType:7' [ params ] = paramsDefaultCurv;
+    paramsDefaultCurv(
+        &params_gcodeInfoStruct_Type, &params_gcodeInfoStruct_zspdmode,
+        &params_gcodeInfoStruct_TRAFO, &params_gcodeInfoStruct_HSC,
+        &params_gcodeInfoStruct_FeedRate, &params_gcodeInfoStruct_SpindleSpeed,
+        &params_gcodeInfoStruct_gcode_source_line, &params_gcodeInfoStruct_G91,
+        &params_gcodeInfoStruct_G91_1, &params_spline_Bl_ncoeff, params_spline_Bl_breakpoints,
+        &params_spline_Bl_handle, &params_spline_Bl_order, params_spline_coeff, params_spline_knots,
+        &params_spline_Ltot, params_spline_Lk, params_R0, params_R1, params_Cprim, &expl_temp,
+        params_evec, &b_expl_temp, &c_expl_temp, params_CoeffP5, &d_expl_temp);
+    // 'constrCurvStructType:10' if( coder.target( "MATLAB" ) )
+    // 'constrCurvStructType:12' else
+    // 'constrCurvStructType:13' C = constrCurvStruct( params.gcodeInfoStruct, params.spline, ...
+    // 'constrCurvStructType:14'         params.R0, params.R1, ...
+    // 'constrCurvStructType:15'         params.Cprim, params.delta, params.evec, params.theta, ...
+    // 'constrCurvStructType:16'         params.pitch, params.CoeffP5, params.Coeff );
+    b_constrCurvStruct(
+        params_gcodeInfoStruct_Type, params_gcodeInfoStruct_zspdmode, params_gcodeInfoStruct_TRAFO,
+        params_gcodeInfoStruct_HSC, params_gcodeInfoStruct_FeedRate,
+        params_gcodeInfoStruct_SpindleSpeed, params_gcodeInfoStruct_gcode_source_line,
+        params_gcodeInfoStruct_G91, params_gcodeInfoStruct_G91_1, params_spline_Bl_ncoeff,
+        params_spline_Bl_breakpoints, params_spline_Bl_handle, params_spline_Bl_order,
+        params_spline_coeff, params_spline_knots, params_spline_Ltot, params_spline_Lk, params_R0,
+        params_R1, params_Cprim, params_evec, params_CoeffP5, b_CurvStruct);
+    // 'ReadGCode:10' if ( coder.target('mex') || coder.target('rtw') )
+    // 'ReadGCode:11' coder.updateBuildInfo('addDefines', '_POSIX_C_SOURCE=199309L')
+    // 'ReadGCode:13' pathRs274Src = '$(START_DIR)/../../rs274ngc/src';
+    //      coder.updateBuildInfo('addDefines', '-DMEX_READGCODE')
+    // 'ReadGCode:15' coder.updateBuildInfo('addCompileFlags', '-fdiagnostics-color=always')
+    // 'ReadGCode:16' coder.updateBuildInfo('addSourceFiles','cpp_interp.cpp',
+    // '$(START_DIR)/../common/src'); 'ReadGCode:17'
+    // coder.updateBuildInfo('addSourceFiles','directives.cc', pathRs274Src); 'ReadGCode:18'
+    // coder.updateBuildInfo('addSourceFiles','interp_arc.cc', pathRs274Src); 'ReadGCode:19'
+    // coder.updateBuildInfo('addSourceFiles','interp_array.cc', pathRs274Src); 'ReadGCode:20'
+    // coder.updateBuildInfo('addSourceFiles','interp_base.cc', pathRs274Src); 'ReadGCode:21'
+    // coder.updateBuildInfo('addSourceFiles','interp_check.cc', pathRs274Src); 'ReadGCode:22'
+    // coder.updateBuildInfo('addSourceFiles','interp_convert.cc', pathRs274Src); 'ReadGCode:23'
+    // coder.updateBuildInfo('addSourceFiles','interp_cycles.cc', pathRs274Src); 'ReadGCode:24'
+    // coder.updateBuildInfo('addSourceFiles','interp_execute.cc', pathRs274Src); 'ReadGCode:25'
+    // coder.updateBuildInfo('addSourceFiles','interp_find.cc', pathRs274Src); 'ReadGCode:26'
+    // coder.updateBuildInfo('addSourceFiles','interp_internal.cc', pathRs274Src); 'ReadGCode:27'
+    // coder.updateBuildInfo('addSourceFiles','interp_inverse.cc', pathRs274Src); 'ReadGCode:28'
+    // coder.updateBuildInfo('addSourceFiles','interp_namedparams.cc', pathRs274Src); 'ReadGCode:29'
+    // coder.updateBuildInfo('addSourceFiles','interp_o_word.cc', pathRs274Src); 'ReadGCode:30'
+    // coder.updateBuildInfo('addSourceFiles','interp_queue.cc', pathRs274Src); 'ReadGCode:31'
+    // coder.updateBuildInfo('addSourceFiles','interp_read.cc', pathRs274Src); 'ReadGCode:32'
+    // coder.updateBuildInfo('addSourceFiles','interp_remap.cc', pathRs274Src); 'ReadGCode:33'
+    // coder.updateBuildInfo('addSourceFiles','interp_setup.cc', pathRs274Src); 'ReadGCode:34'
+    // coder.updateBuildInfo('addSourceFiles','interp_write.cc', pathRs274Src); 'ReadGCode:35'
+    // coder.updateBuildInfo('addSourceFiles','ocn.cc', pathRs274Src); 'ReadGCode:36'
+    // coder.updateBuildInfo('addSourceFiles','rs274ngc_pre.cc', pathRs274Src); 'ReadGCode:37'
+    // coder.updateBuildInfo('addSourceFiles','inifile.cc', pathRs274Src); 'ReadGCode:38'
+    // coder.updateBuildInfo('addLinkFlags', '-ldl');
+    //     coder.updateBuildInfo('addIncludePaths', '$(START_DIR)/gen_mex/readgcode');
+    // 'ReadGCode:40' coder.cinclude('cpp_interp.hpp');
+    // 'ReadGCode:42' switch cmd
     if (cmd == ReadGCodeCmd_Load) {
         int loop_ub;
-        // 'ReadGCode:92' CurvStruct = constrCurvStructType;
-        //  constrCurvStructType : Constructs a constrCurvStruct with default values.
-        // 'constrCurvStructType:4' if( nargin > 0 )
-        // 'constrCurvStructType:6' else
-        // 'constrCurvStructType:7' [ params ] = paramsDefaultCurv;
-        paramsDefaultCurv(&params_gcodeInfoStruct_Type, &params_gcodeInfoStruct_zspdmode,
-                          &params_gcodeInfoStruct_TRAFO, &params_gcodeInfoStruct_HSC,
-                          &params_gcodeInfoStruct_FeedRate, &params_gcodeInfoStruct_SpindleSpeed,
-                          &params_gcodeInfoStruct_gcode_source_line, &params_gcodeInfoStruct_G91,
-                          &params_gcodeInfoStruct_G91_1, &params_spline_Bl_ncoeff,
-                          params_spline_Bl_breakpoints, &params_spline_Bl_handle,
-                          &params_spline_Bl_order, params_spline_coeff, params_spline_knots,
-                          &params_spline_Ltot, params_spline_Lk, params_R0, params_R1, params_Cprim,
-                          &expl_temp, params_evec, &b_expl_temp, &c_expl_temp, params_CoeffP5,
-                          &d_expl_temp);
-        // 'constrCurvStructType:10' if( coder.target( "MATLAB" ) )
-        // 'constrCurvStructType:12' else
-        // 'constrCurvStructType:13' C = constrCurvStruct( params.gcodeInfoStruct, params.spline,
-        // ... 'constrCurvStructType:14'         params.R0, params.R1, ... 'constrCurvStructType:15'
-        // params.Cprim, params.delta, params.evec, params.theta, ... 'constrCurvStructType:16'
-        // params.pitch, params.CoeffP5, params.Coeff );
-        b_constrCurvStruct(params_gcodeInfoStruct_Type, params_gcodeInfoStruct_zspdmode,
-                           params_gcodeInfoStruct_TRAFO, params_gcodeInfoStruct_HSC,
-                           params_gcodeInfoStruct_FeedRate, params_gcodeInfoStruct_SpindleSpeed,
-                           params_gcodeInfoStruct_gcode_source_line, params_gcodeInfoStruct_G91,
-                           params_gcodeInfoStruct_G91_1, params_spline_Bl_ncoeff,
-                           params_spline_Bl_breakpoints, params_spline_Bl_handle,
-                           params_spline_Bl_order, params_spline_coeff, params_spline_knots,
-                           params_spline_Ltot, params_spline_Lk, params_R0, params_R1, params_Cprim,
-                           params_evec, params_CoeffP5, b_CurvStruct);
-        // 'ReadGCode:93' status = int32( 0 );
-        // 'ReadGCode:94' status = coder.ceval( 'c_open_gcode', [filename, 0], coder.ref( CurvStruct
-        // ) );
+        // 'ReadGCode:43' case ReadGCodeCmd.Load
+        // 'ReadGCode:44' status = coder.ceval( 'cpp_interp_init', [filename 0] );
         loop_ub = filename_size[1];
         if (0 <= loop_ub - 1) {
             std::copy(&filename_data[0], &filename_data[loop_ub], &tmp_data[0]);
         }
         tmp_data[filename_size[1]] = '\x00';
-        b_status = c_open_gcode(&tmp_data[0], b_CurvStruct);
+        b_status = cpp_interp_init(&tmp_data[0]);
     } else {
-        __m128d r;
-        __m128d r1;
-        __m128d r2;
-        // 'ReadGCode:95' elseif cmd == ReadGCodeCmd.Read
-        // 'ReadGCode:97' CurvStruct = constrCurvStructType;
-        //  constrCurvStructType : Constructs a constrCurvStruct with default values.
-        // 'constrCurvStructType:4' if( nargin > 0 )
-        // 'constrCurvStructType:6' else
-        // 'constrCurvStructType:7' [ params ] = paramsDefaultCurv;
-        paramsDefaultCurv(&params_gcodeInfoStruct_Type, &params_gcodeInfoStruct_zspdmode,
-                          &params_gcodeInfoStruct_TRAFO, &params_gcodeInfoStruct_HSC,
-                          &params_gcodeInfoStruct_FeedRate, &params_gcodeInfoStruct_SpindleSpeed,
-                          &params_gcodeInfoStruct_gcode_source_line, &params_gcodeInfoStruct_G91,
-                          &params_gcodeInfoStruct_G91_1, &params_spline_Bl_ncoeff,
-                          params_spline_Bl_breakpoints, &params_spline_Bl_handle,
-                          &params_spline_Bl_order, params_spline_coeff, params_spline_knots,
-                          &params_spline_Ltot, params_spline_Lk, params_R0, params_R1, params_Cprim,
-                          &e_expl_temp, params_evec, &f_expl_temp, &g_expl_temp, params_CoeffP5,
-                          &h_expl_temp);
-        // 'constrCurvStructType:10' if( coder.target( "MATLAB" ) )
-        // 'constrCurvStructType:12' else
-        // 'constrCurvStructType:13' C = constrCurvStruct( params.gcodeInfoStruct, params.spline,
-        // ... 'constrCurvStructType:14'         params.R0, params.R1, ... 'constrCurvStructType:15'
-        // params.Cprim, params.delta, params.evec, params.theta, ... 'constrCurvStructType:16'
-        // params.pitch, params.CoeffP5, params.Coeff );
-        b_constrCurvStruct(params_gcodeInfoStruct_Type, params_gcodeInfoStruct_zspdmode,
-                           params_gcodeInfoStruct_TRAFO, params_gcodeInfoStruct_HSC,
-                           params_gcodeInfoStruct_FeedRate, params_gcodeInfoStruct_SpindleSpeed,
-                           params_gcodeInfoStruct_gcode_source_line, params_gcodeInfoStruct_G91,
-                           params_gcodeInfoStruct_G91_1, params_spline_Bl_ncoeff,
-                           params_spline_Bl_breakpoints, params_spline_Bl_handle,
-                           params_spline_Bl_order, params_spline_coeff, params_spline_knots,
-                           params_spline_Ltot, params_spline_Lk, params_R0, params_R1, params_Cprim,
-                           params_evec, params_CoeffP5, b_CurvStruct);
-        // 'ReadGCode:98' status = int32( 0 );
-        // 'ReadGCode:99' status = coder.ceval( 'c_read_and_exec_gcode', '', coder.ref( CurvStruct )
-        // );
-        b_status = c_read_and_exec_gcode(nullptr, b_CurvStruct);
-        // 'ReadGCode:100' CurvStruct.R0( 4 : end ) = deg2rad( CurvStruct.R0( 4 : end ) );
-        // 'ReadGCode:101' CurvStruct.R1( 4 : end ) = deg2rad( CurvStruct.R1( 4 : end ) );
-        r = _mm_loadu_pd(&b_CurvStruct->R0[3]);
-        r1 = _mm_set1_pd(0.017453292519943295);
-        _mm_storeu_pd(&b_CurvStruct->R0[3], _mm_mul_pd(r1, r));
-        r2 = _mm_loadu_pd(&b_CurvStruct->R1[3]);
-        _mm_storeu_pd(&b_CurvStruct->R1[3], _mm_mul_pd(r1, r2));
-        b_CurvStruct->R0[5] *= 0.017453292519943295;
-        b_CurvStruct->R1[5] *= 0.017453292519943295;
+        int is_loaded;
+        // 'ReadGCode:45' case ReadGCodeCmd.Read
+        // 'ReadGCode:46' is_loaded = int32(0);
+        // 'ReadGCode:47' is_loaded = coder.ceval( 'cpp_interp_loaded' );
+        is_loaded = cpp_interp_loaded();
+        // 'ReadGCode:48' if is_loaded
+        if (is_loaded != 0) {
+            __m128d r;
+            __m128d r1;
+            __m128d r2;
+            // 'ReadGCode:49' status = coder.ceval( 'cpp_interp_read', coder.ref( CurvStruct ) );
+            b_status = cpp_interp_read(b_CurvStruct);
+            // 'ReadGCode:50' CurvStruct.R0( 4 : end ) = deg2rad( CurvStruct.R0( 4 : end ) );
+            // 'ReadGCode:51' CurvStruct.R1( 4 : end ) = deg2rad( CurvStruct.R1( 4 : end ) );
+            r = _mm_loadu_pd(&b_CurvStruct->R0[3]);
+            r1 = _mm_set1_pd(0.017453292519943295);
+            _mm_storeu_pd(&b_CurvStruct->R0[3], _mm_mul_pd(r1, r));
+            r2 = _mm_loadu_pd(&b_CurvStruct->R1[3]);
+            _mm_storeu_pd(&b_CurvStruct->R1[3], _mm_mul_pd(r1, r2));
+            b_CurvStruct->R0[5] *= 0.017453292519943295;
+            b_CurvStruct->R1[5] *= 0.017453292519943295;
+        } else {
+            // 'ReadGCode:52' else
+            // 'ReadGCode:53' status = int32(0);
+            b_status = 0;
+        }
     }
     *status = b_status;
 }

@@ -5,7 +5,7 @@
 // File: EvalCurvStructNoCtx.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 15:55:52
+// C/C++ source code generated on  : 28-Jun-2022 16:07:49
 //
 
 #ifndef EVALCURVSTRUCTNOCTX_H
@@ -74,15 +74,6 @@ void e_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
                            const CurvStruct *spline, double u_vec, ::coder::array<double, 1U> &r0D,
                            ::coder::array<double, 1U> &r1D, ::coder::array<double, 1U> &r2D,
                            ::coder::array<double, 1U> &r3D);
-
-void f_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_size[2],
-                           const ::coder::array<bool, 2U> &cfg_maskCart,
-                           const ::coder::array<bool, 2U> &cfg_maskRot,
-                           const int cfg_indCart_data[], const int cfg_indRot_data[],
-                           int cfg_NumberAxis, int cfg_NCart, int cfg_NRot, const CurvStruct *curv,
-                           const CurvStruct *spline, ::coder::array<double, 2U> &u_vec,
-                           ::coder::array<double, 2U> &r0D, ::coder::array<double, 2U> &r1D,
-                           ::coder::array<double, 2U> &r2D, ::coder::array<double, 2U> &r3D);
 
 } // namespace ocn
 
