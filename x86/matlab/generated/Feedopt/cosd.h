@@ -2,14 +2,14 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: splitQueue.h
+// File: cosd.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 28-Jun-2022 16:07:49
+// C/C++ source code generated on  : 29-Jun-2022 18:46:44
 //
 
-#ifndef SPLITQUEUE_H
-#define SPLITQUEUE_H
+#ifndef COSD_H
+#define COSD_H
 
 // Include Files
 #include "rtwtypes.h"
@@ -18,21 +18,17 @@
 
 // Custom Header Code
 #include "functions.h"
-// Type Declarations
-namespace ocn {
-struct b_FeedoptContext;
-
-}
-
 // Function Declarations
 namespace ocn {
-void splitQueue(const b_FeedoptContext *ctx);
+namespace coder {
+void b_cosd(double *x);
 
 }
+} // namespace ocn
 
 #endif
 //
-// File trailer for splitQueue.h
+// File trailer for cosd.h
 //
 // [EOF]
 //

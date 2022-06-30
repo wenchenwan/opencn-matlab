@@ -5,7 +5,7 @@
 // File: opencn_matlab_types.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 28-Jun-2022 16:07:49
+// C/C++ source code generated on  : 29-Jun-2022 18:46:44
 //
 
 #ifndef OPENCN_MATLAB_TYPES_H
@@ -52,6 +52,11 @@ struct emxArray_int32_T_3 {
     int size[1];
 };
 
+struct emxArray_real_T_6 {
+    double data[6];
+    int size[1];
+};
+
 struct emxArray_real_T_32 {
     double data[32];
     int size[1];
@@ -66,55 +71,9 @@ struct FeedoptConfig {
     int NumberAxis;
     int NCart;
     int NRot;
+    emxArray_real_T_6 D;
+    double coeffD;
     emxArray_real_T_32 kin_params;
-    char kin_type[5];
-    int NDiscr;
-    int NBreak;
-    bool UseDynamicBreakpoints;
-    bool UseLinearBreakpoints;
-    double DynamicBreakpointsDistance;
-    int NHorz;
-    double fmax;
-    double smax;
-    double vmax[6];
-    double amax[6];
-    double jmax[6];
-    int LeeSplineDegree;
-    int SplineDegree;
-    double CutOff;
-    double LSplit;
-    double LSplitZero;
-    double LThreshold;
-    double CuspThreshold;
-    double v_0;
-    double at_0;
-    double v_1;
-    double at_1;
-    double dt;
-    double ZeroStartAccLimit;
-    double ZeroStartJerkLimit;
-    double ZeroStartVelLimit;
-    char source[1024];
-    bool DebugCutZero;
-    struct0_T Compressing;
-    struct1_T Smoothing;
-    double GaussLegendreN;
-    double GaussLegendreX[5];
-    double GaussLegendreW[5];
-    LPCfg opt;
-    char LogFileName[9];
-};
-
-struct b_FeedoptConfig {
-    emxArray_boolean_T_1x6 maskTot;
-    ::coder::array<bool, 2U> maskCart;
-    ::coder::array<bool, 2U> maskRot;
-    emxArray_int32_T_3 indCart;
-    emxArray_int32_T_3 indRot;
-    int NumberAxis;
-    int NCart;
-    int NRot;
-    ::coder::array<double, 1U> kin_params;
     char kin_type[5];
     int NDiscr;
     int NBreak;
@@ -203,7 +162,7 @@ struct FeedoptContext {
     double v_1;
     double at_0;
     double at_1;
-    b_FeedoptConfig cfg;
+    FeedoptConfig cfg;
     FeedoptPlanError errcode;
     int jmax_increase_count;
     bool zero_start;

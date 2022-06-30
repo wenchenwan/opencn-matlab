@@ -5,13 +5,12 @@
 // File: smoothCurvStructs.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 28-Jun-2022 16:07:49
+// C/C++ source code generated on  : 29-Jun-2022 18:46:44
 //
 
 // Include Files
 #include "smoothCurvStructs.h"
 #include "EvalCurvStruct.h"
-#include "EvalLine.h"
 #include "calcTransition_new.h"
 #include "calc_t_nk_kappa.h"
 #include "combineVectorElements.h"
@@ -28,7 +27,46 @@
 #include <emmintrin.h>
 #include <stdio.h>
 
+// Function Declarations
+namespace ocn {
+static void minus(::coder::array<double, 1U> &x, const ::coder::array<double, 1U> &r11,
+                  const ::coder::array<double, 1U> &r21);
+
+}
+
 // Function Definitions
+//
+// Arguments    : ::coder::array<double, 1U> &x
+//                const ::coder::array<double, 1U> &r11
+//                const ::coder::array<double, 1U> &r21
+// Return Type  : void
+//
+namespace ocn {
+static void minus(::coder::array<double, 1U> &x, const ::coder::array<double, 1U> &r11,
+                  const ::coder::array<double, 1U> &r21)
+{
+    int i;
+    int loop_ub;
+    int stride_0_0;
+    int stride_1_0;
+    if (r21.size(0) == 1) {
+        i = r11.size(0);
+    } else {
+        i = r21.size(0);
+    }
+    x.set_size(i);
+    stride_0_0 = (r11.size(0) != 1);
+    stride_1_0 = (r21.size(0) != 1);
+    if (r21.size(0) == 1) {
+        loop_ub = r11.size(0);
+    } else {
+        loop_ub = r21.size(0);
+    }
+    for (int i1{0}; i1 < loop_ub; i1++) {
+        x[i1] = r11[i1 * stride_0_0] - r21[i1 * stride_1_0];
+    }
+}
+
 //
 // function ctx = smoothCurvStructs(ctx)
 //
@@ -37,7 +75,6 @@
 // Arguments    : b_FeedoptContext *ctx
 // Return Type  : void
 //
-namespace ocn {
 void smoothCurvStructs(b_FeedoptContext *ctx)
 {
     ::coder::array<double, 1U> a__1;
@@ -138,12 +175,14 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                 // -------------------------------------------------------------------------%
                 // 'smoothCurvStructs:88' [ r11, r1d1, r1dd1 ] = EvalCurvStruct( ctx, curv0, 1 );
                 e_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
-                                 ctx->cfg.maskCart, ctx->cfg.maskRot, ctx->cfg.indCart,
+                                 ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
+                                 ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
                                  ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart,
                                  ctx->cfg.NRot, &curv, r11, r1d1, r1dd1);
                 // 'smoothCurvStructs:89' [ r21, r2d1, r2dd1 ] = EvalCurvStruct( ctx, curv1, 0 );
                 f_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
-                                 ctx->cfg.maskCart, ctx->cfg.maskRot, ctx->cfg.indCart,
+                                 ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
+                                 ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
                                  ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart,
                                  ctx->cfg.NRot, &nextCurv, r21, r2d1, r2dd1);
                 // 'smoothCurvStructs:91' [t1, ~,  kappa1] = calc_t_nk_kappa( r1d1, r1dd1 );
@@ -326,12 +365,13 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                     // 'smoothCurvStructs:30' [ status, curv1C, curv2C, curvT ] = ...
                     // 'smoothCurvStructs:31'                 calcTransition_new( ctx, curv,
                     // nextCurv );
-                    calcTransition_new(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
-                                       ctx->cfg.maskCart, ctx->cfg.maskRot, ctx->cfg.indCart,
-                                       ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart,
-                                       ctx->cfg.NRot, ctx->cfg.CutOff, ctx->cfg.GaussLegendreX,
-                                       ctx->cfg.GaussLegendreW, &curv, &nextCurv, &status, &curv1C,
-                                       &curv2C, &curvT);
+                    calcTransition_new(
+                        &ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
+                        ctx->cfg.maskCart.data, ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
+                        ctx->cfg.maskRot.size, ctx->cfg.indCart, ctx->cfg.indRot,
+                        ctx->cfg.NumberAxis, ctx->cfg.NCart, ctx->cfg.NRot, ctx->cfg.coeffD,
+                        ctx->cfg.CutOff, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW, &curv,
+                        &nextCurv, &status, &curv1C, &curv2C, &curvT);
                     // 'smoothCurvStructs:32' if( status == TransitionResult.Ok )
                     if (status == TransitionResult_Ok) {
                         // 'smoothCurvStructs:33' ctx.q_smooth.push( curv1C );

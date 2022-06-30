@@ -5,7 +5,7 @@
 // File: buildConstr.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 28-Jun-2022 16:07:49
+// C/C++ source code generated on  : 29-Jun-2022 18:46:44
 //
 
 // Include Files
@@ -402,8 +402,10 @@ static void binary_expand_op(::coder::array<double, 1U> &b, const ::coder::array
 // Arguments    : const queue_coder *ctx_q_spline
 //                const bool ctx_cfg_maskTot_data[]
 //                const int ctx_cfg_maskTot_size[2]
-//                const ::coder::array<bool, 2U> &ctx_cfg_maskCart
-//                const ::coder::array<bool, 2U> &ctx_cfg_maskRot
+//                const bool ctx_cfg_maskCart_data[]
+//                const int ctx_cfg_maskCart_size[2]
+//                const bool ctx_cfg_maskRot_data[]
+//                const int ctx_cfg_maskRot_size[2]
 //                const ::coder::array<int, 1U> &ctx_cfg_indCart
 //                const ::coder::array<int, 1U> &ctx_cfg_indRot
 //                int ctx_cfg_NumberAxis
@@ -429,18 +431,20 @@ static void binary_expand_op(::coder::array<double, 1U> &b, const ::coder::array
 //                ::coder::array<double, 2U> &continuity
 // Return Type  : void
 //
-void buildConstr(
-    const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
-    const int ctx_cfg_maskTot_size[2], const ::coder::array<bool, 2U> &ctx_cfg_maskCart,
-    const ::coder::array<bool, 2U> &ctx_cfg_maskRot, const ::coder::array<int, 1U> &ctx_cfg_indCart,
-    const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis, int ctx_cfg_NCart,
-    int ctx_cfg_NRot, const double ctx_cfg_vmax[6], double ctx_cfg_opt_ACC_RAMP_OVER_WINDOWS,
-    double ctx_cfg_opt_VEL_RAMP_OVER_WINDOWS, const Kinematics *ctx_kin,
-    const ::coder::array<CurvStruct, 2U> &windowCurv, const double amax[6], double v_0, double at_0,
-    double v_1, double at_1, const ::coder::array<double, 2U> &BasisVal,
-    const ::coder::array<double, 2U> &BasisValD, const ::coder::array<double, 2U> &u_vec,
-    ::coder::array<double, 2U> &A, ::coder::array<double, 1U> &b, ::coder::array<double, 2U> &Aeq,
-    ::coder::array<double, 1U> &beq, ::coder::array<double, 2U> &continuity)
+void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
+                 const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
+                 const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
+                 const int ctx_cfg_maskRot_size[2], const ::coder::array<int, 1U> &ctx_cfg_indCart,
+                 const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
+                 int ctx_cfg_NCart, int ctx_cfg_NRot, const double ctx_cfg_vmax[6],
+                 double ctx_cfg_opt_ACC_RAMP_OVER_WINDOWS, double ctx_cfg_opt_VEL_RAMP_OVER_WINDOWS,
+                 const Kinematics *ctx_kin, const ::coder::array<CurvStruct, 2U> &windowCurv,
+                 const double amax[6], double v_0, double at_0, double v_1, double at_1,
+                 const ::coder::array<double, 2U> &BasisVal,
+                 const ::coder::array<double, 2U> &BasisValD,
+                 const ::coder::array<double, 2U> &u_vec, ::coder::array<double, 2U> &A,
+                 ::coder::array<double, 1U> &b, ::coder::array<double, 2U> &Aeq,
+                 ::coder::array<double, 1U> &beq, ::coder::array<double, 2U> &continuity)
 {
     static const signed char mask_continuity[4]{1, 1, -1, -1};
     ::coder::array<double, 3U> Acc;
@@ -799,8 +803,9 @@ void buildConstr(
         bool guard1{false};
         //  Compute the partial derivatives
         // 'buildConstr:51' [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, windowCurv( k ), u_vec );
-        g_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart,
-                         ctx_cfg_maskRot, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
+        g_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+                         ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
+                         ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                          ctx_cfg_NCart, ctx_cfg_NRot, &windowCurv[b_k], u_vec, r0D, r1D, r2D, r3D);
         // 'buildConstr:53' if( windowCurv( k ).Info.TRAFO )
         if (windowCurv[b_k].Info.TRAFO) {

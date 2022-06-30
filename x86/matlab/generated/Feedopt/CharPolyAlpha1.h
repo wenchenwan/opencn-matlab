@@ -2,18 +2,16 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: ReadGCode.h
+// File: CharPolyAlpha1.h
 //
 // MATLAB Coder version            : 5.3
 // C/C++ source code generated on  : 29-Jun-2022 18:46:44
 //
 
-#ifndef READGCODE_H
-#define READGCODE_H
+#ifndef CHARPOLYALPHA1_H
+#define CHARPOLYALPHA1_H
 
 // Include Files
-#include "opencn_matlab_types.h"
-#include "opencn_matlab_types1.h"
 #include "rtwtypes.h"
 #include <cstddef>
 #include <cstdlib>
@@ -22,14 +20,13 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-extern void ReadGCode(ReadGCodeCmd cmd, const char filename_data[], const int filename_size[2],
-                      int *status, CurvStruct *b_CurvStruct);
+void CharPolyAlpha1(const double in1[16], double Coeff_Poly_Alpha1[10]);
 
 }
 
 #endif
 //
-// File trailer for ReadGCode.h
+// File trailer for CharPolyAlpha1.h
 //
 // [EOF]
 //

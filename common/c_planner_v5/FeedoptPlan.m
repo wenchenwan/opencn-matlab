@@ -86,13 +86,6 @@ switch ctx.op
     case Fopt.Split
         ctx = splitQueue( ctx );
         if( coder.target( 'MATLAB' ) ), ctx.q_smooth.delete(); end
-
-        N = ctx.q_split.size
-        for k = 1 : N
-            k
-            ctx.q_split.get( k ).Info.zspdmode
-        end
-
         ctx.op = Fopt.Opt;
 
     case Fopt.Opt

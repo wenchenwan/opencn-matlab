@@ -5,7 +5,7 @@
 // File: G2_Hermite_Interpolation_nAxis.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 28-Jun-2022 16:07:49
+// C/C++ source code generated on  : 29-Jun-2022 18:46:44
 //
 
 #ifndef G2_HERMITE_INTERPOLATION_NAXIS_H
@@ -22,10 +22,11 @@
 // Function Declarations
 namespace ocn {
 void G2_Hermite_Interpolation_nAxis(
-    int ctx_cfg_NumberAxis, const ::coder::array<double, 1U> &r0D0_in,
-    const ::coder::array<double, 1U> &r0D1_in, const ::coder::array<double, 1U> &r0D2_in,
-    const ::coder::array<double, 1U> &r1D0_in, const ::coder::array<double, 1U> &r1D1_in,
-    const ::coder::array<double, 1U> &r1D2_in, double p5[6][5], int *status);
+    const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis, double ctx_cfg_coeffD,
+    const ::coder::array<double, 1U> &r0D0_in, const ::coder::array<double, 1U> &r0D1_in,
+    const ::coder::array<double, 1U> &r0D2_in, const ::coder::array<double, 1U> &r1D0_in,
+    const ::coder::array<double, 1U> &r1D1_in, const ::coder::array<double, 1U> &r1D2_in,
+    double p5[6][5], int *status);
 
 }
 

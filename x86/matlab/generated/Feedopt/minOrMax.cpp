@@ -5,7 +5,7 @@
 // File: minOrMax.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 28-Jun-2022 16:07:49
+// C/C++ source code generated on  : 29-Jun-2022 18:46:44
 //
 
 // Include Files
@@ -91,38 +91,6 @@ void b_maximum(const ::coder::array<double, 2U> &x, double *ex, int *idx)
         }
         *ex = b_ex;
     }
-}
-
-//
-// Arguments    : const ::coder::array<double, 1U> &x
-// Return Type  : double
-//
-double maximum(const ::coder::array<double, 1U> &x)
-{
-    double ex;
-    int last;
-    last = x.size(0);
-    if (x.size(0) <= 2) {
-        if (x.size(0) == 1) {
-            ex = x[0];
-        } else if (x[0] < x[x.size(0) - 1]) {
-            ex = x[x.size(0) - 1];
-        } else {
-            ex = x[0];
-        }
-    } else {
-        double b_ex;
-        b_ex = x[0];
-        for (int k{2}; k <= last; k++) {
-            double d;
-            d = x[k - 1];
-            if (b_ex < d) {
-                b_ex = d;
-            }
-        }
-        ex = b_ex;
-    }
-    return ex;
 }
 
 //

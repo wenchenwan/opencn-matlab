@@ -5,7 +5,7 @@
 // File: buildConstrJerk.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 28-Jun-2022 16:07:49
+// C/C++ source code generated on  : 29-Jun-2022 18:46:44
 //
 
 // Include Files
@@ -173,8 +173,10 @@ binary_expand_op(::coder::array<double, 2U> &Jerk, const ::coder::array<int, 1U>
 // Arguments    : const queue_coder *ctx_q_spline
 //                const bool ctx_cfg_maskTot_data[]
 //                const int ctx_cfg_maskTot_size[2]
-//                const ::coder::array<bool, 2U> &ctx_cfg_maskCart
-//                const ::coder::array<bool, 2U> &ctx_cfg_maskRot
+//                const bool ctx_cfg_maskCart_data[]
+//                const int ctx_cfg_maskCart_size[2]
+//                const bool ctx_cfg_maskRot_data[]
+//                const int ctx_cfg_maskRot_size[2]
 //                const ::coder::array<int, 1U> &ctx_cfg_indCart
 //                const ::coder::array<int, 1U> &ctx_cfg_indRot
 //                int ctx_cfg_NumberAxis
@@ -194,8 +196,9 @@ binary_expand_op(::coder::array<double, 2U> &Jerk, const ::coder::array<int, 1U>
 //
 void buildConstrJerk(
     const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
-    const int ctx_cfg_maskTot_size[2], const ::coder::array<bool, 2U> &ctx_cfg_maskCart,
-    const ::coder::array<bool, 2U> &ctx_cfg_maskRot, const ::coder::array<int, 1U> &ctx_cfg_indCart,
+    const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
+    const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
+    const int ctx_cfg_maskRot_size[2], const ::coder::array<int, 1U> &ctx_cfg_indCart,
     const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis, int ctx_cfg_NCart,
     int ctx_cfg_NRot, const Kinematics *ctx_kin, const ::coder::array<CurvStruct, 2U> &windowCurv,
     const ::coder::array<double, 2U> &coeff, const double jmax[6],
@@ -363,8 +366,9 @@ void buildConstrJerk(
         //  Compute the partial derivatives
         // 'buildConstrJerk:34' [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, windowCurv( k ), u_vec
         // );
-        g_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart,
-                         ctx_cfg_maskRot, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
+        g_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+                         ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
+                         ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                          ctx_cfg_NCart, ctx_cfg_NRot, &windowCurv[b_k], u_vec, r0D, r1D, r2D, r3D);
         // 'buildConstrJerk:36' if( windowCurv( k ).Info.TRAFO )
         if (windowCurv[b_k].Info.TRAFO) {

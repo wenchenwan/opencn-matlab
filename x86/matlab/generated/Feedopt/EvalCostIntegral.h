@@ -5,7 +5,7 @@
 // File: EvalCostIntegral.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 28-Jun-2022 16:07:49
+// C/C++ source code generated on  : 29-Jun-2022 18:46:44
 //
 
 #ifndef EVALCOSTINTEGRAL_H
@@ -22,7 +22,8 @@
 namespace ocn {
 double EvalCostIntegral(double alpha0, double beta0, double alpha1, double beta1,
                         const double in5[5], const double in6[5], const double in7[5],
-                        const double in8[5], const double in9[5], const double in10[5]);
+                        const double in8[5], const double in9[5], const double in10[5],
+                        const double in11[5]);
 
 }
 

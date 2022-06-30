@@ -5,7 +5,7 @@
 // File: FeedratePlanning_LP.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 28-Jun-2022 16:07:49
+// C/C++ source code generated on  : 29-Jun-2022 18:46:44
 //
 
 // Include Files
@@ -162,8 +162,9 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
     for (int i3{0}; i3 < loop_ub; i3++) {
         b_window[i3] = window[i3];
     }
-    buildConstr(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size, ctx->cfg.maskCart,
-                ctx->cfg.maskRot, ctx->cfg.indCart, ctx->cfg.indRot, ctx->cfg.NumberAxis,
+    buildConstr(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
+                ctx->cfg.maskCart.data, ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
+                ctx->cfg.maskRot.size, ctx->cfg.indCart, ctx->cfg.indRot, ctx->cfg.NumberAxis,
                 ctx->cfg.NCart, ctx->cfg.NRot, ctx->cfg.vmax, ctx->cfg.opt.ACC_RAMP_OVER_WINDOWS,
                 ctx->cfg.opt.VEL_RAMP_OVER_WINDOWS, &ctx->kin, b_window, amax, ctx->v_0, ctx->at_0,
                 ctx->v_1, ctx->at_1, BasisVal, BasisValD, u_vec, A, b_b, Aeq, beq, continuity);
@@ -342,7 +343,8 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
         ::coder::array<double, 2U> c_Coeff0;
         c_Coeff0 = b_Coeff0.reshape(BasisVal_idx_0, loop_ub_tmp);
         buildConstrJerk(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
-                        ctx->cfg.maskCart, ctx->cfg.maskRot, ctx->cfg.indCart, ctx->cfg.indRot,
+                        ctx->cfg.maskCart.data, ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
+                        ctx->cfg.maskRot.size, ctx->cfg.indCart, ctx->cfg.indRot,
                         ctx->cfg.NumberAxis, ctx->cfg.NCart, ctx->cfg.NRot, &ctx->kin, b_window,
                         c_Coeff0, jmax, BasisVal, BasisValD, BasisValDD, u_vec, Aj, bj);
         // 'FeedratePlanning_LP:55' Atot    = [ A, -ones( size( A, 1), 1 ) ;

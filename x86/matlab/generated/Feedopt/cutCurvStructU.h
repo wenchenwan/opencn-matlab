@@ -5,7 +5,7 @@
 // File: cutCurvStructU.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 28-Jun-2022 16:07:49
+// C/C++ source code generated on  : 29-Jun-2022 18:46:44
 //
 
 #ifndef CUTCURVSTRUCTU_H
@@ -30,18 +30,18 @@ struct CurvStruct;
 // Function Declarations
 namespace ocn {
 double b_cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
-                        const int ctx_cfg_maskTot_size[2],
-                        const ::coder::array<bool, 2U> &ctx_cfg_maskCart,
-                        const ::coder::array<bool, 2U> &ctx_cfg_maskRot,
+                        const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
+                        const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
+                        const int ctx_cfg_maskRot_size[2],
                         const ::coder::array<int, 1U> &ctx_cfg_indCart,
                         const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
                         int ctx_cfg_NCart, int ctx_cfg_NRot, const double ctx_cfg_GaussLegendreX[5],
                         const double ctx_cfg_GaussLegendreW[5], const CurvStruct *curv, double L);
 
 double cutCurvStructU(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
-                      const int ctx_cfg_maskTot_size[2],
-                      const ::coder::array<bool, 2U> &ctx_cfg_maskCart,
-                      const ::coder::array<bool, 2U> &ctx_cfg_maskRot,
+                      const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
+                      const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
+                      const int ctx_cfg_maskRot_size[2],
                       const ::coder::array<int, 1U> &ctx_cfg_indCart,
                       const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
                       int ctx_cfg_NCart, int ctx_cfg_NRot, const double ctx_cfg_GaussLegendreX[5],

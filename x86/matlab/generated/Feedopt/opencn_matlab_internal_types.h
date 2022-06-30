@@ -5,7 +5,7 @@
 // File: opencn_matlab_internal_types.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 28-Jun-2022 16:07:49
+// C/C++ source code generated on  : 29-Jun-2022 18:46:44
 //
 
 #ifndef OPENCN_MATLAB_INTERNAL_TYPES_H
@@ -28,16 +28,18 @@ struct emxArray_char_T_1x9 {
     int size[2];
 };
 
-struct c_FeedoptConfig {
+struct b_FeedoptConfig {
     emxArray_boolean_T_1x6 maskTot;
-    ::coder::array<bool, 2U> maskCart;
-    ::coder::array<bool, 2U> maskRot;
+    emxArray_boolean_T_1x6 maskCart;
+    emxArray_boolean_T_1x6 maskRot;
     ::coder::array<int, 1U> indCart;
     ::coder::array<int, 1U> indRot;
     int NumberAxis;
     int NCart;
     int NRot;
-    ::coder::array<double, 1U> kin_params;
+    ::coder::array<double, 1U> D;
+    double coeffD;
+    emxArray_real_T_32 kin_params;
     char kin_type[5];
     int NDiscr;
     int NBreak;
@@ -107,7 +109,7 @@ struct b_FeedoptContext {
     double v_1;
     double at_0;
     double at_1;
-    c_FeedoptConfig cfg;
+    b_FeedoptConfig cfg;
     FeedoptPlanError errcode;
     int jmax_increase_count;
     bool zero_start;

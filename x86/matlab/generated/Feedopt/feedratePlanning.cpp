@@ -5,7 +5,7 @@
 // File: feedratePlanning.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 28-Jun-2022 16:07:49
+// C/C++ source code generated on  : 29-Jun-2022 18:46:44
 //
 
 // Include Files
@@ -313,10 +313,11 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                         // 'calcZeroConstraints:22' [ r0D, r1D, r2D, r3D ]  = EvalCurvStruct( ctx,
                         // curv, u );
                         i_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data,
-                                         ctx->cfg.maskTot.size, ctx->cfg.maskCart, ctx->cfg.maskRot,
-                                         ctx->cfg.indCart, ctx->cfg.indRot, ctx->cfg.NumberAxis,
-                                         ctx->cfg.NCart, ctx->cfg.NRot, &window[0], b_unnamed_idx_0,
-                                         r0D, r1D, r2D, r3D);
+                                         ctx->cfg.maskTot.size, ctx->cfg.maskCart.data,
+                                         ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
+                                         ctx->cfg.maskRot.size, ctx->cfg.indCart, ctx->cfg.indRot,
+                                         ctx->cfg.NumberAxis, ctx->cfg.NCart, ctx->cfg.NRot,
+                                         &window[0], b_unnamed_idx_0, r0D, r1D, r2D, r3D);
                         // 'calcZeroConstraints:24' [ ~, V, A, ~ ]          =
                         // calcRVAJfromUWithoutCurv( ud, udd, uddd, r0D, ...
                         // 'calcZeroConstraints:25'                           r1D, r2D, r3D );
@@ -493,10 +494,11 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                             // 'calcZeroConstraints:22' [ r0D, r1D, r2D, r3D ]  = EvalCurvStruct(
                             // ctx, curv, u );
                             i_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data,
-                                             ctx->cfg.maskTot.size, ctx->cfg.maskCart,
-                                             ctx->cfg.maskRot, ctx->cfg.indCart, ctx->cfg.indRot,
-                                             ctx->cfg.NumberAxis, ctx->cfg.NCart, ctx->cfg.NRot,
-                                             &window[static_cast<int>(ind) - 1],
+                                             ctx->cfg.maskTot.size, ctx->cfg.maskCart.data,
+                                             ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
+                                             ctx->cfg.maskRot.size, ctx->cfg.indCart,
+                                             ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart,
+                                             ctx->cfg.NRot, &window[static_cast<int>(ind) - 1],
                                              1.0 - d_unnamed_idx_0, r0D, r1D, r2D, r3D);
                             // 'calcZeroConstraints:24' [ ~, V, A, ~ ]          =
                             // calcRVAJfromUWithoutCurv( ud, udd, uddd, r0D, ...

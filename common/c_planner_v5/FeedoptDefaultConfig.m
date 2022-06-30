@@ -2,7 +2,7 @@ function [ cfg ] = FeedoptDefaultConfig()
 
 coder.inline("never");
 
-tol_col_compress_deg    = 180;
+tol_col_compress_deg    = 10;
 tol_col_smooth_deg      = 10;
 
 % Computation of Gauss-Legendre knots and weights for numerical integration
