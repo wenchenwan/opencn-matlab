@@ -5,7 +5,7 @@
 // File: opencn_matlab_internal_types.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 29-Jun-2022 18:46:44
+// C/C++ source code generated on  : 30-Jun-2022 11:29:54
 //
 
 #ifndef OPENCN_MATLAB_INTERNAL_TYPES_H
@@ -26,56 +26,6 @@ namespace ocn {
 struct emxArray_char_T_1x9 {
     char data[9];
     int size[2];
-};
-
-struct b_FeedoptConfig {
-    emxArray_boolean_T_1x6 maskTot;
-    emxArray_boolean_T_1x6 maskCart;
-    emxArray_boolean_T_1x6 maskRot;
-    ::coder::array<int, 1U> indCart;
-    ::coder::array<int, 1U> indRot;
-    int NumberAxis;
-    int NCart;
-    int NRot;
-    ::coder::array<double, 1U> D;
-    double coeffD;
-    emxArray_real_T_32 kin_params;
-    char kin_type[5];
-    int NDiscr;
-    int NBreak;
-    bool UseDynamicBreakpoints;
-    bool UseLinearBreakpoints;
-    double DynamicBreakpointsDistance;
-    int NHorz;
-    double fmax;
-    double smax;
-    double vmax[6];
-    double amax[6];
-    double jmax[6];
-    int LeeSplineDegree;
-    int SplineDegree;
-    double CutOff;
-    double LSplit;
-    double LSplitZero;
-    double LThreshold;
-    double CuspThreshold;
-    double v_0;
-    double at_0;
-    double v_1;
-    double at_1;
-    double dt;
-    double ZeroStartAccLimit;
-    double ZeroStartJerkLimit;
-    double ZeroStartVelLimit;
-    char source[1024];
-    bool DebugCutZero;
-    struct0_T Compressing;
-    struct1_T Smoothing;
-    double GaussLegendreN;
-    double GaussLegendreX[5];
-    double GaussLegendreW[5];
-    LPCfg opt;
-    char LogFileName[9];
 };
 
 enum TransitionResult : int

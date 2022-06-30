@@ -5,7 +5,7 @@
 // File: initFeedoptPlan.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 29-Jun-2022 18:46:44
+// C/C++ source code generated on  : 30-Jun-2022 11:29:54
 //
 
 // Include Files
@@ -83,7 +83,6 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     int params_spline_Bl_ncoeff;
     int params_spline_Bl_order;
     int q_loop_ub;
-    int s_loop_ub;
     bool params_gcodeInfoStruct_G91;
     bool params_gcodeInfoStruct_G91_1;
     bool params_gcodeInfoStruct_HSC;
@@ -422,25 +421,7 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     // 'initFeedoptPlan:66' ctx.Skipped = int32(0);
     ctx->Skipped = 0;
     // 'initFeedoptPlan:67' ctx.kin     = Kinematics( cfg.kin_type, cfg.kin_params );
-    for (int i21{0}; i21 < 5; i21++) {
-        ctx->kin.type[i21] = cfg.kin_type[i21];
-    }
-    // ----------------------------------------------------------------%
-    //  Kinematics Wrapper class to C interfaces
-    // ----------------------------------------------------------------%
-    // 'Kinematics:17' this.type       = type;
-    // 'Kinematics:18' this.parameters = parameters( : );
-    ctx->kin.parameters.set_size(cfg.kin_params.size[0]);
-    s_loop_ub = cfg.kin_params.size[0];
-    for (int i22{0}; i22 < s_loop_ub; i22++) {
-        ctx->kin.parameters[i22] = cfg.kin_params.data[i22];
-    }
-    // 'Kinematics:19' [ this ] = set_function_ptr( this );
-    //  Not implemented due to problem of support in code
-    //  generation...
-    // ----------------------------------------------------------------%
-    //  Support for different kinematics only for matlab flow
-    // ----------------------------------------------------------------%
+    ctx->kin.init(cfg.kin_type, cfg.kin_params.data, cfg.kin_params.size[0]);
     // 'initFeedoptPlan:69' Curv.Info.Type = CurveType.Spline;
     Curv.Info.Type = CurveType_Spline;
     // 'initFeedoptPlan:70' Curv.sp.Bl     = Bl;

@@ -5,7 +5,7 @@
 // File: Kinematics.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 29-Jun-2022 18:46:44
+// C/C++ source code generated on  : 30-Jun-2022 11:29:54
 //
 
 #ifndef KINEMATICS_H
@@ -23,6 +23,9 @@
 namespace ocn {
 class Kinematics {
   public:
+    void init(const char b_type[5], const double parameters_data[], int parameters_size);
+    void v_joint(const ::coder::array<double, 1U> &r_r, const ::coder::array<double, 1U> &v_r,
+                 ::coder::array<double, 1U> &v_a) const;
     void joint(const ::coder::array<double, 2U> &r_r, const ::coder::array<double, 2U> &v_r,
                const ::coder::array<double, 2U> &a_r, const ::coder::array<double, 2U> &j_r,
                ::coder::array<double, 2U> &r_a, ::coder::array<double, 2U> &v_a,

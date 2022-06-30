@@ -2,14 +2,14 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: cosd.h
+// File: splitCurvStruct.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 29-Jun-2022 18:46:44
+// C/C++ source code generated on  : 30-Jun-2022 11:29:54
 //
 
-#ifndef COSD_H
-#define COSD_H
+#ifndef SPLITCURVSTRUCT_H
+#define SPLITCURVSTRUCT_H
 
 // Include Files
 #include "rtwtypes.h"
@@ -18,17 +18,23 @@
 
 // Custom Header Code
 #include "functions.h"
+// Type Declarations
+namespace ocn {
+struct b_FeedoptContext;
+
+struct CurvStruct;
+
+} // namespace ocn
+
 // Function Declarations
 namespace ocn {
-namespace coder {
-void b_cosd(double *x);
+void splitCurvStruct(const b_FeedoptContext *ctx, CurvStruct *curv);
 
 }
-} // namespace ocn
 
 #endif
 //
-// File trailer for cosd.h
+// File trailer for splitCurvStruct.h
 //
 // [EOF]
 //

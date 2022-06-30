@@ -5,19 +5,18 @@
 // File: FeedoptDefaultConfig.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 29-Jun-2022 18:46:44
+// C/C++ source code generated on  : 30-Jun-2022 11:29:54
 //
 
 // Include Files
 #include "FeedoptDefaultConfig.h"
-#include "cosd.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_initialize.h"
 #include "opencn_matlab_types.h"
+#include "setMachineAxisInConfig.h"
 #include "coder_array.h"
 #include <algorithm>
 #include <cstring>
-#include <emmintrin.h>
 
 // Function Definitions
 //
@@ -40,26 +39,20 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     static const short iv1[6]{15000, 15000, 15000, 0, 200, 1000};
     static const char b_cv1[9]{'l', 'o', 'g', 's', '/', 'l', 'o', 'g', 's'};
     static const char b_cv[5]{'x', 'y', 'z', 'b', 'c'};
-    static const bool bv[6]{true, true, true, false, false, false};
-    static const bool bv1[6]{false, false, false, true, true, true};
-    static const bool t9_maskTot[6]{true, true, true, false, true, true};
-    ::coder::array<int, 2U> c_y;
-    ::coder::array<int, 1U> t10_indCart;
-    ::coder::array<int, 1U> t10_indRot;
-    ::coder::array<signed char, 1U> t10_D;
-    double t9_Smoothing_ColTolCosSmooth;
-    int b_y;
+    static const bool bv[6]{true, true, true, false, true, true};
+    b_FeedoptConfig r;
+    int b_loop_ub;
     int c_loop_ub;
     int d_loop_ub;
+    int e_loop_ub;
     int f_loop_ub;
-    int t10_NRot;
-    int y;
-    bool x_data[6];
+    int g_loop_ub;
+    int loop_ub;
     if (!isInitialized_opencn_matlab) {
         opencn_matlab_initialize();
     }
     // 'FeedoptDefaultConfig:3' coder.inline("never");
-    // 'FeedoptDefaultConfig:5' tol_col_compress_deg    = 180;
+    // 'FeedoptDefaultConfig:5' tol_col_compress_deg    = 10;
     // 'FeedoptDefaultConfig:6' tol_col_smooth_deg      = 10;
     //  Computation of Gauss-Legendre knots and weights for numerical integration
     // 'FeedoptDefaultConfig:9' GaussLegendreN = 5;
@@ -128,34 +121,18 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     // 'FeedoptDefaultConfig:73'     'GaussLegendreW', GaussLegendreW, ...
     // 'FeedoptDefaultConfig:74'     'opt', LP,...
     // 'FeedoptDefaultConfig:75'     'LogFileName', 'logs/logs');
-    t9_Smoothing_ColTolCosSmooth = 10.0;
-    coder::b_cosd(&t9_Smoothing_ColTolCosSmooth);
+    cfg->maskCart.size[0] = 1;
+    cfg->maskCart.size[1] = 1;
+    cfg->maskCart.data[0] = false;
+    cfg->maskRot.size[0] = 1;
+    cfg->maskRot.size[1] = 1;
+    cfg->maskRot.data[0] = false;
     cfg->indCart.size[0] = 1;
     cfg->indCart.data[0] = 0;
     cfg->indRot.size[0] = 1;
     cfg->indRot.data[0] = 0;
-    for (int i{0}; i < 5; i++) {
-        cfg->kin_type[i] = b_cv[i];
-    }
-    for (int i1{0}; i1 < 6; i1++) {
-        cfg->vmax[i1] = b_iv[i1];
-        cfg->amax[i1] = iv1[i1];
-        cfg->jmax[i1] = iv2[i1];
-    }
-    for (int b_i{0}; b_i < 5; b_i++) {
-        cfg->GaussLegendreX[b_i] = GaussLegendreX[b_i];
-        cfg->GaussLegendreW[b_i] = GaussLegendreW[b_i];
-    }
-    cfg->opt.Type[0] = 'L';
-    cfg->opt.Type[1] = 'P';
-    cfg->opt.EnableFindReasonInfeasibility = true;
-    cfg->opt.ACC_RAMP_OVER_WINDOWS = 0.999;
-    cfg->opt.VEL_RAMP_OVER_WINDOWS = 0.999;
-    cfg->opt.SLACK_PENALTY = 10000.0;
-    cfg->opt.USE_LINPROG = false;
-    for (int i2{0}; i2 < 9; i2++) {
-        cfg->LogFileName[i2] = b_cv1[i2];
-    }
+    cfg->D.size[0] = 1;
+    cfg->D.data[0] = 0.0;
     //  % [X,Y,Z,A,B,C]
     //                     % Do not modify
     //                       % Do not modify
@@ -177,151 +154,170 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     // 'FeedoptDefaultConfig:83' coder.varsize( 'cfg.D',         StructTypeName.dimD{ : } );
     // 'FeedoptDefaultConfig:84' coder.varsize( 'cfg.kin_params',StructTypeName.dimKinParams{ : } );
     // 'FeedoptDefaultConfig:85' coder.cstructname( cfg,         StructTypeName.FeedoptCfg );
-    // 'FeedoptDefaultConfig:88' cfg = check_values( cfg );
-    t10_indCart.set_size(1);
-    t10_indCart[0] = 0;
-    t10_indRot.set_size(1);
-    t10_indRot[0] = 0;
-    // 'FeedoptDefaultConfig:93' cfg.maskCart   = and( cfg.maskTot, logical( [ 1, 1, 1, 0, 0, 0 ] )
-    // );
-    cfg->maskCart.size[0] = 1;
-    cfg->maskCart.size[1] = 6;
-    // 'FeedoptDefaultConfig:94' cfg.maskRot    = and( cfg.maskTot, logical( [ 0, 0, 0, 1, 1, 1 ] )
-    // ); 'FeedoptDefaultConfig:95' cfg.NumberAxis = int32( sum( cfg.maskTot ) );
-    for (int i3{0}; i3 < 6; i3++) {
-        bool b;
-        b = t9_maskTot[i3];
-        cfg->maskCart.data[i3] = (b && bv[i3]);
-        x_data[i3] = b;
+    // 'FeedoptDefaultConfig:88' [ cfg ] = setMachineAxisInConfig( cfg, cfg.maskTot );
+    r.maskTot.size[0] = 1;
+    r.maskTot.size[1] = 6;
+    for (int i{0}; i < 6; i++) {
+        r.maskTot.data[i] = bv[i];
     }
-    y = x_data[0];
-    // 'FeedoptDefaultConfig:96' cfg.NCart      = int32( sum( cfg.maskCart ) );
-    b_y = cfg->maskCart.data[0];
-    for (int k{0}; k < 5; k++) {
-        y += x_data[k + 1];
-        b_y += cfg->maskCart.data[k + 1];
+    r.maskCart.size[0] = 1;
+    r.maskCart.size[1] = 1;
+    r.maskCart.data[0] = false;
+    r.maskRot.size[0] = 1;
+    r.maskRot.size[1] = 1;
+    r.maskRot.data[0] = false;
+    r.indCart.set_size(1);
+    r.indCart[0] = 0;
+    r.indRot.set_size(1);
+    r.indRot[0] = 0;
+    r.NumberAxis = 0;
+    r.NCart = 0;
+    r.NRot = 0;
+    r.D.set_size(1);
+    r.D[0] = 0.0;
+    r.coeffD = 1.0;
+    r.kin_params.size[0] = 12;
+    std::copy(&dv[0], &dv[12], &r.kin_params.data[0]);
+    for (int i1{0}; i1 < 5; i1++) {
+        r.kin_type[i1] = b_cv[i1];
     }
-    // 'FeedoptDefaultConfig:97' cfg.NRot       = cfg.NumberAxis - cfg.NCart;
-    t10_NRot = y - b_y;
-    // 'FeedoptDefaultConfig:98' cfg.D          = ones(cfg.NumberAxis, 1);
-    t10_D.set_size(y);
-    for (int i4{0}; i4 < y; i4++) {
-        t10_D[i4] = 1;
+    r.NDiscr = 10;
+    r.NBreak = 5;
+    r.UseDynamicBreakpoints = false;
+    r.UseLinearBreakpoints = false;
+    r.DynamicBreakpointsDistance = 0.1;
+    r.NHorz = 5;
+    r.fmax = 500.0;
+    r.smax = 75000.0;
+    for (int i2{0}; i2 < 6; i2++) {
+        r.vmax[i2] = b_iv[i2];
+        r.amax[i2] = iv1[i2];
+        r.jmax[i2] = iv2[i2];
     }
-    // 'FeedoptDefaultConfig:100' if( cfg.NCart > 0 )
-    if (b_y > 0) {
-        int loop_ub;
-        int yk;
-        // 'FeedoptDefaultConfig:101' cfg.indCart = [ 1 : cfg.NCart ].';
-        c_y.set_size(1, b_y);
-        c_y[0] = 1;
-        yk = 1;
-        for (int b_k{2}; b_k <= b_y; b_k++) {
-            yk++;
-            c_y[b_k - 1] = yk;
-        }
-        t10_indCart.set_size(c_y.size(1));
-        loop_ub = c_y.size(1);
-        for (int i6{0}; i6 < loop_ub; i6++) {
-            t10_indCart[i6] = c_y[i6];
-        }
+    r.LeeSplineDegree = 4;
+    r.SplineDegree = 3;
+    r.CutOff = 0.1;
+    r.LSplit = 3.0;
+    r.LSplitZero = 0.1;
+    r.LThreshold = 5.0;
+    r.CuspThreshold = 0.0;
+    r.v_0 = 0.0;
+    r.at_0 = 0.0;
+    r.v_1 = 0.0;
+    r.at_1 = 0.0;
+    r.dt = 0.0001;
+    r.ZeroStartAccLimit = 0.01;
+    r.ZeroStartJerkLimit = 1.0E+6;
+    r.ZeroStartVelLimit = 0.5;
+    std::memset(&r.source[0], 0, 1024U * sizeof(char));
+    r.DebugCutZero = false;
+    r.Compressing.Skip = false;
+    r.Compressing.ColTolCosLee = 0.984807753012208;
+    r.Smoothing.Skip = false;
+    r.Smoothing.ColTolCosSmooth = 0.984807753012208;
+    r.Smoothing.ColTolSmooth = 1.0E-5;
+    r.GaussLegendreN = 5.0;
+    for (int b_i{0}; b_i < 5; b_i++) {
+        r.GaussLegendreX[b_i] = GaussLegendreX[b_i];
+        r.GaussLegendreW[b_i] = GaussLegendreW[b_i];
     }
-    // 'FeedoptDefaultConfig:104' if( cfg.NRot > 0 )
-    if (t10_NRot > 0) {
-        int b_loop_ub;
-        int b_yk;
-        int e_loop_ub;
-        int i8;
-        int scalarLB;
-        int vectorUB;
-        // 'FeedoptDefaultConfig:105' cfg.indRot = [ 1 : cfg.NRot ].' + cfg.NCart;
-        c_y.set_size(1, t10_NRot);
-        c_y[0] = 1;
-        b_yk = 1;
-        for (int c_k{2}; c_k <= t10_NRot; c_k++) {
-            b_yk++;
-            c_y[c_k - 1] = b_yk;
-        }
-        t10_indRot.set_size(c_y.size(1));
-        b_loop_ub = c_y.size(1);
-        scalarLB = (c_y.size(1) / 4) << 2;
-        vectorUB = scalarLB - 4;
-        for (i8 = 0; i8 <= vectorUB; i8 += 4) {
-            __m128i r;
-            r = _mm_loadu_si128((const __m128i *)&c_y[i8]);
-            _mm_storeu_si128((__m128i *)&t10_indRot[i8], _mm_add_epi32(r, _mm_set1_epi32(b_y)));
-        }
-        for (i8 = scalarLB; i8 < b_loop_ub; i8++) {
-            t10_indRot[i8] = c_y[i8] + b_y;
-        }
-        // 'FeedoptDefaultConfig:106' cfg.D(cfg.indRot) = cfg.coeffD;
-        e_loop_ub = t10_indRot.size(0);
-        for (int i10{0}; i10 < e_loop_ub; i10++) {
-            t10_D[t10_indRot[i10] - 1] = 1;
-        }
+    r.opt.Type[0] = 'L';
+    r.opt.Type[1] = 'P';
+    r.opt.EnableFindReasonInfeasibility = true;
+    r.opt.ACC_RAMP_OVER_WINDOWS = 0.999;
+    r.opt.VEL_RAMP_OVER_WINDOWS = 0.999;
+    r.opt.SLACK_PENALTY = 10000.0;
+    r.opt.USE_LINPROG = false;
+    for (int i3{0}; i3 < 9; i3++) {
+        r.LogFileName[i3] = b_cv1[i3];
     }
+    b_setMachineAxisInConfig(&r, bv);
     cfg->maskTot.size[0] = 1;
-    cfg->maskTot.size[1] = 6;
+    cfg->maskTot.size[1] = r.maskTot.size[1];
+    loop_ub = r.maskTot.size[1];
+    if (0 <= loop_ub - 1) {
+        std::copy(&r.maskTot.data[0], &r.maskTot.data[loop_ub], &cfg->maskTot.data[0]);
+    }
+    cfg->maskCart.size[0] = 1;
+    cfg->maskCart.size[1] = r.maskCart.size[1];
+    b_loop_ub = r.maskCart.size[1];
+    if (0 <= b_loop_ub - 1) {
+        std::copy(&r.maskCart.data[0], &r.maskCart.data[b_loop_ub], &cfg->maskCart.data[0]);
+    }
     cfg->maskRot.size[0] = 1;
-    cfg->maskRot.size[1] = 6;
-    for (int i5{0}; i5 < 6; i5++) {
-        bool b1;
-        b1 = t9_maskTot[i5];
-        cfg->maskTot.data[i5] = b1;
-        cfg->maskRot.data[i5] = (b1 && bv1[i5]);
+    cfg->maskRot.size[1] = r.maskRot.size[1];
+    c_loop_ub = r.maskRot.size[1];
+    if (0 <= c_loop_ub - 1) {
+        std::copy(&r.maskRot.data[0], &r.maskRot.data[c_loop_ub], &cfg->maskRot.data[0]);
     }
-    cfg->indCart.size[0] = t10_indCart.size(0);
-    c_loop_ub = t10_indCart.size(0);
-    for (int i7{0}; i7 < c_loop_ub; i7++) {
-        cfg->indCart.data[i7] = t10_indCart[i7];
+    cfg->indCart.size[0] = r.indCart.size(0);
+    d_loop_ub = r.indCart.size(0);
+    for (int i4{0}; i4 < d_loop_ub; i4++) {
+        cfg->indCart.data[i4] = r.indCart[i4];
     }
-    cfg->indRot.size[0] = t10_indRot.size(0);
-    d_loop_ub = t10_indRot.size(0);
-    for (int i9{0}; i9 < d_loop_ub; i9++) {
-        cfg->indRot.data[i9] = t10_indRot[i9];
+    cfg->indRot.size[0] = r.indRot.size(0);
+    e_loop_ub = r.indRot.size(0);
+    for (int i5{0}; i5 < e_loop_ub; i5++) {
+        cfg->indRot.data[i5] = r.indRot[i5];
     }
-    cfg->NumberAxis = y;
-    cfg->NCart = b_y;
-    cfg->NRot = t10_NRot;
-    cfg->D.size[0] = t10_D.size(0);
-    f_loop_ub = t10_D.size(0);
-    for (int i11{0}; i11 < f_loop_ub; i11++) {
-        cfg->D.data[i11] = 1.0;
+    cfg->NumberAxis = r.NumberAxis;
+    cfg->NCart = r.NCart;
+    cfg->NRot = r.NRot;
+    cfg->D.size[0] = r.D.size(0);
+    f_loop_ub = r.D.size(0);
+    for (int i6{0}; i6 < f_loop_ub; i6++) {
+        cfg->D.data[i6] = r.D[i6];
     }
-    cfg->coeffD = 1.0;
-    cfg->kin_params.size[0] = 12;
-    std::copy(&dv[0], &dv[12], &cfg->kin_params.data[0]);
-    cfg->NDiscr = 10;
-    cfg->NBreak = 5;
-    cfg->UseDynamicBreakpoints = false;
-    cfg->UseLinearBreakpoints = false;
-    cfg->DynamicBreakpointsDistance = 0.1;
-    cfg->NHorz = 5;
-    cfg->fmax = 9000.0;
-    cfg->smax = 75000.0;
-    cfg->LeeSplineDegree = 4;
-    cfg->SplineDegree = 3;
-    cfg->CutOff = 0.1;
-    cfg->LSplit = 3.0;
-    cfg->LSplitZero = 0.1;
-    cfg->LThreshold = 5.0;
-    cfg->CuspThreshold = 0.0;
-    cfg->v_0 = 0.0;
-    cfg->at_0 = 0.0;
-    cfg->v_1 = 0.0;
-    cfg->at_1 = 0.0;
-    cfg->dt = 0.0001;
-    cfg->ZeroStartAccLimit = 0.01;
-    cfg->ZeroStartJerkLimit = 1.0E+6;
-    cfg->ZeroStartVelLimit = 0.5;
-    std::memset(&cfg->source[0], 0, 1024U * sizeof(char));
-    cfg->DebugCutZero = false;
-    cfg->Compressing.Skip = false;
-    cfg->Compressing.ColTolCosLee = t9_Smoothing_ColTolCosSmooth;
-    cfg->Smoothing.Skip = true;
-    cfg->Smoothing.ColTolCosSmooth = t9_Smoothing_ColTolCosSmooth;
-    cfg->Smoothing.ColTolSmooth = 1.0E-5;
-    cfg->GaussLegendreN = 5.0;
+    cfg->coeffD = r.coeffD;
+    cfg->kin_params.size[0] = r.kin_params.size[0];
+    g_loop_ub = r.kin_params.size[0];
+    if (0 <= g_loop_ub - 1) {
+        std::copy(&r.kin_params.data[0], &r.kin_params.data[g_loop_ub], &cfg->kin_params.data[0]);
+    }
+    for (int i7{0}; i7 < 5; i7++) {
+        cfg->kin_type[i7] = r.kin_type[i7];
+    }
+    cfg->NDiscr = r.NDiscr;
+    cfg->NBreak = r.NBreak;
+    cfg->UseDynamicBreakpoints = r.UseDynamicBreakpoints;
+    cfg->UseLinearBreakpoints = r.UseLinearBreakpoints;
+    cfg->DynamicBreakpointsDistance = r.DynamicBreakpointsDistance;
+    cfg->NHorz = r.NHorz;
+    cfg->fmax = r.fmax;
+    cfg->smax = r.smax;
+    for (int i8{0}; i8 < 6; i8++) {
+        cfg->vmax[i8] = r.vmax[i8];
+        cfg->amax[i8] = r.amax[i8];
+        cfg->jmax[i8] = r.jmax[i8];
+    }
+    cfg->LeeSplineDegree = r.LeeSplineDegree;
+    cfg->SplineDegree = r.SplineDegree;
+    cfg->CutOff = r.CutOff;
+    cfg->LSplit = r.LSplit;
+    cfg->LSplitZero = r.LSplitZero;
+    cfg->LThreshold = r.LThreshold;
+    cfg->CuspThreshold = r.CuspThreshold;
+    cfg->v_0 = r.v_0;
+    cfg->at_0 = r.at_0;
+    cfg->v_1 = r.v_1;
+    cfg->at_1 = r.at_1;
+    cfg->dt = r.dt;
+    cfg->ZeroStartAccLimit = r.ZeroStartAccLimit;
+    cfg->ZeroStartJerkLimit = r.ZeroStartJerkLimit;
+    cfg->ZeroStartVelLimit = r.ZeroStartVelLimit;
+    std::copy(&r.source[0], &r.source[1024], &cfg->source[0]);
+    cfg->DebugCutZero = r.DebugCutZero;
+    cfg->Compressing = r.Compressing;
+    cfg->Smoothing = r.Smoothing;
+    cfg->GaussLegendreN = r.GaussLegendreN;
+    for (int c_i{0}; c_i < 5; c_i++) {
+        cfg->GaussLegendreX[c_i] = r.GaussLegendreX[c_i];
+        cfg->GaussLegendreW[c_i] = r.GaussLegendreW[c_i];
+    }
+    cfg->opt = r.opt;
+    for (int i9{0}; i9 < 9; i9++) {
+        cfg->LogFileName[i9] = r.LogFileName[i9];
+    }
 }
 
 } // namespace ocn
