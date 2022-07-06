@@ -5,7 +5,7 @@
 // File: initFeedoptPlan.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 28-Jun-2022 16:07:49
+// C/C++ source code generated on  : 30-Jun-2022 11:29:54
 //
 
 // Include Files
@@ -24,7 +24,6 @@
 #include "queue_coder.h"
 #include "coder_array.h"
 #include "src/c_spline.h"
-#include <algorithm>
 #include <cmath>
 #include <emmintrin.h>
 
@@ -84,13 +83,6 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     int params_spline_Bl_ncoeff;
     int params_spline_Bl_order;
     int q_loop_ub;
-    int s_loop_ub;
-    int t_loop_ub;
-    int u_loop_ub;
-    int v_loop_ub;
-    int w_loop_ub;
-    int x_loop_ub;
-    int y_loop_ub;
     bool params_gcodeInfoStruct_G91;
     bool params_gcodeInfoStruct_G91_1;
     bool params_gcodeInfoStruct_HSC;
@@ -408,84 +400,7 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     // 'initFeedoptPlan:54' ctx.at_1            = cfg.at_1;
     ctx->at_1 = cfg.at_1;
     // 'initFeedoptPlan:55' ctx.cfg             = cfg;
-    ctx->cfg.maskTot.size[0] = 1;
-    ctx->cfg.maskTot.size[1] = cfg.maskTot.size[1];
-    s_loop_ub = cfg.maskTot.size[1];
-    if (0 <= s_loop_ub - 1) {
-        std::copy(&cfg.maskTot.data[0], &cfg.maskTot.data[s_loop_ub], &ctx->cfg.maskTot.data[0]);
-    }
-    ctx->cfg.maskCart.set_size(1, cfg.maskCart.size[1]);
-    t_loop_ub = cfg.maskCart.size[1];
-    for (int i21{0}; i21 < t_loop_ub; i21++) {
-        ctx->cfg.maskCart[i21] = cfg.maskCart.data[i21];
-    }
-    ctx->cfg.maskRot.set_size(1, cfg.maskRot.size[1]);
-    u_loop_ub = cfg.maskRot.size[1];
-    for (int i22{0}; i22 < u_loop_ub; i22++) {
-        ctx->cfg.maskRot[i22] = cfg.maskRot.data[i22];
-    }
-    ctx->cfg.indCart.size[0] = cfg.indCart.size[0];
-    v_loop_ub = cfg.indCart.size[0];
-    if (0 <= v_loop_ub - 1) {
-        std::copy(&cfg.indCart.data[0], &cfg.indCart.data[v_loop_ub], &ctx->cfg.indCart.data[0]);
-    }
-    ctx->cfg.indRot.size[0] = cfg.indRot.size[0];
-    w_loop_ub = cfg.indRot.size[0];
-    if (0 <= w_loop_ub - 1) {
-        std::copy(&cfg.indRot.data[0], &cfg.indRot.data[w_loop_ub], &ctx->cfg.indRot.data[0]);
-    }
-    ctx->cfg.NumberAxis = cfg.NumberAxis;
-    ctx->cfg.NCart = cfg.NCart;
-    ctx->cfg.NRot = cfg.NRot;
-    ctx->cfg.kin_params.set_size(cfg.kin_params.size[0]);
-    x_loop_ub = cfg.kin_params.size[0];
-    for (int i23{0}; i23 < x_loop_ub; i23++) {
-        ctx->cfg.kin_params[i23] = cfg.kin_params.data[i23];
-    }
-    for (int i24{0}; i24 < 5; i24++) {
-        ctx->cfg.kin_type[i24] = cfg.kin_type[i24];
-    }
-    ctx->cfg.NDiscr = cfg.NDiscr;
-    ctx->cfg.NBreak = cfg.NBreak;
-    ctx->cfg.UseDynamicBreakpoints = cfg.UseDynamicBreakpoints;
-    ctx->cfg.UseLinearBreakpoints = cfg.UseLinearBreakpoints;
-    ctx->cfg.DynamicBreakpointsDistance = cfg.DynamicBreakpointsDistance;
-    ctx->cfg.NHorz = cfg.NHorz;
-    ctx->cfg.fmax = cfg.fmax;
-    ctx->cfg.smax = cfg.smax;
-    for (int i25{0}; i25 < 6; i25++) {
-        ctx->cfg.vmax[i25] = cfg.vmax[i25];
-        ctx->cfg.amax[i25] = cfg.amax[i25];
-        ctx->cfg.jmax[i25] = cfg.jmax[i25];
-    }
-    ctx->cfg.LeeSplineDegree = cfg.LeeSplineDegree;
-    ctx->cfg.SplineDegree = cfg.SplineDegree;
-    ctx->cfg.CutOff = cfg.CutOff;
-    ctx->cfg.LSplit = cfg.LSplit;
-    ctx->cfg.LSplitZero = cfg.LSplitZero;
-    ctx->cfg.LThreshold = cfg.LThreshold;
-    ctx->cfg.CuspThreshold = cfg.CuspThreshold;
-    ctx->cfg.v_0 = cfg.v_0;
-    ctx->cfg.at_0 = cfg.at_0;
-    ctx->cfg.v_1 = cfg.v_1;
-    ctx->cfg.at_1 = cfg.at_1;
-    ctx->cfg.dt = cfg.dt;
-    ctx->cfg.ZeroStartAccLimit = cfg.ZeroStartAccLimit;
-    ctx->cfg.ZeroStartJerkLimit = cfg.ZeroStartJerkLimit;
-    ctx->cfg.ZeroStartVelLimit = cfg.ZeroStartVelLimit;
-    std::copy(&cfg.source[0], &cfg.source[1024], &ctx->cfg.source[0]);
-    ctx->cfg.DebugCutZero = cfg.DebugCutZero;
-    ctx->cfg.Compressing = cfg.Compressing;
-    ctx->cfg.Smoothing = cfg.Smoothing;
-    ctx->cfg.GaussLegendreN = cfg.GaussLegendreN;
-    for (int b_i{0}; b_i < 5; b_i++) {
-        ctx->cfg.GaussLegendreX[b_i] = cfg.GaussLegendreX[b_i];
-        ctx->cfg.GaussLegendreW[b_i] = cfg.GaussLegendreW[b_i];
-    }
-    ctx->cfg.opt = cfg.opt;
-    for (int i26{0}; i26 < 9; i26++) {
-        ctx->cfg.LogFileName[i26] = cfg.LogFileName[i26];
-    }
+    ctx->cfg = cfg;
     // 'initFeedoptPlan:56' ctx.errcode         = FeedoptPlanError.Success;
     ctx->errcode = FeedoptPlanError_Success;
     // 'initFeedoptPlan:57' ctx.jmax_increase_count = int32(0);
@@ -506,42 +421,28 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     // 'initFeedoptPlan:66' ctx.Skipped = int32(0);
     ctx->Skipped = 0;
     // 'initFeedoptPlan:67' ctx.kin     = Kinematics( cfg.kin_type, cfg.kin_params );
-    for (int i27{0}; i27 < 5; i27++) {
-        ctx->kin.type[i27] = cfg.kin_type[i27];
-    }
-    // ----------------------------------------------------------------%
-    //  Kinematics Wrapper class to C interfaces
-    // ----------------------------------------------------------------%
-    // 'Kinematics:17' this.type       = type;
-    // 'Kinematics:18' this.parameters = parameters( : );
-    ctx->kin.parameters.set_size(cfg.kin_params.size[0]);
-    y_loop_ub = cfg.kin_params.size[0];
-    for (int i28{0}; i28 < y_loop_ub; i28++) {
-        ctx->kin.parameters[i28] = cfg.kin_params.data[i28];
-    }
-    // 'Kinematics:19' [ this ] = set_function_ptr( this );
-    //  Not implemented due to problem of support in code
-    //  generation...
-    // ----------------------------------------------------------------%
-    //  Support for different kinematics only for matlab flow
-    // ----------------------------------------------------------------%
+    ctx->kin.init(cfg.kin_type, cfg.kin_params.data, cfg.kin_params.size[0]);
     // 'initFeedoptPlan:69' Curv.Info.Type = CurveType.Spline;
     Curv.Info.Type = CurveType_Spline;
     // 'initFeedoptPlan:70' Curv.sp.Bl     = Bl;
     Curv.sp.Bl = ctx->Bl;
     // 'initFeedoptPlan:72' if ~coder.target('matlab')
-    // 'initFeedoptPlan:73' coder.varsize('ctx.cfg.indCart',    StructTypeName.dimInd{ : } );
-    // 'initFeedoptPlan:74' coder.varsize('ctx.cfg.indRot',     StructTypeName.dimInd{ : } );
-    // 'initFeedoptPlan:75' coder.varsize('ctx.cfg.maskTot',     StructTypeName.dimMask{ : } );
-    // 'initFeedoptPlan:76' coder.varsize('ctx.BasisVal',       StructTypeName.dimBasis{ : } );
-    // 'initFeedoptPlan:77' coder.varsize('ctx.BasisValD',      StructTypeName.dimBasis{ : } );
-    // 'initFeedoptPlan:78' coder.varsize('ctx.BasisValDD',     StructTypeName.dimBasis{ : } );
-    // 'initFeedoptPlan:79' coder.varsize('ctx.BasisIntegr',    StructTypeName.dimBasisInt{ : } );
-    // 'initFeedoptPlan:80' coder.varsize('ctx.u_vec',          StructTypeName.dimCtxUvec{ : } );
-    // 'initFeedoptPlan:81' coder.varsize('ctx.Bl.breakpoints', StructTypeName.dimCtxBlBreaks{ : }
-    // ); 'initFeedoptPlan:82' coder.varsize('ctx.Coeff',          StructTypeName.dimCtxCoeff{ : }
-    // ); 'initFeedoptPlan:83' coder.cstructname(ctx, StructTypeName.FeedoptCtx );
-    // 'initFeedoptPlan:86' ctx.q_spline.push( Curv );
+    // 'initFeedoptPlan:74' coder.varsize( 'ctx.cfg.indCart',   StructTypeName.dimInd{ : } );
+    // 'initFeedoptPlan:75' coder.varsize( 'ctx.cfg.indRot',    StructTypeName.dimInd{ : } );
+    // 'initFeedoptPlan:76' coder.varsize( 'ctx.cfg.maskTot',   StructTypeName.dimMask{ : } );
+    // 'initFeedoptPlan:77' coder.varsize( 'ctx.cfg.maskCart',  StructTypeName.dimMask{ : } );
+    // 'initFeedoptPlan:78' coder.varsize( 'ctx.cfg.maskRot',   StructTypeName.dimMask{ : } );
+    // 'initFeedoptPlan:79' coder.varsize( 'ctx.cfg.D',         StructTypeName.dimD{ : } );
+    // 'initFeedoptPlan:80' coder.varsize( 'ctx.cfg.kin_params',StructTypeName.dimKinParams{ : } );
+    // 'initFeedoptPlan:81' coder.varsize('ctx.BasisVal',       StructTypeName.dimBasis{ : } );
+    // 'initFeedoptPlan:82' coder.varsize('ctx.BasisValD',      StructTypeName.dimBasis{ : } );
+    // 'initFeedoptPlan:83' coder.varsize('ctx.BasisValDD',     StructTypeName.dimBasis{ : } );
+    // 'initFeedoptPlan:84' coder.varsize('ctx.BasisIntegr',    StructTypeName.dimBasisInt{ : } );
+    // 'initFeedoptPlan:85' coder.varsize('ctx.u_vec',          StructTypeName.dimCtxUvec{ : } );
+    // 'initFeedoptPlan:86' coder.varsize('ctx.Bl.breakpoints', StructTypeName.dimCtxBlBreaks{ : }
+    // ); 'initFeedoptPlan:87' coder.varsize('ctx.Coeff',          StructTypeName.dimCtxCoeff{ : }
+    // ); 'initFeedoptPlan:88' coder.cstructname(ctx, StructTypeName.FeedoptCtx );
+    // 'initFeedoptPlan:91' ctx.q_spline.push( Curv );
     ctx->q_spline.push(&Curv);
 }
 

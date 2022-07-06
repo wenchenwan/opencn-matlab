@@ -5,7 +5,7 @@
 // File: LengthCurv.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 28-Jun-2022 16:07:49
+// C/C++ source code generated on  : 30-Jun-2022 11:29:54
 //
 
 // Include Files
@@ -29,8 +29,10 @@
 // Arguments    : const queue_coder *ctx_q_spline
 //                const bool ctx_cfg_maskTot_data[]
 //                const int ctx_cfg_maskTot_size[2]
-//                const ::coder::array<bool, 2U> &ctx_cfg_maskCart
-//                const ::coder::array<bool, 2U> &ctx_cfg_maskRot
+//                const bool ctx_cfg_maskCart_data[]
+//                const int ctx_cfg_maskCart_size[2]
+//                const bool ctx_cfg_maskRot_data[]
+//                const int ctx_cfg_maskRot_size[2]
 //                const ::coder::array<int, 1U> &ctx_cfg_indCart
 //                const ::coder::array<int, 1U> &ctx_cfg_indRot
 //                int ctx_cfg_NumberAxis
@@ -53,10 +55,9 @@
 //
 namespace ocn {
 double LengthCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
-                  const int ctx_cfg_maskTot_size[2],
-                  const ::coder::array<bool, 2U> &ctx_cfg_maskCart,
-                  const ::coder::array<bool, 2U> &ctx_cfg_maskRot,
-                  const ::coder::array<int, 1U> &ctx_cfg_indCart,
+                  const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
+                  const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
+                  const int ctx_cfg_maskRot_size[2], const ::coder::array<int, 1U> &ctx_cfg_indCart,
                   const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
                   int ctx_cfg_NCart, int ctx_cfg_NRot, const double ctx_cfg_GaussLegendreX[5],
                   const double ctx_cfg_GaussLegendreW[5], const GcodeInfoStruct curv_Info,
@@ -79,11 +80,12 @@ double LengthCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_da
     if ((curv_Info.Type == CurveType_Helix) || (curv_Info.Type == CurveType_Line)) {
         int loop_ub;
         // 'LengthCurv:4' [~, r1D, ~, ~] = EvalCurvStruct( ctx, curv, u0 );
-        d_EvalCurvStruct(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart,
-                         ctx_cfg_maskRot, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
-                         ctx_cfg_NCart, ctx_cfg_NRot, curv_Info, curv_R0, curv_R1,
-                         curv_CorrectedHelixCenter, curv_evec, curv_theta, curv_pitch, curv_CoeffP5,
-                         curv_a_param, curv_b_param, a__1, r1D, a__2, a__3);
+        d_EvalCurvStruct(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
+                         ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
+                         ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart,
+                         ctx_cfg_NRot, curv_Info, curv_R0, curv_R1, curv_CorrectedHelixCenter,
+                         curv_evec, curv_theta, curv_pitch, curv_CoeffP5, curv_a_param,
+                         curv_b_param, a__1, r1D, a__2, a__3);
         // 'LengthCurv:5' L = MyNorm( r1D ) * ( u1 - u0 );
         // 'MyNorm:2' coder.inline('always');
         // 'MyNorm:3' n = mysqrt(sum(x.^2));

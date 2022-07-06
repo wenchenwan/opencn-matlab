@@ -2,14 +2,14 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: splitQueue.h
+// File: CharPolyAlpha1.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 28-Jun-2022 16:07:49
+// C/C++ source code generated on  : 30-Jun-2022 11:29:54
 //
 
-#ifndef SPLITQUEUE_H
-#define SPLITQUEUE_H
+#ifndef CHARPOLYALPHA1_H
+#define CHARPOLYALPHA1_H
 
 // Include Files
 #include "rtwtypes.h"
@@ -18,21 +18,15 @@
 
 // Custom Header Code
 #include "functions.h"
-// Type Declarations
-namespace ocn {
-struct b_FeedoptContext;
-
-}
-
 // Function Declarations
 namespace ocn {
-void splitQueue(const b_FeedoptContext *ctx);
+void CharPolyAlpha1(const double in1[16], double Coeff_Poly_Alpha1[10]);
 
 }
 
 #endif
 //
-// File trailer for splitQueue.h
+// File trailer for CharPolyAlpha1.h
 //
 // [EOF]
 //

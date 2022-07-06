@@ -2,7 +2,7 @@ function [ cfg ] = FeedoptDefaultConfig()
 
 coder.inline("never");
 
-tol_col_compress_deg    = 180;
+tol_col_compress_deg    = 10;
 tol_col_smooth_deg      = 10;
 
 % Computation of Gauss-Legendre knots and weights for numerical integration
@@ -85,24 +85,7 @@ if ~coder.target( 'MATLAB' )
     coder.cstructname( cfg,         StructTypeName.FeedoptCfg );
 end
 
-cfg = check_values( cfg );
+[ cfg ] = setMachineAxisInConfig( cfg, cfg.maskTot );
 
 end
 
-function [ cfg ] = check_values( cfg )
-    cfg.maskCart   = and( cfg.maskTot, logical( [ 1, 1, 1, 0, 0, 0 ] ) );
-    cfg.maskRot    = and( cfg.maskTot, logical( [ 0, 0, 0, 1, 1, 1 ] ) );
-    cfg.NumberAxis = int32( sum( cfg.maskTot ) );
-    cfg.NCart      = int32( sum( cfg.maskCart ) );
-    cfg.NRot       = cfg.NumberAxis - cfg.NCart;
-    cfg.D          = ones(cfg.NumberAxis, 1);
-
-    if( cfg.NCart > 0 )
-        cfg.indCart = [ 1 : cfg.NCart ].';
-    end
-
-    if( cfg.NRot > 0 )
-        cfg.indRot = [ 1 : cfg.NRot ].' + cfg.NCart;
-        cfg.D(cfg.indRot) = cfg.coeffD;
-    end        
-end

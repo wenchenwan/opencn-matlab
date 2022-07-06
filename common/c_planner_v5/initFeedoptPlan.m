@@ -70,9 +70,14 @@ Curv.Info.Type = CurveType.Spline;
 Curv.sp.Bl     = Bl;
 
 if ~coder.target('matlab')
-    coder.varsize('ctx.cfg.indCart',    StructTypeName.dimInd{ : } );
-    coder.varsize('ctx.cfg.indRot',     StructTypeName.dimInd{ : } );
-    coder.varsize('ctx.cfg.maskTot',     StructTypeName.dimMask{ : } );
+
+    coder.varsize( 'ctx.cfg.indCart',   StructTypeName.dimInd{ : } );
+    coder.varsize( 'ctx.cfg.indRot',    StructTypeName.dimInd{ : } );
+    coder.varsize( 'ctx.cfg.maskTot',   StructTypeName.dimMask{ : } );
+    coder.varsize( 'ctx.cfg.maskCart',  StructTypeName.dimMask{ : } );
+    coder.varsize( 'ctx.cfg.maskRot',   StructTypeName.dimMask{ : } );
+    coder.varsize( 'ctx.cfg.D',         StructTypeName.dimD{ : } );
+    coder.varsize( 'ctx.cfg.kin_params',StructTypeName.dimKinParams{ : } );
     coder.varsize('ctx.BasisVal',       StructTypeName.dimBasis{ : } );
     coder.varsize('ctx.BasisValD',      StructTypeName.dimBasis{ : } );
     coder.varsize('ctx.BasisValDD',     StructTypeName.dimBasis{ : } );

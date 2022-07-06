@@ -5,7 +5,7 @@
 // File: calcTransition_new.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 28-Jun-2022 16:07:49
+// C/C++ source code generated on  : 30-Jun-2022 11:29:54
 //
 
 // Include Files
@@ -42,13 +42,16 @@
 // Arguments    : const queue_coder *ctx_q_spline
 //                const bool ctx_cfg_maskTot_data[]
 //                const int ctx_cfg_maskTot_size[2]
-//                const ::coder::array<bool, 2U> &ctx_cfg_maskCart
-//                const ::coder::array<bool, 2U> &ctx_cfg_maskRot
+//                const bool ctx_cfg_maskCart_data[]
+//                const int ctx_cfg_maskCart_size[2]
+//                const bool ctx_cfg_maskRot_data[]
+//                const int ctx_cfg_maskRot_size[2]
 //                const ::coder::array<int, 1U> &ctx_cfg_indCart
 //                const ::coder::array<int, 1U> &ctx_cfg_indRot
 //                int ctx_cfg_NumberAxis
 //                int ctx_cfg_NCart
 //                int ctx_cfg_NRot
+//                double ctx_cfg_coeffD
 //                double ctx_cfg_CutOff
 //                const double ctx_cfg_GaussLegendreX[5]
 //                const double ctx_cfg_GaussLegendreW[5]
@@ -61,14 +64,17 @@
 // Return Type  : void
 //
 namespace ocn {
-void calcTransition_new(
-    const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
-    const int ctx_cfg_maskTot_size[2], const ::coder::array<bool, 2U> &ctx_cfg_maskCart,
-    const ::coder::array<bool, 2U> &ctx_cfg_maskRot, const ::coder::array<int, 1U> &ctx_cfg_indCart,
-    const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis, int ctx_cfg_NCart,
-    int ctx_cfg_NRot, double ctx_cfg_CutOff, const double ctx_cfg_GaussLegendreX[5],
-    const double ctx_cfg_GaussLegendreW[5], const CurvStruct *curv1, const CurvStruct *curv2,
-    TransitionResult *status, CurvStruct *curv1C, CurvStruct *curv2C, CurvStruct *curvT)
+void calcTransition_new(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
+                        const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
+                        const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
+                        const int ctx_cfg_maskRot_size[2],
+                        const ::coder::array<int, 1U> &ctx_cfg_indCart,
+                        const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
+                        int ctx_cfg_NCart, int ctx_cfg_NRot, double ctx_cfg_coeffD,
+                        double ctx_cfg_CutOff, const double ctx_cfg_GaussLegendreX[5],
+                        const double ctx_cfg_GaussLegendreW[5], const CurvStruct *curv1,
+                        const CurvStruct *curv2, TransitionResult *status, CurvStruct *curv1C,
+                        CurvStruct *curv2C, CurvStruct *curvT)
 {
     ::coder::array<double, 1U> r0D0;
     ::coder::array<double, 1U> r0D1;
@@ -92,19 +98,19 @@ void calcTransition_new(
     // 'calcTransition_new:18' Lcut2 = CutOff;
     Lcut2 = ctx_cfg_CutOff;
     // 'calcTransition_new:20' L1 = LengthCurv( ctx, curv1, 0, 1 );
-    L1 = LengthCurv(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart,
-                    ctx_cfg_maskRot, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
-                    ctx_cfg_NCart, ctx_cfg_NRot, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
-                    curv1->Info, curv1->R0, curv1->R1, curv1->CorrectedHelixCenter, curv1->evec,
-                    curv1->theta, curv1->pitch, curv1->CoeffP5, curv1->sp_index, curv1->a_param,
-                    curv1->b_param);
+    L1 = LengthCurv(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
+                    ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
+                    ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart,
+                    ctx_cfg_NRot, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, curv1->Info,
+                    curv1->R0, curv1->R1, curv1->CorrectedHelixCenter, curv1->evec, curv1->theta,
+                    curv1->pitch, curv1->CoeffP5, curv1->sp_index, curv1->a_param, curv1->b_param);
     // 'calcTransition_new:21' L2 = LengthCurv( ctx, curv2, 0, 1 );
-    L2 = LengthCurv(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart,
-                    ctx_cfg_maskRot, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
-                    ctx_cfg_NCart, ctx_cfg_NRot, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
-                    curv2->Info, curv2->R0, curv2->R1, curv2->CorrectedHelixCenter, curv2->evec,
-                    curv2->theta, curv2->pitch, curv2->CoeffP5, curv2->sp_index, curv2->a_param,
-                    curv2->b_param);
+    L2 = LengthCurv(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
+                    ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
+                    ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart,
+                    ctx_cfg_NRot, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, curv2->Info,
+                    curv2->R0, curv2->R1, curv2->CorrectedHelixCenter, curv2->evec, curv2->theta,
+                    curv2->pitch, curv2->CoeffP5, curv2->sp_index, curv2->a_param, curv2->b_param);
     // 'calcTransition_new:23' if( L1 / 3  < Lcut1 )
     if (L1 / 3.0 < ctx_cfg_CutOff) {
         // 'calcTransition_new:24' Lcut1 = L1 / 3;
@@ -117,7 +123,8 @@ void calcTransition_new(
     }
     // 'calcTransition_new:31' [ u1_tilda ] = cutCurvStructU( ctx, curv1, 0, L1 - Lcut1, false );
     u1_tilda = cutCurvStructU(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
-                              ctx_cfg_maskCart, ctx_cfg_maskRot, ctx_cfg_indCart, ctx_cfg_indRot,
+                              ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
+                              ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot,
                               ctx_cfg_NumberAxis, ctx_cfg_NCart, ctx_cfg_NRot,
                               ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, curv1, L1 - Lcut1);
     // 'calcTransition_new:32' curv1C              = curv1;
@@ -126,7 +133,8 @@ void calcTransition_new(
     curv1C->a_param = u1_tilda - curv1C->b_param;
     // 'calcTransition_new:35' [ u2_tilda ] = cutCurvStructU( ctx, curv2, 1, L2 - Lcut2, true );
     u2_tilda = b_cutCurvStructU(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
-                                ctx_cfg_maskCart, ctx_cfg_maskRot, ctx_cfg_indCart, ctx_cfg_indRot,
+                                ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
+                                ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot,
                                 ctx_cfg_NumberAxis, ctx_cfg_NCart, ctx_cfg_NRot,
                                 ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, curv2, L2 - Lcut2);
     // 'calcTransition_new:37' curv2C              = curv2;
@@ -137,17 +145,19 @@ void calcTransition_new(
     // curv2C.b_param;
     curv2C->a_param = (curv2->a_param + curv2->b_param) - u2_tilda;
     // 'calcTransition_new:41' [r0D0, r0D1, r0D2] = EvalCurvStruct( ctx, curv1C, 1 );
-    e_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart,
-                     ctx_cfg_maskRot, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
+    e_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+                     ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
+                     ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                      ctx_cfg_NCart, ctx_cfg_NRot, curv1C, r0D0, r0D1, r0D2);
     // 'calcTransition_new:42' [r1D0, r1D1, r1D2] = EvalCurvStruct( ctx, curv2C, 0 );
-    f_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart,
-                     ctx_cfg_maskRot, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
+    f_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+                     ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
+                     ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                      ctx_cfg_NCart, ctx_cfg_NRot, curv2C, r1D0, r1D1, r1D2);
     // 'calcTransition_new:45' [p5, ret] = G2_Hermite_Interpolation_nAxis(ctx, r0D0, r0D1, r0D2, ...
     // 'calcTransition_new:46'                                                 r1D0, r1D1, r1D2);
-    G2_Hermite_Interpolation_nAxis(ctx_cfg_NumberAxis, r0D0, r0D1, r0D2, r1D0, r1D1, r1D2, p5,
-                                   &ret);
+    G2_Hermite_Interpolation_nAxis(ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_coeffD, r0D0, r0D1,
+                                   r0D2, r1D0, r1D1, r1D2, p5, &ret);
     // 'calcTransition_new:48' curvT = constrTransP5Struct( curv1.Info, curv1.R1, curv2.R0, p5 );
     b_constrTransP5Struct(curv1->Info.TRAFO, curv1->Info.HSC, curv1->Info.FeedRate,
                           curv1->Info.SpindleSpeed, curv1->Info.gcode_source_line, curv1->Info.G91,

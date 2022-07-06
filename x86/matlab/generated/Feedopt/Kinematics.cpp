@@ -5,7 +5,7 @@
 // File: Kinematics.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 28-Jun-2022 16:07:49
+// C/C++ source code generated on  : 30-Jun-2022 11:29:54
 //
 
 // Include Files
@@ -36,9 +36,38 @@ Kinematics::~Kinematics()
 }
 
 //
-// function [ r_a, v_a, a_a, j_a ] = joint( this, r_r, v_r, a_r, j_r )
+// function [ this ] = Kinematics( type, parameters )
 //
-// if( coder.target( 'MATLAB' ) )
+// Arguments    : const char b_type[5]
+//                const double parameters_data[]
+//                int parameters_size
+// Return Type  : void
+//
+void Kinematics::init(const char b_type[5], const double parameters_data[], int parameters_size)
+{
+    // ----------------------------------------------------------------%
+    //  Kinematics Wrapper class to C interfaces
+    // ----------------------------------------------------------------%
+    // 'Kinematics:17' coder.inline( "never" );
+    // 'Kinematics:18' this.type       = type;
+    for (int i{0}; i < 5; i++) {
+        type[i] = b_type[i];
+    }
+    // 'Kinematics:19' this.parameters = parameters( : );
+    parameters.set_size(parameters_size);
+    for (int i1{0}; i1 < parameters_size; i1++) {
+        parameters[i1] = parameters_data[i1];
+    }
+    // 'Kinematics:20' [ this ] = set_function_ptr( this );
+    //  Not implemented due to problem of support in code
+    //  generation...
+    // ----------------------------------------------------------------%
+    //  Support for different kinematics only for matlab flow
+    // ----------------------------------------------------------------%
+}
+
+//
+// function [ r_a, v_a, a_a, j_a ] = joint( this, r_r, v_r, a_r, j_r )
 //
 // Arguments    : const ::coder::array<double, 2U> &r_r
 //                const ::coder::array<double, 2U> &v_r
@@ -72,8 +101,10 @@ void Kinematics::joint(const ::coder::array<double, 2U> &r_r, const ::coder::arr
     int loop_ub;
     int m_loop_ub;
     unsigned int unnamed_idx_0;
-    // 'Kinematics:87' N   = size( r_r, 2 );
-    // 'Kinematics:88' r_a = zeros( size( r_r ) );
+    // 'Kinematics:97' coder.inline( "never" );
+    //              if( coder.target( 'MATLAB' ) )
+    // 'Kinematics:100' N   = size( r_r, 2 );
+    // 'Kinematics:101' r_a = zeros( size( r_r ) );
     unnamed_idx_0 = static_cast<unsigned int>(r_r.size(0));
     r_a.set_size(r_r.size(0), r_r.size(1));
     loop_ub = r_r.size(1);
@@ -84,7 +115,7 @@ void Kinematics::joint(const ::coder::array<double, 2U> &r_r, const ::coder::arr
             r_a[i1 + r_a.size(0) * i] = 0.0;
         }
     }
-    // 'Kinematics:89' v_a = zeros( size( v_r ) );
+    // 'Kinematics:102' v_a = zeros( size( v_r ) );
     unnamed_idx_0 = static_cast<unsigned int>(v_r.size(0));
     v_a.set_size(v_r.size(0), v_r.size(1));
     c_loop_ub = v_r.size(1);
@@ -95,7 +126,7 @@ void Kinematics::joint(const ::coder::array<double, 2U> &r_r, const ::coder::arr
             v_a[i3 + v_a.size(0) * i2] = 0.0;
         }
     }
-    // 'Kinematics:90' a_a = zeros( size( a_r ) );
+    // 'Kinematics:103' a_a = zeros( size( a_r ) );
     unnamed_idx_0 = static_cast<unsigned int>(a_r.size(0));
     a_a.set_size(a_r.size(0), a_r.size(1));
     e_loop_ub = a_r.size(1);
@@ -106,8 +137,8 @@ void Kinematics::joint(const ::coder::array<double, 2U> &r_r, const ::coder::arr
             a_a[i5 + a_a.size(0) * i4] = 0.0;
         }
     }
-    // 'Kinematics:91' j_a = zeros( size( j_r ) );
-    // 'Kinematics:93' for j = 1 : N
+    // 'Kinematics:104' j_a = zeros( size( j_r ) );
+    // 'Kinematics:106' for j = 1 : N
     i6 = r_r.size(1);
     if (0 <= i6 - 1) {
         g_loop_ub = r_r.size(0);
@@ -122,13 +153,13 @@ void Kinematics::joint(const ::coder::array<double, 2U> &r_r, const ::coder::arr
         int n_loop_ub;
         int o_loop_ub;
         int p_loop_ub;
-        // 'Kinematics:94' J   = kin_J_ar_xyzbc( r_r( :, j ), this.parameters );
+        // 'Kinematics:107' J   = kin_J_ar_xyzbc( r_r( :, j ), this.parameters );
         b_r_r.set_size(r_r.size(0));
         for (int i7{0}; i7 < g_loop_ub; i7++) {
             b_r_r[i7] = r_r[i7 + r_r.size(0) * j];
         }
         kin_J_ar_xyzbc(b_r_r, parameters, J);
-        // 'Kinematics:95' JP  = kin_JP_ar_xyzbc( r_r( :, j ), v_r( :, j ), this.parameters );
+        // 'Kinematics:108' JP  = kin_JP_ar_xyzbc( r_r( :, j ), v_r( :, j ), this.parameters );
         b_r_r.set_size(r_r.size(0));
         for (int i8{0}; i8 < h_loop_ub; i8++) {
             b_r_r[i8] = r_r[i8 + r_r.size(0) * j];
@@ -138,8 +169,8 @@ void Kinematics::joint(const ::coder::array<double, 2U> &r_r, const ::coder::arr
             b_v_r[i9] = v_r[i9 + v_r.size(0) * j];
         }
         kin_JP_ar_xyzbc(b_r_r, b_v_r, parameters, JP);
-        // 'Kinematics:96' J2P = kin_J2P_ar_xyzbc( r_r( :, j ), v_r( :, j ), a_r( :, j ),
-        // this.parameters ); 'Kinematics:97' r_a( :, j ) = kin_inverse_xyzbc( r_r( :, j ),
+        // 'Kinematics:109' J2P = kin_J2P_ar_xyzbc( r_r( :, j ), v_r( :, j ), a_r( :, j ),
+        // this.parameters ); 'Kinematics:110' r_a( :, j ) = kin_inverse_xyzbc( r_r( :, j ),
         // this.parameters );
         b_r_r.set_size(r_r.size(0));
         for (int i10{0}; i10 < j_loop_ub; i10++) {
@@ -150,7 +181,7 @@ void Kinematics::joint(const ::coder::array<double, 2U> &r_r, const ::coder::arr
         for (int i11{0}; i11 < n_loop_ub; i11++) {
             r_a[i11 + r_a.size(0) * j] = dv[i11];
         }
-        // 'Kinematics:98' v_a( :, j ) = J * v_r( :, j );
+        // 'Kinematics:111' v_a( :, j ) = J * v_r( :, j );
         b_v_r.set_size(v_r.size(0));
         for (int i12{0}; i12 < k_loop_ub; i12++) {
             b_v_r[i12] = v_r[i12 + v_r.size(0) * j];
@@ -167,7 +198,7 @@ void Kinematics::joint(const ::coder::array<double, 2U> &r_r, const ::coder::arr
         for (int i14{0}; i14 < o_loop_ub; i14++) {
             v_a[i14 + v_a.size(0) * j] = b_J[i14];
         }
-        // 'Kinematics:99' a_a( :, j ) = JP * v_r( :, j ) + J * a_r( :, j );
+        // 'Kinematics:112' a_a( :, j ) = JP * v_r( :, j ) + J * a_r( :, j );
         b_v_r.set_size(v_r.size(0));
         for (int i16{0}; i16 < l_loop_ub; i16++) {
             b_v_r[i16] = v_r[i16 + v_r.size(0) * j];
@@ -191,7 +222,7 @@ void Kinematics::joint(const ::coder::array<double, 2U> &r_r, const ::coder::arr
         for (int i19{0}; i19 < p_loop_ub; i19++) {
             a_a[i19 + a_a.size(0) * j] = b_JP[i19];
         }
-        // 'Kinematics:100' j_a( :, j ) = J2P * v_r( :, j ) + 2 * JP * a_r( :, j ) + J * j_r( :, j
+        // 'Kinematics:113' j_a( :, j ) = J2P * v_r( :, j ) + 2 * JP * a_r( :, j ) + J * j_r( :, j
         // );
     }
     //              end
@@ -199,8 +230,6 @@ void Kinematics::joint(const ::coder::array<double, 2U> &r_r, const ::coder::arr
 
 //
 // function [ r_a, v_a, a_a, j_a ] = joint( this, r_r, v_r, a_r, j_r )
-//
-// if( coder.target( 'MATLAB' ) )
 //
 // Arguments    : const ::coder::array<double, 2U> &r_r
 //                const ::coder::array<double, 2U> &v_r
@@ -249,8 +278,10 @@ void Kinematics::joint(const ::coder::array<double, 2U> &r_r, const ::coder::arr
     int t_loop_ub;
     int u_loop_ub;
     unsigned int unnamed_idx_0;
-    // 'Kinematics:87' N   = size( r_r, 2 );
-    // 'Kinematics:88' r_a = zeros( size( r_r ) );
+    // 'Kinematics:97' coder.inline( "never" );
+    //              if( coder.target( 'MATLAB' ) )
+    // 'Kinematics:100' N   = size( r_r, 2 );
+    // 'Kinematics:101' r_a = zeros( size( r_r ) );
     unnamed_idx_0 = static_cast<unsigned int>(r_r.size(0));
     r_a.set_size(r_r.size(0), r_r.size(1));
     loop_ub = r_r.size(1);
@@ -261,7 +292,7 @@ void Kinematics::joint(const ::coder::array<double, 2U> &r_r, const ::coder::arr
             r_a[i1 + r_a.size(0) * i] = 0.0;
         }
     }
-    // 'Kinematics:89' v_a = zeros( size( v_r ) );
+    // 'Kinematics:102' v_a = zeros( size( v_r ) );
     unnamed_idx_0 = static_cast<unsigned int>(v_r.size(0));
     v_a.set_size(v_r.size(0), v_r.size(1));
     c_loop_ub = v_r.size(1);
@@ -272,7 +303,7 @@ void Kinematics::joint(const ::coder::array<double, 2U> &r_r, const ::coder::arr
             v_a[i3 + v_a.size(0) * i2] = 0.0;
         }
     }
-    // 'Kinematics:90' a_a = zeros( size( a_r ) );
+    // 'Kinematics:103' a_a = zeros( size( a_r ) );
     unnamed_idx_0 = static_cast<unsigned int>(a_r.size(0));
     a_a.set_size(a_r.size(0), a_r.size(1));
     e_loop_ub = a_r.size(1);
@@ -283,7 +314,7 @@ void Kinematics::joint(const ::coder::array<double, 2U> &r_r, const ::coder::arr
             a_a[i5 + a_a.size(0) * i4] = 0.0;
         }
     }
-    // 'Kinematics:91' j_a = zeros( size( j_r ) );
+    // 'Kinematics:104' j_a = zeros( size( j_r ) );
     unnamed_idx_0 = static_cast<unsigned int>(j_r.size(0));
     j_a.set_size(j_r.size(0), j_r.size(1));
     g_loop_ub = j_r.size(1);
@@ -294,7 +325,7 @@ void Kinematics::joint(const ::coder::array<double, 2U> &r_r, const ::coder::arr
             j_a[i8 + j_a.size(0) * i6] = 0.0;
         }
     }
-    // 'Kinematics:93' for j = 1 : N
+    // 'Kinematics:106' for j = 1 : N
     i7 = r_r.size(1);
     if (0 <= i7 - 1) {
         i_loop_ub = r_r.size(0);
@@ -316,13 +347,13 @@ void Kinematics::joint(const ::coder::array<double, 2U> &r_r, const ::coder::arr
         int w_loop_ub;
         int x_loop_ub;
         int y_loop_ub;
-        // 'Kinematics:94' J   = kin_J_ar_xyzbc( r_r( :, j ), this.parameters );
+        // 'Kinematics:107' J   = kin_J_ar_xyzbc( r_r( :, j ), this.parameters );
         b_r_r.set_size(r_r.size(0));
         for (int i9{0}; i9 < i_loop_ub; i9++) {
             b_r_r[i9] = r_r[i9 + r_r.size(0) * j];
         }
         kin_J_ar_xyzbc(b_r_r, parameters, J);
-        // 'Kinematics:95' JP  = kin_JP_ar_xyzbc( r_r( :, j ), v_r( :, j ), this.parameters );
+        // 'Kinematics:108' JP  = kin_JP_ar_xyzbc( r_r( :, j ), v_r( :, j ), this.parameters );
         b_r_r.set_size(r_r.size(0));
         for (int i10{0}; i10 < j_loop_ub; i10++) {
             b_r_r[i10] = r_r[i10 + r_r.size(0) * j];
@@ -332,7 +363,7 @@ void Kinematics::joint(const ::coder::array<double, 2U> &r_r, const ::coder::arr
             b_v_r[i11] = v_r[i11 + v_r.size(0) * j];
         }
         kin_JP_ar_xyzbc(b_r_r, b_v_r, parameters, JP);
-        // 'Kinematics:96' J2P = kin_J2P_ar_xyzbc( r_r( :, j ), v_r( :, j ), a_r( :, j ),
+        // 'Kinematics:109' J2P = kin_J2P_ar_xyzbc( r_r( :, j ), v_r( :, j ), a_r( :, j ),
         // this.parameters );
         b_r_r.set_size(r_r.size(0));
         for (int i12{0}; i12 < l_loop_ub; i12++) {
@@ -347,7 +378,7 @@ void Kinematics::joint(const ::coder::array<double, 2U> &r_r, const ::coder::arr
             b_a_r[i14] = a_r[i14 + a_r.size(0) * j];
         }
         kin_J2P_ar_xyzbc(b_r_r, b_v_r, b_a_r, parameters, J2P);
-        // 'Kinematics:97' r_a( :, j ) = kin_inverse_xyzbc( r_r( :, j ), this.parameters );
+        // 'Kinematics:110' r_a( :, j ) = kin_inverse_xyzbc( r_r( :, j ), this.parameters );
         b_r_r.set_size(r_r.size(0));
         for (int i15{0}; i15 < o_loop_ub; i15++) {
             b_r_r[i15] = r_r[i15 + r_r.size(0) * j];
@@ -357,7 +388,7 @@ void Kinematics::joint(const ::coder::array<double, 2U> &r_r, const ::coder::arr
         for (int i16{0}; i16 < v_loop_ub; i16++) {
             r_a[i16 + r_a.size(0) * j] = dv[i16];
         }
-        // 'Kinematics:98' v_a( :, j ) = J * v_r( :, j );
+        // 'Kinematics:111' v_a( :, j ) = J * v_r( :, j );
         b_v_r.set_size(v_r.size(0));
         for (int i17{0}; i17 < p_loop_ub; i17++) {
             b_v_r[i17] = v_r[i17 + v_r.size(0) * j];
@@ -374,7 +405,7 @@ void Kinematics::joint(const ::coder::array<double, 2U> &r_r, const ::coder::arr
         for (int i19{0}; i19 < w_loop_ub; i19++) {
             v_a[i19 + v_a.size(0) * j] = b_J[i19];
         }
-        // 'Kinematics:99' a_a( :, j ) = JP * v_r( :, j ) + J * a_r( :, j );
+        // 'Kinematics:112' a_a( :, j ) = JP * v_r( :, j ) + J * a_r( :, j );
         b_v_r.set_size(v_r.size(0));
         for (int i21{0}; i21 < q_loop_ub; i21++) {
             b_v_r[i21] = v_r[i21 + v_r.size(0) * j];
@@ -398,7 +429,7 @@ void Kinematics::joint(const ::coder::array<double, 2U> &r_r, const ::coder::arr
         for (int i24{0}; i24 < x_loop_ub; i24++) {
             a_a[i24 + a_a.size(0) * j] = b_JP[i24];
         }
-        // 'Kinematics:100' j_a( :, j ) = J2P * v_r( :, j ) + 2 * JP * a_r( :, j ) + J * j_r( :, j
+        // 'Kinematics:113' j_a( :, j ) = J2P * v_r( :, j ) + 2 * JP * a_r( :, j ) + J * j_r( :, j
         // );
         b_v_r.set_size(v_r.size(0));
         for (int i26{0}; i26 < s_loop_ub; i26++) {
@@ -441,9 +472,65 @@ void Kinematics::joint(const ::coder::array<double, 2U> &r_r, const ::coder::arr
 }
 
 //
-// function [ v_r ] = v_relative( this, r_a, v_a )
+// function [ v_a ] = v_joint( this, r_r, v_r )
 //
-// if( coder.target( 'MATLAB' ) )
+// Arguments    : const ::coder::array<double, 1U> &r_r
+//                const ::coder::array<double, 1U> &v_r
+//                ::coder::array<double, 1U> &v_a
+// Return Type  : void
+//
+void Kinematics::v_joint(const ::coder::array<double, 1U> &r_r,
+                         const ::coder::array<double, 1U> &v_r,
+                         ::coder::array<double, 1U> &v_a) const
+{
+    ::coder::array<double, 1U> b_r_r;
+    ::coder::array<double, 1U> b_v_r;
+    double J[5][5];
+    double b_J[5];
+    int b_loop_ub;
+    int c_loop_ub;
+    int d_loop_ub;
+    int loop_ub;
+    // 'Kinematics:133' coder.inline( "never" );
+    //              if( coder.target( 'MATLAB' ) )
+    // 'Kinematics:136' N   = size( r_r, 2 );
+    // 'Kinematics:137' v_a = zeros( size( v_r ) );
+    v_a.set_size(v_r.size(0));
+    loop_ub = v_r.size(0);
+    for (int i{0}; i < loop_ub; i++) {
+        v_a[i] = 0.0;
+    }
+    // 'Kinematics:139' for j = 1 : N
+    // 'Kinematics:140' J   = kin_J_ar_xyzbc( r_r( :, j ), this.parameters );
+    b_loop_ub = r_r.size(0);
+    b_r_r.set_size(r_r.size(0));
+    for (int i1{0}; i1 < b_loop_ub; i1++) {
+        b_r_r[i1] = r_r[i1];
+    }
+    kin_J_ar_xyzbc(b_r_r, parameters, J);
+    // 'Kinematics:141' v_a( :, j ) = J * v_r( :, j );
+    c_loop_ub = v_r.size(0);
+    b_v_r.set_size(v_r.size(0));
+    for (int i2{0}; i2 < c_loop_ub; i2++) {
+        b_v_r[i2] = v_r[i2];
+    }
+    for (int i3{0}; i3 < 5; i3++) {
+        double d;
+        d = 0.0;
+        for (int i5{0}; i5 < 5; i5++) {
+            d += J[i5][i3] * b_v_r[i5];
+        }
+        b_J[i3] = d;
+    }
+    d_loop_ub = v_r.size(0);
+    for (int i4{0}; i4 < d_loop_ub; i4++) {
+        v_a[i4] = b_J[i4];
+    }
+    //              end
+}
+
+//
+// function [ v_r ] = v_relative( this, r_a, v_a )
 //
 // Arguments    : const ::coder::array<double, 2U> &r_a
 //                const ::coder::array<double, 2U> &v_a
@@ -463,8 +550,10 @@ void Kinematics::v_relative(const ::coder::array<double, 2U> &r_a,
     int loop_ub;
     unsigned int unnamed_idx_0;
     //         %% Jacobian
-    // 'Kinematics:108' N   = size( r_a, 2 );
-    // 'Kinematics:109' v_r = zeros( size( v_a ) );
+    // 'Kinematics:120' coder.inline( "never" );
+    //              if( coder.target( 'MATLAB' ) )
+    // 'Kinematics:123' N   = size( r_a, 2 );
+    // 'Kinematics:124' v_r = zeros( size( v_a ) );
     unnamed_idx_0 = static_cast<unsigned int>(v_a.size(0));
     v_r.set_size(v_a.size(0), v_a.size(1));
     loop_ub = v_a.size(1);
@@ -475,7 +564,7 @@ void Kinematics::v_relative(const ::coder::array<double, 2U> &r_a,
             v_r[i2 + v_r.size(0) * i] = 0.0;
         }
     }
-    // 'Kinematics:110' for j = 1 : N
+    // 'Kinematics:125' for j = 1 : N
     i1 = r_a.size(1);
     if (0 <= r_a.size(1) - 1) {
         i3 = v_a.size(0);
@@ -502,7 +591,7 @@ void Kinematics::v_relative(const ::coder::array<double, 2U> &r_a,
         double t4;
         double t5;
         int d_loop_ub;
-        // 'Kinematics:111' J   = kin_J_ra_xyzbc( r_a( :, j ), this.parameters );
+        // 'Kinematics:126' J   = kin_J_ra_xyzbc( r_a( :, j ), this.parameters );
         // kin_J_ra_xyzbc
         //     J_ra = kin_J_ra_xyzbc(IN1,IN2)
         //     This function was generated by the Symbolic Math Toolbox version 9.0.
@@ -549,7 +638,7 @@ void Kinematics::v_relative(const ::coder::array<double, 2U> &r_a,
               -(r_a[r_a.size(0) * j] * t4);
         // 'kin_J_ra_xyzbc:39' J_ra =
         // reshape([t2.*t3,t2.*t5,t4,0.0,0.0,-t5,t3,0.0,0.0,0.0,-t3.*t4,-t4.*t5,t2,0.0,0.0,t3.*t14,t5.*t14,A1.*t2-A3.*t4-P1_1.*t2+P1_4.*t4+P3_1.*t4+P3_4.*t4,1.0,0.0,-A2.*t3-P2_1.*t3-A1.*t2.*t5+A3.*t4.*t5+P1_1.*t2.*t5-P1_4.*t4.*t5-P3_1.*t4.*t5-P3_4.*t4.*t5,-A2.*t5-P2_1.*t5+A1.*t2.*t3-A3.*t3.*t4-P1_1.*t2.*t3+P1_4.*t3.*t4+P3_1.*t3.*t4+P3_4.*t3.*t4,0.0,0.0,1.0],[5,5]);
-        // 'Kinematics:112' v_r( :, j ) = J * v_a( :, j );
+        // 'Kinematics:127' v_r( :, j ) = J * v_a( :, j );
         b_v_a.set_size(i3);
         for (int i4{0}; i4 < c_loop_ub; i4++) {
             b_v_a[i4] = v_a[i4 + v_a.size(0) * j];

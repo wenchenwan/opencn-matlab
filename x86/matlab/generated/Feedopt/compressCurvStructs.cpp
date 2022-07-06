@@ -5,7 +5,7 @@
 // File: compressCurvStructs.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 28-Jun-2022 16:07:49
+// C/C++ source code generated on  : 30-Jun-2022 11:29:54
 //
 
 // Include Files
@@ -614,6 +614,7 @@ void compressCurvStructs(const b_FeedoptContext *ctx)
     CurvStruct curvCompressed;
     CurvStruct prevCurv;
     CurvStruct spline;
+    double b_curv[2][6];
     double params_CoeffP5[6];
     double params_R0[6];
     double params_R1[6];
@@ -731,7 +732,8 @@ void compressCurvStructs(const b_FeedoptContext *ctx)
                 // 'compressCurvStructs:66' if( LengthCurv( ctx, curv, 0, 1 ) >  ctx.cfg.LThreshold
                 // )
             } else if (LengthCurv(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
-                                  ctx->cfg.maskCart, ctx->cfg.maskRot, ctx->cfg.indCart,
+                                  ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
+                                  ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
                                   ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart,
                                   ctx->cfg.NRot, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW,
                                   curv.Info, curv.R0, curv.R1, curv.CorrectedHelixCenter, curv.evec,
@@ -756,12 +758,14 @@ void compressCurvStructs(const b_FeedoptContext *ctx)
                 // 'compressCurvStructs:77'         ctx.cfg.Compressing.ColTolCosLee );
                 // 'curvCollinear:3' [~, V0] = EvalCurvStruct(ctx, Curv1, 1);
                 b_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
-                                 ctx->cfg.maskCart, ctx->cfg.maskRot, ctx->cfg.indCart,
+                                 ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
+                                 ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
                                  ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart,
                                  ctx->cfg.NRot, &prevCurv, a__1, V0);
                 // 'curvCollinear:4' [~, V1] = EvalCurvStruct(ctx, Curv2, 0);
                 c_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
-                                 ctx->cfg.maskCart, ctx->cfg.maskRot, ctx->cfg.indCart,
+                                 ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
+                                 ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
                                  ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart,
                                  ctx->cfg.NRot, &curv, a__2, V1);
                 // 'curvCollinear:6' result = collinear(V0, V1, ToleranceCos);
@@ -796,17 +800,17 @@ void compressCurvStructs(const b_FeedoptContext *ctx)
                     }
                     r.set_size(V0.size(0));
                     loop_ub = V0.size(0);
-                    for (int i6{0}; i6 < loop_ub; i6++) {
+                    for (int i10{0}; i10 < loop_ub; i10++) {
                         double varargin_1;
-                        varargin_1 = V0[i6];
-                        r[i6] = std::pow(varargin_1, 2.0);
+                        varargin_1 = V0[i10];
+                        r[i10] = std::pow(varargin_1, 2.0);
                     }
                     r1.set_size(V1.size(0));
                     b_loop_ub = V1.size(0);
-                    for (int i7{0}; i7 < b_loop_ub; i7++) {
+                    for (int i11{0}; i11 < b_loop_ub; i11++) {
                         double b_varargin_1;
-                        b_varargin_1 = V1[i7];
-                        r1[i7] = std::pow(b_varargin_1, 2.0);
+                        b_varargin_1 = V1[i11];
+                        r1[i11] = std::pow(b_varargin_1, 2.0);
                     }
                     collinear = (c / (std::sqrt(coder::combineVectorElements(r)) *
                                       std::sqrt(coder::combineVectorElements(r1))) >
@@ -864,14 +868,20 @@ void compressCurvStructs(const b_FeedoptContext *ctx)
                 } else {
                     // 'compressCurvStructs:31' else
                     // 'compressCurvStructs:32' [ batch ] = batch_reset( ctx, curv );
-                    // 'compressCurvStructs:123' batch.pvec            = curv.R0;
+                    // 'compressCurvStructs:123' batch.pvec            = [curv.R0, curv.R1 ];
                     // 'compressCurvStructs:124' batch.curvArray       = [ curv, curv ];
                     // 'compressCurvStructs:125' batch.spindle_speed   = ctx.cfg.smax;
                     // 'compressCurvStructs:126' batch.feedrate        = ctx.cfg.fmax;
                     // 'compressCurvStructs:127' batch.size            = 1;
-                    batch_pvec.set_size(6, 1);
                     for (int i4{0}; i4 < 6; i4++) {
-                        batch_pvec[i4] = curv.R0[i4];
+                        b_curv[0][i4] = curv.R0[i4];
+                        b_curv[1][i4] = curv.R1[i4];
+                    }
+                    batch_pvec.set_size(6, 2);
+                    for (int i6{0}; i6 < 2; i6++) {
+                        for (int i7{0}; i7 < 6; i7++) {
+                            batch_pvec[i7 + 6 * i6] = b_curv[i6][i7];
+                        }
                     }
                     batch_curvArray[0] = curv;
                     batch_curvArray[1] = curv;
@@ -904,14 +914,20 @@ void compressCurvStructs(const b_FeedoptContext *ctx)
             // 'compressCurvStructs:40' if( addNewBatch )
             if (addNewBatch) {
                 // 'compressCurvStructs:41' [ batch ] = batch_reset( ctx, curv );
-                // 'compressCurvStructs:123' batch.pvec            = curv.R0;
+                // 'compressCurvStructs:123' batch.pvec            = [curv.R0, curv.R1 ];
                 // 'compressCurvStructs:124' batch.curvArray       = [ curv, curv ];
                 // 'compressCurvStructs:125' batch.spindle_speed   = ctx.cfg.smax;
                 // 'compressCurvStructs:126' batch.feedrate        = ctx.cfg.fmax;
                 // 'compressCurvStructs:127' batch.size            = 1;
-                batch_pvec.set_size(6, 1);
                 for (int i5{0}; i5 < 6; i5++) {
-                    batch_pvec[i5] = curv.R0[i5];
+                    b_curv[0][i5] = curv.R0[i5];
+                    b_curv[1][i5] = curv.R1[i5];
+                }
+                batch_pvec.set_size(6, 2);
+                for (int i8{0}; i8 < 2; i8++) {
+                    for (int i9{0}; i9 < 6; i9++) {
+                        batch_pvec[i9 + 6 * i8] = b_curv[i8][i9];
+                    }
                 }
                 batch_curvArray[0] = curv;
                 batch_curvArray[1] = curv;

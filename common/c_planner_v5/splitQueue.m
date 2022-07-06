@@ -20,18 +20,18 @@ function checkZSpdmode( queue )
 N = queue.size;
 ok = 0;
 
-for k = 1 : N-1
-    ok = 1;
+curv = queue.get( 1 );
 
-    zspdmode1 = queue.get( k ).Info.zspdmode; 
-    zspdmode2 = queue.get( k+1 ).Info.zspdmode;
+for k = 2 : N
+    curvNext = queue.get( k );
 
-    if( ( ( zspdmode1 == ZSpdMode.NN || zspdmode1 == ZSpdMode.ZN ) && ( zspdmode2 == ZSpdMode.NN || zspdmode2 == ZSpdMode.NZ ) ) || ...
-        ( ( zspdmode1 == ZSpdMode.NZ || zspdmode1 == ZSpdMode.ZZ ) && ( zspdmode2 == ZSpdMode.ZN || zspdmode2 == ZSpdMode.ZZ ) ) )
-        ok = ok+1;
+    if( isAZeroEnd( curv ) && ~isAZeroStart( curvNext ) || ...
+       ~isAZeroEnd( curv ) &&  isAZeroStart( curvNext ) )
+        error( mfilename + ".m : splitted zspdmode failed " );
     end
+
+    curv = curvNext;
 end
 
-assert( ok ~= N, mfilename + ".m : splitted zspdmode failed " );
 
 end

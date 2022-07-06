@@ -5,7 +5,7 @@
 // File: PrintCurvStruct.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 28-Jun-2022 16:07:49
+// C/C++ source code generated on  : 30-Jun-2022 11:29:54
 //
 
 // Include Files
@@ -205,8 +205,9 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
         t2_cfg_indRot[i5] = ctx->cfg.indRot.data[i5];
     }
     j_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
-                     ctx->cfg.maskCart, ctx->cfg.maskRot, t2_cfg_indCart, t2_cfg_indRot,
-                     ctx->cfg.NumberAxis, ctx->cfg.NCart, ctx->cfg.NRot, S, P0);
+                     ctx->cfg.maskCart.data, ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
+                     ctx->cfg.maskRot.size, t2_cfg_indCart, t2_cfg_indRot, ctx->cfg.NumberAxis,
+                     ctx->cfg.NCart, ctx->cfg.NRot, S, P0);
     // 'PrintCurvStruct:30' P1 = EvalCurvStruct( ctx, S, 1 );
     t3_cfg_indCart.set_size(ctx->cfg.indCart.size[0]);
     c_loop_ub = ctx->cfg.indCart.size[0];
@@ -219,8 +220,9 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
         t3_cfg_indRot[i8] = ctx->cfg.indRot.data[i8];
     }
     k_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
-                     ctx->cfg.maskCart, ctx->cfg.maskRot, t3_cfg_indCart, t3_cfg_indRot,
-                     ctx->cfg.NumberAxis, ctx->cfg.NCart, ctx->cfg.NRot, S, P1);
+                     ctx->cfg.maskCart.data, ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
+                     ctx->cfg.maskRot.size, t3_cfg_indCart, t3_cfg_indRot, ctx->cfg.NumberAxis,
+                     ctx->cfg.NCart, ctx->cfg.NRot, S, P1);
     // 'PrintCurvStruct:31' fprintf( '%10s: [%.4f %.4f %.4f] -> [%.4f %.4f %.4f]\n',...
     // 'PrintCurvStruct:32'     'P', P0(1), P0(2), P0(3), P1(1), P1(2), P1(3) )
     printf("%10s: [%.4f %.4f %.4f] -> [%.4f %.4f %.4f]\n", "P", P0[0], P0[1], P0[2], P1[0], P1[1],
@@ -369,9 +371,9 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
         constJerkU(S->ConstJerk, b_k, isEnd, &u, &ud, &udd, &uddd);
         // 'calcZeroConstraints:22' [ r0D, r1D, r2D, r3D ]  = EvalCurvStruct( ctx, curv, u );
         i_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
-                         ctx->cfg.maskCart, ctx->cfg.maskRot, t4_cfg_indCart, t4_cfg_indRot,
-                         ctx->cfg.NumberAxis, ctx->cfg.NCart, ctx->cfg.NRot, S, u, r0D, r1D, r2D,
-                         r3D);
+                         ctx->cfg.maskCart.data, ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
+                         ctx->cfg.maskRot.size, t4_cfg_indCart, t4_cfg_indRot, ctx->cfg.NumberAxis,
+                         ctx->cfg.NCart, ctx->cfg.NRot, S, u, r0D, r1D, r2D, r3D);
         // 'calcZeroConstraints:24' [ ~, V, A, ~ ]          = calcRVAJfromUWithoutCurv( ud, udd,
         // uddd, r0D, ... 'calcZeroConstraints:25'                           r1D, r2D, r3D );
         //  calcRVAJfromU : Compute the pose, the velocity, the acceleration and the
