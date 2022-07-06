@@ -18,6 +18,7 @@ end
 
 function checkZSpdmode( queue )
 N = queue.size;
+ok = 0;
 
 for k = 1 : N-1
     ok = 1;

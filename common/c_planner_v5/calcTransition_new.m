@@ -65,7 +65,7 @@ else
     status = TransitionResult.NoSolution;
 end
 
-if( coder.target("MATLAB") && TransitionResult.Ok )
+if( coder.target("MATLAB") && status == TransitionResult.Ok )
     check_continuity( ctx, curv1C, curvT );
     check_continuity( ctx, curvT, curv2C );
 end
@@ -73,7 +73,9 @@ end
 end
 
 function [] = check_continuity( ctx, curv1, curv2 )
-    tol = 1E-3;
+    tol = ctx.cfg.Smoothing.ColTolSmooth;
+    tol_cos = ctx.cfg.Smoothing.ColTolCosSmooth;
+
     [ r11, r1d1, r1dd1 ] = EvalCurvStruct( ctx, curv1, 1 );
     [ r21, r2d1, r2dd1 ] = EvalCurvStruct( ctx, curv2, 0 );
     
@@ -81,13 +83,13 @@ function [] = check_continuity( ctx, curv1, curv2 )
     [t2, ~,  kappa2] = calc_t_nk_kappa( r2d1, r2dd1 );
 
     diff_r      = abs( r11    -r21 )        < tol;
-%     diff_rd     = norm( cross( t1, t2 ) )   < tol;
+    diff_rd     = collinear( t1, t2, tol_cos );
     diff_rdd    = abs( kappa1 -kappa2 )     < tol;
 
     assert( all( diff_r ), mfilename + ...
                         ".m : continuity C0 failed " + mat2str( diff_r' ) );
-%     assert( diff_rd  , mfilename + ...
-%                         ".m : continuity G1 failed "  + diff_rd );
+    assert( diff_rd  , mfilename + ...
+                        ".m : continuity G1 failed "  + diff_rd );
     assert( diff_rdd , mfilename + ...
                         ".m : continuity G2 failed "  + mat2str( diff_rdd' ) );
 
