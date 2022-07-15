@@ -5,7 +5,7 @@
 // File: queue_coder.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 30-Jun-2022 11:29:54
+// C/C++ source code generated on  : 13-Jul-2022 14:15:57
 //
 
 // Include Files
@@ -34,6 +34,24 @@ void queue_coder::b_size() const
 //
 // function value = get(this, index)
 //
+// Arguments    : CurvStruct *value
+// Return Type  : void
+//
+void queue_coder::get(CurvStruct *value) const
+{
+    // 'queue_coder:20' coder.inline("never");
+    // 'queue_coder:21' value = queue_get(this.ptr, this.value_type, index);
+    *value = value_type;
+    // 'queue_get:2' if coder.target('matlab')
+    // 'queue_get:4' else
+    // 'queue_get:5' value = value_type;
+    // 'queue_get:6' coder.ceval('c_queue_get', uint64(ptr), uint32(index), coder.ref(value));
+    c_queue_get(ptr, 1U, value);
+}
+
+//
+// function value = get(this, index)
+//
 // Arguments    : int b_index
 //                CurvStruct *value
 // Return Type  : void
@@ -48,24 +66,6 @@ void queue_coder::get(int b_index, CurvStruct *value) const
     // 'queue_get:5' value = value_type;
     // 'queue_get:6' coder.ceval('c_queue_get', uint64(ptr), uint32(index), coder.ref(value));
     c_queue_get(ptr, static_cast<unsigned int>(b_index), value);
-}
-
-//
-// function value = get(this, index)
-//
-// Arguments    : CurvStruct *value
-// Return Type  : void
-//
-void queue_coder::get(CurvStruct *value) const
-{
-    // 'queue_coder:20' coder.inline("never");
-    // 'queue_coder:21' value = queue_get(this.ptr, this.value_type, index);
-    *value = value_type;
-    // 'queue_get:2' if coder.target('matlab')
-    // 'queue_get:4' else
-    // 'queue_get:5' value = value_type;
-    // 'queue_get:6' coder.ceval('c_queue_get', uint64(ptr), uint32(index), coder.ref(value));
-    c_queue_get(ptr, 1U, value);
 }
 
 //
@@ -165,6 +165,23 @@ void queue_coder::rget(CurvStruct *value) const
     // 'queue_coder:31' value = this.get(this.size - index + 1);
     size();
     get(size(), value);
+}
+
+//
+// function set(this, index, value)
+//
+// Arguments    : int b_index
+//                const CurvStruct *value
+// Return Type  : void
+//
+void queue_coder::set(int b_index, const CurvStruct *value) const
+{
+    // 'queue_coder:25' coder.inline("never");
+    // 'queue_coder:26' queue_set(this.ptr, index, value);
+    // 'queue_set:2' if coder.target('matlab')
+    // 'queue_set:4' else
+    // 'queue_set:5' coder.ceval('c_queue_set', uint64(ptr), uint32(index), value);
+    c_queue_set(ptr, static_cast<unsigned int>(b_index), *value);
 }
 
 //

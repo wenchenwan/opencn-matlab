@@ -5,26 +5,25 @@
 // File: resampleCurv.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 30-Jun-2022 11:29:54
+// C/C++ source code generated on  : 13-Jul-2022 14:15:57
 //
 
 // Include Files
 #include "resampleCurv.h"
 #include "ResampleStateClass.h"
 #include "bspline_eval.h"
-#include "constJerkU.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_types3.h"
 #include "coder_array.h"
 #include "src/c_spline.h"
 #include <cmath>
+#include <emmintrin.h>
 #include <stdio.h>
 
 // Function Definitions
 //
 // function [ state, ud, udd, uddd ] = resampleCurv(state, Bl, curv_mode, ...
-//     coeff, constJerk, dt, ...
-//     curv_a, curv_b)
+//     coeff, constJerk, dt, curv_a, curv_b, GaussLegendreX, GaussLegendreW )
 //
 // resampleCurv :
 //
@@ -35,14 +34,16 @@
 //            go_next : {0 : stay at on the same curve, 1 : move to the next}
 //            dt :      time step used for the discretization
 //            isOutsideRange : {true : if u is out of range}
-//  Bl            : Structure for the spline object used during the optimization
-//  curv_mode     : Zero speed mode for the curve
-//  coeff         : The resulting coeff of the optimization
-//  useConstJerk  : ( Boolean ) Use a constant jerk for u
-//  constJerk     : The actual value of the const jerk
-//  dt            : Sampling time
-//  curv_a        :  Curve parameter a for affine transform
-//  curv_b        :  Curve parameter b for affine transform
+//  Bl                : Structure for the spline object used during the optimization
+//  curv_mode         : Zero speed mode for the curve
+//  coeff             : The resulting coeff of the optimization
+//  useConstJerk      : ( Boolean ) Use a constant jerk for u
+//  constJerk         : The actual value of the const jerk
+//  dt                : Sampling time
+//  curv_a            : Curve parameter a for affine transform
+//  curv_b            : Curve parameter b for affine transform
+//  GaussLegendreX    : Nodes used for the gauss-legendre integration
+//  GaussLegendreW    : Weights used for the gauss-legendre integration
 //
 //  Outputs :
 //  state         : Updated input state
@@ -56,35 +57,41 @@
 //                const ::coder::array<double, 1U> &coeff
 //                double constJerk
 //                double dt
+//                const ::coder::array<double, 1U> &GaussLegendreX
+//                const ::coder::array<double, 1U> &GaussLegendreW
 // Return Type  : void
 //
 namespace ocn {
 void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode curv_mode,
-                  const ::coder::array<double, 1U> &coeff, double constJerk, double dt)
+                  const ::coder::array<double, 1U> &coeff, double constJerk, double dt,
+                  const ::coder::array<double, 1U> &GaussLegendreX,
+                  const ::coder::array<double, 1U> &GaussLegendreW)
 {
     ::coder::array<double, 2U> b_coeff;
     ::coder::array<double, 2U> coeffs;
+    ::coder::array<double, 1U> uval;
+    ::coder::array<double, 1U> x;
+    ::coder::array<double, 1U> xd;
+    ::coder::array<double, 1U> xdd;
+    ::coder::array<double, 1U> xddd;
     double X[4];
-    double q_data[4];
-    double c_u[2];
-    double x[2];
-    double a__1;
-    double a__2;
-    double a__3;
+    double d_u[2];
+    double b_d;
     double b_u;
-    double du;
-    double du_min;
-    double u1d;
+    double d1;
+    double d2;
     double ud;
+    double udd;
     double xdddk;
     double xddk;
     double xdk;
-    // 'resampleCurv:28' coder.inline( "never" );
-    // 'resampleCurv:30' if false && coder.target( "MATLAB" )
+    double xk;
+    // 'resampleCurv:29' coder.inline( "never" );
+    // 'resampleCurv:31' if false && coder.target( "MATLAB" )
     // 'resampleCurv:34' else
     // 'resampleCurv:36' if      ( curv_mode == ZSpdMode.ZN )
     if (curv_mode == ZSpdMode_ZN) {
-        double b_unnamed_idx_0;
+        double c_unnamed_idx_0;
         double u_tmp;
         double unnamed_idx_0;
         // 'resampleCurv:37' [ u, ud, udd, uddd ] = constJerkU( constJerk, state.dt, false );
@@ -106,6 +113,7 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
         //  Compute u and its derivatives based on constant jerk
         // 'constJerkU:28' uddd    = pseudoJerk .* ones( size( k_vec ) );
         // 'constJerkU:29' udd     = pseudoJerk .* k_vec;
+        udd = constJerk * state->dt;
         // 'constJerkU:30' ud      = pseudoJerk .* k_vec .^2 / 2;
         ud = constJerk * std::pow(state->dt, 2.0) / 2.0;
         // 'constJerkU:31' u       = pseudoJerk .* k_vec .^3 / 6;
@@ -116,23 +124,23 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
             unnamed_idx_0 = 1.0;
         }
         // 'constJerkU:34' u( u < 0 ) = 0;
-        b_unnamed_idx_0 = unnamed_idx_0;
+        c_unnamed_idx_0 = unnamed_idx_0;
         if (unnamed_idx_0 < 0.0) {
-            b_unnamed_idx_0 = 0.0;
+            c_unnamed_idx_0 = 0.0;
         }
         // 'constJerkU:36' if( isEnd )
-        b_u = b_unnamed_idx_0;
+        b_u = c_unnamed_idx_0;
         // 'resampleCurv:39' if( u == 1 )
-        if (b_unnamed_idx_0 == 1.0) {
+        if (c_unnamed_idx_0 == 1.0) {
             // 'resampleCurv:40' u = constJerk .* state.dt .^3 / 6;
             b_u = u_tmp;
         }
         // 'resampleCurv:42' state.dt = state.dt + dt;
         state->dt += dt;
-        // 'ResampleStateClass:6' double
-        // 'ResampleStateClass:6' dt
+        // 'ResampleStateClass:7' double
+        // 'ResampleStateClass:7' dt
     } else if (curv_mode == ZSpdMode_NZ) {
-        double c_unnamed_idx_0;
+        double b_unnamed_idx_0;
         double d_unnamed_idx_0;
         double k_vec;
         double u;
@@ -164,13 +172,13 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
         // 'constJerkU:31' u       = pseudoJerk .* k_vec .^3 / 6;
         u = constJerk * std::pow(k_vec, 3.0) / 6.0;
         // 'constJerkU:33' u( u > 1 ) = 1;
-        c_unnamed_idx_0 = u;
+        b_unnamed_idx_0 = u;
         if (u > 1.0) {
-            c_unnamed_idx_0 = 1.0;
+            b_unnamed_idx_0 = 1.0;
         }
         // 'constJerkU:34' u( u < 0 ) = 0;
-        d_unnamed_idx_0 = c_unnamed_idx_0;
-        if (c_unnamed_idx_0 < 0.0) {
+        d_unnamed_idx_0 = b_unnamed_idx_0;
+        if (b_unnamed_idx_0 < 0.0) {
             d_unnamed_idx_0 = 0.0;
         }
         // 'constJerkU:36' if( isEnd )
@@ -178,6 +186,7 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
         // 'constJerkU:37' u    = 1 - u;
         // 'constJerkU:38' ud   = ud;
         // 'constJerkU:39' udd  = -udd;
+        udd = -(constJerk * k_vec);
         // 'constJerkU:40' uddd = uddd;
         b_u = 1.0 - d_unnamed_idx_0;
         // 'resampleCurv:47' if( u == 1 )
@@ -191,15 +200,18 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
         }
         // 'resampleCurv:51' state.dt = state.dt + dt;
         state->dt += dt;
-        // 'ResampleStateClass:6' double
-        // 'ResampleStateClass:6' dt
+        // 'ResampleStateClass:7' double
+        // 'ResampleStateClass:7' dt
     } else {
+        double b_u_tmp;
+        double b_ud;
+        double b_udd;
+        double c_u;
         double q;
-        double ud_tmp;
         int loop_ub;
         // 'resampleCurv:52' else
         // 'resampleCurv:53' [ u,  ud, udd, uddd ] = ResampleNN( coeff, Bl, state.u, state.dt );
-        // 'resampleCurv:93' [ q, qd, qdd ] = bspline_eval( Bl, coeff', uk );
+        // 'resampleCurv:99' [ q, qd, qdd ] = bspline_eval( Bl, coeff', uk );
         coeffs.set_size(1, coeff.size(0));
         loop_ub = coeff.size(0);
         for (int i{0}; i < loop_ub; i++) {
@@ -208,34 +220,35 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
         q = state->u;
         //  void c_bspline_eval(uint64_t *handle, const double *c, double x, double X[3]);
         // 'bspline_eval:3' X = zeros(1, 4);
-        // 'bspline_eval:4' if coder.target('matlab')
-        // 'bspline_eval:11' if coder.target('rtw') || coder.target('mex')
-        // 'bspline_eval:12' if x < 0
+        // 'bspline_eval:4' if( ~isreal(x) )
+        // 'bspline_eval:8' if coder.target('matlab')
+        // 'bspline_eval:15' if coder.target('rtw') || coder.target('mex')
+        // 'bspline_eval:16' if x < 0
         if (state->u < 0.0) {
-            // 'bspline_eval:13' fprintf('ERROR: C_BSPLINE_EVAL: X < 0 (%f)\n', x);
+            // 'bspline_eval:17' fprintf('ERROR: C_BSPLINE_EVAL: X < 0 (%f)\n', x);
             printf("ERROR: C_BSPLINE_EVAL: X < 0 (%f)\n", state->u);
             fflush(stdout);
-            // 'bspline_eval:14' x = 0;
+            // 'bspline_eval:18' x = 0;
             q = 0.0;
         } else if (state->u > 1.0) {
-            // 'bspline_eval:15' elseif x > 1
-            // 'bspline_eval:16' fprintf('ERROR: C_BSPLINE_EVAL: X > 1 (%f)\n', x);
+            // 'bspline_eval:19' elseif x > 1
+            // 'bspline_eval:20' fprintf('ERROR: C_BSPLINE_EVAL: X > 1 (%f)\n', x);
             printf("ERROR: C_BSPLINE_EVAL: X > 1 (%f)\n", state->u);
             fflush(stdout);
-            // 'bspline_eval:17' x = 1;
+            // 'bspline_eval:21' x = 1;
             q = 1.0;
         }
-        // 'bspline_eval:19' coder.updateBuildInfo('addSourceFiles','c_spline.c',
-        // '$(START_DIR)/src'); 'bspline_eval:20' coder.updateBuildInfo('addLinkFlags',
-        // LibInfo.gsl.lflags); 'bspline_eval:21' coder.cinclude('src/c_spline.h');
-        // 'bspline_eval:22' coder.ceval('c_bspline_eval', coder.rref(Bl.handle),
-        // coder.rref(coeffs),... 'bspline_eval:23'                     x, coder.wref(X));
+        // 'bspline_eval:23' coder.updateBuildInfo('addSourceFiles','c_spline.c',
+        // '$(START_DIR)/src'); 'bspline_eval:24' coder.updateBuildInfo('addLinkFlags',
+        // LibInfo.gsl.lflags); 'bspline_eval:25' coder.cinclude('src/c_spline.h');
+        // 'bspline_eval:26' coder.ceval('c_bspline_eval', coder.rref(Bl.handle),
+        // coder.rref(coeffs),... 'bspline_eval:27'                     x, coder.wref(X));
         c_bspline_eval(&Bl_handle, &coeffs[0], q, &X[0]);
-        // 'bspline_eval:24' x       = X(1);
-        // 'bspline_eval:25' xd      = X(2);
-        // 'bspline_eval:26' xdd     = X(3);
-        // 'bspline_eval:27' xddd    = X(4);
-        // 'resampleCurv:95' [ ud, udd, uddd ] = calcUfromQ( q, qd, qdd );
+        // 'bspline_eval:28' x       = X(1);
+        // 'bspline_eval:29' xd      = X(2);
+        // 'bspline_eval:30' xdd     = X(3);
+        // 'bspline_eval:31' xddd    = X(4);
+        // 'resampleCurv:101' [ ud, udd, uddd ] = calcUfromQ( q, qd, qdd );
         //  calcQfromU : Compute q( u ) based on u and its derivatives.
         //  Inputs :
         //  q     : [ N x M ] q( u )
@@ -246,47 +259,75 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
         //  udd   : [ N x M ] Second derivative of u
         //  uddd  : [ N x M ] Third derivative of u
         // 'calcUfromQ:11' ud      = sqrt( q );
-        ud_tmp = std::sqrt(X[0]);
-        ud = ud_tmp;
+        b_ud = std::sqrt(X[0]);
         // 'calcUfromQ:12' udd     = qd / 2;
+        b_udd = X[1] / 2.0;
         // 'calcUfromQ:13' uddd    = qdd / 2 .* ud;
-        // 'resampleCurv:97' u = uk + mysqrt( q ) * dt + ( qd * dt ^ 2 ) / 4;
-        // 'mysqrt:3' y = sqrt(x);
-        // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-        sqrt_calls++;
-        b_u = (state->u + ud_tmp * state->dt) + X[1] * (state->dt * state->dt) / 4.0;
+        ud = b_ud;
+        udd = b_udd;
+        //  Taylor odre 2
+        // 'resampleCurv:104' u = uk + ud * dt + ( udd * dt ^ 2 ) / 2;
+        b_u_tmp = state->u + b_ud * state->dt;
+        c_u = b_u_tmp + b_udd * (state->dt * state->dt) / 2.0;
+        //  Ensure u > uk
+        // 'resampleCurv:107' if( u  <= uk )
+        if (c_u <= state->u) {
+            //  Taylor odre 1. Note since ud > 0
+            // 'resampleCurv:109' u = uk + ud * dt;
+            c_u = b_u_tmp;
+        }
+        b_u = c_u;
         // 'resampleCurv:54' state.dt = dt;
         state->dt = dt;
-        // 'ResampleStateClass:6' double
-        // 'ResampleStateClass:6' dt
+        // 'ResampleStateClass:7' double
+        // 'ResampleStateClass:7' dt
     }
-    // 'resampleCurv:57' du      = u - state.u;
-    du = b_u - state->u;
-    // 'resampleCurv:58' du_min  = check_minimum_precision( du );
-    du_min = du;
-    //  check_minimum_precision : Avoid effect numerical problem
-    // 'resampleCurv:102' MIN_PRES = eps;
-    // 'resampleCurv:103' if(d < MIN_PRES)
-    if (du < 2.2204460492503131E-16) {
-        // 'resampleCurv:103' d = MIN_PRES;
-        du_min = 2.2204460492503131E-16;
+    // 'resampleCurv:57' if( state.u > 0 )
+    if (state->u > 0.0) {
+        double du;
+        double du_min;
+        // 'resampleCurv:58' du      = u - state.u;
+        du = b_u - state->u;
+        // 'resampleCurv:59' du_min  = check_minimum_precision( du );
+        du_min = du;
+        //  check_minimum_precision : Avoid effect numerical problem
+        // 'resampleCurv:118' if( isempty( dMin ) )
+        // 'resampleCurv:120' if(d < dMin )
+        if (du < 2.2204460492503131E-16) {
+            // 'resampleCurv:121' d = dMin;
+            du_min = 2.2204460492503131E-16;
+        }
+        // 'resampleCurv:60' if( du_min > du )
+        if (du_min > du) {
+            // 'resampleCurv:60' u = state.u + du_min - du;
+            b_u = (state->u + du_min) - du;
+        }
     }
-    // 'resampleCurv:59' if( du_min > du )
-    if (du_min > du) {
-        // 'resampleCurv:59' u = state.u + du_min - du;
-        b_u = (state->u + du_min) - du;
-    }
-    // 'resampleCurv:61' if( u > 1 )
+    // 'resampleCurv:63' if( u > 1 )
     if (b_u > 1.0) {
+        double Tr;
         double d;
-        int q_size_idx_0;
-        int q_size_idx_1;
-        // 'resampleCurv:62' if      ( curv_mode == ZSpdMode.NN )
+        // 'resampleCurv:64' if      ( curv_mode == ZSpdMode.NN )
         if (curv_mode == ZSpdMode_NN) {
+            double d3;
             int b_loop_ub;
-            // 'resampleCurv:63' [ q ]     = bspline_eval_vec( Bl, coeff', [ state.u, 1 ] );
-            c_u[0] = state->u;
-            c_u[1] = 1.0;
+            int b_scalarLB;
+            int b_vectorUB;
+            int c_k;
+            int c_loop_ub;
+            int d_loop_ub;
+            int e_loop_ub;
+            int f_loop_ub;
+            int g_loop_ub;
+            int i2;
+            int i7;
+            int i8;
+            int i_loop_ub;
+            int scalarLB;
+            int vectorUB;
+            // 'resampleCurv:65' [ q ]     = bspline_eval_vec( Bl, coeff', [ state.u, 1 ] );
+            d_u[0] = state->u;
+            d_u[1] = 1.0;
             // 'bspline_eval_vec:3' x       = zeros(size(u));
             // 'bspline_eval_vec:4' xd      = zeros(size(u));
             // 'bspline_eval_vec:5' xdd     = zeros(size(u));
@@ -295,77 +336,153 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
             b_loop_ub = coeff.size(0);
             for (int k{0}; k < 2; k++) {
                 // 'bspline_eval_vec:9' [xk, xdk, xddk, xdddk] = bspline_eval(Bl, coeffs, u(k));
-                x[k] = c_u[k];
+                xk = d_u[k];
                 b_coeff.set_size(1, coeff.size(0));
                 for (int i1{0}; i1 < b_loop_ub; i1++) {
                     b_coeff[i1] = coeff[i1];
                 }
-                bspline_eval(Bl_handle, b_coeff, &x[k], &xdk, &xddk, &xdddk);
+                bspline_eval(Bl_handle, b_coeff, &xk, &xdk, &xddk, &xdddk);
                 // 'bspline_eval_vec:10' x(k)    = xk;
                 // 'bspline_eval_vec:11' xd(k)   = xdk;
                 // 'bspline_eval_vec:12' xdd(k)  = xddk;
                 // 'bspline_eval_vec:13' xddd(k) = xdddk;
             }
-            q_size_idx_0 = 1;
-            q_size_idx_1 = 2;
-            q_data[0] = x[0];
-            q_data[1] = x[1];
-        } else {
-            bool isEnd;
-            // 'resampleCurv:64' else
-            // 'resampleCurv:65' if  ( curv_mode == ZSpdMode.NZ )
-            if (curv_mode == ZSpdMode_NZ) {
-                // 'resampleCurv:66' isEnd = true;
-                isEnd = true;
-            } else {
-                // 'resampleCurv:67' else
-                // 'resampleCurv:68' isEnd = false;
-                isEnd = false;
+            //  Numerical integration : Gauss-Legendre
+            // 'resampleCurv:67' GL_X   = GaussLegendreX;
+            // 'resampleCurv:68' GL_W   = GaussLegendreW;
+            //  Linear map from[-1, 1] to [state.u, 1]
+            // 'resampleCurv:71' uval  = ( state.u * ( 1 - GL_X ) + ( 1 + GL_X) ) / 2;
+            uval.set_size(GaussLegendreX.size(0));
+            c_loop_ub = GaussLegendreX.size(0);
+            scalarLB = (GaussLegendreX.size(0) / 2) << 1;
+            vectorUB = scalarLB - 2;
+            for (i2 = 0; i2 <= vectorUB; i2 += 2) {
+                __m128d r;
+                __m128d r1;
+                r = _mm_loadu_pd((const double *)&GaussLegendreX[i2]);
+                r1 = _mm_set1_pd(1.0);
+                _mm_storeu_pd(&uval[i2], _mm_div_pd(_mm_add_pd(_mm_mul_pd(_mm_set1_pd(state->u),
+                                                                          _mm_sub_pd(r1, r)),
+                                                               _mm_add_pd(r, r1)),
+                                                    _mm_set1_pd(2.0)));
             }
-            // 'resampleCurv:70' k_max  = ( 6 / constJerk )^( 1 / 3 );
-            // 'resampleCurv:71' [ ~, u1d, ~, ~ ] = constJerkU( constJerk, k_max, isEnd );
-            constJerkU(constJerk, std::pow(6.0 / constJerk, 0.33333333333333331), isEnd, &a__1,
-                       &u1d, &a__2, &a__3);
-            // 'resampleCurv:72' q = [ state.ud; u1d ] .^2;
-            q_size_idx_0 = 2;
-            q_size_idx_1 = 1;
-            q_data[0] = std::pow(state->ud, 2.0);
-            q_data[1] = std::pow(u1d, 2.0);
+            for (i2 = scalarLB; i2 < c_loop_ub; i2++) {
+                uval[i2] =
+                    (state->u * (1.0 - GaussLegendreX[i2]) + (GaussLegendreX[i2] + 1.0)) / 2.0;
+            }
+            // 'resampleCurv:72' Ival  = 1 ./ sqrt( bspline_eval_vec( Bl, coeff', uval ) );
+            // 'bspline_eval_vec:3' x       = zeros(size(u));
+            x.set_size(uval.size(0));
+            d_loop_ub = uval.size(0);
+            for (int i3{0}; i3 < d_loop_ub; i3++) {
+                x[i3] = 0.0;
+            }
+            // 'bspline_eval_vec:4' xd      = zeros(size(u));
+            xd.set_size(uval.size(0));
+            e_loop_ub = uval.size(0);
+            for (int i4{0}; i4 < e_loop_ub; i4++) {
+                xd[i4] = 0.0;
+            }
+            // 'bspline_eval_vec:5' xdd     = zeros(size(u));
+            xdd.set_size(uval.size(0));
+            f_loop_ub = uval.size(0);
+            for (int i5{0}; i5 < f_loop_ub; i5++) {
+                xdd[i5] = 0.0;
+            }
+            // 'bspline_eval_vec:6' xddd    = zeros(size(u));
+            xddd.set_size(uval.size(0));
+            g_loop_ub = uval.size(0);
+            for (int i6{0}; i6 < g_loop_ub; i6++) {
+                xddd[i6] = 0.0;
+            }
+            // 'bspline_eval_vec:8' for k = 1:length(u)
+            i7 = uval.size(0);
+            for (int b_k{0}; b_k < i7; b_k++) {
+                int h_loop_ub;
+                // 'bspline_eval_vec:9' [xk, xdk, xddk, xdddk] = bspline_eval(Bl, coeffs, u(k));
+                x[b_k] = uval[b_k];
+                h_loop_ub = coeff.size(0);
+                b_coeff.set_size(1, coeff.size(0));
+                for (int i9{0}; i9 < h_loop_ub; i9++) {
+                    b_coeff[i9] = coeff[i9];
+                }
+                bspline_eval(Bl_handle, b_coeff, &x[b_k], &b_d, &d1, &d2);
+                xddd[b_k] = d2;
+                xdd[b_k] = d1;
+                xd[b_k] = b_d;
+                // 'bspline_eval_vec:10' x(k)    = xk;
+                // 'bspline_eval_vec:11' xd(k)   = xdk;
+                // 'bspline_eval_vec:12' xdd(k)  = xddk;
+                // 'bspline_eval_vec:13' xddd(k) = xdddk;
+            }
+            //  Gauss Legendre integration
+            // 'resampleCurv:74' Tr    = Ival.' * GL_W * ( 1 - state.u ) / 2;
+            i8 = x.size(0);
+            b_scalarLB = (x.size(0) / 2) << 1;
+            b_vectorUB = b_scalarLB - 2;
+            for (c_k = 0; c_k <= b_vectorUB; c_k += 2) {
+                __m128d r2;
+                r2 = _mm_loadu_pd(&x[c_k]);
+                _mm_storeu_pd(&x[c_k], _mm_sqrt_pd(r2));
+            }
+            for (c_k = b_scalarLB; c_k < i8; c_k++) {
+                x[c_k] = std::sqrt(x[c_k]);
+            }
+            d3 = 0.0;
+            i_loop_ub = x.size(0);
+            for (int i10{0}; i10 < i_loop_ub; i10++) {
+                d3 += 1.0 / x[i10] * GaussLegendreW[i10];
+            }
+            Tr = d3 * (1.0 - state->u) / 2.0;
+        } else {
+            // 'resampleCurv:75' else
+            // 'resampleCurv:76' Tuk = ( 6 * state.u / constJerk )^( 1 / 3 );
+            // 'resampleCurv:77' T1  = ( 6 / constJerk )^( 1 / 3 );
+            // 'resampleCurv:78' Tr  = T1 - Tuk;
+            Tr = std::pow(6.0 / constJerk, 0.33333333333333331) -
+                 std::pow(6.0 * state->u / constJerk, 0.33333333333333331);
         }
-        // 'resampleCurv:75' Tr       = 2 * ( 1 - state.u ) / ( sqrt( q( end ) ) + sqrt( q( 1 ) ) );
-        // 'resampleCurv:76' state.dt = check_minimum_precision( dt - Tr );
-        d = dt - 2.0 * (1.0 - state->u) /
-                     (std::sqrt(q_data[q_size_idx_0 * q_size_idx_1 - 1]) + std::sqrt(q_data[0]));
+        //  Ensure Tr <= dt
+        // 'resampleCurv:81' state.dt = check_minimum_precision_dt( dt - Tr, dt );
+        d = dt - Tr;
         //  check_minimum_precision : Avoid effect numerical problem
-        // 'resampleCurv:102' MIN_PRES = eps;
-        // 'resampleCurv:103' if(d < MIN_PRES)
-        if (d < 2.2204460492503131E-16) {
-            // 'resampleCurv:103' d = MIN_PRES;
-            d = 2.2204460492503131E-16;
+        // 'resampleCurv:128' if(d <= 0.0 )
+        if (d <= 0.0) {
+            // 'resampleCurv:129' d = 0.0;
+            d = 0.0;
+        }
+        // 'resampleCurv:132' if(d > dt )
+        if (d > dt) {
+            // 'resampleCurv:133' d = dt;
+            d = dt;
         }
         state->dt = d;
-        // 'ResampleStateClass:6' double
-        // 'ResampleStateClass:6' dt
-        // 'resampleCurv:77' state.isOutsideRange = true;
+        // 'ResampleStateClass:7' double
+        // 'ResampleStateClass:7' dt
+        // 'resampleCurv:82' state.isOutsideRange = true;
         state->isOutsideRange = true;
     } else {
-        // 'resampleCurv:78' else
-        // 'resampleCurv:79' state.u     = u;
+        // 'resampleCurv:83' else
+        // 'resampleCurv:84' state.u     = u;
         state->u = b_u;
         // 'ResampleStateClass:3' double
         // 'ResampleStateClass:3' u
-        // 'resampleCurv:80' state.ud    = ud;
+        // 'resampleCurv:85' state.ud    = ud;
         state->ud = ud;
         // 'ResampleStateClass:4' double
         // 'ResampleStateClass:4' ud
+        // 'resampleCurv:86' state.udd   = udd;
+        state->udd = udd;
+        // 'ResampleStateClass:5' double
+        // 'ResampleStateClass:5' udd
     }
-    // 'resampleCurv:83' if( u >= 1 )
+    // 'resampleCurv:89' if( u >= 1 )
     if (b_u >= 1.0) {
-        // 'resampleCurv:84' state.go_next = true;
+        // 'resampleCurv:90' state.go_next = true;
         state->go_next = true;
     } else {
-        // 'resampleCurv:85' else
-        // 'resampleCurv:86' state.go_next = false;
+        // 'resampleCurv:91' else
+        // 'resampleCurv:92' state.go_next = false;
         state->go_next = false;
     }
 }

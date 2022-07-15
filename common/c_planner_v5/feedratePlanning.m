@@ -33,34 +33,43 @@ if ( ctx.k0 <= ctx.q_split.size )
 
         % Handle the zero speed at start
         if ( isAZeroStart( first ) )
-            opt_struct      = first;
-            optimized       = true;
-            [ v_0, at_0 ]   = calcZeroConstraints( ctx, first, false );
-            ctx.v_0         = v_0;
-            ctx.at_0        = at_0;
             ctx.zero_start  = true;
-            quit            = true;
-            return;
+            window          = window( 2 : end );
+            NWindow         = NWindow -1;
         else
             ctx.zero_start  = false;
         end
+
         % Handle the zero speed at end
         if( isAZeroEnd( last ) )
-            [ v_1, at_1 ]   = calcZeroConstraints( ctx, last, true );
-            ctx.v_1         = -v_1;
-            ctx.at_1        = -at_1;
-            ctx.zero_end    = true;
             NWindow         = NWindow -1;
+        end
+
+        if( isAZeroEnd( last ) && ~ctx.zero_start )
+            ctx.zero_end    = true;
         else
-            ctx.v_1         = -ctx.cfg.v_1;
-            ctx.at_1        = -ctx.cfg.at_1;
             ctx.zero_end    = false;
         end
 
-    [ ctx, Coeff, success, status, msg ] = ...
-    FeedratePlanning_LP( ctx, window, ctx.cfg.amax, ctx.cfg.jmax, ...
-    ctx.BasisVal, ctx.BasisValD, ctx.BasisValDD, ctx.BasisIntegr, ...
-    ctx.u_vec, NWindow );
+        if( ctx.zero_start )
+            [ v_0, at_0 ]   = calcZeroConstraints( ctx, first, false );
+            ctx.v_0         = v_0;
+            ctx.at_0        = at_0;
+        end
+
+        if( ctx.zero_end )
+            [ v_1, at_1 ]   = calcZeroConstraints( ctx, last, true );
+            ctx.v_1         = -v_1;
+            ctx.at_1        = -at_1;
+        else
+            ctx.v_1         = -ctx.cfg.v_1;
+            ctx.at_1        = -ctx.cfg.at_1;
+        end
+
+        [ ctx, Coeff, success, status, msg ] = ...
+            FeedratePlanning_LP( ctx, window, ctx.cfg.amax, ctx.cfg.jmax, ...
+            ctx.BasisVal, ctx.BasisValD, ctx.BasisValDD, ctx.BasisIntegr, ...
+            ctx.u_vec, NWindow );
 
         if( success == 1 )      % Optimization succed
             optimized   = true;
@@ -79,8 +88,8 @@ if ( ctx.k0 <= ctx.q_split.size )
         optimized   = true;
         kopt = kopt + 1;
         opt_struct = ctx.q_split.get( ctx.k0 );
-        
-        if( opt_struct.Info.zspdmode ~= ZSpdMode.NZ )
+
+        if( ~isAZeroEnd( opt_struct ) )
             opt_struct.Coeff = ctx.Coeff( :, kopt );
         else
             ctx.zero_end  = false;
@@ -109,13 +118,13 @@ window = repmat( constrCurvStructType, 1, NHorz );
 kend = min( double( k0 + NHorz -1 ), q_curves.size );
 
 ind = 0;
+
 for curv_ind = k0 : int32( kend )
     ind = ind + 1;
 
     % store the value in the queue
     curv            = q_curves.get( curv_ind );
     window( ind )   = curv;
-
     % Check if zero speed at the end
     if( isAZeroEnd( curv ) ), break; end
 end

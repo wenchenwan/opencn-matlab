@@ -15,14 +15,19 @@ end
 
 if( isAZeroStart( curv ) )
     % cut zero Start
-    [ curvS, curv ] = cutZeroStart( ctx, curv );
+    [ ret, curvS, curv ] = cutZeroStart( ctx, curv );
     ctx.q_split.push( curvS );
+    if( ret < 0 ), return; end
 end
 
 hasEndSpeed = false;
 if( isAZeroEnd( curv ) )
     % cut zero End
-    [ curv, curvE ] = cutZeroEnd( ctx, curv );
+    [ ret, curv, curvE ] = cutZeroEnd( ctx, curv );
+    if( ret < 0 )
+        ctx.q_split.push( curv );
+        return; 
+    end
     hasEndSpeed     = true;
 end
 
@@ -35,34 +40,12 @@ N = ceil( L / L_split );
 % Length of the sub segments
 L_split = L / N;
 
-% Loop
-u0 = 0;
-
 for k = 1 : N - 1
-    u1_tilda  = cutCurvStructU( ctx, curv, u0, L_split, false );
-    u1 = ( u1_tilda - curv.b_param ) / curv.a_param;
-    if( u1 < 1 )
-        curvSplited         = curv;
-        curvSplited.a_param = u1_tilda - curvSplited.b_param;
+    [ ret, curvSplited, curv ] = cutCurvStruct( ctx, curv, 0, L_split, false );
+    if( ret < 0 ), break; end
 
-        if( isAZeroStart( curvSplited ) )
-            curvSplited.Info.zspdmode = ZSpdMode.ZN;
-        else
-            curvSplited.Info.zspdmode = ZSpdMode.NN;
-        end
-        
-        curv.a_param        = curv.a_param  + curv.b_param... 
-                              - u1_tilda;
-        curv.b_param        = u1_tilda;
-
-        if( isAZeroEnd( curv ) )
-            curv.Info.zspdmode = ZSpdMode.NZ;
-        else
-            curv.Info.zspdmode = ZSpdMode.NN;
-        end
-    else
-        break;
-    end
+    assert( check_curv_length( ctx, curvSplited, L_split ), ...
+            mfilename + " Curve Length not valide");
 
     ctx.q_split.push( curvSplited );
     
@@ -73,4 +56,17 @@ ctx.q_split.push( curv );
 if( hasEndSpeed )
     % cut zero End
     ctx.q_split.push( curvE );
+end
+
+end
+
+function [ isValid ] = check_curv_length( ctx, curv, L )
+tol = 1E-3;
+
+isValid = ( abs( LengthCurv( ctx, curv, 0, 1 ) - L ) <= tol );
+
+if( ~isValid )
+    disp("spline Length is not valid");
+end
+
 end

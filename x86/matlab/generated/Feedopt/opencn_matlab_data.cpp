@@ -5,7 +5,7 @@
 // File: opencn_matlab_data.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 30-Jun-2022 11:29:54
+// C/C++ source code generated on  : 13-Jul-2022 14:15:57
 //
 
 // Include Files
@@ -21,14 +21,7 @@ double sin_calls;
 
 double DebugConfig;
 
-const char cv1[54]{'u', '1', ' ', 'm', 'u', 's', 't', ' ', 'b', 'e', ' ', 'g', 'r', 'e',
-                   'a', 't', 'e', 'r', ' ', 'o', 'r', ' ', 'e', 'q', 'u', 'a', 'l', ' ',
-                   't', 'h', 'a', 'n', ' ', 't', 'h', 'e', ' ', 'f', 'i', 'r', 's', 't',
-                   ' ', 's', 'p', 'l', 'i', 'n', 'e', ' ', 'k', 'n', 'o', 't'};
-
-const int iv[4]{0, 1, 2, 3};
-
-const char cv2[29]{'B', 'A', 'D', ' ', 'C', 'U', 'R', 'V', 'E', ' ', 'T', 'Y', 'P', 'E', ' ',
+const char cv1[29]{'B', 'A', 'D', ' ', 'C', 'U', 'R', 'V', 'E', ' ', 'T', 'Y', 'P', 'E', ' ',
                    'I', 'N', ' ', 'L', 'E', 'N', 'G', 'T', 'H', ' ', 'C', 'U', 'R', 'V'};
 
 bool isInitialized_opencn_matlab{false};

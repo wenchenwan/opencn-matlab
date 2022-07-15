@@ -5,7 +5,7 @@
 // File: mypolyval.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 30-Jun-2022 11:29:54
+// C/C++ source code generated on  : 13-Jul-2022 14:15:57
 //
 
 #ifndef MYPOLYVAL_H
@@ -25,7 +25,7 @@ void b_binary_expand_op(::coder::array<double, 2U> &y, const ::coder::array<doub
                         const ::coder::array<double, 2U> &r2);
 
 void binary_expand_op(::coder::array<double, 2U> &D0, const ::coder::array<double, 2U> &b,
-                      const ::coder::array<double, 2U> &b_b);
+                      const ::coder::array<double, 2U> &r);
 
 void binary_expand_op(::coder::array<double, 1U> &D0, double u_vec, const int outsize[2],
                       const ::coder::array<double, 1U> &r);

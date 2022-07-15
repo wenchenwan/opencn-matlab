@@ -51,6 +51,9 @@ else
     %             fprintf('linprog failed with exitflag = %d\n', exitflag);
     %         end
     if ( ~ctx.cfg.opt.USE_LINPROG )
+        if( ~all( isreal( A ), 'all' ) )
+            disp("here");
+        end
         [C0, success, status] = c_simplex_mex(f, A, b, Aeq, beq );
         msg = printOptStatus( status );
         

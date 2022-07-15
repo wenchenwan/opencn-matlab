@@ -13,12 +13,11 @@ dt              = ctx.cfg.dt;
 state           = ResampleState( dt );
 countInPercent  = double( 0 );
 
-ind = 0; sizeBuffer = 1E4; t = 0;
+ind = 0; sizeBuffer = 1E7; t = 0;
 buffer = zeros( sizeBuffer, 5 + 3 * ctx.cfg.NumberAxis );
 firstTime = true;
 
 for k = 1 : N
-
     countInPercent = printAvancement(countInPercent, k, N);
 
     Curv                        = ctx.q_opt.get( k );
@@ -26,10 +25,11 @@ for k = 1 : N
         
     while ~state.go_next
 
-         [ state, ud, udd, uddd ] = resampleCurv(state, ctx.Bl, ...
+         [ state, ud, udd, uddd ] = resampleCurv( state, ctx.Bl, ...
                                     Curv.Info.zspdmode, Curv.Coeff, ...
                                     Curv.ConstJerk, dt, Curv.a_param, ...
-                                    Curv.b_param);
+                                    Curv.b_param, ctx.cfg.GaussLegendreX, ...
+                                    ctx.cfg.GaussLegendreW );
         
         if( ~state.isOutsideRange )
             t = t + 1;

@@ -2,14 +2,14 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: constJerkU.h
+// File: checkParametrisation.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 30-Jun-2022 11:29:54
+// C/C++ source code generated on  : 13-Jul-2022 14:15:57
 //
 
-#ifndef CONSTJERKU_H
-#define CONSTJERKU_H
+#ifndef CHECKPARAMETRISATION_H
+#define CHECKPARAMETRISATION_H
 
 // Include Files
 #include "rtwtypes.h"
@@ -18,16 +18,21 @@
 
 // Custom Header Code
 #include "functions.h"
+// Type Declarations
+namespace ocn {
+class queue_coder;
+
+}
+
 // Function Declarations
 namespace ocn {
-void constJerkU(double pseudoJerk, double k_vec, bool isEnd, double *u, double *ud, double *udd,
-                double *uddd);
+bool checkParametrisation(const queue_coder *queue);
 
 }
 
 #endif
 //
-// File trailer for constJerkU.h
+// File trailer for checkParametrisation.h
 //
 // [EOF]
 //

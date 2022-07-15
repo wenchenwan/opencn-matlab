@@ -24,6 +24,9 @@ void c_bspline_create(void *handle, double x0, double x1, int32_t degree, int32_
 void c_bspline_create_with_breakpoints(void *handle, int32_t degree, double* breakpoints, int N);
 void c_bspline_base_eval(const void *handle, int32_t N, const double *xvec, double *BasisVal, double *BasisValD,
                          double *BasisValDD, double *BasisValDDD, double *BasisIntegr);
+void c_bspline_base_eval_lee(const void *handle_, int32_t nCoeff, int32_t N, 
+                             const double *xvec, double *BasisVal, 
+                             double *BasisValDD0,double *BasisValDD1);
 
 void c_bspline_destroy(const void *handle);
 void c_bspline_eval(const void *handle, const double *c, double x, double X[3]);

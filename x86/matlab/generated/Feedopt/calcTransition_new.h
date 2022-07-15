@@ -5,7 +5,7 @@
 // File: calcTransition_new.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 30-Jun-2022 11:29:54
+// C/C++ source code generated on  : 13-Jul-2022 14:15:57
 //
 
 #ifndef CALCTRANSITION_NEW_H
@@ -42,7 +42,10 @@ void calcTransition_new(const queue_coder *ctx_q_spline, const bool ctx_cfg_mask
                         const CurvStruct *curv2, TransitionResult *status, CurvStruct *curv1C,
                         CurvStruct *curv2C, CurvStruct *curvT);
 
-}
+void minus(::coder::array<double, 1U> &x, const ::coder::array<double, 1U> &r11,
+           const ::coder::array<double, 1U> &r21);
+
+} // namespace ocn
 
 #endif
 //

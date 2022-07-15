@@ -168,6 +168,47 @@ void c_bspline_eval(const void *handle_, const double *c, double x, double X[4])
     }
 }
 
+
+void c_bspline_base_eval_lee(const void *handle_, int32_t nCoeff, int32_t N, 
+                             const double *xvec, double *BasisVal, 
+                             double *BasisValDD0,double *BasisValDD1)
+{
+	const size_t* handle = (const size_t*)handle_;
+    size_t k, i, istart, iend;
+    bspline_t *bs = (bspline_t *)*handle;
+    /* for each sample */
+    for (k = 0; k < N; k++) {
+        /* for each basis function */
+        
+        double x = xvec[k];
+		if (x < 0.0) {
+			printf("c_bspline_base_eval: xvec[%lu] = %f, using 0\n", (long unsigned) k, x);
+			x = 0.0;
+		}
+		if (x > 1.0) {
+			printf("c_bspline_base_eval: xvec[%lu] = %f, using 1\n", (long unsigned) k, x);
+			x = 1.0;
+		}
+		
+		// Check for NaN
+		if (x != x) {
+			printf("c_bspline_base_eval: xvec[%lu] = %f\n", (long unsigned) k, x);
+		}
+		
+        gsl_bspline_deriv_eval_nonzero(x, nderiv, bs->dBNonZero, &istart, &iend, bs->ws);
+
+        for (i = istart; i <= iend; i++) {
+            BasisVal[i * N + k] = gsl_matrix_get(bs->dBNonZero, i -istart, 0);
+            if( k == 0 )
+                BasisValDD0[i]  = gsl_matrix_get(bs->dBNonZero, i -istart, 2);
+            if( k == N-1 )
+                BasisValDD1[i]  = gsl_matrix_get(bs->dBNonZero, i -istart, 2);
+        }
+    }
+    
+}
+
+
 void c_bspline_eval_vec(const void *handle_, const double *c, int32_t N, double *xvec,
         double X[][3])
 {

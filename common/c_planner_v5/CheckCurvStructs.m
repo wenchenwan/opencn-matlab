@@ -1,42 +1,39 @@
-function ctx = CheckCurvStructs(ctx)
+function [ ctx ] = CheckCurvStructs( ctx )
 
 N = ctx.q_gcode.size;
 
-DebugLog(DebugCfg.Validate, 'Checking for cusps...\n');
-DebugLog(DebugCfg.OptimProgress, 'Checking for cusps...\n');
+DebugLog( DebugCfg.Validate, 'Checking for cusps...\n' );
+DebugLog( DebugCfg.OptimProgress, 'Checking for cusps...\n' );
 
-for k = 1 : N-1
-    Curv1 = ctx.q_gcode.get(k);
-    Curv2 = ctx.q_gcode.get(k+1);
+curv1 = ctx.q_gcode.get( 1 );
+for k = 2 : N
+    curv2 = ctx.q_gcode.get( k );
     
-    [~, r0D1] = EvalCurvStruct( ctx, Curv1, 1 );
-    [~, r1D1] = EvalCurvStruct( ctx, Curv2, 0 );
-    
-    if iscusp(r0D1, r1D1, ctx.cfg.CuspThreshold)
-        switch Curv1.Info.zspdmode
+    [~, r0D1] = EvalCurvStruct( ctx, curv1, 1 );
+    [~, r1D1] = EvalCurvStruct( ctx, curv2, 0 );
+
+    if ( ~isAZeroEnd( curv1 ) ) && ... 
+        iscusp( r0D1( ctx.cfg.indCart ), r1D1( ctx.cfg.indCart ), ...
+                ctx.cfg.Cusp.CuspThreshold )
+       
+        switch curv1.Info.zspdmode
             case ZSpdMode.NN
-                Curv1.Info.zspdmode = ZSpdMode.NZ;
+                curv1.Info.zspdmode = ZSpdMode.NZ;
             case ZSpdMode.ZN
-                Curv1.Info.zspdmode = ZSpdMode.ZZ;
-            case ZSpdMode.NZ
-                % Nothing to do
-            case ZSpdMode.ZZ
-                % Nothing to do
+                curv1.Info.zspdmode = ZSpdMode.ZZ;
         end
         
-        switch Curv2.Info.zspdmode
+        switch curv2.Info.zspdmode
             case ZSpdMode.NN
-                Curv2.Info.zspdmode = ZSpdMode.ZN;
-            case ZSpdMode.ZN
-                % Nothing to do
+                curv2.Info.zspdmode = ZSpdMode.ZN;
             case ZSpdMode.NZ
-                Curv2.Info.zspdmode = ZSpdMode.ZZ;
-            case ZSpdMode.ZZ
-                % Nothing to do
+                curv2.Info.zspdmode = ZSpdMode.ZZ;
         end
         
-        ctx.q_gcode.set(k,   Curv1);
-        ctx.q_gcode.set(k+1, Curv2);
+        ctx.q_gcode.set( k - 1,   curv1 );
+        ctx.q_gcode.set( k, curv2 );
     end
+
+    curv1 = curv2;
 end    
 end

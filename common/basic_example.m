@@ -9,43 +9,46 @@ check_wkdir(); % If current directory is the working directory
 % Load default configuration parameters
 cfg = FeedoptDefaultConfig;
 % Set the path to the gcode file
-cfg.source = 'ngc_test/unit/014_spline_5D.ngc';
+cfg.source = 'ngc_test/dome/dome.ngc';
 
 % Logging
 setupLogs( cfg.LogFileName ); diary on;
 
 % Initialization of the feed operator
 ctx = initFeedoptPlan( cfg );
-
+% DestroyContext( ctx );
+% [ ret, ctx ] = loadCtx( "dev/test.mat" );
 try
 
     % Run the geometrics operations, then solve the LP problem
     ctx = FeedoptPlanRun( ctx );                                     
-    
+    [ ret ] = saveCtx( ctx, "dev/test.mat" );
+
     % Plot geometry
     plotGeometry(ctx, ctx.cfg, ctx.q_opt, ctx.q_spline );
     pause( 0.5 );
-
+% 
     % Resampling of the parameter
-%     fileName = 'PR1_QPT/sampler/OpenCN_spline2_RTCPoff.csv' ;
-%     resample4sampler( ctx, fileName );
+    fileName = "PR2/sampler/dome.csv";
+    resample4sampler( ctx, fileName );
 
-    % Resampling of the parameter
-    fileName = '.tmp.csv' ;
-    resample2file( ctx, fileName ); ctx.q_opt.delete();
-
-    % Load resampled data points
-    res = readmatrix( fileName );
-    delete( fileName );
- 
-    % Transforms structure into vector for analysis
-    [res_struct, indFeed, indAcc, indJerk] = get_res_struct( res, ctx.cfg.maskTot );
-
-    % Analyse time optimality and constraints satisfaction
-    analyse_optimality( res, indFeed, indAcc, indJerk, ctx.cfg.dt );
-
-    % Plot the resulting trajectories
-    plotTrajectories( ctx, res_struct );
+%     %Resampling of the parameter
+%     if( ctx.q_opt.isempty ), error("Queue empty before resampling"); end
+%     fileName = '.tmp.csv' ;
+%     resample2file( ctx, fileName ); ctx.q_opt.delete();
+% 
+%     % Load resampled data points
+%     res = readmatrix( fileName );
+%     delete( fileName );
+%  
+%     % Transforms structure into vector for analysis
+%     [res_struct, indFeed, indAcc, indJerk] = get_res_struct( res, ctx.cfg.maskTot );
+% 
+%     % Analyse time optimality and constraints satisfaction
+%     analyse_optimality( res, indFeed, indAcc, indJerk, ctx.cfg.dt );
+% 
+%     % Plot the resulting trajectories
+%     plotTrajectories( ctx, res_struct );
 
 catch ME
     error( '%s\n%s\n%s\n', ME.message, "File name : " + ME.stack(1).name, ...

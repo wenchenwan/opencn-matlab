@@ -108,13 +108,22 @@ if( Nwindow > 1 )
     b  = b .* ramp(:);
 end
 
-A = [ -ones( size( A, 2 ) );      A ];
-b = [ zeros( size( A, 2 ), 1 );   b ];
-
 % Continuity equations
 continuity = [ v2_vec( 2, : , 1 ); at_norm( 2, :, 1 ) ];
 
+checkValidity( A, b, Aeq, beq, continuity );
+
 c_prof_out(mfilename);
+
+end
+
+
+function checkValidity( A, b, Aeq, beq, continuity )
+assert( ~any( isnan( A ) , 'all' ),          mfilename + " Error : A has NaN");
+assert( ~any( isnan( b ) , 'all' ),          mfilename + " Error : b has NaN");
+assert( ~any( isnan( Aeq ) , 'all' ),        mfilename + " Error : Aeq has NaN");
+assert( ~any( isnan( beq ) , 'all' ),        mfilename + " Error : beq has NaN");
+assert( ~any( isnan( continuity ) , 'all' ), mfilename + " Error : continuity has NaN");
 
 end
 

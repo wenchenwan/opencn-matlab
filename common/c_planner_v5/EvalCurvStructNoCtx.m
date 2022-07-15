@@ -3,7 +3,7 @@ function [r0D, r1D, r2D, r3D] = EvalCurvStructNoCtx( cfg, curv, spline, u_vec )
 %#codegen
 
 coder.inline("never");
-if any( u_vec - 1.0 > 10 * eps )
+if any( u_vec > 1.0 )
     u_vec( u_vec > 1.0 ) = 1.0; printMsg( "Error : u_vec > 1\n" );
 end
 
@@ -12,15 +12,13 @@ if any( u_vec < 0.0 )
 end
 
 %
-Type  = curv.Info.Type;
+Type    = curv.Info.Type;
 %
-N   = numel( u_vec );
-M   = cfg.NumberAxis;
+N       = numel( u_vec );
+M       = cfg.NumberAxis;
 
-r0D = zeros( M, N );
-r1D = r0D;
-r2D = r0D;
-r3D = r0D;
+r0D     = zeros( M, N );
+r1D = r0D; r2D = r0D; r3D = r0D;
 
 a = curv.a_param;
 b = curv.b_param;

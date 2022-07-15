@@ -5,7 +5,7 @@
 // File: calc_t_nk_kappa.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 30-Jun-2022 11:29:54
+// C/C++ source code generated on  : 13-Jul-2022 14:15:57
 //
 
 #ifndef CALC_T_NK_KAPPA_H
@@ -21,11 +21,11 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-void calc_t_nk_kappa(const ::coder::array<double, 1U> &rD1, const ::coder::array<double, 1U> &rD2,
-                     ::coder::array<double, 1U> &t, ::coder::array<double, 1U> &nk, double *kappa);
-
 void calc_t_nk_kappa(const double rD1[5], const double rD2[5], double t[5], double nk[5],
                      double *kappa);
+
+void calc_t_nk_kappa(const ::coder::array<double, 1U> &rD1, const ::coder::array<double, 1U> &rD2,
+                     ::coder::array<double, 1U> &t, ::coder::array<double, 1U> &nk, double *kappa);
 
 } // namespace ocn
 

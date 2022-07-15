@@ -1,4 +1,4 @@
-function [ A, b ] = buildConstrJerk( ctx, windowCurv, coeff, jmax, ...
+function [ Aj, bj ] = buildConstrJerk( ctx, windowCurv, coeff, jmax, ...
                     BasisVal, BasisValD, BasisValDD, u_vec )
 %#codegen
 
@@ -39,8 +39,8 @@ for k = 1 : Nwindow
     
     for j = 1 : Ndim    % Compute the jerk matrix
         ind = int32( 1 : M ) + ( j - 1 ) * M ;
-        Jerk( ind, : ) = ( r3D( j, : )' .* BasisVal + 1.5 * r2D( j, : )' ...
-                        .* BasisValD + 0.5 * r1D( j, : )' .* BasisValDD ) ...
+        Jerk( ind, : ) = ( r3D( j, : ).' .* BasisVal + 1.5 * r2D( j, : ).' ...
+                        .* BasisValD + 0.5 * r1D( j, : ).' .* BasisValDD ) ...
                         .* sqrt( BasisVal * coeff( :, k ) );
     end
     % Inequality constraints
@@ -50,13 +50,17 @@ for k = 1 : Nwindow
     bj( indAL )          = [ b_jmax( : ); b_jmax( : ) ];
 end
 
-% Slack variables
-[ nAL, nAc ] = size( Aj );
-A = [ Aj, - ones( nAL, 1 ) ; zeros( 1, nAc ), -1 ];
-
-b = [ bj ; 0 ];
+checkValidity( Aj, bj );
 
 c_prof_out(mfilename);
 
 end
+
+function checkValidity( A, b )
+
+assert( ~any( isnan( A ) , 'all' ),          mfilename + " Error : A has NaN");
+assert( ~any( isnan( b ) , 'all' ),          mfilename + " Error : b has NaN");
+
+end
+
 

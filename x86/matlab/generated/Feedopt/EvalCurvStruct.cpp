@@ -5,7 +5,7 @@
 // File: EvalCurvStruct.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 30-Jun-2022 11:29:54
+// C/C++ source code generated on  : 13-Jul-2022 14:15:57
 //
 
 // Include Files
@@ -277,16 +277,7 @@ void c_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
 //                int ctx_cfg_NumberAxis
 //                int ctx_cfg_NCart
 //                int ctx_cfg_NRot
-//                const GcodeInfoStruct curv_Info
-//                const double curv_R0[6]
-//                const double curv_R1[6]
-//                const double curv_CorrectedHelixCenter[3]
-//                const double curv_evec[3]
-//                double curv_theta
-//                double curv_pitch
-//                const ::coder::array<double, 2U> &curv_CoeffP5
-//                double curv_a_param
-//                double curv_b_param
+//                const CurvStruct *curv
 //                ::coder::array<double, 1U> &r0D
 //                ::coder::array<double, 1U> &r1D
 //                ::coder::array<double, 1U> &r2D
@@ -298,17 +289,10 @@ void d_EvalCurvStruct(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_maskT
                       const bool ctx_cfg_maskRot_data[], const int ctx_cfg_maskRot_size[2],
                       const ::coder::array<int, 1U> &ctx_cfg_indCart,
                       const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
-                      int ctx_cfg_NCart, int ctx_cfg_NRot, const GcodeInfoStruct curv_Info,
-                      const double curv_R0[6], const double curv_R1[6],
-                      const double curv_CorrectedHelixCenter[3], const double curv_evec[3],
-                      double curv_theta, double curv_pitch,
-                      const ::coder::array<double, 2U> &curv_CoeffP5, double curv_a_param,
-                      double curv_b_param, ::coder::array<double, 1U> &r0D,
-                      ::coder::array<double, 1U> &r1D, ::coder::array<double, 1U> &r2D,
-                      ::coder::array<double, 1U> &r3D)
+                      int ctx_cfg_NCart, int ctx_cfg_NRot, const CurvStruct *curv,
+                      ::coder::array<double, 1U> &r0D, ::coder::array<double, 1U> &r1D,
+                      ::coder::array<double, 1U> &r2D, ::coder::array<double, 1U> &r3D)
 {
-    CurvStruct expl_temp;
-    int loop_ub;
     // 'EvalCurvStruct:3' coder.inline("never");
     // 'EvalCurvStruct:7' if( isempty( splineDefault ) )
     // 'EvalCurvStruct:9' if( curv.Info.Type == CurveType.Spline )
@@ -316,31 +300,10 @@ void d_EvalCurvStruct(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_maskT
     // 'EvalCurvStruct:13' spline = splineDefault;
     // 'EvalCurvStruct:16' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
     // u_vec );
-    expl_temp.b_param = curv_b_param;
-    expl_temp.a_param = curv_a_param;
-    expl_temp.CoeffP5.set_size(curv_CoeffP5.size(0), 6);
-    loop_ub = curv_CoeffP5.size(0);
-    expl_temp.pitch = curv_pitch;
-    expl_temp.theta = curv_theta;
-    expl_temp.evec[0] = curv_evec[0];
-    expl_temp.CorrectedHelixCenter[0] = curv_CorrectedHelixCenter[0];
-    expl_temp.evec[1] = curv_evec[1];
-    expl_temp.CorrectedHelixCenter[1] = curv_CorrectedHelixCenter[1];
-    expl_temp.evec[2] = curv_evec[2];
-    expl_temp.CorrectedHelixCenter[2] = curv_CorrectedHelixCenter[2];
-    for (int i{0}; i < 6; i++) {
-        for (int b_i{0}; b_i < loop_ub; b_i++) {
-            expl_temp.CoeffP5[b_i + expl_temp.CoeffP5.size(0) * i] =
-                curv_CoeffP5[b_i + curv_CoeffP5.size(0) * i];
-        }
-        expl_temp.R1[i] = curv_R1[i];
-        expl_temp.R0[i] = curv_R0[i];
-    }
-    expl_temp.Info = curv_Info;
     d_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
                           ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
                           ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart,
-                          ctx_cfg_NRot, &expl_temp, &splineDefault, r0D, r1D, r2D, r3D);
+                          ctx_cfg_NRot, curv, &splineDefault, r0D, r1D, r2D, r3D);
 }
 
 //

@@ -2,14 +2,14 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: combineVectorElements.h
+// File: tridiag.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 30-Jun-2022 11:29:54
+// C/C++ source code generated on  : 13-Jul-2022 14:15:57
 //
 
-#ifndef COMBINEVECTORELEMENTS_H
-#define COMBINEVECTORELEMENTS_H
+#ifndef TRIDIAG_H
+#define TRIDIAG_H
 
 // Include Files
 #include "rtwtypes.h"
@@ -21,15 +21,14 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-namespace coder {
-double combineVectorElements(const ::coder::array<double, 1U> &x);
+void binary_expand_op(::coder::array<double, 2U> &c, int i, const ::coder::array<double, 2U> &B,
+                      const ::coder::array<double, 1U> &v_l, double w);
 
 }
-} // namespace ocn
 
 #endif
 //
-// File trailer for combineVectorElements.h
+// File trailer for tridiag.h
 //
 // [EOF]
 //

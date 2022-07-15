@@ -20,23 +20,17 @@ Lcut1 = CutOff; Lcut2 = CutOff;
 L1 = LengthCurv( ctx, curv1, 0, 1 );
 L2 = LengthCurv( ctx, curv2, 0, 1 );
 
-if( L1 / 3  < Lcut1 )
-    Lcut1 = L1 / 3;
+% If curv length is lower that cutting length return
+if( ( L1 < 3 * Lcut1 ) || ( L2 < 3 * Lcut2 ) )
+    curv1C  = curv1; curv2C  = curv2; curvT   = curv1;
+    status  = TransitionResult.NoSolution;
+    return;
 end
 
-if( L2 / 3 < Lcut2 )
-    Lcut2 = L2 / 3;
-end
-
-[ u1_tilda ] = cutCurvStructU( ctx, curv1, 0, L1 - Lcut1, false );
-curv1C              = curv1;
-curv1C.a_param      = u1_tilda -curv1C.b_param;
-
-[ u2_tilda ] = cutCurvStructU( ctx, curv2, 1, L2 - Lcut2, true );
-
-curv2C              = curv2;
-curv2C.b_param      = u2_tilda;
-curv2C.a_param      = curv2.a_param  + curv2.b_param - curv2C.b_param;
+[ ~, curv1C, ~ ] = cutCurvStruct( ctx, curv1, 0, L1-Lcut1, false );
+assert( check_curv_length( ctx, curv1C, L1-Lcut1 ), mfilename + " Curve Length not valide");
+[ ~, ~, curv2C ] = cutCurvStruct( ctx, curv2, 1, L2-Lcut2, true );
+assert( check_curv_length( ctx, curv2C, L2-Lcut2 ), mfilename + " Curve Length not valide");
 
 [r0D0, r0D1, r0D2] = EvalCurvStruct( ctx, curv1C, 1 );
 [r1D0, r1D1, r1D2] = EvalCurvStruct( ctx, curv2C, 0 );
@@ -50,14 +44,15 @@ curvT.Info.SpindleSpeed = min( curv1.Info.SpindleSpeed, ...
                                curv2.Info.SpindleSpeed );
 curvT.Info.FeedRate     = min( curv1.Info.FeedRate, ...
                                curv2.Info.FeedRate );
+
 if( ret== 1 )
     % standard case
     % transition CurvStruct calculation
     status = TransitionResult.Ok;
-elseif( ret == 2)
+elseif( ret == 2 )
     % badly conditioned matrix in G2_Hermite()
     status = TransitionResult.NoSolution;
-elseif( ret == 6)
+elseif( ret == 6 )
     % TODO: decide in the future...
     % Now we ignore and construct the transition curve anyway
     status = TransitionResult.Ok;
@@ -65,30 +60,44 @@ else
     status = TransitionResult.NoSolution;
 end
 
-if( coder.target("MATLAB") && TransitionResult.Ok )
-    check_continuity( ctx, curv1C, curvT );
-    check_continuity( ctx, curvT, curv2C );
+if( ( status ~= TransitionResult.NoSolution ) && ...
+    ( all( p5 <= 0, 'all' ) ) )
+    status = TransitionResult.NoSolution;
+end
+
+if( status == TransitionResult.Ok ) 
+    isValid = check_continuity( ctx, curv1C, curvT );
+    isValid = isValid && check_continuity( ctx, curvT, curv2C );
+    if( ~isValid ), status = TransitionResult.NoSolution; end
 end
 
 end
 
-function [] = check_continuity( ctx, curv1, curv2 )
-    tol = 1E-3;
+function [ isValid ] = check_continuity( ctx, curv1, curv2 )
+    tol         = 1E-6;
+    tol_cos     = deg2rad( 1 );
+    tol_kappa   = 1E-3;
+
     [ r11, r1d1, r1dd1 ] = EvalCurvStruct( ctx, curv1, 1 );
     [ r21, r2d1, r2dd1 ] = EvalCurvStruct( ctx, curv2, 0 );
     
     [t1, ~,  kappa1] = calc_t_nk_kappa( r1d1, r1dd1 );
     [t2, ~,  kappa2] = calc_t_nk_kappa( r2d1, r2dd1 );
 
-    diff_r      = abs( r11    -r21 )        < tol;
-%     diff_rd     = norm( cross( t1, t2 ) )   < tol;
-    diff_rdd    = abs( kappa1 -kappa2 )     < tol;
+    isC0    = all( abs( r11    -r21 ) < tol, 'all' );
+    isG1    = collinear(t1, t2, tol_cos);
+    isG2    = abs( kappa1 -kappa2 )   < tol_kappa;
+    
+    isValid = isC0 && isG1 && isG2;
+end
 
-    assert( all( diff_r ), mfilename + ...
-                        ".m : continuity C0 failed " + mat2str( diff_r' ) );
-%     assert( diff_rd  , mfilename + ...
-%                         ".m : continuity G1 failed "  + diff_rd );
-    assert( diff_rdd , mfilename + ...
-                        ".m : continuity G2 failed "  + mat2str( diff_rdd' ) );
+function [ isValid ] = check_curv_length( ctx, curv, L )
+tol = 1E-3;
+
+isValid = ( abs( LengthCurv( ctx, curv, 0, 1 ) - L ) <= tol );
+
+if( ~isValid )
+    disp( "here" );
+end
 
 end

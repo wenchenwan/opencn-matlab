@@ -13,7 +13,7 @@ generate_for_arm_64 = false;
     generate_for_x86_64 );
 
 % please choose the libraries to generate ( All can be generated )
-GenerateAll = true;
+GenerateAll = false;
 
 if( ~GenerateAll )
     GenerateFeedopt    = true;
@@ -27,6 +27,7 @@ output_root = output_root + "/matlab/generated/";
 ERROR_COLOR = 2;
 
 if( GenerateAll || GenerateFeedopt )
+    cfg.CustomHeaderCode = '#include "functions.h"';
     name    = "Feedopt Code generation : ";
     dirName = output_root + "Feedopt/";
     disp(name + "start" );
@@ -192,7 +193,6 @@ cfg.HighlightPotentialRowMajorIssues = true;
 % Custom code that appears near the top of each C/C++
 % header file generated from your MATLAB code,
 % except rtwtypes.h and rtwhalf.h
-cfg.CustomHeaderCode = '#include "functions.h"';
 
 if  generate_for_x86_64
     %     Manufacturer and type of the target (test) hardware board

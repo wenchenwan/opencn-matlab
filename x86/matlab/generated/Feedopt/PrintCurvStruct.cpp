@@ -5,15 +5,13 @@
 // File: PrintCurvStruct.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 30-Jun-2022 11:29:54
+// C/C++ source code generated on  : 13-Jul-2022 14:15:57
 //
 
 // Include Files
 #include "PrintCurvStruct.h"
 #include "EvalCurvStruct.h"
 #include "TransP5LengthApprox.h"
-#include "combineVectorElements.h"
-#include "constJerkU.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_initialize.h"
 #include "opencn_matlab_internal_types.h"
@@ -24,6 +22,7 @@
 #include "queue_coder.h"
 #include "splineLength.h"
 #include "string1.h"
+#include "sum.h"
 #include "unsafeSxfun.h"
 #include "coder_array.h"
 #include <algorithm>
@@ -42,8 +41,8 @@ namespace ocn {
 void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
 {
     static const char b_cv[9]{'<', 'U', 'N', 'K', 'N', 'O', 'W', 'N', '>'};
-    static const char b_cv2[7]{'T', 'r', 'a', 'n', 's', 'P', '5'};
-    static const char b_cv3[6]{'S', 'p', 'l', 'i', 'n', 'e'};
+    static const char cv2[7]{'T', 'r', 'a', 'n', 's', 'P', '5'};
+    static const char cv3[6]{'S', 'p', 'l', 'i', 'n', 'e'};
     static const char b_cv1[5]{'H', 'e', 'l', 'i', 'x'};
     coder::rtString formatSpec;
     ::coder::array<double, 1U> P0;
@@ -63,10 +62,6 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
     ::coder::array<int, 1U> t4_cfg_indCart;
     ::coder::array<int, 1U> t4_cfg_indRot;
     CurvStruct expl_temp;
-    double u;
-    double ud;
-    double udd;
-    double uddd;
     double validatedHoleFilling_f2;
     int b_loop_ub;
     int c_loop_ub;
@@ -108,7 +103,7 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
         // 'PrintCurvStruct:68' str = 'TransP5';
         varargin_1_size_idx_1 = 7;
         for (int i2{0}; i2 < 7; i2++) {
-            varargin_1_data[i2] = b_cv2[i2];
+            varargin_1_data[i2] = cv2[i2];
         }
         break;
     case CurveType_Spline:
@@ -116,7 +111,7 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
         // 'PrintCurvStruct:70' str = 'Spline';
         varargin_1_size_idx_1 = 6;
         for (int i3{0}; i3 < 6; i3++) {
-            varargin_1_data[i3] = b_cv3[i3];
+            varargin_1_data[i3] = cv3[i3];
         }
         break;
     default:
@@ -246,7 +241,7 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
             varargin_1 = r1D[i10];
             r[i10] = std::pow(varargin_1, 2.0);
         }
-        validatedHoleFilling_f2 = std::sqrt(coder::combineVectorElements(r));
+        validatedHoleFilling_f2 = std::sqrt(coder::sum(r));
         // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
         sqrt_calls++;
     } else if (S->Info.Type == CurveType_Spline) {
@@ -273,7 +268,7 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
         // 'c_assert:3' if ~condition
         // 'c_assert:4' coder.ceval('c_assert_', message);
         for (int i9{0}; i9 < 29; i9++) {
-            message[i9] = cv2[i9];
+            message[i9] = cv1[i9];
         }
         c_assert_(&message[0]);
         // 'c_assert:6' value = condition;
@@ -321,8 +316,13 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
     fflush(stdout);
     // 'PrintCurvStruct:36' if S.UseConstJerk
     if (S->UseConstJerk) {
-        double b_k;
+        double b_unnamed_idx_0;
+        double k_vec;
         double n;
+        double u;
+        double ud_vec;
+        double udd;
+        double unnamed_idx_0;
         double y;
         int f_loop_ub;
         int g_loop_ub;
@@ -361,14 +361,58 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
         // 'calcZeroConstraints:14' if( isEnd )
         if (isEnd) {
             // 'calcZeroConstraints:15' k  = 0;
-            b_k = 0.0;
+            // 'constJerkU:23' k_max  = ( 6 / pseudoJerk )^( 1 / 3 );
+            // 'constJerkU:24' k_vec  = k_max - k_vec;
+            k_vec = std::pow(6.0 / S->ConstJerk, 0.33333333333333331);
         } else {
             // 'calcZeroConstraints:16' else
             // 'calcZeroConstraints:17' k   = ( 6 / jps )^( 1 / 3 );
-            b_k = std::pow(6.0 / S->ConstJerk, 0.33333333333333331);
+            k_vec = std::pow(6.0 / S->ConstJerk, 0.33333333333333331);
         }
         // 'calcZeroConstraints:20' [ u, ud, udd, uddd ]    = constJerkU( jps, k, isEnd );
-        constJerkU(S->ConstJerk, b_k, isEnd, &u, &ud, &udd, &uddd);
+        //  constJerkU : Compute u and its derivative based on the pseudo jerk
+        //  approximation.
+        //  Inputs :
+        //    pseudoJerk :  [ N x 1 ] The pseudo constant Jerk
+        //    k_vec      :  [ 1 x M ] The time vector
+        //    isEnd      :  ( Boolean ) Is the end of the Curve.
+        //    a          :  Curve parameter a for affine transforme
+        //    b          :  Curve parameter b for affine transforme
+        //  Outputs :
+        //    u          :  [ N x M ]
+        //    ud         :  [ N x M ]
+        //    udd        :  [ N x M ]
+        //    uddd       :  [ N x M ]
+        // 'constJerkU:16' if( coder.target( "MATLAB" ) )
+        // 'constJerkU:22' if( isEnd )
+        //  Compute u and its derivatives based on constant jerk
+        // 'constJerkU:28' uddd    = pseudoJerk .* ones( size( k_vec ) );
+        // 'constJerkU:29' udd     = pseudoJerk .* k_vec;
+        udd = S->ConstJerk * k_vec;
+        // 'constJerkU:30' ud      = pseudoJerk .* k_vec .^2 / 2;
+        // 'constJerkU:31' u       = pseudoJerk .* k_vec .^3 / 6;
+        u = S->ConstJerk * std::pow(k_vec, 3.0) / 6.0;
+        // 'constJerkU:33' u( u > 1 ) = 1;
+        unnamed_idx_0 = u;
+        if (u > 1.0) {
+            unnamed_idx_0 = 1.0;
+        }
+        // 'constJerkU:34' u( u < 0 ) = 0;
+        b_unnamed_idx_0 = unnamed_idx_0;
+        if (unnamed_idx_0 < 0.0) {
+            b_unnamed_idx_0 = 0.0;
+        }
+        u = b_unnamed_idx_0;
+        // 'constJerkU:36' if( isEnd )
+        if (isEnd) {
+            //  Reverse time ( Backward-like integration )
+            // 'constJerkU:37' u    = 1 - u;
+            u = 1.0 - b_unnamed_idx_0;
+            // 'constJerkU:38' ud   = ud;
+            // 'constJerkU:39' udd  = -udd;
+            udd = -udd;
+            // 'constJerkU:40' uddd = uddd;
+        }
         // 'calcZeroConstraints:22' [ r0D, r1D, r2D, r3D ]  = EvalCurvStruct( ctx, curv, u );
         i_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                          ctx->cfg.maskCart.data, ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
@@ -376,6 +420,7 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
                          ctx->cfg.NCart, ctx->cfg.NRot, S, u, r0D, r1D, r2D, r3D);
         // 'calcZeroConstraints:24' [ ~, V, A, ~ ]          = calcRVAJfromUWithoutCurv( ud, udd,
         // uddd, r0D, ... 'calcZeroConstraints:25'                           r1D, r2D, r3D );
+        ud_vec = S->ConstJerk * std::pow(k_vec, 2.0) / 2.0;
         //  calcRVAJfromU : Compute the pose, the velocity, the acceleration and the
         //  jerk for a given set of u variable.
         //  Inputs :
@@ -394,7 +439,7 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
         // 'calcRVAJfromUWithoutCurv:18' R = r0D;
         // 'calcRVAJfromUWithoutCurv:19' V = r1D .* ud_vec;
         // 'calcRVAJfromUWithoutCurv:20' A = r2D .* ud_vec .^2 + r1D .* udd_vec;
-        y = std::pow(ud, 2.0);
+        y = std::pow(ud_vec, 2.0);
         // 'calcRVAJfromUWithoutCurv:21' J = r3D .* ud_vec .^3 + 3 * r2D .* ud_vec .* udd_vec + r1D
         // .* uddd_vec; 'calcZeroConstraints:27' [ vNorm, atNorm ]       = calcNormVNormAT( V, A,
         // r1D );
@@ -407,7 +452,9 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
         //  Outputs :
         //  vNorm   : Norm of the velocity
         //  atNorm  : Norm of the tangential acceleration
-        // 'calcNormVNormAT:12' vNorm   = mysqrt( sum( V.^2, 1 ) );
+        // 'calcNormVNormAT:12' vNorm   = MyNorm( V );
+        // 'MyNorm:2' coder.inline('always');
+        // 'MyNorm:3' n = mysqrt(sum(x.^2));
         // 'mysqrt:3' y = sqrt(x);
         // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
         sqrt_calls++;
@@ -422,7 +469,7 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
             b_varargin_1 = r1D[i14];
             r[i14] = std::pow(b_varargin_1, 2.0);
         }
-        n = std::sqrt(coder::combineVectorElements(r));
+        n = std::sqrt(coder::sum(r));
         // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
         sqrt_calls++;
         // 'calcNormVNormAT:14' atNorm  = MyNorm( A.*t );
@@ -439,10 +486,10 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
         i_loop_ub = r1D.size(0);
         for (int i15{0}; i15 < i_loop_ub; i15++) {
             double c_varargin_1;
-            c_varargin_1 = r1D[i15] * ud;
+            c_varargin_1 = r1D[i15] * ud_vec;
             r[i15] = std::pow(c_varargin_1, 2.0);
         }
-        printf("v_0      : %f\n", std::sqrt(coder::combineVectorElements(r)));
+        printf("v_0      : %f\n", std::sqrt(coder::sum(r)));
         fflush(stdout);
         // 'PrintCurvStruct:42' fprintf( 'at_0     : %f\n', at_0 )
         if (r2D.size(0) == 1) {
@@ -462,7 +509,7 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
         } else {
             binary_expand_op(r, r2D, y, r1D, udd, n);
         }
-        printf("at_0     : %f\n", std::sqrt(coder::combineVectorElements(r)));
+        printf("at_0     : %f\n", std::sqrt(coder::sum(r)));
         fflush(stdout);
     }
 }

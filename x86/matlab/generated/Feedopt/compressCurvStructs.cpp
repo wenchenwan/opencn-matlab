@@ -5,7 +5,7 @@
 // File: compressCurvStructs.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 30-Jun-2022 11:29:54
+// C/C++ source code generated on  : 13-Jul-2022 14:15:57
 //
 
 // Include Files
@@ -15,7 +15,6 @@
 #include "LengthCurv.h"
 #include "SplineLengthApproxGL_tot.h"
 #include "bspline_eval.h"
-#include "combineVectorElements.h"
 #include "constrCurvStruct.h"
 #include "constrSplineStruct.h"
 #include "norm.h"
@@ -150,7 +149,7 @@ static void create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_m
     bool params_gcodeInfoStruct_TRAFO;
     CurveType params_gcodeInfoStruct_Type;
     ZSpdMode params_gcodeInfoStruct_zspdmode;
-    // 'compressCurvStructs:139' spline            = constrCurvStructType;
+    // 'compressCurvStructs:158' spline            = constrCurvStructType;
     //  constrCurvStructType : Constructs a constrCurvStruct with default values.
     // 'constrCurvStructType:4' if( nargin > 0 )
     // 'constrCurvStructType:6' else
@@ -178,11 +177,11 @@ static void create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_m
         params_spline_Bl_breakpoints, params_spline_Bl_handle, params_spline_Bl_order,
         params_spline_coeff, params_spline_knots, params_spline_Ltot, params_spline_Lk, params_R0,
         params_R1, params_Cprim, params_evec, params_CoeffP5, spline);
-    // 'compressCurvStructs:140' spline.Info.Type  = CurveType.Spline;
+    // 'compressCurvStructs:159' spline.Info.Type  = CurveType.Spline;
     spline->Info.Type = CurveType_Spline;
-    // 'compressCurvStructs:141' spline.sp_index   = spline_index;
+    // 'compressCurvStructs:160' spline.sp_index   = spline_index;
     spline->sp_index = *spline_index;
-    // 'compressCurvStructs:142' spline.sp         = CalcBspline_Lee( ctx.cfg, batch.pvec(
+    // 'compressCurvStructs:161' spline.sp         = CalcBspline_Lee( ctx.cfg, batch.pvec(
     // ctx.cfg.maskTot, : ) );
     end = ctx_cfg_maskTot_size[1] - 1;
     trueCount = 0;
@@ -206,7 +205,7 @@ static void create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_m
                     &spline->sp.Bl.ncoeff, spline->sp.Bl.breakpoints, &spline->sp.Bl.handle,
                     &spline->sp.Bl.order, spline->sp.coeff, spline->sp.knots, &spline->sp.Ltot,
                     spline->sp.Lk);
-    // 'compressCurvStructs:143' [ Ltot, Lk ]      = SplineLengthApproxGL_tot( ctx, spline );
+    // 'compressCurvStructs:162' [ Ltot, Lk ]      = SplineLengthApproxGL_tot( ctx.cfg, spline );
     //  Precomputes approximately the total arc length L as well as the individual
     //  arc lengths between knot points of a parametric spline.
     //  The computation is based on numerical Gauss Legendre integration.
@@ -243,9 +242,9 @@ static void create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_m
     }
     //  upper integration limits
     //  get Gauss-Legendre knots and weights
-    // 'SplineLengthApproxGL_tot:16' GL_N   = ctx.cfg.GaussLegendreN;
-    // 'SplineLengthApproxGL_tot:17' GL_X   = ctx.cfg.GaussLegendreX;
-    // 'SplineLengthApproxGL_tot:18' GL_W   = ctx.cfg.GaussLegendreW;
+    // 'SplineLengthApproxGL_tot:16' GL_N   = cfg.GaussLegendreN;
+    // 'SplineLengthApproxGL_tot:17' GL_X   = cfg.GaussLegendreX;
+    // 'SplineLengthApproxGL_tot:18' GL_W   = cfg.GaussLegendreW;
     //  apply linear map from[-1, 1] to [a, b]
     // 'SplineLengthApproxGL_tot:20' Umat   = (bsxfun(@times, a, (1-GL_X)) + bsxfun(@times, b,
     // (1+GL_X)))/2;
@@ -506,10 +505,10 @@ static void create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_m
     //  Gauss Legendre integration
     // 'SplineLengthApproxGL_tot:27' L         = sum(Lk);
     spline->sp.Ltot = coder::sum(spline->sp.Lk);
-    // 'compressCurvStructs:144' spline.sp.Ltot    = Ltot;
-    // 'compressCurvStructs:145' spline.sp.Lk      = Lk;
-    // 'compressCurvStructs:147' curv    = constrSplineStruct( batch.curvArray( end ).Info,
-    // batch.pvec( :, 1 ), ... 'compressCurvStructs:148'     batch.pvec( :,end ), uint32(
+    // 'compressCurvStructs:163' spline.sp.Ltot    = Ltot;
+    // 'compressCurvStructs:164' spline.sp.Lk      = Lk;
+    // 'compressCurvStructs:166' curv    = constrSplineStruct( batch.curvArray( end ).Info,
+    // batch.pvec( :, 1 ), ... 'compressCurvStructs:167'     batch.pvec( :,end ), uint32(
     // spline_index ) );
     c_batch_pvec = batch_pvec.size(1);
     for (int i29{0}; i29 < 6; i29++) {
@@ -524,9 +523,9 @@ static void create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_m
                        batch_curvArray[1].Info.gcode_source_line, batch_curvArray[1].Info.G91,
                        batch_curvArray[1].Info.G91_1, dv, dv1, *spline_index, curv);
     //  Calculate the ZSpdMode for the spline
-    // 'compressCurvStructs:151' first   = batch.curvArray( 1 );
-    // 'compressCurvStructs:152' last    = batch.curvArray( end );
-    // 'compressCurvStructs:154' if ( ~isAZeroSpeed( first ) ) && ( ~isAZeroSpeed( last ) )
+    // 'compressCurvStructs:170' first   = batch.curvArray( 1 );
+    // 'compressCurvStructs:171' last    = batch.curvArray( end );
+    // 'compressCurvStructs:173' if ( ~isAZeroSpeed( first ) ) && ( ~isAZeroSpeed( last ) )
     //  isAZeroSpeed : Return true if the curv is has a zero speed
     //  Input :
     //  curv  : The curve struct
@@ -537,7 +536,7 @@ static void create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_m
         //  Input :
         //  curv  : The curve struct
         // 'isAZeroSpeed:5' speedFlag = ( curv.Info.zspdmode ~= ZSpdMode.NN );
-        // 'compressCurvStructs:155' curv.Info.zspdmode = ZSpdMode.NN;
+        // 'compressCurvStructs:174' curv.Info.zspdmode = ZSpdMode.NN;
         curv->Info.zspdmode = ZSpdMode_NN;
     } else if ((!b_b) && ((batch_curvArray[1].Info.zspdmode == ZSpdMode_NZ) ||
                           (batch_curvArray[1].Info.zspdmode == ZSpdMode_ZZ))) {
@@ -547,8 +546,8 @@ static void create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_m
         // 'isAZeroEnd:5' if( curv.Info.zspdmode == ZSpdMode.NZ || ...
         // 'isAZeroEnd:6'         curv.Info.zspdmode == ZSpdMode.ZZ )
         // 'isAZeroEnd:7' zeroFlag = true;
-        // 'compressCurvStructs:156' elseif ( ~isAZeroSpeed( first ) ) && ( isAZeroEnd( last ) )
-        // 'compressCurvStructs:157' curv.Info.zspdmode = ZSpdMode.NZ;
+        // 'compressCurvStructs:175' elseif ( ~isAZeroSpeed( first ) ) && ( isAZeroEnd( last ) )
+        // 'compressCurvStructs:176' curv.Info.zspdmode = ZSpdMode.NZ;
         curv->Info.zspdmode = ZSpdMode_NZ;
 
         // 'isAZeroEnd:9' zeroFlag = false;
@@ -564,16 +563,16 @@ static void create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_m
         //  Input :
         //  curv  : The curve struct
         // 'isAZeroSpeed:5' speedFlag = ( curv.Info.zspdmode ~= ZSpdMode.NN );
-        // 'compressCurvStructs:158' elseif ( isAZeroStart( first ) ) && ( ~isAZeroSpeed( last ) )
-        // 'compressCurvStructs:159' curv.Info.zspdmode = ZSpdMode.ZN;
+        // 'compressCurvStructs:177' elseif ( isAZeroStart( first ) ) && ( ~isAZeroSpeed( last ) )
+        // 'compressCurvStructs:178' curv.Info.zspdmode = ZSpdMode.ZN;
         curv->Info.zspdmode = ZSpdMode_ZN;
     } else {
         // 'isAZeroStart:8' zeroFlag = false;
-        // 'compressCurvStructs:160' else
-        // 'compressCurvStructs:161' curv.Info.zspdmode = ZSpdMode.ZZ;
+        // 'compressCurvStructs:179' else
+        // 'compressCurvStructs:180' curv.Info.zspdmode = ZSpdMode.ZZ;
         curv->Info.zspdmode = ZSpdMode_ZZ;
     }
-    // 'compressCurvStructs:164' spline_index = spline_index + 1;
+    // 'compressCurvStructs:183' spline_index = spline_index + 1;
     (*spline_index)++;
 }
 
@@ -651,12 +650,12 @@ void compressCurvStructs(const b_FeedoptContext *ctx)
         Ncrv = ctx->q_gcode.size();
         //  Number of curve in queue
         // 'compressCurvStructs:18' [ batch ]           = batch_init();
-        // 'compressCurvStructs:95' batch = struct( ...
-        // 'compressCurvStructs:96'     'pvec',          zeros( StructTypeName.NumberAxisMax, 1
-        // ),... 'compressCurvStructs:97'     'curvArray',     repmat( constrCurvStructType, 1, 2
-        // ),... 'compressCurvStructs:98'     'spindle_speed', 0,... 'compressCurvStructs:99'
-        // 'feedrate',      0,... 'compressCurvStructs:100'     'size',          0 ...
-        // 'compressCurvStructs:101'     );
+        // 'compressCurvStructs:114' batch = struct( ...
+        // 'compressCurvStructs:115'     'pvec',          zeros( StructTypeName.NumberAxisMax, 1
+        // ),... 'compressCurvStructs:116'     'curvArray',     repmat( constrCurvStructType, 1, 2
+        // ),... 'compressCurvStructs:117'     'spindle_speed', 0,... 'compressCurvStructs:118'
+        // 'feedrate',      0,... 'compressCurvStructs:119'     'size',          0 ...
+        // 'compressCurvStructs:120'     );
         //  constrCurvStructType : Constructs a constrCurvStruct with default values.
         // 'constrCurvStructType:4' if( nargin > 0 )
         // 'constrCurvStructType:6' else
@@ -693,8 +692,8 @@ void compressCurvStructs(const b_FeedoptContext *ctx)
         batch_curvArray[0] = C;
         batch_curvArray[1] = C;
         batch_size = 0.0;
-        // 'compressCurvStructs:103' if( ~coder.target( "MATLAB" ) )
-        // 'compressCurvStructs:104' coder.varsize( 'batch.pvec', StructTypeName.dimPvec{ : } );
+        // 'compressCurvStructs:122' if( ~coder.target( "MATLAB" ) )
+        // 'compressCurvStructs:123' coder.varsize( 'batch.pvec', StructTypeName.dimPvec{ : } );
         // 'compressCurvStructs:20' DebugLog(DebugCfg.Validate, 'Compressing...\n');
         //  1 -> stdout
         //  2 -> stderr
@@ -707,55 +706,64 @@ void compressCurvStructs(const b_FeedoptContext *ctx)
             printf("Compressing...\n");
             fflush(stdout);
         }
-        // 'compressCurvStructs:22' for k = 1 : Ncrv
+        // 'compressCurvStructs:22' if( coder.target( "MATLAB" ) )
+        // 'compressCurvStructs:26' for k = 1 : Ncrv
         i1 = static_cast<int>(Ncrv);
         for (int k{0}; k < i1; k++) {
             bool addBatch;
             bool addNewBatch;
             bool closeBatch;
-            // 'compressCurvStructs:23' curv = ctx.q_gcode.get( k );
+            // 'compressCurvStructs:27' curv = ctx.q_gcode.get( k );
             ctx->q_gcode.get(k + 1U, &curv);
             //  Get next Curve in the queue
-            // 'compressCurvStructs:25' [ addBatch, addNewBatch ] = check_add_batch( ctx, curv,
+            // 'compressCurvStructs:29' [ addBatch, addNewBatch ] = check_add_batch( ctx, curv,
             // batch );
             // -------------------------------------------------------------------------%
-            // 'compressCurvStructs:56' if( coder.target( "MATLAB" ) )
-            // 'compressCurvStructs:58' addBatch    = true;
+            // 'compressCurvStructs:60' if( coder.target( "MATLAB" ) )
+            // 'compressCurvStructs:62' addBatch    = true;
             addBatch = true;
-            // 'compressCurvStructs:59' addNewBatch = false;
+            // 'compressCurvStructs:63' addNewBatch = false;
             addNewBatch = false;
-            // 'compressCurvStructs:61' if( curv.Info.Type ~= CurveType.Line )
+            // 'compressCurvStructs:65' if( curv.Info.Type ~= CurveType.Line )
             if (curv.Info.Type != CurveType_Line) {
-                // 'compressCurvStructs:62' addBatch = false;
+                // 'compressCurvStructs:66' if( coder.target( "MATLAB" ) )
+                // 'compressCurvStructs:69' addBatch = false;
                 addBatch = false;
 
-                // 'compressCurvStructs:66' if( LengthCurv( ctx, curv, 0, 1 ) >  ctx.cfg.LThreshold
-                // )
+                // 'compressCurvStructs:72' if( LengthCurv( ctx, curv, 0, 1 ) >
+                // ctx.cfg.LThresholdMax )
             } else if (LengthCurv(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                                   ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
                                   ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
                                   ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart,
                                   ctx->cfg.NRot, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW,
-                                  curv.Info, curv.R0, curv.R1, curv.CorrectedHelixCenter, curv.evec,
-                                  curv.theta, curv.pitch, curv.CoeffP5, curv.sp_index, curv.a_param,
-                                  curv.b_param) > ctx->cfg.LThreshold) {
-                // 'compressCurvStructs:67' addBatch = false;
+                                  &curv) > ctx->cfg.LThresholdMax) {
+                // 'compressCurvStructs:73' if( coder.target( "MATLAB" ) )
+                // 'compressCurvStructs:76' addBatch = false;
                 addBatch = false;
 
-                // 'compressCurvStructs:70' if( batch.size > 0 )
-            } else if (batch_size > 0.0) {
+                // 'compressCurvStructs:79' if( LengthCurv( ctx, curv, 0, 1 ) <
+                // ctx.cfg.LThresholdMin )
+            } else if ((LengthCurv(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
+                                   ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
+                                   ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
+                                   ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart,
+                                   ctx->cfg.NRot, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW,
+                                   &curv) >= ctx->cfg.LThresholdMin) &&
+                       (batch_size > 0.0)) {
                 bool collinear;
-                // 'compressCurvStructs:71' if( batch.size > 1 )
+                // 'compressCurvStructs:83' if( batch.size > 0 )
+                // 'compressCurvStructs:84' if( batch.size > 1 )
                 if (batch_size > 1.0) {
-                    // 'compressCurvStructs:72' prevCurv = batch.curvArray( end );
+                    // 'compressCurvStructs:85' prevCurv = batch.curvArray( end );
                     prevCurv = batch_curvArray[1];
                 } else {
-                    // 'compressCurvStructs:73' else
-                    // 'compressCurvStructs:74' prevCurv = batch.curvArray( 1 );
+                    // 'compressCurvStructs:86' else
+                    // 'compressCurvStructs:87' prevCurv = batch.curvArray( 1 );
                     prevCurv = batch_curvArray[0];
                 }
-                // 'compressCurvStructs:76' collinear = curvCollinear( ctx, prevCurv, curv, ...
-                // 'compressCurvStructs:77'         ctx.cfg.Compressing.ColTolCosLee );
+                // 'compressCurvStructs:89' collinear = curvCollinear( ctx, prevCurv, curv, ...
+                // 'compressCurvStructs:90'         ctx.cfg.Compressing.ColTolCosLee );
                 // 'curvCollinear:3' [~, V0] = EvalCurvStruct(ctx, Curv1, 1);
                 b_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                                  ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
@@ -789,7 +797,7 @@ void compressCurvStructs(const b_FeedoptContext *ctx)
                     // 'mysqrt:3' y = sqrt(x);
                     // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
                     sqrt_calls++;
-                    // 'collinear:7' value = cos_angle > tol_cos;
+                    // 'collinear:7' value = cos_angle >= tol_cos;
                     c = 0.0;
                     if (V0.size(0) >= 1) {
                         int ixlast;
@@ -812,28 +820,30 @@ void compressCurvStructs(const b_FeedoptContext *ctx)
                         b_varargin_1 = V1[i11];
                         r1[i11] = std::pow(b_varargin_1, 2.0);
                     }
-                    collinear = (c / (std::sqrt(coder::combineVectorElements(r)) *
-                                      std::sqrt(coder::combineVectorElements(r1))) >
+                    collinear = (c / (std::sqrt(coder::sum(r)) * std::sqrt(coder::sum(r1))) >=
                                  ctx->cfg.Compressing.ColTolCosLee);
                 }
-                // 'compressCurvStructs:78' if( ~collinear )
+                // 'compressCurvStructs:91' if( ~collinear )
                 if (!collinear) {
-                    // 'compressCurvStructs:78' addBatch = false;
+                    // 'compressCurvStructs:92' if( coder.target( "MATLAB" ) )
+                    // 'compressCurvStructs:95' addBatch = false;
                     addBatch = false;
-                    // 'compressCurvStructs:78' addNewBatch = true;
+                    // 'compressCurvStructs:96' addNewBatch = true;
                     addNewBatch = true;
                 }
+            } else {
+                // 'compressCurvStructs:80' addBatch = true;
             }
-            // 'compressCurvStructs:26' [ closeBatch ] = check_close_batch( curv, addBatch );
-            // 'compressCurvStructs:84' if( coder.target( "MATLAB" ) )
-            // 'compressCurvStructs:86' closeBatch = false;
+            // 'compressCurvStructs:30' [ closeBatch ] = check_close_batch( curv, addBatch );
+            // 'compressCurvStructs:103' if( coder.target( "MATLAB" ) )
+            // 'compressCurvStructs:105' closeBatch = false;
             closeBatch = false;
-            // 'compressCurvStructs:88' if( ~addBatch )
+            // 'compressCurvStructs:107' if( ~addBatch )
             if (!addBatch) {
-                // 'compressCurvStructs:88' closeBatch = true;
+                // 'compressCurvStructs:107' closeBatch = true;
                 closeBatch = true;
 
-                // 'compressCurvStructs:90' if( isAZeroEnd( curv ) )
+                // 'compressCurvStructs:109' if( isAZeroEnd( curv ) )
                 //  isAZeroEnd : Return true if the curv ends with zero speed
                 //  Input :
                 //  curv  : The curve struct
@@ -841,38 +851,38 @@ void compressCurvStructs(const b_FeedoptContext *ctx)
                 // 'isAZeroEnd:6'         curv.Info.zspdmode == ZSpdMode.ZZ )
             } else if ((curv.Info.zspdmode == ZSpdMode_NZ) || (curv.Info.zspdmode == ZSpdMode_ZZ)) {
                 // 'isAZeroEnd:7' zeroFlag = true;
-                // 'compressCurvStructs:90' closeBatch = true;
+                // 'compressCurvStructs:109' closeBatch = true;
                 closeBatch = true;
             } else {
                 // 'isAZeroEnd:9' zeroFlag = false;
             }
-            // 'compressCurvStructs:28' if( addBatch )
+            // 'compressCurvStructs:32' if( addBatch )
             if (addBatch) {
-                // 'compressCurvStructs:29' if( batch.size > 0)
+                // 'compressCurvStructs:33' if( batch.size > 0)
                 if (batch_size > 0.0) {
                     int i2;
-                    // 'compressCurvStructs:30' [ batch ] = batch_add_curv( batch, curv );
-                    // 'compressCurvStructs:131' batch.pvec             = [ batch.pvec, curv.R1 ];
+                    // 'compressCurvStructs:34' [ batch ] = batch_add_curv( batch, curv );
+                    // 'compressCurvStructs:150' batch.pvec             = [ batch.pvec, curv.R1 ];
                     i2 = batch_pvec.size(1);
                     batch_pvec.set_size(6, batch_pvec.size(1) + 1);
                     for (int i3{0}; i3 < 6; i3++) {
                         batch_pvec[i3 + 6 * i2] = curv.R1[i3];
                     }
-                    // 'compressCurvStructs:132' batch.curvArray( end ) = curv;
+                    // 'compressCurvStructs:151' batch.curvArray( end ) = curv;
                     batch_curvArray[1] = curv;
-                    // 'compressCurvStructs:133' batch.spindle_speed    = min( batch.spindle_speed ,
-                    // curv.Info.SpindleSpeed ); 'compressCurvStructs:134' batch.feedrate         =
-                    // min( batch.feedrate, curv.Info.FeedRate ); 'compressCurvStructs:135'
+                    // 'compressCurvStructs:152' batch.spindle_speed    = min( batch.spindle_speed ,
+                    // curv.Info.SpindleSpeed ); 'compressCurvStructs:153' batch.feedrate         =
+                    // min( batch.feedrate, curv.Info.FeedRate ); 'compressCurvStructs:154'
                     // batch.size             = batch.size + 1;
                     batch_size++;
                 } else {
-                    // 'compressCurvStructs:31' else
-                    // 'compressCurvStructs:32' [ batch ] = batch_reset( ctx, curv );
-                    // 'compressCurvStructs:123' batch.pvec            = [curv.R0, curv.R1 ];
-                    // 'compressCurvStructs:124' batch.curvArray       = [ curv, curv ];
-                    // 'compressCurvStructs:125' batch.spindle_speed   = ctx.cfg.smax;
-                    // 'compressCurvStructs:126' batch.feedrate        = ctx.cfg.fmax;
-                    // 'compressCurvStructs:127' batch.size            = 1;
+                    // 'compressCurvStructs:35' else
+                    // 'compressCurvStructs:36' [ batch ] = batch_reset( ctx, curv );
+                    // 'compressCurvStructs:142' batch.pvec            = [curv.R0, curv.R1 ];
+                    // 'compressCurvStructs:143' batch.curvArray       = [ curv, curv ];
+                    // 'compressCurvStructs:144' batch.spindle_speed   = ctx.cfg.smax;
+                    // 'compressCurvStructs:145' batch.feedrate        = ctx.cfg.fmax;
+                    // 'compressCurvStructs:146' batch.size            = 1;
                     for (int i4{0}; i4 < 6; i4++) {
                         b_curv[0][i4] = curv.R0[i4];
                         b_curv[1][i4] = curv.R1[i4];
@@ -888,37 +898,37 @@ void compressCurvStructs(const b_FeedoptContext *ctx)
                     batch_size = 1.0;
                 }
             }
-            // 'compressCurvStructs:36' if( closeBatch )
+            // 'compressCurvStructs:40' if( closeBatch )
             if (closeBatch) {
-                // 'compressCurvStructs:37' [ ctx, batch, spline_index ] = batch_close( ctx, batch,
-                // spline_index ); 'compressCurvStructs:109' if( batch.size > 1 )
+                // 'compressCurvStructs:41' [ ctx, batch, spline_index ] = batch_close( ctx, batch,
+                // spline_index ); 'compressCurvStructs:128' if( batch.size > 1 )
                 if (batch_size > 1.0) {
-                    // 'compressCurvStructs:110' [ curvCompressed, spline, spline_index ] = ...
-                    // 'compressCurvStructs:111'         create_spline( ctx, batch, spline_index );
+                    // 'compressCurvStructs:129' [ curvCompressed, spline, spline_index ] = ...
+                    // 'compressCurvStructs:130'         create_spline( ctx, batch, spline_index );
                     create_spline(ctx->cfg.maskTot.data, ctx->cfg.maskTot.size, ctx->cfg.NumberAxis,
                                   ctx->cfg.LeeSplineDegree, ctx->cfg.GaussLegendreN,
                                   ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW, batch_pvec,
                                   batch_curvArray, &spline_index, &curvCompressed, &spline);
-                    // 'compressCurvStructs:113' ctx.q_compress.push( curvCompressed );
+                    // 'compressCurvStructs:132' ctx.q_compress.push( curvCompressed );
                     ctx->q_compress.push(&curvCompressed);
-                    // 'compressCurvStructs:114' ctx.q_spline.push( spline );
+                    // 'compressCurvStructs:133' ctx.q_spline.push( spline );
                     ctx->q_spline.push(&spline);
                 } else if (batch_size > 0.0) {
-                    // 'compressCurvStructs:116' elseif( batch.size > 0 )
-                    // 'compressCurvStructs:117' ctx.q_compress.push( batch.curvArray( 1 ) );
+                    // 'compressCurvStructs:135' elseif( batch.size > 0 )
+                    // 'compressCurvStructs:136' ctx.q_compress.push( batch.curvArray( 1 ) );
                     ctx->q_compress.push(&batch_curvArray[0]);
                 }
-                // 'compressCurvStructs:119' batch.size = 0;
+                // 'compressCurvStructs:138' batch.size = 0;
                 batch_size = 0.0;
             }
-            // 'compressCurvStructs:40' if( addNewBatch )
+            // 'compressCurvStructs:44' if( addNewBatch )
             if (addNewBatch) {
-                // 'compressCurvStructs:41' [ batch ] = batch_reset( ctx, curv );
-                // 'compressCurvStructs:123' batch.pvec            = [curv.R0, curv.R1 ];
-                // 'compressCurvStructs:124' batch.curvArray       = [ curv, curv ];
-                // 'compressCurvStructs:125' batch.spindle_speed   = ctx.cfg.smax;
-                // 'compressCurvStructs:126' batch.feedrate        = ctx.cfg.fmax;
-                // 'compressCurvStructs:127' batch.size            = 1;
+                // 'compressCurvStructs:45' [ batch ] = batch_reset( ctx, curv );
+                // 'compressCurvStructs:142' batch.pvec            = [curv.R0, curv.R1 ];
+                // 'compressCurvStructs:143' batch.curvArray       = [ curv, curv ];
+                // 'compressCurvStructs:144' batch.spindle_speed   = ctx.cfg.smax;
+                // 'compressCurvStructs:145' batch.feedrate        = ctx.cfg.fmax;
+                // 'compressCurvStructs:146' batch.size            = 1;
                 for (int i5{0}; i5 < 6; i5++) {
                     b_curv[0][i5] = curv.R0[i5];
                     b_curv[1][i5] = curv.R1[i5];
@@ -933,31 +943,31 @@ void compressCurvStructs(const b_FeedoptContext *ctx)
                 batch_curvArray[1] = curv;
                 batch_size = 1.0;
             } else if (!addBatch) {
-                // 'compressCurvStructs:42' elseif( ~addBatch )
-                // 'compressCurvStructs:43' ctx.q_compress.push( curv );
+                // 'compressCurvStructs:46' elseif( ~addBatch )
+                // 'compressCurvStructs:47' ctx.q_compress.push( curv );
                 ctx->q_compress.push(&curv);
             }
         }
-        // 'compressCurvStructs:49' [ ctx ] = batch_close( ctx, batch, spline_index );
-        // 'compressCurvStructs:109' if( batch.size > 1 )
+        // 'compressCurvStructs:53' [ ctx ] = batch_close( ctx, batch, spline_index );
+        // 'compressCurvStructs:128' if( batch.size > 1 )
         if (batch_size > 1.0) {
-            // 'compressCurvStructs:110' [ curvCompressed, spline, spline_index ] = ...
-            // 'compressCurvStructs:111'         create_spline( ctx, batch, spline_index );
+            // 'compressCurvStructs:129' [ curvCompressed, spline, spline_index ] = ...
+            // 'compressCurvStructs:130'         create_spline( ctx, batch, spline_index );
             b_spline_index = spline_index;
             create_spline(ctx->cfg.maskTot.data, ctx->cfg.maskTot.size, ctx->cfg.NumberAxis,
                           ctx->cfg.LeeSplineDegree, ctx->cfg.GaussLegendreN,
                           ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW, batch_pvec,
                           batch_curvArray, &b_spline_index, &curvCompressed, &spline);
-            // 'compressCurvStructs:113' ctx.q_compress.push( curvCompressed );
+            // 'compressCurvStructs:132' ctx.q_compress.push( curvCompressed );
             ctx->q_compress.push(&curvCompressed);
-            // 'compressCurvStructs:114' ctx.q_spline.push( spline );
+            // 'compressCurvStructs:133' ctx.q_spline.push( spline );
             ctx->q_spline.push(&spline);
         } else if (batch_size > 0.0) {
-            // 'compressCurvStructs:116' elseif( batch.size > 0 )
-            // 'compressCurvStructs:117' ctx.q_compress.push( batch.curvArray( 1 ) );
+            // 'compressCurvStructs:135' elseif( batch.size > 0 )
+            // 'compressCurvStructs:136' ctx.q_compress.push( batch.curvArray( 1 ) );
             ctx->q_compress.push(&batch_curvArray[0]);
         }
-        // 'compressCurvStructs:119' batch.size = 0;
+        // 'compressCurvStructs:138' batch.size = 0;
     }
 }
 

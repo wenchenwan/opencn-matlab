@@ -55,11 +55,24 @@ switch ctx.op
         end
         ctx.q_gcode.set( ctx.q_gcode.size, last );
 
+        c_assert( checkZSpdmode( ctx.q_gcode ), "ERROR : " + mfilename ...
+            + ".m : Check zspdmode failed " );
+        c_assert( checkParametrisation( ctx.q_gcode ), "ERROR : " + mfilename ...
+            + ".m : Check parametrisation failed " );
+
         ctx.op = Fopt.Check;
-        
+
     case Fopt.Check
 %         [ ctx.q_gcode ] = checkTrafo( ctx, ctx.q_gcode );
-        ctx     = CheckCurvStructs( ctx );
+%         histogramLength( ctx, ctx.q_gcode, "Gcode");
+        if ~ctx.cfg.Cusp.Skip
+            ctx     = CheckCurvStructs( ctx );
+        end
+        c_assert( checkZSpdmode( ctx.q_gcode ), "ERROR : " + mfilename ...
+            + ".m : Check zspdmode failed " );
+        c_assert( checkParametrisation( ctx.q_gcode ), "ERROR : " + mfilename ...
+            + ".m : Check parametrisation failed " );
+
         ctx.op  = Fopt.Compress;
 
     case Fopt.Compress
@@ -70,23 +83,42 @@ switch ctx.op
         else
             ctx = compressCurvStructs(ctx);
         end
-        ctx.q_compress.size
-%         if( ctx.q_compress.size > 1 )
-%             error( "should be only compressing");
-%         end
+
+        c_assert( checkZSpdmode( ctx.q_compress ), "ERROR : " + mfilename ...
+            + ".m : compress zspdmode failed " );
+        c_assert( checkParametrisation( ctx.q_compress ), "ERROR : " + mfilename ...
+            + ".m : Check parametrisation failed " );
 
         ctx.op = Fopt.Smooth;
         if( coder.target( 'MATLAB') ), ctx.q_gcode.delete(); end
 
     case Fopt.Smooth
+%         histogramLength( ctx, ctx.q_compress, "Compressing" );
+
         ctx = smoothCurvStructs(ctx);
         ctx.op = Fopt.Split;
+
+        c_assert( checkZSpdmode( ctx.q_smooth ), "ERROR : " + mfilename ...
+            + ".m : smooth zspdmode failed " );
+        c_assert( checkParametrisation( ctx.q_smooth ), "ERROR : " + mfilename ...
+            + ".m : Check parametrisation failed " );
+
         if( coder.target( 'MATLAB') ), ctx.q_compress.delete(); end
 
     case Fopt.Split
+%         histogramLength( ctx, ctx.q_smooth, "Smoothing" );
+
         ctx = splitQueue( ctx );
-        if( coder.target( 'MATLAB' ) ), ctx.q_smooth.delete(); end
+
         ctx.op = Fopt.Opt;
+
+        c_assert( checkZSpdmode( ctx.q_split ), "ERROR : " + mfilename ...
+            + ".m : splitted zspdmode failed " );
+        c_assert( checkParametrisation( ctx.q_smooth ), "ERROR : " + mfilename ...
+            + ".m : Check parametrisation failed " );
+
+%         histogramLength( ctx, ctx.q_split, "Splitting" );        
+        if( coder.target( 'MATLAB' ) ), ctx.q_smooth.delete(); end
 
     case Fopt.Opt
         [ ctx, optimized, opt_curv, quit ] = feedratePlanning( ctx );

@@ -10,6 +10,12 @@ function [ u1_tilda ] = cutCurvStructU( ctx, curv, u0, L, isEnd )
 % Outputs :
 % u1    : The last point of the splitted curv
 
+if( L <= 1E-6 )
+    disp( "here" );
+end
+
+if( LengthCurv( ctx, curv, 0, 1 ) <= L ), u1_tilda = -1; return; end
+
 a = curv.a_param;
 b = curv.b_param;
 

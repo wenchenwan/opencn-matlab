@@ -1,4 +1,4 @@
-function [ curvC ] = cutCurvStruct( ctx, curv, u0, L, isEnd )
+function [ ret, curv1, curv2 ] = cutCurvStruct( ctx, curv, u0, L, isEnd )
 % cutCurvStruct: Cut a piece of the structure with a size of L
 % starting at point u0
 % Inputs :
@@ -9,31 +9,30 @@ function [ curvC ] = cutCurvStruct( ctx, curv, u0, L, isEnd )
 % isEnd : Is a zero stop curv
 % Outputs :
 % u1    : The last point of the splitted curv
+curv1 = curv; curv2 = curv1;
+ret   = 0;
+
+u_tilda = cutCurvStructU( ctx, curv, u0, L, isEnd );
+
+if( u_tilda <= 0 ), ret = -1; return; end
 
 a = curv.a_param;
 b = curv.b_param;
 
-u1_tilda = cutCurvStructU( ctx, curv, u0, L, isEnd );
+curv2.b_param = u_tilda;
+curv2.a_param = a + b - curv2.b_param;
 
-curvC = curv;
-
-if( isEnd )
-    curvC.b_param = u1_tilda;
-    curvC.a_param = a + b - curvC.b_param;
-    
-    if( isAZeroEnd( curvC ) )
-        curvC.Info.zspdmode = ZSpdMode.NZ;
-    else
-        curvC.Info.zspdmode = ZSpdMode.NN;
-    end
-
+if( isAZeroEnd( curv2 ) )
+    curv2.Info.zspdmode = ZSpdMode.NZ;
 else
-    curvC.a_param = u1_tilda - curvC.b_param;
-    if( isAZeroStart( curvC ) )
-        curvC.Info.zspdmode = ZSpdMode.ZN;
-    else
-        curvC.Info.zspdmode = ZSpdMode.NN;
-    end
+    curv2.Info.zspdmode = ZSpdMode.NN;
+end
+
+curv1.a_param = u_tilda - curv1.b_param;
+if( isAZeroStart( curv1 ) )
+    curv1.Info.zspdmode = ZSpdMode.ZN;
+else
+    curv1.Info.zspdmode = ZSpdMode.NN;
 end
 
 end

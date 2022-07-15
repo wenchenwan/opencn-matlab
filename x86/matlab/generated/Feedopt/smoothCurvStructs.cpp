@@ -5,7 +5,7 @@
 // File: smoothCurvStructs.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 30-Jun-2022 11:29:54
+// C/C++ source code generated on  : 13-Jul-2022 14:15:57
 //
 
 // Include Files
@@ -13,7 +13,6 @@
 #include "EvalCurvStruct.h"
 #include "calcTransition_new.h"
 #include "calc_t_nk_kappa.h"
-#include "combineVectorElements.h"
 #include "norm.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_internal_types.h"
@@ -22,51 +21,13 @@
 #include "opencn_matlab_types2.h"
 #include "opencn_matlab_types3.h"
 #include "queue_coder.h"
+#include "sum.h"
 #include "coder_array.h"
 #include <cmath>
 #include <emmintrin.h>
 #include <stdio.h>
 
-// Function Declarations
-namespace ocn {
-static void minus(::coder::array<double, 1U> &x, const ::coder::array<double, 1U> &r11,
-                  const ::coder::array<double, 1U> &r21);
-
-}
-
 // Function Definitions
-//
-// Arguments    : ::coder::array<double, 1U> &x
-//                const ::coder::array<double, 1U> &r11
-//                const ::coder::array<double, 1U> &r21
-// Return Type  : void
-//
-namespace ocn {
-static void minus(::coder::array<double, 1U> &x, const ::coder::array<double, 1U> &r11,
-                  const ::coder::array<double, 1U> &r21)
-{
-    int i;
-    int loop_ub;
-    int stride_0_0;
-    int stride_1_0;
-    if (r21.size(0) == 1) {
-        i = r11.size(0);
-    } else {
-        i = r21.size(0);
-    }
-    x.set_size(i);
-    stride_0_0 = (r11.size(0) != 1);
-    stride_1_0 = (r21.size(0) != 1);
-    if (r21.size(0) == 1) {
-        loop_ub = r11.size(0);
-    } else {
-        loop_ub = r21.size(0);
-    }
-    for (int i1{0}; i1 < loop_ub; i1++) {
-        x[i1] = r11[i1 * stride_0_0] - r21[i1 * stride_1_0];
-    }
-}
-
 //
 // function ctx = smoothCurvStructs(ctx)
 //
@@ -75,6 +36,7 @@ static void minus(::coder::array<double, 1U> &x, const ::coder::array<double, 1U
 // Arguments    : b_FeedoptContext *ctx
 // Return Type  : void
 //
+namespace ocn {
 void smoothCurvStructs(b_FeedoptContext *ctx)
 {
     ::coder::array<double, 1U> a__1;
@@ -167,9 +129,9 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                 int c_k;
                 int loop_ub;
                 bool exitg1;
-                bool isC0;
                 bool isG1;
                 bool isSmooth;
+                bool y;
                 // 'smoothCurvStructs:65' [ isSmooth ] = check_smoothness( ctx, curv, nextCurv, tol,
                 // tol_cos );
                 // -------------------------------------------------------------------------%
@@ -189,7 +151,7 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                 calc_t_nk_kappa(r1d1, r1dd1, t1, a__1, &kappa1);
                 // 'smoothCurvStructs:92' [t2, ~,  kappa2] = calc_t_nk_kappa( r2d1, r2dd1 );
                 calc_t_nk_kappa(r2d1, r2dd1, t2, a__2, &kappa2);
-                // 'smoothCurvStructs:94' isC0   = all( abs( r11 - r21 ) < tol );
+                // 'smoothCurvStructs:94' isC0   = all( abs( r11 - r21 ) < tol, 'all' );
                 loop_ub = r11.size(0);
                 if (r11.size(0) == r21.size(0)) {
                     int i;
@@ -219,22 +181,6 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                         z1[b_k] = std::abs(x[b_k]);
                     }
                 }
-                b_x.set_size(z1.size(0));
-                b_loop_ub = z1.size(0);
-                for (int i2{0}; i2 < b_loop_ub; i2++) {
-                    b_x[i2] = (z1[i2] < ctx->cfg.Smoothing.ColTolSmooth);
-                }
-                isC0 = true;
-                c_k = 0;
-                exitg1 = false;
-                while ((!exitg1) && (c_k <= b_x.size(0) - 1)) {
-                    if (!b_x[c_k]) {
-                        isC0 = false;
-                        exitg1 = true;
-                    } else {
-                        c_k++;
-                    }
-                }
                 // 'smoothCurvStructs:95' isG1   = collinear( t1, t2, tol_cos );
                 // 'collinear:2' if (norm(u) < eps || norm(v) < eps)
                 if ((coder::b_norm(t1) < 2.2204460492503131E-16) ||
@@ -256,7 +202,7 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                     // 'mysqrt:3' y = sqrt(x);
                     // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
                     sqrt_calls++;
-                    // 'collinear:7' value = cos_angle > tol_cos;
+                    // 'collinear:7' value = cos_angle >= tol_cos;
                     c = 0.0;
                     if (t1.size(0) >= 1) {
                         int ixlast;
@@ -279,13 +225,28 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                         b_varargin_1 = t2[i4];
                         r3[i4] = std::pow(b_varargin_1, 2.0);
                     }
-                    isG1 = (c / (std::sqrt(coder::combineVectorElements(r2)) *
-                                 std::sqrt(coder::combineVectorElements(r3))) >
+                    isG1 = (c / (std::sqrt(coder::sum(r2)) * std::sqrt(coder::sum(r3))) >=
                             ctx->cfg.Smoothing.ColTolCosSmooth);
                 }
-                // 'smoothCurvStructs:96' isG2   = all( abs( kappa1 -kappa2 ) < tol );
+                // 'smoothCurvStructs:96' isG2   = all( abs( kappa1 -kappa2 ) < tol, 'all' );
                 // 'smoothCurvStructs:98' isSmooth = ( isC0 && isG1 && isG2 );
-                if (isC0 && isG1 && (std::abs(kappa1 - kappa2) < ctx->cfg.Smoothing.ColTolSmooth)) {
+                b_x.set_size(z1.size(0));
+                b_loop_ub = z1.size(0);
+                for (int i2{0}; i2 < b_loop_ub; i2++) {
+                    b_x[i2] = (z1[i2] < ctx->cfg.Smoothing.ColTolSmooth);
+                }
+                y = true;
+                c_k = 0;
+                exitg1 = false;
+                while ((!exitg1) && (c_k <= b_x.size(0) - 1)) {
+                    if (!b_x[c_k]) {
+                        y = false;
+                        exitg1 = true;
+                    } else {
+                        c_k++;
+                    }
+                }
+                if (y && isG1 && (std::abs(kappa1 - kappa2) < ctx->cfg.Smoothing.ColTolSmooth)) {
                     isSmooth = true;
                 } else {
                     isSmooth = false;
@@ -318,7 +279,7 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                     b_curv = curv;
                     curv = nextCurv;
                     // -------------------------------------------------------------------------%
-                    // 'smoothCurvStructs:73' if( isAZeroStart( curv) )
+                    // 'smoothCurvStructs:73' if( isAZeroStart( curv ) )
                     //  isAZeroStart : Return true if the curv starts with zero speed
                     //  curv  : The curve struct
                     // 'isAZeroStart:4' if( curv.Info.zspdmode == ZSpdMode.ZN || ...
@@ -334,7 +295,7 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                         // 'smoothCurvStructs:76' curv.Info.zspdmode = ZSpdMode.NZ;
                         b_curv.Info.zspdmode = ZSpdMode_NZ;
                     }
-                    // 'smoothCurvStructs:79' if( isAZeroEnd( nextCurv) )
+                    // 'smoothCurvStructs:79' if( isAZeroEnd( nextCurv ) )
                     //  isAZeroEnd : Return true if the curv ends with zero speed
                     //  Input :
                     //  curv  : The curve struct
@@ -388,7 +349,7 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                         b_curv = curv;
                         curv = nextCurv;
                         // -------------------------------------------------------------------------%
-                        // 'smoothCurvStructs:73' if( isAZeroStart( curv) )
+                        // 'smoothCurvStructs:73' if( isAZeroStart( curv ) )
                         //  isAZeroStart : Return true if the curv starts with zero speed
                         //  curv  : The curve struct
                         // 'isAZeroStart:4' if( curv.Info.zspdmode == ZSpdMode.ZN || ...
@@ -404,7 +365,7 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                             // 'smoothCurvStructs:76' curv.Info.zspdmode = ZSpdMode.NZ;
                             b_curv.Info.zspdmode = ZSpdMode_NZ;
                         }
-                        // 'smoothCurvStructs:79' if( isAZeroEnd( nextCurv) )
+                        // 'smoothCurvStructs:79' if( isAZeroEnd( nextCurv ) )
                         //  isAZeroEnd : Return true if the curv ends with zero speed
                         //  Input :
                         //  curv  : The curve struct

@@ -5,14 +5,14 @@
 // File: feedratePlanning.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 30-Jun-2022 11:29:54
+// C/C++ source code generated on  : 13-Jul-2022 14:15:57
 //
 
 // Include Files
 #include "feedratePlanning.h"
 #include "EvalCurvStruct.h"
 #include "FeedratePlanning_LP.h"
-#include "combineVectorElements.h"
+#include "calcZeroConstraints.h"
 #include "constrCurvStruct.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_internal_types.h"
@@ -22,6 +22,7 @@
 #include "opencn_matlab_types3.h"
 #include "paramsDefaultCurv.h"
 #include "queue_coder.h"
+#include "sum.h"
 #include "unsafeSxfun.h"
 #include "coder_array.h"
 #include <cmath>
@@ -49,6 +50,7 @@ static double kopt;
 namespace ocn {
 void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct, bool *quit)
 {
+    ::coder::array<CurvStruct, 2U> b_window;
     ::coder::array<CurvStruct, 2U> window;
     ::coder::array<double, 2U> Coeff;
     ::coder::array<double, 2U> params_tmp_spline_Bl_breakpoints;
@@ -135,8 +137,8 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
     if (ctx->q_split.isempty()) {
         // 'feedratePlanning:13' [ ctx.op, quit ] = empty_queue_split();
         //  Treat the case of an empty queue after splitting operation
-        // 'feedratePlanning:97' if coder.target( 'MATLAB' )
-        // 'feedratePlanning:100' DebugLog( DebugCfg.Validate, 'Queue empty...\n' );
+        // 'feedratePlanning:106' if coder.target( 'MATLAB' )
+        // 'feedratePlanning:109' DebugLog( DebugCfg.Validate, 'Queue empty...\n' );
         //  1 -> stdout
         //  2 -> stderr
         // 'DebugLog:5' if IsEnabledDebugLog(cfg)
@@ -148,8 +150,8 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
             printf("Queue empty...\n");
             fflush(stdout);
         }
-        // 'feedratePlanning:101' op      = Fopt.Finished;
-        // 'feedratePlanning:102' quit    = true;
+        // 'feedratePlanning:110' op      = Fopt.Finished;
+        // 'feedratePlanning:111' quit    = true;
         ctx->op = Fopt_Finished;
         b_quit = true;
     } else {
@@ -166,7 +168,9 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
             if (!ctx->try_push_again) {
                 if (!ctx->zero_end) {
                     int NWindow;
+                    int b_loop_ub;
                     int curv_ind;
+                    int d_loop_ub;
                     unsigned int ind;
                     unsigned int kend;
                     int outsize_idx_1_tmp;
@@ -175,7 +179,7 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                     bool exitg1;
                     // 'feedratePlanning:27' elseif ~ctx.zero_end
                     // 'feedratePlanning:29' [ window, NWindow ] = get_window( ctx.k0,
-                    // ctx.cfg.NHorz, ctx.q_split ); 'feedratePlanning:107' window = repmat(
+                    // ctx.cfg.NHorz, ctx.q_split ); 'feedratePlanning:116' window = repmat(
                     // constrCurvStructType, 1, NHorz );
                     //  constrCurvStructType : Constructs a constrCurvStruct with default values.
                     // 'constrCurvStructType:4' if( nargin > 0 )
@@ -190,10 +194,10 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                     // params.CoeffP5, params.Coeff );
                     outsize_idx_1_tmp = ctx->cfg.NHorz;
                     window.set_size(1, outsize_idx_1_tmp);
-                    for (int i1{0}; i1 < outsize_idx_1_tmp; i1++) {
-                        window[i1] = opt_struct_tmp;
+                    for (int i{0}; i < outsize_idx_1_tmp; i++) {
+                        window[i] = opt_struct_tmp;
                     }
-                    // 'feedratePlanning:109' kend = min( double( k0 + NHorz -1 ), q_curves.size );
+                    // 'feedratePlanning:118' kend = min( double( k0 + NHorz -1 ), q_curves.size );
                     x = (ctx->k0 + outsize_idx_1_tmp) - 1;
                     y = ctx->q_split.size();
                     if (static_cast<double>(x) > y) {
@@ -201,21 +205,21 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                     } else {
                         kend = static_cast<unsigned int>(x);
                     }
-                    // 'feedratePlanning:111' ind = 0;
+                    // 'feedratePlanning:120' ind = 0;
                     ind = 0U;
-                    // 'feedratePlanning:112' for curv_ind = k0 : int32( kend )
+                    // 'feedratePlanning:122' for curv_ind = k0 : int32( kend )
                     curv_ind = ctx->k0;
                     exitg1 = false;
                     while ((!exitg1) && (curv_ind <= static_cast<int>(kend))) {
-                        // 'feedratePlanning:113' ind = ind + 1;
+                        // 'feedratePlanning:123' ind = ind + 1;
                         ind++;
                         //  store the value in the queue
-                        // 'feedratePlanning:116' curv            = q_curves.get( curv_ind );
+                        // 'feedratePlanning:126' curv            = q_curves.get( curv_ind );
                         ctx->q_split.get(curv_ind, &curv);
-                        // 'feedratePlanning:117' window( ind )   = curv;
+                        // 'feedratePlanning:127' window( ind )   = curv;
                         window[static_cast<int>(ind) - 1] = curv;
                         //  Check if zero speed at the end
-                        // 'feedratePlanning:120' if( isAZeroEnd( curv ) )
+                        // 'feedratePlanning:129' if( isAZeroEnd( curv ) )
                         //  isAZeroEnd : Return true if the curv ends with zero speed
                         //  Input :
                         //  curv  : The curve struct
@@ -230,7 +234,12 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                             curv_ind++;
                         }
                     }
-                    // 'feedratePlanning:123' NWindow = ind;
+                    // 'feedratePlanning:132' NWindow = ind;
+                    b_window.set_size(1, window.size(1));
+                    b_loop_ub = window.size(1);
+                    for (int i2{0}; i2 < b_loop_ub; i2++) {
+                        b_window[i2] = window[i2];
+                    }
                     NWindow = static_cast<int>(ind);
                     // 'feedratePlanning:31' first = window( 1 );
                     // 'feedratePlanning:32' last  = window( NWindow );
@@ -242,24 +251,95 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                     // 'isAZeroStart:5'         curv.Info.zspdmode == ZSpdMode.ZZ )
                     if ((window[0].Info.zspdmode == ZSpdMode_ZN) ||
                         (window[0].Info.zspdmode == ZSpdMode_ZZ)) {
+                        int c_loop_ub;
+                        int i3;
+                        int i4;
+                        // 'isAZeroStart:6' zeroFlag = true;
+                        // 'feedratePlanning:36' ctx.zero_start  = true;
+                        ctx->zero_start = true;
+                        // 'feedratePlanning:37' window          = window( 2 : end );
+                        if (2 > window.size(1)) {
+                            i3 = 0;
+                            i4 = 0;
+                        } else {
+                            i3 = 1;
+                            i4 = window.size(1);
+                        }
+                        c_loop_ub = i4 - i3;
+                        b_window.set_size(1, c_loop_ub);
+                        for (int i5{0}; i5 < c_loop_ub; i5++) {
+                            b_window[i5] = window[i3 + i5];
+                        }
+                        // 'feedratePlanning:38' NWindow         = NWindow -1;
+                        NWindow = static_cast<int>(ind) - 1;
+                    } else {
+                        // 'isAZeroStart:8' zeroFlag = false;
+                        // 'feedratePlanning:39' else
+                        // 'feedratePlanning:40' ctx.zero_start  = false;
+                        ctx->zero_start = false;
+                    }
+                    //  Handle the zero speed at end
+                    // 'feedratePlanning:44' if( isAZeroEnd( last ) )
+                    //  isAZeroEnd : Return true if the curv ends with zero speed
+                    //  Input :
+                    //  curv  : The curve struct
+                    // 'isAZeroEnd:5' if( curv.Info.zspdmode == ZSpdMode.NZ || ...
+                    // 'isAZeroEnd:6'         curv.Info.zspdmode == ZSpdMode.ZZ )
+                    if ((window[static_cast<int>(ind) - 1].Info.zspdmode == ZSpdMode_NZ) ||
+                        (window[static_cast<int>(ind) - 1].Info.zspdmode == ZSpdMode_ZZ)) {
+                        // 'isAZeroEnd:7' zeroFlag = true;
+                        // 'feedratePlanning:45' NWindow         = NWindow -1;
+                        NWindow--;
+                    } else {
+                        // 'isAZeroEnd:9' zeroFlag = false;
+                    }
+                    // 'feedratePlanning:48' if( isAZeroEnd( last ) && ~ctx.zero_start )
+                    //  isAZeroEnd : Return true if the curv ends with zero speed
+                    //  Input :
+                    //  curv  : The curve struct
+                    // 'isAZeroEnd:5' if( curv.Info.zspdmode == ZSpdMode.NZ || ...
+                    // 'isAZeroEnd:6'         curv.Info.zspdmode == ZSpdMode.ZZ )
+                    if (((window[static_cast<int>(ind) - 1].Info.zspdmode == ZSpdMode_NZ) ||
+                         (window[static_cast<int>(ind) - 1].Info.zspdmode == ZSpdMode_ZZ)) &&
+                        (!ctx->zero_start)) {
+                        // 'isAZeroEnd:7' zeroFlag = true;
+                        // 'feedratePlanning:49' ctx.zero_end    = true;
+                        ctx->zero_end = true;
+                    } else {
+                        // 'isAZeroEnd:9' zeroFlag = false;
+                        // 'feedratePlanning:50' else
+                        // 'feedratePlanning:51' ctx.zero_end    = false;
+                        ctx->zero_end = false;
+                    }
+                    // 'feedratePlanning:54' if( ctx.zero_start )
+                    if (ctx->zero_start) {
+                        // 'feedratePlanning:55' [ v_0, at_0 ]   = calcZeroConstraints( ctx, first,
+                        // false );
+                        calcZeroConstraints(&ctx->q_spline, ctx->cfg.maskTot.data,
+                                            ctx->cfg.maskTot.size, ctx->cfg.maskCart.data,
+                                            ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
+                                            ctx->cfg.maskRot.size, ctx->cfg.indCart,
+                                            ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart,
+                                            ctx->cfg.NRot, &window[0], &ctx->v_0, &ctx->at_0);
+                        // 'feedratePlanning:56' ctx.v_0         = v_0;
+                        // 'feedratePlanning:57' ctx.at_0        = at_0;
+                    }
+                    // 'feedratePlanning:60' if( ctx.zero_end )
+                    if (ctx->zero_end) {
                         double b_unnamed_idx_0;
                         double b_y;
                         double k_vec;
                         double n;
+                        double pseudoJerk;
                         double u;
                         double ud;
                         double udd;
                         double unnamed_idx_0;
-                        int c_loop_ub;
-                        int d_loop_ub;
-                        int i6;
-                        // 'isAZeroStart:6' zeroFlag = true;
-                        // 'feedratePlanning:36' opt_struct      = first;
-                        *opt_struct = window[0];
-                        // 'feedratePlanning:37' optimized       = true;
-                        b_optimized = true;
-                        // 'feedratePlanning:38' [ v_0, at_0 ]   = calcZeroConstraints( ctx, first,
-                        // false );
+                        int e_loop_ub;
+                        int f_loop_ub;
+                        int i9;
+                        // 'feedratePlanning:61' [ v_1, at_1 ]   = calcZeroConstraints( ctx, last,
+                        // true );
                         //  calcZeroConstraints : Compute the velocity and acceleration
                         //  required for the continuity at zero start.
                         //  Inputs :
@@ -271,11 +351,10 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                         //  at_0  : Norm of the tangential acceleration
                         // 'calcZeroConstraints:12' jps = curv.ConstJerk;
                         // 'calcZeroConstraints:14' if( isEnd )
-                        // 'calcZeroConstraints:16' else
-                        // 'calcZeroConstraints:17' k   = ( 6 / jps )^( 1 / 3 );
+                        // 'calcZeroConstraints:15' k  = 0;
                         // 'calcZeroConstraints:20' [ u, ud, udd, uddd ]    = constJerkU( jps, k,
                         // isEnd );
-                        k_vec = std::pow(6.0 / window[0].ConstJerk, 0.33333333333333331);
+                        pseudoJerk = window[static_cast<int>(ind) - 1].ConstJerk;
                         //  constJerkU : Compute u and its derivative based on the pseudo jerk
                         //  approximation.
                         //  Inputs :
@@ -291,14 +370,16 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                         //    uddd       :  [ N x M ]
                         // 'constJerkU:16' if( coder.target( "MATLAB" ) )
                         // 'constJerkU:22' if( isEnd )
+                        // 'constJerkU:23' k_max  = ( 6 / pseudoJerk )^( 1 / 3 );
+                        // 'constJerkU:24' k_vec  = k_max - k_vec;
+                        k_vec = std::pow(6.0 / pseudoJerk, 0.33333333333333331);
                         //  Compute u and its derivatives based on constant jerk
                         // 'constJerkU:28' uddd    = pseudoJerk .* ones( size( k_vec ) );
                         // 'constJerkU:29' udd     = pseudoJerk .* k_vec;
-                        udd = window[0].ConstJerk * k_vec;
                         // 'constJerkU:30' ud      = pseudoJerk .* k_vec .^2 / 2;
-                        ud = window[0].ConstJerk * std::pow(k_vec, 2.0) / 2.0;
+                        ud = pseudoJerk * std::pow(k_vec, 2.0) / 2.0;
                         // 'constJerkU:31' u       = pseudoJerk .* k_vec .^3 / 6;
-                        u = window[0].ConstJerk * std::pow(k_vec, 3.0) / 6.0;
+                        u = pseudoJerk * std::pow(k_vec, 3.0) / 6.0;
                         // 'constJerkU:33' u( u > 1 ) = 1;
                         unnamed_idx_0 = u;
                         if (u > 1.0) {
@@ -310,6 +391,12 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                             b_unnamed_idx_0 = 0.0;
                         }
                         // 'constJerkU:36' if( isEnd )
+                        //  Reverse time ( Backward-like integration )
+                        // 'constJerkU:37' u    = 1 - u;
+                        // 'constJerkU:38' ud   = ud;
+                        // 'constJerkU:39' udd  = -udd;
+                        udd = -(pseudoJerk * k_vec);
+                        // 'constJerkU:40' uddd = uddd;
                         // 'calcZeroConstraints:22' [ r0D, r1D, r2D, r3D ]  = EvalCurvStruct( ctx,
                         // curv, u );
                         i_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data,
@@ -317,7 +404,8 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                                          ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
                                          ctx->cfg.maskRot.size, ctx->cfg.indCart, ctx->cfg.indRot,
                                          ctx->cfg.NumberAxis, ctx->cfg.NCart, ctx->cfg.NRot,
-                                         &window[0], b_unnamed_idx_0, r0D, r1D, r2D, r3D);
+                                         &window[static_cast<int>(ind) - 1], 1.0 - b_unnamed_idx_0,
+                                         r0D, r1D, r2D, r3D);
                         // 'calcZeroConstraints:24' [ ~, V, A, ~ ]          =
                         // calcRVAJfromUWithoutCurv( ud, udd, uddd, r0D, ...
                         // 'calcZeroConstraints:25'                           r1D, r2D, r3D );
@@ -348,16 +436,10 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                         //  The acceleration vector r1D   : The partial derivative of R Outputs :
                         //  vNorm   : Norm of the velocity
                         //  atNorm  : Norm of the tangential acceleration
-                        // 'calcNormVNormAT:12' vNorm   = mysqrt( sum( V.^2, 1 ) );
+                        // 'calcNormVNormAT:12' vNorm   = MyNorm( V );
+                        // 'MyNorm:2' coder.inline('always');
+                        // 'MyNorm:3' n = mysqrt(sum(x.^2));
                         // 'mysqrt:3' y = sqrt(x);
-                        r.set_size(r1D.size(0));
-                        c_loop_ub = r1D.size(0);
-                        for (int i3{0}; i3 < c_loop_ub; i3++) {
-                            double varargin_1;
-                            varargin_1 = r1D[i3] * ud;
-                            r[i3] = std::pow(varargin_1, 2.0);
-                        }
-                        ctx->v_0 = std::sqrt(coder::combineVectorElements(r));
                         // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
                         sqrt_calls++;
                         // 'calcNormVNormAT:13' t       = r1D / MyNorm( r1D );
@@ -365,299 +447,125 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                         // 'MyNorm:3' n = mysqrt(sum(x.^2));
                         // 'mysqrt:3' y = sqrt(x);
                         r.set_size(r1D.size(0));
-                        d_loop_ub = r1D.size(0);
-                        for (int i4{0}; i4 < d_loop_ub; i4++) {
-                            double b_varargin_1;
-                            b_varargin_1 = r1D[i4];
-                            r[i4] = std::pow(b_varargin_1, 2.0);
+                        e_loop_ub = r1D.size(0);
+                        for (int i7{0}; i7 < e_loop_ub; i7++) {
+                            double varargin_1;
+                            varargin_1 = r1D[i7];
+                            r[i7] = std::pow(varargin_1, 2.0);
                         }
-                        n = std::sqrt(coder::combineVectorElements(r));
+                        n = std::sqrt(coder::sum(r));
                         // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
                         sqrt_calls++;
                         // 'calcNormVNormAT:14' atNorm  = MyNorm( A.*t );
                         // 'MyNorm:2' coder.inline('always');
                         // 'MyNorm:3' n = mysqrt(sum(x.^2));
                         // 'mysqrt:3' y = sqrt(x);
-                        if (r2D.size(0) == 1) {
-                            i6 = r1D.size(0);
-                        } else {
-                            i6 = r2D.size(0);
+                        // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
+                        sqrt_calls++;
+                        // 'feedratePlanning:62' ctx.v_1         = -v_1;
+                        r.set_size(r1D.size(0));
+                        f_loop_ub = r1D.size(0);
+                        for (int i8{0}; i8 < f_loop_ub; i8++) {
+                            double b_varargin_1;
+                            b_varargin_1 = r1D[i8] * ud;
+                            r[i8] = std::pow(b_varargin_1, 2.0);
                         }
-                        if ((r2D.size(0) == r1D.size(0)) && (i6 == r1D.size(0))) {
-                            int f_loop_ub;
+                        ctx->v_1 = -std::sqrt(coder::sum(r));
+                        // 'feedratePlanning:63' ctx.at_1        = -at_1;
+                        if (r2D.size(0) == 1) {
+                            i9 = r1D.size(0);
+                        } else {
+                            i9 = r2D.size(0);
+                        }
+                        if ((r2D.size(0) == r1D.size(0)) && (i9 == r1D.size(0))) {
+                            int g_loop_ub;
                             r.set_size(r2D.size(0));
-                            f_loop_ub = r2D.size(0);
-                            for (int i7{0}; i7 < f_loop_ub; i7++) {
-                                double d_varargin_1;
-                                d_varargin_1 = (r2D[i7] * b_y + r1D[i7] * udd) * (r1D[i7] / n);
-                                r[i7] = std::pow(d_varargin_1, 2.0);
+                            g_loop_ub = r2D.size(0);
+                            for (int i10{0}; i10 < g_loop_ub; i10++) {
+                                double c_varargin_1;
+                                c_varargin_1 = (r2D[i10] * b_y + r1D[i10] * udd) * (r1D[i10] / n);
+                                r[i10] = std::pow(c_varargin_1, 2.0);
                             }
                         } else {
                             binary_expand_op(r, r2D, b_y, r1D, udd, n);
                         }
-                        ctx->at_0 = std::sqrt(coder::combineVectorElements(r));
-                        // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-                        sqrt_calls++;
-                        // 'feedratePlanning:39' ctx.v_0         = v_0;
-                        // 'feedratePlanning:40' ctx.at_0        = at_0;
-                        // 'feedratePlanning:41' ctx.zero_start  = true;
-                        ctx->zero_start = true;
-                        // 'feedratePlanning:42' quit            = true;
-                        b_quit = true;
+                        ctx->at_1 = -std::sqrt(coder::sum(r));
                     } else {
-                        int b_loop_ub;
-                        // 'isAZeroStart:8' zeroFlag = false;
-                        // 'feedratePlanning:44' else
-                        // 'feedratePlanning:45' ctx.zero_start  = false;
-                        ctx->zero_start = false;
-                        //  Handle the zero speed at end
-                        // 'feedratePlanning:48' if( isAZeroEnd( last ) )
-                        //  isAZeroEnd : Return true if the curv ends with zero speed
-                        //  Input :
-                        //  curv  : The curve struct
-                        // 'isAZeroEnd:5' if( curv.Info.zspdmode == ZSpdMode.NZ || ...
-                        // 'isAZeroEnd:6'         curv.Info.zspdmode == ZSpdMode.ZZ )
-                        if ((window[static_cast<int>(ind) - 1].Info.zspdmode == ZSpdMode_NZ) ||
-                            (window[static_cast<int>(ind) - 1].Info.zspdmode == ZSpdMode_ZZ)) {
-                            double b_k_vec;
-                            double b_n;
-                            double b_u;
-                            double b_ud;
-                            double b_udd;
-                            double c_unnamed_idx_0;
-                            double c_y;
-                            double d_unnamed_idx_0;
-                            double pseudoJerk;
-                            int e_loop_ub;
-                            int g_loop_ub;
-                            int i9;
-                            // 'isAZeroEnd:7' zeroFlag = true;
-                            // 'feedratePlanning:49' [ v_1, at_1 ]   = calcZeroConstraints( ctx,
-                            // last, true );
-                            //  calcZeroConstraints : Compute the velocity and acceleration
-                            //  required for the continuity at zero start.
-                            //  Inputs :
-                            //  ctx   : The context
-                            //  Curv  : The curve
-                            //  isEnd : (boolean) Is the end of the curve
-                            //  Outputs :
-                            //  v_0   : Norm of the velocity
-                            //  at_0  : Norm of the tangential acceleration
-                            // 'calcZeroConstraints:12' jps = curv.ConstJerk;
-                            // 'calcZeroConstraints:14' if( isEnd )
-                            // 'calcZeroConstraints:15' k  = 0;
-                            // 'calcZeroConstraints:20' [ u, ud, udd, uddd ]    = constJerkU( jps,
-                            // k, isEnd );
-                            pseudoJerk = window[static_cast<int>(ind) - 1].ConstJerk;
-                            //  constJerkU : Compute u and its derivative based on the pseudo jerk
-                            //  approximation.
-                            //  Inputs :
-                            //    pseudoJerk :  [ N x 1 ] The pseudo constant Jerk
-                            //    k_vec      :  [ 1 x M ] The time vector
-                            //    isEnd      :  ( Boolean ) Is the end of the Curve.
-                            //    a          :  Curve parameter a for affine transforme
-                            //    b          :  Curve parameter b for affine transforme
-                            //  Outputs :
-                            //    u          :  [ N x M ]
-                            //    ud         :  [ N x M ]
-                            //    udd        :  [ N x M ]
-                            //    uddd       :  [ N x M ]
-                            // 'constJerkU:16' if( coder.target( "MATLAB" ) )
-                            // 'constJerkU:22' if( isEnd )
-                            // 'constJerkU:23' k_max  = ( 6 / pseudoJerk )^( 1 / 3 );
-                            // 'constJerkU:24' k_vec  = k_max - k_vec;
-                            b_k_vec = std::pow(6.0 / pseudoJerk, 0.33333333333333331);
-                            //  Compute u and its derivatives based on constant jerk
-                            // 'constJerkU:28' uddd    = pseudoJerk .* ones( size( k_vec ) );
-                            // 'constJerkU:29' udd     = pseudoJerk .* k_vec;
-                            // 'constJerkU:30' ud      = pseudoJerk .* k_vec .^2 / 2;
-                            b_ud = pseudoJerk * std::pow(b_k_vec, 2.0) / 2.0;
-                            // 'constJerkU:31' u       = pseudoJerk .* k_vec .^3 / 6;
-                            b_u = pseudoJerk * std::pow(b_k_vec, 3.0) / 6.0;
-                            // 'constJerkU:33' u( u > 1 ) = 1;
-                            c_unnamed_idx_0 = b_u;
-                            if (b_u > 1.0) {
-                                c_unnamed_idx_0 = 1.0;
-                            }
-                            // 'constJerkU:34' u( u < 0 ) = 0;
-                            d_unnamed_idx_0 = c_unnamed_idx_0;
-                            if (c_unnamed_idx_0 < 0.0) {
-                                d_unnamed_idx_0 = 0.0;
-                            }
-                            // 'constJerkU:36' if( isEnd )
-                            //  Reverse time ( Backward-like integration )
-                            // 'constJerkU:37' u    = 1 - u;
-                            // 'constJerkU:38' ud   = ud;
-                            // 'constJerkU:39' udd  = -udd;
-                            b_udd = -(pseudoJerk * b_k_vec);
-                            // 'constJerkU:40' uddd = uddd;
-                            // 'calcZeroConstraints:22' [ r0D, r1D, r2D, r3D ]  = EvalCurvStruct(
-                            // ctx, curv, u );
-                            i_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data,
-                                             ctx->cfg.maskTot.size, ctx->cfg.maskCart.data,
-                                             ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
-                                             ctx->cfg.maskRot.size, ctx->cfg.indCart,
-                                             ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart,
-                                             ctx->cfg.NRot, &window[static_cast<int>(ind) - 1],
-                                             1.0 - d_unnamed_idx_0, r0D, r1D, r2D, r3D);
-                            // 'calcZeroConstraints:24' [ ~, V, A, ~ ]          =
-                            // calcRVAJfromUWithoutCurv( ud, udd, uddd, r0D, ...
-                            // 'calcZeroConstraints:25'                           r1D, r2D, r3D );
-                            //  calcRVAJfromU : Compute the pose, the velocity, the acceleration and
-                            //  the jerk for a given set of u variable. Inputs :
-                            //    ud_vec  : [ 1 x M ] The vector of first derivative of u
-                            //    udd_vec : [ 1 x M ] The vector of second derivative of ddu
-                            //    uddd_vec: [ 1 x M ] The vector of third derivative of ddu
-                            //    r0D     : [ 1 x M ] The vector of r
-                            //    r1D     : [ 1 x M ] The vector of first derivative of r
-                            //    r2D     : [ 1 x M ] The vector of second derivative of r
-                            //    r3D     : [ 1 x M ] The vector of second derivative of r
-                            //  Outputs :
-                            //    R   : [ N x M ] pose
-                            //    V   : [ N x M ] velocity
-                            //    A   : [ N x M ] acceleration
-                            //    J   : [ N x M ] jerk
-                            // 'calcRVAJfromUWithoutCurv:18' R = r0D;
-                            // 'calcRVAJfromUWithoutCurv:19' V = r1D .* ud_vec;
-                            // 'calcRVAJfromUWithoutCurv:20' A = r2D .* ud_vec .^2 + r1D .* udd_vec;
-                            c_y = std::pow(b_ud, 2.0);
-                            // 'calcRVAJfromUWithoutCurv:21' J = r3D .* ud_vec .^3 + 3 * r2D .*
-                            // ud_vec .* udd_vec + r1D .* uddd_vec; 'calcZeroConstraints:27' [
-                            // vNorm, atNorm ]       = calcNormVNormAT( V, A, r1D );
-                            //  calcNormVNormAT : Compute the norm of velocity and the norm of
-                            //  tangential acceleration. Inputs : V     : The velovity vector A :
-                            //  The acceleration vector r1D   : The partial derivative of R Outputs
-                            //  : vNorm   : Norm of the velocity atNorm  : Norm of the tangential
-                            //  acceleration
-                            // 'calcNormVNormAT:12' vNorm   = mysqrt( sum( V.^2, 1 ) );
-                            // 'mysqrt:3' y = sqrt(x);
-                            // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-                            sqrt_calls++;
-                            // 'calcNormVNormAT:13' t       = r1D / MyNorm( r1D );
-                            // 'MyNorm:2' coder.inline('always');
-                            // 'MyNorm:3' n = mysqrt(sum(x.^2));
-                            // 'mysqrt:3' y = sqrt(x);
-                            r.set_size(r1D.size(0));
-                            e_loop_ub = r1D.size(0);
-                            for (int i5{0}; i5 < e_loop_ub; i5++) {
-                                double c_varargin_1;
-                                c_varargin_1 = r1D[i5];
-                                r[i5] = std::pow(c_varargin_1, 2.0);
-                            }
-                            b_n = std::sqrt(coder::combineVectorElements(r));
-                            // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-                            sqrt_calls++;
-                            // 'calcNormVNormAT:14' atNorm  = MyNorm( A.*t );
-                            // 'MyNorm:2' coder.inline('always');
-                            // 'MyNorm:3' n = mysqrt(sum(x.^2));
-                            // 'mysqrt:3' y = sqrt(x);
-                            // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-                            sqrt_calls++;
-                            // 'feedratePlanning:50' ctx.v_1         = -v_1;
-                            r.set_size(r1D.size(0));
-                            g_loop_ub = r1D.size(0);
-                            for (int i8{0}; i8 < g_loop_ub; i8++) {
-                                double e_varargin_1;
-                                e_varargin_1 = r1D[i8] * b_ud;
-                                r[i8] = std::pow(e_varargin_1, 2.0);
-                            }
-                            ctx->v_1 = -std::sqrt(coder::combineVectorElements(r));
-                            // 'feedratePlanning:51' ctx.at_1        = -at_1;
-                            if (r2D.size(0) == 1) {
-                                i9 = r1D.size(0);
-                            } else {
-                                i9 = r2D.size(0);
-                            }
-                            if ((r2D.size(0) == r1D.size(0)) && (i9 == r1D.size(0))) {
-                                int h_loop_ub;
-                                r.set_size(r2D.size(0));
-                                h_loop_ub = r2D.size(0);
-                                for (int i10{0}; i10 < h_loop_ub; i10++) {
-                                    double f_varargin_1;
-                                    f_varargin_1 =
-                                        (r2D[i10] * c_y + r1D[i10] * b_udd) * (r1D[i10] / b_n);
-                                    r[i10] = std::pow(f_varargin_1, 2.0);
-                                }
-                            } else {
-                                binary_expand_op(r, r2D, c_y, r1D, b_udd, b_n);
-                            }
-                            ctx->at_1 = -std::sqrt(coder::combineVectorElements(r));
-                            // 'feedratePlanning:52' ctx.zero_end    = true;
-                            ctx->zero_end = true;
-                            // 'feedratePlanning:53' NWindow         = NWindow -1;
-                            NWindow = static_cast<int>(ind) - 1;
-                        } else {
-                            // 'isAZeroEnd:9' zeroFlag = false;
-                            // 'feedratePlanning:54' else
-                            // 'feedratePlanning:55' ctx.v_1         = -ctx.cfg.v_1;
-                            ctx->v_1 = -ctx->cfg.v_1;
-                            // 'feedratePlanning:56' ctx.at_1        = -ctx.cfg.at_1;
-                            ctx->at_1 = -ctx->cfg.at_1;
-                            // 'feedratePlanning:57' ctx.zero_end    = false;
-                            ctx->zero_end = false;
-                        }
-                        // 'feedratePlanning:60' [ ctx, Coeff, success, status, msg ] = ...
-                        // 'feedratePlanning:61'     FeedratePlanning_LP( ctx, window, ctx.cfg.amax,
-                        // ctx.cfg.jmax, ... 'feedratePlanning:62'     ctx.BasisVal, ctx.BasisValD,
-                        // ctx.BasisValDD, ctx.BasisIntegr, ... 'feedratePlanning:63'     ctx.u_vec,
-                        // NWindow );
-                        FeedratePlanning_LP(ctx, window, ctx->cfg.amax, ctx->cfg.jmax,
-                                            ctx->BasisVal, ctx->BasisValD, ctx->BasisValDD,
-                                            ctx->BasisIntegr, ctx->u_vec,
-                                            static_cast<double>(NWindow), Coeff, &success, &status);
-                        // 'feedratePlanning:65' if( success == 1 )
-                        //  Optimization succed
-                        // 'feedratePlanning:66' optimized   = true;
-                        b_optimized = true;
-                        // 'feedratePlanning:67' opt_struct  = ctx.q_split.get( ctx.k0 );
-                        ctx->q_split.get(ctx->k0, opt_struct);
-                        // 'feedratePlanning:68' opt_struct.Coeff = Coeff( :, 1 );
-                        b_loop_ub = Coeff.size(0);
-                        opt_struct->Coeff.set_size(Coeff.size(0));
-                        for (int i2{0}; i2 < b_loop_ub; i2++) {
-                            opt_struct->Coeff[i2] = Coeff[i2];
-                        }
-                        //  Check if end of the queue
-                        // 'feedratePlanning:71' if( ctx.zero_end && ( ctx.k0 + NWindow ) >=
-                        // ctx.q_split.size )
-                        if (ctx->zero_end &&
-                            (static_cast<double>(ctx->k0 + NWindow) >= ctx->q_split.size())) {
-                            // 'feedratePlanning:72' ctx.reached_end = true;
-                            ctx->reached_end = true;
-                        }
+                        // 'feedratePlanning:64' else
+                        // 'feedratePlanning:65' ctx.v_1         = -ctx.cfg.v_1;
+                        ctx->v_1 = -ctx->cfg.v_1;
+                        // 'feedratePlanning:66' ctx.at_1        = -ctx.cfg.at_1;
+                        ctx->at_1 = -ctx->cfg.at_1;
+                    }
+                    // 'feedratePlanning:69' [ ctx, Coeff, success, status, msg ] = ...
+                    // 'feedratePlanning:70'             FeedratePlanning_LP( ctx, window,
+                    // ctx.cfg.amax, ctx.cfg.jmax, ... 'feedratePlanning:71' ctx.BasisVal,
+                    // ctx.BasisValD, ctx.BasisValDD, ctx.BasisIntegr, ... 'feedratePlanning:72'
+                    // ctx.u_vec, NWindow );
+                    FeedratePlanning_LP(ctx, b_window, ctx->cfg.amax, ctx->cfg.jmax, ctx->BasisVal,
+                                        ctx->BasisValD, ctx->BasisValDD, ctx->BasisIntegr,
+                                        ctx->u_vec, static_cast<double>(NWindow), Coeff, &success,
+                                        &status);
+                    // 'feedratePlanning:74' if( success == 1 )
+                    //  Optimization succed
+                    // 'feedratePlanning:75' optimized   = true;
+                    b_optimized = true;
+                    // 'feedratePlanning:76' opt_struct  = ctx.q_split.get( ctx.k0 );
+                    ctx->q_split.get(ctx->k0, opt_struct);
+                    // 'feedratePlanning:77' opt_struct.Coeff = Coeff( :, 1 );
+                    d_loop_ub = Coeff.size(0);
+                    opt_struct->Coeff.set_size(Coeff.size(0));
+                    for (int i6{0}; i6 < d_loop_ub; i6++) {
+                        opt_struct->Coeff[i6] = Coeff[i6];
+                    }
+                    //  Check if end of the queue
+                    // 'feedratePlanning:80' if( ctx.zero_end && ( ctx.k0 + NWindow ) >=
+                    // ctx.q_split.size )
+                    if (ctx->zero_end &&
+                        (static_cast<double>(ctx->k0 + NWindow) >= ctx->q_split.size())) {
+                        // 'feedratePlanning:81' ctx.reached_end = true;
+                        ctx->reached_end = true;
                     }
                 } else {
-                    // 'feedratePlanning:78' else
-                    // 'feedratePlanning:79' optimized   = true;
+                    // 'feedratePlanning:87' else
+                    // 'feedratePlanning:88' optimized   = true;
                     b_optimized = true;
-                    // 'feedratePlanning:80' kopt = kopt + 1;
+                    // 'feedratePlanning:89' kopt = kopt + 1;
                     kopt++;
-                    // 'feedratePlanning:81' opt_struct = ctx.q_split.get( ctx.k0 );
+                    // 'feedratePlanning:90' opt_struct = ctx.q_split.get( ctx.k0 );
                     ctx->q_split.get(ctx->k0, opt_struct);
-                    // 'feedratePlanning:83' if( opt_struct.Info.zspdmode ~= ZSpdMode.NZ )
-                    if (opt_struct->Info.zspdmode != ZSpdMode_NZ) {
+                    // 'feedratePlanning:92' if( ~isAZeroEnd( opt_struct ) )
+                    //  isAZeroEnd : Return true if the curv ends with zero speed
+                    //  Input :
+                    //  curv  : The curve struct
+                    // 'isAZeroEnd:5' if( curv.Info.zspdmode == ZSpdMode.NZ || ...
+                    // 'isAZeroEnd:6'         curv.Info.zspdmode == ZSpdMode.ZZ )
+                    if ((opt_struct->Info.zspdmode == ZSpdMode_NZ) ||
+                        (opt_struct->Info.zspdmode == ZSpdMode_ZZ)) {
+                        // 'isAZeroEnd:7' zeroFlag = true;
+                        // 'feedratePlanning:94' else
+                        // 'feedratePlanning:95' ctx.zero_end  = false;
+                        ctx->zero_end = false;
+                        // 'feedratePlanning:96' kopt = 1;
+                        kopt = 1.0;
+                    } else {
                         int loop_ub;
-                        // 'feedratePlanning:84' opt_struct.Coeff = ctx.Coeff( :, kopt );
+                        // 'isAZeroEnd:9' zeroFlag = false;
+                        // 'feedratePlanning:93' opt_struct.Coeff = ctx.Coeff( :, kopt );
                         loop_ub = ctx->Coeff.size(0);
                         opt_struct->Coeff.set_size(loop_ub);
-                        for (int i{0}; i < loop_ub; i++) {
-                            opt_struct->Coeff[i] =
-                                ctx->Coeff[i + ctx->Coeff.size(0) * (static_cast<int>(kopt) - 1)];
+                        for (int i1{0}; i1 < loop_ub; i1++) {
+                            opt_struct->Coeff[i1] =
+                                ctx->Coeff[i1 + ctx->Coeff.size(0) * (static_cast<int>(kopt) - 1)];
                         }
-                    } else {
-                        // 'feedratePlanning:85' else
-                        // 'feedratePlanning:86' ctx.zero_end  = false;
-                        ctx->zero_end = false;
-                        // 'feedratePlanning:87' kopt = 1;
-                        kopt = 1.0;
                     }
                 }
             } else {
                 //  Do nothing, we already have the last one optimized
             }
         } else {
-            // 'feedratePlanning:90' else
-            // 'feedratePlanning:91' ctx.op = Fopt.Finished;
+            // 'feedratePlanning:99' else
+            // 'feedratePlanning:100' ctx.op = Fopt.Finished;
             ctx->op = Fopt_Finished;
         }
     }

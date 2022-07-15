@@ -8,12 +8,13 @@ GenerateAll = false;
 if( ~GenerateAll )
     GenerateDebug               = false;
     GenerateType                = false;
-    GenerateResampling          = false;
-    GenerateGCodeInterpreter    = true;
+    GenerateResampling          = true;
+    GenerateGCodeInterpreter    = false;
     GenerateQueues              = false;
     GenerateSimplex             = false;
     GenerateSpline              = false;
     GenerateKinematic           = false;
+    GenerateTridiagonalSolver   = false;
 %     GenerateFeedoptPlanRun      = false; % Does not work now
 end
 cfg = generate_mex_config();
@@ -175,11 +176,20 @@ if( GenerateAll || GenerateSpline )
             {BlType, coder.typeof(0.0, [1, Inf], [1, 0]), 0.5},...
             'bspline_create', '-args', {fcfg.SplineDegree, coder.typeof(0.0, [1, Inf], [0, 1])},...
             '-o', 'bspline_eval_mex');
+
+        fprintf('Mexing bspline_eval_lee\n')
+        codegen('-config', cfg,'-d', splineRep + "/bspline_eval_lee",...
+            'bspline_eval_lee', '-args', {BlType, int32(0), coder.typeof(0.0,[1,Inf])},...
+            'bspline_create', '-args', {fcfg.SplineDegree, coder.typeof(0.0, [1, Inf], [0, 1])},...
+            '-o', 'bspline_eval_lee_mex');
+
         disp(name + "success" );
+
         delete( 'bspline_create_mex.mexa64' );
         delete( 'bspline_destroy_mex.mexa64' );
         delete( 'bspline_base_eval_mex.mexa64' );
         delete( 'bspline_eval_mex.mexa64' );
+        delete( 'bspline_eval_lee_mex.mexa64' );
         addpath( path_mex );
     catch
         fprintf( ERROR_COLOR, name + "failed : " + ME.message + "\n");
@@ -232,7 +242,8 @@ if( GenerateAll || GenerateResampling )
         codegen('-config', cfg,'-d', ResamplingRep,...
             'resampleCurv', '-args', {state, ctx.Bl, Curv.Info.zspdmode, ...
              coder.typeof(0.0, [Inf, 1], [1,0]), ...
-             Curv.ConstJerk, dt,  Curv.a_param, Curv.b_param }, ...
+             Curv.ConstJerk, dt,  Curv.a_param, Curv.b_param, ...
+             my_cfg.GaussLegendreX, my_cfg.GaussLegendreW }, ...
             '-o', 'resampling_mex');
         disp(name + "success" );
         delete( 'resampling_mex.mexa64' );
@@ -352,6 +363,28 @@ if( GenerateAll || GenerateKinematic )
         delete(KinematicsTypeName.get_fun_name( KinFunctionName.J2P_ra ) ...
             + "_mex.mexa64");
     catch
+        fprintf( ERROR_COLOR, name + "failed : " + ME.message + "\n");
+    end
+end
+
+if( GenerateAll || GenerateTridiagonalSolver )
+    name = "Mexing tridiagonal solver : ";
+    disp(name + "start" );
+
+    try
+        TridiagRep = 'gen_mex/tridiag';
+        path_mex = genpath( TridiagRep );
+        rmpath( path_mex );
+        codegen('-config', cfg,'-d', TridiagRep,...
+            'tridiag', '-args', {coder.typeof(0.0, [Inf, 1],   [1, 0]), ...
+                             coder.typeof(0.0, [Inf, 1],   [1, 0]), ...
+                             coder.typeof(0.0, [Inf, 1],   [1, 0]), ...
+                             coder.typeof(0.0, [Inf, Inf], [1, 1])},...    
+            '-o', 'tridiag_mex');
+        disp(name + "success" );
+        delete( 'tridiag_mex.mexa64' );
+        addpath( path_mex );
+    catch ME
         fprintf( ERROR_COLOR, name + "failed : " + ME.message + "\n");
     end
 end

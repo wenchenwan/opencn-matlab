@@ -70,13 +70,13 @@ end
 %-------------------------------------------------------------------------%
 function [ curv, nextCurv ] = create_zero_end( curv, nextCurv )
 
-if( isAZeroStart( curv) )
+if( isAZeroStart( curv ) )
     curv.Info.zspdmode = ZSpdMode.ZZ;
 else
     curv.Info.zspdmode = ZSpdMode.NZ;
 end
 
-if( isAZeroEnd( nextCurv) )
+if( isAZeroEnd( nextCurv ) )
     nextCurv.Info.zspdmode = ZSpdMode.ZZ;
 else
     nextCurv.Info.zspdmode = ZSpdMode.ZN;
@@ -91,9 +91,9 @@ function [ isSmooth ] = check_smoothness( ctx, curv0, curv1, tol, tol_cos )
     [t1, ~,  kappa1] = calc_t_nk_kappa( r1d1, r1dd1 );
     [t2, ~,  kappa2] = calc_t_nk_kappa( r2d1, r2dd1 );
 
-    isC0   = all( abs( r11 - r21 ) < tol );
+    isC0   = all( abs( r11 - r21 ) < tol, 'all' );
     isG1   = collinear( t1, t2, tol_cos );
-    isG2   = all( abs( kappa1 -kappa2 ) < tol );
+    isG2   = all( abs( kappa1 -kappa2 ) < tol, 'all' );
 
     isSmooth = ( isC0 && isG1 && isG2 );
 

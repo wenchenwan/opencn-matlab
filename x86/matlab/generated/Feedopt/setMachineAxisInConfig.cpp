@@ -5,7 +5,7 @@
 // File: setMachineAxisInConfig.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 30-Jun-2022 11:29:54
+// C/C++ source code generated on  : 13-Jul-2022 14:15:57
 //
 
 // Include Files
@@ -287,8 +287,8 @@ void setMachineAxisInConfig(FeedoptConfig *cfg, const bool maskTot[6])
     r.CutOff = cfg->CutOff;
     r.LSplit = cfg->LSplit;
     r.LSplitZero = cfg->LSplitZero;
-    r.LThreshold = cfg->LThreshold;
-    r.CuspThreshold = cfg->CuspThreshold;
+    r.LThresholdMax = cfg->LThresholdMax;
+    r.LThresholdMin = cfg->LThresholdMin;
     r.v_0 = cfg->v_0;
     r.at_0 = cfg->at_0;
     r.v_1 = cfg->v_1;
@@ -299,6 +299,7 @@ void setMachineAxisInConfig(FeedoptConfig *cfg, const bool maskTot[6])
     r.ZeroStartVelLimit = cfg->ZeroStartVelLimit;
     std::copy(&cfg->source[0], &cfg->source[1024], &r.source[0]);
     r.DebugCutZero = cfg->DebugCutZero;
+    r.Cusp = cfg->Cusp;
     r.Compressing = cfg->Compressing;
     r.Smoothing = cfg->Smoothing;
     r.GaussLegendreN = cfg->GaussLegendreN;
@@ -374,8 +375,8 @@ void setMachineAxisInConfig(FeedoptConfig *cfg, const bool maskTot[6])
     cfg->CutOff = r.CutOff;
     cfg->LSplit = r.LSplit;
     cfg->LSplitZero = r.LSplitZero;
-    cfg->LThreshold = r.LThreshold;
-    cfg->CuspThreshold = r.CuspThreshold;
+    cfg->LThresholdMax = r.LThresholdMax;
+    cfg->LThresholdMin = r.LThresholdMin;
     cfg->v_0 = r.v_0;
     cfg->at_0 = r.at_0;
     cfg->v_1 = r.v_1;
@@ -386,6 +387,7 @@ void setMachineAxisInConfig(FeedoptConfig *cfg, const bool maskTot[6])
     cfg->ZeroStartVelLimit = r.ZeroStartVelLimit;
     std::copy(&r.source[0], &r.source[1024], &cfg->source[0]);
     cfg->DebugCutZero = r.DebugCutZero;
+    cfg->Cusp = r.Cusp;
     cfg->Compressing = r.Compressing;
     cfg->Smoothing = r.Smoothing;
     cfg->GaussLegendreN = r.GaussLegendreN;

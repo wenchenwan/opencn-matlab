@@ -19,6 +19,10 @@ Ncrv                = ctx.q_gcode.size;         % Number of curve in queue
 
 DebugLog(DebugCfg.Validate, 'Compressing...\n');
 
+if( coder.target( "MATLAB" ) )
+    DebugCompressing.getInstance.reset;
+end
+
 for k = 1 : Ncrv
     curv = ctx.q_gcode.get( k ); % Get next Curve in the queue
 
@@ -59,12 +63,21 @@ addBatch    = true;
 addNewBatch = false;
 
 if( curv.Info.Type ~= CurveType.Line )
-    addBatch = false;
-    return;
+    if( coder.target( "MATLAB" ) )
+        DebugCompressing.getInstance.NotALineInc;
+    end
+    addBatch = false; return;
 end
 
-if( LengthCurv( ctx, curv, 0, 1 ) >  ctx.cfg.LThreshold )
+if( LengthCurv( ctx, curv, 0, 1 ) >  ctx.cfg.LThresholdMax )
+    if( coder.target( "MATLAB" ) )
+        DebugCompressing.getInstance.TooLargeInc;
+    end
     addBatch = false; return;
+end
+
+if( LengthCurv( ctx, curv, 0, 1 ) < ctx.cfg.LThresholdMin )
+    addBatch = true; return;
 end
 
 if( batch.size > 0 )
@@ -75,7 +88,13 @@ if( batch.size > 0 )
     end
     collinear = curvCollinear( ctx, prevCurv, curv, ...
         ctx.cfg.Compressing.ColTolCosLee );
-    if( ~collinear ), addBatch = false; addNewBatch = true; return; end
+    if( ~collinear )
+        if( coder.target( "MATLAB" ) )
+            DebugCompressing.getInstance.NotCollinearInc;
+        end
+        addBatch = false; 
+        addNewBatch = true; return; 
+    end
 end
 
 end
@@ -140,7 +159,7 @@ spline            = constrCurvStructType;
 spline.Info.Type  = CurveType.Spline;
 spline.sp_index   = spline_index;
 spline.sp         = CalcBspline_Lee( ctx.cfg, batch.pvec( ctx.cfg.maskTot, : ) );
-[ Ltot, Lk ]      = SplineLengthApproxGL_tot( ctx, spline );
+[ Ltot, Lk ]      = SplineLengthApproxGL_tot( ctx.cfg, spline );
 spline.sp.Ltot    = Ltot;
 spline.sp.Lk      = Lk;
 

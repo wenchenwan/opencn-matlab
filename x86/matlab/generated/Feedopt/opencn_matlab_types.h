@@ -5,7 +5,7 @@
 // File: opencn_matlab_types.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 30-Jun-2022 11:29:54
+// C/C++ source code generated on  : 13-Jul-2022 14:15:57
 //
 
 #ifndef OPENCN_MATLAB_TYPES_H
@@ -24,10 +24,15 @@
 namespace ocn {
 struct struct0_T {
     bool Skip;
-    double ColTolCosLee;
+    double CuspThreshold;
 };
 
 struct struct1_T {
+    bool Skip;
+    double ColTolCosLee;
+};
+
+struct struct2_T {
     bool Skip;
     double ColTolCosSmooth;
     double ColTolSmooth;
@@ -91,8 +96,8 @@ struct FeedoptConfig {
     double CutOff;
     double LSplit;
     double LSplitZero;
-    double LThreshold;
-    double CuspThreshold;
+    double LThresholdMax;
+    double LThresholdMin;
     double v_0;
     double at_0;
     double v_1;
@@ -103,8 +108,9 @@ struct FeedoptConfig {
     double ZeroStartVelLimit;
     char source[1024];
     bool DebugCutZero;
-    struct0_T Compressing;
-    struct1_T Smoothing;
+    struct0_T Cusp;
+    struct1_T Compressing;
+    struct2_T Smoothing;
     double GaussLegendreN;
     double GaussLegendreX[5];
     double GaussLegendreW[5];
@@ -141,8 +147,8 @@ struct b_FeedoptConfig {
     double CutOff;
     double LSplit;
     double LSplitZero;
-    double LThreshold;
-    double CuspThreshold;
+    double LThresholdMax;
+    double LThresholdMin;
     double v_0;
     double at_0;
     double v_1;
@@ -153,8 +159,9 @@ struct b_FeedoptConfig {
     double ZeroStartVelLimit;
     char source[1024];
     bool DebugCutZero;
-    struct0_T Compressing;
-    struct1_T Smoothing;
+    struct0_T Cusp;
+    struct1_T Compressing;
+    struct2_T Smoothing;
     double GaussLegendreN;
     double GaussLegendreX[5];
     double GaussLegendreW[5];

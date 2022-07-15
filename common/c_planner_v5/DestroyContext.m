@@ -1,4 +1,4 @@
-function DestroyContext(ctx)
+function DestroyContext( ctx )
     ctx.q_gcode.delete();
     ctx.q_compress.delete();
     ctx.q_smooth.delete();
@@ -12,5 +12,4 @@ function DestroyContext(ctx)
     end
     
     ctx.q_spline.delete();
-    
 end
