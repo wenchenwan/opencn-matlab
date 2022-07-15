@@ -74,8 +74,8 @@ end
 end
 
 function [ isValid ] = check_continuity( ctx, curv1, curv2 )
-    tol         = 1E-6;
-    tol_cos     = deg2rad( 1 );
+    tol         = ctx.cfg.Smoothing.ColTolSmooth;
+    tol_cos     = ctx.cfg.Smoothing.ColTolCosSmooth;
     tol_kappa   = 1E-3;
 
     [ r11, r1d1, r1dd1 ] = EvalCurvStruct( ctx, curv1, 1 );
@@ -85,7 +85,7 @@ function [ isValid ] = check_continuity( ctx, curv1, curv2 )
     [t2, ~,  kappa2] = calc_t_nk_kappa( r2d1, r2dd1 );
 
     isC0    = all( abs( r11    -r21 ) < tol, 'all' );
-    isG1    = collinear(t1, t2, tol_cos);
+    isG1    = collinear( t1, t2, tol_cos );
     isG2    = abs( kappa1 -kappa2 )   < tol_kappa;
     
     isValid = isC0 && isG1 && isG2;
@@ -95,9 +95,4 @@ function [ isValid ] = check_curv_length( ctx, curv, L )
 tol = 1E-3;
 
 isValid = ( abs( LengthCurv( ctx, curv, 0, 1 ) - L ) <= tol );
-
-if( ~isValid )
-    disp( "here" );
-end
-
 end

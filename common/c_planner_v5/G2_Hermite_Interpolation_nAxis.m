@@ -41,10 +41,7 @@ r1D0(1:ctx.cfg.NumberAxis) = r1D0_in;
 r1D1(1:ctx.cfg.NumberAxis) = r1D1_in;
 r1D2(1:ctx.cfg.NumberAxis) = r1D2_in;
 
-D = ones(5, 1);
-if ctx.cfg.indRot > 0
-    D(ctx.cfg.indRot) = ctx.cfg.coeffD;
-end
+D = ctx.cfg.D;
 
 status = int32(1); % default success
 
