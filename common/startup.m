@@ -1,9 +1,19 @@
 addpath '.'
-addpath c_planner_v5
-addpath Tests/Full
-addpath Tests/Unit/CutStruct
-addpath Tests/Unit/ZSpdMode
-addpath Tests/Unit
-addpath Validate_OpenCN
-addpath arc_center
-addpath Tests
+pathOfInterest = { 
+    'Feedopt',...
+    'gen_mex',...
+    'generate',...
+    'kinematics',...
+    'Tests',...
+    'types/',...
+    'utils/',...
+    'Validate_OpenCN',...
+    };
+
+if( exist( "dev" , 'dir' ) ), addpath( "dev/" ); end
+
+for t = 1 : length( pathOfInterest )
+    genPath = genpath( pathOfInterest{ t } );
+    addpath( genPath );
+end
+

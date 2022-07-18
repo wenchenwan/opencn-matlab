@@ -20,7 +20,7 @@ v_1 = 0.1;
 at_0 = 0;
 at_1 = 0;
 
-[Coeff, NCoeff, v_0, at_0, success, status] = FeedratePlanning_v4(CurvStructs, ctx.cfg.amax, ctx.cfg.jmax, v_0, at_0, v_1, at_1,...
+[Coeff, NCoeff, v_0, at_0, success, status] = FeedratePlanning(CurvStructs, ctx.cfg.amax, ctx.cfg.jmax, v_0, at_0, v_1, at_1,...
     ctx.BasisVal, ctx.BasisValD, ctx.BasisValDD, ctx.BasisIntegr, ctx.Bl, ctx.u_vec, 2);
 
 v_1 = v_0;
@@ -28,7 +28,7 @@ at_1 = at_0;
 v_0 = 0.1;
 at_0 = 0;
 
-[Coeff, NCoeff, v_0, at_0, success, status] = FeedratePlanning_v4(CurvStructs, ctx.cfg.amax, ctx.cfg.jmax, v_0, at_0, v_1, at_1,...
+[Coeff, NCoeff, v_0, at_0, success, status] = FeedratePlanning(CurvStructs, ctx.cfg.amax, ctx.cfg.jmax, v_0, at_0, v_1, at_1,...
     ctx.BasisVal, ctx.BasisValD, ctx.BasisValDD, ctx.BasisIntegr, ctx.Bl, ctx.u_vec, 1);
 % 
 % %% Study

@@ -1,13 +1,9 @@
 #pragma once
 
-
-
-#if defined(MEX_FEEDOPTPLANRUN)
-    #include <FeedoptPlanRun_mex.h>
+#ifdef MATLAB_MEX_FILE
+    #include <ReadGCode_mex.h>
 #else
-    #if defined(MEX_READGCODE)
-        #include <ReadGCode_mex.h>
-    #endif
+    #include <ReadGCode.h>
 #endif
 
 #ifdef __cplusplus

@@ -12,6 +12,8 @@
 
 #include "c_simplex.hpp"
 
+#define SIMPLEX_DLEVEL 3
+
 // build with: mex -I/usr/include/coin -lClp -lCoinUtils -largeArrayDims ../coinor-clp-test/src/test1.cpp
 // Usage: test1(f, [A; Aeq], b, beq);
 
@@ -107,7 +109,7 @@ void mexFunction_sparse(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs
     std::copy(beq, beq + Mbeq, rowlb + Mb);
 
     ClpSimplex model;
-    model.setLogLevel(0);
+    model.setLogLevel( SIMPLEX_DLEVEL );
     // constraint matrix, lower/upper bound of x, objective coeffs, lower/upper bounds of complex variables
     model.loadProblem(matrix, nullptr, nullptr, f, rowlb, rowub);
     model.setPrimalTolerance(1e-6);

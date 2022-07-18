@@ -42,7 +42,6 @@ $ git submodule update
 >> cd opencn/agency/usr/matlab/common
 >> run startup.m
 >> run generate_mex.m
->> run mex_queue.m
 ```
 
 3. Run the provided basic example to see if everything has been correctly installed
@@ -50,6 +49,65 @@ $ git submodule update
 ```shell
 >> run basic_example.m
 ```
+
+## C/C++ files :
+
+1. Open Matlab at the root of the opencn folder. 
+
+The folder generate contains all the files envolves in code generation. 
+The file generate/generate.c can be modified to selecte which architecture will be used during the code generation. 
+Run the following commands in the Matlab prompt to start the code generation. 
+
+```shell
+>> run generate_c.m
+```
+**Note** : You can change the configuration of generated code in the file generate/generate_c_config.m
+
+## Files organisations :
+
+```
+common/
+├── Bugs
+├── dev
+├── E2C
+├── fake_headers
+├── Feedopt
+├── generate
+├── gen_mex
+├── kinematics
+├── mex
+├── ngc_test
+├── old
+├── src
+├── streamer
+├── Tests
+├── types
+├── utils
+└── Validate_OpenCN
+```
+
+| Directory        | Content                                                               |
+|------------------|-----------------------------------------------------------------------|
+| Bugs             | Relevant files and data related to reported bugs ( see issues on Gitlab )                         |
+| dev              | Untracked folder for developpment and quick test only                 |
+| E2C              | Tests and results of E2C project on Micron5 machine                     |
+| fake_headers     | Hand written header files used to be compliant with the machine kernel       |
+| Feedopt          | Functions used in the feedrate planning algorithms                    |
+| generate         | Files related to the C/C++ code generation and Mexing                 |
+| gen_mex          | Generated mex functions and code                                      |
+| kinematics       | Kinematics functions and tests                                        |
+| mex              | C/C++ wrappers for mexing external code                               |
+| ngc_test         | Set of RS274 G codes used for the tests                                |
+| old              | Old version of algorithms and tests                                   |
+| src              | Custom C/C++ functions                                                |
+| streamer         | CSV files with joint positions for the motors' drive                  |
+| Tests            | Tests files                                                           |
+| types            | Types used to represent the curves                                    |
+| utils            | Functions used for debugging and analyse the result of the algorithms |
+| Validates_OpenCN | Validation of the algorithms against a set of G codes                 |
+
+
+
 
 # 2. Complements
 - C/C++ code generation has been tested and validated using the release 5.3 of Matlab Coder

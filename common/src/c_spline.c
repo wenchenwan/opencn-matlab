@@ -17,6 +17,7 @@
 #include "c_spline.h"
 
 static const int nderiv = 3;
+static int c_bspline_knots (const gsl_vector * breakpts, gsl_bspline_workspace * w);
 
 void c_bspline_create(void *handle_, double x0, double x1, int32_t degree, int32_t nbreak)
 {
@@ -42,7 +43,7 @@ void c_bspline_create(void *handle_, double x0, double x1, int32_t degree, int32
     *handle = (size_t)bs;
 }
 
-void c_bspline_create_with_breakpoints(void *handle_, int32_t degree, double* breakpoints, int N)
+void c_bspline_create_with_breakpoints( void *handle_, int32_t degree, double* breakpoints, int N )
 {
 	size_t* handle = handle_;
     size_t ncoeffs;
@@ -59,7 +60,7 @@ void c_bspline_create_with_breakpoints(void *handle_, int32_t degree, double* br
     }
     
     bs->ws = gsl_bspline_alloc(degree, N);
-    gsl_bspline_knots(brkpnts, bs->ws);
+    c_bspline_knots(brkpnts, bs->ws);
     
     ncoeffs = gsl_bspline_ncoeffs(bs->ws);
     
@@ -167,6 +168,47 @@ void c_bspline_eval(const void *handle_, const double *c, double x, double X[4])
     }
 }
 
+
+void c_bspline_base_eval_lee(const void *handle_, int32_t nCoeff, int32_t N, 
+                             const double *xvec, double *BasisVal, 
+                             double *BasisValDD0,double *BasisValDD1)
+{
+	const size_t* handle = (const size_t*)handle_;
+    size_t k, i, istart, iend;
+    bspline_t *bs = (bspline_t *)*handle;
+    /* for each sample */
+    for (k = 0; k < N; k++) {
+        /* for each basis function */
+        
+        double x = xvec[k];
+		if (x < 0.0) {
+			printf("c_bspline_base_eval: xvec[%lu] = %f, using 0\n", (long unsigned) k, x);
+			x = 0.0;
+		}
+		if (x > 1.0) {
+			printf("c_bspline_base_eval: xvec[%lu] = %f, using 1\n", (long unsigned) k, x);
+			x = 1.0;
+		}
+		
+		// Check for NaN
+		if (x != x) {
+			printf("c_bspline_base_eval: xvec[%lu] = %f\n", (long unsigned) k, x);
+		}
+		
+        gsl_bspline_deriv_eval_nonzero(x, nderiv, bs->dBNonZero, &istart, &iend, bs->ws);
+
+        for (i = istart; i <= iend; i++) {
+            BasisVal[i * N + k] = gsl_matrix_get(bs->dBNonZero, i -istart, 0);
+            if( k == 0 )
+                BasisValDD0[i]  = gsl_matrix_get(bs->dBNonZero, i -istart, 2);
+            if( k == N-1 )
+                BasisValDD1[i]  = gsl_matrix_get(bs->dBNonZero, i -istart, 2);
+        }
+    }
+    
+}
+
+
 void c_bspline_eval_vec(const void *handle_, const double *c, int32_t N, double *xvec,
         double X[][3])
 {
@@ -191,4 +233,47 @@ int32_t c_bspline_ncoeff(const void *handle_)
     bspline_t *bs = (bspline_t *)*handle;
     return gsl_bspline_ncoeffs(bs->ws);
 }
+
+/*
+    c_bspline_knots()
+      Compute the knots from the given breakpoints:
+       knots(1:k) = breakpts(1)
+       knots(k+1:k+l-1) = breakpts(i), i = 2 .. l
+       knots(n+1:n+k) = breakpts(l + 1)
+    where l is the number of polynomial pieces (l = nbreak - 1) and
+       n = k + l - 1
+    (using matlab syntax for the arrays)
+    The repeated knots at the beginning and end of the interval
+    correspond to the continuity condition there. See pg. 119
+    of [1].
+    Inputs: breakpts - breakpoints
+            w        - bspline workspace
+    Return: success or error
+*/
+int
+c_bspline_knots (const gsl_vector * breakpts, gsl_bspline_workspace * w)
+{
+  if (breakpts->size != w->nbreak)
+    {
+      GSL_ERROR ("breakpts vector has wrong size", GSL_EBADLEN);
+    }
+  else
+    {
+      size_t i; /* looping */
+
+      for (i = 0; i < w->k; i++)
+        gsl_vector_set (w->knots, i, gsl_vector_get (breakpts, 0));
+
+      for (i = 1; i < w->l; i++)
+        {
+          gsl_vector_set (w->knots, w->k - 1 + i,
+          gsl_vector_get (breakpts, i));
+        }
+
+      for (i = w->n; i < w->n + w->k; i++)
+        gsl_vector_set (w->knots, i, gsl_vector_get (breakpts, w->l));
+
+      return GSL_SUCCESS;
+    }
+} /* c_bspline_knots() */
 

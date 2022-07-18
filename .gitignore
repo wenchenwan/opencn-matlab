@@ -13,3 +13,9 @@ x86/**/interface
 
 .gitignore
 common/dev/*
+*.csv
+*.mat
+common/*$*
+common/\006*
+common/*.bak
+common/*.log

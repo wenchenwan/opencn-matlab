@@ -1,0 +1,39 @@
+function [ ctx ] = CheckCurvStructs( ctx )
+
+N = ctx.q_gcode.size;
+
+DebugLog( DebugCfg.Validate, 'Checking for cusps...\n' );
+DebugLog( DebugCfg.OptimProgress, 'Checking for cusps...\n' );
+
+curv1 = ctx.q_gcode.get( 1 );
+for k = 2 : N
+    curv2 = ctx.q_gcode.get( k );
+    
+    [~, r0D1] = EvalCurvStruct( ctx, curv1, 1 );
+    [~, r1D1] = EvalCurvStruct( ctx, curv2, 0 );
+
+    if ( ~isAZeroEnd( curv1 ) ) && ... 
+        iscusp( r0D1( ctx.cfg.indCart ), r1D1( ctx.cfg.indCart ), ...
+                ctx.cfg.Cusp.CuspThreshold )
+       
+        switch curv1.Info.zspdmode
+            case ZSpdMode.NN
+                curv1.Info.zspdmode = ZSpdMode.NZ;
+            case ZSpdMode.ZN
+                curv1.Info.zspdmode = ZSpdMode.ZZ;
+        end
+        
+        switch curv2.Info.zspdmode
+            case ZSpdMode.NN
+                curv2.Info.zspdmode = ZSpdMode.ZN;
+            case ZSpdMode.NZ
+                curv2.Info.zspdmode = ZSpdMode.ZZ;
+        end
+        
+        ctx.q_gcode.set( k - 1,   curv1 );
+        ctx.q_gcode.set( k, curv2 );
+    end
+
+    curv1 = curv2;
+end    
+end

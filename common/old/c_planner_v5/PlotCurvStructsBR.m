@@ -1,0 +1,55 @@
+function pvec = PlotCurvStructsBR(ctx, CurvStructs)
+
+N = length(CurvStructs);
+
+pvec = [];
+
+for i = 1:N
+  
+    if CurvStructs(i).Info.Type == CurveType.Line
+        
+        uvec = [0 1];
+        P0P1 = EvalCurvStruct(ctx, CurvStructs(i), uvec);        
+        pvec = [pvec P0P1];
+        
+        plot3(P0P1(1, :), P0P1(2, :), P0P1(3, :), '-r');
+        hold on;
+        
+    elseif CurvStructs(i).Info.Type == CurveType.Helix        
+        uvec = linspace(0,1,1000);
+        P = EvalCurvStruct(ctx, CurvStructs(i), uvec);
+        pvec = [pvec P];
+        
+        plot3(P(1, :), P(2, :), P(3, :), '-b');
+        hold on;
+    
+    elseif CurvStructs(i).Info.Type == CurveType.TransP5
+        
+        uvec = linspace(0,1,1000);
+        P = EvalCurvStruct(ctx, CurvStructs(i), uvec);
+        pvec = [pvec P];
+        
+        plot3(P(1, :), P(2, :), P(3, :), '-m');
+        hold on;
+                
+    elseif CurvStructs(i).Info.Type == CurveType.Spline
+
+        Spline=ctx.q_spline.get(CurvStructs(i).sp_index);
+        sp = Spline.sp;
+               
+        uvec = linspace(0,1,1000);
+        P = EvalCurvStruct(ctx, CurvStructs(i), uvec);
+        pvec = [pvec P];
+        plot3(P(1, :), P(2, :), P(3, :), '-k');
+        hold on;
+        
+        uvec_tilda = sp.knots(4:end-3);
+        P = EvalBSpline(ctx, CurvStructs(i), uvec_tilda);
+        plot3(P(1, :), P(2, :), P(3, :), 'xg');
+        hold on;
+              
+    end
+    
+end
+
+end

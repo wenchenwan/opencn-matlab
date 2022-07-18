@@ -24,13 +24,15 @@ P1      = [1,1,1 + (N-1)*4]';
 Cprim   = [0,0,1]';
 delta   = 0;
 evec    = [0,0,0]';
-theta   = (N-1)*pi+pi/2;
+theta   = (N-1) * pi + pi / 2;
 pitch   = 4;
 FeedRate = 15;
 
-gcode2   = ConstrHelixStruct(trafo, HSC, Poff, Aoff, Uoff, Doff,...
-                            P0, P1, A0, A1, U0, U1, Cprim, delta, evec, ...
-                            theta, pitch, FeedRate, ZSpdMode.NZ);
+info          = constrGcodeInfoStructType;
+info.FeedRate = FeedRate;
+info.zspdmode = ZSpdMode.NZ;
+gcode   = constrHelixStruct( info, [ P0; A0 ], [ P1; A1 ], Cprim, delta, ...
+                             evec, theta, pitch );
 
 % [CurvStruct1, CurvStruct2] = CutZeroEnd(gcode2, cfg);
 % PlotCurvStructs([CurvStruct1, CurvStruct2])

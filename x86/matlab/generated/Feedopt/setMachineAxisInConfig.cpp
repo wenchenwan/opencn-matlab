@@ -1,0 +1,410 @@
+//
+// Academic License - for use in teaching, academic research, and meeting
+// course requirements at degree granting institutions only.  Not for
+// government, commercial, or other organizational use.
+// File: setMachineAxisInConfig.cpp
+//
+// MATLAB Coder version            : 5.3
+// C/C++ source code generated on  : 18-Jul-2022 08:54:02
+//
+
+// Include Files
+#include "setMachineAxisInConfig.h"
+#include "opencn_matlab_data.h"
+#include "opencn_matlab_initialize.h"
+#include "opencn_matlab_types.h"
+#include "coder_array.h"
+#include <algorithm>
+#include <emmintrin.h>
+
+// Function Declarations
+namespace ocn {
+static void check_values(b_FeedoptConfig *cfg);
+
+}
+
+// Function Definitions
+//
+// function [ cfg ] = check_values( cfg )
+//
+// Arguments    : b_FeedoptConfig *cfg
+// Return Type  : void
+//
+namespace ocn {
+static void check_values(b_FeedoptConfig *cfg)
+{
+    static const bool bv[6]{true, true, true, false, false, false};
+    static const bool bv1[6]{false, false, false, true, true, true};
+    ::coder::array<int, 2U> g_y;
+    int b_vlen;
+    int b_y;
+    int e_y;
+    int vlen;
+    // 'setMachineAxisInConfig:21' cfg.maskCart   = and( cfg.maskTot, logical( [ 1, 1, 1, 0, 0, 0 ]
+    // ) );
+    cfg->maskCart.size[0] = 1;
+    cfg->maskCart.size[1] = 6;
+    // 'setMachineAxisInConfig:22' cfg.maskRot    = and( cfg.maskTot, logical( [ 0, 0, 0, 1, 1, 1 ]
+    // ) );
+    cfg->maskRot.size[0] = 1;
+    cfg->maskRot.size[1] = 6;
+    for (int i{0}; i < 6; i++) {
+        cfg->maskCart.data[i] = (cfg->maskTot.data[i] && bv[i]);
+        cfg->maskRot.data[i] = (cfg->maskTot.data[i] && bv1[i]);
+    }
+    // 'setMachineAxisInConfig:23' cfg.NumberAxis = int32( sum( cfg.maskTot ) );
+    vlen = cfg->maskTot.size[1];
+    if (cfg->maskTot.size[1] == 0) {
+        b_y = 0;
+    } else {
+        int y;
+        y = cfg->maskTot.data[0];
+        for (int k{2}; k <= vlen; k++) {
+            int c_y;
+            c_y = y;
+            if (vlen >= 2) {
+                c_y = y + cfg->maskTot.data[k - 1];
+            }
+            y = c_y;
+        }
+        b_y = y;
+    }
+    cfg->NumberAxis = b_y;
+    // 'setMachineAxisInConfig:24' cfg.NCart      = int32( sum( cfg.maskCart ) );
+    b_vlen = cfg->maskCart.size[1];
+    if (cfg->maskCart.size[1] == 0) {
+        e_y = 0;
+    } else {
+        int d_y;
+        d_y = cfg->maskCart.data[0];
+        for (int b_k{2}; b_k <= b_vlen; b_k++) {
+            int f_y;
+            f_y = d_y;
+            if (b_vlen >= 2) {
+                f_y = d_y + cfg->maskCart.data[b_k - 1];
+            }
+            d_y = f_y;
+        }
+        e_y = d_y;
+    }
+    cfg->NCart = e_y;
+    // 'setMachineAxisInConfig:25' cfg.NRot       = cfg.NumberAxis - cfg.NCart;
+    cfg->NRot = b_y - e_y;
+    // 'setMachineAxisInConfig:26' cfg.D          = ones(cfg.NumberAxis, 1);
+    cfg->D.set_size(b_y);
+    for (int i1{0}; i1 < b_y; i1++) {
+        cfg->D[i1] = 1.0;
+    }
+    // 'setMachineAxisInConfig:28' if( cfg.NCart > 0 )
+    if (e_y > 0) {
+        int loop_ub;
+        int yk;
+        // 'setMachineAxisInConfig:29' cfg.indCart = [ 1 : cfg.NCart ].';
+        g_y.set_size(1, e_y);
+        g_y[0] = 1;
+        yk = 1;
+        for (int c_k{2}; c_k <= e_y; c_k++) {
+            yk++;
+            g_y[c_k - 1] = yk;
+        }
+        cfg->indCart.set_size(g_y.size(1));
+        loop_ub = g_y.size(1);
+        for (int i2{0}; i2 < loop_ub; i2++) {
+            cfg->indCart[i2] = g_y[i2];
+        }
+    }
+    // 'setMachineAxisInConfig:32' if( cfg.NRot > 0 )
+    if (cfg->NRot > 0) {
+        int b_loop_ub;
+        int c_loop_ub;
+        int i3;
+        int n;
+        int scalarLB;
+        int vectorUB;
+        // 'setMachineAxisInConfig:33' cfg.indRot = [ 1 : cfg.NRot ].' + cfg.NCart;
+        if (cfg->NRot < 1) {
+            n = 0;
+        } else {
+            n = cfg->NRot;
+        }
+        g_y.set_size(1, n);
+        if (n > 0) {
+            int b_yk;
+            g_y[0] = 1;
+            b_yk = 1;
+            for (int d_k{2}; d_k <= n; d_k++) {
+                b_yk++;
+                g_y[d_k - 1] = b_yk;
+            }
+        }
+        cfg->indRot.set_size(g_y.size(1));
+        b_loop_ub = g_y.size(1);
+        scalarLB = (g_y.size(1) / 4) << 2;
+        vectorUB = scalarLB - 4;
+        for (i3 = 0; i3 <= vectorUB; i3 += 4) {
+            __m128i r;
+            r = _mm_loadu_si128((const __m128i *)&g_y[i3]);
+            _mm_storeu_si128((__m128i *)&cfg->indRot[i3], _mm_add_epi32(r, _mm_set1_epi32(e_y)));
+        }
+        for (i3 = scalarLB; i3 < b_loop_ub; i3++) {
+            cfg->indRot[i3] = g_y[i3] + e_y;
+        }
+        // 'setMachineAxisInConfig:34' cfg.D(cfg.indRot) = cfg.coeffD;
+        c_loop_ub = cfg->indRot.size(0);
+        for (int i4{0}; i4 < c_loop_ub; i4++) {
+            cfg->D[cfg->indRot[i4] - 1] = cfg->coeffD;
+        }
+    }
+}
+
+//
+// function [ cfg ] = setMachineAxisInConfig( cfg, maskTot )
+//
+// setMachineAxisInConfig: Use maskTot to specify the axis used by the
+//  machine
+//  Inputs :
+//  cfg : The configuration structure
+//  maskTot : [ 1 x 6 ] logical vector [x,y,z,a,b,c]
+//  Outputs :
+//  cfg : The configuration structure
+//
+// Arguments    : b_FeedoptConfig *cfg
+//                const bool maskTot_data[]
+// Return Type  : void
+//
+void b_setMachineAxisInConfig(b_FeedoptConfig *cfg, const bool maskTot_data[])
+{
+    // 'setMachineAxisInConfig:11' coder.inline("never");
+    // 'setMachineAxisInConfig:13' assert( numel( maskTot ) == 6, "Error : maskTot should have 6
+    // elements\n" ); 'setMachineAxisInConfig:14' cfg.maskTot = maskTot;
+    cfg->maskTot.size[0] = 1;
+    cfg->maskTot.size[1] = 6;
+    for (int i{0}; i < 6; i++) {
+        cfg->maskTot.data[i] = maskTot_data[i];
+    }
+    // 'setMachineAxisInConfig:16' cfg = check_values( cfg );
+    check_values(cfg);
+}
+
+//
+// function [ cfg ] = setMachineAxisInConfig( cfg, maskTot )
+//
+// setMachineAxisInConfig: Use maskTot to specify the axis used by the
+//  machine
+//  Inputs :
+//  cfg : The configuration structure
+//  maskTot : [ 1 x 6 ] logical vector [x,y,z,a,b,c]
+//  Outputs :
+//  cfg : The configuration structure
+//
+// Arguments    : FeedoptConfig *cfg
+//                const bool maskTot[6]
+// Return Type  : void
+//
+void setMachineAxisInConfig(FeedoptConfig *cfg, const bool maskTot[6])
+{
+    b_FeedoptConfig r;
+    int b_loop_ub;
+    int c_loop_ub;
+    int d_loop_ub;
+    int e_loop_ub;
+    int f_loop_ub;
+    int g_loop_ub;
+    int h_loop_ub;
+    int i_loop_ub;
+    int j_loop_ub;
+    int k_loop_ub;
+    int l_loop_ub;
+    int loop_ub;
+    int m_loop_ub;
+    if (!isInitialized_opencn_matlab) {
+        opencn_matlab_initialize();
+    }
+    // 'setMachineAxisInConfig:11' coder.inline("never");
+    // 'setMachineAxisInConfig:13' assert( numel( maskTot ) == 6, "Error : maskTot should have 6
+    // elements\n" ); 'setMachineAxisInConfig:14' cfg.maskTot = maskTot; 'setMachineAxisInConfig:16'
+    // cfg = check_values( cfg );
+    r.maskTot.size[0] = 1;
+    r.maskTot.size[1] = 6;
+    for (int i{0}; i < 6; i++) {
+        r.maskTot.data[i] = maskTot[i];
+    }
+    r.maskCart.size[0] = 1;
+    r.maskCart.size[1] = cfg->maskCart.size[1];
+    loop_ub = cfg->maskCart.size[1];
+    if (0 <= loop_ub - 1) {
+        std::copy(&cfg->maskCart.data[0], &cfg->maskCart.data[loop_ub], &r.maskCart.data[0]);
+    }
+    r.maskRot.size[0] = 1;
+    r.maskRot.size[1] = cfg->maskRot.size[1];
+    b_loop_ub = cfg->maskRot.size[1];
+    if (0 <= b_loop_ub - 1) {
+        std::copy(&cfg->maskRot.data[0], &cfg->maskRot.data[b_loop_ub], &r.maskRot.data[0]);
+    }
+    r.indCart.set_size(cfg->indCart.size[0]);
+    c_loop_ub = cfg->indCart.size[0];
+    for (int i1{0}; i1 < c_loop_ub; i1++) {
+        r.indCart[i1] = cfg->indCart.data[i1];
+    }
+    r.indRot.set_size(cfg->indRot.size[0]);
+    d_loop_ub = cfg->indRot.size[0];
+    for (int i2{0}; i2 < d_loop_ub; i2++) {
+        r.indRot[i2] = cfg->indRot.data[i2];
+    }
+    r.NumberAxis = cfg->NumberAxis;
+    r.NCart = cfg->NCart;
+    r.NRot = cfg->NRot;
+    r.D.set_size(cfg->D.size[0]);
+    e_loop_ub = cfg->D.size[0];
+    for (int i3{0}; i3 < e_loop_ub; i3++) {
+        r.D[i3] = cfg->D.data[i3];
+    }
+    r.coeffD = cfg->coeffD;
+    r.kin_params.size[0] = cfg->kin_params.size[0];
+    f_loop_ub = cfg->kin_params.size[0];
+    if (0 <= f_loop_ub - 1) {
+        std::copy(&cfg->kin_params.data[0], &cfg->kin_params.data[f_loop_ub],
+                  &r.kin_params.data[0]);
+    }
+    for (int i4{0}; i4 < 5; i4++) {
+        r.kin_type[i4] = cfg->kin_type[i4];
+    }
+    r.NDiscr = cfg->NDiscr;
+    r.NBreak = cfg->NBreak;
+    r.UseDynamicBreakpoints = cfg->UseDynamicBreakpoints;
+    r.UseLinearBreakpoints = cfg->UseLinearBreakpoints;
+    r.DynamicBreakpointsDistance = cfg->DynamicBreakpointsDistance;
+    r.NHorz = cfg->NHorz;
+    r.fmax = cfg->fmax;
+    r.smax = cfg->smax;
+    for (int i5{0}; i5 < 6; i5++) {
+        r.vmax[i5] = cfg->vmax[i5];
+        r.amax[i5] = cfg->amax[i5];
+        r.jmax[i5] = cfg->jmax[i5];
+    }
+    r.LeeSplineDegree = cfg->LeeSplineDegree;
+    r.SplineDegree = cfg->SplineDegree;
+    r.CutOff = cfg->CutOff;
+    r.LSplit = cfg->LSplit;
+    r.LSplitZero = cfg->LSplitZero;
+    r.LThresholdMax = cfg->LThresholdMax;
+    r.LThresholdMin = cfg->LThresholdMin;
+    r.v_0 = cfg->v_0;
+    r.at_0 = cfg->at_0;
+    r.v_1 = cfg->v_1;
+    r.at_1 = cfg->at_1;
+    r.dt = cfg->dt;
+    r.ZeroStartAccLimit = cfg->ZeroStartAccLimit;
+    r.ZeroStartJerkLimit = cfg->ZeroStartJerkLimit;
+    r.ZeroStartVelLimit = cfg->ZeroStartVelLimit;
+    std::copy(&cfg->source[0], &cfg->source[1024], &r.source[0]);
+    r.DebugCutZero = cfg->DebugCutZero;
+    r.Cusp = cfg->Cusp;
+    r.Compressing = cfg->Compressing;
+    r.Smoothing = cfg->Smoothing;
+    r.GaussLegendreN = cfg->GaussLegendreN;
+    for (int b_i{0}; b_i < 5; b_i++) {
+        r.GaussLegendreX[b_i] = cfg->GaussLegendreX[b_i];
+        r.GaussLegendreW[b_i] = cfg->GaussLegendreW[b_i];
+    }
+    r.opt = cfg->opt;
+    for (int i6{0}; i6 < 9; i6++) {
+        r.LogFileName[i6] = cfg->LogFileName[i6];
+    }
+    check_values(&r);
+    cfg->maskTot.size[0] = 1;
+    cfg->maskTot.size[1] = r.maskTot.size[1];
+    g_loop_ub = r.maskTot.size[1];
+    if (0 <= g_loop_ub - 1) {
+        std::copy(&r.maskTot.data[0], &r.maskTot.data[g_loop_ub], &cfg->maskTot.data[0]);
+    }
+    cfg->maskCart.size[0] = 1;
+    cfg->maskCart.size[1] = r.maskCart.size[1];
+    h_loop_ub = r.maskCart.size[1];
+    if (0 <= h_loop_ub - 1) {
+        std::copy(&r.maskCart.data[0], &r.maskCart.data[h_loop_ub], &cfg->maskCart.data[0]);
+    }
+    cfg->maskRot.size[0] = 1;
+    cfg->maskRot.size[1] = r.maskRot.size[1];
+    i_loop_ub = r.maskRot.size[1];
+    if (0 <= i_loop_ub - 1) {
+        std::copy(&r.maskRot.data[0], &r.maskRot.data[i_loop_ub], &cfg->maskRot.data[0]);
+    }
+    cfg->indCart.size[0] = r.indCart.size(0);
+    j_loop_ub = r.indCart.size(0);
+    for (int i7{0}; i7 < j_loop_ub; i7++) {
+        cfg->indCart.data[i7] = r.indCart[i7];
+    }
+    cfg->indRot.size[0] = r.indRot.size(0);
+    k_loop_ub = r.indRot.size(0);
+    for (int i8{0}; i8 < k_loop_ub; i8++) {
+        cfg->indRot.data[i8] = r.indRot[i8];
+    }
+    cfg->NumberAxis = r.NumberAxis;
+    cfg->NCart = r.NCart;
+    cfg->NRot = r.NRot;
+    cfg->D.size[0] = r.D.size(0);
+    l_loop_ub = r.D.size(0);
+    for (int i9{0}; i9 < l_loop_ub; i9++) {
+        cfg->D.data[i9] = r.D[i9];
+    }
+    cfg->coeffD = r.coeffD;
+    cfg->kin_params.size[0] = r.kin_params.size[0];
+    m_loop_ub = r.kin_params.size[0];
+    if (0 <= m_loop_ub - 1) {
+        std::copy(&r.kin_params.data[0], &r.kin_params.data[m_loop_ub], &cfg->kin_params.data[0]);
+    }
+    for (int i10{0}; i10 < 5; i10++) {
+        cfg->kin_type[i10] = r.kin_type[i10];
+    }
+    cfg->NDiscr = r.NDiscr;
+    cfg->NBreak = r.NBreak;
+    cfg->UseDynamicBreakpoints = r.UseDynamicBreakpoints;
+    cfg->UseLinearBreakpoints = r.UseLinearBreakpoints;
+    cfg->DynamicBreakpointsDistance = r.DynamicBreakpointsDistance;
+    cfg->NHorz = r.NHorz;
+    cfg->fmax = r.fmax;
+    cfg->smax = r.smax;
+    for (int i11{0}; i11 < 6; i11++) {
+        cfg->vmax[i11] = r.vmax[i11];
+        cfg->amax[i11] = r.amax[i11];
+        cfg->jmax[i11] = r.jmax[i11];
+    }
+    cfg->LeeSplineDegree = r.LeeSplineDegree;
+    cfg->SplineDegree = r.SplineDegree;
+    cfg->CutOff = r.CutOff;
+    cfg->LSplit = r.LSplit;
+    cfg->LSplitZero = r.LSplitZero;
+    cfg->LThresholdMax = r.LThresholdMax;
+    cfg->LThresholdMin = r.LThresholdMin;
+    cfg->v_0 = r.v_0;
+    cfg->at_0 = r.at_0;
+    cfg->v_1 = r.v_1;
+    cfg->at_1 = r.at_1;
+    cfg->dt = r.dt;
+    cfg->ZeroStartAccLimit = r.ZeroStartAccLimit;
+    cfg->ZeroStartJerkLimit = r.ZeroStartJerkLimit;
+    cfg->ZeroStartVelLimit = r.ZeroStartVelLimit;
+    std::copy(&r.source[0], &r.source[1024], &cfg->source[0]);
+    cfg->DebugCutZero = r.DebugCutZero;
+    cfg->Cusp = r.Cusp;
+    cfg->Compressing = r.Compressing;
+    cfg->Smoothing = r.Smoothing;
+    cfg->GaussLegendreN = r.GaussLegendreN;
+    for (int c_i{0}; c_i < 5; c_i++) {
+        cfg->GaussLegendreX[c_i] = r.GaussLegendreX[c_i];
+        cfg->GaussLegendreW[c_i] = r.GaussLegendreW[c_i];
+    }
+    cfg->opt = r.opt;
+    for (int i12{0}; i12 < 9; i12++) {
+        cfg->LogFileName[i12] = r.LogFileName[i12];
+    }
+}
+
+} // namespace ocn
+
+//
+// File trailer for setMachineAxisInConfig.cpp
+//
+// [EOF]
+//
