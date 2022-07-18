@@ -63,7 +63,7 @@ Run the following commands in the Matlab prompt to start the code generation.
 ```
 **Note** : You can change the configuration of generated code in the file generate/generate_c_config.m
 
-## Files organisations :
+## Files organisation :
 
 ```
 common/
