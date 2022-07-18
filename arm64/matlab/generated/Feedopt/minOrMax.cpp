@@ -5,7 +5,7 @@
 // File: minOrMax.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 16:00:50
+// C/C++ source code generated on  : 18-Jul-2022 08:58:50
 //
 
 // Include Files
@@ -14,7 +14,7 @@
 
 // Function Definitions
 //
-// Arguments    : const ::coder::array<double, 2U> &r1
+// Arguments    : const ::coder::array<double, 2U> &z1
 //                const double vmax_data[]
 //                const int *vmax_size
 //                double *v_delta
@@ -22,10 +22,10 @@
 // Return Type  : void
 //
 namespace ocn {
-void binary_expand_op(const ::coder::array<double, 2U> &r1, const double vmax_data[],
+void binary_expand_op(const ::coder::array<double, 2U> &z1, const double vmax_data[],
                       const int *vmax_size, double *v_delta, int *iindx)
 {
-    ::coder::array<double, 2U> r;
+    ::coder::array<double, 2U> b_z1;
     int b_vmax_idx_0;
     int loop_ub;
     int stride_0_0;
@@ -33,27 +33,27 @@ void binary_expand_op(const ::coder::array<double, 2U> &r1, const double vmax_da
     int vmax_idx_0;
     vmax_idx_0 = *vmax_size;
     if (vmax_idx_0 == 1) {
-        b_vmax_idx_0 = r1.size(0);
+        b_vmax_idx_0 = z1.size(0);
     } else {
         b_vmax_idx_0 = vmax_idx_0;
     }
-    r.set_size(b_vmax_idx_0, r1.size(1));
-    stride_0_0 = (r1.size(0) != 1);
+    b_z1.set_size(b_vmax_idx_0, z1.size(1));
+    stride_0_0 = (z1.size(0) != 1);
     stride_1_0 = (vmax_idx_0 != 1);
-    loop_ub = r1.size(1);
+    loop_ub = z1.size(1);
     for (int i{0}; i < loop_ub; i++) {
         int b_loop_ub;
         if (vmax_idx_0 == 1) {
-            b_loop_ub = r1.size(0);
+            b_loop_ub = z1.size(0);
         } else {
             b_loop_ub = vmax_idx_0;
         }
         for (int i1{0}; i1 < b_loop_ub; i1++) {
-            r[i1 + r.size(0) * i] =
-                r1[i1 * stride_0_0 + r1.size(0) * i] - vmax_data[i1 * stride_1_0];
+            b_z1[i1 + b_z1.size(0) * i] =
+                z1[i1 * stride_0_0 + z1.size(0) * i] - vmax_data[i1 * stride_1_0];
         }
     }
-    coder::internal::b_maximum(r, v_delta, iindx);
+    coder::internal::b_maximum(b_z1, v_delta, iindx);
 }
 
 //

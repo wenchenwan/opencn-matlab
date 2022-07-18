@@ -5,7 +5,7 @@
 // File: splitQueue.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 13-Jul-2022 14:15:57
+// C/C++ source code generated on  : 18-Jul-2022 08:54:02
 //
 
 // Include Files
@@ -223,9 +223,9 @@ void splitQueue(const b_FeedoptContext *ctx)
                         // 'cutZeroStart:19' else
                         // 'cutZeroStart:20' assert( check_curv_length( ctx, curv1, Lcut ), ...
                         // 'cutZeroStart:21'             mfilename + " Curve Length not valide");
-                        // 'calcTransition_new:95' tol = 1E-5;
-                        // 'calcTransition_new:97' isValid = ( abs( LengthCurv( ctx, curv, 0, 1 ) -
-                        // L ) <= tol );
+                        // 'cutZeroStart:107' tol = 1E-5;
+                        // 'cutZeroStart:109' isValid = ( abs( LengthCurv( ctx, curv, 0, 1 ) - L )
+                        // <= tol );
                         LengthCurv(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                                    ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
                                    ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
@@ -344,9 +344,9 @@ void splitQueue(const b_FeedoptContext *ctx)
                             // 'cutZeroEnd:19' else
                             // 'cutZeroEnd:20' assert( check_curv_length( ctx, curv2, Lcut ), ...
                             // 'cutZeroEnd:21'             mfilename + " Curve Length not valide");
-                            // 'calcTransition_new:95' tol = 1E-5;
-                            // 'calcTransition_new:97' isValid = ( abs( LengthCurv( ctx, curv, 0, 1
-                            // ) - L ) <= tol );
+                            // 'cutZeroStart:107' tol = 1E-5;
+                            // 'cutZeroStart:109' isValid = ( abs( LengthCurv( ctx, curv, 0, 1 ) - L
+                            // ) <= tol );
                             LengthCurv(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                                        ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
                                        ctx->cfg.maskRot.data, ctx->cfg.maskRot.size,
@@ -450,7 +450,7 @@ void splitQueue(const b_FeedoptContext *ctx)
                             double x;
                             // 'splitCurvStruct:47' assert( check_curv_length( ctx, curvSplited,
                             // L_split ), ... 'splitCurvStruct:48'             mfilename + " Curve
-                            // Length not valide"); 'splitCurvStruct:64' tol = 1E-4;
+                            // Length not valide"); 'splitCurvStruct:64' tol = 1E-3;
                             // 'splitCurvStruct:66' isValid = ( abs( LengthCurv( ctx, curv, 0, 1 ) -
                             // L ) <= tol );
                             x = LengthCurv(&ctx->q_spline, ctx->cfg.maskTot.data,
@@ -462,7 +462,7 @@ void splitQueue(const b_FeedoptContext *ctx)
                                            &curvSplited) -
                                 L_split;
                             // 'splitCurvStruct:68' if( ~isValid )
-                            if (std::abs(x) > 0.0001) {
+                            if (std::abs(x) > 0.001) {
                                 // 'splitCurvStruct:69' disp("spline Length is not valid");
                                 printf("%s\n", "spline Length is not valid");
                                 fflush(stdout);

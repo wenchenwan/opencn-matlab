@@ -5,13 +5,14 @@
 // File: string1.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 16:00:50
+// C/C++ source code generated on  : 18-Jul-2022 08:58:50
 //
 
 #ifndef STRING1_H
 #define STRING1_H
 
 // Include Files
+#include "opencn_matlab_internal_types.h"
 #include "rtwtypes.h"
 #include <cstddef>
 #include <cstdlib>
@@ -23,9 +24,7 @@ namespace ocn {
 namespace coder {
 class rtString {
   public:
-    rtString();
-    ~rtString();
-    char Value[5];
+    emxArray_char_T_1x9 Value;
 };
 
 } // namespace coder

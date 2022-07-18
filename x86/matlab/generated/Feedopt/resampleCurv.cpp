@@ -5,7 +5,7 @@
 // File: resampleCurv.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 13-Jul-2022 14:15:57
+// C/C++ source code generated on  : 18-Jul-2022 08:54:02
 //
 
 // Include Files
@@ -87,7 +87,7 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
     double xdk;
     double xk;
     // 'resampleCurv:29' coder.inline( "never" );
-    // 'resampleCurv:31' if false && coder.target( "MATLAB" )
+    // 'resampleCurv:31' if coder.target( "MATLAB" )
     // 'resampleCurv:34' else
     // 'resampleCurv:36' if      ( curv_mode == ZSpdMode.ZN )
     if (curv_mode == ZSpdMode_ZN) {

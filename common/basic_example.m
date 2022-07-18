@@ -2,14 +2,14 @@
 % This is script provides a rapid overview of the different steps required
 % by the algorithm.
 %
-clc; clear all; close all;
+clc; clear all; %close all;
 
 check_wkdir(); % If current directory is the working directory
 
 % Load default configuration parameters
 cfg = FeedoptDefaultConfig;
 % Set the path to the gcode file
-cfg.source = 'ngc_test/dome/anchor_5D_RTCP.ngc';
+cfg.source = 'ngc_test/unit/013_anchor_5D.ngc';
 
 % Logging
 setupLogs( cfg.LogFileName ); diary on;
@@ -51,6 +51,7 @@ try
     plotTrajectories( ctx, res_struct );
 
 catch ME
+    DestroyContext(ctx);
     error( '%s\n%s\n%s\n', ME.message, "File name : " + ME.stack(1).name, ...
                            "Line : " + ME.stack(1).line );
 end

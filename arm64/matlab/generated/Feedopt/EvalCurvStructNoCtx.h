@@ -5,7 +5,7 @@
 // File: EvalCurvStructNoCtx.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 16:00:50
+// C/C++ source code generated on  : 18-Jul-2022 08:58:50
 //
 
 #ifndef EVALCURVSTRUCTNOCTX_H
@@ -28,8 +28,8 @@ struct CurvStruct;
 // Function Declarations
 namespace ocn {
 void EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_size[2],
-                         const ::coder::array<bool, 2U> &cfg_maskCart,
-                         const ::coder::array<bool, 2U> &cfg_maskRot,
+                         const bool cfg_maskCart_data[], const int cfg_maskCart_size[2],
+                         const bool cfg_maskRot_data[], const int cfg_maskRot_size[2],
                          const ::coder::array<int, 1U> &cfg_indCart,
                          const ::coder::array<int, 1U> &cfg_indRot, int cfg_NumberAxis,
                          int cfg_NCart, int cfg_NRot, const CurvStruct *curv,
@@ -38,16 +38,16 @@ void EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_si
                          ::coder::array<double, 2U> &r2D, ::coder::array<double, 2U> &r3D);
 
 void b_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_size[2],
-                           const ::coder::array<bool, 2U> &cfg_maskCart,
-                           const ::coder::array<bool, 2U> &cfg_maskRot,
+                           const bool cfg_maskCart_data[], const int cfg_maskCart_size[2],
+                           const bool cfg_maskRot_data[], const int cfg_maskRot_size[2],
                            const ::coder::array<int, 1U> &cfg_indCart,
                            const ::coder::array<int, 1U> &cfg_indRot, int cfg_NumberAxis,
                            int cfg_NCart, int cfg_NRot, const CurvStruct *curv,
                            const CurvStruct *spline, double u_vec, ::coder::array<double, 1U> &r0D);
 
 void c_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_size[2],
-                           const ::coder::array<bool, 2U> &cfg_maskCart,
-                           const ::coder::array<bool, 2U> &cfg_maskRot,
+                           const bool cfg_maskCart_data[], const int cfg_maskCart_size[2],
+                           const bool cfg_maskRot_data[], const int cfg_maskRot_size[2],
                            const ::coder::array<int, 1U> &cfg_indCart,
                            const ::coder::array<int, 1U> &cfg_indRot, int cfg_NumberAxis,
                            int cfg_NCart, int cfg_NRot, const CurvStruct *curv,
@@ -56,8 +56,8 @@ void c_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
                            ::coder::array<double, 1U> &r3D);
 
 void d_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_size[2],
-                           const ::coder::array<bool, 2U> &cfg_maskCart,
-                           const ::coder::array<bool, 2U> &cfg_maskRot,
+                           const bool cfg_maskCart_data[], const int cfg_maskCart_size[2],
+                           const bool cfg_maskRot_data[], const int cfg_maskRot_size[2],
                            const ::coder::array<int, 1U> &cfg_indCart,
                            const ::coder::array<int, 1U> &cfg_indRot, int cfg_NumberAxis,
                            int cfg_NCart, int cfg_NRot, const CurvStruct *curv,
@@ -66,23 +66,14 @@ void d_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
                            ::coder::array<double, 1U> &r3D);
 
 void e_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_size[2],
-                           const ::coder::array<bool, 2U> &cfg_maskCart,
-                           const ::coder::array<bool, 2U> &cfg_maskRot,
+                           const bool cfg_maskCart_data[], const int cfg_maskCart_size[2],
+                           const bool cfg_maskRot_data[], const int cfg_maskRot_size[2],
                            const ::coder::array<int, 1U> &cfg_indCart,
                            const ::coder::array<int, 1U> &cfg_indRot, int cfg_NumberAxis,
                            int cfg_NCart, int cfg_NRot, const CurvStruct *curv,
                            const CurvStruct *spline, double u_vec, ::coder::array<double, 1U> &r0D,
                            ::coder::array<double, 1U> &r1D, ::coder::array<double, 1U> &r2D,
                            ::coder::array<double, 1U> &r3D);
-
-void f_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_size[2],
-                           const ::coder::array<bool, 2U> &cfg_maskCart,
-                           const ::coder::array<bool, 2U> &cfg_maskRot,
-                           const int cfg_indCart_data[], const int cfg_indRot_data[],
-                           int cfg_NumberAxis, int cfg_NCart, int cfg_NRot, const CurvStruct *curv,
-                           const CurvStruct *spline, ::coder::array<double, 2U> &u_vec,
-                           ::coder::array<double, 2U> &r0D, ::coder::array<double, 2U> &r1D,
-                           ::coder::array<double, 2U> &r2D, ::coder::array<double, 2U> &r3D);
 
 } // namespace ocn
 

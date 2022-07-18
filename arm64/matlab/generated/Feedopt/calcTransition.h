@@ -5,7 +5,7 @@
 // File: calcTransition.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 16:00:50
+// C/C++ source code generated on  : 18-Jul-2022 08:58:50
 //
 
 #ifndef CALCTRANSITION_H
@@ -31,18 +31,22 @@ struct CurvStruct;
 // Function Declarations
 namespace ocn {
 void calcTransition(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
-                    const int ctx_cfg_maskTot_size[2],
-                    const ::coder::array<bool, 2U> &ctx_cfg_maskCart,
-                    const ::coder::array<bool, 2U> &ctx_cfg_maskRot,
+                    const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
+                    const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
+                    const int ctx_cfg_maskRot_size[2],
                     const ::coder::array<int, 1U> &ctx_cfg_indCart,
                     const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
-                    int ctx_cfg_NCart, int ctx_cfg_NRot, double ctx_cfg_CutOff,
-                    double ctx_cfg_ColTolCosSmooth, const double ctx_cfg_GaussLegendreX[5],
-                    const double ctx_cfg_GaussLegendreW[5], const CurvStruct *CurvStruct1,
-                    const CurvStruct *CurvStruct2, CurvStruct *CurvStruct1_C,
-                    CurvStruct *CurvStruct_T, CurvStruct *CurvStruct2_C, TransitionResult *status);
+                    int ctx_cfg_NCart, int ctx_cfg_NRot,
+                    const ::coder::array<double, 1U> &ctx_cfg_D, double ctx_cfg_CutOff,
+                    double ctx_cfg_Smoothing_ColTolCosSmooth, double ctx_cfg_Smoothing_ColTolSmooth,
+                    const double ctx_cfg_GaussLegendreX[5], const double ctx_cfg_GaussLegendreW[5],
+                    const CurvStruct *curv1, const CurvStruct *curv2, TransitionResult *status,
+                    CurvStruct *curv1C, CurvStruct *curv2C, CurvStruct *curvT);
 
-}
+void minus(::coder::array<double, 1U> &x, const ::coder::array<double, 1U> &r11,
+           const ::coder::array<double, 1U> &r21);
+
+} // namespace ocn
 
 #endif
 //

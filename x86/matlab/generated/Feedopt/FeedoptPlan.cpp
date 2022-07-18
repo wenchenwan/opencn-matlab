@@ -5,7 +5,7 @@
 // File: FeedoptPlan.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 13-Jul-2022 14:15:57
+// C/C++ source code generated on  : 18-Jul-2022 08:54:02
 //
 
 // Include Files
@@ -89,11 +89,13 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
     ::coder::array<double, 2U> params_tmp_spline_knots;
     ::coder::array<double, 1U> a__1;
     ::coder::array<double, 1U> a__2;
+    ::coder::array<double, 1U> b_u_data;
+    ::coder::array<double, 1U> b_v_data;
     ::coder::array<double, 1U> r0D1;
     ::coder::array<double, 1U> r1D1;
-    CurvStruct Curv1;
-    CurvStruct Curv2;
     CurvStruct b_CurvStruct;
+    CurvStruct curv1;
+    CurvStruct curv2;
     CurvStruct last;
     CurvStruct opt_curv;
     CurvStruct opt_struct_tmp;
@@ -105,6 +107,8 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
     double params_tmp_R1[6];
     double params_tmp_Cprim[3];
     double params_tmp_evec[3];
+    double u_data[3];
+    double v_data[3];
     double b_expl_temp;
     double c_expl_temp;
     double d_expl_temp;
@@ -199,32 +203,34 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         // 'ReadGCode:16' coder.updateBuildInfo('addSourceFiles','cpp_interp.cpp',
         // '$(START_DIR)/../common/src'); 'ReadGCode:17'
         // coder.updateBuildInfo('addSourceFiles','directives.cc', pathRs274Src); 'ReadGCode:18'
-        // coder.updateBuildInfo('addSourceFiles','interp_arc.cc', pathRs274Src); 'ReadGCode:19'
-        // coder.updateBuildInfo('addSourceFiles','interp_array.cc', pathRs274Src); 'ReadGCode:20'
-        // coder.updateBuildInfo('addSourceFiles','interp_base.cc', pathRs274Src); 'ReadGCode:21'
-        // coder.updateBuildInfo('addSourceFiles','interp_check.cc', pathRs274Src); 'ReadGCode:22'
-        // coder.updateBuildInfo('addSourceFiles','interp_convert.cc', pathRs274Src); 'ReadGCode:23'
-        // coder.updateBuildInfo('addSourceFiles','interp_cycles.cc', pathRs274Src); 'ReadGCode:24'
-        // coder.updateBuildInfo('addSourceFiles','interp_execute.cc', pathRs274Src); 'ReadGCode:25'
-        // coder.updateBuildInfo('addSourceFiles','interp_find.cc', pathRs274Src); 'ReadGCode:26'
-        // coder.updateBuildInfo('addSourceFiles','interp_internal.cc', pathRs274Src);
-        // 'ReadGCode:27' coder.updateBuildInfo('addSourceFiles','interp_inverse.cc', pathRs274Src);
-        // 'ReadGCode:28' coder.updateBuildInfo('addSourceFiles','interp_namedparams.cc',
-        // pathRs274Src); 'ReadGCode:29' coder.updateBuildInfo('addSourceFiles','interp_o_word.cc',
-        // pathRs274Src); 'ReadGCode:30' coder.updateBuildInfo('addSourceFiles','interp_queue.cc',
-        // pathRs274Src); 'ReadGCode:31' coder.updateBuildInfo('addSourceFiles','interp_read.cc',
-        // pathRs274Src); 'ReadGCode:32' coder.updateBuildInfo('addSourceFiles','interp_remap.cc',
-        // pathRs274Src); 'ReadGCode:33' coder.updateBuildInfo('addSourceFiles','interp_setup.cc',
-        // pathRs274Src); 'ReadGCode:34' coder.updateBuildInfo('addSourceFiles','interp_write.cc',
-        // pathRs274Src); 'ReadGCode:35' coder.updateBuildInfo('addSourceFiles','ocn.cc',
-        // pathRs274Src); 'ReadGCode:36' coder.updateBuildInfo('addSourceFiles','rs274ngc_pre.cc',
-        // pathRs274Src); 'ReadGCode:37' coder.updateBuildInfo('addSourceFiles','inifile.cc',
-        // pathRs274Src); 'ReadGCode:38' coder.updateBuildInfo('addLinkFlags', '-ldl');
+        // coder.updateBuildInfo('addSourceFiles','rotational_axis_mode.cc', pathRs274Src);
+        // 'ReadGCode:19' coder.updateBuildInfo('addSourceFiles','interp_arc.cc', pathRs274Src);
+        // 'ReadGCode:20' coder.updateBuildInfo('addSourceFiles','interp_array.cc', pathRs274Src);
+        // 'ReadGCode:21' coder.updateBuildInfo('addSourceFiles','interp_base.cc', pathRs274Src);
+        // 'ReadGCode:22' coder.updateBuildInfo('addSourceFiles','interp_check.cc', pathRs274Src);
+        // 'ReadGCode:23' coder.updateBuildInfo('addSourceFiles','interp_convert.cc', pathRs274Src);
+        // 'ReadGCode:24' coder.updateBuildInfo('addSourceFiles','interp_cycles.cc', pathRs274Src);
+        // 'ReadGCode:25' coder.updateBuildInfo('addSourceFiles','interp_execute.cc', pathRs274Src);
+        // 'ReadGCode:26' coder.updateBuildInfo('addSourceFiles','interp_find.cc', pathRs274Src);
+        // 'ReadGCode:27' coder.updateBuildInfo('addSourceFiles','interp_internal.cc',
+        // pathRs274Src); 'ReadGCode:28' coder.updateBuildInfo('addSourceFiles','interp_inverse.cc',
+        // pathRs274Src); 'ReadGCode:29'
+        // coder.updateBuildInfo('addSourceFiles','interp_namedparams.cc', pathRs274Src);
+        // 'ReadGCode:30' coder.updateBuildInfo('addSourceFiles','interp_o_word.cc', pathRs274Src);
+        // 'ReadGCode:31' coder.updateBuildInfo('addSourceFiles','interp_queue.cc', pathRs274Src);
+        // 'ReadGCode:32' coder.updateBuildInfo('addSourceFiles','interp_read.cc', pathRs274Src);
+        // 'ReadGCode:33' coder.updateBuildInfo('addSourceFiles','interp_remap.cc', pathRs274Src);
+        // 'ReadGCode:34' coder.updateBuildInfo('addSourceFiles','interp_setup.cc', pathRs274Src);
+        // 'ReadGCode:35' coder.updateBuildInfo('addSourceFiles','interp_write.cc', pathRs274Src);
+        // 'ReadGCode:36' coder.updateBuildInfo('addSourceFiles','ocn.cc', pathRs274Src);
+        // 'ReadGCode:37' coder.updateBuildInfo('addSourceFiles','rs274ngc_pre.cc', pathRs274Src);
+        // 'ReadGCode:38' coder.updateBuildInfo('addSourceFiles','inifile.cc', pathRs274Src);
+        // 'ReadGCode:39' coder.updateBuildInfo('addLinkFlags', '-ldl');
         //     coder.updateBuildInfo('addIncludePaths', '$(START_DIR)/gen_mex/readgcode');
-        // 'ReadGCode:40' coder.cinclude('cpp_interp.hpp');
-        // 'ReadGCode:42' switch cmd
-        // 'ReadGCode:43' case ReadGCodeCmd.Load
-        // 'ReadGCode:44' status = coder.ceval( 'cpp_interp_init', [filename 0] );
+        // 'ReadGCode:41' coder.cinclude('cpp_interp.hpp');
+        // 'ReadGCode:43' switch cmd
+        // 'ReadGCode:44' case ReadGCodeCmd.Load
+        // 'ReadGCode:45' status = coder.ceval( 'cpp_interp_init', [filename 0] );
         std::copy(&ctx->cfg.source[0], &ctx->cfg.source[1024], &b_cv[0]);
         b_cv[1024] = '\x00';
         status = cpp_interp_init(&b_cv[0]);
@@ -270,52 +276,53 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             // 'ReadGCode:16' coder.updateBuildInfo('addSourceFiles','cpp_interp.cpp',
             // '$(START_DIR)/../common/src'); 'ReadGCode:17'
             // coder.updateBuildInfo('addSourceFiles','directives.cc', pathRs274Src); 'ReadGCode:18'
-            // coder.updateBuildInfo('addSourceFiles','interp_arc.cc', pathRs274Src); 'ReadGCode:19'
-            // coder.updateBuildInfo('addSourceFiles','interp_array.cc', pathRs274Src);
-            // 'ReadGCode:20' coder.updateBuildInfo('addSourceFiles','interp_base.cc',
+            // coder.updateBuildInfo('addSourceFiles','rotational_axis_mode.cc', pathRs274Src);
+            // 'ReadGCode:19' coder.updateBuildInfo('addSourceFiles','interp_arc.cc', pathRs274Src);
+            // 'ReadGCode:20' coder.updateBuildInfo('addSourceFiles','interp_array.cc',
             // pathRs274Src); 'ReadGCode:21'
-            // coder.updateBuildInfo('addSourceFiles','interp_check.cc', pathRs274Src);
-            // 'ReadGCode:22' coder.updateBuildInfo('addSourceFiles','interp_convert.cc',
+            // coder.updateBuildInfo('addSourceFiles','interp_base.cc', pathRs274Src);
+            // 'ReadGCode:22' coder.updateBuildInfo('addSourceFiles','interp_check.cc',
             // pathRs274Src); 'ReadGCode:23'
-            // coder.updateBuildInfo('addSourceFiles','interp_cycles.cc', pathRs274Src);
-            // 'ReadGCode:24' coder.updateBuildInfo('addSourceFiles','interp_execute.cc',
+            // coder.updateBuildInfo('addSourceFiles','interp_convert.cc', pathRs274Src);
+            // 'ReadGCode:24' coder.updateBuildInfo('addSourceFiles','interp_cycles.cc',
             // pathRs274Src); 'ReadGCode:25'
-            // coder.updateBuildInfo('addSourceFiles','interp_find.cc', pathRs274Src);
-            // 'ReadGCode:26' coder.updateBuildInfo('addSourceFiles','interp_internal.cc',
+            // coder.updateBuildInfo('addSourceFiles','interp_execute.cc', pathRs274Src);
+            // 'ReadGCode:26' coder.updateBuildInfo('addSourceFiles','interp_find.cc',
             // pathRs274Src); 'ReadGCode:27'
-            // coder.updateBuildInfo('addSourceFiles','interp_inverse.cc', pathRs274Src);
-            // 'ReadGCode:28' coder.updateBuildInfo('addSourceFiles','interp_namedparams.cc',
+            // coder.updateBuildInfo('addSourceFiles','interp_internal.cc', pathRs274Src);
+            // 'ReadGCode:28' coder.updateBuildInfo('addSourceFiles','interp_inverse.cc',
             // pathRs274Src); 'ReadGCode:29'
-            // coder.updateBuildInfo('addSourceFiles','interp_o_word.cc', pathRs274Src);
-            // 'ReadGCode:30' coder.updateBuildInfo('addSourceFiles','interp_queue.cc',
+            // coder.updateBuildInfo('addSourceFiles','interp_namedparams.cc', pathRs274Src);
+            // 'ReadGCode:30' coder.updateBuildInfo('addSourceFiles','interp_o_word.cc',
             // pathRs274Src); 'ReadGCode:31'
-            // coder.updateBuildInfo('addSourceFiles','interp_read.cc', pathRs274Src);
-            // 'ReadGCode:32' coder.updateBuildInfo('addSourceFiles','interp_remap.cc',
+            // coder.updateBuildInfo('addSourceFiles','interp_queue.cc', pathRs274Src);
+            // 'ReadGCode:32' coder.updateBuildInfo('addSourceFiles','interp_read.cc',
             // pathRs274Src); 'ReadGCode:33'
-            // coder.updateBuildInfo('addSourceFiles','interp_setup.cc', pathRs274Src);
-            // 'ReadGCode:34' coder.updateBuildInfo('addSourceFiles','interp_write.cc',
-            // pathRs274Src); 'ReadGCode:35' coder.updateBuildInfo('addSourceFiles','ocn.cc',
-            // pathRs274Src); 'ReadGCode:36'
-            // coder.updateBuildInfo('addSourceFiles','rs274ngc_pre.cc', pathRs274Src);
-            // 'ReadGCode:37' coder.updateBuildInfo('addSourceFiles','inifile.cc', pathRs274Src);
-            // 'ReadGCode:38' coder.updateBuildInfo('addLinkFlags', '-ldl');
+            // coder.updateBuildInfo('addSourceFiles','interp_remap.cc', pathRs274Src);
+            // 'ReadGCode:34' coder.updateBuildInfo('addSourceFiles','interp_setup.cc',
+            // pathRs274Src); 'ReadGCode:35'
+            // coder.updateBuildInfo('addSourceFiles','interp_write.cc', pathRs274Src);
+            // 'ReadGCode:36' coder.updateBuildInfo('addSourceFiles','ocn.cc', pathRs274Src);
+            // 'ReadGCode:37' coder.updateBuildInfo('addSourceFiles','rs274ngc_pre.cc',
+            // pathRs274Src); 'ReadGCode:38' coder.updateBuildInfo('addSourceFiles','inifile.cc',
+            // pathRs274Src); 'ReadGCode:39' coder.updateBuildInfo('addLinkFlags', '-ldl');
             //     coder.updateBuildInfo('addIncludePaths', '$(START_DIR)/gen_mex/readgcode');
-            // 'ReadGCode:40' coder.cinclude('cpp_interp.hpp');
-            // 'ReadGCode:42' switch cmd
-            // 'ReadGCode:45' case ReadGCodeCmd.Read
-            // 'ReadGCode:46' is_loaded = int32(0);
-            // 'ReadGCode:47' is_loaded = coder.ceval( 'cpp_interp_loaded' );
+            // 'ReadGCode:41' coder.cinclude('cpp_interp.hpp');
+            // 'ReadGCode:43' switch cmd
+            // 'ReadGCode:46' case ReadGCodeCmd.Read
+            // 'ReadGCode:47' is_loaded = int32(0);
+            // 'ReadGCode:48' is_loaded = coder.ceval( 'cpp_interp_loaded' );
             is_loaded = cpp_interp_loaded();
-            // 'ReadGCode:48' if is_loaded
+            // 'ReadGCode:49' if is_loaded
             if (is_loaded != 0) {
                 __m128d r2;
                 __m128d r3;
                 __m128d r4;
-                // 'ReadGCode:49' status = coder.ceval( 'cpp_interp_read', coder.ref( CurvStruct )
+                // 'ReadGCode:50' status = coder.ceval( 'cpp_interp_read', coder.ref( CurvStruct )
                 // );
                 b_status = cpp_interp_read(&b_CurvStruct);
-                // 'ReadGCode:50' CurvStruct.R0( 4 : end ) = deg2rad( CurvStruct.R0( 4 : end ) );
-                // 'ReadGCode:51' CurvStruct.R1( 4 : end ) = deg2rad( CurvStruct.R1( 4 : end ) );
+                // 'ReadGCode:51' CurvStruct.R0( 4 : end ) = deg2rad( CurvStruct.R0( 4 : end ) );
+                // 'ReadGCode:52' CurvStruct.R1( 4 : end ) = deg2rad( CurvStruct.R1( 4 : end ) );
                 r2 = _mm_loadu_pd(&b_CurvStruct.R0[3]);
                 r3 = _mm_set1_pd(0.017453292519943295);
                 _mm_storeu_pd(&b_CurvStruct.R0[3], _mm_mul_pd(r3, r2));
@@ -324,8 +331,8 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                 b_CurvStruct.R0[5] *= 0.017453292519943295;
                 b_CurvStruct.R1[5] *= 0.017453292519943295;
             } else {
-                // 'ReadGCode:52' else
-                // 'ReadGCode:53' status = int32(0);
+                // 'ReadGCode:53' else
+                // 'ReadGCode:54' status = int32(0);
                 b_status = 0;
             }
             status = b_status;
@@ -395,7 +402,6 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         if (!ctx->cfg.Cusp.Skip) {
             unsigned int N;
             int gb_loop_ub;
-            int i44;
             int k_loop_ub;
             int ob_loop_ub;
             int sb_loop_ub;
@@ -438,7 +444,7 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             r.cfg.NRot = ctx->cfg.NRot;
             // 'CheckCurvStructs:3' N = ctx.q_gcode.size;
             N = ctx->q_gcode.size();
-            // 'CheckCurvStructs:5' DebugLog(DebugCfg.Validate, 'Checking for cusps...\n');
+            // 'CheckCurvStructs:5' DebugLog( DebugCfg.Validate, 'Checking for cusps...\n' );
             //  1 -> stdout
             //  2 -> stderr
             // 'DebugLog:5' if IsEnabledDebugLog(cfg)
@@ -450,7 +456,7 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                 printf("Checking for cusps...\n");
                 fflush(stdout);
             }
-            // 'CheckCurvStructs:6' DebugLog(DebugCfg.OptimProgress, 'Checking for cusps...\n');
+            // 'CheckCurvStructs:6' DebugLog( DebugCfg.OptimProgress, 'Checking for cusps...\n' );
             //  1 -> stdout
             //  2 -> stderr
             // 'DebugLog:5' if IsEnabledDebugLog(cfg)
@@ -462,123 +468,133 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                 printf("Checking for cusps...\n");
                 fflush(stdout);
             }
-            // 'CheckCurvStructs:8' for k = 1 : N-1
-            i44 = static_cast<int>(N - 1U);
-            for (int k{0}; k < i44; k++) {
-                double absx;
-                double b_n;
-                double c;
-                double x;
-                int i56;
-                signed char n;
-                // 'CheckCurvStructs:9' Curv1 = ctx.q_gcode.get(k);
-                ctx->q_gcode.get(k + 1U, &Curv1);
-                // 'CheckCurvStructs:10' Curv2 = ctx.q_gcode.get(k+1);
-                ctx->q_gcode.get(k - 4294967294U, &Curv2);
-                // 'CheckCurvStructs:12' [~, r0D1] = EvalCurvStruct( ctx, Curv1, 1 );
+            // 'CheckCurvStructs:8' curv1 = ctx.q_gcode.get( 1 );
+            ctx->q_gcode.get(&curv1);
+            // 'CheckCurvStructs:9' for k = 2 : N
+            for (unsigned int k{2U}; k <= N; k++) {
+                // 'CheckCurvStructs:10' curv2 = ctx.q_gcode.get( k );
+                ctx->q_gcode.get(k, &curv2);
+                // 'CheckCurvStructs:12' [~, r0D1] = EvalCurvStruct( ctx, curv1, 1 );
                 b_EvalCurvStruct(&r.q_spline, r.cfg.maskTot.data, r.cfg.maskTot.size,
                                  r.cfg.maskCart.data, r.cfg.maskCart.size, r.cfg.maskRot.data,
                                  r.cfg.maskRot.size, r.cfg.indCart, r.cfg.indRot, r.cfg.NumberAxis,
-                                 r.cfg.NCart, r.cfg.NRot, &Curv1, a__1, r0D1);
-                // 'CheckCurvStructs:13' [~, r1D1] = EvalCurvStruct( ctx, Curv2, 0 );
+                                 r.cfg.NCart, r.cfg.NRot, &curv1, a__1, r0D1);
+                // 'CheckCurvStructs:13' [~, r1D1] = EvalCurvStruct( ctx, curv2, 0 );
                 c_EvalCurvStruct(&r.q_spline, r.cfg.maskTot.data, r.cfg.maskTot.size,
                                  r.cfg.maskCart.data, r.cfg.maskCart.size, r.cfg.maskRot.data,
                                  r.cfg.maskRot.size, r.cfg.indCart, r.cfg.indRot, r.cfg.NumberAxis,
-                                 r.cfg.NCart, r.cfg.NRot, &Curv2, a__2, r1D1);
-                // 'CheckCurvStructs:15' if iscusp(r0D1, r1D1, ctx.cfg.Cusp.CuspThreshold)
-                // 'iscusp:2' value = dot(u,v)/(norm(u)*norm(v)) < cosd(180 - angle_d);
-                x = rt_remd(180.0 - ctx->cfg.Cusp.CuspThreshold, 360.0);
-                absx = std::abs(x);
-                if (absx > 180.0) {
-                    if (x > 0.0) {
-                        x -= 360.0;
-                    } else {
-                        x += 360.0;
+                                 r.cfg.NCart, r.cfg.NRot, &curv2, a__2, r1D1);
+                // 'CheckCurvStructs:15' if ( ~isAZeroEnd( curv1 ) ) && ...
+                // 'CheckCurvStructs:16'         iscusp( r0D1( ctx.cfg.indCart ), r1D1(
+                // ctx.cfg.indCart ), ... 'CheckCurvStructs:17' ctx.cfg.Cusp.CuspThreshold )
+                //  isAZeroEnd : Return true if the curv ends with zero speed
+                //  Input :
+                //  curv  : The curve struct
+                // 'isAZeroEnd:5' if( curv.Info.zspdmode == ZSpdMode.NZ || ...
+                // 'isAZeroEnd:6'         curv.Info.zspdmode == ZSpdMode.ZZ )
+                if ((!(curv1.Info.zspdmode == ZSpdMode_NZ)) &&
+                    (!(curv1.Info.zspdmode == ZSpdMode_ZZ))) {
+                    double absx;
+                    double b_n;
+                    double c;
+                    double x;
+                    int sc_loop_ub;
+                    int uc_loop_ub;
+                    signed char n;
+                    // 'isAZeroEnd:9' zeroFlag = false;
+                    sc_loop_ub = ctx->cfg.indCart.size[0];
+                    for (int i55{0}; i55 < sc_loop_ub; i55++) {
+                        u_data[i55] = r0D1[ctx->cfg.indCart.data[i55] - 1];
                     }
+                    uc_loop_ub = ctx->cfg.indCart.size[0];
+                    for (int i57{0}; i57 < uc_loop_ub; i57++) {
+                        v_data[i57] = r1D1[ctx->cfg.indCart.data[i57] - 1];
+                    }
+                    // 'iscusp:2' value = dot(u,v)/(norm(u)*norm(v)) < cosd(180 - angle_d);
+                    x = rt_remd(180.0 - ctx->cfg.Cusp.CuspThreshold, 360.0);
                     absx = std::abs(x);
-                }
-                if (absx <= 45.0) {
-                    x *= 0.017453292519943295;
-                    n = 0;
-                } else if (absx <= 135.0) {
-                    if (x > 0.0) {
-                        x = 0.017453292519943295 * (x - 90.0);
-                        n = 1;
+                    if (absx > 180.0) {
+                        if (x > 0.0) {
+                            x -= 360.0;
+                        } else {
+                            x += 360.0;
+                        }
+                        absx = std::abs(x);
+                    }
+                    if (absx <= 45.0) {
+                        x *= 0.017453292519943295;
+                        n = 0;
+                    } else if (absx <= 135.0) {
+                        if (x > 0.0) {
+                            x = 0.017453292519943295 * (x - 90.0);
+                            n = 1;
+                        } else {
+                            x = 0.017453292519943295 * (x + 90.0);
+                            n = -1;
+                        }
+                    } else if (x > 0.0) {
+                        x = 0.017453292519943295 * (x - 180.0);
+                        n = 2;
                     } else {
-                        x = 0.017453292519943295 * (x + 90.0);
-                        n = -1;
+                        x = 0.017453292519943295 * (x + 180.0);
+                        n = -2;
                     }
-                } else if (x > 0.0) {
-                    x = 0.017453292519943295 * (x - 180.0);
-                    n = 2;
+                    c = 0.0;
+                    if (ctx->cfg.indCart.size[0] >= 1) {
+                        int ixlast;
+                        ixlast = ctx->cfg.indCart.size[0];
+                        for (int b_k{0}; b_k < ixlast; b_k++) {
+                            c += u_data[b_k] * v_data[b_k];
+                        }
+                    }
+                    b_u_data.set(&u_data[0], ctx->cfg.indCart.size[0]);
+                    b_v_data.set(&v_data[0], ctx->cfg.indCart.size[0]);
+                    if (n == 0) {
+                        b_n = std::cos(x);
+                    } else if (n == 1) {
+                        b_n = -std::sin(x);
+                    } else if (n == -1) {
+                        b_n = std::sin(x);
+                    } else {
+                        b_n = -std::cos(x);
+                    }
+                    if (c / (coder::b_norm(b_u_data) * coder::b_norm(b_v_data)) < b_n) {
+                        // 'CheckCurvStructs:19' switch curv1.Info.zspdmode
+                        switch (curv1.Info.zspdmode) {
+                        case ZSpdMode_NN:
+                            // 'CheckCurvStructs:20' case ZSpdMode.NN
+                            // 'CheckCurvStructs:21' curv1.Info.zspdmode = ZSpdMode.NZ;
+                            curv1.Info.zspdmode = ZSpdMode_NZ;
+                            break;
+                        case ZSpdMode_ZN:
+                            // 'CheckCurvStructs:22' case ZSpdMode.ZN
+                            // 'CheckCurvStructs:23' curv1.Info.zspdmode = ZSpdMode.ZZ;
+                            curv1.Info.zspdmode = ZSpdMode_ZZ;
+                            break;
+                        }
+                        // 'CheckCurvStructs:26' switch curv2.Info.zspdmode
+                        switch (curv2.Info.zspdmode) {
+                        case ZSpdMode_NN:
+                            // 'CheckCurvStructs:27' case ZSpdMode.NN
+                            // 'CheckCurvStructs:28' curv2.Info.zspdmode = ZSpdMode.ZN;
+                            curv2.Info.zspdmode = ZSpdMode_ZN;
+                            break;
+                        case ZSpdMode_NZ:
+                            // 'CheckCurvStructs:29' case ZSpdMode.NZ
+                            // 'CheckCurvStructs:30' curv2.Info.zspdmode = ZSpdMode.ZZ;
+                            curv2.Info.zspdmode = ZSpdMode_ZZ;
+                            break;
+                        }
+                        // 'CheckCurvStructs:33' ctx.q_gcode.set( k - 1,   curv1 );
+                        ctx->q_gcode.set(k - 1U, &curv1);
+                        // 'CheckCurvStructs:34' ctx.q_gcode.set( k, curv2 );
+                        ctx->q_gcode.set(k, &curv2);
+                    }
                 } else {
-                    x = 0.017453292519943295 * (x + 180.0);
-                    n = -2;
+                    // 'isAZeroEnd:7' zeroFlag = true;
                 }
-                c = 0.0;
-                i56 = r0D1.size(0);
-                if (r0D1.size(0) >= 1) {
-                    for (int b_k{0}; b_k < i56; b_k++) {
-                        c += r0D1[b_k] * r1D1[b_k];
-                    }
-                }
-                if (n == 0) {
-                    b_n = std::cos(x);
-                } else if (n == 1) {
-                    b_n = -std::sin(x);
-                } else if (n == -1) {
-                    b_n = std::sin(x);
-                } else {
-                    b_n = -std::cos(x);
-                }
-                if (c / (coder::b_norm(r0D1) * coder::b_norm(r1D1)) < b_n) {
-                    // 'CheckCurvStructs:16' switch Curv1.Info.zspdmode
-                    switch (Curv1.Info.zspdmode) {
-                    case ZSpdMode_NN:
-                        // 'CheckCurvStructs:17' case ZSpdMode.NN
-                        // 'CheckCurvStructs:18' Curv1.Info.zspdmode = ZSpdMode.NZ;
-                        Curv1.Info.zspdmode = ZSpdMode_NZ;
-                        break;
-                    case ZSpdMode_ZN:
-                        // 'CheckCurvStructs:19' case ZSpdMode.ZN
-                        // 'CheckCurvStructs:20' Curv1.Info.zspdmode = ZSpdMode.ZZ;
-                        Curv1.Info.zspdmode = ZSpdMode_ZZ;
-                        break;
-                    case ZSpdMode_NZ:
-                        // 'CheckCurvStructs:21' case ZSpdMode.NZ
-                        //  Nothing to do
-                        break;
-                    default:
-                        // 'CheckCurvStructs:23' case ZSpdMode.ZZ
-                        //  Nothing to do
-                        break;
-                    }
-                    // 'CheckCurvStructs:27' switch Curv2.Info.zspdmode
-                    switch (Curv2.Info.zspdmode) {
-                    case ZSpdMode_NN:
-                        // 'CheckCurvStructs:28' case ZSpdMode.NN
-                        // 'CheckCurvStructs:29' Curv2.Info.zspdmode = ZSpdMode.ZN;
-                        Curv2.Info.zspdmode = ZSpdMode_ZN;
-                        break;
-                    case ZSpdMode_ZN:
-                        // 'CheckCurvStructs:30' case ZSpdMode.ZN
-                        //  Nothing to do
-                        break;
-                    case ZSpdMode_NZ:
-                        // 'CheckCurvStructs:32' case ZSpdMode.NZ
-                        // 'CheckCurvStructs:33' Curv2.Info.zspdmode = ZSpdMode.ZZ;
-                        Curv2.Info.zspdmode = ZSpdMode_ZZ;
-                        break;
-                    default:
-                        // 'CheckCurvStructs:34' case ZSpdMode.ZZ
-                        //  Nothing to do
-                        break;
-                    }
-                    // 'CheckCurvStructs:38' ctx.q_gcode.set(k,   Curv1);
-                    ctx->q_gcode.set(k + 1U, &Curv1);
-                    // 'CheckCurvStructs:39' ctx.q_gcode.set(k+1, Curv2);
-                    ctx->q_gcode.set(k - 4294967294U, &Curv2);
-                }
+                // 'CheckCurvStructs:37' curv1 = curv2;
+                curv1 = curv2;
             }
         }
         // 'FeedoptPlan:71' assert( checkZSpdmode( ctx.q_gcode ), "ERROR : " + mfilename ...
@@ -603,34 +619,34 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                 ctx->q_compress.push(&r1);
             }
         } else {
-            int ae_loop_ub;
-            int bd_loop_ub;
+            int ag_loop_ub;
+            int bf_loop_ub;
             int cc_loop_ub;
-            int cg_loop_ub;
+            int ce_loop_ub;
             int d_loop_ub;
-            int df_loop_ub;
+            int dd_loop_ub;
             int eb_loop_ub;
+            int eg_loop_ub;
+            int ff_loop_ub;
             int gc_loop_ub;
-            int hf_loop_ub;
-            int ie_loop_ub;
-            int jd_loop_ub;
+            int jf_loop_ub;
             int kc_loop_ub;
-            int lf_loop_ub;
+            int ke_loop_ub;
+            int ld_loop_ub;
             int m_loop_ub;
             int nb_loop_ub;
+            int nf_loop_ub;
             int oc_loop_ub;
-            int pf_loop_ub;
-            int qe_loop_ub;
-            int rd_loop_ub;
-            int sc_loop_ub;
+            int rf_loop_ub;
+            int se_loop_ub;
             int tb_loop_ub;
-            int tf_loop_ub;
-            int ue_loop_ub;
+            int tc_loop_ub;
+            int td_loop_ub;
             int v_loop_ub;
-            int wc_loop_ub;
+            int vf_loop_ub;
+            int we_loop_ub;
             int xb_loop_ub;
-            int xf_loop_ub;
-            int ye_loop_ub;
+            int yc_loop_ub;
             // 'FeedoptPlan:83' else
             // 'FeedoptPlan:84' ctx = compressCurvStructs(ctx);
             r.BasisVal.set_size(ctx->BasisVal.size(0), ctx->BasisVal.size(1));
@@ -723,27 +739,27 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             }
             r.cfg.indCart.set_size(ctx->cfg.indCart.size[0]);
             kc_loop_ub = ctx->cfg.indCart.size[0];
-            for (int i48{0}; i48 < kc_loop_ub; i48++) {
-                r.cfg.indCart[i48] = ctx->cfg.indCart.data[i48];
+            for (int i47{0}; i47 < kc_loop_ub; i47++) {
+                r.cfg.indCart[i47] = ctx->cfg.indCart.data[i47];
             }
             r.cfg.indRot.set_size(ctx->cfg.indRot.size[0]);
             oc_loop_ub = ctx->cfg.indRot.size[0];
-            for (int i52{0}; i52 < oc_loop_ub; i52++) {
-                r.cfg.indRot[i52] = ctx->cfg.indRot.data[i52];
+            for (int i51{0}; i51 < oc_loop_ub; i51++) {
+                r.cfg.indRot[i51] = ctx->cfg.indRot.data[i51];
             }
             r.cfg.NumberAxis = ctx->cfg.NumberAxis;
             r.cfg.NCart = ctx->cfg.NCart;
             r.cfg.NRot = ctx->cfg.NRot;
             r.cfg.D.set_size(ctx->cfg.D.size[0]);
-            sc_loop_ub = ctx->cfg.D.size[0];
-            for (int i57{0}; i57 < sc_loop_ub; i57++) {
-                r.cfg.D[i57] = ctx->cfg.D.data[i57];
+            tc_loop_ub = ctx->cfg.D.size[0];
+            for (int i56{0}; i56 < tc_loop_ub; i56++) {
+                r.cfg.D[i56] = ctx->cfg.D.data[i56];
             }
             r.cfg.coeffD = ctx->cfg.coeffD;
             r.cfg.kin_params.size[0] = ctx->cfg.kin_params.size[0];
-            wc_loop_ub = ctx->cfg.kin_params.size[0];
-            if (0 <= wc_loop_ub - 1) {
-                std::copy(&ctx->cfg.kin_params.data[0], &ctx->cfg.kin_params.data[wc_loop_ub],
+            yc_loop_ub = ctx->cfg.kin_params.size[0];
+            if (0 <= yc_loop_ub - 1) {
+                std::copy(&ctx->cfg.kin_params.data[0], &ctx->cfg.kin_params.data[yc_loop_ub],
                           &r.cfg.kin_params.data[0]);
             }
             for (int i61{0}; i61 < 5; i61++) {
@@ -799,11 +815,11 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             r.forced_stop = ctx->forced_stop;
             r.programmed_stop = ctx->programmed_stop;
             r.Coeff.set_size(ctx->Coeff.size(0), ctx->Coeff.size(1));
-            bd_loop_ub = ctx->Coeff.size(1);
-            for (int i73{0}; i73 < bd_loop_ub; i73++) {
-                int fd_loop_ub;
-                fd_loop_ub = ctx->Coeff.size(0);
-                for (int i77{0}; i77 < fd_loop_ub; i77++) {
+            dd_loop_ub = ctx->Coeff.size(1);
+            for (int i73{0}; i73 < dd_loop_ub; i73++) {
+                int hd_loop_ub;
+                hd_loop_ub = ctx->Coeff.size(0);
+                for (int i77{0}; i77 < hd_loop_ub; i77++) {
                     r.Coeff[i77 + r.Coeff.size(0) * i73] =
                         ctx->Coeff[i77 + ctx->Coeff.size(0) * i73];
                 }
@@ -812,54 +828,54 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             r.kin = ctx->kin;
             compressCurvStructs(&r);
             ctx->BasisVal.set_size(r.BasisVal.size(0), r.BasisVal.size(1));
-            jd_loop_ub = r.BasisVal.size(1);
-            for (int i81{0}; i81 < jd_loop_ub; i81++) {
-                int qd_loop_ub;
-                qd_loop_ub = r.BasisVal.size(0);
-                for (int i88{0}; i88 < qd_loop_ub; i88++) {
+            ld_loop_ub = r.BasisVal.size(1);
+            for (int i81{0}; i81 < ld_loop_ub; i81++) {
+                int sd_loop_ub;
+                sd_loop_ub = r.BasisVal.size(0);
+                for (int i88{0}; i88 < sd_loop_ub; i88++) {
                     ctx->BasisVal[i88 + ctx->BasisVal.size(0) * i81] =
                         r.BasisVal[i88 + r.BasisVal.size(0) * i81];
                 }
             }
             ctx->BasisValD.set_size(r.BasisValD.size(0), r.BasisValD.size(1));
-            rd_loop_ub = r.BasisValD.size(1);
-            for (int i89{0}; i89 < rd_loop_ub; i89++) {
-                int yd_loop_ub;
-                yd_loop_ub = r.BasisValD.size(0);
-                for (int i96{0}; i96 < yd_loop_ub; i96++) {
+            td_loop_ub = r.BasisValD.size(1);
+            for (int i89{0}; i89 < td_loop_ub; i89++) {
+                int be_loop_ub;
+                be_loop_ub = r.BasisValD.size(0);
+                for (int i96{0}; i96 < be_loop_ub; i96++) {
                     ctx->BasisValD[i96 + ctx->BasisValD.size(0) * i89] =
                         r.BasisValD[i96 + r.BasisValD.size(0) * i89];
                 }
             }
             ctx->BasisValDD.set_size(r.BasisValDD.size(0), r.BasisValDD.size(1));
-            ae_loop_ub = r.BasisValDD.size(1);
-            for (int i97{0}; i97 < ae_loop_ub; i97++) {
-                int he_loop_ub;
-                he_loop_ub = r.BasisValDD.size(0);
-                for (int i104{0}; i104 < he_loop_ub; i104++) {
+            ce_loop_ub = r.BasisValDD.size(1);
+            for (int i97{0}; i97 < ce_loop_ub; i97++) {
+                int je_loop_ub;
+                je_loop_ub = r.BasisValDD.size(0);
+                for (int i104{0}; i104 < je_loop_ub; i104++) {
                     ctx->BasisValDD[i104 + ctx->BasisValDD.size(0) * i97] =
                         r.BasisValDD[i104 + r.BasisValDD.size(0) * i97];
                 }
             }
             ctx->BasisValDDD.set_size(r.BasisValDDD.size(0), r.BasisValDDD.size(1));
-            ie_loop_ub = r.BasisValDDD.size(1);
-            for (int i105{0}; i105 < ie_loop_ub; i105++) {
-                int pe_loop_ub;
-                pe_loop_ub = r.BasisValDDD.size(0);
-                for (int i112{0}; i112 < pe_loop_ub; i112++) {
+            ke_loop_ub = r.BasisValDDD.size(1);
+            for (int i105{0}; i105 < ke_loop_ub; i105++) {
+                int re_loop_ub;
+                re_loop_ub = r.BasisValDDD.size(0);
+                for (int i112{0}; i112 < re_loop_ub; i112++) {
                     ctx->BasisValDDD[i112 + ctx->BasisValDDD.size(0) * i105] =
                         r.BasisValDDD[i112 + r.BasisValDDD.size(0) * i105];
                 }
             }
             ctx->BasisIntegr.set_size(r.BasisIntegr.size(0));
-            qe_loop_ub = r.BasisIntegr.size(0);
-            for (int i113{0}; i113 < qe_loop_ub; i113++) {
+            se_loop_ub = r.BasisIntegr.size(0);
+            for (int i113{0}; i113 < se_loop_ub; i113++) {
                 ctx->BasisIntegr[i113] = r.BasisIntegr[i113];
             }
             ctx->Bl = r.Bl;
             ctx->u_vec.set_size(1, r.u_vec.size(1));
-            ue_loop_ub = r.u_vec.size(1);
-            for (int i117{0}; i117 < ue_loop_ub; i117++) {
+            we_loop_ub = r.u_vec.size(1);
+            for (int i117{0}; i117 < we_loop_ub; i117++) {
                 ctx->u_vec[i117] = r.u_vec[i117];
             }
             ctx->q_spline = r.q_spline;
@@ -879,48 +895,48 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             ctx->at_1 = r.at_1;
             ctx->cfg.maskTot.size[0] = 1;
             ctx->cfg.maskTot.size[1] = r.cfg.maskTot.size[1];
-            ye_loop_ub = r.cfg.maskTot.size[1];
-            if (0 <= ye_loop_ub - 1) {
-                std::copy(&r.cfg.maskTot.data[0], &r.cfg.maskTot.data[ye_loop_ub],
+            bf_loop_ub = r.cfg.maskTot.size[1];
+            if (0 <= bf_loop_ub - 1) {
+                std::copy(&r.cfg.maskTot.data[0], &r.cfg.maskTot.data[bf_loop_ub],
                           &ctx->cfg.maskTot.data[0]);
             }
             ctx->cfg.maskCart.size[0] = 1;
             ctx->cfg.maskCart.size[1] = r.cfg.maskCart.size[1];
-            df_loop_ub = r.cfg.maskCart.size[1];
-            if (0 <= df_loop_ub - 1) {
-                std::copy(&r.cfg.maskCart.data[0], &r.cfg.maskCart.data[df_loop_ub],
+            ff_loop_ub = r.cfg.maskCart.size[1];
+            if (0 <= ff_loop_ub - 1) {
+                std::copy(&r.cfg.maskCart.data[0], &r.cfg.maskCart.data[ff_loop_ub],
                           &ctx->cfg.maskCart.data[0]);
             }
             ctx->cfg.maskRot.size[0] = 1;
             ctx->cfg.maskRot.size[1] = r.cfg.maskRot.size[1];
-            hf_loop_ub = r.cfg.maskRot.size[1];
-            if (0 <= hf_loop_ub - 1) {
-                std::copy(&r.cfg.maskRot.data[0], &r.cfg.maskRot.data[hf_loop_ub],
+            jf_loop_ub = r.cfg.maskRot.size[1];
+            if (0 <= jf_loop_ub - 1) {
+                std::copy(&r.cfg.maskRot.data[0], &r.cfg.maskRot.data[jf_loop_ub],
                           &ctx->cfg.maskRot.data[0]);
             }
             ctx->cfg.indCart.size[0] = r.cfg.indCart.size(0);
-            lf_loop_ub = r.cfg.indCart.size(0);
-            for (int i121{0}; i121 < lf_loop_ub; i121++) {
+            nf_loop_ub = r.cfg.indCart.size(0);
+            for (int i121{0}; i121 < nf_loop_ub; i121++) {
                 ctx->cfg.indCart.data[i121] = r.cfg.indCart[i121];
             }
             ctx->cfg.indRot.size[0] = r.cfg.indRot.size(0);
-            pf_loop_ub = r.cfg.indRot.size(0);
-            for (int i125{0}; i125 < pf_loop_ub; i125++) {
+            rf_loop_ub = r.cfg.indRot.size(0);
+            for (int i125{0}; i125 < rf_loop_ub; i125++) {
                 ctx->cfg.indRot.data[i125] = r.cfg.indRot[i125];
             }
             ctx->cfg.NumberAxis = r.cfg.NumberAxis;
             ctx->cfg.NCart = r.cfg.NCart;
             ctx->cfg.NRot = r.cfg.NRot;
             ctx->cfg.D.size[0] = r.cfg.D.size(0);
-            tf_loop_ub = r.cfg.D.size(0);
-            for (int i129{0}; i129 < tf_loop_ub; i129++) {
+            vf_loop_ub = r.cfg.D.size(0);
+            for (int i129{0}; i129 < vf_loop_ub; i129++) {
                 ctx->cfg.D.data[i129] = r.cfg.D[i129];
             }
             ctx->cfg.coeffD = r.cfg.coeffD;
             ctx->cfg.kin_params.size[0] = r.cfg.kin_params.size[0];
-            xf_loop_ub = r.cfg.kin_params.size[0];
-            if (0 <= xf_loop_ub - 1) {
-                std::copy(&r.cfg.kin_params.data[0], &r.cfg.kin_params.data[xf_loop_ub],
+            ag_loop_ub = r.cfg.kin_params.size[0];
+            if (0 <= ag_loop_ub - 1) {
+                std::copy(&r.cfg.kin_params.data[0], &r.cfg.kin_params.data[ag_loop_ub],
                           &ctx->cfg.kin_params.data[0]);
             }
             for (int i133{0}; i133 < 5; i133++) {
@@ -976,11 +992,11 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             ctx->forced_stop = r.forced_stop;
             ctx->programmed_stop = r.programmed_stop;
             ctx->Coeff.set_size(r.Coeff.size(0), r.Coeff.size(1));
-            cg_loop_ub = r.Coeff.size(1);
-            for (int i145{0}; i145 < cg_loop_ub; i145++) {
-                int gg_loop_ub;
-                gg_loop_ub = r.Coeff.size(0);
-                for (int i149{0}; i149 < gg_loop_ub; i149++) {
+            eg_loop_ub = r.Coeff.size(1);
+            for (int i145{0}; i145 < eg_loop_ub; i145++) {
+                int ig_loop_ub;
+                ig_loop_ub = r.Coeff.size(0);
+                for (int i149{0}; i149 < ig_loop_ub; i149++) {
                     ctx->Coeff[i149 + ctx->Coeff.size(0) * i145] =
                         r.Coeff[i149 + r.Coeff.size(0) * i145];
                 }
@@ -988,50 +1004,45 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             ctx->Skipped = r.Skipped;
             ctx->kin = r.kin;
         }
-        // 'FeedoptPlan:86' ctx.q_compress.size
-        ctx->q_compress.b_size();
-        //          if( ctx.q_compress.size > 1 )
-        //              error( "should be only compressing");
-        //          end
-        // 'FeedoptPlan:91' assert( checkZSpdmode( ctx.q_compress ), "ERROR : " + mfilename ...
-        // 'FeedoptPlan:92'             + ".m : compress zspdmode failed " );
+        // 'FeedoptPlan:87' assert( checkZSpdmode( ctx.q_compress ), "ERROR : " + mfilename ...
+        // 'FeedoptPlan:88'             + ".m : compress zspdmode failed " );
         checkZSpdmode(&ctx->q_compress);
         checkParametrisation(&ctx->q_compress);
         ctx->op = Fopt_Smooth;
-        // 'FeedoptPlan:97' if( coder.target( 'MATLAB') )
+        // 'FeedoptPlan:93' if( coder.target( 'MATLAB') )
     } break;
     case Fopt_Smooth: {
         int ac_loop_ub;
-        int af_loop_ub;
         int b_loop_ub;
         int bb_loop_ub;
+        int bd_loop_ub;
+        int bg_loop_ub;
+        int cf_loop_ub;
         int ec_loop_ub;
-        int ef_loop_ub;
-        int fe_loop_ub;
-        int hd_loop_ub;
+        int gf_loop_ub;
+        int he_loop_ub;
         int i_loop_ub;
         int ic_loop_ub;
-        int if_loop_ub;
+        int jd_loop_ub;
         int kb_loop_ub;
+        int kf_loop_ub;
         int mc_loop_ub;
-        int mf_loop_ub;
-        int ne_loop_ub;
-        int od_loop_ub;
+        int of_loop_ub;
+        int pe_loop_ub;
         int qb_loop_ub;
         int qc_loop_ub;
-        int qf_loop_ub;
+        int qd_loop_ub;
         int r_loop_ub;
-        int se_loop_ub;
-        int uc_loop_ub;
-        int uf_loop_ub;
+        int sf_loop_ub;
+        int ue_loop_ub;
         int vb_loop_ub;
-        int ve_loop_ub;
-        int wd_loop_ub;
-        int yc_loop_ub;
-        int yf_loop_ub;
-        // 'FeedoptPlan:99' case Fopt.Smooth
+        int wc_loop_ub;
+        int wf_loop_ub;
+        int xe_loop_ub;
+        int yd_loop_ub;
+        // 'FeedoptPlan:95' case Fopt.Smooth
         //          histogramLength( ctx, ctx.q_compress, "Compressing" );
-        // 'FeedoptPlan:102' ctx = smoothCurvStructs(ctx);
+        // 'FeedoptPlan:98' ctx = smoothCurvStructs(ctx);
         r.BasisVal.set_size(ctx->BasisVal.size(0), ctx->BasisVal.size(1));
         b_loop_ub = ctx->BasisVal.size(1);
         for (int i3{0}; i3 < b_loop_ub; i3++) {
@@ -1122,27 +1133,27 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         }
         r.cfg.indCart.set_size(ctx->cfg.indCart.size[0]);
         ic_loop_ub = ctx->cfg.indCart.size[0];
-        for (int i46{0}; i46 < ic_loop_ub; i46++) {
-            r.cfg.indCart[i46] = ctx->cfg.indCart.data[i46];
+        for (int i45{0}; i45 < ic_loop_ub; i45++) {
+            r.cfg.indCart[i45] = ctx->cfg.indCart.data[i45];
         }
         r.cfg.indRot.set_size(ctx->cfg.indRot.size[0]);
         mc_loop_ub = ctx->cfg.indRot.size[0];
-        for (int i50{0}; i50 < mc_loop_ub; i50++) {
-            r.cfg.indRot[i50] = ctx->cfg.indRot.data[i50];
+        for (int i49{0}; i49 < mc_loop_ub; i49++) {
+            r.cfg.indRot[i49] = ctx->cfg.indRot.data[i49];
         }
         r.cfg.NumberAxis = ctx->cfg.NumberAxis;
         r.cfg.NCart = ctx->cfg.NCart;
         r.cfg.NRot = ctx->cfg.NRot;
         r.cfg.D.set_size(ctx->cfg.D.size[0]);
         qc_loop_ub = ctx->cfg.D.size[0];
-        for (int i54{0}; i54 < qc_loop_ub; i54++) {
-            r.cfg.D[i54] = ctx->cfg.D.data[i54];
+        for (int i53{0}; i53 < qc_loop_ub; i53++) {
+            r.cfg.D[i53] = ctx->cfg.D.data[i53];
         }
         r.cfg.coeffD = ctx->cfg.coeffD;
         r.cfg.kin_params.size[0] = ctx->cfg.kin_params.size[0];
-        uc_loop_ub = ctx->cfg.kin_params.size[0];
-        if (0 <= uc_loop_ub - 1) {
-            std::copy(&ctx->cfg.kin_params.data[0], &ctx->cfg.kin_params.data[uc_loop_ub],
+        wc_loop_ub = ctx->cfg.kin_params.size[0];
+        if (0 <= wc_loop_ub - 1) {
+            std::copy(&ctx->cfg.kin_params.data[0], &ctx->cfg.kin_params.data[wc_loop_ub],
                       &r.cfg.kin_params.data[0]);
         }
         for (int i59{0}; i59 < 5; i59++) {
@@ -1198,11 +1209,11 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         r.forced_stop = ctx->forced_stop;
         r.programmed_stop = ctx->programmed_stop;
         r.Coeff.set_size(ctx->Coeff.size(0), ctx->Coeff.size(1));
-        yc_loop_ub = ctx->Coeff.size(1);
-        for (int i71{0}; i71 < yc_loop_ub; i71++) {
-            int dd_loop_ub;
-            dd_loop_ub = ctx->Coeff.size(0);
-            for (int i75{0}; i75 < dd_loop_ub; i75++) {
+        bd_loop_ub = ctx->Coeff.size(1);
+        for (int i71{0}; i71 < bd_loop_ub; i71++) {
+            int fd_loop_ub;
+            fd_loop_ub = ctx->Coeff.size(0);
+            for (int i75{0}; i75 < fd_loop_ub; i75++) {
                 r.Coeff[i75 + r.Coeff.size(0) * i71] = ctx->Coeff[i75 + ctx->Coeff.size(0) * i71];
             }
         }
@@ -1210,54 +1221,54 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         r.kin = ctx->kin;
         smoothCurvStructs(&r);
         ctx->BasisVal.set_size(r.BasisVal.size(0), r.BasisVal.size(1));
-        hd_loop_ub = r.BasisVal.size(1);
-        for (int i79{0}; i79 < hd_loop_ub; i79++) {
-            int ld_loop_ub;
-            ld_loop_ub = r.BasisVal.size(0);
-            for (int i83{0}; i83 < ld_loop_ub; i83++) {
+        jd_loop_ub = r.BasisVal.size(1);
+        for (int i79{0}; i79 < jd_loop_ub; i79++) {
+            int nd_loop_ub;
+            nd_loop_ub = r.BasisVal.size(0);
+            for (int i83{0}; i83 < nd_loop_ub; i83++) {
                 ctx->BasisVal[i83 + ctx->BasisVal.size(0) * i79] =
                     r.BasisVal[i83 + r.BasisVal.size(0) * i79];
             }
         }
         ctx->BasisValD.set_size(r.BasisValD.size(0), r.BasisValD.size(1));
-        od_loop_ub = r.BasisValD.size(1);
-        for (int i86{0}; i86 < od_loop_ub; i86++) {
-            int td_loop_ub;
-            td_loop_ub = r.BasisValD.size(0);
-            for (int i91{0}; i91 < td_loop_ub; i91++) {
+        qd_loop_ub = r.BasisValD.size(1);
+        for (int i86{0}; i86 < qd_loop_ub; i86++) {
+            int vd_loop_ub;
+            vd_loop_ub = r.BasisValD.size(0);
+            for (int i91{0}; i91 < vd_loop_ub; i91++) {
                 ctx->BasisValD[i91 + ctx->BasisValD.size(0) * i86] =
                     r.BasisValD[i91 + r.BasisValD.size(0) * i86];
             }
         }
         ctx->BasisValDD.set_size(r.BasisValDD.size(0), r.BasisValDD.size(1));
-        wd_loop_ub = r.BasisValDD.size(1);
-        for (int i94{0}; i94 < wd_loop_ub; i94++) {
-            int ce_loop_ub;
-            ce_loop_ub = r.BasisValDD.size(0);
-            for (int i99{0}; i99 < ce_loop_ub; i99++) {
+        yd_loop_ub = r.BasisValDD.size(1);
+        for (int i94{0}; i94 < yd_loop_ub; i94++) {
+            int ee_loop_ub;
+            ee_loop_ub = r.BasisValDD.size(0);
+            for (int i99{0}; i99 < ee_loop_ub; i99++) {
                 ctx->BasisValDD[i99 + ctx->BasisValDD.size(0) * i94] =
                     r.BasisValDD[i99 + r.BasisValDD.size(0) * i94];
             }
         }
         ctx->BasisValDDD.set_size(r.BasisValDDD.size(0), r.BasisValDDD.size(1));
-        fe_loop_ub = r.BasisValDDD.size(1);
-        for (int i102{0}; i102 < fe_loop_ub; i102++) {
-            int ke_loop_ub;
-            ke_loop_ub = r.BasisValDDD.size(0);
-            for (int i107{0}; i107 < ke_loop_ub; i107++) {
+        he_loop_ub = r.BasisValDDD.size(1);
+        for (int i102{0}; i102 < he_loop_ub; i102++) {
+            int me_loop_ub;
+            me_loop_ub = r.BasisValDDD.size(0);
+            for (int i107{0}; i107 < me_loop_ub; i107++) {
                 ctx->BasisValDDD[i107 + ctx->BasisValDDD.size(0) * i102] =
                     r.BasisValDDD[i107 + r.BasisValDDD.size(0) * i102];
             }
         }
         ctx->BasisIntegr.set_size(r.BasisIntegr.size(0));
-        ne_loop_ub = r.BasisIntegr.size(0);
-        for (int i110{0}; i110 < ne_loop_ub; i110++) {
+        pe_loop_ub = r.BasisIntegr.size(0);
+        for (int i110{0}; i110 < pe_loop_ub; i110++) {
             ctx->BasisIntegr[i110] = r.BasisIntegr[i110];
         }
         ctx->Bl = r.Bl;
         ctx->u_vec.set_size(1, r.u_vec.size(1));
-        se_loop_ub = r.u_vec.size(1);
-        for (int i115{0}; i115 < se_loop_ub; i115++) {
+        ue_loop_ub = r.u_vec.size(1);
+        for (int i115{0}; i115 < ue_loop_ub; i115++) {
             ctx->u_vec[i115] = r.u_vec[i115];
         }
         ctx->q_spline = r.q_spline;
@@ -1277,48 +1288,48 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         ctx->at_1 = r.at_1;
         ctx->cfg.maskTot.size[0] = 1;
         ctx->cfg.maskTot.size[1] = r.cfg.maskTot.size[1];
-        ve_loop_ub = r.cfg.maskTot.size[1];
-        if (0 <= ve_loop_ub - 1) {
-            std::copy(&r.cfg.maskTot.data[0], &r.cfg.maskTot.data[ve_loop_ub],
+        xe_loop_ub = r.cfg.maskTot.size[1];
+        if (0 <= xe_loop_ub - 1) {
+            std::copy(&r.cfg.maskTot.data[0], &r.cfg.maskTot.data[xe_loop_ub],
                       &ctx->cfg.maskTot.data[0]);
         }
         ctx->cfg.maskCart.size[0] = 1;
         ctx->cfg.maskCart.size[1] = r.cfg.maskCart.size[1];
-        af_loop_ub = r.cfg.maskCart.size[1];
-        if (0 <= af_loop_ub - 1) {
-            std::copy(&r.cfg.maskCart.data[0], &r.cfg.maskCart.data[af_loop_ub],
+        cf_loop_ub = r.cfg.maskCart.size[1];
+        if (0 <= cf_loop_ub - 1) {
+            std::copy(&r.cfg.maskCart.data[0], &r.cfg.maskCart.data[cf_loop_ub],
                       &ctx->cfg.maskCart.data[0]);
         }
         ctx->cfg.maskRot.size[0] = 1;
         ctx->cfg.maskRot.size[1] = r.cfg.maskRot.size[1];
-        ef_loop_ub = r.cfg.maskRot.size[1];
-        if (0 <= ef_loop_ub - 1) {
-            std::copy(&r.cfg.maskRot.data[0], &r.cfg.maskRot.data[ef_loop_ub],
+        gf_loop_ub = r.cfg.maskRot.size[1];
+        if (0 <= gf_loop_ub - 1) {
+            std::copy(&r.cfg.maskRot.data[0], &r.cfg.maskRot.data[gf_loop_ub],
                       &ctx->cfg.maskRot.data[0]);
         }
         ctx->cfg.indCart.size[0] = r.cfg.indCart.size(0);
-        if_loop_ub = r.cfg.indCart.size(0);
-        for (int i118{0}; i118 < if_loop_ub; i118++) {
+        kf_loop_ub = r.cfg.indCart.size(0);
+        for (int i118{0}; i118 < kf_loop_ub; i118++) {
             ctx->cfg.indCart.data[i118] = r.cfg.indCart[i118];
         }
         ctx->cfg.indRot.size[0] = r.cfg.indRot.size(0);
-        mf_loop_ub = r.cfg.indRot.size(0);
-        for (int i122{0}; i122 < mf_loop_ub; i122++) {
+        of_loop_ub = r.cfg.indRot.size(0);
+        for (int i122{0}; i122 < of_loop_ub; i122++) {
             ctx->cfg.indRot.data[i122] = r.cfg.indRot[i122];
         }
         ctx->cfg.NumberAxis = r.cfg.NumberAxis;
         ctx->cfg.NCart = r.cfg.NCart;
         ctx->cfg.NRot = r.cfg.NRot;
         ctx->cfg.D.size[0] = r.cfg.D.size(0);
-        qf_loop_ub = r.cfg.D.size(0);
-        for (int i126{0}; i126 < qf_loop_ub; i126++) {
+        sf_loop_ub = r.cfg.D.size(0);
+        for (int i126{0}; i126 < sf_loop_ub; i126++) {
             ctx->cfg.D.data[i126] = r.cfg.D[i126];
         }
         ctx->cfg.coeffD = r.cfg.coeffD;
         ctx->cfg.kin_params.size[0] = r.cfg.kin_params.size[0];
-        uf_loop_ub = r.cfg.kin_params.size[0];
-        if (0 <= uf_loop_ub - 1) {
-            std::copy(&r.cfg.kin_params.data[0], &r.cfg.kin_params.data[uf_loop_ub],
+        wf_loop_ub = r.cfg.kin_params.size[0];
+        if (0 <= wf_loop_ub - 1) {
+            std::copy(&r.cfg.kin_params.data[0], &r.cfg.kin_params.data[wf_loop_ub],
                       &ctx->cfg.kin_params.data[0]);
         }
         for (int i130{0}; i130 < 5; i130++) {
@@ -1374,56 +1385,56 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         ctx->forced_stop = r.forced_stop;
         ctx->programmed_stop = r.programmed_stop;
         ctx->Coeff.set_size(r.Coeff.size(0), r.Coeff.size(1));
-        yf_loop_ub = r.Coeff.size(1);
-        for (int i142{0}; i142 < yf_loop_ub; i142++) {
-            int dg_loop_ub;
-            dg_loop_ub = r.Coeff.size(0);
-            for (int i146{0}; i146 < dg_loop_ub; i146++) {
+        bg_loop_ub = r.Coeff.size(1);
+        for (int i142{0}; i142 < bg_loop_ub; i142++) {
+            int fg_loop_ub;
+            fg_loop_ub = r.Coeff.size(0);
+            for (int i146{0}; i146 < fg_loop_ub; i146++) {
                 ctx->Coeff[i146 + ctx->Coeff.size(0) * i142] =
                     r.Coeff[i146 + r.Coeff.size(0) * i142];
             }
         }
         ctx->Skipped = r.Skipped;
         ctx->kin = r.kin;
-        // 'FeedoptPlan:103' ctx.op = Fopt.Split;
+        // 'FeedoptPlan:99' ctx.op = Fopt.Split;
         ctx->op = Fopt_Split;
-        // 'FeedoptPlan:105' assert( checkZSpdmode( ctx.q_smooth ), "ERROR : " + mfilename ...
-        // 'FeedoptPlan:106'             + ".m : smooth zspdmode failed " );
+        // 'FeedoptPlan:101' assert( checkZSpdmode( ctx.q_smooth ), "ERROR : " + mfilename ...
+        // 'FeedoptPlan:102'             + ".m : smooth zspdmode failed " );
         checkZSpdmode(&r.q_smooth);
         checkParametrisation(&r.q_smooth);
     } break;
     case Fopt_Split: {
-        int ad_loop_ub;
-        int ag_loop_ub;
+        int ae_loop_ub;
         int bc_loop_ub;
-        int bf_loop_ub;
         int c_loop_ub;
         int cb_loop_ub;
+        int cd_loop_ub;
+        int cg_loop_ub;
+        int df_loop_ub;
         int fc_loop_ub;
-        int ff_loop_ub;
-        int ge_loop_ub;
-        int id_loop_ub;
+        int hf_loop_ub;
+        int ie_loop_ub;
         int j_loop_ub;
         int jc_loop_ub;
-        int jf_loop_ub;
+        int kd_loop_ub;
         int lb_loop_ub;
+        int lf_loop_ub;
         int nc_loop_ub;
-        int nf_loop_ub;
-        int oe_loop_ub;
-        int pd_loop_ub;
+        int pf_loop_ub;
+        int qe_loop_ub;
         int rb_loop_ub;
         int rc_loop_ub;
-        int rf_loop_ub;
+        int rd_loop_ub;
         int s_loop_ub;
-        int te_loop_ub;
-        int vc_loop_ub;
-        int vf_loop_ub;
+        int tf_loop_ub;
+        int ve_loop_ub;
         int wb_loop_ub;
-        int we_loop_ub;
-        int xd_loop_ub;
-        // 'FeedoptPlan:112' case Fopt.Split
+        int xc_loop_ub;
+        int xf_loop_ub;
+        int ye_loop_ub;
+        // 'FeedoptPlan:108' case Fopt.Split
         //          histogramLength( ctx, ctx.q_smooth, "Smoothing" );
-        // 'FeedoptPlan:115' ctx = splitQueue( ctx );
+        // 'FeedoptPlan:111' ctx = splitQueue( ctx );
         r.BasisVal.set_size(ctx->BasisVal.size(0), ctx->BasisVal.size(1));
         c_loop_ub = ctx->BasisVal.size(1);
         for (int i4{0}; i4 < c_loop_ub; i4++) {
@@ -1514,27 +1525,27 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         }
         r.cfg.indCart.set_size(ctx->cfg.indCart.size[0]);
         jc_loop_ub = ctx->cfg.indCart.size[0];
-        for (int i47{0}; i47 < jc_loop_ub; i47++) {
-            r.cfg.indCart[i47] = ctx->cfg.indCart.data[i47];
+        for (int i46{0}; i46 < jc_loop_ub; i46++) {
+            r.cfg.indCart[i46] = ctx->cfg.indCart.data[i46];
         }
         r.cfg.indRot.set_size(ctx->cfg.indRot.size[0]);
         nc_loop_ub = ctx->cfg.indRot.size[0];
-        for (int i51{0}; i51 < nc_loop_ub; i51++) {
-            r.cfg.indRot[i51] = ctx->cfg.indRot.data[i51];
+        for (int i50{0}; i50 < nc_loop_ub; i50++) {
+            r.cfg.indRot[i50] = ctx->cfg.indRot.data[i50];
         }
         r.cfg.NumberAxis = ctx->cfg.NumberAxis;
         r.cfg.NCart = ctx->cfg.NCart;
         r.cfg.NRot = ctx->cfg.NRot;
         r.cfg.D.set_size(ctx->cfg.D.size[0]);
         rc_loop_ub = ctx->cfg.D.size[0];
-        for (int i55{0}; i55 < rc_loop_ub; i55++) {
-            r.cfg.D[i55] = ctx->cfg.D.data[i55];
+        for (int i54{0}; i54 < rc_loop_ub; i54++) {
+            r.cfg.D[i54] = ctx->cfg.D.data[i54];
         }
         r.cfg.coeffD = ctx->cfg.coeffD;
         r.cfg.kin_params.size[0] = ctx->cfg.kin_params.size[0];
-        vc_loop_ub = ctx->cfg.kin_params.size[0];
-        if (0 <= vc_loop_ub - 1) {
-            std::copy(&ctx->cfg.kin_params.data[0], &ctx->cfg.kin_params.data[vc_loop_ub],
+        xc_loop_ub = ctx->cfg.kin_params.size[0];
+        if (0 <= xc_loop_ub - 1) {
+            std::copy(&ctx->cfg.kin_params.data[0], &ctx->cfg.kin_params.data[xc_loop_ub],
                       &r.cfg.kin_params.data[0]);
         }
         for (int i60{0}; i60 < 5; i60++) {
@@ -1590,11 +1601,11 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         r.forced_stop = ctx->forced_stop;
         r.programmed_stop = ctx->programmed_stop;
         r.Coeff.set_size(ctx->Coeff.size(0), ctx->Coeff.size(1));
-        ad_loop_ub = ctx->Coeff.size(1);
-        for (int i72{0}; i72 < ad_loop_ub; i72++) {
-            int ed_loop_ub;
-            ed_loop_ub = ctx->Coeff.size(0);
-            for (int i76{0}; i76 < ed_loop_ub; i76++) {
+        cd_loop_ub = ctx->Coeff.size(1);
+        for (int i72{0}; i72 < cd_loop_ub; i72++) {
+            int gd_loop_ub;
+            gd_loop_ub = ctx->Coeff.size(0);
+            for (int i76{0}; i76 < gd_loop_ub; i76++) {
                 r.Coeff[i76 + r.Coeff.size(0) * i72] = ctx->Coeff[i76 + ctx->Coeff.size(0) * i72];
             }
         }
@@ -1602,54 +1613,54 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         r.kin = ctx->kin;
         splitQueue(&r);
         ctx->BasisVal.set_size(r.BasisVal.size(0), r.BasisVal.size(1));
-        id_loop_ub = r.BasisVal.size(1);
-        for (int i80{0}; i80 < id_loop_ub; i80++) {
-            int md_loop_ub;
-            md_loop_ub = r.BasisVal.size(0);
-            for (int i84{0}; i84 < md_loop_ub; i84++) {
+        kd_loop_ub = r.BasisVal.size(1);
+        for (int i80{0}; i80 < kd_loop_ub; i80++) {
+            int od_loop_ub;
+            od_loop_ub = r.BasisVal.size(0);
+            for (int i84{0}; i84 < od_loop_ub; i84++) {
                 ctx->BasisVal[i84 + ctx->BasisVal.size(0) * i80] =
                     r.BasisVal[i84 + r.BasisVal.size(0) * i80];
             }
         }
         ctx->BasisValD.set_size(r.BasisValD.size(0), r.BasisValD.size(1));
-        pd_loop_ub = r.BasisValD.size(1);
-        for (int i87{0}; i87 < pd_loop_ub; i87++) {
-            int ud_loop_ub;
-            ud_loop_ub = r.BasisValD.size(0);
-            for (int i92{0}; i92 < ud_loop_ub; i92++) {
+        rd_loop_ub = r.BasisValD.size(1);
+        for (int i87{0}; i87 < rd_loop_ub; i87++) {
+            int wd_loop_ub;
+            wd_loop_ub = r.BasisValD.size(0);
+            for (int i92{0}; i92 < wd_loop_ub; i92++) {
                 ctx->BasisValD[i92 + ctx->BasisValD.size(0) * i87] =
                     r.BasisValD[i92 + r.BasisValD.size(0) * i87];
             }
         }
         ctx->BasisValDD.set_size(r.BasisValDD.size(0), r.BasisValDD.size(1));
-        xd_loop_ub = r.BasisValDD.size(1);
-        for (int i95{0}; i95 < xd_loop_ub; i95++) {
-            int de_loop_ub;
-            de_loop_ub = r.BasisValDD.size(0);
-            for (int i100{0}; i100 < de_loop_ub; i100++) {
+        ae_loop_ub = r.BasisValDD.size(1);
+        for (int i95{0}; i95 < ae_loop_ub; i95++) {
+            int fe_loop_ub;
+            fe_loop_ub = r.BasisValDD.size(0);
+            for (int i100{0}; i100 < fe_loop_ub; i100++) {
                 ctx->BasisValDD[i100 + ctx->BasisValDD.size(0) * i95] =
                     r.BasisValDD[i100 + r.BasisValDD.size(0) * i95];
             }
         }
         ctx->BasisValDDD.set_size(r.BasisValDDD.size(0), r.BasisValDDD.size(1));
-        ge_loop_ub = r.BasisValDDD.size(1);
-        for (int i103{0}; i103 < ge_loop_ub; i103++) {
-            int le_loop_ub;
-            le_loop_ub = r.BasisValDDD.size(0);
-            for (int i108{0}; i108 < le_loop_ub; i108++) {
+        ie_loop_ub = r.BasisValDDD.size(1);
+        for (int i103{0}; i103 < ie_loop_ub; i103++) {
+            int ne_loop_ub;
+            ne_loop_ub = r.BasisValDDD.size(0);
+            for (int i108{0}; i108 < ne_loop_ub; i108++) {
                 ctx->BasisValDDD[i108 + ctx->BasisValDDD.size(0) * i103] =
                     r.BasisValDDD[i108 + r.BasisValDDD.size(0) * i103];
             }
         }
         ctx->BasisIntegr.set_size(r.BasisIntegr.size(0));
-        oe_loop_ub = r.BasisIntegr.size(0);
-        for (int i111{0}; i111 < oe_loop_ub; i111++) {
+        qe_loop_ub = r.BasisIntegr.size(0);
+        for (int i111{0}; i111 < qe_loop_ub; i111++) {
             ctx->BasisIntegr[i111] = r.BasisIntegr[i111];
         }
         ctx->Bl = r.Bl;
         ctx->u_vec.set_size(1, r.u_vec.size(1));
-        te_loop_ub = r.u_vec.size(1);
-        for (int i116{0}; i116 < te_loop_ub; i116++) {
+        ve_loop_ub = r.u_vec.size(1);
+        for (int i116{0}; i116 < ve_loop_ub; i116++) {
             ctx->u_vec[i116] = r.u_vec[i116];
         }
         ctx->q_spline = r.q_spline;
@@ -1669,48 +1680,48 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         ctx->at_1 = r.at_1;
         ctx->cfg.maskTot.size[0] = 1;
         ctx->cfg.maskTot.size[1] = r.cfg.maskTot.size[1];
-        we_loop_ub = r.cfg.maskTot.size[1];
-        if (0 <= we_loop_ub - 1) {
-            std::copy(&r.cfg.maskTot.data[0], &r.cfg.maskTot.data[we_loop_ub],
+        ye_loop_ub = r.cfg.maskTot.size[1];
+        if (0 <= ye_loop_ub - 1) {
+            std::copy(&r.cfg.maskTot.data[0], &r.cfg.maskTot.data[ye_loop_ub],
                       &ctx->cfg.maskTot.data[0]);
         }
         ctx->cfg.maskCart.size[0] = 1;
         ctx->cfg.maskCart.size[1] = r.cfg.maskCart.size[1];
-        bf_loop_ub = r.cfg.maskCart.size[1];
-        if (0 <= bf_loop_ub - 1) {
-            std::copy(&r.cfg.maskCart.data[0], &r.cfg.maskCart.data[bf_loop_ub],
+        df_loop_ub = r.cfg.maskCart.size[1];
+        if (0 <= df_loop_ub - 1) {
+            std::copy(&r.cfg.maskCart.data[0], &r.cfg.maskCart.data[df_loop_ub],
                       &ctx->cfg.maskCart.data[0]);
         }
         ctx->cfg.maskRot.size[0] = 1;
         ctx->cfg.maskRot.size[1] = r.cfg.maskRot.size[1];
-        ff_loop_ub = r.cfg.maskRot.size[1];
-        if (0 <= ff_loop_ub - 1) {
-            std::copy(&r.cfg.maskRot.data[0], &r.cfg.maskRot.data[ff_loop_ub],
+        hf_loop_ub = r.cfg.maskRot.size[1];
+        if (0 <= hf_loop_ub - 1) {
+            std::copy(&r.cfg.maskRot.data[0], &r.cfg.maskRot.data[hf_loop_ub],
                       &ctx->cfg.maskRot.data[0]);
         }
         ctx->cfg.indCart.size[0] = r.cfg.indCart.size(0);
-        jf_loop_ub = r.cfg.indCart.size(0);
-        for (int i119{0}; i119 < jf_loop_ub; i119++) {
+        lf_loop_ub = r.cfg.indCart.size(0);
+        for (int i119{0}; i119 < lf_loop_ub; i119++) {
             ctx->cfg.indCart.data[i119] = r.cfg.indCart[i119];
         }
         ctx->cfg.indRot.size[0] = r.cfg.indRot.size(0);
-        nf_loop_ub = r.cfg.indRot.size(0);
-        for (int i123{0}; i123 < nf_loop_ub; i123++) {
+        pf_loop_ub = r.cfg.indRot.size(0);
+        for (int i123{0}; i123 < pf_loop_ub; i123++) {
             ctx->cfg.indRot.data[i123] = r.cfg.indRot[i123];
         }
         ctx->cfg.NumberAxis = r.cfg.NumberAxis;
         ctx->cfg.NCart = r.cfg.NCart;
         ctx->cfg.NRot = r.cfg.NRot;
         ctx->cfg.D.size[0] = r.cfg.D.size(0);
-        rf_loop_ub = r.cfg.D.size(0);
-        for (int i127{0}; i127 < rf_loop_ub; i127++) {
+        tf_loop_ub = r.cfg.D.size(0);
+        for (int i127{0}; i127 < tf_loop_ub; i127++) {
             ctx->cfg.D.data[i127] = r.cfg.D[i127];
         }
         ctx->cfg.coeffD = r.cfg.coeffD;
         ctx->cfg.kin_params.size[0] = r.cfg.kin_params.size[0];
-        vf_loop_ub = r.cfg.kin_params.size[0];
-        if (0 <= vf_loop_ub - 1) {
-            std::copy(&r.cfg.kin_params.data[0], &r.cfg.kin_params.data[vf_loop_ub],
+        xf_loop_ub = r.cfg.kin_params.size[0];
+        if (0 <= xf_loop_ub - 1) {
+            std::copy(&r.cfg.kin_params.data[0], &r.cfg.kin_params.data[xf_loop_ub],
                       &ctx->cfg.kin_params.data[0]);
         }
         for (int i131{0}; i131 < 5; i131++) {
@@ -1766,55 +1777,55 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         ctx->forced_stop = r.forced_stop;
         ctx->programmed_stop = r.programmed_stop;
         ctx->Coeff.set_size(r.Coeff.size(0), r.Coeff.size(1));
-        ag_loop_ub = r.Coeff.size(1);
-        for (int i143{0}; i143 < ag_loop_ub; i143++) {
-            int eg_loop_ub;
-            eg_loop_ub = r.Coeff.size(0);
-            for (int i147{0}; i147 < eg_loop_ub; i147++) {
+        cg_loop_ub = r.Coeff.size(1);
+        for (int i143{0}; i143 < cg_loop_ub; i143++) {
+            int gg_loop_ub;
+            gg_loop_ub = r.Coeff.size(0);
+            for (int i147{0}; i147 < gg_loop_ub; i147++) {
                 ctx->Coeff[i147 + ctx->Coeff.size(0) * i143] =
                     r.Coeff[i147 + r.Coeff.size(0) * i143];
             }
         }
         ctx->Skipped = r.Skipped;
         ctx->kin = r.kin;
-        // 'FeedoptPlan:117' ctx.op = Fopt.Opt;
+        // 'FeedoptPlan:113' ctx.op = Fopt.Opt;
         ctx->op = Fopt_Opt;
-        // 'FeedoptPlan:119' assert( checkZSpdmode( ctx.q_split ), "ERROR : " + mfilename ...
-        // 'FeedoptPlan:120'             + ".m : splitted zspdmode failed " );
+        // 'FeedoptPlan:115' assert( checkZSpdmode( ctx.q_split ), "ERROR : " + mfilename ...
+        // 'FeedoptPlan:116'             + ".m : splitted zspdmode failed " );
         checkZSpdmode(&r.q_split);
         checkParametrisation(&r.q_smooth);
     } break;
     case Fopt_Opt: {
         int ab_loop_ub;
-        int bg_loop_ub;
-        int cf_loop_ub;
+        int ad_loop_ub;
+        int af_loop_ub;
         int dc_loop_ub;
-        int ee_loop_ub;
-        int gd_loop_ub;
-        int gf_loop_ub;
+        int dg_loop_ub;
+        int ef_loop_ub;
+        int ge_loop_ub;
         int h_loop_ub;
         int hc_loop_ub;
+        int id_loop_ub;
+        int if_loop_ub;
         int jb_loop_ub;
-        int kf_loop_ub;
         int lc_loop_ub;
         int loop_ub;
-        int me_loop_ub;
-        int nd_loop_ub;
-        int of_loop_ub;
+        int mf_loop_ub;
+        int oe_loop_ub;
         int pb_loop_ub;
         int pc_loop_ub;
+        int pd_loop_ub;
         int q_loop_ub;
-        int re_loop_ub;
-        int sf_loop_ub;
-        int tc_loop_ub;
+        int qf_loop_ub;
+        int te_loop_ub;
         int ub_loop_ub;
-        int vd_loop_ub;
-        int wf_loop_ub;
-        int xc_loop_ub;
-        int xe_loop_ub;
+        int uf_loop_ub;
+        int vc_loop_ub;
+        int xd_loop_ub;
         int yb_loop_ub;
-        // 'FeedoptPlan:130' case Fopt.Opt
-        // 'FeedoptPlan:131' [ ctx, optimized, opt_curv, quit ] = feedratePlanning( ctx );
+        int yf_loop_ub;
+        // 'FeedoptPlan:123' case Fopt.Opt
+        // 'FeedoptPlan:124' [ ctx, optimized, opt_curv, quit ] = feedratePlanning( ctx );
         b_ctx.BasisVal.set_size(ctx->BasisVal.size(0), ctx->BasisVal.size(1));
         loop_ub = ctx->BasisVal.size(1);
         for (int i1{0}; i1 < loop_ub; i1++) {
@@ -1905,27 +1916,27 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         }
         b_ctx.cfg.indCart.set_size(ctx->cfg.indCart.size[0]);
         hc_loop_ub = ctx->cfg.indCart.size[0];
-        for (int i45{0}; i45 < hc_loop_ub; i45++) {
-            b_ctx.cfg.indCart[i45] = ctx->cfg.indCart.data[i45];
+        for (int i44{0}; i44 < hc_loop_ub; i44++) {
+            b_ctx.cfg.indCart[i44] = ctx->cfg.indCart.data[i44];
         }
         b_ctx.cfg.indRot.set_size(ctx->cfg.indRot.size[0]);
         lc_loop_ub = ctx->cfg.indRot.size[0];
-        for (int i49{0}; i49 < lc_loop_ub; i49++) {
-            b_ctx.cfg.indRot[i49] = ctx->cfg.indRot.data[i49];
+        for (int i48{0}; i48 < lc_loop_ub; i48++) {
+            b_ctx.cfg.indRot[i48] = ctx->cfg.indRot.data[i48];
         }
         b_ctx.cfg.NumberAxis = ctx->cfg.NumberAxis;
         b_ctx.cfg.NCart = ctx->cfg.NCart;
         b_ctx.cfg.NRot = ctx->cfg.NRot;
         b_ctx.cfg.D.set_size(ctx->cfg.D.size[0]);
         pc_loop_ub = ctx->cfg.D.size[0];
-        for (int i53{0}; i53 < pc_loop_ub; i53++) {
-            b_ctx.cfg.D[i53] = ctx->cfg.D.data[i53];
+        for (int i52{0}; i52 < pc_loop_ub; i52++) {
+            b_ctx.cfg.D[i52] = ctx->cfg.D.data[i52];
         }
         b_ctx.cfg.coeffD = ctx->cfg.coeffD;
         b_ctx.cfg.kin_params.size[0] = ctx->cfg.kin_params.size[0];
-        tc_loop_ub = ctx->cfg.kin_params.size[0];
-        if (0 <= tc_loop_ub - 1) {
-            std::copy(&ctx->cfg.kin_params.data[0], &ctx->cfg.kin_params.data[tc_loop_ub],
+        vc_loop_ub = ctx->cfg.kin_params.size[0];
+        if (0 <= vc_loop_ub - 1) {
+            std::copy(&ctx->cfg.kin_params.data[0], &ctx->cfg.kin_params.data[vc_loop_ub],
                       &b_ctx.cfg.kin_params.data[0]);
         }
         for (int i58{0}; i58 < 5; i58++) {
@@ -1981,11 +1992,11 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         b_ctx.forced_stop = ctx->forced_stop;
         b_ctx.programmed_stop = ctx->programmed_stop;
         b_ctx.Coeff.set_size(ctx->Coeff.size(0), ctx->Coeff.size(1));
-        xc_loop_ub = ctx->Coeff.size(1);
-        for (int i70{0}; i70 < xc_loop_ub; i70++) {
-            int cd_loop_ub;
-            cd_loop_ub = ctx->Coeff.size(0);
-            for (int i74{0}; i74 < cd_loop_ub; i74++) {
+        ad_loop_ub = ctx->Coeff.size(1);
+        for (int i70{0}; i70 < ad_loop_ub; i70++) {
+            int ed_loop_ub;
+            ed_loop_ub = ctx->Coeff.size(0);
+            for (int i74{0}; i74 < ed_loop_ub; i74++) {
                 b_ctx.Coeff[i74 + b_ctx.Coeff.size(0) * i70] =
                     ctx->Coeff[i74 + ctx->Coeff.size(0) * i70];
             }
@@ -1994,54 +2005,54 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         b_ctx.kin = ctx->kin;
         feedratePlanning(&b_ctx, &c_optimized, &opt_curv, &quit);
         ctx->BasisVal.set_size(b_ctx.BasisVal.size(0), b_ctx.BasisVal.size(1));
-        gd_loop_ub = b_ctx.BasisVal.size(1);
-        for (int i78{0}; i78 < gd_loop_ub; i78++) {
-            int kd_loop_ub;
-            kd_loop_ub = b_ctx.BasisVal.size(0);
-            for (int i82{0}; i82 < kd_loop_ub; i82++) {
+        id_loop_ub = b_ctx.BasisVal.size(1);
+        for (int i78{0}; i78 < id_loop_ub; i78++) {
+            int md_loop_ub;
+            md_loop_ub = b_ctx.BasisVal.size(0);
+            for (int i82{0}; i82 < md_loop_ub; i82++) {
                 ctx->BasisVal[i82 + ctx->BasisVal.size(0) * i78] =
                     b_ctx.BasisVal[i82 + b_ctx.BasisVal.size(0) * i78];
             }
         }
         ctx->BasisValD.set_size(b_ctx.BasisValD.size(0), b_ctx.BasisValD.size(1));
-        nd_loop_ub = b_ctx.BasisValD.size(1);
-        for (int i85{0}; i85 < nd_loop_ub; i85++) {
-            int sd_loop_ub;
-            sd_loop_ub = b_ctx.BasisValD.size(0);
-            for (int i90{0}; i90 < sd_loop_ub; i90++) {
+        pd_loop_ub = b_ctx.BasisValD.size(1);
+        for (int i85{0}; i85 < pd_loop_ub; i85++) {
+            int ud_loop_ub;
+            ud_loop_ub = b_ctx.BasisValD.size(0);
+            for (int i90{0}; i90 < ud_loop_ub; i90++) {
                 ctx->BasisValD[i90 + ctx->BasisValD.size(0) * i85] =
                     b_ctx.BasisValD[i90 + b_ctx.BasisValD.size(0) * i85];
             }
         }
         ctx->BasisValDD.set_size(b_ctx.BasisValDD.size(0), b_ctx.BasisValDD.size(1));
-        vd_loop_ub = b_ctx.BasisValDD.size(1);
-        for (int i93{0}; i93 < vd_loop_ub; i93++) {
-            int be_loop_ub;
-            be_loop_ub = b_ctx.BasisValDD.size(0);
-            for (int i98{0}; i98 < be_loop_ub; i98++) {
+        xd_loop_ub = b_ctx.BasisValDD.size(1);
+        for (int i93{0}; i93 < xd_loop_ub; i93++) {
+            int de_loop_ub;
+            de_loop_ub = b_ctx.BasisValDD.size(0);
+            for (int i98{0}; i98 < de_loop_ub; i98++) {
                 ctx->BasisValDD[i98 + ctx->BasisValDD.size(0) * i93] =
                     b_ctx.BasisValDD[i98 + b_ctx.BasisValDD.size(0) * i93];
             }
         }
         ctx->BasisValDDD.set_size(b_ctx.BasisValDDD.size(0), b_ctx.BasisValDDD.size(1));
-        ee_loop_ub = b_ctx.BasisValDDD.size(1);
-        for (int i101{0}; i101 < ee_loop_ub; i101++) {
-            int je_loop_ub;
-            je_loop_ub = b_ctx.BasisValDDD.size(0);
-            for (int i106{0}; i106 < je_loop_ub; i106++) {
+        ge_loop_ub = b_ctx.BasisValDDD.size(1);
+        for (int i101{0}; i101 < ge_loop_ub; i101++) {
+            int le_loop_ub;
+            le_loop_ub = b_ctx.BasisValDDD.size(0);
+            for (int i106{0}; i106 < le_loop_ub; i106++) {
                 ctx->BasisValDDD[i106 + ctx->BasisValDDD.size(0) * i101] =
                     b_ctx.BasisValDDD[i106 + b_ctx.BasisValDDD.size(0) * i101];
             }
         }
         ctx->BasisIntegr.set_size(b_ctx.BasisIntegr.size(0));
-        me_loop_ub = b_ctx.BasisIntegr.size(0);
-        for (int i109{0}; i109 < me_loop_ub; i109++) {
+        oe_loop_ub = b_ctx.BasisIntegr.size(0);
+        for (int i109{0}; i109 < oe_loop_ub; i109++) {
             ctx->BasisIntegr[i109] = b_ctx.BasisIntegr[i109];
         }
         ctx->Bl = b_ctx.Bl;
         ctx->u_vec.set_size(1, b_ctx.u_vec.size(1));
-        re_loop_ub = b_ctx.u_vec.size(1);
-        for (int i114{0}; i114 < re_loop_ub; i114++) {
+        te_loop_ub = b_ctx.u_vec.size(1);
+        for (int i114{0}; i114 < te_loop_ub; i114++) {
             ctx->u_vec[i114] = b_ctx.u_vec[i114];
         }
         ctx->q_spline = b_ctx.q_spline;
@@ -2062,48 +2073,48 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         ctx->at_1 = b_ctx.at_1;
         ctx->cfg.maskTot.size[0] = 1;
         ctx->cfg.maskTot.size[1] = b_ctx.cfg.maskTot.size[1];
-        xe_loop_ub = b_ctx.cfg.maskTot.size[1];
-        if (0 <= xe_loop_ub - 1) {
-            std::copy(&b_ctx.cfg.maskTot.data[0], &b_ctx.cfg.maskTot.data[xe_loop_ub],
+        af_loop_ub = b_ctx.cfg.maskTot.size[1];
+        if (0 <= af_loop_ub - 1) {
+            std::copy(&b_ctx.cfg.maskTot.data[0], &b_ctx.cfg.maskTot.data[af_loop_ub],
                       &ctx->cfg.maskTot.data[0]);
         }
         ctx->cfg.maskCart.size[0] = 1;
         ctx->cfg.maskCart.size[1] = b_ctx.cfg.maskCart.size[1];
-        cf_loop_ub = b_ctx.cfg.maskCart.size[1];
-        if (0 <= cf_loop_ub - 1) {
-            std::copy(&b_ctx.cfg.maskCart.data[0], &b_ctx.cfg.maskCart.data[cf_loop_ub],
+        ef_loop_ub = b_ctx.cfg.maskCart.size[1];
+        if (0 <= ef_loop_ub - 1) {
+            std::copy(&b_ctx.cfg.maskCart.data[0], &b_ctx.cfg.maskCart.data[ef_loop_ub],
                       &ctx->cfg.maskCart.data[0]);
         }
         ctx->cfg.maskRot.size[0] = 1;
         ctx->cfg.maskRot.size[1] = b_ctx.cfg.maskRot.size[1];
-        gf_loop_ub = b_ctx.cfg.maskRot.size[1];
-        if (0 <= gf_loop_ub - 1) {
-            std::copy(&b_ctx.cfg.maskRot.data[0], &b_ctx.cfg.maskRot.data[gf_loop_ub],
+        if_loop_ub = b_ctx.cfg.maskRot.size[1];
+        if (0 <= if_loop_ub - 1) {
+            std::copy(&b_ctx.cfg.maskRot.data[0], &b_ctx.cfg.maskRot.data[if_loop_ub],
                       &ctx->cfg.maskRot.data[0]);
         }
         ctx->cfg.indCart.size[0] = b_ctx.cfg.indCart.size(0);
-        kf_loop_ub = b_ctx.cfg.indCart.size(0);
-        for (int i120{0}; i120 < kf_loop_ub; i120++) {
+        mf_loop_ub = b_ctx.cfg.indCart.size(0);
+        for (int i120{0}; i120 < mf_loop_ub; i120++) {
             ctx->cfg.indCart.data[i120] = b_ctx.cfg.indCart[i120];
         }
         ctx->cfg.indRot.size[0] = b_ctx.cfg.indRot.size(0);
-        of_loop_ub = b_ctx.cfg.indRot.size(0);
-        for (int i124{0}; i124 < of_loop_ub; i124++) {
+        qf_loop_ub = b_ctx.cfg.indRot.size(0);
+        for (int i124{0}; i124 < qf_loop_ub; i124++) {
             ctx->cfg.indRot.data[i124] = b_ctx.cfg.indRot[i124];
         }
         ctx->cfg.NumberAxis = b_ctx.cfg.NumberAxis;
         ctx->cfg.NCart = b_ctx.cfg.NCart;
         ctx->cfg.NRot = b_ctx.cfg.NRot;
         ctx->cfg.D.size[0] = b_ctx.cfg.D.size(0);
-        sf_loop_ub = b_ctx.cfg.D.size(0);
-        for (int i128{0}; i128 < sf_loop_ub; i128++) {
+        uf_loop_ub = b_ctx.cfg.D.size(0);
+        for (int i128{0}; i128 < uf_loop_ub; i128++) {
             ctx->cfg.D.data[i128] = b_ctx.cfg.D[i128];
         }
         ctx->cfg.coeffD = b_ctx.cfg.coeffD;
         ctx->cfg.kin_params.size[0] = b_ctx.cfg.kin_params.size[0];
-        wf_loop_ub = b_ctx.cfg.kin_params.size[0];
-        if (0 <= wf_loop_ub - 1) {
-            std::copy(&b_ctx.cfg.kin_params.data[0], &b_ctx.cfg.kin_params.data[wf_loop_ub],
+        yf_loop_ub = b_ctx.cfg.kin_params.size[0];
+        if (0 <= yf_loop_ub - 1) {
+            std::copy(&b_ctx.cfg.kin_params.data[0], &b_ctx.cfg.kin_params.data[yf_loop_ub],
                       &ctx->cfg.kin_params.data[0]);
         }
         for (int i132{0}; i132 < 5; i132++) {
@@ -2159,11 +2170,11 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         ctx->forced_stop = b_ctx.forced_stop;
         ctx->programmed_stop = b_ctx.programmed_stop;
         ctx->Coeff.set_size(b_ctx.Coeff.size(0), b_ctx.Coeff.size(1));
-        bg_loop_ub = b_ctx.Coeff.size(1);
-        for (int i144{0}; i144 < bg_loop_ub; i144++) {
-            int fg_loop_ub;
-            fg_loop_ub = b_ctx.Coeff.size(0);
-            for (int i148{0}; i148 < fg_loop_ub; i148++) {
+        dg_loop_ub = b_ctx.Coeff.size(1);
+        for (int i144{0}; i144 < dg_loop_ub; i144++) {
+            int hg_loop_ub;
+            hg_loop_ub = b_ctx.Coeff.size(0);
+            for (int i148{0}; i148 < hg_loop_ub; i148++) {
                 ctx->Coeff[i148 + ctx->Coeff.size(0) * i144] =
                     b_ctx.Coeff[i148 + b_ctx.Coeff.size(0) * i144];
             }
@@ -2171,23 +2182,23 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         ctx->Skipped = b_ctx.Skipped;
         ctx->kin = b_ctx.kin;
         b_optimized = c_optimized;
-        // 'FeedoptPlan:132' if optimized
+        // 'FeedoptPlan:125' if optimized
         if (c_optimized) {
-            // 'FeedoptPlan:133' ctx.go_next = true;
+            // 'FeedoptPlan:126' ctx.go_next = true;
             ctx->go_next = true;
-            // 'FeedoptPlan:134' ctx.q_opt.push( opt_curv );
+            // 'FeedoptPlan:127' ctx.q_opt.push( opt_curv );
             b_ctx.q_opt.push(&opt_curv);
         }
-        // 'FeedoptPlan:137' if( quit )
+        // 'FeedoptPlan:130' if( quit )
     } break;
     case Fopt_Finished:
-        // 'FeedoptPlan:139' case Fopt.Finished
-        // 'FeedoptPlan:140' ctx.op = Fopt.Finished;
+        // 'FeedoptPlan:132' case Fopt.Finished
+        // 'FeedoptPlan:133' ctx.op = Fopt.Finished;
         ctx->op = Fopt_Finished;
         break;
     default:
-        // 'FeedoptPlan:142' otherwise
-        // 'FeedoptPlan:143' DebugLog(DebugCfg.Global, 'FEEDOPT: WRONG STATE\n')
+        // 'FeedoptPlan:135' otherwise
+        // 'FeedoptPlan:136' DebugLog(DebugCfg.Global, 'FEEDOPT: WRONG STATE\n')
         //  1 -> stdout
         //  2 -> stderr
         // 'DebugLog:5' if IsEnabledDebugLog(cfg)
@@ -2199,7 +2210,7 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             printf("FEEDOPT: WRONG STATE\n");
             fflush(stdout);
         }
-        // 'FeedoptPlan:144' ctx.op = Fopt.Finished;
+        // 'FeedoptPlan:137' ctx.op = Fopt.Finished;
         ctx->op = Fopt_Finished;
         break;
     }

@@ -5,13 +5,13 @@
 // File: smoothCurvStructs.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 13-Jul-2022 14:15:57
+// C/C++ source code generated on  : 18-Jul-2022 08:54:02
 //
 
 // Include Files
 #include "smoothCurvStructs.h"
 #include "EvalCurvStruct.h"
-#include "calcTransition_new.h"
+#include "calcTransition.h"
 #include "calc_t_nk_kappa.h"
 #include "norm.h"
 #include "opencn_matlab_data.h"
@@ -324,15 +324,16 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                     // 'smoothCurvStructs:28' else
                     //  Do the transition
                     // 'smoothCurvStructs:30' [ status, curv1C, curv2C, curvT ] = ...
-                    // 'smoothCurvStructs:31'                 calcTransition_new( ctx, curv,
-                    // nextCurv );
-                    calcTransition_new(
-                        &ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
-                        ctx->cfg.maskCart.data, ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
-                        ctx->cfg.maskRot.size, ctx->cfg.indCart, ctx->cfg.indRot,
-                        ctx->cfg.NumberAxis, ctx->cfg.NCart, ctx->cfg.NRot, ctx->cfg.coeffD,
-                        ctx->cfg.CutOff, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW, &curv,
-                        &nextCurv, &status, &curv1C, &curv2C, &curvT);
+                    // 'smoothCurvStructs:31'                 calcTransition( ctx, curv, nextCurv );
+                    calcTransition(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
+                                   ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
+                                   ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
+                                   ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart,
+                                   ctx->cfg.NRot, ctx->cfg.D, ctx->cfg.CutOff,
+                                   ctx->cfg.Smoothing.ColTolCosSmooth,
+                                   ctx->cfg.Smoothing.ColTolSmooth, ctx->cfg.GaussLegendreX,
+                                   ctx->cfg.GaussLegendreW, &curv, &nextCurv, &status, &curv1C,
+                                   &curv2C, &curvT);
                     // 'smoothCurvStructs:32' if( status == TransitionResult.Ok )
                     if (status == TransitionResult_Ok) {
                         // 'smoothCurvStructs:33' ctx.q_smooth.push( curv1C );

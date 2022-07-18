@@ -5,7 +5,7 @@
 // File: ReadGCode.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 13-Jul-2022 14:15:57
+// C/C++ source code generated on  : 18-Jul-2022 08:54:02
 //
 
 // Include Files
@@ -108,34 +108,35 @@ void ReadGCode(ReadGCodeCmd cmd, const char filename_data[], const int filename_
     // 'ReadGCode:16' coder.updateBuildInfo('addSourceFiles','cpp_interp.cpp',
     // '$(START_DIR)/../common/src'); 'ReadGCode:17'
     // coder.updateBuildInfo('addSourceFiles','directives.cc', pathRs274Src); 'ReadGCode:18'
-    // coder.updateBuildInfo('addSourceFiles','interp_arc.cc', pathRs274Src); 'ReadGCode:19'
-    // coder.updateBuildInfo('addSourceFiles','interp_array.cc', pathRs274Src); 'ReadGCode:20'
-    // coder.updateBuildInfo('addSourceFiles','interp_base.cc', pathRs274Src); 'ReadGCode:21'
-    // coder.updateBuildInfo('addSourceFiles','interp_check.cc', pathRs274Src); 'ReadGCode:22'
-    // coder.updateBuildInfo('addSourceFiles','interp_convert.cc', pathRs274Src); 'ReadGCode:23'
-    // coder.updateBuildInfo('addSourceFiles','interp_cycles.cc', pathRs274Src); 'ReadGCode:24'
-    // coder.updateBuildInfo('addSourceFiles','interp_execute.cc', pathRs274Src); 'ReadGCode:25'
-    // coder.updateBuildInfo('addSourceFiles','interp_find.cc', pathRs274Src); 'ReadGCode:26'
-    // coder.updateBuildInfo('addSourceFiles','interp_internal.cc', pathRs274Src); 'ReadGCode:27'
-    // coder.updateBuildInfo('addSourceFiles','interp_inverse.cc', pathRs274Src); 'ReadGCode:28'
-    // coder.updateBuildInfo('addSourceFiles','interp_namedparams.cc', pathRs274Src); 'ReadGCode:29'
-    // coder.updateBuildInfo('addSourceFiles','interp_o_word.cc', pathRs274Src); 'ReadGCode:30'
-    // coder.updateBuildInfo('addSourceFiles','interp_queue.cc', pathRs274Src); 'ReadGCode:31'
-    // coder.updateBuildInfo('addSourceFiles','interp_read.cc', pathRs274Src); 'ReadGCode:32'
-    // coder.updateBuildInfo('addSourceFiles','interp_remap.cc', pathRs274Src); 'ReadGCode:33'
-    // coder.updateBuildInfo('addSourceFiles','interp_setup.cc', pathRs274Src); 'ReadGCode:34'
-    // coder.updateBuildInfo('addSourceFiles','interp_write.cc', pathRs274Src); 'ReadGCode:35'
-    // coder.updateBuildInfo('addSourceFiles','ocn.cc', pathRs274Src); 'ReadGCode:36'
-    // coder.updateBuildInfo('addSourceFiles','rs274ngc_pre.cc', pathRs274Src); 'ReadGCode:37'
-    // coder.updateBuildInfo('addSourceFiles','inifile.cc', pathRs274Src); 'ReadGCode:38'
-    // coder.updateBuildInfo('addLinkFlags', '-ldl');
+    // coder.updateBuildInfo('addSourceFiles','rotational_axis_mode.cc', pathRs274Src);
+    // 'ReadGCode:19' coder.updateBuildInfo('addSourceFiles','interp_arc.cc', pathRs274Src);
+    // 'ReadGCode:20' coder.updateBuildInfo('addSourceFiles','interp_array.cc', pathRs274Src);
+    // 'ReadGCode:21' coder.updateBuildInfo('addSourceFiles','interp_base.cc', pathRs274Src);
+    // 'ReadGCode:22' coder.updateBuildInfo('addSourceFiles','interp_check.cc', pathRs274Src);
+    // 'ReadGCode:23' coder.updateBuildInfo('addSourceFiles','interp_convert.cc', pathRs274Src);
+    // 'ReadGCode:24' coder.updateBuildInfo('addSourceFiles','interp_cycles.cc', pathRs274Src);
+    // 'ReadGCode:25' coder.updateBuildInfo('addSourceFiles','interp_execute.cc', pathRs274Src);
+    // 'ReadGCode:26' coder.updateBuildInfo('addSourceFiles','interp_find.cc', pathRs274Src);
+    // 'ReadGCode:27' coder.updateBuildInfo('addSourceFiles','interp_internal.cc', pathRs274Src);
+    // 'ReadGCode:28' coder.updateBuildInfo('addSourceFiles','interp_inverse.cc', pathRs274Src);
+    // 'ReadGCode:29' coder.updateBuildInfo('addSourceFiles','interp_namedparams.cc', pathRs274Src);
+    // 'ReadGCode:30' coder.updateBuildInfo('addSourceFiles','interp_o_word.cc', pathRs274Src);
+    // 'ReadGCode:31' coder.updateBuildInfo('addSourceFiles','interp_queue.cc', pathRs274Src);
+    // 'ReadGCode:32' coder.updateBuildInfo('addSourceFiles','interp_read.cc', pathRs274Src);
+    // 'ReadGCode:33' coder.updateBuildInfo('addSourceFiles','interp_remap.cc', pathRs274Src);
+    // 'ReadGCode:34' coder.updateBuildInfo('addSourceFiles','interp_setup.cc', pathRs274Src);
+    // 'ReadGCode:35' coder.updateBuildInfo('addSourceFiles','interp_write.cc', pathRs274Src);
+    // 'ReadGCode:36' coder.updateBuildInfo('addSourceFiles','ocn.cc', pathRs274Src);
+    // 'ReadGCode:37' coder.updateBuildInfo('addSourceFiles','rs274ngc_pre.cc', pathRs274Src);
+    // 'ReadGCode:38' coder.updateBuildInfo('addSourceFiles','inifile.cc', pathRs274Src);
+    // 'ReadGCode:39' coder.updateBuildInfo('addLinkFlags', '-ldl');
     //     coder.updateBuildInfo('addIncludePaths', '$(START_DIR)/gen_mex/readgcode');
-    // 'ReadGCode:40' coder.cinclude('cpp_interp.hpp');
-    // 'ReadGCode:42' switch cmd
+    // 'ReadGCode:41' coder.cinclude('cpp_interp.hpp');
+    // 'ReadGCode:43' switch cmd
     if (cmd == ReadGCodeCmd_Load) {
         int loop_ub;
-        // 'ReadGCode:43' case ReadGCodeCmd.Load
-        // 'ReadGCode:44' status = coder.ceval( 'cpp_interp_init', [filename 0] );
+        // 'ReadGCode:44' case ReadGCodeCmd.Load
+        // 'ReadGCode:45' status = coder.ceval( 'cpp_interp_init', [filename 0] );
         loop_ub = filename_size[1];
         if (0 <= loop_ub - 1) {
             std::copy(&filename_data[0], &filename_data[loop_ub], &tmp_data[0]);
@@ -144,19 +145,19 @@ void ReadGCode(ReadGCodeCmd cmd, const char filename_data[], const int filename_
         b_status = cpp_interp_init(&tmp_data[0]);
     } else {
         int is_loaded;
-        // 'ReadGCode:45' case ReadGCodeCmd.Read
-        // 'ReadGCode:46' is_loaded = int32(0);
-        // 'ReadGCode:47' is_loaded = coder.ceval( 'cpp_interp_loaded' );
+        // 'ReadGCode:46' case ReadGCodeCmd.Read
+        // 'ReadGCode:47' is_loaded = int32(0);
+        // 'ReadGCode:48' is_loaded = coder.ceval( 'cpp_interp_loaded' );
         is_loaded = cpp_interp_loaded();
-        // 'ReadGCode:48' if is_loaded
+        // 'ReadGCode:49' if is_loaded
         if (is_loaded != 0) {
             __m128d r;
             __m128d r1;
             __m128d r2;
-            // 'ReadGCode:49' status = coder.ceval( 'cpp_interp_read', coder.ref( CurvStruct ) );
+            // 'ReadGCode:50' status = coder.ceval( 'cpp_interp_read', coder.ref( CurvStruct ) );
             b_status = cpp_interp_read(b_CurvStruct);
-            // 'ReadGCode:50' CurvStruct.R0( 4 : end ) = deg2rad( CurvStruct.R0( 4 : end ) );
-            // 'ReadGCode:51' CurvStruct.R1( 4 : end ) = deg2rad( CurvStruct.R1( 4 : end ) );
+            // 'ReadGCode:51' CurvStruct.R0( 4 : end ) = deg2rad( CurvStruct.R0( 4 : end ) );
+            // 'ReadGCode:52' CurvStruct.R1( 4 : end ) = deg2rad( CurvStruct.R1( 4 : end ) );
             r = _mm_loadu_pd(&b_CurvStruct->R0[3]);
             r1 = _mm_set1_pd(0.017453292519943295);
             _mm_storeu_pd(&b_CurvStruct->R0[3], _mm_mul_pd(r1, r));
@@ -165,8 +166,8 @@ void ReadGCode(ReadGCodeCmd cmd, const char filename_data[], const int filename_
             b_CurvStruct->R0[5] *= 0.017453292519943295;
             b_CurvStruct->R1[5] *= 0.017453292519943295;
         } else {
-            // 'ReadGCode:52' else
-            // 'ReadGCode:53' status = int32(0);
+            // 'ReadGCode:53' else
+            // 'ReadGCode:54' status = int32(0);
             b_status = 0;
         }
     }

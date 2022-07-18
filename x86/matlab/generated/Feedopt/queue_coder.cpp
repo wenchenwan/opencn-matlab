@@ -5,7 +5,7 @@
 // File: queue_coder.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 13-Jul-2022 14:15:57
+// C/C++ source code generated on  : 18-Jul-2022 08:54:02
 //
 
 // Include Files
@@ -14,21 +14,23 @@
 
 // Function Definitions
 //
-// function value = size(this)
+// function value = get(this, index)
 //
-// Arguments    : void
+// Arguments    : int b_index
+//                CurvStruct *value
 // Return Type  : void
 //
 namespace ocn {
-void queue_coder::b_size() const
+void queue_coder::get(int b_index, CurvStruct *value) const
 {
-    // 'queue_coder:35' coder.inline("never");
-    // 'queue_coder:36' value = queue_size(this.ptr);
-    // 'queue_size:2' if coder.target('matlab')
-    // 'queue_size:4' else
-    // 'queue_size:5' value = uint32(0);
-    // 'queue_size:6' value = coder.ceval('c_queue_size', uint64(ptr));
-    c_queue_size(ptr);
+    // 'queue_coder:20' coder.inline("never");
+    // 'queue_coder:21' value = queue_get(this.ptr, this.value_type, index);
+    *value = value_type;
+    // 'queue_get:2' if coder.target('matlab')
+    // 'queue_get:4' else
+    // 'queue_get:5' value = value_type;
+    // 'queue_get:6' coder.ceval('c_queue_get', uint64(ptr), uint32(index), coder.ref(value));
+    c_queue_get(ptr, static_cast<unsigned int>(b_index), value);
 }
 
 //
@@ -47,25 +49,6 @@ void queue_coder::get(CurvStruct *value) const
     // 'queue_get:5' value = value_type;
     // 'queue_get:6' coder.ceval('c_queue_get', uint64(ptr), uint32(index), coder.ref(value));
     c_queue_get(ptr, 1U, value);
-}
-
-//
-// function value = get(this, index)
-//
-// Arguments    : int b_index
-//                CurvStruct *value
-// Return Type  : void
-//
-void queue_coder::get(int b_index, CurvStruct *value) const
-{
-    // 'queue_coder:20' coder.inline("never");
-    // 'queue_coder:21' value = queue_get(this.ptr, this.value_type, index);
-    *value = value_type;
-    // 'queue_get:2' if coder.target('matlab')
-    // 'queue_get:4' else
-    // 'queue_get:5' value = value_type;
-    // 'queue_get:6' coder.ceval('c_queue_get', uint64(ptr), uint32(index), coder.ref(value));
-    c_queue_get(ptr, static_cast<unsigned int>(b_index), value);
 }
 
 //

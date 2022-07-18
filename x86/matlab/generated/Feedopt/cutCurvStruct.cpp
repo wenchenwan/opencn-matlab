@@ -5,7 +5,7 @@
 // File: cutCurvStruct.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 13-Jul-2022 14:15:57
+// C/C++ source code generated on  : 18-Jul-2022 08:54:02
 //
 
 // Include Files
@@ -163,7 +163,7 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         //  estimated starting from u quals to 1 to 0. It's used to cut a specific
         //  length at the beginning of the curv.
         // 'splineLengthFindU:13' ITER_MAX    = 1000;
-        // 'splineLengthFindU:14' DEFAULT_TOL = 1E-6;
+        // 'splineLengthFindU:14' DEFAULT_TOL = 1E-7;
         //  Get the sp structure
         // 'splineLengthFindU:17' sp     = spline.sp;
         // 'splineLengthFindU:19' IND_KNOTS_MULT  = sp.Bl.order;
@@ -398,11 +398,11 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
             // 'splineLengthFindU:79' uStart  = uLeft;
             uStart_tmp = Knots[static_cast<int>(kEnd) - 2];
             // 'splineLengthFindU:80' fk      = tol * 1.1;
-            fk = 1.1E-6;
+            fk = 1.1E-7;
             // 'splineLengthFindU:82' uMiddle = ( uLeft + uRight ) / 2;
             uMiddle = (uStart_tmp + uRight_tmp) / 2.0;
             // 'splineLengthFindU:84' while( count < iterMax && abs( fk ) > tol )
-            while ((count < 1000) && (std::abs(fk) > 1.0E-6)) {
+            while ((count < 1000) && (std::abs(fk) > 1.0E-7)) {
                 __m128d r10;
                 __m128d r11;
                 __m128d r12;
@@ -410,7 +410,9 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
                 __m128d r9;
                 double c_r1Dnorm;
                 int j_loop_ub;
-                // 'splineLengthFindU:85' fk  = splineLengthApprox_Interval( cfg, spline, uStart,
+                // 'splineLengthFindU:85' uMiddle = ( uLeft + uRight ) / 2;
+                uMiddle = (uLeft + uRight) / 2.0;
+                // 'splineLengthFindU:87' fk  = splineLengthApprox_Interval( cfg, spline, uStart,
                 // uMiddle, isEnd ) - LDiff;
                 //  computes approximately the arc length L with integration bounds u1 and u2.
                 //  IMPORTANT : u0 and u1 should lie in the same knot interval.
@@ -472,27 +474,25 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
                     c_r1Dnorm += d2 * ctx_cfg_GaussLegendreW[e_k];
                 }
                 fk = c_r1Dnorm * ((1.0 - uStart_tmp) - (1.0 - uMiddle)) / 2.0 - LDiff;
-                // 'splineLengthFindU:87' if( fk > 0 )
+                // 'splineLengthFindU:89' if( fk > 0 )
                 if (fk > 0.0) {
-                    // 'splineLengthFindU:88' uRight = uMiddle;
+                    // 'splineLengthFindU:90' uRight = uMiddle;
                     uRight = uMiddle;
                 } else {
-                    // 'splineLengthFindU:89' else
-                    // 'splineLengthFindU:90' uLeft  = uMiddle;
+                    // 'splineLengthFindU:91' else
+                    // 'splineLengthFindU:92' uLeft  = uMiddle;
                     uLeft = uMiddle;
                 }
-                // 'splineLengthFindU:92' uMiddle = ( uLeft + uRight ) / 2;
-                uMiddle = (uLeft + uRight) / 2.0;
-                // 'splineLengthFindU:93' count = count + 1;
+                // 'splineLengthFindU:94' count = count + 1;
                 count++;
             }
-            // 'splineLengthFindU:96' if( count >= iterMax )
+            // 'splineLengthFindU:97' if( count >= iterMax )
             if (count >= 1000) {
-                // 'splineLengthFindU:97' u = -1;
+                // 'splineLengthFindU:98' u = -1;
                 u = -1.0;
             } else {
-                // 'splineLengthFindU:98' else
-                // 'splineLengthFindU:99' u = uMiddle;
+                // 'splineLengthFindU:99' else
+                // 'splineLengthFindU:100' u = uMiddle;
                 u = uMiddle;
             }
             u_tilda = u;
@@ -707,7 +707,7 @@ void cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
         //  estimated starting from u quals to 1 to 0. It's used to cut a specific
         //  length at the beginning of the curv.
         // 'splineLengthFindU:13' ITER_MAX    = 1000;
-        // 'splineLengthFindU:14' DEFAULT_TOL = 1E-6;
+        // 'splineLengthFindU:14' DEFAULT_TOL = 1E-7;
         //  Get the sp structure
         // 'splineLengthFindU:17' sp     = spline.sp;
         // 'splineLengthFindU:19' IND_KNOTS_MULT  = sp.Bl.order;
@@ -897,11 +897,11 @@ void cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
             // 'splineLengthFindU:79' uStart  = uLeft;
             uStart = expl_temp.sp.knots[uRight_tmp - 1];
             // 'splineLengthFindU:80' fk      = tol * 1.1;
-            fk = 1.1E-6;
+            fk = 1.1E-7;
             // 'splineLengthFindU:82' uMiddle = ( uLeft + uRight ) / 2;
             uMiddle = (expl_temp.sp.knots[uRight_tmp - 1] + expl_temp.sp.knots[uRight_tmp]) / 2.0;
             // 'splineLengthFindU:84' while( count < iterMax && abs( fk ) > tol )
-            while ((count < 1000) && (std::abs(fk) > 1.0E-6)) {
+            while ((count < 1000) && (std::abs(fk) > 1.0E-7)) {
                 __m128d r10;
                 __m128d r11;
                 __m128d r12;
@@ -909,7 +909,9 @@ void cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
                 __m128d r9;
                 double c_r1Dnorm;
                 int h_loop_ub;
-                // 'splineLengthFindU:85' fk  = splineLengthApprox_Interval( cfg, spline, uStart,
+                // 'splineLengthFindU:85' uMiddle = ( uLeft + uRight ) / 2;
+                uMiddle = (uLeft + uRight) / 2.0;
+                // 'splineLengthFindU:87' fk  = splineLengthApprox_Interval( cfg, spline, uStart,
                 // uMiddle, isEnd ) - LDiff;
                 //  computes approximately the arc length L with integration bounds u1 and u2.
                 //  IMPORTANT : u0 and u1 should lie in the same knot interval.
@@ -970,27 +972,25 @@ void cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
                     c_r1Dnorm += d1 * ctx_cfg_GaussLegendreW[c_k];
                 }
                 fk = c_r1Dnorm * (uMiddle - uStart) / 2.0 - LDiff;
-                // 'splineLengthFindU:87' if( fk > 0 )
+                // 'splineLengthFindU:89' if( fk > 0 )
                 if (fk > 0.0) {
-                    // 'splineLengthFindU:88' uRight = uMiddle;
+                    // 'splineLengthFindU:90' uRight = uMiddle;
                     uRight = uMiddle;
                 } else {
-                    // 'splineLengthFindU:89' else
-                    // 'splineLengthFindU:90' uLeft  = uMiddle;
+                    // 'splineLengthFindU:91' else
+                    // 'splineLengthFindU:92' uLeft  = uMiddle;
                     uLeft = uMiddle;
                 }
-                // 'splineLengthFindU:92' uMiddle = ( uLeft + uRight ) / 2;
-                uMiddle = (uLeft + uRight) / 2.0;
-                // 'splineLengthFindU:93' count = count + 1;
+                // 'splineLengthFindU:94' count = count + 1;
                 count++;
             }
-            // 'splineLengthFindU:96' if( count >= iterMax )
+            // 'splineLengthFindU:97' if( count >= iterMax )
             if (count >= 1000) {
-                // 'splineLengthFindU:97' u = -1;
+                // 'splineLengthFindU:98' u = -1;
                 u_tilda = -1.0;
             } else {
-                // 'splineLengthFindU:98' else
-                // 'splineLengthFindU:99' u = uMiddle;
+                // 'splineLengthFindU:99' else
+                // 'splineLengthFindU:100' u = uMiddle;
                 u_tilda = uMiddle;
             }
             // 'splineLengthFindU:65' if( u < 0 )

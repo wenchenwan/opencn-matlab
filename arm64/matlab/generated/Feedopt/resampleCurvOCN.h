@@ -5,7 +5,7 @@
 // File: resampleCurvOCN.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 16:00:50
+// C/C++ source code generated on  : 18-Jul-2022 08:58:50
 //
 
 #ifndef RESAMPLECURVOCN_H
@@ -25,7 +25,9 @@
 namespace ocn {
 extern void resampleCurvOCN(ResampleStateClass *state, const BaseSplineStruct *Bl,
                             ZSpdMode curv_mode, const ::coder::array<double, 1U> &coeff,
-                            double constJerk, double dt, double curv_a, double curv_b);
+                            double constJerk, double dt, double curv_a, double curv_b,
+                            const ::coder::array<double, 1U> &GaussLegendreX,
+                            const ::coder::array<double, 1U> &GaussLegendreW);
 
 }
 

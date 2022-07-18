@@ -5,7 +5,7 @@
 // File: buildConstrJerk.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 16:00:50
+// C/C++ source code generated on  : 18-Jul-2022 08:58:50
 //
 
 #ifndef BUILDCONSTRJERK_H
@@ -33,14 +33,15 @@ struct CurvStruct;
 namespace ocn {
 void buildConstrJerk(
     const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
-    const int ctx_cfg_maskTot_size[2], const ::coder::array<bool, 2U> &ctx_cfg_maskCart,
-    const ::coder::array<bool, 2U> &ctx_cfg_maskRot, const ::coder::array<int, 1U> &ctx_cfg_indCart,
+    const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
+    const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
+    const int ctx_cfg_maskRot_size[2], const ::coder::array<int, 1U> &ctx_cfg_indCart,
     const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis, int ctx_cfg_NCart,
     int ctx_cfg_NRot, const Kinematics *ctx_kin, const ::coder::array<CurvStruct, 2U> &windowCurv,
     const ::coder::array<double, 2U> &coeff, const double jmax[6],
     const ::coder::array<double, 2U> &BasisVal, const ::coder::array<double, 2U> &BasisValD,
     const ::coder::array<double, 2U> &BasisValDD, const ::coder::array<double, 2U> &u_vec,
-    ::coder::array<double, 2U> &A, ::coder::array<double, 1U> &b);
+    ::coder::array<double, 2U> &Aj, ::coder::array<double, 1U> &bj);
 
 }
 

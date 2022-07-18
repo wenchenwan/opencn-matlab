@@ -5,7 +5,7 @@
 // File: splineLength.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 16:00:50
+// C/C++ source code generated on  : 18-Jul-2022 08:58:50
 //
 
 // Include Files
@@ -39,7 +39,11 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
                     const ::coder::array<double, 2U> &spline_sp_knots,
                     const ::coder::array<double, 2U> &spline_sp_Lk, double u1, double u2)
 {
-    static const char e_message[53]{
+    static const char d_message[54]{
+        'u', '1', ' ', 'm', 'u', 's', 't', ' ', 'b', 'e', ' ', 'g', 'r', 'e', 'a', 't', 'e', 'r',
+        ' ', 'o', 'r', ' ', 'e', 'q', 'u', 'a', 'l', ' ', 't', 'h', 'a', 'n', ' ', 't', 'h', 'e',
+        ' ', 'f', 'i', 'r', 's', 't', ' ', 's', 'p', 'l', 'i', 'n', 'e', ' ', 'k', 'n', 'o', 't'};
+    static const char f_message[53]{
         'u', '2', ' ', 'm', 'u', 's', 't', ' ', 'b', 'e', ' ', 's', 'm', 'a', 'l', 'l', 'e', 'r',
         ' ', 'o', 'r', ' ', 'e', 'q', 'u', 'a', 'l', ' ', 't', 'h', 'a', 'n', ' ', 't', 'h', 'e',
         ' ', 'l', 'a', 's', 't', ' ', 's', 'p', 'l', 'i', 'n', 'e', ' ', 'k', 'n', 'o', 't'};
@@ -70,7 +74,7 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
     int kStartVec_data;
     int loop_ub;
     char c_message[54];
-    char d_message[53];
+    char e_message[53];
     char message[26];
     // 'splineLength:3' sp = spline.sp;
     // 'splineLength:4' IND_KNOTS_MULT  = sp.Bl.order;
@@ -102,7 +106,7 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
     if (u1 < spline_sp_knots[i1 + 1]) {
         // 'c_assert:4' coder.ceval('c_assert_', message);
         for (int i4{0}; i4 < 54; i4++) {
-            c_message[i4] = cv1[i4];
+            c_message[i4] = d_message[i4];
         }
         c_assert_(&c_message[0]);
     }
@@ -112,9 +116,9 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
     if (u2 > spline_sp_knots[i2]) {
         // 'c_assert:4' coder.ceval('c_assert_', message);
         for (int i5{0}; i5 < 53; i5++) {
-            d_message[i5] = e_message[i5];
+            e_message[i5] = f_message[i5];
         }
-        c_assert_(&d_message[0]);
+        c_assert_(&e_message[0]);
     }
     // 'c_assert:6' value = condition;
     // 'splineLength:13' kStartVec  = find( Knots <= u1, 1, "last" );

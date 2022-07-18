@@ -5,7 +5,7 @@
 // File: resampleCurvOCN.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 16:00:50
+// C/C++ source code generated on  : 18-Jul-2022 08:58:50
 //
 
 // Include Files
@@ -19,9 +19,9 @@
 
 // Function Definitions
 //
-// function [ state ] = resampleCurvOCN(state, Bl, curv_mode, ...
+// function [ state ] = resampleCurvOCN( state, Bl, curv_mode, ...
 //     coeff, constJerk, dt, ...
-//     curv_a, curv_b)
+//     curv_a, curv_b, GaussLegendreX, GaussLegendreW )
 //
 // resampleCurvOCN :
 //  Interface for the resampling in ocn
@@ -34,19 +34,23 @@
 //                double dt
 //                double curv_a
 //                double curv_b
+//                const ::coder::array<double, 1U> &GaussLegendreX
+//                const ::coder::array<double, 1U> &GaussLegendreW
 // Return Type  : void
 //
 namespace ocn {
 void resampleCurvOCN(ResampleStateClass *state, const BaseSplineStruct *Bl, ZSpdMode curv_mode,
                      const ::coder::array<double, 1U> &coeff, double constJerk, double dt, double,
-                     double)
+                     double, const ::coder::array<double, 1U> &GaussLegendreX,
+                     const ::coder::array<double, 1U> &GaussLegendreW)
 {
     if (!isInitialized_opencn_matlab) {
         opencn_matlab_initialize();
     }
     // 'resampleCurvOCN:6' [ state ] = resampleCurv(state, Bl, curv_mode, coeff, constJerk, dt, ...
-    // 'resampleCurvOCN:7'             curv_a, curv_b);
-    resampleCurv(state, Bl->handle, curv_mode, coeff, constJerk, dt);
+    // 'resampleCurvOCN:7'             curv_a, curv_b, GaussLegendreX, GaussLegendreW );
+    resampleCurv(state, Bl->handle, curv_mode, coeff, constJerk, dt, GaussLegendreX,
+                 GaussLegendreW);
 }
 
 } // namespace ocn

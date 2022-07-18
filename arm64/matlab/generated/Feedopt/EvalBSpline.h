@@ -5,7 +5,7 @@
 // File: EvalBSpline.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 16:00:50
+// C/C++ source code generated on  : 18-Jul-2022 08:58:50
 //
 
 #ifndef EVALBSPLINE_H
@@ -25,13 +25,7 @@ void EvalBSpline(unsigned long spline_sp_Bl_handle,
                  const ::coder::array<double, 2U> &spline_sp_coeff, const double u_vec[5],
                  ::coder::array<double, 2U> &r0D, ::coder::array<double, 2U> &r1D);
 
-void EvalBSpline(unsigned long spline_sp_Bl_handle,
-                 const ::coder::array<double, 2U> &spline_sp_coeff,
-                 const ::coder::array<double, 2U> &u_vec, ::coder::array<double, 2U> &r0D,
-                 ::coder::array<double, 2U> &r1D, ::coder::array<double, 2U> &r2D,
-                 ::coder::array<double, 2U> &r3D);
-
-} // namespace ocn
+}
 
 #endif
 //

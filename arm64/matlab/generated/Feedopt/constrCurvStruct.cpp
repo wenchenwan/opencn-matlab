@@ -5,7 +5,7 @@
 // File: constrCurvStruct.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 16:00:50
+// C/C++ source code generated on  : 18-Jul-2022 08:58:50
 //
 
 // Include Files
@@ -545,8 +545,7 @@ void constrCurvStruct(const GcodeInfoStruct *gcodeInfoStruct, const SplineStruct
 //  Ouputs:
 //  CStrct    : The resulting structure
 //
-// Arguments    : ZSpdMode gcodeInfoStruct_zspdmode
-//                bool gcodeInfoStruct_TRAFO
+// Arguments    : bool gcodeInfoStruct_TRAFO
 //                bool gcodeInfoStruct_HSC
 //                double gcodeInfoStruct_FeedRate
 //                double gcodeInfoStruct_SpindleSpeed
@@ -569,10 +568,10 @@ void constrCurvStruct(const GcodeInfoStruct *gcodeInfoStruct, const SplineStruct
 //                CurvStruct *CStrct
 // Return Type  : void
 //
-void d_constrCurvStruct(ZSpdMode gcodeInfoStruct_zspdmode, bool gcodeInfoStruct_TRAFO,
-                        bool gcodeInfoStruct_HSC, double gcodeInfoStruct_FeedRate,
-                        double gcodeInfoStruct_SpindleSpeed, int gcodeInfoStruct_gcode_source_line,
-                        bool gcodeInfoStruct_G91, bool gcodeInfoStruct_G91_1, int spline_Bl_ncoeff,
+void d_constrCurvStruct(bool gcodeInfoStruct_TRAFO, bool gcodeInfoStruct_HSC,
+                        double gcodeInfoStruct_FeedRate, double gcodeInfoStruct_SpindleSpeed,
+                        int gcodeInfoStruct_gcode_source_line, bool gcodeInfoStruct_G91,
+                        bool gcodeInfoStruct_G91_1, int spline_Bl_ncoeff,
                         const ::coder::array<double, 2U> &spline_Bl_breakpoints,
                         unsigned long spline_Bl_handle, int spline_Bl_order,
                         const ::coder::array<double, 2U> &spline_coeff,
@@ -607,7 +606,7 @@ void d_constrCurvStruct(ZSpdMode gcodeInfoStruct_zspdmode, bool gcodeInfoStruct_
     // 'constrCurvStruct:40'     'b_param', 0 ...
     // 'constrCurvStruct:41'     );
     CStrct->Info.Type = CurveType_TransP5;
-    CStrct->Info.zspdmode = gcodeInfoStruct_zspdmode;
+    CStrct->Info.zspdmode = ZSpdMode_NN;
     CStrct->Info.TRAFO = gcodeInfoStruct_TRAFO;
     CStrct->Info.HSC = gcodeInfoStruct_HSC;
     CStrct->Info.FeedRate = gcodeInfoStruct_FeedRate;

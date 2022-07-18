@@ -5,7 +5,7 @@
 // File: ResampleState.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 16:00:50
+// C/C++ source code generated on  : 18-Jul-2022 08:58:50
 //
 
 // Include Files
@@ -31,17 +31,19 @@ void ResampleState(double dt, ResampleStateClass *state)
     // 'ResampleState:2' coder.inline("never");
     // 'ResampleState:3' state = ResampleStateClass(dt);
     state->dt = dt;
-    // 'ResampleStateClass:12' this.u              = 0;
+    // 'ResampleStateClass:13' this.u              = 0;
     state->u = 0.0;
-    // 'ResampleStateClass:13' this.ud             = 0;
+    // 'ResampleStateClass:14' this.ud             = 0;
     state->ud = 0.0;
-    // 'ResampleStateClass:14' this.go_next        = false;
+    // 'ResampleStateClass:15' this.udd            = 0;
+    state->udd = 0.0;
+    // 'ResampleStateClass:16' this.go_next        = false;
     state->go_next = false;
-    // 'ResampleStateClass:15' this.isOutsideRange = false;
+    // 'ResampleStateClass:17' this.isOutsideRange = false;
     state->isOutsideRange = false;
-    // 'ResampleStateClass:16' this.dt             = dt;
-    // 'ResampleStateClass:6' double
-    // 'ResampleStateClass:6' dt
+    // 'ResampleStateClass:18' this.dt             = dt;
+    // 'ResampleStateClass:7' double
+    // 'ResampleStateClass:7' dt
 }
 
 } // namespace ocn

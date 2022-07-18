@@ -45,7 +45,7 @@ elseif evec(2) > 0.5    % ZX
     phi0 = atan2(R1(3), R1(1));
     
 else                    % XY
-    indXY = [1,2];
+    indXY = [1, 2];
     [~, Cprim, delta] = CorrectArcCenter(P0(indXY), P1(indXY), C(indXY));
     Cprim = [Cprim(1), Cprim(2), C( 3 )]';
     R0 = cross(evec, P0 - Cprim);

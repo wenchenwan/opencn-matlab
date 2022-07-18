@@ -5,7 +5,7 @@
 // File: constrHelixStructFromArcFeed.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 16:00:50
+// C/C++ source code generated on  : 18-Jul-2022 08:58:50
 //
 
 // Include Files
@@ -163,7 +163,7 @@ void constrHelixStructFromArcFeed(const GcodeInfoStruct *gcodeInfoStruct, const 
         double b_idx_2;
         // 'constrHelixStructFromArcFeed:47' else
         //  XY
-        // 'constrHelixStructFromArcFeed:48' indXY = [1,2];
+        // 'constrHelixStructFromArcFeed:48' indXY = [1, 2];
         // 'constrHelixStructFromArcFeed:49' [~, Cprim, delta] = CorrectArcCenter(P0(indXY),
         // P1(indXY), C(indXY));
         Cprim[0] = C[0];

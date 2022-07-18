@@ -5,7 +5,7 @@
 // File: queue_coder.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 16:00:50
+// C/C++ source code generated on  : 18-Jul-2022 08:58:50
 //
 
 // Include Files
@@ -148,6 +148,23 @@ void queue_coder::rget(CurvStruct *value) const
     // 'queue_coder:31' value = this.get(this.size - index + 1);
     size();
     get(size(), value);
+}
+
+//
+// function set(this, index, value)
+//
+// Arguments    : int b_index
+//                const CurvStruct *value
+// Return Type  : void
+//
+void queue_coder::set(int b_index, const CurvStruct *value) const
+{
+    // 'queue_coder:25' coder.inline("never");
+    // 'queue_coder:26' queue_set(this.ptr, index, value);
+    // 'queue_set:2' if coder.target('matlab')
+    // 'queue_set:4' else
+    // 'queue_set:5' coder.ceval('c_queue_set', uint64(ptr), uint32(index), value);
+    c_queue_set(ptr, static_cast<unsigned int>(b_index), *value);
 }
 
 //

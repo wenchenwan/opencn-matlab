@@ -5,7 +5,7 @@
 // File: EvalTransP5.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 16:00:50
+// C/C++ source code generated on  : 18-Jul-2022 08:58:50
 //
 
 // Include Files
@@ -39,10 +39,10 @@ void EvalTransP5(const ::coder::array<double, 2U> &CurvStruct_CoeffP5,
     ::coder::array<double, 2U> D2;
     ::coder::array<double, 2U> D3;
     ::coder::array<double, 2U> d_b;
-    ::coder::array<double, 2U> e_b;
     ::coder::array<double, 2U> p5_1D;
     ::coder::array<double, 2U> p5_2D;
     ::coder::array<double, 2U> p5_3D;
+    ::coder::array<double, 2U> r;
     ::coder::array<signed char, 2U> b;
     ::coder::array<signed char, 2U> b_b;
     ::coder::array<signed char, 2U> c_b;
@@ -180,22 +180,10 @@ void EvalTransP5(const ::coder::array<double, 2U> &CurvStruct_CoeffP5,
     }
     // 'mypolyval:12' for i=2:nc
     for (int b_i{0}; b_i < 5; b_i++) {
-        int i12;
+        int i11;
         int i13;
         // 'mypolyval:13' y = repmat(x, nD, 1) .* y + repmat(p(:, i), 1, siz_x);
-        d_b.set_size(CurvStruct_CoeffP5.size(0), u_vec.size(1));
-        if ((CurvStruct_CoeffP5.size(0) != 0) && (u_vec.size(1) != 0)) {
-            int b_na;
-            b_na = u_vec.size(1);
-            for (int e_k{0}; e_k < b_na; e_k++) {
-                int i11;
-                i11 = CurvStruct_CoeffP5.size(0) - 1;
-                for (int f_t{0}; f_t <= i11; f_t++) {
-                    d_b[f_t + d_b.size(0) * e_k] = u_vec[e_k];
-                }
-            }
-        }
-        e_b.set_size(CurvStruct_CoeffP5.size(0), u_vec.size(1));
+        r.set_size(CurvStruct_CoeffP5.size(0), u_vec.size(1));
         if ((CurvStruct_CoeffP5.size(0) != 0) && (u_vec.size(1) != 0)) {
             int i10;
             i10 = u_vec.size(1) - 1;
@@ -203,37 +191,49 @@ void EvalTransP5(const ::coder::array<double, 2U> &CurvStruct_CoeffP5,
                 int c_na;
                 c_na = CurvStruct_CoeffP5.size(0) - 1;
                 for (int f_k{0}; f_k <= c_na; f_k++) {
-                    e_b[f_k + e_b.size(0) * e_t] =
+                    r[f_k + r.size(0) * e_t] =
                         CurvStruct_CoeffP5[f_k + CurvStruct_CoeffP5.size(0) * (b_i + 1)];
                 }
             }
         }
+        d_b.set_size(CurvStruct_CoeffP5.size(0), u_vec.size(1));
+        if ((CurvStruct_CoeffP5.size(0) != 0) && (u_vec.size(1) != 0)) {
+            int b_na;
+            b_na = u_vec.size(1);
+            for (int e_k{0}; e_k < b_na; e_k++) {
+                int i12;
+                i12 = CurvStruct_CoeffP5.size(0) - 1;
+                for (int f_t{0}; f_t <= i12; f_t++) {
+                    d_b[f_t + d_b.size(0) * e_k] = u_vec[e_k];
+                }
+            }
+        }
         if (d_b.size(0) == 1) {
-            i12 = D0.size(0);
+            i11 = D0.size(0);
         } else {
-            i12 = d_b.size(0);
+            i11 = d_b.size(0);
         }
         if (d_b.size(1) == 1) {
             i13 = D0.size(1);
         } else {
             i13 = d_b.size(1);
         }
-        if ((d_b.size(0) == D0.size(0)) && (d_b.size(1) == D0.size(1)) && (i12 == e_b.size(0)) &&
-            (i13 == e_b.size(1))) {
+        if ((d_b.size(0) == D0.size(0)) && (d_b.size(1) == D0.size(1)) && (i11 == r.size(0)) &&
+            (i13 == r.size(1))) {
             int d_loop_ub;
             D0.set_size(d_b.size(0), d_b.size(1));
             d_loop_ub = d_b.size(1);
             for (int i15{0}; i15 < d_loop_ub; i15++) {
                 int e_loop_ub;
                 e_loop_ub = d_b.size(0);
-                for (int i16{0}; i16 < e_loop_ub; i16++) {
-                    D0[i16 + D0.size(0) * i15] =
-                        d_b[i16 + d_b.size(0) * i15] * D0[i16 + D0.size(0) * i15] +
-                        e_b[i16 + e_b.size(0) * i15];
+                for (int i17{0}; i17 < e_loop_ub; i17++) {
+                    D0[i17 + D0.size(0) * i15] =
+                        d_b[i17 + d_b.size(0) * i15] * D0[i17 + D0.size(0) * i15] +
+                        r[i17 + r.size(0) * i15];
                 }
             }
         } else {
-            binary_expand_op(D0, d_b, e_b);
+            binary_expand_op(D0, d_b, r);
         }
     }
     // 'EvalTransP5:14' D1 = mypolyval(p5_1D, u_vec);
@@ -260,59 +260,59 @@ void EvalTransP5(const ::coder::array<double, 2U> &CurvStruct_CoeffP5,
     }
     // 'mypolyval:12' for i=2:nc
     for (int c_i{0}; c_i < 4; c_i++) {
-        int i19;
+        int i18;
         int i20;
         // 'mypolyval:13' y = repmat(x, nD, 1) .* y + repmat(p(:, i), 1, siz_x);
+        r.set_size(p5_1D.size(0), u_vec.size(1));
+        if ((p5_1D.size(0) != 0) && (u_vec.size(1) != 0)) {
+            int i16;
+            i16 = u_vec.size(1) - 1;
+            for (int h_t{0}; h_t <= i16; h_t++) {
+                int f_na;
+                f_na = p5_1D.size(0) - 1;
+                for (int i_k{0}; i_k <= f_na; i_k++) {
+                    r[i_k + r.size(0) * h_t] = p5_1D[i_k + p5_1D.size(0) * (c_i + 1)];
+                }
+            }
+        }
         d_b.set_size(p5_1D.size(0), u_vec.size(1));
         if ((p5_1D.size(0) != 0) && (u_vec.size(1) != 0)) {
             int e_na;
             e_na = u_vec.size(1);
             for (int h_k{0}; h_k < e_na; h_k++) {
-                int i18;
-                i18 = p5_1D.size(0) - 1;
-                for (int i_t{0}; i_t <= i18; i_t++) {
+                int i19;
+                i19 = p5_1D.size(0) - 1;
+                for (int i_t{0}; i_t <= i19; i_t++) {
                     d_b[i_t + d_b.size(0) * h_k] = u_vec[h_k];
                 }
             }
         }
-        e_b.set_size(p5_1D.size(0), u_vec.size(1));
-        if ((p5_1D.size(0) != 0) && (u_vec.size(1) != 0)) {
-            int i17;
-            i17 = u_vec.size(1) - 1;
-            for (int h_t{0}; h_t <= i17; h_t++) {
-                int f_na;
-                f_na = p5_1D.size(0) - 1;
-                for (int i_k{0}; i_k <= f_na; i_k++) {
-                    e_b[i_k + e_b.size(0) * h_t] = p5_1D[i_k + p5_1D.size(0) * (c_i + 1)];
-                }
-            }
-        }
         if (d_b.size(0) == 1) {
-            i19 = D1.size(0);
+            i18 = D1.size(0);
         } else {
-            i19 = d_b.size(0);
+            i18 = d_b.size(0);
         }
         if (d_b.size(1) == 1) {
             i20 = D1.size(1);
         } else {
             i20 = d_b.size(1);
         }
-        if ((d_b.size(0) == D1.size(0)) && (d_b.size(1) == D1.size(1)) && (i19 == e_b.size(0)) &&
-            (i20 == e_b.size(1))) {
+        if ((d_b.size(0) == D1.size(0)) && (d_b.size(1) == D1.size(1)) && (i18 == r.size(0)) &&
+            (i20 == r.size(1))) {
             int f_loop_ub;
             D1.set_size(d_b.size(0), d_b.size(1));
             f_loop_ub = d_b.size(1);
             for (int i22{0}; i22 < f_loop_ub; i22++) {
                 int g_loop_ub;
                 g_loop_ub = d_b.size(0);
-                for (int i23{0}; i23 < g_loop_ub; i23++) {
-                    D1[i23 + D1.size(0) * i22] =
-                        d_b[i23 + d_b.size(0) * i22] * D1[i23 + D1.size(0) * i22] +
-                        e_b[i23 + e_b.size(0) * i22];
+                for (int i24{0}; i24 < g_loop_ub; i24++) {
+                    D1[i24 + D1.size(0) * i22] =
+                        d_b[i24 + d_b.size(0) * i22] * D1[i24 + D1.size(0) * i22] +
+                        r[i24 + r.size(0) * i22];
                 }
             }
         } else {
-            binary_expand_op(D1, d_b, e_b);
+            binary_expand_op(D1, d_b, r);
         }
     }
     // 'EvalTransP5:15' D2 = mypolyval(p5_2D, u_vec);
@@ -339,59 +339,59 @@ void EvalTransP5(const ::coder::array<double, 2U> &CurvStruct_CoeffP5,
     }
     // 'mypolyval:12' for i=2:nc
     for (int d_i{0}; d_i < 3; d_i++) {
-        int i26;
+        int i25;
         int i27;
         // 'mypolyval:13' y = repmat(x, nD, 1) .* y + repmat(p(:, i), 1, siz_x);
+        r.set_size(p5_2D.size(0), u_vec.size(1));
+        if ((p5_2D.size(0) != 0) && (u_vec.size(1) != 0)) {
+            int i23;
+            i23 = u_vec.size(1) - 1;
+            for (int k_t{0}; k_t <= i23; k_t++) {
+                int i_na;
+                i_na = p5_2D.size(0) - 1;
+                for (int l_k{0}; l_k <= i_na; l_k++) {
+                    r[l_k + r.size(0) * k_t] = p5_2D[l_k + p5_2D.size(0) * (d_i + 1)];
+                }
+            }
+        }
         d_b.set_size(p5_2D.size(0), u_vec.size(1));
         if ((p5_2D.size(0) != 0) && (u_vec.size(1) != 0)) {
             int h_na;
             h_na = u_vec.size(1);
             for (int k_k{0}; k_k < h_na; k_k++) {
-                int i25;
-                i25 = p5_2D.size(0) - 1;
-                for (int l_t{0}; l_t <= i25; l_t++) {
+                int i26;
+                i26 = p5_2D.size(0) - 1;
+                for (int l_t{0}; l_t <= i26; l_t++) {
                     d_b[l_t + d_b.size(0) * k_k] = u_vec[k_k];
                 }
             }
         }
-        e_b.set_size(p5_2D.size(0), u_vec.size(1));
-        if ((p5_2D.size(0) != 0) && (u_vec.size(1) != 0)) {
-            int i24;
-            i24 = u_vec.size(1) - 1;
-            for (int k_t{0}; k_t <= i24; k_t++) {
-                int i_na;
-                i_na = p5_2D.size(0) - 1;
-                for (int l_k{0}; l_k <= i_na; l_k++) {
-                    e_b[l_k + e_b.size(0) * k_t] = p5_2D[l_k + p5_2D.size(0) * (d_i + 1)];
-                }
-            }
-        }
         if (d_b.size(0) == 1) {
-            i26 = D2.size(0);
+            i25 = D2.size(0);
         } else {
-            i26 = d_b.size(0);
+            i25 = d_b.size(0);
         }
         if (d_b.size(1) == 1) {
             i27 = D2.size(1);
         } else {
             i27 = d_b.size(1);
         }
-        if ((d_b.size(0) == D2.size(0)) && (d_b.size(1) == D2.size(1)) && (i26 == e_b.size(0)) &&
-            (i27 == e_b.size(1))) {
+        if ((d_b.size(0) == D2.size(0)) && (d_b.size(1) == D2.size(1)) && (i25 == r.size(0)) &&
+            (i27 == r.size(1))) {
             int h_loop_ub;
             D2.set_size(d_b.size(0), d_b.size(1));
             h_loop_ub = d_b.size(1);
             for (int i29{0}; i29 < h_loop_ub; i29++) {
                 int j_loop_ub;
                 j_loop_ub = d_b.size(0);
-                for (int i30{0}; i30 < j_loop_ub; i30++) {
-                    D2[i30 + D2.size(0) * i29] =
-                        d_b[i30 + d_b.size(0) * i29] * D2[i30 + D2.size(0) * i29] +
-                        e_b[i30 + e_b.size(0) * i29];
+                for (int i31{0}; i31 < j_loop_ub; i31++) {
+                    D2[i31 + D2.size(0) * i29] =
+                        d_b[i31 + d_b.size(0) * i29] * D2[i31 + D2.size(0) * i29] +
+                        r[i31 + r.size(0) * i29];
                 }
             }
         } else {
-            binary_expand_op(D2, d_b, e_b);
+            binary_expand_op(D2, d_b, r);
         }
     }
     // 'EvalTransP5:16' D3 = mypolyval(p5_3D, u_vec);
@@ -418,45 +418,45 @@ void EvalTransP5(const ::coder::array<double, 2U> &CurvStruct_CoeffP5,
     }
     // 'mypolyval:12' for i=2:nc
     for (int e_i{0}; e_i < 2; e_i++) {
-        int i35;
+        int i34;
         int i36;
         // 'mypolyval:13' y = repmat(x, nD, 1) .* y + repmat(p(:, i), 1, siz_x);
+        r.set_size(p5_3D.size(0), u_vec.size(1));
+        if ((p5_3D.size(0) != 0) && (u_vec.size(1) != 0)) {
+            int i30;
+            i30 = u_vec.size(1) - 1;
+            for (int n_t{0}; n_t <= i30; n_t++) {
+                int l_na;
+                l_na = p5_3D.size(0) - 1;
+                for (int o_k{0}; o_k <= l_na; o_k++) {
+                    r[o_k + r.size(0) * n_t] = p5_3D[o_k + p5_3D.size(0) * (e_i + 1)];
+                }
+            }
+        }
         d_b.set_size(p5_3D.size(0), u_vec.size(1));
         if ((p5_3D.size(0) != 0) && (u_vec.size(1) != 0)) {
             int k_na;
             k_na = u_vec.size(1);
             for (int n_k{0}; n_k < k_na; n_k++) {
-                int i33;
-                i33 = p5_3D.size(0) - 1;
-                for (int o_t{0}; o_t <= i33; o_t++) {
+                int i35;
+                i35 = p5_3D.size(0) - 1;
+                for (int o_t{0}; o_t <= i35; o_t++) {
                     d_b[o_t + d_b.size(0) * n_k] = u_vec[n_k];
                 }
             }
         }
-        e_b.set_size(p5_3D.size(0), u_vec.size(1));
-        if ((p5_3D.size(0) != 0) && (u_vec.size(1) != 0)) {
-            int i32;
-            i32 = u_vec.size(1) - 1;
-            for (int n_t{0}; n_t <= i32; n_t++) {
-                int l_na;
-                l_na = p5_3D.size(0) - 1;
-                for (int o_k{0}; o_k <= l_na; o_k++) {
-                    e_b[o_k + e_b.size(0) * n_t] = p5_3D[o_k + p5_3D.size(0) * (e_i + 1)];
-                }
-            }
-        }
         if (d_b.size(0) == 1) {
-            i35 = D3.size(0);
+            i34 = D3.size(0);
         } else {
-            i35 = d_b.size(0);
+            i34 = d_b.size(0);
         }
         if (d_b.size(1) == 1) {
             i36 = D3.size(1);
         } else {
             i36 = d_b.size(1);
         }
-        if ((d_b.size(0) == D3.size(0)) && (d_b.size(1) == D3.size(1)) && (i35 == e_b.size(0)) &&
-            (i36 == e_b.size(1))) {
+        if ((d_b.size(0) == D3.size(0)) && (d_b.size(1) == D3.size(1)) && (i34 == r.size(0)) &&
+            (i36 == r.size(1))) {
             int n_loop_ub;
             D3.set_size(d_b.size(0), d_b.size(1));
             n_loop_ub = d_b.size(1);
@@ -466,11 +466,11 @@ void EvalTransP5(const ::coder::array<double, 2U> &CurvStruct_CoeffP5,
                 for (int i40{0}; i40 < p_loop_ub; i40++) {
                     D3[i40 + D3.size(0) * i39] =
                         d_b[i40 + d_b.size(0) * i39] * D3[i40 + D3.size(0) * i39] +
-                        e_b[i40 + e_b.size(0) * i39];
+                        r[i40 + r.size(0) * i39];
                 }
             }
         } else {
-            binary_expand_op(D3, d_b, e_b);
+            binary_expand_op(D3, d_b, r);
         }
     }
     // 'EvalTransP5:18' r_0D = D0(1:nAxis, :);
@@ -481,9 +481,9 @@ void EvalTransP5(const ::coder::array<double, 2U> &CurvStruct_CoeffP5,
     }
     k_loop_ub = D0.size(1);
     r_0D.set_size(i_loop_ub, D0.size(1));
-    for (int i31{0}; i31 < k_loop_ub; i31++) {
-        for (int i34{0}; i34 < i_loop_ub; i34++) {
-            r_0D[i34 + r_0D.size(0) * i31] = D0[i34 + D0.size(0) * i31];
+    for (int i32{0}; i32 < k_loop_ub; i32++) {
+        for (int i33{0}; i33 < i_loop_ub; i33++) {
+            r_0D[i33 + r_0D.size(0) * i32] = D0[i33 + D0.size(0) * i32];
         }
     }
     // 'EvalTransP5:19' r_1D = D1(1:nAxis, :);

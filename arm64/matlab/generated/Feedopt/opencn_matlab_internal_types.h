@@ -5,7 +5,7 @@
 // File: opencn_matlab_internal_types.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 16:00:50
+// C/C++ source code generated on  : 18-Jul-2022 08:58:50
 //
 
 #ifndef OPENCN_MATLAB_INTERNAL_TYPES_H
@@ -17,66 +17,22 @@
 #include "opencn_matlab_types3.h"
 #include "queue_coder.h"
 #include "rtwtypes.h"
-#include "string1.h"
 #include "coder_array.h"
 
 // Custom Header Code
 #include "functions.h"
 // Type Definitions
 namespace ocn {
+struct emxArray_char_T_1x9 {
+    char data[9];
+    int size[2];
+};
+
 enum TransitionResult : int
 {
     TransitionResult_Ok = 0, // Default value
     TransitionResult_Collinear,
     TransitionResult_NoSolution
-};
-
-struct c_FeedoptConfig {
-    emxArray_boolean_T_1x6 maskTot;
-    ::coder::array<bool, 2U> maskCart;
-    ::coder::array<bool, 2U> maskRot;
-    ::coder::array<int, 1U> indCart;
-    ::coder::array<int, 1U> indRot;
-    int NumberAxis;
-    int NCart;
-    int NRot;
-    ::coder::array<double, 1U> kin_params;
-    coder::rtString kin_type;
-    int NDiscr;
-    int NBreak;
-    bool UseDynamicBreakpoints;
-    bool UseLinearBreakpoints;
-    double DynamicBreakpointsDistance;
-    int NHorz;
-    double fmax;
-    double smax;
-    double vmax[6];
-    double amax[6];
-    double jmax[6];
-    int LeeSplineDegree;
-    int SplineDegree;
-    double CutOff;
-    double LSplit;
-    double LSplitZero;
-    double LThreshold;
-    double CuspThreshold;
-    double v_0;
-    double at_0;
-    double v_1;
-    double at_1;
-    double dt;
-    double ZeroStartAccLimit;
-    double ZeroStartJerkLimit;
-    double ZeroStartVelLimit;
-    char source[1024];
-    bool DebugCutZero;
-    struct0_T Compressing;
-    double ColTolCosSmooth;
-    double GaussLegendreN;
-    double GaussLegendreX[5];
-    double GaussLegendreW[5];
-    LPCfg opt;
-    char LogFileName[9];
 };
 
 struct b_FeedoptContext {
@@ -103,7 +59,7 @@ struct b_FeedoptContext {
     double v_1;
     double at_0;
     double at_1;
-    c_FeedoptConfig cfg;
+    b_FeedoptConfig cfg;
     FeedoptPlanError errcode;
     int jmax_increase_count;
     bool zero_start;

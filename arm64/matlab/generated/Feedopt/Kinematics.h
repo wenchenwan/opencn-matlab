@@ -5,7 +5,7 @@
 // File: Kinematics.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 16:00:50
+// C/C++ source code generated on  : 18-Jul-2022 08:58:50
 //
 
 #ifndef KINEMATICS_H
@@ -13,7 +13,6 @@
 
 // Include Files
 #include "rtwtypes.h"
-#include "string1.h"
 #include "coder_array.h"
 #include <cstddef>
 #include <cstdlib>
@@ -24,6 +23,9 @@
 namespace ocn {
 class Kinematics {
   public:
+    void init(const char b_type[5], const double parameters_data[], int parameters_size);
+    void v_joint(const ::coder::array<double, 1U> &r_r, const ::coder::array<double, 1U> &v_r,
+                 ::coder::array<double, 1U> &v_a) const;
     void joint(const ::coder::array<double, 2U> &r_r, const ::coder::array<double, 2U> &v_r,
                const ::coder::array<double, 2U> &a_r, const ::coder::array<double, 2U> &j_r,
                ::coder::array<double, 2U> &r_a, ::coder::array<double, 2U> &v_a,
@@ -35,7 +37,7 @@ class Kinematics {
                ::coder::array<double, 2U> &v_a, ::coder::array<double, 2U> &a_a) const;
     Kinematics();
     ~Kinematics();
-    coder::rtString type;
+    char type[5];
     ::coder::array<double, 1U> parameters;
 };
 

@@ -5,7 +5,7 @@
 // File: calcTransition.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 16:00:50
+// C/C++ source code generated on  : 18-Jul-2022 08:58:50
 //
 
 // Include Files
@@ -13,528 +13,454 @@
 #include "EvalCurvStruct.h"
 #include "G2_Hermite_Interpolation_nAxis.h"
 #include "LengthCurv.h"
-#include "combineVectorElements.h"
+#include "calc_t_nk_kappa.h"
 #include "constrTransP5Struct.h"
-#include "cutCurvStructU.h"
+#include "cutCurvStruct.h"
 #include "norm.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_internal_types.h"
 #include "opencn_matlab_types1.h"
 #include "opencn_matlab_types2.h"
-#include "opencn_matlab_types3.h"
 #include "queue_coder.h"
-#include "splineLength.h"
+#include "sum.h"
 #include "coder_array.h"
 #include <cmath>
 
+// Function Declarations
+namespace ocn {
+static bool check_continuity(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
+                             const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
+                             const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
+                             const int ctx_cfg_maskRot_size[2],
+                             const ::coder::array<int, 1U> &ctx_cfg_indCart,
+                             const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
+                             int ctx_cfg_NCart, int ctx_cfg_NRot,
+                             double ctx_cfg_Smoothing_ColTolCosSmooth,
+                             double ctx_cfg_Smoothing_ColTolSmooth, const CurvStruct *curv1,
+                             const CurvStruct *curv2);
+
+}
+
 // Function Definitions
 //
-// function [CurvStruct1_C, CurvStruct_T, CurvStruct2_C, status]  = ...
-//     calcTransition(ctx, CurvStruct1, CurvStruct2)
-//
-// CalcTransition : Compute a transition curve using on a polynome of degree
-//  5.
-//
-//  ctx           : The context
-//  CurvStruct1   : Current structure of the curve
-//  CurvStruct2   : Next structure of the curve
-//
-//  CurvStruct1_C : New calculated curve structure (replace CurvStruct1)
-//  CurvStruct_T  : New calculated transition curve
-//  CurvStruct2_C : New calculated curve structure (replace CurvStruct2)
-//  status        : Status of the compuation see TransitionResult
+// function [ isValid ] = check_continuity( ctx, curv1, curv2 )
 //
 // Arguments    : const queue_coder *ctx_q_spline
 //                const bool ctx_cfg_maskTot_data[]
 //                const int ctx_cfg_maskTot_size[2]
-//                const ::coder::array<bool, 2U> &ctx_cfg_maskCart
-//                const ::coder::array<bool, 2U> &ctx_cfg_maskRot
+//                const bool ctx_cfg_maskCart_data[]
+//                const int ctx_cfg_maskCart_size[2]
+//                const bool ctx_cfg_maskRot_data[]
+//                const int ctx_cfg_maskRot_size[2]
 //                const ::coder::array<int, 1U> &ctx_cfg_indCart
 //                const ::coder::array<int, 1U> &ctx_cfg_indRot
 //                int ctx_cfg_NumberAxis
 //                int ctx_cfg_NCart
 //                int ctx_cfg_NRot
-//                double ctx_cfg_CutOff
-//                double ctx_cfg_ColTolCosSmooth
-//                const double ctx_cfg_GaussLegendreX[5]
-//                const double ctx_cfg_GaussLegendreW[5]
-//                const CurvStruct *CurvStruct1
-//                const CurvStruct *CurvStruct2
-//                CurvStruct *CurvStruct1_C
-//                CurvStruct *CurvStruct_T
-//                CurvStruct *CurvStruct2_C
-//                TransitionResult *status
-// Return Type  : void
+//                double ctx_cfg_Smoothing_ColTolCosSmooth
+//                double ctx_cfg_Smoothing_ColTolSmooth
+//                const CurvStruct *curv1
+//                const CurvStruct *curv2
+// Return Type  : bool
 //
 namespace ocn {
-void calcTransition(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
-                    const int ctx_cfg_maskTot_size[2],
-                    const ::coder::array<bool, 2U> &ctx_cfg_maskCart,
-                    const ::coder::array<bool, 2U> &ctx_cfg_maskRot,
-                    const ::coder::array<int, 1U> &ctx_cfg_indCart,
-                    const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
-                    int ctx_cfg_NCart, int ctx_cfg_NRot, double ctx_cfg_CutOff,
-                    double ctx_cfg_ColTolCosSmooth, const double ctx_cfg_GaussLegendreX[5],
-                    const double ctx_cfg_GaussLegendreW[5], const CurvStruct *CurvStruct1,
-                    const CurvStruct *CurvStruct2, CurvStruct *CurvStruct1_C,
-                    CurvStruct *CurvStruct_T, CurvStruct *CurvStruct2_C, TransitionResult *status)
+static bool check_continuity(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
+                             const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
+                             const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
+                             const int ctx_cfg_maskRot_size[2],
+                             const ::coder::array<int, 1U> &ctx_cfg_indCart,
+                             const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
+                             int ctx_cfg_NCart, int ctx_cfg_NRot,
+                             double ctx_cfg_Smoothing_ColTolCosSmooth,
+                             double ctx_cfg_Smoothing_ColTolSmooth, const CurvStruct *curv1,
+                             const CurvStruct *curv2)
 {
+    ::coder::array<double, 1U> a__5;
+    ::coder::array<double, 1U> a__6;
     ::coder::array<double, 1U> r;
-    ::coder::array<double, 1U> r0D0;
-    ::coder::array<double, 1U> r0D0_1;
-    ::coder::array<double, 1U> r0D0_2;
-    ::coder::array<double, 1U> r0D1;
-    ::coder::array<double, 1U> r0D1_1;
-    ::coder::array<double, 1U> r0D1_2;
-    ::coder::array<double, 1U> r0D2;
     ::coder::array<double, 1U> r1;
-    ::coder::array<double, 1U> r1D0;
-    ::coder::array<double, 1U> r1D0_1;
-    ::coder::array<double, 1U> r1D0_2;
-    ::coder::array<double, 1U> r1D1;
-    ::coder::array<double, 1U> r1D1_1;
-    ::coder::array<double, 1U> r1D1_2;
-    ::coder::array<double, 1U> r1D2;
-    CurvStruct b_expl_temp;
-    CurvStruct c_expl_temp;
-    CurvStruct expl_temp;
-    double p5[6][5];
-    double CutOff;
-    double Length_Threshold;
-    double a__1;
-    double a__2;
-    int ret;
-    bool guard1{false};
-    TransitionResult b_status;
-    // 'calcTransition:15' coder.inline("never");
-    // 'calcTransition:17' CutOff              = ctx.cfg.CutOff;
-    CutOff = ctx_cfg_CutOff;
-    //  Length removed
-    // 'calcTransition:18' ColTolCos           = ctx.cfg.ColTolCosSmooth;
-    //  Tol for colinear
-    //  If the 1st or the 2nd Curve lenth is shorter than 3*CutOff,
-    //  we will recalculate Cutoff. This new value will be smaller than before.
-    //  The 3 factor is an attempt to obtain:
-    //  new CutOff at beginning + rest of Curve + new CutOff at end = curve length before cutting,
-    //  with: new CutOff at beginning = rest of Curve = new CutOff at end, approx.
-    // 'calcTransition:25' Length_Threshold    = 3*CutOff;
-    Length_Threshold = 3.0 * ctx_cfg_CutOff;
-    //
-    // 'calcTransition:27' line1 = CurvStruct1.Info.gcode_source_line;
-    // 'calcTransition:28' line2 = CurvStruct2.Info.gcode_source_line;
-    // 'calcTransition:30' if coder.target( 'MATLAB' )
-    // 'calcTransition:37' CurvStruct_T = CurvStruct1;
-    *CurvStruct_T = *CurvStruct1;
-    //  default value
-    // 'calcTransition:38' CurvStruct_T.Info.zspdmode = ZSpdMode.NN;
-    CurvStruct_T->Info.zspdmode = ZSpdMode_NN;
-    //  only value possible for a transition
-    // 'calcTransition:40' [r0D0_1, r0D1_1] = EvalCurvStruct(ctx, CurvStruct1, 0);
-    c_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart,
-                     ctx_cfg_maskRot, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
-                     ctx_cfg_NCart, ctx_cfg_NRot, CurvStruct1, r0D0_1, r0D1_1);
-    //  Curv1 @0
-    // 'calcTransition:41' [r0D0_2, r0D1_2] = EvalCurvStruct(ctx, CurvStruct1, 1);
-    b_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart,
-                     ctx_cfg_maskRot, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
-                     ctx_cfg_NCart, ctx_cfg_NRot, CurvStruct1, r0D0_2, r0D1_2);
-    //  Curv1 @1
-    // 'calcTransition:42' [r1D0_1, r1D1_1] = EvalCurvStruct(ctx, CurvStruct2, 0);
-    c_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart,
-                     ctx_cfg_maskRot, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
-                     ctx_cfg_NCart, ctx_cfg_NRot, CurvStruct2, r1D0_1, r1D1_1);
-    //  Curv2 @0
-    // 'calcTransition:43' [r1D0_2, r1D1_2] = EvalCurvStruct(ctx, CurvStruct2, 1);
-    b_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart,
-                     ctx_cfg_maskRot, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
-                     ctx_cfg_NCart, ctx_cfg_NRot, CurvStruct2, r1D0_2, r1D1_2);
-    //  Curv2 @1
-    //  colinearity test
-    // 'calcTransition:46' if  CurvStruct1.Info.Type ~= CurveType.Helix ...
-    // 'calcTransition:47'     && CurvStruct2.Info.Type ~= CurveType.Helix ...
-    // 'calcTransition:48'     && collinear(r0D1_2, r1D1_1, ColTolCos)
-    guard1 = false;
-    if ((CurvStruct1->Info.Type != CurveType_Helix) &&
-        (CurvStruct2->Info.Type != CurveType_Helix)) {
-        bool value;
-        // 'collinear:2' if (norm(u) < eps || norm(v) < eps)
-        if ((coder::b_norm(r0D1_2) < 2.2204460492503131E-16) ||
-            (coder::b_norm(r1D1_1) < 2.2204460492503131E-16)) {
-            // 'collinear:3' value = true;
-            value = true;
-        } else {
-            double c;
-            int b_loop_ub;
-            int loop_ub;
-            // 'collinear:6' cos_angle = dot(u,v)/(MyNorm(u)*MyNorm(v));
-            // 'MyNorm:2' coder.inline('always');
-            // 'MyNorm:3' n = mysqrt(sum(x.^2));
-            // 'mysqrt:3' y = sqrt(x);
-            // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-            sqrt_calls++;
-            // 'MyNorm:2' coder.inline('always');
-            // 'MyNorm:3' n = mysqrt(sum(x.^2));
-            // 'mysqrt:3' y = sqrt(x);
-            // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-            sqrt_calls++;
-            // 'collinear:7' value = cos_angle > tol_cos;
-            c = 0.0;
-            if (r0D1_2.size(0) >= 1) {
-                int ixlast;
-                ixlast = r0D1_2.size(0);
-                for (int k{0}; k < ixlast; k++) {
-                    c += r0D1_2[k] * r1D1_1[k];
-                }
-            }
-            r.set_size(r0D1_2.size(0));
-            loop_ub = r0D1_2.size(0);
-            for (int i{0}; i < loop_ub; i++) {
-                double varargin_1;
-                varargin_1 = r0D1_2[i];
-                r[i] = std::pow(varargin_1, 2.0);
-            }
-            r1.set_size(r1D1_1.size(0));
-            b_loop_ub = r1D1_1.size(0);
-            for (int i1{0}; i1 < b_loop_ub; i1++) {
-                double b_varargin_1;
-                b_varargin_1 = r1D1_1[i1];
-                r1[i1] = std::pow(b_varargin_1, 2.0);
-            }
-            value = (c / (std::sqrt(coder::combineVectorElements(r)) *
-                          std::sqrt(coder::combineVectorElements(r1))) >
-                     ctx_cfg_ColTolCosSmooth);
-        }
-        if (value) {
-            // 'calcTransition:50' status = TransitionResult.Collinear;
-            b_status = TransitionResult_Collinear;
-            // 'calcTransition:51' CurvStruct1_C = CurvStruct1;
-            *CurvStruct1_C = *CurvStruct1;
-            // 'calcTransition:52' CurvStruct2_C = CurvStruct2;
-            *CurvStruct2_C = *CurvStruct2;
-        } else {
-            guard1 = true;
+    ::coder::array<double, 1U> r11;
+    ::coder::array<double, 1U> r1d1;
+    ::coder::array<double, 1U> r1dd1;
+    ::coder::array<double, 1U> r21;
+    ::coder::array<double, 1U> r2d1;
+    ::coder::array<double, 1U> r2dd1;
+    ::coder::array<double, 1U> t1;
+    ::coder::array<double, 1U> t2;
+    ::coder::array<double, 1U> x;
+    ::coder::array<double, 1U> z1;
+    ::coder::array<bool, 1U> b_x;
+    double kappa1;
+    double kappa2;
+    int b_k;
+    int b_loop_ub;
+    bool exitg1;
+    bool isG1;
+    bool isValid;
+    bool y;
+    // 'calcTransition:77' tol         = ctx.cfg.Smoothing.ColTolSmooth;
+    // 'calcTransition:78' tol_cos     = ctx.cfg.Smoothing.ColTolCosSmooth;
+    // 'calcTransition:79' tol_kappa   = 1E-3;
+    // 'calcTransition:81' [ r11, r1d1, r1dd1 ] = EvalCurvStruct( ctx, curv1, 1 );
+    e_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+                     ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
+                     ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
+                     ctx_cfg_NCart, ctx_cfg_NRot, curv1, r11, r1d1, r1dd1);
+    // 'calcTransition:82' [ r21, r2d1, r2dd1 ] = EvalCurvStruct( ctx, curv2, 0 );
+    f_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+                     ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
+                     ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
+                     ctx_cfg_NCart, ctx_cfg_NRot, curv2, r21, r2d1, r2dd1);
+    // 'calcTransition:84' [t1, ~,  kappa1] = calc_t_nk_kappa( r1d1, r1dd1 );
+    calc_t_nk_kappa(r1d1, r1dd1, t1, a__5, &kappa1);
+    // 'calcTransition:85' [t2, ~,  kappa2] = calc_t_nk_kappa( r2d1, r2dd1 );
+    calc_t_nk_kappa(r2d1, r2dd1, t2, a__6, &kappa2);
+    // 'calcTransition:87' isC0    = all( abs( r11    -r21 ) < tol, 'all' );
+    if (r11.size(0) == r21.size(0)) {
+        int loop_ub;
+        x.set_size(r11.size(0));
+        loop_ub = r11.size(0);
+        for (int i{0}; i < loop_ub; i++) {
+            x[i] = r11[i] - r21[i];
         }
     } else {
-        guard1 = true;
+        minus(x, r11, r21);
     }
-    if (guard1) {
-        double L1;
-        double L2;
-        double b_u1_tilda;
-        double c_u1_tilda;
-        // 'calcTransition:58' L1 = LengthCurv(ctx, CurvStruct1, 0, 1);
-        L1 = LengthCurv(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart,
-                        ctx_cfg_maskRot, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
-                        ctx_cfg_NCart, ctx_cfg_NRot, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
-                        CurvStruct1->Info, CurvStruct1->R0, CurvStruct1->R1,
-                        CurvStruct1->CorrectedHelixCenter, CurvStruct1->evec, CurvStruct1->theta,
-                        CurvStruct1->pitch, CurvStruct1->CoeffP5, CurvStruct1->sp_index,
-                        CurvStruct1->a_param, CurvStruct1->b_param);
-        // 'calcTransition:59' L2 = LengthCurv(ctx, CurvStruct2, 0, 1);
-        L2 = LengthCurv(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart,
-                        ctx_cfg_maskRot, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
-                        ctx_cfg_NCart, ctx_cfg_NRot, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
-                        CurvStruct2->Info, CurvStruct2->R0, CurvStruct2->R1,
-                        CurvStruct2->CorrectedHelixCenter, CurvStruct2->evec, CurvStruct2->theta,
-                        CurvStruct2->pitch, CurvStruct2->CoeffP5, CurvStruct2->sp_index,
-                        CurvStruct2->a_param, CurvStruct2->b_param);
-        //  CutOff calculation
-        // 'calcTransition:62' if CurvStruct1.Info.Type ~= CurveType.Spline ...
-        // 'calcTransition:63'    && CurvStruct2.Info.Type ~= CurveType.Spline
-        if ((CurvStruct1->Info.Type != CurveType_Spline) &&
-            (CurvStruct2->Info.Type != CurveType_Spline)) {
-            //  If L1 or L2 is smaller than 3*CutOff
-            // 'calcTransition:65' if L1 < Length_Threshold || L2 < Length_Threshold
-            if ((L1 < Length_Threshold) || (L2 < Length_Threshold)) {
-                // 'calcTransition:66' CutOff = min (L1,L2)/3;
-                CutOff = std::fmin(L1, L2) / 3.0;
+    z1.set_size(x.size(0));
+    if (x.size(0) != 0) {
+        int i1;
+        i1 = x.size(0);
+        for (int k{0}; k < i1; k++) {
+            z1[k] = std::abs(x[k]);
+        }
+    }
+    // 'calcTransition:88' isG1    = collinear( t1, t2, tol_cos );
+    // 'collinear:2' if (norm(u) < eps || norm(v) < eps)
+    if ((coder::b_norm(t1) < 2.2204460492503131E-16) ||
+        (coder::b_norm(t2) < 2.2204460492503131E-16)) {
+        // 'collinear:3' value = true;
+        isG1 = true;
+    } else {
+        double c;
+        int c_loop_ub;
+        int d_loop_ub;
+        // 'collinear:6' cos_angle = dot(u,v)/(MyNorm(u)*MyNorm(v));
+        // 'MyNorm:2' coder.inline('always');
+        // 'MyNorm:3' n = mysqrt(sum(x.^2));
+        // 'mysqrt:3' y = sqrt(x);
+        // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
+        sqrt_calls++;
+        // 'MyNorm:2' coder.inline('always');
+        // 'MyNorm:3' n = mysqrt(sum(x.^2));
+        // 'mysqrt:3' y = sqrt(x);
+        // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
+        sqrt_calls++;
+        // 'collinear:7' value = cos_angle >= tol_cos;
+        c = 0.0;
+        if (t1.size(0) >= 1) {
+            int ixlast;
+            ixlast = t1.size(0);
+            for (int c_k{0}; c_k < ixlast; c_k++) {
+                c += t1[c_k] * t2[c_k];
             }
+        }
+        r.set_size(t1.size(0));
+        c_loop_ub = t1.size(0);
+        for (int i3{0}; i3 < c_loop_ub; i3++) {
+            double varargin_1;
+            varargin_1 = t1[i3];
+            r[i3] = std::pow(varargin_1, 2.0);
+        }
+        r1.set_size(t2.size(0));
+        d_loop_ub = t2.size(0);
+        for (int i4{0}; i4 < d_loop_ub; i4++) {
+            double b_varargin_1;
+            b_varargin_1 = t2[i4];
+            r1[i4] = std::pow(b_varargin_1, 2.0);
+        }
+        isG1 = (c / (std::sqrt(coder::sum(r)) * std::sqrt(coder::sum(r1))) >=
+                ctx_cfg_Smoothing_ColTolCosSmooth);
+    }
+    // 'calcTransition:89' isG2    = abs( kappa1 -kappa2 )   < tol_kappa;
+    // 'calcTransition:91' isValid = isC0 && isG1 && isG2;
+    b_x.set_size(z1.size(0));
+    b_loop_ub = z1.size(0);
+    for (int i2{0}; i2 < b_loop_ub; i2++) {
+        b_x[i2] = (z1[i2] < ctx_cfg_Smoothing_ColTolSmooth);
+    }
+    y = true;
+    b_k = 0;
+    exitg1 = false;
+    while ((!exitg1) && (b_k <= b_x.size(0) - 1)) {
+        if (!b_x[b_k]) {
+            y = false;
+            exitg1 = true;
         } else {
-            double x;
-            double y;
-            unsigned int b_k;
-            // 'calcTransition:68' else
-            // 'calcTransition:69' if CurvStruct1.Info.Type == CurveType.Spline
-            if (CurvStruct1->Info.Type == CurveType_Spline) {
-                double u1_tilda;
-                // 'calcTransition:70' Spline=ctx.q_spline.get(CurvStruct1.sp_index);
-                ctx_q_spline->get(CurvStruct1->sp_index, &expl_temp);
-                // 'calcTransition:71' sp = Spline.sp;
-                // 'calcTransition:72' a = CurvStruct1.a_param;
-                // 'calcTransition:73' b = CurvStruct1.b_param;
-                //  In a very general case we may cut a spline several times
-                //  at the end;
-                //  If a spline had already been cut at the end,
-                //  we must compute the corresponding
-                //  native spline parameter (u1_tilda) value
-                //  This value will be different from 1 in this special case
-                // 'calcTransition:81' u1_tilda = a*1+b;
-                u1_tilda = CurvStruct1->a_param + CurvStruct1->b_param;
-                //  We need to find the previous spline knot u0_tilda...
-                //
-                // 'calcTransition:85' k = length(sp.knots);
-                // 'calcTransition:86' while sp.knots(k) >= u1_tilda
-                for (b_k = static_cast<unsigned int>(expl_temp.sp.knots.size(1));
-                     expl_temp.sp.knots[static_cast<int>(b_k) - 1] >= u1_tilda;
-                     b_k = static_cast<unsigned int>(static_cast<int>(b_k) - 1)) {
-                    // 'calcTransition:87' k = k - 1;
-                }
-                // 'calcTransition:89' u0_tilda = sp.knots(k);
-                // 'calcTransition:90' spline = ctx.q_spline.get( CurvStruct1.sp_index );
-                ctx_q_spline->get(CurvStruct1->sp_index, &c_expl_temp);
-                // 'calcTransition:91' [ l1 ] = splineLength( ctx.cfg, spline, u0_tilda, u1_tilda )
-                // / 2 ;
-                x = splineLength(ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
-                                 c_expl_temp.sp.Bl.handle, c_expl_temp.sp.Bl.order,
-                                 c_expl_temp.sp.coeff, c_expl_temp.sp.knots, c_expl_temp.sp.Lk,
-                                 expl_temp.sp.knots[static_cast<int>(b_k) - 1], u1_tilda) /
-                    2.0;
+            b_k++;
+        }
+    }
+    if (y && isG1 && (std::abs(kappa1 - kappa2) < 0.001)) {
+        isValid = true;
+    } else {
+        isValid = false;
+    }
+    return isValid;
+}
 
-                // 'calcTransition:92' else
-                // 'calcTransition:93' if L1<Length_Threshold
-            } else if (L1 < Length_Threshold) {
-                // 'calcTransition:94' l1 = L1/3;
-                x = L1 / 3.0;
-            } else {
-                // 'calcTransition:95' else
-                // 'calcTransition:96' l1 = CutOff;
-                x = ctx_cfg_CutOff;
-            }
-            // 'calcTransition:100' if CurvStruct2.Info.Type == CurveType.Spline
-            if (CurvStruct2->Info.Type == CurveType_Spline) {
-                int c_loop_ub;
-                int d_loop_ub;
-                int f_loop_ub;
-                int g_loop_ub;
-                // 'calcTransition:101' Spline=ctx.q_spline.get(CurvStruct2.sp_index);
-                ctx_q_spline->get(CurvStruct2->sp_index, &b_expl_temp);
-                expl_temp.sp.knots.set_size(1, b_expl_temp.sp.knots.size(1));
-                c_loop_ub = b_expl_temp.sp.knots.size(1);
-                for (int i2{0}; i2 < c_loop_ub; i2++) {
-                    expl_temp.sp.knots[i2] = b_expl_temp.sp.knots[i2];
-                }
-                // 'calcTransition:102' sp = Spline.sp;
-                // 'calcTransition:103' a = CurvStruct2.a_param;
-                // 'calcTransition:104' b = CurvStruct2.b_param;
-                //  In a very general case we may cut a spline several times
-                //  at the beginning;
-                //  If a spline had already been cut at the beginning,
-                //  we must compute the corresponding
-                //  native spline parameter (u0_tilda) value
-                //  This value will be different from 0 in this special case
-                // 'calcTransition:112' u0_tilda = a*0+b;
-                //  We need to find the next spline knot u1_tilda...
-                //
-                // 'calcTransition:116' k = 1;
-                // 'calcTransition:117' while sp.knots(k) <= u0_tilda
-                for (b_k = 1U;
-                     expl_temp.sp.knots[static_cast<int>(b_k) - 1] <= CurvStruct2->b_param; b_k++) {
-                    // 'calcTransition:118' k = k + 1;
-                }
-                // 'calcTransition:120' u1_tilda = sp.knots(k);
-                // 'calcTransition:121' spline = ctx.q_spline.get( CurvStruct2.sp_index );
-                ctx_q_spline->get(CurvStruct2->sp_index, &b_expl_temp);
-                c_expl_temp.sp.coeff.set_size(b_expl_temp.sp.coeff.size(0),
-                                              b_expl_temp.sp.coeff.size(1));
-                d_loop_ub = b_expl_temp.sp.coeff.size(1);
-                for (int i3{0}; i3 < d_loop_ub; i3++) {
-                    int e_loop_ub;
-                    e_loop_ub = b_expl_temp.sp.coeff.size(0);
-                    for (int i4{0}; i4 < e_loop_ub; i4++) {
-                        c_expl_temp.sp.coeff[i4 + c_expl_temp.sp.coeff.size(0) * i3] =
-                            b_expl_temp.sp.coeff[i4 + b_expl_temp.sp.coeff.size(0) * i3];
-                    }
-                }
-                c_expl_temp.sp.knots.set_size(1, b_expl_temp.sp.knots.size(1));
-                f_loop_ub = b_expl_temp.sp.knots.size(1);
-                for (int i5{0}; i5 < f_loop_ub; i5++) {
-                    c_expl_temp.sp.knots[i5] = b_expl_temp.sp.knots[i5];
-                }
-                c_expl_temp.sp.Lk.set_size(1, b_expl_temp.sp.Lk.size(1));
-                g_loop_ub = b_expl_temp.sp.Lk.size(1);
-                for (int i6{0}; i6 < g_loop_ub; i6++) {
-                    c_expl_temp.sp.Lk[i6] = b_expl_temp.sp.Lk[i6];
-                }
-                // 'calcTransition:122' [ l2 ] = splineLength( ctx.cfg, spline, u0_tilda, u1_tilda )
-                // / 2 ;
-                y = splineLength(ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
-                                 b_expl_temp.sp.Bl.handle, b_expl_temp.sp.Bl.order,
-                                 c_expl_temp.sp.coeff, c_expl_temp.sp.knots, c_expl_temp.sp.Lk,
-                                 CurvStruct2->b_param,
-                                 expl_temp.sp.knots[static_cast<int>(b_k) - 1]) /
-                    2.0;
-
-                // 'calcTransition:123' else
-                // 'calcTransition:124' if L2<Length_Threshold
-            } else if (L2 < Length_Threshold) {
-                // 'calcTransition:125' l2 = L2/3;
-                y = L2 / 3.0;
-            } else {
-                // 'calcTransition:126' else
-                // 'calcTransition:127' l2 = CutOff;
-                y = ctx_cfg_CutOff;
-            }
-            // 'calcTransition:131' CutOff = min (l1,l2);
-            CutOff = std::fmin(x, y);
-        }
-        // 'calcTransition:135' status = TransitionResult.Ok;
-        //  Cut the curve structures
-        // 'calcTransition:138' CurvStruct1_C = cutCurvStruct( ctx, CurvStruct1, 0, L1 - CutOff,
-        // false );
-        //  cutCurvStruct: Cut a piece of the structure with a size of L
-        //  starting at point u0
-        //  Inputs :
-        //  ctx   : Context
-        //  curv  : Curvature
-        //  u0    : Starting point of the spline
-        //  L     : Length of the segment of curv
-        //  isEnd : Is a zero stop curv
-        //  Outputs :
-        //  u1    : The last point of the splitted curv
-        // 'cutCurvStruct:13' a = curv.a_param;
-        // 'cutCurvStruct:14' b = curv.b_param;
-        // 'cutCurvStruct:16' u1_tilda = cutCurvStructU( ctx, curv, u0, L, isEnd );
-        b_u1_tilda = cutCurvStructU(
-            ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart,
-            ctx_cfg_maskRot, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart,
-            ctx_cfg_NRot, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, CurvStruct1, L1 - CutOff);
-        // 'cutCurvStruct:18' curvC = curv;
-        *CurvStruct1_C = *CurvStruct1;
-        // 'cutCurvStruct:20' if( isEnd )
-        // 'cutCurvStruct:30' else
-        // 'cutCurvStruct:31' curvC.a_param = u1_tilda - curvC.b_param;
-        CurvStruct1_C->a_param = b_u1_tilda - CurvStruct1_C->b_param;
-        // 'cutCurvStruct:32' if( isAZeroStart( curvC ) )
-        //  isAZeroStart : Return true if the curv starts with zero speed
-        //  curv  : The curve struct
-        // 'isAZeroStart:4' if( curv.Info.zspdmode == ZSpdMode.ZN || ...
-        // 'isAZeroStart:5'         curv.Info.zspdmode == ZSpdMode.ZZ )
-        if ((CurvStruct1_C->Info.zspdmode == ZSpdMode_ZN) ||
-            (CurvStruct1_C->Info.zspdmode == ZSpdMode_ZZ)) {
-            // 'isAZeroStart:6' zeroFlag = true;
-            // 'cutCurvStruct:33' curvC.Info.zspdmode = ZSpdMode.ZN;
-            CurvStruct1_C->Info.zspdmode = ZSpdMode_ZN;
-        } else {
-            // 'isAZeroStart:8' zeroFlag = false;
-            // 'cutCurvStruct:34' else
-            // 'cutCurvStruct:35' curvC.Info.zspdmode = ZSpdMode.NN;
-            CurvStruct1_C->Info.zspdmode = ZSpdMode_NN;
-        }
-        // 'calcTransition:139' CurvStruct2_C = cutCurvStruct( ctx, CurvStruct2, 1, L2 - CutOff,
-        // true  );
-        //  cutCurvStruct: Cut a piece of the structure with a size of L
-        //  starting at point u0
-        //  Inputs :
-        //  ctx   : Context
-        //  curv  : Curvature
-        //  u0    : Starting point of the spline
-        //  L     : Length of the segment of curv
-        //  isEnd : Is a zero stop curv
-        //  Outputs :
-        //  u1    : The last point of the splitted curv
-        // 'cutCurvStruct:13' a = curv.a_param;
-        // 'cutCurvStruct:14' b = curv.b_param;
-        // 'cutCurvStruct:16' u1_tilda = cutCurvStructU( ctx, curv, u0, L, isEnd );
-        c_u1_tilda = b_cutCurvStructU(
-            ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart,
-            ctx_cfg_maskRot, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart,
-            ctx_cfg_NRot, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, CurvStruct2, L2 - CutOff);
-        // 'cutCurvStruct:18' curvC = curv;
-        *CurvStruct2_C = *CurvStruct2;
-        // 'cutCurvStruct:20' if( isEnd )
-        // 'cutCurvStruct:21' curvC.b_param = u1_tilda;
-        CurvStruct2_C->b_param = c_u1_tilda;
-        // 'cutCurvStruct:22' curvC.a_param = a + b - curvC.b_param;
-        CurvStruct2_C->a_param = (CurvStruct2->a_param + CurvStruct2->b_param) - c_u1_tilda;
-        // 'cutCurvStruct:24' if( isAZeroEnd( curvC ) )
-        //  isAZeroEnd : Return true if the curv ends with zero speed
-        //  Input :
-        //  curv  : The curve struct
-        // 'isAZeroEnd:5' if( curv.Info.zspdmode == ZSpdMode.NZ || ...
-        // 'isAZeroEnd:6'         curv.Info.zspdmode == ZSpdMode.ZZ )
-        if ((CurvStruct2_C->Info.zspdmode == ZSpdMode_NZ) ||
-            (CurvStruct2_C->Info.zspdmode == ZSpdMode_ZZ)) {
-            // 'isAZeroEnd:7' zeroFlag = true;
-            // 'cutCurvStruct:25' curvC.Info.zspdmode = ZSpdMode.NZ;
-            CurvStruct2_C->Info.zspdmode = ZSpdMode_NZ;
-        } else {
-            // 'isAZeroEnd:9' zeroFlag = false;
-            // 'cutCurvStruct:26' else
-            // 'cutCurvStruct:27' curvC.Info.zspdmode = ZSpdMode.NN;
-            CurvStruct2_C->Info.zspdmode = ZSpdMode_NN;
-        }
-        // 'calcTransition:141' if coder.target( 'MATLAB' )
-        // 'calcTransition:148' [r0D0, r0D1, r0D2] = EvalCurvStruct(ctx, CurvStruct1_C, 1);
-        e_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart,
-                         ctx_cfg_maskRot, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
-                         ctx_cfg_NCart, ctx_cfg_NRot, CurvStruct1_C, r0D0, r0D1, r0D2);
-        // 'calcTransition:149' [r1D0, r1D1, r1D2] = EvalCurvStruct(ctx, CurvStruct2_C, 0);
-        f_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart,
-                         ctx_cfg_maskRot, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
-                         ctx_cfg_NCart, ctx_cfg_NRot, CurvStruct2_C, r1D0, r1D1, r1D2);
-        //  G2 transition calculation
-        //  [p5, ret, ~, ~] = G2_Hermite_Interpolation(r0D0, r0D1, r0D2, r1D0, r1D1, r1D2);
-        // 'calcTransition:153' [p5, ret, ~, ~] = G2_Hermite_Interpolation_nAxis(ctx, r0D0, r0D1,
-        // r0D2, r1D0, r1D1, r1D2);
-        G2_Hermite_Interpolation_nAxis(ctx_cfg_NumberAxis, r0D0, r0D1, r0D2, r1D0, r1D1, r1D2, p5,
-                                       &ret, &a__1, &a__2);
-        // 'calcTransition:155' if ret==1
+//
+// function [ status, curv1C, curv2C, curvT ] = calcTransition( ctx, curv1, curv2 )
+//
+// calcTransition_new : Compute a transition curve using on a polynome of
+//  degree 5.
+//
+//  ctx           : The context
+//  curv          : Current structure of the curve
+//  nextCurv      : Next structure of the curve
+//
+//  curv          : New calculated curve structure (replace CurvStruct1)
+//  curvT         : New calculated transition curve
+//  nextCurv      : New calculated curve structure (replace CurvStruct2)
+//  status        : Status of the compuation see TransitionResult
+//
+// Arguments    : const queue_coder *ctx_q_spline
+//                const bool ctx_cfg_maskTot_data[]
+//                const int ctx_cfg_maskTot_size[2]
+//                const bool ctx_cfg_maskCart_data[]
+//                const int ctx_cfg_maskCart_size[2]
+//                const bool ctx_cfg_maskRot_data[]
+//                const int ctx_cfg_maskRot_size[2]
+//                const ::coder::array<int, 1U> &ctx_cfg_indCart
+//                const ::coder::array<int, 1U> &ctx_cfg_indRot
+//                int ctx_cfg_NumberAxis
+//                int ctx_cfg_NCart
+//                int ctx_cfg_NRot
+//                const ::coder::array<double, 1U> &ctx_cfg_D
+//                double ctx_cfg_CutOff
+//                double ctx_cfg_Smoothing_ColTolCosSmooth
+//                double ctx_cfg_Smoothing_ColTolSmooth
+//                const double ctx_cfg_GaussLegendreX[5]
+//                const double ctx_cfg_GaussLegendreW[5]
+//                const CurvStruct *curv1
+//                const CurvStruct *curv2
+//                TransitionResult *status
+//                CurvStruct *curv1C
+//                CurvStruct *curv2C
+//                CurvStruct *curvT
+// Return Type  : void
+//
+void calcTransition(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
+                    const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
+                    const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
+                    const int ctx_cfg_maskRot_size[2],
+                    const ::coder::array<int, 1U> &ctx_cfg_indCart,
+                    const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
+                    int ctx_cfg_NCart, int ctx_cfg_NRot,
+                    const ::coder::array<double, 1U> &ctx_cfg_D, double ctx_cfg_CutOff,
+                    double ctx_cfg_Smoothing_ColTolCosSmooth, double ctx_cfg_Smoothing_ColTolSmooth,
+                    const double ctx_cfg_GaussLegendreX[5], const double ctx_cfg_GaussLegendreW[5],
+                    const CurvStruct *curv1, const CurvStruct *curv2, TransitionResult *status,
+                    CurvStruct *curv1C, CurvStruct *curv2C, CurvStruct *curvT)
+{
+    ::coder::array<double, 1U> r0D0;
+    ::coder::array<double, 1U> r0D1;
+    ::coder::array<double, 1U> r0D2;
+    ::coder::array<double, 1U> r1D0;
+    ::coder::array<double, 1U> r1D1;
+    ::coder::array<double, 1U> r1D2;
+    CurvStruct a__2;
+    CurvStruct a__4;
+    double p5[6][5];
+    double L1;
+    double L2;
+    double a__1;
+    double a__3;
+    int ret;
+    bool x[6][5];
+    TransitionResult b_status;
+    // 'calcTransition:15' coder.inline( "never" );
+    // 'calcTransition:17' CutOff = ctx.cfg.CutOff;
+    // 'calcTransition:18' Lcut1 = CutOff;
+    // 'calcTransition:18' Lcut2 = CutOff;
+    // 'calcTransition:20' L1 = LengthCurv( ctx, curv1, 0, 1 );
+    L1 = LengthCurv(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
+                    ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
+                    ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart,
+                    ctx_cfg_NRot, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, curv1);
+    // 'calcTransition:21' L2 = LengthCurv( ctx, curv2, 0, 1 );
+    L2 = LengthCurv(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
+                    ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
+                    ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart,
+                    ctx_cfg_NRot, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, curv2);
+    //  If curv length is lower that cutting length return
+    // 'calcTransition:24' if( ( L1 < 3 * Lcut1 ) || ( L2 < 3 * Lcut2 ) )
+    if ((L1 < 3.0 * ctx_cfg_CutOff) || (L2 < 3.0 * ctx_cfg_CutOff)) {
+        // 'calcTransition:25' curv1C  = curv1;
+        *curv1C = *curv1;
+        // 'calcTransition:25' curv2C  = curv2;
+        *curv2C = *curv2;
+        // 'calcTransition:25' curvT   = curv1;
+        *curvT = *curv1;
+        // 'calcTransition:26' status  = TransitionResult.NoSolution;
+        b_status = TransitionResult_NoSolution;
+    } else {
+        // 'calcTransition:30' [ ~, curv1C, ~ ] = cutCurvStruct( ctx, curv1, 0, L1-Lcut1, false );
+        cutCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+                      ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
+                      ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
+                      ctx_cfg_NCart, ctx_cfg_NRot, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
+                      curv1, L1 - ctx_cfg_CutOff, &a__1, curv1C, &a__2);
+        // 'calcTransition:31' assert( check_curv_length( ctx, curv1C, L1-Lcut1 ), mfilename + "
+        // Curve Length not valide"); 'calcTransition:95' tol = 1E-3; 'calcTransition:97' isValid =
+        // ( abs( LengthCurv( ctx, curv, 0, 1 ) - L ) <= tol );
+        LengthCurv(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
+                   ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
+                   ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart, ctx_cfg_NRot,
+                   ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, curv1C);
+        b_cutCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+                        ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
+                        ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
+                        ctx_cfg_NCart, ctx_cfg_NRot, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
+                        curv2, L2 - ctx_cfg_CutOff, &a__3, &a__4, curv2C);
+        // 'calcTransition:33' assert( check_curv_length( ctx, curv2C, L2-Lcut2 ), mfilename + "
+        // Curve Length not valide"); 'calcTransition:95' tol = 1E-3; 'calcTransition:97' isValid =
+        // ( abs( LengthCurv( ctx, curv, 0, 1 ) - L ) <= tol );
+        LengthCurv(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
+                   ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
+                   ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart, ctx_cfg_NRot,
+                   ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, curv2C);
+        e_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+                         ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
+                         ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
+                         ctx_cfg_NCart, ctx_cfg_NRot, curv1C, r0D0, r0D1, r0D2);
+        // 'calcTransition:36' [r1D0, r1D1, r1D2] = EvalCurvStruct( ctx, curv2C, 0 );
+        f_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+                         ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
+                         ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
+                         ctx_cfg_NCart, ctx_cfg_NRot, curv2C, r1D0, r1D1, r1D2);
+        // 'calcTransition:39' [p5, ret] = G2_Hermite_Interpolation_nAxis(ctx, r0D0, r0D1, r0D2, ...
+        // 'calcTransition:40'                                                 r1D0, r1D1, r1D2);
+        G2_Hermite_Interpolation_nAxis(ctx_cfg_NumberAxis, ctx_cfg_D, r0D0, r0D1, r0D2, r1D0, r1D1,
+                                       r1D2, p5, &ret);
+        // 'calcTransition:42' curvT = constrTransP5Struct( curv1.Info, curv1.R1, curv2.R0, p5 );
+        b_constrTransP5Struct(curv1->Info.TRAFO, curv1->Info.HSC, curv1->Info.FeedRate,
+                              curv1->Info.SpindleSpeed, curv1->Info.gcode_source_line,
+                              curv1->Info.G91, curv1->Info.G91_1, curv1->R1, curv2->R0, p5, curvT);
+        // 'calcTransition:43' curvT.Info.SpindleSpeed = min( curv1.Info.SpindleSpeed, ...
+        // 'calcTransition:44'                                curv2.Info.SpindleSpeed );
+        curvT->Info.SpindleSpeed = std::fmin(curv1->Info.SpindleSpeed, curv2->Info.SpindleSpeed);
+        // 'calcTransition:45' curvT.Info.FeedRate     = min( curv1.Info.FeedRate, ...
+        // 'calcTransition:46'                                curv2.Info.FeedRate );
+        curvT->Info.FeedRate = std::fmin(curv1->Info.FeedRate, curv2->Info.FeedRate);
+        // 'calcTransition:48' if( ret== 1 )
         if (ret == 1) {
             //  standard case
             //  transition CurvStruct calculation
-            // 'calcTransition:159' CurvStruct_T = constrTransP5Struct(CurvStruct1.Info,
-            // CurvStruct1.R0,... 'calcTransition:160' CurvStruct1.R1, p5);
-            b_constrTransP5Struct(
-                CurvStruct1->Info.zspdmode, CurvStruct1->Info.TRAFO, CurvStruct1->Info.HSC,
-                CurvStruct1->Info.FeedRate, CurvStruct1->Info.SpindleSpeed,
-                CurvStruct1->Info.gcode_source_line, CurvStruct1->Info.G91, CurvStruct1->Info.G91_1,
-                CurvStruct1->R0, CurvStruct1->R1, p5, CurvStruct_T);
-            // 'calcTransition:161' CurvStruct_T.Info.zspdmode = ZSpdMode.NN;
-            CurvStruct_T->Info.zspdmode = ZSpdMode_NN;
-            //  only value possible for a transition
-            // 'calcTransition:162' status = TransitionResult.Ok;
+            // 'calcTransition:51' status = TransitionResult.Ok;
             b_status = TransitionResult_Ok;
         } else if (ret == 2) {
-            // 'calcTransition:164' elseif ret==2
+            // 'calcTransition:52' elseif( ret == 2 )
             //  badly conditioned matrix in G2_Hermite()
-            // 'calcTransition:167' status = TransitionResult.NoSolution;
+            // 'calcTransition:54' status = TransitionResult.NoSolution;
             b_status = TransitionResult_NoSolution;
-            // 'calcTransition:169' if coder.target( 'MATLAB' )
-            // 'calcTransition:175' if coder.target('matlab')
         } else if (ret == 6) {
-            // 'calcTransition:200' elseif ret==6
+            // 'calcTransition:55' elseif( ret == 6 )
             //  TODO: decide in the future...
             //  Now we ignore and construct the transition curve anyway
-            // 'calcTransition:204' CurvStruct_T = constrTransP5Struct(CurvStruct1.Info,
-            // CurvStruct1.R0,... 'calcTransition:205' CurvStruct1.R1, p5);
-            b_constrTransP5Struct(
-                CurvStruct1->Info.zspdmode, CurvStruct1->Info.TRAFO, CurvStruct1->Info.HSC,
-                CurvStruct1->Info.FeedRate, CurvStruct1->Info.SpindleSpeed,
-                CurvStruct1->Info.gcode_source_line, CurvStruct1->Info.G91, CurvStruct1->Info.G91_1,
-                CurvStruct1->R0, CurvStruct1->R1, p5, CurvStruct_T);
-            // 'calcTransition:206' CurvStruct_T.Info.zspdmode = ZSpdMode.NN;
-            CurvStruct_T->Info.zspdmode = ZSpdMode_NN;
-            //  only value possible for a transition
-            // 'calcTransition:207' status = TransitionResult.Ok;
+            // 'calcTransition:58' status = TransitionResult.Ok;
             b_status = TransitionResult_Ok;
-            // 'calcTransition:209' if coder.target( 'MATLAB' )
-            // 'calcTransition:215' if coder.target('matlab')
         } else {
-            // 'calcTransition:232' else
-            // 'calcTransition:234' status = TransitionResult.NoSolution;
+            // 'calcTransition:59' else
+            // 'calcTransition:60' status = TransitionResult.NoSolution;
             b_status = TransitionResult_NoSolution;
-            // 'calcTransition:235' if coder.target( 'MATLAB' )
-            // 'calcTransition:241' if coder.target('matlab')
         }
-        // 'calcTransition:267' CurvStruct_T.Info.gcode_source_line = line2;
-        CurvStruct_T->Info.gcode_source_line = CurvStruct2->Info.gcode_source_line;
-        // 'calcTransition:268' CurvStruct_T.Info.SpindleSpeed = min(CurvStruct1.Info.SpindleSpeed,
-        // CurvStruct2.Info.SpindleSpeed);
-        CurvStruct_T->Info.SpindleSpeed =
-            std::fmin(CurvStruct1->Info.SpindleSpeed, CurvStruct2->Info.SpindleSpeed);
-        // 'calcTransition:269' if( coder.target("MATLAB") )
+        // 'calcTransition:63' if( ( status ~= TransitionResult.NoSolution ) && ...
+        // 'calcTransition:64'     ( all( p5 <= 0, 'all' ) ) )
+        if (b_status != TransitionResult_NoSolution) {
+            int k;
+            bool exitg1;
+            bool y;
+            for (int i{0}; i < 6; i++) {
+                for (int i1{0}; i1 < 5; i1++) {
+                    x[i][i1] = (p5[i][i1] <= 0.0);
+                }
+            }
+            y = true;
+            k = 0;
+            exitg1 = false;
+            while ((!exitg1) && (k < 30)) {
+                if (!(&x[0][0])[k]) {
+                    y = false;
+                    exitg1 = true;
+                } else {
+                    k++;
+                }
+            }
+            if (y) {
+                // 'calcTransition:65' status = TransitionResult.NoSolution;
+                b_status = TransitionResult_NoSolution;
+            }
+        }
+        // 'calcTransition:68' if( status == TransitionResult.Ok )
+        if (b_status == TransitionResult_Ok) {
+            bool b_isValid;
+            bool isValid;
+            // 'calcTransition:69' isValid = check_continuity( ctx, curv1C, curvT );
+            isValid = check_continuity(
+                ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
+                ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size, ctx_cfg_indCart,
+                ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart, ctx_cfg_NRot,
+                ctx_cfg_Smoothing_ColTolCosSmooth, ctx_cfg_Smoothing_ColTolSmooth, curv1C, curvT);
+            // 'calcTransition:70' isValid = isValid && check_continuity( ctx, curvT, curv2C );
+            if (isValid &&
+                check_continuity(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+                                 ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
+                                 ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot,
+                                 ctx_cfg_NumberAxis, ctx_cfg_NCart, ctx_cfg_NRot,
+                                 ctx_cfg_Smoothing_ColTolCosSmooth, ctx_cfg_Smoothing_ColTolSmooth,
+                                 curvT, curv2C)) {
+                b_isValid = true;
+            } else {
+                b_isValid = false;
+            }
+            // 'calcTransition:71' if( ~isValid )
+            if (!b_isValid) {
+                // 'calcTransition:71' status = TransitionResult.NoSolution;
+                b_status = TransitionResult_NoSolution;
+            }
+        }
     }
     *status = b_status;
+}
+
+//
+// Arguments    : ::coder::array<double, 1U> &x
+//                const ::coder::array<double, 1U> &r11
+//                const ::coder::array<double, 1U> &r21
+// Return Type  : void
+//
+void minus(::coder::array<double, 1U> &x, const ::coder::array<double, 1U> &r11,
+           const ::coder::array<double, 1U> &r21)
+{
+    int i;
+    int loop_ub;
+    int stride_0_0;
+    int stride_1_0;
+    if (r21.size(0) == 1) {
+        i = r11.size(0);
+    } else {
+        i = r21.size(0);
+    }
+    x.set_size(i);
+    stride_0_0 = (r11.size(0) != 1);
+    stride_1_0 = (r21.size(0) != 1);
+    if (r21.size(0) == 1) {
+        loop_ub = r11.size(0);
+    } else {
+        loop_ub = r21.size(0);
+    }
+    for (int i1{0}; i1 < loop_ub; i1++) {
+        x[i1] = r11[i1 * stride_0_0] - r21[i1 * stride_1_0];
+    }
 }
 
 } // namespace ocn

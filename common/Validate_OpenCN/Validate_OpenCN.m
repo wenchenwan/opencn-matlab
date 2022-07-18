@@ -10,7 +10,7 @@ Cd        = cd;                             % current folder
 fs         = filesep; % file separation character
 % Gdir       = uigetdir('.', 'Choose directory with G-code validation files');
 
-Gdir       = char(pwd + "/ngc_test/unit");
+Gdir       = char(pwd + "/ngc_test/full");
 
 dircontent = dir([Gdir, fs, '*.ngc']);
 NGcodes    = length(dircontent);
@@ -234,6 +234,9 @@ for k = 1:NGcodes
                 '  Line: %d\n', ME.stack(1).line);
             t_opt_res = -ones(1, 5);
             maxJerk = -1;
+            % save
+            saveCtx( ctx, "Validate_OpenCN/" + ...
+                           strtok( dircontent(k).name, '.') + ".mat" );
         end
         
         fprintf( fid, "%s,%s\n", dircontent(k).name, ... 
@@ -310,9 +313,17 @@ if status == 1
 end
 
 copyfile(PfileName, DirName);                   % copy selected parameter file
-copyfile( 'Validate_OpenCN/Validate_OpenCN.m',      DirName );           % copy this .m source file
-copyfile( 'c_planner_v5/FeedoptDefaultConfig.m',    DirName );         % copy this .m source file
-copyfile( FileSummary,                              DirName );
+copyfile( 'Validate_OpenCN/Validate_OpenCN.m',      DirName );         % copy this .m source file
+copyfile( 'Feedopt/FeedoptDefaultConfig.m',    DirName );         % copy this .m config file
+movefile( FileSummary,                              DirName );
+
+filesMat = { dir('Validate_OpenCN/*.mat').name };
+
+if( ~isempty( filesMat ) )
+    for fid = filesMat
+        movefile( "Validate_OpenCN/" + fid{ : },    DirName );           % move .mat files
+    end
+end
 % Ask user whether to save profiling results 
 answer = questdlg('Save profiling info in html format?', ...
 	'Profiling', ...

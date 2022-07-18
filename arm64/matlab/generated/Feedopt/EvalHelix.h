@@ -5,7 +5,7 @@
 // File: EvalHelix.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 16:00:50
+// C/C++ source code generated on  : 18-Jul-2022 08:58:50
 //
 
 #ifndef EVALHELIX_H
@@ -23,14 +23,15 @@
 namespace ocn {
 void EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedHelixCenter[3],
                const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
-               const ::coder::array<double, 2U> &u_vec, const ::coder::array<bool, 2U> &maskCart,
-               ::coder::array<double, 2U> &r0D, ::coder::array<double, 2U> &r1D,
-               ::coder::array<double, 2U> &r2D, ::coder::array<double, 2U> &r3D);
+               const ::coder::array<double, 2U> &u_vec, const bool maskCart_data[],
+               const int maskCart_size[2], ::coder::array<double, 2U> &r0D,
+               ::coder::array<double, 2U> &r1D, ::coder::array<double, 2U> &r2D,
+               ::coder::array<double, 2U> &r3D);
 
 void b_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedHelixCenter[3],
                  const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
-                 double u_vec, const ::coder::array<bool, 2U> &maskCart, double r0D[3],
-                 double r1D[3], double r2D[3], double r3D[3]);
+                 double u_vec, const bool maskCart_data[], const int maskCart_size[2],
+                 double r0D[3], double r1D[3], double r2D[3], double r3D[3]);
 
 } // namespace ocn
 

@@ -5,7 +5,7 @@
 // File: queue_coder.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 16:00:50
+// C/C++ source code generated on  : 18-Jul-2022 08:58:50
 //
 
 #ifndef QUEUE_CODER_H
@@ -30,6 +30,7 @@ class queue_coder {
     unsigned int size() const;
     void set(unsigned int b_index, const CurvStruct *value) const;
     void get(int b_index, CurvStruct *value) const;
+    void set(int b_index, const CurvStruct *value) const;
     void get(CurvStruct *value) const;
     void rget(CurvStruct *value) const;
     queue_coder();

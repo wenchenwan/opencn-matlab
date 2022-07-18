@@ -5,7 +5,7 @@
 // File: div.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 20-Jun-2022 16:00:50
+// C/C++ source code generated on  : 18-Jul-2022 08:58:50
 //
 
 // Include Files
@@ -90,6 +90,7 @@ void b_binary_expand_op(double alpha1_t_data[], int *alpha1_t_size, const double
 //                const double t10_data[]
 //                const int *t10_size
 //                const ::coder::array<double, 1U> &r
+//                const ::coder::array<double, 1U> &z
 //                const ::coder::array<double, 1U> &r1
 // Return Type  : void
 //
@@ -98,7 +99,8 @@ void binary_expand_op(double alpha0_t_data[], int *alpha0_t_size, const double C
                       const double t5_data[], const int *t5_size, const double t11_data[],
                       const int *t11_size, const double t12_data[], const int *t12_size,
                       const double t10_data[], const int *t10_size,
-                      const ::coder::array<double, 1U> &r, const ::coder::array<double, 1U> &r1)
+                      const ::coder::array<double, 1U> &r, const ::coder::array<double, 1U> &z,
+                      const ::coder::array<double, 1U> &r1)
 {
     double b_CoefPS;
     double c_CoefPS;
@@ -110,18 +112,19 @@ void binary_expand_op(double alpha0_t_data[], int *alpha0_t_size, const double C
     double i_CoefPS;
     double j_CoefPS;
     double k_CoefPS;
-    int ab_t11_size;
     int b_t11_size;
-    int bb_t11_size;
     int c_t11_size;
     int d_t11_size;
     int e_t11_size;
     int f_t11_size;
     int g_t11_size;
     int h_t11_size;
+    int i;
+    int i2;
     int i_t11_size;
-    int j_t11_size;
     int loop_ub;
+    int q_t11_size;
+    int r_t11_size;
     int s_t11_size;
     int stride_0_0;
     int stride_10_0;
@@ -143,7 +146,6 @@ void binary_expand_op(double alpha0_t_data[], int *alpha0_t_size, const double C
     int v_t11_size;
     int w_t11_size;
     int x_t11_size;
-    int y_t11_size;
     b_CoefPS = CoefPS[15];
     c_CoefPS = CoefPS[11];
     d_CoefPS = CoefPS[9];
@@ -172,7 +174,7 @@ void binary_expand_op(double alpha0_t_data[], int *alpha0_t_size, const double C
         d_t11_size = *t11_size;
     }
     if (c_t11_size == 1) {
-        e_t11_size = *t11_size;
+        e_t11_size = z.size(0);
     } else if (d_t11_size == 1) {
         e_t11_size = *t12_size;
     } else if (*t11_size == 1) {
@@ -180,47 +182,50 @@ void binary_expand_op(double alpha0_t_data[], int *alpha0_t_size, const double C
     } else {
         e_t11_size = *t11_size;
     }
+    if (z.size(0) == 1) {
+        i = *t10_size;
+    } else {
+        i = z.size(0);
+    }
     if (*t11_size == 1) {
-        f_t11_size = *t10_size;
-        g_t11_size = r1.size(0);
+        f_t11_size = r1.size(0);
     } else {
         f_t11_size = *t11_size;
+    }
+    if (f_t11_size == 1) {
+        g_t11_size = *t12_size;
+    } else if (*t11_size == 1) {
+        g_t11_size = r1.size(0);
+    } else {
         g_t11_size = *t11_size;
     }
-    if (g_t11_size == 1) {
-        h_t11_size = *t12_size;
-    } else if (*t11_size == 1) {
+    if (*t11_size == 1) {
         h_t11_size = r1.size(0);
     } else {
         h_t11_size = *t11_size;
     }
-    if (*t11_size == 1) {
+    if (e_t11_size == 1) {
+        if (i == 1) {
+            if (*t5_size == 1) {
+                i_t11_size = *alpha1_t_size;
+            } else {
+                i_t11_size = *t5_size;
+            }
+        } else if (z.size(0) == 1) {
+            i_t11_size = *t10_size;
+        } else {
+            i_t11_size = z.size(0);
+        }
+    } else if (g_t11_size == 1) {
+        i_t11_size = z.size(0);
+    } else if (h_t11_size == 1) {
+        i_t11_size = *t12_size;
+    } else if (*t11_size == 1) {
         i_t11_size = r1.size(0);
     } else {
         i_t11_size = *t11_size;
     }
-    if (e_t11_size == 1) {
-        if (f_t11_size == 1) {
-            if (*t5_size == 1) {
-                j_t11_size = *alpha1_t_size;
-            } else {
-                j_t11_size = *t5_size;
-            }
-        } else if (*t11_size == 1) {
-            j_t11_size = *t10_size;
-        } else {
-            j_t11_size = *t11_size;
-        }
-    } else if (h_t11_size == 1) {
-        j_t11_size = *t11_size;
-    } else if (i_t11_size == 1) {
-        j_t11_size = *t12_size;
-    } else if (*t11_size == 1) {
-        j_t11_size = r1.size(0);
-    } else {
-        j_t11_size = *t11_size;
-    }
-    if (j_t11_size == 1) {
+    if (i_t11_size == 1) {
         int b_t12_size;
         if (*t12_size == 1) {
             if (r.size(0) == 1) {
@@ -259,79 +264,79 @@ void binary_expand_op(double alpha0_t_data[], int *alpha0_t_size, const double C
             *alpha0_t_size = *t12_size;
         }
     } else {
+        int j_t11_size;
         int k_t11_size;
         int l_t11_size;
         int m_t11_size;
-        int n_t11_size;
         if (*t11_size == 1) {
+            j_t11_size = r1.size(0);
+        } else {
+            j_t11_size = *t11_size;
+        }
+        if (j_t11_size == 1) {
+            k_t11_size = *t12_size;
+        } else if (*t11_size == 1) {
             k_t11_size = r1.size(0);
         } else {
             k_t11_size = *t11_size;
         }
-        if (k_t11_size == 1) {
-            l_t11_size = *t12_size;
-        } else if (*t11_size == 1) {
+        if (*t11_size == 1) {
             l_t11_size = r1.size(0);
         } else {
             l_t11_size = *t11_size;
         }
-        if (*t11_size == 1) {
+        if (k_t11_size == 1) {
+            m_t11_size = z.size(0);
+        } else if (l_t11_size == 1) {
+            m_t11_size = *t12_size;
+        } else if (*t11_size == 1) {
             m_t11_size = r1.size(0);
         } else {
             m_t11_size = *t11_size;
         }
-        if (l_t11_size == 1) {
-            n_t11_size = *t11_size;
-        } else if (m_t11_size == 1) {
-            n_t11_size = *t12_size;
-        } else if (*t11_size == 1) {
-            n_t11_size = r1.size(0);
-        } else {
-            n_t11_size = *t11_size;
-        }
-        if (n_t11_size == 1) {
-            int p_t11_size;
-            if (*t11_size == 1) {
-                p_t11_size = *t10_size;
+        if (m_t11_size == 1) {
+            int i1;
+            if (z.size(0) == 1) {
+                i1 = *t10_size;
             } else {
-                p_t11_size = *t11_size;
+                i1 = z.size(0);
             }
-            if (p_t11_size == 1) {
+            if (i1 == 1) {
                 if (*t5_size == 1) {
                     *alpha0_t_size = *alpha1_t_size;
                 } else {
                     *alpha0_t_size = *t5_size;
                 }
-            } else if (*t11_size == 1) {
+            } else if (z.size(0) == 1) {
                 *alpha0_t_size = *t10_size;
             } else {
-                *alpha0_t_size = *t11_size;
+                *alpha0_t_size = z.size(0);
             }
         } else {
+            int n_t11_size;
             int o_t11_size;
-            int q_t11_size;
             if (*t11_size == 1) {
+                n_t11_size = r1.size(0);
+            } else {
+                n_t11_size = *t11_size;
+            }
+            if (n_t11_size == 1) {
+                o_t11_size = *t12_size;
+            } else if (*t11_size == 1) {
                 o_t11_size = r1.size(0);
             } else {
                 o_t11_size = *t11_size;
             }
             if (o_t11_size == 1) {
-                q_t11_size = *t12_size;
-            } else if (*t11_size == 1) {
-                q_t11_size = r1.size(0);
+                *alpha0_t_size = z.size(0);
             } else {
-                q_t11_size = *t11_size;
-            }
-            if (q_t11_size == 1) {
-                *alpha0_t_size = *t11_size;
-            } else {
-                int r_t11_size;
+                int p_t11_size;
                 if (*t11_size == 1) {
-                    r_t11_size = r1.size(0);
+                    p_t11_size = r1.size(0);
                 } else {
-                    r_t11_size = *t11_size;
+                    p_t11_size = *t11_size;
                 }
-                if (r_t11_size == 1) {
+                if (p_t11_size == 1) {
                     *alpha0_t_size = *t12_size;
                 } else if (*t11_size == 1) {
                     *alpha0_t_size = r1.size(0);
@@ -351,31 +356,48 @@ void binary_expand_op(double alpha0_t_data[], int *alpha0_t_size, const double C
     stride_7_0 = (*alpha1_t_size != 1);
     stride_8_0 = (*t5_size != 1);
     stride_9_0 = (*t10_size != 1);
-    stride_10_0 = (*t11_size != 1);
-    stride_11_0 = (*t11_size != 1);
+    stride_10_0 = (z.size(0) != 1);
+    stride_11_0 = (z.size(0) != 1);
     stride_12_0 = (*t12_size != 1);
     stride_13_0 = (r1.size(0) != 1);
     stride_14_0 = (*t11_size != 1);
+    if (*t11_size == 1) {
+        q_t11_size = r1.size(0);
+    } else {
+        q_t11_size = *t11_size;
+    }
+    if (q_t11_size == 1) {
+        r_t11_size = *t12_size;
+    } else if (*t11_size == 1) {
+        r_t11_size = r1.size(0);
+    } else {
+        r_t11_size = *t11_size;
+    }
     if (*t11_size == 1) {
         s_t11_size = r1.size(0);
     } else {
         s_t11_size = *t11_size;
     }
-    if (s_t11_size == 1) {
+    if (r_t11_size == 1) {
+        t_t11_size = z.size(0);
+    } else if (s_t11_size == 1) {
         t_t11_size = *t12_size;
     } else if (*t11_size == 1) {
         t_t11_size = r1.size(0);
     } else {
         t_t11_size = *t11_size;
     }
+    if (z.size(0) == 1) {
+        i2 = *t10_size;
+    } else {
+        i2 = z.size(0);
+    }
     if (*t11_size == 1) {
         u_t11_size = r1.size(0);
     } else {
         u_t11_size = *t11_size;
     }
-    if (t_t11_size == 1) {
-        v_t11_size = *t11_size;
-    } else if (u_t11_size == 1) {
+    if (u_t11_size == 1) {
         v_t11_size = *t12_size;
     } else if (*t11_size == 1) {
         v_t11_size = r1.size(0);
@@ -383,46 +405,32 @@ void binary_expand_op(double alpha0_t_data[], int *alpha0_t_size, const double C
         v_t11_size = *t11_size;
     }
     if (*t11_size == 1) {
-        w_t11_size = *t10_size;
-        x_t11_size = r1.size(0);
+        w_t11_size = r1.size(0);
     } else {
         w_t11_size = *t11_size;
+    }
+    if (t_t11_size == 1) {
+        if (i2 == 1) {
+            if (*t5_size == 1) {
+                x_t11_size = *alpha1_t_size;
+            } else {
+                x_t11_size = *t5_size;
+            }
+        } else if (z.size(0) == 1) {
+            x_t11_size = *t10_size;
+        } else {
+            x_t11_size = z.size(0);
+        }
+    } else if (v_t11_size == 1) {
+        x_t11_size = z.size(0);
+    } else if (w_t11_size == 1) {
+        x_t11_size = *t12_size;
+    } else if (*t11_size == 1) {
+        x_t11_size = r1.size(0);
+    } else {
         x_t11_size = *t11_size;
     }
     if (x_t11_size == 1) {
-        y_t11_size = *t12_size;
-    } else if (*t11_size == 1) {
-        y_t11_size = r1.size(0);
-    } else {
-        y_t11_size = *t11_size;
-    }
-    if (*t11_size == 1) {
-        ab_t11_size = r1.size(0);
-    } else {
-        ab_t11_size = *t11_size;
-    }
-    if (v_t11_size == 1) {
-        if (w_t11_size == 1) {
-            if (*t5_size == 1) {
-                bb_t11_size = *alpha1_t_size;
-            } else {
-                bb_t11_size = *t5_size;
-            }
-        } else if (*t11_size == 1) {
-            bb_t11_size = *t10_size;
-        } else {
-            bb_t11_size = *t11_size;
-        }
-    } else if (y_t11_size == 1) {
-        bb_t11_size = *t11_size;
-    } else if (ab_t11_size == 1) {
-        bb_t11_size = *t12_size;
-    } else if (*t11_size == 1) {
-        bb_t11_size = r1.size(0);
-    } else {
-        bb_t11_size = *t11_size;
-    }
-    if (bb_t11_size == 1) {
         int d_t12_size;
         if (*t12_size == 1) {
             if (r.size(0) == 1) {
@@ -461,79 +469,79 @@ void binary_expand_op(double alpha0_t_data[], int *alpha0_t_size, const double C
             loop_ub = *t12_size;
         }
     } else {
+        int ab_t11_size;
+        int bb_t11_size;
         int cb_t11_size;
-        int db_t11_size;
-        int eb_t11_size;
-        int fb_t11_size;
+        int y_t11_size;
         if (*t11_size == 1) {
+            y_t11_size = r1.size(0);
+        } else {
+            y_t11_size = *t11_size;
+        }
+        if (y_t11_size == 1) {
+            ab_t11_size = *t12_size;
+        } else if (*t11_size == 1) {
+            ab_t11_size = r1.size(0);
+        } else {
+            ab_t11_size = *t11_size;
+        }
+        if (*t11_size == 1) {
+            bb_t11_size = r1.size(0);
+        } else {
+            bb_t11_size = *t11_size;
+        }
+        if (ab_t11_size == 1) {
+            cb_t11_size = z.size(0);
+        } else if (bb_t11_size == 1) {
+            cb_t11_size = *t12_size;
+        } else if (*t11_size == 1) {
             cb_t11_size = r1.size(0);
         } else {
             cb_t11_size = *t11_size;
         }
         if (cb_t11_size == 1) {
-            db_t11_size = *t12_size;
-        } else if (*t11_size == 1) {
-            db_t11_size = r1.size(0);
-        } else {
-            db_t11_size = *t11_size;
-        }
-        if (*t11_size == 1) {
-            eb_t11_size = r1.size(0);
-        } else {
-            eb_t11_size = *t11_size;
-        }
-        if (db_t11_size == 1) {
-            fb_t11_size = *t11_size;
-        } else if (eb_t11_size == 1) {
-            fb_t11_size = *t12_size;
-        } else if (*t11_size == 1) {
-            fb_t11_size = r1.size(0);
-        } else {
-            fb_t11_size = *t11_size;
-        }
-        if (fb_t11_size == 1) {
-            int hb_t11_size;
-            if (*t11_size == 1) {
-                hb_t11_size = *t10_size;
+            int i4;
+            if (z.size(0) == 1) {
+                i4 = *t10_size;
             } else {
-                hb_t11_size = *t11_size;
+                i4 = z.size(0);
             }
-            if (hb_t11_size == 1) {
+            if (i4 == 1) {
                 if (*t5_size == 1) {
                     loop_ub = *alpha1_t_size;
                 } else {
                     loop_ub = *t5_size;
                 }
-            } else if (*t11_size == 1) {
+            } else if (z.size(0) == 1) {
                 loop_ub = *t10_size;
             } else {
-                loop_ub = *t11_size;
+                loop_ub = z.size(0);
             }
         } else {
-            int gb_t11_size;
-            int ib_t11_size;
+            int db_t11_size;
+            int eb_t11_size;
             if (*t11_size == 1) {
-                gb_t11_size = r1.size(0);
+                db_t11_size = r1.size(0);
             } else {
-                gb_t11_size = *t11_size;
+                db_t11_size = *t11_size;
             }
-            if (gb_t11_size == 1) {
-                ib_t11_size = *t12_size;
+            if (db_t11_size == 1) {
+                eb_t11_size = *t12_size;
             } else if (*t11_size == 1) {
-                ib_t11_size = r1.size(0);
+                eb_t11_size = r1.size(0);
             } else {
-                ib_t11_size = *t11_size;
+                eb_t11_size = *t11_size;
             }
-            if (ib_t11_size == 1) {
-                loop_ub = *t11_size;
+            if (eb_t11_size == 1) {
+                loop_ub = z.size(0);
             } else {
-                int jb_t11_size;
+                int fb_t11_size;
                 if (*t11_size == 1) {
-                    jb_t11_size = r1.size(0);
+                    fb_t11_size = r1.size(0);
                 } else {
-                    jb_t11_size = *t11_size;
+                    fb_t11_size = *t11_size;
                 }
-                if (jb_t11_size == 1) {
+                if (fb_t11_size == 1) {
                     loop_ub = *t12_size;
                 } else if (*t11_size == 1) {
                     loop_ub = r1.size(0);
@@ -543,17 +551,18 @@ void binary_expand_op(double alpha0_t_data[], int *alpha0_t_size, const double C
             }
         }
     }
-    for (int i{0}; i < loop_ub; i++) {
-        alpha0_t_data[i] =
-            -((((b_CoefPS + alpha1_t_data[i * stride_0_0] * c_CoefPS) +
-                d_CoefPS * t5_data[i * stride_1_0]) -
-               e_CoefPS * t11_data[i * stride_2_0] * t12_data[i * stride_3_0]) +
-              f_CoefPS * t10_data[i * stride_4_0] * r[i * stride_5_0] * t12_data[i * stride_6_0]) /
-            ((((g_CoefPS + alpha1_t_data[i * stride_7_0] * h_CoefPS) +
-               i_CoefPS * t5_data[i * stride_8_0]) -
-              j_CoefPS * t10_data[i * stride_9_0] * t11_data[i * stride_10_0]) -
-             k_CoefPS * t11_data[i * stride_11_0] *
-                 (t12_data[i * stride_12_0] - r1[i * stride_13_0] * t11_data[i * stride_14_0]));
+    for (int i3{0}; i3 < loop_ub; i3++) {
+        alpha0_t_data[i3] =
+            -((((b_CoefPS + alpha1_t_data[i3 * stride_0_0] * c_CoefPS) +
+                d_CoefPS * t5_data[i3 * stride_1_0]) -
+               e_CoefPS * t11_data[i3 * stride_2_0] * t12_data[i3 * stride_3_0]) +
+              f_CoefPS * t10_data[i3 * stride_4_0] * r[i3 * stride_5_0] *
+                  t12_data[i3 * stride_6_0]) /
+            ((((g_CoefPS + alpha1_t_data[i3 * stride_7_0] * h_CoefPS) +
+               i_CoefPS * t5_data[i3 * stride_8_0]) -
+              j_CoefPS * t10_data[i3 * stride_9_0] * z[i3 * stride_10_0]) -
+             k_CoefPS * z[i3 * stride_11_0] *
+                 (t12_data[i3 * stride_12_0] - r1[i3 * stride_13_0] * t11_data[i3 * stride_14_0]));
     }
 }
 

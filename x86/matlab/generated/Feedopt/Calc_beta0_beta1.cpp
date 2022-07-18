@@ -5,7 +5,7 @@
 // File: Calc_beta0_beta1.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 13-Jul-2022 14:15:57
+// C/C++ source code generated on  : 18-Jul-2022 08:54:02
 //
 
 // Include Files
@@ -27,7 +27,7 @@
 //                const double in6[5]
 //                const double in7[5]
 //                const double in8[5]
-//                const double in9[5]
+//                const double in9_data[]
 //                double *beta0
 //                double *beta1
 // Return Type  : void
@@ -35,7 +35,7 @@
 namespace ocn {
 void Calc_beta0_beta1(double alpha0, double alpha1, const double in3[5], const double in4[5],
                       const double in5[5], const double in6[5], const double in7[5],
-                      const double in8[5], const double in9[5], double *beta0, double *beta1)
+                      const double in8[5], const double in9_data[], double *beta0, double *beta1)
 {
     double ab_beta0_tmp;
     double ac_beta0_tmp;
@@ -283,15 +283,15 @@ void Calc_beta0_beta1(double alpha0, double alpha1, const double in3[5], const d
     // 'Calc_beta0_beta1:41' t1_vec4 = in7(4,:);
     // 'Calc_beta0_beta1:42' t1_vec5 = in7(5,:);
     // 'Calc_beta0_beta1:43' t2 = D_vec1.^2;
-    t2 = std::pow(in9[0], 2.0);
+    t2 = std::pow(in9_data[0], 2.0);
     // 'Calc_beta0_beta1:44' t3 = D_vec2.^2;
-    t3 = std::pow(in9[1], 2.0);
+    t3 = std::pow(in9_data[1], 2.0);
     // 'Calc_beta0_beta1:45' t4 = D_vec3.^2;
-    t4 = std::pow(in9[2], 2.0);
+    t4 = std::pow(in9_data[2], 2.0);
     // 'Calc_beta0_beta1:46' t5 = D_vec4.^2;
-    t5 = std::pow(in9[3], 2.0);
+    t5 = std::pow(in9_data[3], 2.0);
     // 'Calc_beta0_beta1:47' t6 = D_vec5.^2;
-    t6 = std::pow(in9[4], 2.0);
+    t6 = std::pow(in9_data[4], 2.0);
     // 'Calc_beta0_beta1:48' t7 = alpha0.^2;
     t7 = std::pow(alpha0, 2.0);
     // 'Calc_beta0_beta1:49' t8 = alpha1.^2;
@@ -364,16 +364,16 @@ void Calc_beta0_beta1(double alpha0, double alpha1, const double in3[5], const d
     // 'Calc_beta0_beta1:105' t64 =
     // t29+t30+t31+t32+t33+t34+t35+t36+t37+t38+t39+t40+t41+t42+t43+t44+t45+t46+t47+t48+t49+t50+t51+t52+t53+t54+t55+t56+t57+t58+t59+t60+t61+t62+t63;
     // 'Calc_beta0_beta1:106' t65 = 1.0./t64;
-    t65_tmp = in9[0] * in9[1];
-    b_t65_tmp = in9[0] * in9[2];
-    c_t65_tmp = in9[0] * in9[3];
-    d_t65_tmp = in9[1] * in9[2];
-    e_t65_tmp = in9[0] * in9[4];
-    f_t65_tmp = in9[1] * in9[3];
-    g_t65_tmp = in9[1] * in9[4];
-    h_t65_tmp = in9[2] * in9[3];
-    i_t65_tmp = in9[2] * in9[4];
-    j_t65_tmp = in9[3] * in9[4];
+    t65_tmp = in9_data[0] * in9_data[1];
+    b_t65_tmp = in9_data[0] * in9_data[2];
+    c_t65_tmp = in9_data[0] * in9_data[3];
+    d_t65_tmp = in9_data[1] * in9_data[2];
+    e_t65_tmp = in9_data[0] * in9_data[4];
+    f_t65_tmp = in9_data[1] * in9_data[3];
+    g_t65_tmp = in9_data[1] * in9_data[4];
+    h_t65_tmp = in9_data[2] * in9_data[3];
+    i_t65_tmp = in9_data[2] * in9_data[4];
+    j_t65_tmp = in9_data[3] * in9_data[4];
     t65 =
         1.0 /
         ((((((((((((((((((((((((((((((((((-(t65_tmp * in4[0] * in4[1] * in7[0] * in7[1] * 2.0) +
@@ -814,7 +814,7 @@ void Calc_beta0_beta1(double alpha0, double alpha1, const double in3[5], const d
               kg_beta0_tmp * in7[0] * in7[1]) -
              mc_beta0_tmp * in4[2] * in7[0] * in7[2]) -
             lg_beta0_tmp * in7[0] * in7[2])) +
-          (((((((((((((((((((-in9[0] * in9[3] * in5[0] * t7 * in4[3] * in7[0] * in7[3] -
+          (((((((((((((((((((-in9_data[0] * in9_data[3] * in5[0] * t7 * in4[3] * in7[0] * in7[3] -
                              mg_beta0_tmp * in7[0] * in7[3]) -
                             pc_beta0_tmp * in4[2] * in7[1] * in7[2]) -
                            ng_beta0_tmp * in7[1] * in7[2]) -
