@@ -1,5 +1,6 @@
 function [ queue ] = checkTrafo( ctx, queue )
-
+% checkTrafo : Handle a trafro command sent in middle of a Gcode
+% Note : this script is still experimental
 N = double( queue.size );
 
 prevTrafo = queue.get( 1 ).Info.TRAFO;

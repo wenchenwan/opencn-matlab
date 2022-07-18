@@ -1,7 +1,8 @@
 %% Basic example
-% This is script provides a rapid overview of the different steps required
-% by the algorithm.
+% This is script is used to visualise the commands outputed after the
+% resampling
 %
+% Note : this script is still experimental
 clc; clear all; close all;
 
 check_wkdir(); % If current directory is the working directory

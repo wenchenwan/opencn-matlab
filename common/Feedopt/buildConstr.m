@@ -124,6 +124,5 @@ assert( ~any( isnan( b ) , 'all' ),          mfilename + " Error : b has NaN");
 assert( ~any( isnan( Aeq ) , 'all' ),        mfilename + " Error : Aeq has NaN");
 assert( ~any( isnan( beq ) , 'all' ),        mfilename + " Error : beq has NaN");
 assert( ~any( isnan( continuity ) , 'all' ), mfilename + " Error : continuity has NaN");
-
 end
 

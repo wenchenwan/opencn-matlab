@@ -52,27 +52,31 @@ $ git submodule update
 
 ## C/C++ files :
 
-1. Open Matlab at the root of the opencn folder. The folder generate contains all the files envolves in code generation. 
-The file generate/generate.c can be modifies to selected which architecture the resulting C/C++ code should follow. 
+1. Open Matlab at the root of the opencn folder. 
+
+The folder generate contains all the files envolves in code generation. 
+The file generate/generate.c can be modified to selecte which architecture will be used during the code generation. 
 Run the following commands in the Matlab prompt to start the code generation. 
 
 ```shell
 >> run generate_c.m
 ```
+**Note** : You can change the configuration of generated code in the file generate/generate_c_config.m
+
 ## Files organisations :
 
 | Directory        | Content                                                               |
 |------------------|-----------------------------------------------------------------------|
-| Bugs             | Relevant data on reported bugs ( see issues )                         |
+| Bugs             | Relevant files and data related to reported bugs ( see issues on Gitlab )                         |
 | dev              | Untracked folder for developpment and quick test only                 |
-| E2C              | Test and result of E2C project on Micron5 machine                     |
-| fake_headers     | Hand written headers files used to be compliant with the kernel       |
+| E2C              | Tests and results of E2C project on Micron5 machine                     |
+| fake_headers     | Hand written header files used to be compliant with the machine kernel       |
 | Feedopt          | Functions used in the feedrate planning algorithms                    |
 | generate         | Files related to the C/C++ code generation and Mexing                 |
 | gen_mex          | Generated mex functions and code                                      |
 | kinematics       | Kinematics functions and tests                                        |
 | mex              | C/C++ wrappers for mexing external code                               |
-| ngc_test         | Set of RS274 G codes used for the test                                |
+| ngc_test         | Set of RS274 G codes used for the tests                                |
 | old              | Old version of algorithms and tests                                   |
 | src              | Custom C/C++ functions                                                |
 | streamer         | CSV files with joint positions for the motors' drive                  |
@@ -82,7 +86,8 @@ Run the following commands in the Matlab prompt to start the code generation.
 | Validates_OpenCN | Validation of the algorithms against a set of G codes                 |
 
 ```
-─ Bugs
+common/
+├── Bugs
 │   ├── cutZeroEnd-infeasibility
 │   └── kinematics-inverse-model
 ├── dev
@@ -183,7 +188,7 @@ Run the following commands in the Matlab prompt to start the code generation.
 └── Validate_OpenCN
 ```
 
-**Note** : You can change the configuration of generate code in the file generate/generate_c_config.m
+
 
 # 2. Complements
 - C/C++ code generation has been tested and validated using the release 5.3 of Matlab Coder
