@@ -65,6 +65,27 @@ Run the following commands in the Matlab prompt to start the code generation.
 
 ## Files organisations :
 
+```
+common/
+├── Bugs
+├── dev
+├── E2C
+├── fake_headers
+├── Feedopt
+├── generate
+├── gen_mex
+├── kinematics
+├── mex
+├── ngc_test
+├── old
+├── src
+├── streamer
+├── Tests
+├── types
+├── utils
+└── Validate_OpenCN
+```
+
 | Directory        | Content                                                               |
 |------------------|-----------------------------------------------------------------------|
 | Bugs             | Relevant files and data related to reported bugs ( see issues on Gitlab )                         |
@@ -85,108 +106,6 @@ Run the following commands in the Matlab prompt to start the code generation.
 | utils            | Functions used for debugging and analyse the result of the algorithms |
 | Validates_OpenCN | Validation of the algorithms against a set of G codes                 |
 
-```
-common/
-├── Bugs
-│   ├── cutZeroEnd-infeasibility
-│   └── kinematics-inverse-model
-├── dev
-├── E2C
-│   ├── PR1
-│   │   └── streamer
-│   └── PR2
-│       └── streamer
-├── fake_headers
-├── Feedopt
-│   ├── angles
-│   ├── bspline
-│   └── queue
-├── generate
-├── gen_mex
-│   ├── c_simplex
-│   │   ├── build
-│   │   │   └── glnxa64
-│   │   └── interface
-│   ├── debug
-│   │   ├── build
-│   │   │   └── glnxa64
-│   │   └── interface
-│   ├── kinematic
-│   │   ├── build
-│   │   │   └── glnxa64
-│   │   └── interface
-│   ├── queue
-│   ├── readgcode
-│   │   ├── build
-│   │   │   └── glnxa64
-│   │   ├── html
-│   │   └── interface
-│   ├── resampling
-│   │   ├── build
-│   │   │   └── glnxa64
-│   │   └── interface
-│   ├── spline
-│   │   ├── bspline_base_eval
-│   │   │   ├── build
-│   │   │   │   └── glnxa64
-│   │   │   └── interface
-│   │   ├── bspline_create
-│   │   │   ├── build
-│   │   │   │   └── glnxa64
-│   │   │   └── interface
-│   │   ├── bspline_destroy
-│   │   │   ├── build
-│   │   │   │   └── glnxa64
-│   │   │   └── interface
-│   │   ├── bspline_eval
-│   │   │   ├── build
-│   │   │   │   └── glnxa64
-│   │   │   └── interface
-│   │   └── bspline_eval_lee
-│   │       ├── build
-│   │       │   └── glnxa64
-│   │       └── interface
-│   ├── tridiag
-│   │   ├── build
-│   │   │   └── glnxa64
-│   │   └── interface
-│   └── types
-│       ├── build
-│       │   └── glnxa64
-│       └── interface
-├── kinematics
-│   ├── gen_fun
-│   └── M5Matrix
-├── mex
-│   ├── bspline_base_eval
-│   ├── bspline_create
-│   ├── bspline_destroy
-│   ├── bspline_eval
-│   ├── queue
-│   └── simplex
-├── ngc_test
-│   ├── bug
-│   ├── dome
-│   ├── full
-│   ├── misc
-│   └── unit
-├── old
-│   ├── CalcTransitionFails
-│   ├── c_planner_v5
-│   │   └── temp
-│   └── pieces_demo
-├── src
-├── streamer
-├── Tests
-│   ├── Full
-│   └── Unit
-│       ├── CutStruct
-│       └── ZSpdMode
-├── types
-├── utils
-│   └── plot
-└── Validate_OpenCN
-```
 
 
 
