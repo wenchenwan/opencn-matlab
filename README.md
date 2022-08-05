@@ -69,7 +69,6 @@ Run the following commands in the Matlab prompt to start the code generation.
 common/
 ├── Bugs
 ├── dev
-├── E2C
 ├── fake_headers
 ├── Feedopt
 ├── generate
@@ -79,7 +78,6 @@ common/
 ├── ngc_test
 ├── old
 ├── src
-├── streamer
 ├── Tests
 ├── types
 ├── utils
@@ -90,7 +88,6 @@ common/
 |------------------|-----------------------------------------------------------------------|
 | Bugs             | Relevant files and data related to reported bugs ( see issues on Gitlab )                         |
 | dev              | Untracked folder for developpment and quick test only                 |
-| E2C              | Tests and results of E2C project on Micron5 machine                     |
 | fake_headers     | Hand written header files used to be compliant with the machine kernel       |
 | Feedopt          | Functions used in the feedrate planning algorithms                    |
 | generate         | Files related to the C/C++ code generation and Mexing                 |
@@ -100,7 +97,6 @@ common/
 | ngc_test         | Set of RS274 G codes used for the tests                                |
 | old              | Old version of algorithms and tests                                   |
 | src              | Custom C/C++ functions                                                |
-| streamer         | CSV files with joint positions for the motors' drive                  |
 | Tests            | Tests files                                                           |
 | types            | Types used to represent the curves                                    |
 | utils            | Functions used for debugging and analyse the result of the algorithms |
