@@ -5,7 +5,7 @@
  * File: kinematics_types.h
  *
  * MATLAB Coder version            : 5.3
- * C/C++ source code generated on  : 18-Jul-2022 09:03:15
+ * C/C++ source code generated on  : 05-Aug-2022 16:06:41
  */
 
 #ifndef KINEMATICS_TYPES_H

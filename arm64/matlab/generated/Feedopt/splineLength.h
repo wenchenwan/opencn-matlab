@@ -5,7 +5,7 @@
 // File: splineLength.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 18-Jul-2022 08:58:50
+// C/C++ source code generated on  : 05-Aug-2022 16:02:16
 //
 
 #ifndef SPLINELENGTH_H

@@ -5,7 +5,7 @@
 // File: calc_t_nk_kappa.h
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 18-Jul-2022 08:54:02
+// C/C++ source code generated on  : 05-Aug-2022 16:07:54
 //
 
 #ifndef CALC_T_NK_KAPPA_H

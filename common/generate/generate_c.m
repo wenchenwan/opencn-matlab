@@ -4,20 +4,18 @@ clear; clc;
 check_wkdir();
 
 % please choose the target first ( only 1 target is generated at the time )
-generate_for_arm_32 = false;
-generate_for_x86_64 = false;
-generate_for_arm_64 = true;
+generate_for_x86_64 = true;
+generate_for_arm_64 = false;
 
-[cfg, output_root] = generate_c_config( generate_for_arm_32, ...
-    generate_for_arm_64, ...
-    generate_for_x86_64 );
+[cfg, output_root] = generate_c_config( generate_for_arm_64, ...
+                                        generate_for_x86_64 );
 
 % please choose the libraries to generate ( All can be generated )
 GenerateAll = true;
 
 if( ~GenerateAll )
     GenerateFeedopt    = true;
-    GenerateKinematics = false;
+    GenerateKinematics = true;
 end
 
 DEBUG = false;
@@ -58,9 +56,8 @@ cfg.TargetLangStandard  = 'C89/C90 (ANSI)';
 cfg.FilePartitionMethod = 'SingleFile';
 end
 
-function [cfg, output_root] = generate_c_config(generate_for_arm_32, ...
-                                                generate_for_arm_64, ...
-                                                generate_for_x86_64 )
+function [cfg, output_root] = generate_c_config( generate_for_arm_64, ...
+                                                 generate_for_x86_64 )
 % generate_c_config
 %
 % Comments from the Mathworks coder reference documentation.
@@ -213,10 +210,6 @@ if  generate_for_x86_64
     %       Coder product.
     cfg.CodeReplacementLibrary = 'Intel SSE (Linux)';
     output_root = '../x86';
-elseif generate_for_arm_32
-    cfg.HardwareImplementation.TargetHWDeviceType   = 'ARM Compatible->ARM Cortex';
-    cfg.HardwareImplementation.ProdHWDeviceType     = 'ARM Compatible->ARM Cortex';
-    output_root = '../arm';
 elseif generate_for_arm_64
     cfg.HardwareImplementation.TargetHWDeviceType   = 'ARM Compatible->ARM 64-bit (LP64)';
     cfg.HardwareImplementation.ProdHWDeviceType     = 'ARM Compatible->ARM 64-bit (LP64)';

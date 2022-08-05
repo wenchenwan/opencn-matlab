@@ -5,7 +5,7 @@
 // File: initFeedoptPlan.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 18-Jul-2022 08:58:50
+// C/C++ source code generated on  : 05-Aug-2022 16:02:16
 //
 
 // Include Files
@@ -189,19 +189,19 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     }
     // 'initFeedoptPlan:22' [ BasisVal, BasisValD, BasisValDD, BasisValDDD, BasisIntegr] = ...
     // 'initFeedoptPlan:23'                                     bspline_base_eval( Bl , u_vec );
-    // 'bspline_base_eval:2' if coder.target('rtw') || coder.target('mex')
+    // 'bspline_base_eval:4' if coder.target('rtw') || coder.target('mex')
     //  n, bspline_n
-    // 'bspline_base_eval:4' samples = int32(numel(xvec));
-    // 'bspline_base_eval:5' BasisVal = zeros(samples, Bl.ncoeff);
+    // 'bspline_base_eval:6' samples     = int32(numel(xvec));
+    // 'bspline_base_eval:7' BasisVal    = zeros(samples, Bl.ncoeff);
     loop_ub_tmp = ctx->Bl.ncoeff;
     BasisVal.set_size(ctx->u_vec.size(1), loop_ub_tmp);
-    // 'bspline_base_eval:6' BasisValD = BasisVal;
+    // 'bspline_base_eval:8' BasisValD   = BasisVal;
     BasisValD.set_size(ctx->u_vec.size(1), loop_ub_tmp);
-    // 'bspline_base_eval:7' BasisValDD = BasisVal;
+    // 'bspline_base_eval:9' BasisValDD  = BasisVal;
     BasisValDD.set_size(ctx->u_vec.size(1), loop_ub_tmp);
-    // 'bspline_base_eval:8' BasisValDDD = BasisVal;
+    // 'bspline_base_eval:10' BasisValDDD = BasisVal;
     BasisValDDD.set_size(ctx->u_vec.size(1), loop_ub_tmp);
-    // 'bspline_base_eval:9' BasisIntegr = BasisVal(1, :)';
+    // 'bspline_base_eval:11' BasisIntegr = BasisVal(1, :)';
     ctx->BasisIntegr.set_size(loop_ub_tmp);
     for (int i5{0}; i5 < loop_ub_tmp; i5++) {
         int e_loop_ub;
@@ -226,17 +226,18 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
         }
         ctx->BasisIntegr[i5] = 0.0;
     }
-    // 'bspline_base_eval:11' coder.updateBuildInfo('addSourceFiles','c_spline.c',
-    // '$(START_DIR)/src'); 'bspline_base_eval:12' coder.updateBuildInfo('addLinkFlags',
-    // LibInfo.gsl.lflags); 'bspline_base_eval:13' coder.cinclude('src/c_spline.h');
-    // 'bspline_base_eval:14' coder.ceval('c_bspline_base_eval', coder.rref(Bl.handle), samples,
-    // coder.rref(xvec), ..., 'bspline_base_eval:15'             coder.ref(BasisVal),
-    // coder.ref(BasisValD), coder.ref(BasisValDD),coder.ref(BasisValDDD),... 'bspline_base_eval:16'
-    // coder.ref(BasisIntegr));
+    // 'bspline_base_eval:13' coder.updateBuildInfo('addSourceFiles','c_spline.c', ...
+    // 'bspline_base_eval:14'                               '$(START_DIR)/src' );
+    // 'bspline_base_eval:15' coder.updateBuildInfo( 'addLinkFlags', LibInfo.gsl.lflags );
+    // 'bspline_base_eval:16' coder.cinclude('src/c_spline.h');
+    // 'bspline_base_eval:17' coder.ceval( 'c_bspline_base_eval', coder.rref( Bl.handle ), samples,
+    // ... 'bspline_base_eval:18'                      coder.rref( xvec ), coder.ref( BasisVal ),
+    // ... 'bspline_base_eval:19'                      coder.ref( BasisValD ), coder.ref( BasisValDD
+    // ), ... 'bspline_base_eval:20'                      coder.ref( BasisValDDD ), coder.ref(
+    // BasisIntegr ) );
     c_bspline_base_eval(&ctx->Bl.handle, ctx->u_vec.size(1), &ctx->u_vec[0], &BasisVal[0],
                         &BasisValD[0], &BasisValDD[0], &BasisValDDD[0],
                         &(ctx->BasisIntegr.data())[0]);
-    // ,
     // 'initFeedoptPlan:25' ctx.BasisVal    = BasisVal;
     ctx->BasisVal.set_size(BasisVal.size(0), BasisVal.size(1));
     k_loop_ub = BasisVal.size(1);

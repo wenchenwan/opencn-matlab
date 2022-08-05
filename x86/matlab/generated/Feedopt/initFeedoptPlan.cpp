@@ -5,7 +5,7 @@
 // File: initFeedoptPlan.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 18-Jul-2022 08:54:02
+// C/C++ source code generated on  : 05-Aug-2022 16:07:54
 //
 
 // Include Files
@@ -78,7 +78,7 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     int j_loop_ub;
     int l_loop_ub;
     int loop_ub_tmp;
-    int n_loop_ub;
+    int o_loop_ub;
     int params_gcodeInfoStruct_gcode_source_line;
     int params_spline_Bl_ncoeff;
     int params_spline_Bl_order;
@@ -131,13 +131,13 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
         int d_vectorUB;
         int i;
         int i11;
-        int i14;
+        int i13;
         int i17;
         int i2;
         int i3;
         int i_loop_ub;
         int loop_ub;
-        int o_loop_ub;
+        int n_loop_ub;
         int scalarLB;
         int vectorUB;
         // 'initFeedoptPlan:16' else
@@ -213,12 +213,12 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
         for (i11 = c_scalarLB; i11 < i_loop_ub; i11++) {
             y[i11] = 3.1415926535897931 * r[i11];
         }
-        i14 = y.size(1);
-        for (int b_k{0}; b_k < i14; b_k++) {
+        i13 = y.size(1);
+        for (int b_k{0}; b_k < i13; b_k++) {
             y[b_k] = std::cos(y[b_k]);
         }
         ctx->u_vec.set_size(1, y.size(1));
-        o_loop_ub = y.size(1);
+        n_loop_ub = y.size(1);
         d_scalarLB = (y.size(1) / 2) << 1;
         d_vectorUB = d_scalarLB - 2;
         for (i17 = 0; i17 <= d_vectorUB; i17 += 2) {
@@ -228,25 +228,25 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
             r6 = _mm_set1_pd(0.5);
             _mm_storeu_pd(&ctx->u_vec[i17], _mm_add_pd(_mm_mul_pd(r5, r6), r6));
         }
-        for (i17 = d_scalarLB; i17 < o_loop_ub; i17++) {
+        for (i17 = d_scalarLB; i17 < n_loop_ub; i17++) {
             ctx->u_vec[i17] = y[i17] * 0.5 + 0.5;
         }
     }
     // 'initFeedoptPlan:22' [ BasisVal, BasisValD, BasisValDD, BasisValDDD, BasisIntegr] = ...
     // 'initFeedoptPlan:23'                                     bspline_base_eval( Bl , u_vec );
-    // 'bspline_base_eval:2' if coder.target('rtw') || coder.target('mex')
+    // 'bspline_base_eval:4' if coder.target('rtw') || coder.target('mex')
     //  n, bspline_n
-    // 'bspline_base_eval:4' samples = int32(numel(xvec));
-    // 'bspline_base_eval:5' BasisVal = zeros(samples, Bl.ncoeff);
+    // 'bspline_base_eval:6' samples     = int32(numel(xvec));
+    // 'bspline_base_eval:7' BasisVal    = zeros(samples, Bl.ncoeff);
     loop_ub_tmp = ctx->Bl.ncoeff;
     BasisVal.set_size(ctx->u_vec.size(1), loop_ub_tmp);
-    // 'bspline_base_eval:6' BasisValD = BasisVal;
+    // 'bspline_base_eval:8' BasisValD   = BasisVal;
     BasisValD.set_size(ctx->u_vec.size(1), loop_ub_tmp);
-    // 'bspline_base_eval:7' BasisValDD = BasisVal;
+    // 'bspline_base_eval:9' BasisValDD  = BasisVal;
     BasisValDD.set_size(ctx->u_vec.size(1), loop_ub_tmp);
-    // 'bspline_base_eval:8' BasisValDDD = BasisVal;
+    // 'bspline_base_eval:10' BasisValDDD = BasisVal;
     BasisValDDD.set_size(ctx->u_vec.size(1), loop_ub_tmp);
-    // 'bspline_base_eval:9' BasisIntegr = BasisVal(1, :)';
+    // 'bspline_base_eval:11' BasisIntegr = BasisVal(1, :)';
     ctx->BasisIntegr.set_size(loop_ub_tmp);
     for (int i5{0}; i5 < loop_ub_tmp; i5++) {
         int e_loop_ub;
@@ -271,17 +271,18 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
         }
         ctx->BasisIntegr[i5] = 0.0;
     }
-    // 'bspline_base_eval:11' coder.updateBuildInfo('addSourceFiles','c_spline.c',
-    // '$(START_DIR)/src'); 'bspline_base_eval:12' coder.updateBuildInfo('addLinkFlags',
-    // LibInfo.gsl.lflags); 'bspline_base_eval:13' coder.cinclude('src/c_spline.h');
-    // 'bspline_base_eval:14' coder.ceval('c_bspline_base_eval', coder.rref(Bl.handle), samples,
-    // coder.rref(xvec), ..., 'bspline_base_eval:15'             coder.ref(BasisVal),
-    // coder.ref(BasisValD), coder.ref(BasisValDD),coder.ref(BasisValDDD),... 'bspline_base_eval:16'
-    // coder.ref(BasisIntegr));
+    // 'bspline_base_eval:13' coder.updateBuildInfo('addSourceFiles','c_spline.c', ...
+    // 'bspline_base_eval:14'                               '$(START_DIR)/src' );
+    // 'bspline_base_eval:15' coder.updateBuildInfo( 'addLinkFlags', LibInfo.gsl.lflags );
+    // 'bspline_base_eval:16' coder.cinclude('src/c_spline.h');
+    // 'bspline_base_eval:17' coder.ceval( 'c_bspline_base_eval', coder.rref( Bl.handle ), samples,
+    // ... 'bspline_base_eval:18'                      coder.rref( xvec ), coder.ref( BasisVal ),
+    // ... 'bspline_base_eval:19'                      coder.ref( BasisValD ), coder.ref( BasisValDD
+    // ), ... 'bspline_base_eval:20'                      coder.ref( BasisValDDD ), coder.ref(
+    // BasisIntegr ) );
     c_bspline_base_eval(&ctx->Bl.handle, ctx->u_vec.size(1), &ctx->u_vec[0], &BasisVal[0],
                         &BasisValD[0], &BasisValDD[0], &BasisValDDD[0],
                         &(ctx->BasisIntegr.data())[0]);
-    // ,
     // 'initFeedoptPlan:25' ctx.BasisVal    = BasisVal;
     ctx->BasisVal.set_size(BasisVal.size(0), BasisVal.size(1));
     j_loop_ub = BasisVal.size(1);
@@ -296,18 +297,18 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     // 'initFeedoptPlan:26' ctx.BasisValD   = BasisValD;
     ctx->BasisValD.set_size(BasisValD.size(0), BasisValD.size(1));
     l_loop_ub = BasisValD.size(1);
-    for (int i13{0}; i13 < l_loop_ub; i13++) {
+    for (int i14{0}; i14 < l_loop_ub; i14++) {
         int m_loop_ub;
         m_loop_ub = BasisValD.size(0);
         for (int i15{0}; i15 < m_loop_ub; i15++) {
-            ctx->BasisValD[i15 + ctx->BasisValD.size(0) * i13] =
-                BasisValD[i15 + BasisValD.size(0) * i13];
+            ctx->BasisValD[i15 + ctx->BasisValD.size(0) * i14] =
+                BasisValD[i15 + BasisValD.size(0) * i14];
         }
     }
     // 'initFeedoptPlan:27' ctx.BasisValDD  = BasisValDD;
     ctx->BasisValDD.set_size(BasisValDD.size(0), BasisValDD.size(1));
-    n_loop_ub = BasisValDD.size(1);
-    for (int i16{0}; i16 < n_loop_ub; i16++) {
+    o_loop_ub = BasisValDD.size(1);
+    for (int i16{0}; i16 < o_loop_ub; i16++) {
         int p_loop_ub;
         p_loop_ub = BasisValDD.size(0);
         for (int i18{0}; i18 < p_loop_ub; i18++) {

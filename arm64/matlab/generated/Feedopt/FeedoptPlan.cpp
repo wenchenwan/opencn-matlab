@@ -5,7 +5,7 @@
 // File: FeedoptPlan.cpp
 //
 // MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 18-Jul-2022 08:58:50
+// C/C++ source code generated on  : 05-Aug-2022 16:02:16
 //
 
 // Include Files
@@ -96,7 +96,6 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
     CurvStruct curv1;
     CurvStruct curv2;
     CurvStruct last;
-    CurvStruct opt_curv;
     CurvStruct opt_struct_tmp;
     CurvStruct r1;
     b_FeedoptContext b_ctx;
@@ -1820,7 +1819,7 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         int yb_loop_ub;
         int yf_loop_ub;
         // 'FeedoptPlan:123' case Fopt.Opt
-        // 'FeedoptPlan:124' [ ctx, optimized, opt_curv, quit ] = feedratePlanning( ctx );
+        // 'FeedoptPlan:124' [ ctx, optimized, opt_struct, quit ] = feedratePlanning( ctx );
         b_ctx.BasisVal.set_size(ctx->BasisVal.size(0), ctx->BasisVal.size(1));
         loop_ub = ctx->BasisVal.size(1);
         for (int i1{0}; i1 < loop_ub; i1++) {
@@ -1998,7 +1997,7 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         }
         b_ctx.Skipped = ctx->Skipped;
         b_ctx.kin = ctx->kin;
-        feedratePlanning(&b_ctx, &c_optimized, &opt_curv, &quit);
+        feedratePlanning(&b_ctx, &c_optimized, opt_struct, &quit);
         ctx->BasisVal.set_size(b_ctx.BasisVal.size(0), b_ctx.BasisVal.size(1));
         id_loop_ub = b_ctx.BasisVal.size(1);
         for (int i78{0}; i78 < id_loop_ub; i78++) {
@@ -2181,8 +2180,8 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         if (c_optimized) {
             // 'FeedoptPlan:126' ctx.go_next = true;
             ctx->go_next = true;
-            // 'FeedoptPlan:127' ctx.q_opt.push( opt_curv );
-            b_ctx.q_opt.push(&opt_curv);
+            // 'FeedoptPlan:127' ctx.q_opt.push( opt_struct );
+            b_ctx.q_opt.push(opt_struct);
         }
         // 'FeedoptPlan:130' if( quit )
     } break;
