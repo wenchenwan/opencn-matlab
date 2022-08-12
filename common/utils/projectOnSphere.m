@@ -18,9 +18,9 @@ roty = @( x ) [ cosd(x) 0 sind(x); 0 1 0; -sind(x) 0 cosd(x)];
 rotz = @( x ) [ cosd(x) sind(x) 0; -sind(x) cosd(x) 0; 0 0 1];
 
 % 1) Load and prepare data points ( center + resizing the anchor )
-load( "utils/projectIntoSphere.mat" );
-N           = size( points, 2 );
-points2D    = points( 1 : 2, : );
+data = load( "utils/projectOnSphere.mat" );
+N           = size( data.point, 2 );
+points2D    = data.point( 1 : 2, : );
 points2D    = ( points2D - mean( points2D, 2 ) );
 bounds      = [ min( points2D, [], 2 ), max( points2D, [], 2 )];
 distance    = bounds( :, 2  ) - bounds( :, 1  );
@@ -75,7 +75,7 @@ disp( "Projection worked !" );
 
 % 5) Write points into Gcode files
 
-write_gcode_from_points( points5D, "anchor_5D_RTCP" );
+write_gcode_from_points( points5D, "ngc_test/anchor_5D_RTCP.ngc" );
 
 %--------------------------------------------------------------------------
 % Functions
@@ -135,7 +135,7 @@ fileID = fopen( name,'w');
 
 fprintf(fileID, "%%\n");
 
-fprintf(fileID, "TRAFO ON\n");
+fprintf(fileID, "#TRAFO ON\n");
 
 fprintf(fileID, "#1=" + feedrate + "\n");
 
@@ -149,7 +149,7 @@ for k = 1 : K
     fprintf(fileID, msg1 + "\n");
 end
 
-fprintf(fileID, "TRAFO OFF\n");
+fprintf(fileID, "#TRAFO OFF\n");
 
 fprintf(fileID, "M2\n");
 
