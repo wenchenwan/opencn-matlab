@@ -5,7 +5,6 @@ gen_mex/**
 *.bak
 *.zip
 *.fig
-*.ngc
 *.asv
 *.txt
 
