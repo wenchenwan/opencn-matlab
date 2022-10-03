@@ -1,0 +1,23 @@
+(CLM_SurfacRef_Diam1_Frontal_Z)
+S60000
+G91(Make motion relative)
+G01 X0 Y0 Z-0.05 F645
+
+
+#1=1
+o101 while [#1 LE 2]
+	G01 Y0.3
+	G01 X0.3
+	G01 Y-0.6
+	G01 X-0.6
+	G01 Y0.9
+	G01 X0.9
+	G01 Y-1.2
+	G01 X-1.2
+	G01 Y2.1
+	G01 X3
+	G01 Z0.25
+	G01 X0.6 Y-1.5
+	G01 Z-0.25
+	#1 = [#1+1]
+o101 endwhile
