@@ -29,23 +29,26 @@
 % derivative. 
 function [p5, status, alpha0, alpha1] = G2_Hermite_Interpolation_nAxis(ctx, r0D0_in, r0D1_in, r0D2_in, r1D0_in, r1D1_in, r1D2_in)
 
+N_AXES_MAX = 6;
+
 % Function are calculated for 5 axis
-r0D0 = zeros(5, 1); r0D1 = zeros(5, 1); r0D2 = zeros(5, 1);
-r1D0 = zeros(5, 1); r1D1 = zeros(5, 1); r1D2 = zeros(5, 1);
+r0D0 = zeros(N_AXES_MAX, 1); r0D1 = r0D0; r0D2 = r0D0; r1D0 = r0D0; 
+r1D1 = r0D0; r1D2 = r0D0;
 
-% Place input vector in 
-r0D0(1:ctx.cfg.NumberAxis) = r0D0_in;
-r0D1(1:ctx.cfg.NumberAxis) = r0D1_in;
-r0D2(1:ctx.cfg.NumberAxis) = r0D2_in;
-r1D0(1:ctx.cfg.NumberAxis) = r1D0_in;
-r1D1(1:ctx.cfg.NumberAxis) = r1D1_in;
-r1D2(1:ctx.cfg.NumberAxis) = r1D2_in;
+% Place input vector in : Set padding on vector
+r0D0(ctx.cfg.maskTot) = r0D0_in;
+r0D1(ctx.cfg.maskTot) = r0D1_in;
+r0D2(ctx.cfg.maskTot) = r0D2_in;
+r1D0(ctx.cfg.maskTot) = r1D0_in;
+r1D1(ctx.cfg.maskTot) = r1D1_in;
+r1D2(ctx.cfg.maskTot) = r1D2_in;
 
-D = ctx.cfg.D;
+D = zeros( N_AXES_MAX,1);
+D(ctx.cfg.maskTot) = ctx.cfg.D;
 
 status = int32(1); % default success
 
-p5 = zeros(5,6);
+p5 = zeros(N_AXES_MAX,6);
 
 alpha0 = 0;
 alpha1 = 0;

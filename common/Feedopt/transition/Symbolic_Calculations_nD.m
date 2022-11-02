@@ -23,7 +23,7 @@
 %     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 %
 %   README
-%   AUTOR   :   Hugo GRALL LUCAS 
+%   AUTOR   :   Quentin PERROT, Hugo GRALL LUCAS 
 %   DATE    :   Summer 2022
 %
 %   1. The number of axes can be changed with the variable nAxis
@@ -38,7 +38,7 @@ check_wkdir();
 %
 %% define symbolic parameters (later these parameters will have numerical values)
 
-nAxis     = 5; % CHANGE THE NUMBER AXIS HERE
+nAxis     = 6; % CHANGE THE NUMBER AXIS HERE
 p0_vec    = sym('p0_vec',  [nAxis, 1], 'real');  % initial point
 t0_vec    = sym('t0_vec',  [nAxis, 1], 'real');  % tangent vector @ initial point
 nk0_vec   = sym('nk0_vec', [nAxis, 1], 'real');  % normal vector  @ initial point
@@ -59,7 +59,8 @@ syms alpha0 beta0 alpha1 beta1 real
 syms u real
 
 %% Path for function saving
-path = "dev/gen_transition/";%"dev/transi/";
+disp(" Generation :  part1");
+path = "dev/gen_transition/";
 
 if( isfolder( path ) ), rmdir( path, 's' ); end
 
@@ -156,6 +157,7 @@ matlabFunction(CoefPS, 'Vars', {p0_vec, t0_vec, nk0_vec, p1_vec, t1_vec, nk1_vec
 clear all; 
 syms a1 a0 b1 b0 c3 c2 c1 c0 d1 d0 e1 e0 f3 f2 f1 f0 alpha0 alpha1 real
 %
+disp(" Generation :  part2");
 path = "dev/gen_transition/";
 %
 CoefPS = [a1, a0, b1, b0, c3, c2, c1, c0, d1, d0, e1, e0, f3, f2, f1, f0];
@@ -176,6 +178,7 @@ matlabFunction(Coeff_Poly_Alpha1, 'Vars', {CoefPS}, 'file',  path + "CharPolyAlp
 clear all; 
 syms a1 a0 b1 b0 c3 c2 c1 c0 d1 d0 e1 e0 f3 f2 f1 f0 alpha0 alpha1 real
 %
+disp(" Generation :  part3");
 path = "dev/gen_transition/";
 %
 CoefPS = [a1, a0, b1, b0, c3, c2, c1, c0, d1, d0, e1, e0, f3, f2, f1, f0];
@@ -196,6 +199,7 @@ matlabFunction(Coeff_Poly_Alpha1, 'Vars', {CoefPS}, 'file',  path + "CharPolyAlp
 clear all; 
 syms a1 a0 b1 b0 c3 c2 c1 c0 d1 d0 e1 e0 f3 f2 f1 f0 alpha1 alpha0 real
 %
+disp(" Generation :  part4");
 path = "dev/gen_transition/";
 %
 CoefPS = sym('CoefPS', 16, 'real');
