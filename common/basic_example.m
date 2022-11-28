@@ -9,7 +9,7 @@ check_wkdir(); % If current directory is the working directory
 % Load default configuration parameters
 cfg = FeedoptDefaultConfig;
 % Set the path to the gcode file
-cfg.source = 'ngc_test/unit/013_anchor_5D.ngc';
+cfg.source = 'ngc_test/unit/011_anchor.ngc';
 
 % Logging
 setupLogs( cfg.LogFileName ); diary on;
@@ -38,7 +38,7 @@ try
     resample2file( ctx, fileName ); ctx.q_opt.delete();
 
     % Load resampled data points
-    res = readmatrix( fileName );
+    res = readmatrix( fileName );    
     delete( fileName );
  
     % Transforms structure into vector for analysis

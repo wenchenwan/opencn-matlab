@@ -3,12 +3,12 @@ check_wkdir();
 
 % We need first to choose what we whant to MEX.
 % Several options are possible.
-GenerateAll = true;
+GenerateAll = false;
 
 if( ~GenerateAll )
     GenerateDebug               = false;
     GenerateType                = false;
-    GenerateResampling          = false;
+    GenerateResampling          = true;
     GenerateGCodeInterpreter    = false;
     GenerateQueues              = false;
     GenerateSimplex             = false;
@@ -235,12 +235,14 @@ if( GenerateAll || GenerateResampling )
         path_mex = genpath( ResamplingRep );
         rmpath( path_mex );
         my_cfg  = FeedoptDefaultConfig;
-        ctx     = initFeedoptPlan( my_cfg );
-        dt      = my_cfg.dt;
+%         ctx     = initFeedoptPlan( my_cfg );
+        Bl      = coder.OutputType("constrBaseSplineType");
+        dt      = 0.0;
         state   = ResampleState( dt );
         Curv    = constrCurvStructType;        
         codegen('-config', cfg,'-d', ResamplingRep,...
-            'resampleCurv', '-args', {state, ctx.Bl, Curv.Info.zspdmode, ...
+            'constrBaseSplineType',...
+            'resampleCurv', '-args', {state, Bl, Curv.Info.zspdmode, ...
              coder.typeof(0.0, [Inf, 1], [1,0]), ...
              Curv.ConstJerk, dt,  Curv.a_param, Curv.b_param, ...
              my_cfg.GaussLegendreX, my_cfg.GaussLegendreW }, ...
