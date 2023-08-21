@@ -19,3 +19,5 @@ common/*$*
 common/\006*
 common/*.bak
 common/*.log
+common/*.a
+common/*.o

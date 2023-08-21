@@ -9,7 +9,7 @@ check_wkdir(); % If current directory is the working directory
 % Load default configuration parameters
 cfg = FeedoptDefaultConfig;
 % Set the path to the gcode file
-cfg.source = 'ngc_test/unit/011_anchor.ngc';
+cfg.source = 'ngc_test/unit/013_anchor_5D_RTCP.ngc';
 
 % Logging
 setupLogs( cfg.LogFileName ); diary on;

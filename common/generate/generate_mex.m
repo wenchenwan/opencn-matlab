@@ -3,7 +3,7 @@ check_wkdir();
 
 % We need first to choose what we whant to MEX.
 % Several options are possible.
-GenerateAll = false;
+GenerateAll = true;
 
 if( ~GenerateAll )
     GenerateDebug               = false;
