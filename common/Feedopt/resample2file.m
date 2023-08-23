@@ -44,6 +44,8 @@ for k = 1 : N
             f       = Curv.Info.FeedRate;
             [ r, ~, a, j ]  = calcRVAJfromU( ctx, Curv, state.u, ud, udd, uddd );
             [ r0D, r1D ]    = EvalCurvStruct( ctx, Curv, state.u );
+            
+            r = ctx.kin.r_relative(r);
 
             if( ~Curv.Info.TRAFO )
                 r1D = ctx.kin.v_relative( r0D, r1D );
@@ -53,7 +55,7 @@ for k = 1 : N
             feed    = feed / Curv.Info.FeedRate;
             a       = abs( a ./ ctx.cfg.amax( ctx.cfg.maskTot )' );
             j       = abs( j ./ ctx.cfg.jmax( ctx.cfg.maskTot )' );
-
+            
             buffer( ind, : ) = [ t, u, feed, f, cf, r', a', j' ];
         end
     end

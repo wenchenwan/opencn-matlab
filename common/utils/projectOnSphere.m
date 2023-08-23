@@ -128,6 +128,8 @@ function [] = write_gcode_from_points( points, name )
 
 feedrate = 500;
 
+points(4:5, : ) = 0.0;
+
 % Write GCode
 msg = "G01 X%f Y%f Z%f B%f C%f";
 
