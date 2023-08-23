@@ -57,6 +57,10 @@ $ git submodule update
 >> run basic_example.m
 ```
 
+**Note** : Sometimes you can experiment some issues with stdc++6.so. [This post](https://ch.mathworks.com/matlabcentral/answers/1631110-when-launching-matlab-i-get-the-following-error-mesa-loader-failed-to-open-iris) explains how to solve this issue.
+
+
+
 ## C/C++ files :
 
 1. Open Matlab at the root of the opencn folder. 
