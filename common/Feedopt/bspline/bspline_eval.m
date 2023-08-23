@@ -20,9 +20,12 @@ function [ x, xd, xdd, xddd ] = bspline_eval( Bl, coeffs, x ) %#codegen
             fprintf('ERROR: C_BSPLINE_EVAL: X > 1 (%f)\n', x);
             x = 1;
         end
-        coder.updateBuildInfo('addSourceFiles','c_spline.c', '$(START_DIR)/src');
+        my_path = StructTypeName.WDIR + "/src";
+        coder.updateBuildInfo('addIncludePaths',my_path);
+        coder.updateBuildInfo('addSourceFiles','c_spline.c', my_path);
         coder.updateBuildInfo('addLinkFlags', LibInfo.gsl.lflags);
-        coder.cinclude('src/c_spline.h');
+        coder.cinclude('c_spline.h');
+
         coder.ceval('c_bspline_eval', coder.rref(Bl.handle), coder.rref(coeffs),...
                     x, coder.wref(X));
         x       = X(1);

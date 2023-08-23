@@ -57,5 +57,7 @@ cfg.EnableMemcpy = true;
 % for assignment of floating-point zero to consecutive array elements.
 % To assign consecutive array elements, the memset optimization uses a memset call.
 cfg.InitFltsAndDblsToZero = true;
-
+% For Backward compatibility
+if(isprop(cfg,'CppGenerateEnumClass'))
+    cfg.CppGenerateEnumClass = false;
 end

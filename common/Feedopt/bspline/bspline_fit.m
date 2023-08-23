@@ -1,9 +1,12 @@
 function [CoeffX, CoeffY, CoeffZ] = bspline_fit(Bl, u, Points) %#codegen
 
 if coder.target('rtw') || coder.target('mex')
-    coder.updateBuildInfo('addSourceFiles','c_spline.c', '$(START_DIR)/src');
+    my_path = StructTypeName.WDIR + "/src";
+    coder.updateBuildInfo('addIncludePaths',my_path);
+    coder.updateBuildInfo('addSourceFiles','c_spline.c', my_path);
     coder.updateBuildInfo('addLinkFlags', LibInfo.gsl.lflags);
-    coder.cinclude('src/c_spline.h');
+    coder.cinclude('c_spline.h');
+
     CoeffX = zeros(1, Bl.n);
     CoeffY = zeros(1, Bl.n);
     CoeffZ = zeros(1, Bl.n);

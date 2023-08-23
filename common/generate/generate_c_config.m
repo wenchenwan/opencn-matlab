@@ -137,7 +137,10 @@ cfg.HighlightPotentialRowMajorIssues = true;
 % header file generated from your MATLAB code,
 % except rtwtypes.h and rtwhalf.h
 cfg.CustomHeaderCode = '#include "functions.h"';
-
+% For Backward compatibility
+if(isprop(cfg,'CppGenerateEnumClass'))
+    cfg.CppGenerateEnumClass = false;
+end
 if  generate_for_x86_64
     %     Manufacturer and type of the target (test) hardware board
     cfg.HardwareImplementation.TargetHWDeviceType = 'Intel->x86-64 (Linux 64)';

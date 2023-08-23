@@ -3,15 +3,15 @@ check_wkdir();
 
 % We need first to choose what we whant to MEX.
 % Several options are possible.
-GenerateAll = false;
+GenerateAll = true;
 
 if( ~GenerateAll )
     GenerateDebug               = false;
     GenerateType                = false;
-    GenerateResampling          = true;
+    GenerateResampling          = false;
     GenerateGCodeInterpreter    = false;
     GenerateQueues              = false;
-    GenerateSimplex             = false;
+    GenerateSimplex             = true;
     GenerateSpline              = false;
     GenerateKinematic           = false;
     GenerateTridiagonalSolver   = false;
@@ -191,7 +191,7 @@ if( GenerateAll || GenerateSpline )
         delete( 'bspline_eval_mex.mexa64' );
         delete( 'bspline_eval_lee_mex.mexa64' );
         addpath( path_mex );
-    catch
+    catch ME
         fprintf( ERROR_COLOR, name + "failed : " + ME.message + "\n");
     end
 end
@@ -364,7 +364,7 @@ if( GenerateAll || GenerateKinematic )
             + "_mex.mexa64");
         delete(KinematicsTypeName.get_fun_name( KinFunctionName.J2P_ra ) ...
             + "_mex.mexa64");
-    catch
+    catch ME
         fprintf( ERROR_COLOR, name + "failed : " + ME.message + "\n");
     end
 end

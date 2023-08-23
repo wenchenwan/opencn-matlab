@@ -9,11 +9,14 @@ CurvStruct = constrCurvStructType;
 
 if ( coder.target('mex') || coder.target('rtw') )
     coder.updateBuildInfo('addDefines', '_POSIX_C_SOURCE=199309L')
+    
+    my_path = StructTypeName.WDIR + "/src";
+    coder.updateBuildInfo('addIncludePaths',my_path);
 
-    pathRs274Src = '$(START_DIR)/../../rs274ngc/src';
+    pathRs274Src = StructTypeName.WDIR + "/../../rs274ngc/src";
 %     coder.updateBuildInfo('addDefines', '-DMEX_READGCODE')
     coder.updateBuildInfo('addCompileFlags', '-fdiagnostics-color=always')
-    coder.updateBuildInfo('addSourceFiles','cpp_interp.cpp', '$(START_DIR)/../common/src');
+    coder.updateBuildInfo('addSourceFiles','cpp_interp.cpp', my_path);
     coder.updateBuildInfo('addSourceFiles','directives.cc', pathRs274Src);
     coder.updateBuildInfo('addSourceFiles','rotational_axis_mode.cc', pathRs274Src);
     coder.updateBuildInfo('addSourceFiles','interp_arc.cc', pathRs274Src);

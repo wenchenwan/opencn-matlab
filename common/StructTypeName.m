@@ -1,4 +1,5 @@
 classdef ( Sealed ) StructTypeName < handle
+
     properties ( Constant )
         BaseSpline = 'BaseSplineStruct';
         Curve      = 'CurvStruct';
@@ -51,12 +52,10 @@ classdef ( Sealed ) StructTypeName < handle
         dimKinParams = { [ 32, 1 ], [ 1, 0 ] };
         % Default size for the Pvec used in compressing
         dimPvec = { [ StructTypeName.NumberAxisMax, Inf ], [0, 1] };
+        % Get the working directory 
+        WDIR = fileparts(mfilename('fullpath'));
     end
 
-    methods (Access = private)
-        function obj = StructTypeName
-        end
-    end
     methods (Static)
         function singleObj = getInstance
             persistent localObj
@@ -65,6 +64,7 @@ classdef ( Sealed ) StructTypeName < handle
             end
             singleObj = localObj;
         end
-    end
+        
+     end
 
 end

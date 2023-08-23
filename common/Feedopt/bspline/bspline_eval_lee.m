@@ -10,9 +10,12 @@ function [ BasisVal, BasisValDD0, BasisValDD1 ] = bspline_eval_lee( Bl, nCoeff, 
         BasisValDD0 = BasisVal( 1, : );
         BasisValDD1 = BasisValDD0;
         
-        coder.updateBuildInfo('addSourceFiles','c_spline.c', '$(START_DIR)/src');
+        my_path = StructTypeName.WDIR + "/src";
+        coder.updateBuildInfo('addIncludePaths',my_path);
+        coder.updateBuildInfo('addSourceFiles','c_spline.c', my_path);
         coder.updateBuildInfo('addLinkFlags', LibInfo.gsl.lflags);
-        coder.cinclude('src/c_spline.h');
+        coder.cinclude('c_spline.h');
+
         coder.ceval('c_bspline_base_eval_lee', coder.rref(Bl.handle), ...
             int32( nCoeff ), int32( N ), coder.rref( u_vec ), ...
             coder.wref( BasisVal ), coder.wref( BasisValDD0 ), ...

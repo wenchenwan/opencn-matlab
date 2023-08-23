@@ -26,9 +26,13 @@ if coder.target('rtw') || coder.target('mex')
     Csize = int32(size(C));
     success = int32(0);
     status = int32(0);
-    coder.updateBuildInfo('addSourceFiles','cpp_simplex.cpp', '$(START_DIR)/src/');
-    coder.updateBuildInfo('addLinkFlags', LibInfo.clp.lflags);
+    
+    my_path = StructTypeName.WDIR + "/src";
+    coder.updateBuildInfo('addIncludePaths',my_path);
+    coder.updateBuildInfo('addSourceFiles','cpp_simplex.cpp', my_path);
+    coder.updateBuildInfo('addLinkFlags', LibInfo.clp.lflags );
     coder.cinclude('cpp_simplex.hpp');
+
     status = coder.ceval('simplex_solve', coder.rref(f), fsize,...
         coder.rref(Avs), coder.rref(Ais), coder.rref(Ajs), Asize, An,...
         coder.rref(b), bsize, coder.rref(beq),beqsize,...

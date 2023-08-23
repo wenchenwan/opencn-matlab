@@ -10,9 +10,11 @@
 extern "C" {
 #endif
 
-#ifndef RS274_DEV
-#include <opencn/uapi/feedopt.h>
-#endif
+#if 0
+    #ifndef RS274_DEV
+    #include <opencn/uapi/feedopt.h>
+    #endif
+#endif 
 
 #include <soo/uapi/debug.h>
 
