@@ -22,8 +22,15 @@ $ sudo apt install coinor-libclp1 coinor-clp coinor-libclp-dev
 
 3. Install the libraries of the GSL - GNU Scientific Library
 
+for ubuntu 20.04
+
 ```shell
 $ sudo apt install libgsl23 libgsl-dev
+```
+for ubuntu 22.04
+
+```shell
+$ sudo apt install libgsl27 libgsl-dev
 ```
 
 ## Mex files :
@@ -107,7 +114,7 @@ common/
 
 # 2. Complements
 - C/C++ code generation has been tested and validated using the release 5.3 of Matlab Coder
-- The code has been tested with Matlab 2021b
+- The code has been tested with Matlab 2021b on (ubuntu 20.04) and 2022a, 2022b, 2023a on (ubuntu 22.04).
 - The path planning algorithms are described in details in [chapter 5](https://mecatronyx.gitlab.io/opencnc/opencn/CNC_Path_Planning_Algorithms/CNC_Path_Planning_Algorithms.html) of the documentation.
 
 - A guide for the utilisation of the Matlab coder in *opencn-matlab* is provided in [chapter 4.3](https://mecatronyx.gitlab.io/opencnc/opencn/components/feedopt.html) of the documentation.
