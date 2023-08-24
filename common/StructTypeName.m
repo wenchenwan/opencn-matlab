@@ -1,14 +1,16 @@
 classdef ( Sealed ) StructTypeName < handle
 
     properties ( Constant )
+        Axes       = 'Axes';
         BaseSpline = 'BaseSplineStruct';
         Curve      = 'CurvStruct';
-        Spline     = 'SplineStruct';
-        GCodeInfo  = 'GcodeInfoStruct';
         FeedoptCtx = 'FeedoptContext';
         FeedoptCfg = 'FeedoptConfig';
-        LPCfg      = 'LPCfg';
+        GCodeInfo  = 'GcodeInfoStruct';
         MEX        = 'MEX';
+        LPCfg      = 'LPCfg';
+        Spline     = 'SplineStruct';
+        Tool       = 'Tool';
     end
     
     properties ( Constant )
