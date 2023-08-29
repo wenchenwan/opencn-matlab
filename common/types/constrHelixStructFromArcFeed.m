@@ -1,4 +1,4 @@
-function [ CStrct ] = constrHelixStructFromArcFeed( gcodeInfoStruct, ...
+function [ CStrct ] = constrHelixStructFromArcFeed( gcodeInfoStruct, tool, ...
                                                         P0, P1, C, A0, A1, ...
                                                         rotation, evec) %#codegen
 % ConstrHelixStructFromArcFeed : Construct a Curv struct filled with the
@@ -7,6 +7,7 @@ function [ CStrct ] = constrHelixStructFromArcFeed( gcodeInfoStruct, ...
 % motion in the perpendicular plan ( XY, ZX, YZ ).
 %
 % gcodeInfoStruct : struct containing the information from the Gcode
+% tool      : Struct containing the information of the tool
 % P0        : Starting point of the helix P0
 % P1        : Ending point of the helix P0
 % C         : Center C
@@ -81,8 +82,8 @@ end
 R0 = [ P0; A0 ];
 R1 = [ P1; A1 ];
 
-[ CStrct ] = constrHelixStruct( gcodeInfoStruct, R0, R1, Cprim, delta, ...
-                                    evec, theta, pitch );
+[ CStrct ] = constrHelixStruct( gcodeInfoStruct, tool, R0, R1, Cprim, ...
+                                delta, evec, theta, pitch );
 end
 
 function [ col_vec ] = getColVec( vec )

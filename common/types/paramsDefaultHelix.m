@@ -8,7 +8,7 @@ else
 end
 
 if( coder.target( 'MATLAB' ) )
-    params = { paramHelix{ 1 }, paramHelix{ 3 : end -2 } };
+    params = { paramHelix{ 1 : 2 }, paramHelix{ 4 : end -2 } };
 end
 
 end

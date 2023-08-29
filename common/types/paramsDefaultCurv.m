@@ -11,32 +11,35 @@ CoeffP5 = zeros( 1, 6 );
 Coeff   = zeros( 1, 1 );
 
 if( coder.target( 'MATLAB' ) && nargin > 0 )
-    R0 = coder.typeof( R0, StructTypeName.dimR{ : } ) ;
-    R1 = coder.typeof( R1, StructTypeName.dimR{ : } ) ;
-    CoeffP5 = coder.typeof( CoeffP5, StructTypeName.dimCoeffP5{ : } ) ;
-    Coeff   = coder.typeof( Coeff,  StructTypeName.dimCoeffOpt{ : } ) ;
-    gcodeInfoStruct = constrGcodeInfoStructType( StructTypeName.MEX ) ;
+    R0 = coder.typeof( R0, StructTypeName.dimR{ : } );
+    R1 = coder.typeof( R1, StructTypeName.dimR{ : } );
+    CoeffP5 = coder.typeof( CoeffP5, StructTypeName.dimCoeffP5{ : } );
+    Coeff   = coder.typeof( Coeff,  StructTypeName.dimCoeffOpt{ : } );
+    gcodeInfoStruct = constrGcodeInfoStructType( StructTypeName.MEX );
+    toolStruct      = constrToolStructType( StructTypeName.MEX );
     spline          = constrSplineType( StructTypeName.MEX );
 else
     gcodeInfoStruct = constrGcodeInfoStructType;
+    toolStruct      = constrToolStructType;
     spline          = constrSplineType;
 end
 
 if( coder.target( 'MATLAB' ) )
-    params = { gcodeInfoStruct, spline, R0, R1, Cprim, delta, evec, theta, ... 
-               pitch, CoeffP5, Coeff };
+    params = { gcodeInfoStruct, toolStruct, spline, R0, R1, Cprim,...
+               delta, evec, theta, pitch, CoeffP5, Coeff };
 else
-    params.gcodeInfoStruct = gcodeInfoStruct;
-    params.spline   = spline;
-    params.R0       = R0;
-    params.R1       = R1;
-    params.Cprim    = Cprim;
-    params.delta    = delta;
-    params.evec     = evec;
-    params.theta    = theta;
-    params.pitch    = pitch;
-    params.CoeffP5  = CoeffP5;
-    params.Coeff    = Coeff;
+    params.gcodeInfoStruct  = gcodeInfoStruct;
+    params.tool             = toolStruct;
+    params.spline           = spline;
+    params.R0               = R0;
+    params.R1               = R1;
+    params.Cprim            = Cprim;
+    params.delta            = delta;
+    params.evec             = evec;
+    params.theta            = theta;
+    params.pitch            = pitch;
+    params.CoeffP5          = CoeffP5;
+    params.Coeff            = Coeff;
 end
 
 end

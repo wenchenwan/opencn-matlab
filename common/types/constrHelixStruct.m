@@ -1,5 +1,5 @@
-function [ CStrct ] = constrHelixStruct( gcodeInfoStruct, R0, R1, Cprim, ...
-                                         delta, evec, theta, pitch )
+function [ CStrct ] = constrHelixStruct( gcodeInfoStruct, tool, R0, R1, ...
+                                        Cprim, delta, evec, theta, pitch )
 %#codegen
 % constrHelixStructFromArcFeed : Construct a Curv struct filled with the
 % parameters of a helix. The resulting helix is the combination of a linear 
@@ -7,6 +7,7 @@ function [ CStrct ] = constrHelixStruct( gcodeInfoStruct, R0, R1, Cprim, ...
 % motion in the perpendicular plan ( XY, ZX, YZ ).
 %
 % gcodeInfoStruct : struct containing the information from the Gcode
+% tool      : Struct containing the information of the tool
 % R0        : Starting pose of the helix P0
 % R1        : Ending pose of the helix P0
 % Cprim     : Corrected center of the helix
@@ -25,7 +26,6 @@ spline  = constrSplineType();
 CoeffP5 = zeros( 1, 6 );
 Coeff   = zeros( 1, 1 );
 
-CStrct = constrCurvStruct( gcodeInfoStruct, spline, R0, R1, Cprim, delta, ...
-                            evec, theta, pitch, CoeffP5, Coeff );
-
+CStrct = constrCurvStruct( gcodeInfoStruct, tool, spline, R0, R1, Cprim, ...
+                            delta,evec, theta, pitch, CoeffP5, Coeff );
 end
