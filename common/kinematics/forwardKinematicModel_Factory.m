@@ -4,7 +4,7 @@ function [r_r] = forwardKinematicModel_Factory( R, P )
 % Variable :         unit : size : description
 % INPUT 
 % P = [mx, tx,  px,  d1;
-%      my, ty, p_y,  d2;
+%      my, ty,  py,  d2;
 %      mz, tz,  pz, t_l];
 % OUTPUT 
 % Fct_MGD  :                     : Function for the Forward Kinematic Model

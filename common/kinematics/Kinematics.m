@@ -29,6 +29,12 @@ classdef Kinematics
             coder.inline( "never" );
             this.type = type;
         end
+        
+        function [ this ] = set_tool_length( this, tool_length )
+            coder.inline( "never" );
+            this.parameters(end)    = tool_length;
+            this.parameters(9)      = tool_length;
+        end
 
         function [ params ] = get_params( this )
             coder.inline( "never" );

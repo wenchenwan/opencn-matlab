@@ -35,6 +35,33 @@ classdef ( Sealed ) KinematicsTypeName < handle
                     s = string( fun );
             end
         end
+        function [params] = varTypeKinematic( kinType )
+        % VarTypeKinematic
+        % Define type of variable necessary for kinematics functions
+        
+            R = double( zeros( 5, 1 ) );
+            P = double( zeros( 3, 4 ) );
+            switch kinType
+            case KinFunctionName.MGD
+                params = {R, P};
+            case KinFunctionName.MGI
+                params = {R, P};
+            case KinFunctionName.J_ar
+                params = {R, P};
+            case KinFunctionName.J_ra
+                params = {R, P};
+            case KinFunctionName.JP_ar
+                params = {R, R, P};
+            case KinFunctionName.JP_ra
+                params = {R, R, P};
+            case KinFunctionName.J2P_ar
+                params = {R, R, R, P};
+            case KinFunctionName.J2P_ra
+                params = {R, R, R, P};              
+            otherwise
+                params = {};
+            end
+        end
     end
 
 end
