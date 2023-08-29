@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: CalcAlpha0.h
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 #ifndef CALCALPHA0_H
@@ -21,9 +21,9 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-void binary_expand_op(double t12_data[], int *t12_size, const double CoefPS[16],
-                      const double alpha1_t_data[], const int *alpha1_t_size,
-                      const ::coder::array<double, 1U> &r, const ::coder::array<double, 1U> &r1);
+void binary_expand_op(double in1_data[], int *in1_size, const double in2[16],
+                      const double in3_data[], const int *in3_size,
+                      const ::coder::array<double, 1U> &in4, const ::coder::array<double, 1U> &in5);
 
 }
 

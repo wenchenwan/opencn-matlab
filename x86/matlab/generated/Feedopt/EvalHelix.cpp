@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: EvalHelix.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 // Include Files
@@ -18,44 +18,39 @@
 
 // Function Declarations
 namespace ocn {
-static void binary_expand_op(::coder::array<double, 2U> &b,
-                             const ::coder::array<double, 2U> &cphiTCP0,
-                             const ::coder::array<double, 2U> &sphiTEcrCP0, double a,
-                             const double CurvStruct_evec[3],
-                             const ::coder::array<double, 2U> &phi_vec);
+static void binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
+                             const ::coder::array<double, 2U> &in3, double in4, const double in5[3],
+                             const ::coder::array<double, 2U> &in6);
 
-static void binary_expand_op(::coder::array<double, 2U> &a, double CurvStruct_theta,
-                             const ::coder::array<double, 2U> &sphiTCP0,
-                             const ::coder::array<double, 2U> &cphiTEcrCP0);
+static void binary_expand_op(::coder::array<double, 2U> &in1, double in2,
+                             const ::coder::array<double, 2U> &in3,
+                             const ::coder::array<double, 2U> &in4);
 
-static void binary_expand_op(::coder::array<double, 2U> &r3D, double a,
-                             const ::coder::array<double, 2U> &sphiTCP0, double b_a,
-                             const ::coder::array<double, 2U> &cphiTEcrCP0);
+static void binary_expand_op(::coder::array<double, 2U> &in1, double in2,
+                             const ::coder::array<double, 2U> &in3, double in4,
+                             const ::coder::array<double, 2U> &in5);
 
-static void binary_expand_op(double CP0[3], const double CurvStruct_R0[6],
-                             const signed char _data[], const int _size[2],
-                             const double CurvStruct_CorrectedHelixCenter[3]);
+static void binary_expand_op(double in1[3], const double in2[6], const signed char in3_data[],
+                             const int in3_size[2], const double in4[3]);
 
 } // namespace ocn
 
 // Function Definitions
 //
-// Arguments    : ::coder::array<double, 2U> &b
-//                const ::coder::array<double, 2U> &cphiTCP0
-//                const ::coder::array<double, 2U> &sphiTEcrCP0
-//                double a
-//                const double CurvStruct_evec[3]
-//                const ::coder::array<double, 2U> &phi_vec
+// Arguments    : ::coder::array<double, 2U> &in1
+//                const ::coder::array<double, 2U> &in2
+//                const ::coder::array<double, 2U> &in3
+//                double in4
+//                const double in5[3]
+//                const ::coder::array<double, 2U> &in6
 // Return Type  : void
 //
 namespace ocn {
-static void binary_expand_op(::coder::array<double, 2U> &b,
-                             const ::coder::array<double, 2U> &cphiTCP0,
-                             const ::coder::array<double, 2U> &sphiTEcrCP0, double a,
-                             const double CurvStruct_evec[3],
-                             const ::coder::array<double, 2U> &phi_vec)
+static void binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
+                             const ::coder::array<double, 2U> &in3, double in4, const double in5[3],
+                             const ::coder::array<double, 2U> &in6)
 {
-    ::coder::array<double, 2U> b_a;
+    ::coder::array<double, 2U> b_in4;
     int aux_0_1;
     int aux_1_1;
     int aux_2_1;
@@ -65,50 +60,49 @@ static void binary_expand_op(::coder::array<double, 2U> &b,
     int stride_0_1;
     int stride_1_1;
     int stride_2_1;
-    b_a.set_size(3, phi_vec.size(1));
-    loop_ub = phi_vec.size(1);
+    b_in4.set_size(3, in6.size(1));
+    loop_ub = in6.size(1);
     for (int i{0}; i < loop_ub; i++) {
         __m128d r;
-        r = _mm_loadu_pd((const double *)&CurvStruct_evec[0]);
-        _mm_storeu_pd(&b_a[3 * i],
-                      _mm_mul_pd(_mm_mul_pd(_mm_set1_pd(a), r), _mm_set1_pd(phi_vec[i])));
-        b_a[3 * i + 2] = a * CurvStruct_evec[2] * phi_vec[i];
+        r = _mm_loadu_pd((const double *)&in5[0]);
+        _mm_storeu_pd(&b_in4[3 * i],
+                      _mm_mul_pd(_mm_mul_pd(_mm_set1_pd(in4), r), _mm_set1_pd(in6[i])));
+        b_in4[3 * i + 2] = in4 * in5[2] * in6[i];
     }
-    if (b_a.size(1) == 1) {
-        if (sphiTEcrCP0.size(1) == 1) {
-            i1 = cphiTCP0.size(1);
+    if (b_in4.size(1) == 1) {
+        if (in3.size(1) == 1) {
+            i1 = in2.size(1);
         } else {
-            i1 = sphiTEcrCP0.size(1);
+            i1 = in3.size(1);
         }
     } else {
-        i1 = b_a.size(1);
+        i1 = b_in4.size(1);
     }
-    b.set_size(3, i1);
-    stride_0_1 = (cphiTCP0.size(1) != 1);
-    stride_1_1 = (sphiTEcrCP0.size(1) != 1);
-    stride_2_1 = (b_a.size(1) != 1);
+    in1.set_size(3, i1);
+    stride_0_1 = (in2.size(1) != 1);
+    stride_1_1 = (in3.size(1) != 1);
+    stride_2_1 = (b_in4.size(1) != 1);
     aux_0_1 = 0;
     aux_1_1 = 0;
     aux_2_1 = 0;
-    if (b_a.size(1) == 1) {
-        if (sphiTEcrCP0.size(1) == 1) {
-            b_loop_ub = cphiTCP0.size(1);
+    if (b_in4.size(1) == 1) {
+        if (in3.size(1) == 1) {
+            b_loop_ub = in2.size(1);
         } else {
-            b_loop_ub = sphiTEcrCP0.size(1);
+            b_loop_ub = in3.size(1);
         }
     } else {
-        b_loop_ub = b_a.size(1);
+        b_loop_ub = b_in4.size(1);
     }
     for (int i2{0}; i2 < b_loop_ub; i2++) {
         __m128d r1;
         __m128d r2;
         __m128d r3;
-        r1 = _mm_loadu_pd((const double *)&cphiTCP0[3 * aux_0_1]);
-        r2 = _mm_loadu_pd((const double *)&sphiTEcrCP0[3 * aux_1_1]);
-        r3 = _mm_loadu_pd(&b_a[3 * aux_2_1]);
-        _mm_storeu_pd(&b[3 * i2], _mm_add_pd(_mm_add_pd(r1, r2), r3));
-        b[3 * i2 + 2] =
-            (cphiTCP0[3 * aux_0_1 + 2] + sphiTEcrCP0[3 * aux_1_1 + 2]) + b_a[3 * aux_2_1 + 2];
+        r1 = _mm_loadu_pd((const double *)&in2[3 * aux_0_1]);
+        r2 = _mm_loadu_pd((const double *)&in3[3 * aux_1_1]);
+        r3 = _mm_loadu_pd(&b_in4[3 * aux_2_1]);
+        _mm_storeu_pd(&in1[3 * i2], _mm_add_pd(_mm_add_pd(r1, r2), r3));
+        in1[3 * i2 + 2] = (in2[3 * aux_0_1 + 2] + in3[3 * aux_1_1 + 2]) + b_in4[3 * aux_2_1 + 2];
         aux_2_1 += stride_2_1;
         aux_1_1 += stride_1_1;
         aux_0_1 += stride_0_1;
@@ -116,15 +110,15 @@ static void binary_expand_op(::coder::array<double, 2U> &b,
 }
 
 //
-// Arguments    : ::coder::array<double, 2U> &a
-//                double CurvStruct_theta
-//                const ::coder::array<double, 2U> &sphiTCP0
-//                const ::coder::array<double, 2U> &cphiTEcrCP0
+// Arguments    : ::coder::array<double, 2U> &in1
+//                double in2
+//                const ::coder::array<double, 2U> &in3
+//                const ::coder::array<double, 2U> &in4
 // Return Type  : void
 //
-static void binary_expand_op(::coder::array<double, 2U> &a, double CurvStruct_theta,
-                             const ::coder::array<double, 2U> &sphiTCP0,
-                             const ::coder::array<double, 2U> &cphiTEcrCP0)
+static void binary_expand_op(::coder::array<double, 2U> &in1, double in2,
+                             const ::coder::array<double, 2U> &in3,
+                             const ::coder::array<double, 2U> &in4)
 {
     int aux_0_1;
     int aux_1_1;
@@ -132,46 +126,45 @@ static void binary_expand_op(::coder::array<double, 2U> &a, double CurvStruct_th
     int loop_ub;
     int stride_0_1;
     int stride_1_1;
-    if (cphiTEcrCP0.size(1) == 1) {
-        i = sphiTCP0.size(1);
+    if (in4.size(1) == 1) {
+        i = in3.size(1);
     } else {
-        i = cphiTEcrCP0.size(1);
+        i = in4.size(1);
     }
-    a.set_size(3, i);
-    stride_0_1 = (sphiTCP0.size(1) != 1);
-    stride_1_1 = (cphiTEcrCP0.size(1) != 1);
+    in1.set_size(3, i);
+    stride_0_1 = (in3.size(1) != 1);
+    stride_1_1 = (in4.size(1) != 1);
     aux_0_1 = 0;
     aux_1_1 = 0;
-    if (cphiTEcrCP0.size(1) == 1) {
-        loop_ub = sphiTCP0.size(1);
+    if (in4.size(1) == 1) {
+        loop_ub = in3.size(1);
     } else {
-        loop_ub = cphiTEcrCP0.size(1);
+        loop_ub = in4.size(1);
     }
     for (int i1{0}; i1 < loop_ub; i1++) {
         __m128d r;
         __m128d r1;
-        r = _mm_loadu_pd((const double *)&sphiTCP0[3 * aux_0_1]);
-        r1 = _mm_loadu_pd((const double *)&cphiTEcrCP0[3 * aux_1_1]);
-        _mm_storeu_pd(&a[3 * i1], _mm_add_pd(_mm_mul_pd(_mm_set1_pd(-CurvStruct_theta), r),
-                                             _mm_mul_pd(_mm_set1_pd(CurvStruct_theta), r1)));
-        a[3 * i1 + 2] = -CurvStruct_theta * sphiTCP0[3 * aux_0_1 + 2] +
-                        CurvStruct_theta * cphiTEcrCP0[3 * aux_1_1 + 2];
+        r = _mm_loadu_pd((const double *)&in3[3 * aux_0_1]);
+        r1 = _mm_loadu_pd((const double *)&in4[3 * aux_1_1]);
+        _mm_storeu_pd(&in1[3 * i1], _mm_add_pd(_mm_mul_pd(_mm_set1_pd(-in2), r),
+                                               _mm_mul_pd(_mm_set1_pd(in2), r1)));
+        in1[3 * i1 + 2] = -in2 * in3[3 * aux_0_1 + 2] + in2 * in4[3 * aux_1_1 + 2];
         aux_1_1 += stride_1_1;
         aux_0_1 += stride_0_1;
     }
 }
 
 //
-// Arguments    : ::coder::array<double, 2U> &r3D
-//                double a
-//                const ::coder::array<double, 2U> &sphiTCP0
-//                double b_a
-//                const ::coder::array<double, 2U> &cphiTEcrCP0
+// Arguments    : ::coder::array<double, 2U> &in1
+//                double in2
+//                const ::coder::array<double, 2U> &in3
+//                double in4
+//                const ::coder::array<double, 2U> &in5
 // Return Type  : void
 //
-static void binary_expand_op(::coder::array<double, 2U> &r3D, double a,
-                             const ::coder::array<double, 2U> &sphiTCP0, double b_a,
-                             const ::coder::array<double, 2U> &cphiTEcrCP0)
+static void binary_expand_op(::coder::array<double, 2U> &in1, double in2,
+                             const ::coder::array<double, 2U> &in3, double in4,
+                             const ::coder::array<double, 2U> &in5)
 {
     int aux_0_1;
     int aux_1_1;
@@ -179,51 +172,50 @@ static void binary_expand_op(::coder::array<double, 2U> &r3D, double a,
     int loop_ub;
     int stride_0_1;
     int stride_1_1;
-    if (cphiTEcrCP0.size(1) == 1) {
-        i = sphiTCP0.size(1);
+    if (in5.size(1) == 1) {
+        i = in3.size(1);
     } else {
-        i = cphiTEcrCP0.size(1);
+        i = in5.size(1);
     }
-    r3D.set_size(3, i);
-    stride_0_1 = (sphiTCP0.size(1) != 1);
-    stride_1_1 = (cphiTEcrCP0.size(1) != 1);
+    in1.set_size(3, i);
+    stride_0_1 = (in3.size(1) != 1);
+    stride_1_1 = (in5.size(1) != 1);
     aux_0_1 = 0;
     aux_1_1 = 0;
-    if (cphiTEcrCP0.size(1) == 1) {
-        loop_ub = sphiTCP0.size(1);
+    if (in5.size(1) == 1) {
+        loop_ub = in3.size(1);
     } else {
-        loop_ub = cphiTEcrCP0.size(1);
+        loop_ub = in5.size(1);
     }
     for (int i1{0}; i1 < loop_ub; i1++) {
         __m128d r;
         __m128d r1;
-        r = _mm_loadu_pd((const double *)&sphiTCP0[3 * aux_0_1]);
-        r1 = _mm_loadu_pd((const double *)&cphiTEcrCP0[3 * aux_1_1]);
-        _mm_storeu_pd(&r3D[3 * i1],
-                      _mm_sub_pd(_mm_mul_pd(_mm_set1_pd(a), r), _mm_mul_pd(_mm_set1_pd(b_a), r1)));
-        r3D[3 * i1 + 2] = a * sphiTCP0[3 * aux_0_1 + 2] - b_a * cphiTEcrCP0[3 * aux_1_1 + 2];
+        r = _mm_loadu_pd((const double *)&in3[3 * aux_0_1]);
+        r1 = _mm_loadu_pd((const double *)&in5[3 * aux_1_1]);
+        _mm_storeu_pd(&in1[3 * i1], _mm_sub_pd(_mm_mul_pd(_mm_set1_pd(in2), r),
+                                               _mm_mul_pd(_mm_set1_pd(in4), r1)));
+        in1[3 * i1 + 2] = in2 * in3[3 * aux_0_1 + 2] - in4 * in5[3 * aux_1_1 + 2];
         aux_1_1 += stride_1_1;
         aux_0_1 += stride_0_1;
     }
 }
 
 //
-// Arguments    : double CP0[3]
-//                const double CurvStruct_R0[6]
-//                const signed char _data[]
-//                const int _size[2]
-//                const double CurvStruct_CorrectedHelixCenter[3]
+// Arguments    : double in1[3]
+//                const double in2[6]
+//                const signed char in3_data[]
+//                const int in3_size[2]
+//                const double in4[3]
 // Return Type  : void
 //
-static void binary_expand_op(double CP0[3], const double CurvStruct_R0[6],
-                             const signed char _data[], const int _size[2],
-                             const double CurvStruct_CorrectedHelixCenter[3])
+static void binary_expand_op(double in1[3], const double in2[6], const signed char in3_data[],
+                             const int in3_size[2], const double in4[3])
 {
     int stride_0_0;
-    stride_0_0 = (_size[1] != 1);
-    CP0[0] = CurvStruct_R0[_data[0] - 1] - CurvStruct_CorrectedHelixCenter[0];
-    CP0[1] = CurvStruct_R0[_data[stride_0_0] - 1] - CurvStruct_CorrectedHelixCenter[1];
-    CP0[2] = CurvStruct_R0[_data[stride_0_0 << 1] - 1] - CurvStruct_CorrectedHelixCenter[2];
+    stride_0_0 = (in3_size[1] != 1);
+    in1[0] = in2[in3_data[0] - 1] - in4[0];
+    in1[1] = in2[in3_data[stride_0_0] - 1] - in4[1];
+    in1[2] = in2[in3_data[stride_0_0 << 1] - 1] - in4[2];
 }
 
 //
@@ -292,7 +284,6 @@ void EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedH
     int f_loop_ub;
     int g_loop_ub;
     int h_loop_ub;
-    int i1;
     int i11;
     int i3;
     int i5;
@@ -341,11 +332,11 @@ void EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedH
     loop_ub = u_vec.size(1);
     scalarLB = (u_vec.size(1) / 2) << 1;
     vectorUB = scalarLB - 2;
-    for (i1 = 0; i1 <= vectorUB; i1 += 2) {
+    for (int i1{0}; i1 <= vectorUB; i1 += 2) {
         _mm_storeu_pd(&phi_vec[i1], _mm_mul_pd(_mm_set1_pd(CurvStruct_theta),
                                                _mm_loadu_pd((const double *)&u_vec[i1])));
     }
-    for (i1 = scalarLB; i1 < loop_ub; i1++) {
+    for (int i1{scalarLB}; i1 < loop_ub; i1++) {
         phi_vec[i1] = CurvStruct_theta * u_vec[i1];
     }
     // 'EvalHelix:36' EcrCP0      = cross( evec, CP0 );
@@ -487,12 +478,13 @@ void EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedH
         c_a.set_size(3, sphiTCP0.size(1));
         j_loop_ub = sphiTCP0.size(1);
         for (int i14{0}; i14 < j_loop_ub; i14++) {
+            __m128d r10;
             __m128d r8;
-            __m128d r9;
             r8 = _mm_loadu_pd(&sphiTCP0[3 * i14]);
-            r9 = _mm_loadu_pd(&cphiTEcrCP0[3 * i14]);
-            _mm_storeu_pd(&c_a[3 * i14], _mm_add_pd(_mm_mul_pd(_mm_set1_pd(-CurvStruct_theta), r8),
-                                                    _mm_mul_pd(_mm_set1_pd(CurvStruct_theta), r9)));
+            r10 = _mm_loadu_pd(&cphiTEcrCP0[3 * i14]);
+            _mm_storeu_pd(&c_a[3 * i14],
+                          _mm_add_pd(_mm_mul_pd(_mm_set1_pd(-CurvStruct_theta), r8),
+                                     _mm_mul_pd(_mm_set1_pd(CurvStruct_theta), r10)));
             c_a[3 * i14 + 2] = -CurvStruct_theta * sphiTCP0[3 * i14 + 2] +
                                CurvStruct_theta * cphiTEcrCP0[3 * i14 + 2];
         }
@@ -501,18 +493,18 @@ void EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedH
     }
     r1D.set_size(3, c_a.size(1));
     if (c_a.size(1) != 0) {
+        __m128d r9;
         int acoef;
         int i15;
         acoef = (c_a.size(1) != 1);
         i15 = c_a.size(1) - 1;
+        r9 = _mm_loadu_pd(&y[0]);
         for (int d_k{0}; d_k <= i15; d_k++) {
-            __m128d r10;
             __m128d r11;
             int varargin_2;
             varargin_2 = acoef * d_k;
-            r10 = _mm_loadu_pd(&c_a[3 * varargin_2]);
-            r11 = _mm_loadu_pd(&y[0]);
-            _mm_storeu_pd(&r1D[3 * d_k], _mm_add_pd(r10, r11));
+            r11 = _mm_loadu_pd(&c_a[3 * varargin_2]);
+            _mm_storeu_pd(&r1D[3 * d_k], _mm_add_pd(r11, r9));
             r1D[3 * d_k + 2] = c_a[3 * varargin_2 + 2] + y[2];
         }
     }
@@ -690,26 +682,26 @@ void b_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
     // 'EvalHelix:52' r3D       =  theta^3*sphiTCP0  - theta^3*cphiTEcrCP0;
     b_a_tmp = std::pow(CurvStruct_theta, 3.0);
     r = _mm_loadu_pd(&CP0[0]);
-    r1 = _mm_set1_pd(cphi);
-    r2 = _mm_mul_pd(r, r1);
-    r3 = _mm_set1_pd(sphi);
-    r4 = _mm_mul_pd(r, r3);
+    r2 = _mm_set1_pd(cphi);
+    r1 = _mm_mul_pd(r, r2);
+    r4 = _mm_set1_pd(sphi);
+    r3 = _mm_mul_pd(r, r4);
     r5 = _mm_loadu_pd(&EcrCP0[0]);
-    r6 = _mm_mul_pd(r5, r1);
-    r7 = _mm_mul_pd(r5, r3);
+    r6 = _mm_mul_pd(r5, r2);
+    r7 = _mm_mul_pd(r5, r4);
     r8 = _mm_loadu_pd((const double *)&CurvStruct_evec[0]);
     _mm_storeu_pd(
         &r0D[0],
         _mm_add_pd(_mm_loadu_pd((const double *)&CurvStruct_CorrectedHelixCenter[0]),
-                   _mm_add_pd(_mm_add_pd(r2, r7),
+                   _mm_add_pd(_mm_add_pd(r1, r7),
                               _mm_mul_pd(_mm_mul_pd(_mm_set1_pd(a), r8), _mm_set1_pd(phi_vec)))));
-    _mm_storeu_pd(&r1D[0], _mm_add_pd(_mm_add_pd(_mm_mul_pd(_mm_set1_pd(-CurvStruct_theta), r4),
+    _mm_storeu_pd(&r1D[0], _mm_add_pd(_mm_add_pd(_mm_mul_pd(_mm_set1_pd(-CurvStruct_theta), r3),
                                                  _mm_mul_pd(_mm_set1_pd(CurvStruct_theta), r6)),
                                       _mm_mul_pd(_mm_set1_pd(b_a), r8)));
-    _mm_storeu_pd(&r2D[0], _mm_sub_pd(_mm_mul_pd(_mm_set1_pd(-a_tmp), r2),
+    _mm_storeu_pd(&r2D[0], _mm_sub_pd(_mm_mul_pd(_mm_set1_pd(-a_tmp), r1),
                                       _mm_mul_pd(_mm_set1_pd(a_tmp), r7)));
     r9 = _mm_set1_pd(b_a_tmp);
-    _mm_storeu_pd(&r3D[0], _mm_sub_pd(_mm_mul_pd(r9, r4), _mm_mul_pd(r9, r6)));
+    _mm_storeu_pd(&r3D[0], _mm_sub_pd(_mm_mul_pd(r9, r3), _mm_mul_pd(r9, r6)));
     d = CP0[2] * cphi;
     d1 = CP0[2] * sphi;
     d2 = EcrCP0[2] * cphi;

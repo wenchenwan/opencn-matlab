@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: calcRVAJfromUWithoutCurv.h
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 #ifndef CALCRVAJFROMUWITHOUTCURV_H
@@ -21,18 +21,17 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-void b_times(::coder::array<double, 2U> &V, const ::coder::array<double, 2U> &r1D,
-             const ::coder::array<double, 2U> &ud);
+void b_times(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
+             const ::coder::array<double, 2U> &in3);
 
-void binary_expand_op(::coder::array<double, 2U> &A, const ::coder::array<double, 2U> &r2D,
-                      const ::coder::array<double, 2U> &r, const ::coder::array<double, 2U> &r1D,
-                      const ::coder::array<double, 2U> &udd_vec);
+void binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
+                      const ::coder::array<double, 2U> &in3, const ::coder::array<double, 2U> &in4,
+                      const ::coder::array<double, 2U> &in5);
 
-void binary_expand_op(::coder::array<double, 2U> &J, const ::coder::array<double, 2U> &r3D,
-                      const ::coder::array<double, 2U> &r, const ::coder::array<double, 2U> &r2D,
-                      const ::coder::array<double, 2U> &ud,
-                      const ::coder::array<double, 2U> &udd_vec,
-                      const ::coder::array<double, 2U> &r1D, double jps, const unsigned int r1[2]);
+void binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
+                      const ::coder::array<double, 2U> &in3, const ::coder::array<double, 2U> &in4,
+                      const ::coder::array<double, 2U> &in5, const ::coder::array<double, 2U> &in6,
+                      const ::coder::array<double, 2U> &in7, double in8, const unsigned int in9[2]);
 
 } // namespace ocn
 

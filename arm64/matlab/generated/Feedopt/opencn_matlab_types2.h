@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: opencn_matlab_types2.h
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 #ifndef OPENCN_MATLAB_TYPES2_H
@@ -28,18 +28,6 @@ struct SplineStruct {
     ::coder::array<double, 2U> knots;
     double Ltot;
     ::coder::array<double, 2U> Lk;
-};
-
-struct GcodeInfoStruct {
-    CurveType Type;
-    ZSpdMode zspdmode;
-    bool TRAFO;
-    bool HSC;
-    double FeedRate;
-    double SpindleSpeed;
-    int gcode_source_line;
-    bool G91;
-    bool G91_1;
 };
 
 } // namespace ocn

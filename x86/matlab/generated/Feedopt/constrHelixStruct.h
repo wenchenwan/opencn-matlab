@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: constrHelixStruct.h
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 #ifndef CONSTRHELIXSTRUCT_H
@@ -13,7 +13,7 @@
 
 // Include Files
 #include "opencn_matlab_types1.h"
-#include "opencn_matlab_types2.h"
+#include "opencn_matlab_types21.h"
 #include "rtwtypes.h"
 #include <cstddef>
 #include <cstdlib>
@@ -22,9 +22,10 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-extern void constrHelixStruct(GcodeInfoStruct *gcodeInfoStruct, const double R0[6],
-                              const double R1[6], const double Cprim[3], double delta,
-                              const double evec[3], double theta, double pitch, CurvStruct *CStrct);
+extern void constrHelixStruct(GcodeInfoStruct *gcodeInfoStruct, const Tool *tool,
+                              const double R0[6], const double R1[6], const double Cprim[3],
+                              double delta, const double evec[3], double theta, double pitch,
+                              CurvStruct *CStrct);
 
 }
 

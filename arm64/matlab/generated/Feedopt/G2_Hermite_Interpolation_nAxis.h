@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: G2_Hermite_Interpolation_nAxis.h
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 #ifndef G2_HERMITE_INTERPOLATION_NAXIS_H
@@ -22,11 +22,11 @@
 // Function Declarations
 namespace ocn {
 void G2_Hermite_Interpolation_nAxis(
-    int ctx_cfg_NumberAxis, const ::coder::array<double, 1U> &ctx_cfg_D,
-    const ::coder::array<double, 1U> &r0D0_in, const ::coder::array<double, 1U> &r0D1_in,
-    const ::coder::array<double, 1U> &r0D2_in, const ::coder::array<double, 1U> &r1D0_in,
-    const ::coder::array<double, 1U> &r1D1_in, const ::coder::array<double, 1U> &r1D2_in,
-    double p5[6][5], int *status);
+    const bool ctx_cfg_maskTot_data[], const int ctx_cfg_maskTot_size[2],
+    const ::coder::array<double, 1U> &ctx_cfg_D, const ::coder::array<double, 1U> &r0D0_in,
+    const ::coder::array<double, 1U> &r0D1_in, const ::coder::array<double, 1U> &r0D2_in,
+    const ::coder::array<double, 1U> &r1D0_in, const ::coder::array<double, 1U> &r1D1_in,
+    const ::coder::array<double, 1U> &r1D2_in, double p5[6][6], int *status);
 
 }
 

@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: div.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 // Include Files
@@ -14,118 +14,118 @@
 
 // Function Definitions
 //
-// Arguments    : double alpha1_t_data[]
-//                int *alpha1_t_size
-//                const double CoefPS[16]
-//                const ::coder::array<double, 1U> &r
-//                const ::coder::array<double, 1U> &r1
-//                const double alpha0_t_data[]
-//                const int *alpha0_t_size
+// Arguments    : double in1_data[]
+//                int *in1_size
+//                const double in2[16]
+//                const ::coder::array<double, 1U> &in3
+//                const ::coder::array<double, 1U> &in4
+//                const double in5_data[]
+//                const int *in5_size
 // Return Type  : void
 //
 namespace ocn {
-void b_binary_expand_op(double alpha1_t_data[], int *alpha1_t_size, const double CoefPS[16],
-                        const ::coder::array<double, 1U> &r, const ::coder::array<double, 1U> &r1,
-                        const double alpha0_t_data[], const int *alpha0_t_size)
+void b_binary_expand_op(double in1_data[], int *in1_size, const double in2[16],
+                        const ::coder::array<double, 1U> &in3,
+                        const ::coder::array<double, 1U> &in4, const double in5_data[],
+                        const int *in5_size)
 {
-    double b_CoefPS;
-    double c_CoefPS;
-    double d_CoefPS;
-    double e_CoefPS;
-    double f_CoefPS;
-    double g_CoefPS;
+    double b_in2;
+    double c_in2;
+    double d_in2;
+    double e_in2;
+    double f_in2;
+    double g_in2;
     int loop_ub;
     int stride_0_0;
     int stride_1_0;
     int stride_2_0;
     int stride_3_0;
-    b_CoefPS = CoefPS[12];
-    c_CoefPS = CoefPS[13];
-    d_CoefPS = CoefPS[14];
-    e_CoefPS = CoefPS[15];
-    f_CoefPS = CoefPS[10];
-    g_CoefPS = CoefPS[11];
-    if (*alpha0_t_size == 1) {
-        if (r1.size(0) == 1) {
-            *alpha1_t_size = r.size(0);
+    b_in2 = in2[12];
+    c_in2 = in2[13];
+    d_in2 = in2[14];
+    e_in2 = in2[15];
+    f_in2 = in2[10];
+    g_in2 = in2[11];
+    if (*in5_size == 1) {
+        if (in4.size(0) == 1) {
+            *in1_size = in3.size(0);
         } else {
-            *alpha1_t_size = r1.size(0);
+            *in1_size = in4.size(0);
         }
     } else {
-        *alpha1_t_size = *alpha0_t_size;
+        *in1_size = *in5_size;
     }
-    stride_0_0 = (r.size(0) != 1);
-    stride_1_0 = (r1.size(0) != 1);
-    stride_2_0 = (*alpha0_t_size != 1);
-    stride_3_0 = (*alpha0_t_size != 1);
-    if (*alpha0_t_size == 1) {
-        if (r1.size(0) == 1) {
-            loop_ub = r.size(0);
+    stride_0_0 = (in3.size(0) != 1);
+    stride_1_0 = (in4.size(0) != 1);
+    stride_2_0 = (*in5_size != 1);
+    stride_3_0 = (*in5_size != 1);
+    if (*in5_size == 1) {
+        if (in4.size(0) == 1) {
+            loop_ub = in3.size(0);
         } else {
-            loop_ub = r1.size(0);
+            loop_ub = in4.size(0);
         }
     } else {
-        loop_ub = *alpha0_t_size;
+        loop_ub = *in5_size;
     }
     for (int i{0}; i < loop_ub; i++) {
-        alpha1_t_data[i] = -(((b_CoefPS * r[i * stride_0_0] + c_CoefPS * r1[i * stride_1_0]) +
-                              d_CoefPS * alpha0_t_data[i * stride_2_0]) +
-                             e_CoefPS) /
-                           (f_CoefPS * alpha0_t_data[i * stride_3_0] + g_CoefPS);
+        in1_data[i] = -(((b_in2 * in3[i * stride_0_0] + c_in2 * in4[i * stride_1_0]) +
+                         d_in2 * in5_data[i * stride_2_0]) +
+                        e_in2) /
+                      (f_in2 * in5_data[i * stride_3_0] + g_in2);
     }
 }
 
 //
-// Arguments    : double alpha0_t_data[]
-//                int *alpha0_t_size
-//                const double CoefPS[16]
-//                const double alpha1_t_data[]
-//                const int *alpha1_t_size
-//                const double t5_data[]
-//                const int *t5_size
-//                const double t11_data[]
-//                const int *t11_size
-//                const double t12_data[]
-//                const int *t12_size
-//                const double t10_data[]
-//                const int *t10_size
-//                const ::coder::array<double, 1U> &r
-//                const ::coder::array<double, 1U> &z
-//                const ::coder::array<double, 1U> &r1
+// Arguments    : double in1_data[]
+//                int *in1_size
+//                const double in2[16]
+//                const double in3_data[]
+//                const int *in3_size
+//                const double in4_data[]
+//                const int *in4_size
+//                const double in5_data[]
+//                const int *in5_size
+//                const double in6_data[]
+//                const int *in6_size
+//                const double in7_data[]
+//                const int *in7_size
+//                const ::coder::array<double, 1U> &in8
+//                const ::coder::array<double, 1U> &in9
+//                const ::coder::array<double, 1U> &in10
 // Return Type  : void
 //
-void binary_expand_op(double alpha0_t_data[], int *alpha0_t_size, const double CoefPS[16],
-                      const double alpha1_t_data[], const int *alpha1_t_size,
-                      const double t5_data[], const int *t5_size, const double t11_data[],
-                      const int *t11_size, const double t12_data[], const int *t12_size,
-                      const double t10_data[], const int *t10_size,
-                      const ::coder::array<double, 1U> &r, const ::coder::array<double, 1U> &z,
-                      const ::coder::array<double, 1U> &r1)
+void binary_expand_op(double in1_data[], int *in1_size, const double in2[16],
+                      const double in3_data[], const int *in3_size, const double in4_data[],
+                      const int *in4_size, const double in5_data[], const int *in5_size,
+                      const double in6_data[], const int *in6_size, const double in7_data[],
+                      const int *in7_size, const ::coder::array<double, 1U> &in8,
+                      const ::coder::array<double, 1U> &in9, const ::coder::array<double, 1U> &in10)
 {
-    double b_CoefPS;
-    double c_CoefPS;
-    double d_CoefPS;
-    double e_CoefPS;
-    double f_CoefPS;
-    double g_CoefPS;
-    double h_CoefPS;
-    double i_CoefPS;
-    double j_CoefPS;
-    double k_CoefPS;
-    int b_t11_size;
-    int c_t11_size;
-    int d_t11_size;
-    int e_t11_size;
-    int f_t11_size;
-    int g_t11_size;
-    int h_t11_size;
+    double b_in2;
+    double c_in2;
+    double d_in2;
+    double e_in2;
+    double f_in2;
+    double g_in2;
+    double h_in2;
+    double i_in2;
+    double j_in2;
+    double k_in2;
+    int b_in5_size;
+    int c_in5_size;
+    int d_in5_size;
+    int e_in5_size;
+    int f_in5_size;
+    int g_in5_size;
+    int h_in5_size;
     int i;
     int i2;
-    int i_t11_size;
+    int i_in5_size;
     int loop_ub;
-    int q_t11_size;
-    int r_t11_size;
-    int s_t11_size;
+    int q_in5_size;
+    int r_in5_size;
+    int s_in5_size;
     int stride_0_0;
     int stride_10_0;
     int stride_11_0;
@@ -141,489 +141,488 @@ void binary_expand_op(double alpha0_t_data[], int *alpha0_t_size, const double C
     int stride_7_0;
     int stride_8_0;
     int stride_9_0;
-    int t_t11_size;
-    int u_t11_size;
-    int v_t11_size;
-    int w_t11_size;
-    int x_t11_size;
-    b_CoefPS = CoefPS[15];
-    c_CoefPS = CoefPS[11];
-    d_CoefPS = CoefPS[9];
-    e_CoefPS = CoefPS[13];
-    f_CoefPS = CoefPS[12];
-    g_CoefPS = CoefPS[14];
-    h_CoefPS = CoefPS[10];
-    i_CoefPS = CoefPS[8];
-    j_CoefPS = CoefPS[13];
-    k_CoefPS = CoefPS[12];
-    if (*t11_size == 1) {
-        b_t11_size = r1.size(0);
+    int t_in5_size;
+    int u_in5_size;
+    int v_in5_size;
+    int w_in5_size;
+    int x_in5_size;
+    b_in2 = in2[15];
+    c_in2 = in2[11];
+    d_in2 = in2[9];
+    e_in2 = in2[13];
+    f_in2 = in2[12];
+    g_in2 = in2[14];
+    h_in2 = in2[10];
+    i_in2 = in2[8];
+    j_in2 = in2[13];
+    k_in2 = in2[12];
+    if (*in5_size == 1) {
+        b_in5_size = in10.size(0);
     } else {
-        b_t11_size = *t11_size;
+        b_in5_size = *in5_size;
     }
-    if (b_t11_size == 1) {
-        c_t11_size = *t12_size;
-    } else if (*t11_size == 1) {
-        c_t11_size = r1.size(0);
+    if (b_in5_size == 1) {
+        c_in5_size = *in6_size;
+    } else if (*in5_size == 1) {
+        c_in5_size = in10.size(0);
     } else {
-        c_t11_size = *t11_size;
+        c_in5_size = *in5_size;
     }
-    if (*t11_size == 1) {
-        d_t11_size = r1.size(0);
+    if (*in5_size == 1) {
+        d_in5_size = in10.size(0);
     } else {
-        d_t11_size = *t11_size;
+        d_in5_size = *in5_size;
     }
-    if (c_t11_size == 1) {
-        e_t11_size = z.size(0);
-    } else if (d_t11_size == 1) {
-        e_t11_size = *t12_size;
-    } else if (*t11_size == 1) {
-        e_t11_size = r1.size(0);
+    if (c_in5_size == 1) {
+        e_in5_size = in9.size(0);
+    } else if (d_in5_size == 1) {
+        e_in5_size = *in6_size;
+    } else if (*in5_size == 1) {
+        e_in5_size = in10.size(0);
     } else {
-        e_t11_size = *t11_size;
+        e_in5_size = *in5_size;
     }
-    if (z.size(0) == 1) {
-        i = *t10_size;
+    if (in9.size(0) == 1) {
+        i = *in7_size;
     } else {
-        i = z.size(0);
+        i = in9.size(0);
     }
-    if (*t11_size == 1) {
-        f_t11_size = r1.size(0);
+    if (*in5_size == 1) {
+        f_in5_size = in10.size(0);
     } else {
-        f_t11_size = *t11_size;
+        f_in5_size = *in5_size;
     }
-    if (f_t11_size == 1) {
-        g_t11_size = *t12_size;
-    } else if (*t11_size == 1) {
-        g_t11_size = r1.size(0);
+    if (f_in5_size == 1) {
+        g_in5_size = *in6_size;
+    } else if (*in5_size == 1) {
+        g_in5_size = in10.size(0);
     } else {
-        g_t11_size = *t11_size;
+        g_in5_size = *in5_size;
     }
-    if (*t11_size == 1) {
-        h_t11_size = r1.size(0);
+    if (*in5_size == 1) {
+        h_in5_size = in10.size(0);
     } else {
-        h_t11_size = *t11_size;
+        h_in5_size = *in5_size;
     }
-    if (e_t11_size == 1) {
+    if (e_in5_size == 1) {
         if (i == 1) {
-            if (*t5_size == 1) {
-                i_t11_size = *alpha1_t_size;
+            if (*in4_size == 1) {
+                i_in5_size = *in3_size;
             } else {
-                i_t11_size = *t5_size;
+                i_in5_size = *in4_size;
             }
-        } else if (z.size(0) == 1) {
-            i_t11_size = *t10_size;
+        } else if (in9.size(0) == 1) {
+            i_in5_size = *in7_size;
         } else {
-            i_t11_size = z.size(0);
+            i_in5_size = in9.size(0);
         }
-    } else if (g_t11_size == 1) {
-        i_t11_size = z.size(0);
-    } else if (h_t11_size == 1) {
-        i_t11_size = *t12_size;
-    } else if (*t11_size == 1) {
-        i_t11_size = r1.size(0);
+    } else if (g_in5_size == 1) {
+        i_in5_size = in9.size(0);
+    } else if (h_in5_size == 1) {
+        i_in5_size = *in6_size;
+    } else if (*in5_size == 1) {
+        i_in5_size = in10.size(0);
     } else {
-        i_t11_size = *t11_size;
+        i_in5_size = *in5_size;
     }
-    if (i_t11_size == 1) {
-        int b_t12_size;
-        if (*t12_size == 1) {
-            if (r.size(0) == 1) {
-                b_t12_size = *t10_size;
+    if (i_in5_size == 1) {
+        int b_in6_size;
+        if (*in6_size == 1) {
+            if (in8.size(0) == 1) {
+                b_in6_size = *in7_size;
             } else {
-                b_t12_size = r.size(0);
+                b_in6_size = in8.size(0);
             }
         } else {
-            b_t12_size = *t12_size;
+            b_in6_size = *in6_size;
         }
-        if (b_t12_size == 1) {
-            int c_t12_size;
-            if (*t12_size == 1) {
-                c_t12_size = *t11_size;
+        if (b_in6_size == 1) {
+            int c_in6_size;
+            if (*in6_size == 1) {
+                c_in6_size = *in5_size;
             } else {
-                c_t12_size = *t12_size;
+                c_in6_size = *in6_size;
             }
-            if (c_t12_size == 1) {
-                if (*t5_size == 1) {
-                    *alpha0_t_size = *alpha1_t_size;
+            if (c_in6_size == 1) {
+                if (*in4_size == 1) {
+                    *in1_size = *in3_size;
                 } else {
-                    *alpha0_t_size = *t5_size;
+                    *in1_size = *in4_size;
                 }
-            } else if (*t12_size == 1) {
-                *alpha0_t_size = *t11_size;
+            } else if (*in6_size == 1) {
+                *in1_size = *in5_size;
             } else {
-                *alpha0_t_size = *t12_size;
+                *in1_size = *in6_size;
             }
-        } else if (*t12_size == 1) {
-            if (r.size(0) == 1) {
-                *alpha0_t_size = *t10_size;
+        } else if (*in6_size == 1) {
+            if (in8.size(0) == 1) {
+                *in1_size = *in7_size;
             } else {
-                *alpha0_t_size = r.size(0);
+                *in1_size = in8.size(0);
             }
         } else {
-            *alpha0_t_size = *t12_size;
+            *in1_size = *in6_size;
         }
     } else {
-        int j_t11_size;
-        int k_t11_size;
-        int l_t11_size;
-        int m_t11_size;
-        if (*t11_size == 1) {
-            j_t11_size = r1.size(0);
+        int j_in5_size;
+        int k_in5_size;
+        int l_in5_size;
+        int m_in5_size;
+        if (*in5_size == 1) {
+            j_in5_size = in10.size(0);
         } else {
-            j_t11_size = *t11_size;
+            j_in5_size = *in5_size;
         }
-        if (j_t11_size == 1) {
-            k_t11_size = *t12_size;
-        } else if (*t11_size == 1) {
-            k_t11_size = r1.size(0);
+        if (j_in5_size == 1) {
+            k_in5_size = *in6_size;
+        } else if (*in5_size == 1) {
+            k_in5_size = in10.size(0);
         } else {
-            k_t11_size = *t11_size;
+            k_in5_size = *in5_size;
         }
-        if (*t11_size == 1) {
-            l_t11_size = r1.size(0);
+        if (*in5_size == 1) {
+            l_in5_size = in10.size(0);
         } else {
-            l_t11_size = *t11_size;
+            l_in5_size = *in5_size;
         }
-        if (k_t11_size == 1) {
-            m_t11_size = z.size(0);
-        } else if (l_t11_size == 1) {
-            m_t11_size = *t12_size;
-        } else if (*t11_size == 1) {
-            m_t11_size = r1.size(0);
+        if (k_in5_size == 1) {
+            m_in5_size = in9.size(0);
+        } else if (l_in5_size == 1) {
+            m_in5_size = *in6_size;
+        } else if (*in5_size == 1) {
+            m_in5_size = in10.size(0);
         } else {
-            m_t11_size = *t11_size;
+            m_in5_size = *in5_size;
         }
-        if (m_t11_size == 1) {
+        if (m_in5_size == 1) {
             int i1;
-            if (z.size(0) == 1) {
-                i1 = *t10_size;
+            if (in9.size(0) == 1) {
+                i1 = *in7_size;
             } else {
-                i1 = z.size(0);
+                i1 = in9.size(0);
             }
             if (i1 == 1) {
-                if (*t5_size == 1) {
-                    *alpha0_t_size = *alpha1_t_size;
+                if (*in4_size == 1) {
+                    *in1_size = *in3_size;
                 } else {
-                    *alpha0_t_size = *t5_size;
+                    *in1_size = *in4_size;
                 }
-            } else if (z.size(0) == 1) {
-                *alpha0_t_size = *t10_size;
+            } else if (in9.size(0) == 1) {
+                *in1_size = *in7_size;
             } else {
-                *alpha0_t_size = z.size(0);
+                *in1_size = in9.size(0);
             }
         } else {
-            int n_t11_size;
-            int o_t11_size;
-            if (*t11_size == 1) {
-                n_t11_size = r1.size(0);
+            int n_in5_size;
+            int o_in5_size;
+            if (*in5_size == 1) {
+                n_in5_size = in10.size(0);
             } else {
-                n_t11_size = *t11_size;
+                n_in5_size = *in5_size;
             }
-            if (n_t11_size == 1) {
-                o_t11_size = *t12_size;
-            } else if (*t11_size == 1) {
-                o_t11_size = r1.size(0);
+            if (n_in5_size == 1) {
+                o_in5_size = *in6_size;
+            } else if (*in5_size == 1) {
+                o_in5_size = in10.size(0);
             } else {
-                o_t11_size = *t11_size;
+                o_in5_size = *in5_size;
             }
-            if (o_t11_size == 1) {
-                *alpha0_t_size = z.size(0);
+            if (o_in5_size == 1) {
+                *in1_size = in9.size(0);
             } else {
-                int p_t11_size;
-                if (*t11_size == 1) {
-                    p_t11_size = r1.size(0);
+                int p_in5_size;
+                if (*in5_size == 1) {
+                    p_in5_size = in10.size(0);
                 } else {
-                    p_t11_size = *t11_size;
+                    p_in5_size = *in5_size;
                 }
-                if (p_t11_size == 1) {
-                    *alpha0_t_size = *t12_size;
-                } else if (*t11_size == 1) {
-                    *alpha0_t_size = r1.size(0);
+                if (p_in5_size == 1) {
+                    *in1_size = *in6_size;
+                } else if (*in5_size == 1) {
+                    *in1_size = in10.size(0);
                 } else {
-                    *alpha0_t_size = *t11_size;
+                    *in1_size = *in5_size;
                 }
             }
         }
     }
-    stride_0_0 = (*alpha1_t_size != 1);
-    stride_1_0 = (*t5_size != 1);
-    stride_2_0 = (*t11_size != 1);
-    stride_3_0 = (*t12_size != 1);
-    stride_4_0 = (*t10_size != 1);
-    stride_5_0 = (r.size(0) != 1);
-    stride_6_0 = (*t12_size != 1);
-    stride_7_0 = (*alpha1_t_size != 1);
-    stride_8_0 = (*t5_size != 1);
-    stride_9_0 = (*t10_size != 1);
-    stride_10_0 = (z.size(0) != 1);
-    stride_11_0 = (z.size(0) != 1);
-    stride_12_0 = (*t12_size != 1);
-    stride_13_0 = (r1.size(0) != 1);
-    stride_14_0 = (*t11_size != 1);
-    if (*t11_size == 1) {
-        q_t11_size = r1.size(0);
+    stride_0_0 = (*in3_size != 1);
+    stride_1_0 = (*in4_size != 1);
+    stride_2_0 = (*in5_size != 1);
+    stride_3_0 = (*in6_size != 1);
+    stride_4_0 = (*in7_size != 1);
+    stride_5_0 = (in8.size(0) != 1);
+    stride_6_0 = (*in6_size != 1);
+    stride_7_0 = (*in3_size != 1);
+    stride_8_0 = (*in4_size != 1);
+    stride_9_0 = (*in7_size != 1);
+    stride_10_0 = (in9.size(0) != 1);
+    stride_11_0 = (in9.size(0) != 1);
+    stride_12_0 = (*in6_size != 1);
+    stride_13_0 = (in10.size(0) != 1);
+    stride_14_0 = (*in5_size != 1);
+    if (*in5_size == 1) {
+        q_in5_size = in10.size(0);
     } else {
-        q_t11_size = *t11_size;
+        q_in5_size = *in5_size;
     }
-    if (q_t11_size == 1) {
-        r_t11_size = *t12_size;
-    } else if (*t11_size == 1) {
-        r_t11_size = r1.size(0);
+    if (q_in5_size == 1) {
+        r_in5_size = *in6_size;
+    } else if (*in5_size == 1) {
+        r_in5_size = in10.size(0);
     } else {
-        r_t11_size = *t11_size;
+        r_in5_size = *in5_size;
     }
-    if (*t11_size == 1) {
-        s_t11_size = r1.size(0);
+    if (*in5_size == 1) {
+        s_in5_size = in10.size(0);
     } else {
-        s_t11_size = *t11_size;
+        s_in5_size = *in5_size;
     }
-    if (r_t11_size == 1) {
-        t_t11_size = z.size(0);
-    } else if (s_t11_size == 1) {
-        t_t11_size = *t12_size;
-    } else if (*t11_size == 1) {
-        t_t11_size = r1.size(0);
+    if (r_in5_size == 1) {
+        t_in5_size = in9.size(0);
+    } else if (s_in5_size == 1) {
+        t_in5_size = *in6_size;
+    } else if (*in5_size == 1) {
+        t_in5_size = in10.size(0);
     } else {
-        t_t11_size = *t11_size;
+        t_in5_size = *in5_size;
     }
-    if (z.size(0) == 1) {
-        i2 = *t10_size;
+    if (in9.size(0) == 1) {
+        i2 = *in7_size;
     } else {
-        i2 = z.size(0);
+        i2 = in9.size(0);
     }
-    if (*t11_size == 1) {
-        u_t11_size = r1.size(0);
+    if (*in5_size == 1) {
+        u_in5_size = in10.size(0);
     } else {
-        u_t11_size = *t11_size;
+        u_in5_size = *in5_size;
     }
-    if (u_t11_size == 1) {
-        v_t11_size = *t12_size;
-    } else if (*t11_size == 1) {
-        v_t11_size = r1.size(0);
+    if (u_in5_size == 1) {
+        v_in5_size = *in6_size;
+    } else if (*in5_size == 1) {
+        v_in5_size = in10.size(0);
     } else {
-        v_t11_size = *t11_size;
+        v_in5_size = *in5_size;
     }
-    if (*t11_size == 1) {
-        w_t11_size = r1.size(0);
+    if (*in5_size == 1) {
+        w_in5_size = in10.size(0);
     } else {
-        w_t11_size = *t11_size;
+        w_in5_size = *in5_size;
     }
-    if (t_t11_size == 1) {
+    if (t_in5_size == 1) {
         if (i2 == 1) {
-            if (*t5_size == 1) {
-                x_t11_size = *alpha1_t_size;
+            if (*in4_size == 1) {
+                x_in5_size = *in3_size;
             } else {
-                x_t11_size = *t5_size;
+                x_in5_size = *in4_size;
             }
-        } else if (z.size(0) == 1) {
-            x_t11_size = *t10_size;
+        } else if (in9.size(0) == 1) {
+            x_in5_size = *in7_size;
         } else {
-            x_t11_size = z.size(0);
+            x_in5_size = in9.size(0);
         }
-    } else if (v_t11_size == 1) {
-        x_t11_size = z.size(0);
-    } else if (w_t11_size == 1) {
-        x_t11_size = *t12_size;
-    } else if (*t11_size == 1) {
-        x_t11_size = r1.size(0);
+    } else if (v_in5_size == 1) {
+        x_in5_size = in9.size(0);
+    } else if (w_in5_size == 1) {
+        x_in5_size = *in6_size;
+    } else if (*in5_size == 1) {
+        x_in5_size = in10.size(0);
     } else {
-        x_t11_size = *t11_size;
+        x_in5_size = *in5_size;
     }
-    if (x_t11_size == 1) {
-        int d_t12_size;
-        if (*t12_size == 1) {
-            if (r.size(0) == 1) {
-                d_t12_size = *t10_size;
+    if (x_in5_size == 1) {
+        int d_in6_size;
+        if (*in6_size == 1) {
+            if (in8.size(0) == 1) {
+                d_in6_size = *in7_size;
             } else {
-                d_t12_size = r.size(0);
+                d_in6_size = in8.size(0);
             }
         } else {
-            d_t12_size = *t12_size;
+            d_in6_size = *in6_size;
         }
-        if (d_t12_size == 1) {
-            int e_t12_size;
-            if (*t12_size == 1) {
-                e_t12_size = *t11_size;
+        if (d_in6_size == 1) {
+            int e_in6_size;
+            if (*in6_size == 1) {
+                e_in6_size = *in5_size;
             } else {
-                e_t12_size = *t12_size;
+                e_in6_size = *in6_size;
             }
-            if (e_t12_size == 1) {
-                if (*t5_size == 1) {
-                    loop_ub = *alpha1_t_size;
+            if (e_in6_size == 1) {
+                if (*in4_size == 1) {
+                    loop_ub = *in3_size;
                 } else {
-                    loop_ub = *t5_size;
+                    loop_ub = *in4_size;
                 }
-            } else if (*t12_size == 1) {
-                loop_ub = *t11_size;
+            } else if (*in6_size == 1) {
+                loop_ub = *in5_size;
             } else {
-                loop_ub = *t12_size;
+                loop_ub = *in6_size;
             }
-        } else if (*t12_size == 1) {
-            if (r.size(0) == 1) {
-                loop_ub = *t10_size;
+        } else if (*in6_size == 1) {
+            if (in8.size(0) == 1) {
+                loop_ub = *in7_size;
             } else {
-                loop_ub = r.size(0);
+                loop_ub = in8.size(0);
             }
         } else {
-            loop_ub = *t12_size;
+            loop_ub = *in6_size;
         }
     } else {
-        int ab_t11_size;
-        int bb_t11_size;
-        int cb_t11_size;
-        int y_t11_size;
-        if (*t11_size == 1) {
-            y_t11_size = r1.size(0);
+        int ab_in5_size;
+        int bb_in5_size;
+        int cb_in5_size;
+        int y_in5_size;
+        if (*in5_size == 1) {
+            y_in5_size = in10.size(0);
         } else {
-            y_t11_size = *t11_size;
+            y_in5_size = *in5_size;
         }
-        if (y_t11_size == 1) {
-            ab_t11_size = *t12_size;
-        } else if (*t11_size == 1) {
-            ab_t11_size = r1.size(0);
+        if (y_in5_size == 1) {
+            ab_in5_size = *in6_size;
+        } else if (*in5_size == 1) {
+            ab_in5_size = in10.size(0);
         } else {
-            ab_t11_size = *t11_size;
+            ab_in5_size = *in5_size;
         }
-        if (*t11_size == 1) {
-            bb_t11_size = r1.size(0);
+        if (*in5_size == 1) {
+            bb_in5_size = in10.size(0);
         } else {
-            bb_t11_size = *t11_size;
+            bb_in5_size = *in5_size;
         }
-        if (ab_t11_size == 1) {
-            cb_t11_size = z.size(0);
-        } else if (bb_t11_size == 1) {
-            cb_t11_size = *t12_size;
-        } else if (*t11_size == 1) {
-            cb_t11_size = r1.size(0);
+        if (ab_in5_size == 1) {
+            cb_in5_size = in9.size(0);
+        } else if (bb_in5_size == 1) {
+            cb_in5_size = *in6_size;
+        } else if (*in5_size == 1) {
+            cb_in5_size = in10.size(0);
         } else {
-            cb_t11_size = *t11_size;
+            cb_in5_size = *in5_size;
         }
-        if (cb_t11_size == 1) {
+        if (cb_in5_size == 1) {
             int i4;
-            if (z.size(0) == 1) {
-                i4 = *t10_size;
+            if (in9.size(0) == 1) {
+                i4 = *in7_size;
             } else {
-                i4 = z.size(0);
+                i4 = in9.size(0);
             }
             if (i4 == 1) {
-                if (*t5_size == 1) {
-                    loop_ub = *alpha1_t_size;
+                if (*in4_size == 1) {
+                    loop_ub = *in3_size;
                 } else {
-                    loop_ub = *t5_size;
+                    loop_ub = *in4_size;
                 }
-            } else if (z.size(0) == 1) {
-                loop_ub = *t10_size;
+            } else if (in9.size(0) == 1) {
+                loop_ub = *in7_size;
             } else {
-                loop_ub = z.size(0);
+                loop_ub = in9.size(0);
             }
         } else {
-            int db_t11_size;
-            int eb_t11_size;
-            if (*t11_size == 1) {
-                db_t11_size = r1.size(0);
+            int db_in5_size;
+            int eb_in5_size;
+            if (*in5_size == 1) {
+                db_in5_size = in10.size(0);
             } else {
-                db_t11_size = *t11_size;
+                db_in5_size = *in5_size;
             }
-            if (db_t11_size == 1) {
-                eb_t11_size = *t12_size;
-            } else if (*t11_size == 1) {
-                eb_t11_size = r1.size(0);
+            if (db_in5_size == 1) {
+                eb_in5_size = *in6_size;
+            } else if (*in5_size == 1) {
+                eb_in5_size = in10.size(0);
             } else {
-                eb_t11_size = *t11_size;
+                eb_in5_size = *in5_size;
             }
-            if (eb_t11_size == 1) {
-                loop_ub = z.size(0);
+            if (eb_in5_size == 1) {
+                loop_ub = in9.size(0);
             } else {
-                int fb_t11_size;
-                if (*t11_size == 1) {
-                    fb_t11_size = r1.size(0);
+                int fb_in5_size;
+                if (*in5_size == 1) {
+                    fb_in5_size = in10.size(0);
                 } else {
-                    fb_t11_size = *t11_size;
+                    fb_in5_size = *in5_size;
                 }
-                if (fb_t11_size == 1) {
-                    loop_ub = *t12_size;
-                } else if (*t11_size == 1) {
-                    loop_ub = r1.size(0);
+                if (fb_in5_size == 1) {
+                    loop_ub = *in6_size;
+                } else if (*in5_size == 1) {
+                    loop_ub = in10.size(0);
                 } else {
-                    loop_ub = *t11_size;
+                    loop_ub = *in5_size;
                 }
             }
         }
     }
     for (int i3{0}; i3 < loop_ub; i3++) {
-        alpha0_t_data[i3] =
-            -((((b_CoefPS + alpha1_t_data[i3 * stride_0_0] * c_CoefPS) +
-                d_CoefPS * t5_data[i3 * stride_1_0]) -
-               e_CoefPS * t11_data[i3 * stride_2_0] * t12_data[i3 * stride_3_0]) +
-              f_CoefPS * t10_data[i3 * stride_4_0] * r[i3 * stride_5_0] *
-                  t12_data[i3 * stride_6_0]) /
-            ((((g_CoefPS + alpha1_t_data[i3 * stride_7_0] * h_CoefPS) +
-               i_CoefPS * t5_data[i3 * stride_8_0]) -
-              j_CoefPS * t10_data[i3 * stride_9_0] * z[i3 * stride_10_0]) -
-             k_CoefPS * z[i3 * stride_11_0] *
-                 (t12_data[i3 * stride_12_0] - r1[i3 * stride_13_0] * t11_data[i3 * stride_14_0]));
+        in1_data[i3] =
+            -((((b_in2 + in3_data[i3 * stride_0_0] * c_in2) + d_in2 * in4_data[i3 * stride_1_0]) -
+               e_in2 * in5_data[i3 * stride_2_0] * in6_data[i3 * stride_3_0]) +
+              f_in2 * in7_data[i3 * stride_4_0] * in8[i3 * stride_5_0] *
+                  in6_data[i3 * stride_6_0]) /
+            ((((g_in2 + in3_data[i3 * stride_7_0] * h_in2) + i_in2 * in4_data[i3 * stride_8_0]) -
+              j_in2 * in7_data[i3 * stride_9_0] * in9[i3 * stride_10_0]) -
+             k_in2 * in9[i3 * stride_11_0] *
+                 (in6_data[i3 * stride_12_0] -
+                  in10[i3 * stride_13_0] * in5_data[i3 * stride_14_0]));
     }
 }
 
 //
-// Arguments    : double alpha0_t_data[]
-//                int *alpha0_t_size
-//                const double CoefPS[16]
-//                const ::coder::array<double, 1U> &r
-//                const ::coder::array<double, 1U> &r1
-//                const double alpha1_t_data[]
-//                const int *alpha1_t_size
+// Arguments    : double in1_data[]
+//                int *in1_size
+//                const double in2[16]
+//                const ::coder::array<double, 1U> &in3
+//                const ::coder::array<double, 1U> &in4
+//                const double in5_data[]
+//                const int *in5_size
 // Return Type  : void
 //
-void binary_expand_op(double alpha0_t_data[], int *alpha0_t_size, const double CoefPS[16],
-                      const ::coder::array<double, 1U> &r, const ::coder::array<double, 1U> &r1,
-                      const double alpha1_t_data[], const int *alpha1_t_size)
+void binary_expand_op(double in1_data[], int *in1_size, const double in2[16],
+                      const ::coder::array<double, 1U> &in3, const ::coder::array<double, 1U> &in4,
+                      const double in5_data[], const int *in5_size)
 {
-    double b_CoefPS;
-    double c_CoefPS;
-    double d_CoefPS;
-    double e_CoefPS;
-    double f_CoefPS;
-    double g_CoefPS;
+    double b_in2;
+    double c_in2;
+    double d_in2;
+    double e_in2;
+    double f_in2;
+    double g_in2;
     int loop_ub;
     int stride_0_0;
     int stride_1_0;
     int stride_2_0;
     int stride_3_0;
-    b_CoefPS = CoefPS[4];
-    c_CoefPS = CoefPS[5];
-    d_CoefPS = CoefPS[6];
-    e_CoefPS = CoefPS[7];
-    f_CoefPS = CoefPS[2];
-    g_CoefPS = CoefPS[3];
-    if (*alpha1_t_size == 1) {
-        if (r1.size(0) == 1) {
-            *alpha0_t_size = r.size(0);
+    b_in2 = in2[4];
+    c_in2 = in2[5];
+    d_in2 = in2[6];
+    e_in2 = in2[7];
+    f_in2 = in2[2];
+    g_in2 = in2[3];
+    if (*in5_size == 1) {
+        if (in4.size(0) == 1) {
+            *in1_size = in3.size(0);
         } else {
-            *alpha0_t_size = r1.size(0);
+            *in1_size = in4.size(0);
         }
     } else {
-        *alpha0_t_size = *alpha1_t_size;
+        *in1_size = *in5_size;
     }
-    stride_0_0 = (r.size(0) != 1);
-    stride_1_0 = (r1.size(0) != 1);
-    stride_2_0 = (*alpha1_t_size != 1);
-    stride_3_0 = (*alpha1_t_size != 1);
-    if (*alpha1_t_size == 1) {
-        if (r1.size(0) == 1) {
-            loop_ub = r.size(0);
+    stride_0_0 = (in3.size(0) != 1);
+    stride_1_0 = (in4.size(0) != 1);
+    stride_2_0 = (*in5_size != 1);
+    stride_3_0 = (*in5_size != 1);
+    if (*in5_size == 1) {
+        if (in4.size(0) == 1) {
+            loop_ub = in3.size(0);
         } else {
-            loop_ub = r1.size(0);
+            loop_ub = in4.size(0);
         }
     } else {
-        loop_ub = *alpha1_t_size;
+        loop_ub = *in5_size;
     }
     for (int i{0}; i < loop_ub; i++) {
-        alpha0_t_data[i] = -(((b_CoefPS * r[i * stride_0_0] + c_CoefPS * r1[i * stride_1_0]) +
-                              d_CoefPS * alpha1_t_data[i * stride_2_0]) +
-                             e_CoefPS) /
-                           (f_CoefPS * alpha1_t_data[i * stride_3_0] + g_CoefPS);
+        in1_data[i] = -(((b_in2 * in3[i * stride_0_0] + c_in2 * in4[i * stride_1_0]) +
+                         d_in2 * in5_data[i * stride_2_0]) +
+                        e_in2) /
+                      (f_in2 * in5_data[i * stride_3_0] + g_in2);
     }
 }
 

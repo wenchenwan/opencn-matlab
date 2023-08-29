@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: smoothCurvStructs.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 // Include Files
@@ -18,11 +18,12 @@
 #include "opencn_matlab_internal_types.h"
 #include "opencn_matlab_types.h"
 #include "opencn_matlab_types1.h"
-#include "opencn_matlab_types2.h"
+#include "opencn_matlab_types21.h"
 #include "opencn_matlab_types3.h"
 #include "queue_coder.h"
 #include "sum.h"
 #include "coder_array.h"
+#include "coder_bounded_array.h"
 #include <cmath>
 #include <emmintrin.h>
 #include <stdio.h>
@@ -154,20 +155,19 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                 // 'smoothCurvStructs:94' isC0   = all( abs( r11 - r21 ) < tol, 'all' );
                 loop_ub = r11.size(0);
                 if (r11.size(0) == r21.size(0)) {
-                    int i;
                     int scalarLB;
                     int vectorUB;
                     x.set_size(r11.size(0));
                     scalarLB = (r11.size(0) / 2) << 1;
                     vectorUB = scalarLB - 2;
-                    for (i = 0; i <= vectorUB; i += 2) {
+                    for (int i{0}; i <= vectorUB; i += 2) {
                         __m128d r;
                         __m128d r1;
                         r = _mm_loadu_pd(&r11[i]);
                         r1 = _mm_loadu_pd(&r21[i]);
                         _mm_storeu_pd(&x[i], _mm_sub_pd(r, r1));
                     }
-                    for (i = scalarLB; i < loop_ub; i++) {
+                    for (int i{scalarLB}; i < loop_ub; i++) {
                         x[i] = r11[i] - r21[i];
                     }
                 } else {

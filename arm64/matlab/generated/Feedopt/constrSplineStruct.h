@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: constrSplineStruct.h
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 #ifndef CONSTRSPLINESTRUCT_H
@@ -30,8 +30,11 @@ namespace ocn {
 void constrSplineStruct(ZSpdMode gcodeInfoStruct_zspdmode, bool gcodeInfoStruct_TRAFO,
                         bool gcodeInfoStruct_HSC, double gcodeInfoStruct_FeedRate,
                         double gcodeInfoStruct_SpindleSpeed, int gcodeInfoStruct_gcode_source_line,
-                        bool gcodeInfoStruct_G91, bool gcodeInfoStruct_G91_1, const double R0[6],
-                        const double R1[6], unsigned int sp_index, CurvStruct *CStrct);
+                        bool gcodeInfoStruct_G91, bool gcodeInfoStruct_G91_1, int tool_toolno,
+                        int tool_pocketno, const Axes *tool_offset, double tool_diameter,
+                        double tool_frontangle, double tool_backangle, int tool_orientation,
+                        const double R0[6], const double R1[6], unsigned int sp_index,
+                        CurvStruct *CStrct);
 
 }
 

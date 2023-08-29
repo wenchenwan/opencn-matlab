@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: splitQueue.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 // Include Files
@@ -19,11 +19,13 @@
 #include "opencn_matlab_types.h"
 #include "opencn_matlab_types1.h"
 #include "opencn_matlab_types2.h"
+#include "opencn_matlab_types21.h"
 #include "opencn_matlab_types3.h"
 #include "paramsDefaultCurv.h"
 #include "queue_coder.h"
 #include "zeroSpeedCurv.h"
 #include "coder_array.h"
+#include "coder_bounded_array.h"
 #include <cmath>
 #include <stdio.h>
 
@@ -37,16 +39,17 @@
 namespace ocn {
 void splitQueue(const b_FeedoptContext *ctx)
 {
+    Kinematics b_ctx;
+    Kinematics c_ctx;
+    Kinematics d_ctx;
+    Kinematics e_ctx;
     ::coder::array<double, 2U> a__1;
     ::coder::array<double, 2U> a__2;
     ::coder::array<double, 2U> a__3;
     ::coder::array<double, 2U> a__4;
     ::coder::array<double, 2U> a__5;
     ::coder::array<double, 2U> a__6;
-    ::coder::array<double, 2U> params_spline_Bl_breakpoints;
-    ::coder::array<double, 2U> params_spline_Lk;
-    ::coder::array<double, 2U> params_spline_coeff;
-    ::coder::array<double, 2U> params_spline_knots;
+    Axes params_tool_offset;
     CurvStruct b_curv;
     CurvStruct b_curvE;
     CurvStruct b_curvS;
@@ -57,6 +60,7 @@ void splitQueue(const b_FeedoptContext *ctx)
     CurvStruct curvS;
     CurvStruct curvSplited;
     CurvStruct d_curv;
+    SplineStruct params_spline;
     double params_CoeffP5[6];
     double params_R0[6];
     double params_R1[6];
@@ -70,12 +74,14 @@ void splitQueue(const b_FeedoptContext *ctx)
     double expl_temp;
     double params_gcodeInfoStruct_FeedRate;
     double params_gcodeInfoStruct_SpindleSpeed;
-    double params_spline_Ltot;
+    double params_tool_backangle;
+    double params_tool_diameter;
+    double params_tool_frontangle;
     double ret;
-    unsigned long params_spline_Bl_handle;
     int params_gcodeInfoStruct_gcode_source_line;
-    int params_spline_Bl_ncoeff;
-    int params_spline_Bl_order;
+    int params_tool_orientation;
+    int params_tool_pocketno;
+    int params_tool_toolno;
     bool hasEndSpeed;
     bool params_gcodeInfoStruct_G91;
     bool params_gcodeInfoStruct_G91_1;
@@ -115,17 +121,17 @@ void splitQueue(const b_FeedoptContext *ctx)
         N = ctx->q_smooth.size();
         // 'splitQueue:11' for k = 1 : N
         i = static_cast<int>(N);
-        if (0 <= static_cast<int>(N) - 1) {
+        if (static_cast<int>(N) - 1 >= 0) {
             paramsDefaultCurv(
                 &params_gcodeInfoStruct_Type, &params_gcodeInfoStruct_zspdmode,
                 &params_gcodeInfoStruct_TRAFO, &params_gcodeInfoStruct_HSC,
                 &params_gcodeInfoStruct_FeedRate, &params_gcodeInfoStruct_SpindleSpeed,
                 &params_gcodeInfoStruct_gcode_source_line, &params_gcodeInfoStruct_G91,
-                &params_gcodeInfoStruct_G91_1, &params_spline_Bl_ncoeff,
-                params_spline_Bl_breakpoints, &params_spline_Bl_handle, &params_spline_Bl_order,
-                params_spline_coeff, params_spline_knots, &params_spline_Ltot, params_spline_Lk,
-                params_R0, params_R1, params_Cprim, &expl_temp, params_evec, &b_expl_temp,
-                &c_expl_temp, params_CoeffP5, &d_expl_temp);
+                &params_gcodeInfoStruct_G91_1, &params_tool_toolno, &params_tool_pocketno,
+                &params_tool_offset, &params_tool_diameter, &params_tool_frontangle,
+                &params_tool_backangle, &params_tool_orientation, &params_spline, params_R0,
+                params_R1, params_Cprim, &expl_temp, params_evec, &b_expl_temp, &c_expl_temp,
+                params_CoeffP5, &d_expl_temp);
         }
         for (int k{0}; k < i; k++) {
             // 'splitQueue:12' ctx = splitCurvStruct( ctx, ctx.q_smooth.get( k ) );
@@ -144,27 +150,27 @@ void splitQueue(const b_FeedoptContext *ctx)
             // 'constrCurvStructType:7' [ params ] = paramsDefaultCurv;
             // 'constrCurvStructType:10' if( coder.target( "MATLAB" ) )
             // 'constrCurvStructType:12' else
-            // 'constrCurvStructType:13' C = constrCurvStruct( params.gcodeInfoStruct,
-            // params.spline, ... 'constrCurvStructType:14'         params.R0, params.R1, ...
-            // 'constrCurvStructType:15'         params.Cprim, params.delta, params.evec,
-            // params.theta, ... 'constrCurvStructType:16'         params.pitch, params.CoeffP5,
+            // 'constrCurvStructType:13' C = constrCurvStruct( params.gcodeInfoStruct, params.tool,
+            // ... 'constrCurvStructType:14'         params.spline, params.R0, params.R1,
+            // params.Cprim, ... 'constrCurvStructType:15'         params.delta, params.evec,
+            // params.theta, params.pitch, ... 'constrCurvStructType:16'         params.CoeffP5,
             // params.Coeff );
             b_constrCurvStruct(params_gcodeInfoStruct_Type, params_gcodeInfoStruct_zspdmode,
                                params_gcodeInfoStruct_TRAFO, params_gcodeInfoStruct_HSC,
                                params_gcodeInfoStruct_FeedRate, params_gcodeInfoStruct_SpindleSpeed,
                                params_gcodeInfoStruct_gcode_source_line, params_gcodeInfoStruct_G91,
-                               params_gcodeInfoStruct_G91_1, params_spline_Bl_ncoeff,
-                               params_spline_Bl_breakpoints, params_spline_Bl_handle,
-                               params_spline_Bl_order, params_spline_coeff, params_spline_knots,
-                               params_spline_Ltot, params_spline_Lk, params_R0, params_R1,
+                               params_gcodeInfoStruct_G91_1, params_tool_toolno,
+                               params_tool_pocketno, &params_tool_offset, params_tool_diameter,
+                               params_tool_frontangle, params_tool_backangle,
+                               params_tool_orientation, &params_spline, params_R0, params_R1,
                                params_Cprim, params_evec, params_CoeffP5, &curvE);
             // 'splitCurvStruct:12' if ( curv.Info.Type == CurveType.TransP5 )
             if (curv.Info.Type == CurveType_TransP5) {
                 // 'splitCurvStruct:13' ctx.q_split.push( curv );
                 ctx->q_split.push(&curv);
             } else {
-                bool guard1{false};
-                bool guard2{false};
+                bool guard1;
+                bool guard2;
                 // 'splitCurvStruct:16' if( isAZeroStart( curv ) )
                 //  isAZeroStart : Return true if the curv starts with zero speed
                 //  curv  : The curve struct
@@ -210,13 +216,14 @@ void splitQueue(const b_FeedoptContext *ctx)
                         curvS.UseConstJerk = true;
                         // 'cutZeroStart:17' [ ~, ~, ~, jps ]        = zeroSpeedCurv( ctx, curv1,
                         // false );
+                        b_ctx = ctx->kin;
                         b_curvS = curvS;
                         zeroSpeedCurv(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                                       ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
                                       ctx->cfg.maskRot.data, ctx->cfg.maskRot.size,
                                       ctx->cfg.indCart, ctx->cfg.indRot, ctx->cfg.NumberAxis,
                                       ctx->cfg.NCart, ctx->cfg.NRot, ctx->cfg.vmax, ctx->cfg.amax,
-                                      ctx->cfg.jmax, ctx->cfg.dt, &ctx->kin, &b_curvS, a__1, a__2,
+                                      ctx->cfg.jmax, ctx->cfg.dt, &b_ctx, &b_curvS, a__1, a__2,
                                       a__3, &curvS.ConstJerk);
                         // 'cutZeroStart:18' curv1.ConstJerk         = jps;
                     } else {
@@ -235,13 +242,14 @@ void splitQueue(const b_FeedoptContext *ctx)
                         curvS.UseConstJerk = true;
                         // 'cutZeroStart:23' [ ~, ~, ~, jps ]        = zeroSpeedCurv( ctx, curv1,
                         // false );
+                        c_ctx = ctx->kin;
                         c_curvS = curvS;
                         zeroSpeedCurv(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                                       ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
                                       ctx->cfg.maskRot.data, ctx->cfg.maskRot.size,
                                       ctx->cfg.indCart, ctx->cfg.indRot, ctx->cfg.NumberAxis,
                                       ctx->cfg.NCart, ctx->cfg.NRot, ctx->cfg.vmax, ctx->cfg.amax,
-                                      ctx->cfg.jmax, ctx->cfg.dt, &ctx->kin, &c_curvS, a__4, a__5,
+                                      ctx->cfg.jmax, ctx->cfg.dt, &c_ctx, &c_curvS, a__4, a__5,
                                       a__6, &curvS.ConstJerk);
                         // 'cutZeroStart:24' curv1.ConstJerk         = jps;
                         // 'cutZeroStart:25' curv2.UseConstJerk      = false;
@@ -331,13 +339,14 @@ void splitQueue(const b_FeedoptContext *ctx)
                             b_curv.UseConstJerk = true;
                             // 'cutZeroEnd:17' [ ~, ~, ~, jps ]        = zeroSpeedCurv( ctx, curv1,
                             // true );
+                            d_ctx = ctx->kin;
                             d_curv = b_curv;
                             b_zeroSpeedCurv(
                                 &ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                                 ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
                                 ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
                                 ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart, ctx->cfg.NRot,
-                                ctx->cfg.vmax, ctx->cfg.amax, ctx->cfg.jmax, ctx->cfg.dt, &ctx->kin,
+                                ctx->cfg.vmax, ctx->cfg.amax, ctx->cfg.jmax, ctx->cfg.dt, &d_ctx,
                                 &d_curv, a__1, a__2, a__3, &b_curv.ConstJerk);
                             // 'cutZeroEnd:18' curv1.ConstJerk         = jps;
                         } else {
@@ -356,13 +365,14 @@ void splitQueue(const b_FeedoptContext *ctx)
                             curvE.UseConstJerk = true;
                             // 'cutZeroEnd:23' [ ~, ~, ~, jps ]        = zeroSpeedCurv( ctx, curv2,
                             // true );
+                            e_ctx = ctx->kin;
                             b_curvE = curvE;
                             b_zeroSpeedCurv(
                                 &ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                                 ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
                                 ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
                                 ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart, ctx->cfg.NRot,
-                                ctx->cfg.vmax, ctx->cfg.amax, ctx->cfg.jmax, ctx->cfg.dt, &ctx->kin,
+                                ctx->cfg.vmax, ctx->cfg.amax, ctx->cfg.jmax, ctx->cfg.dt, &e_ctx,
                                 &b_curvE, a__4, a__5, a__6, &curvE.ConstJerk);
                             // 'cutZeroEnd:24' curv2.ConstJerk         = jps;
                             // 'cutZeroEnd:25' curv1.UseConstJerk      = false;

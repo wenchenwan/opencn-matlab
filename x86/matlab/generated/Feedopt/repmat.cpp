@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: repmat.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 // Include Files
@@ -73,11 +73,11 @@ void repmat(const ::coder::array<double, 2U> &a, double varargin_1, double varar
         na = a.size(1);
         i = static_cast<int>(varargin_2) - 1;
         for (int t{0}; t <= i; t++) {
+            int i1;
             int offset;
             offset = t * na;
+            i1 = static_cast<int>(varargin_1) - 1;
             for (int k{0}; k < na; k++) {
-                int i1;
-                i1 = static_cast<int>(varargin_1) - 1;
                 for (int b_t{0}; b_t <= i1; b_t++) {
                     b[b_t + b.size(0) * (offset + k)] = a[k];
                 }

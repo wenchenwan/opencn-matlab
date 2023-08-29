@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: resampleCurv.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 // Include Files
@@ -14,8 +14,8 @@
 #include "bspline_eval.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_types3.h"
+#include "c_spline.h"
 #include "coder_array.h"
-#include "src/c_spline.h"
 #include <cmath>
 #include <stdio.h>
 
@@ -73,8 +73,6 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
     ::coder::array<double, 1U> xd;
     ::coder::array<double, 1U> xdd;
     ::coder::array<double, 1U> xddd;
-    double X[4];
-    double d_u[2];
     double b_u;
     double d1;
     double d2;
@@ -114,7 +112,7 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
         // 'constJerkU:29' udd     = pseudoJerk .* k_vec;
         udd = constJerk * state->dt;
         // 'constJerkU:30' ud      = pseudoJerk .* k_vec .^2 / 2;
-        ud = constJerk * std::pow(state->dt, 2.0) / 2.0;
+        ud = constJerk * (state->dt * state->dt) / 2.0;
         // 'constJerkU:31' u       = pseudoJerk .* k_vec .^3 / 6;
         u_tmp = constJerk * std::pow(state->dt, 3.0) / 6.0;
         // 'constJerkU:33' u( u > 1 ) = 1;
@@ -167,7 +165,7 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
         // 'constJerkU:28' uddd    = pseudoJerk .* ones( size( k_vec ) );
         // 'constJerkU:29' udd     = pseudoJerk .* k_vec;
         // 'constJerkU:30' ud      = pseudoJerk .* k_vec .^2 / 2;
-        ud = constJerk * std::pow(k_vec, 2.0) / 2.0;
+        ud = constJerk * (k_vec * k_vec) / 2.0;
         // 'constJerkU:31' u       = pseudoJerk .* k_vec .^3 / 6;
         u = constJerk * std::pow(k_vec, 3.0) / 6.0;
         // 'constJerkU:33' u( u > 1 ) = 1;
@@ -202,10 +200,11 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
         // 'ResampleStateClass:7' double
         // 'ResampleStateClass:7' dt
     } else {
+        double X[4];
         double b_u_tmp;
         double b_ud;
         double b_udd;
-        double c_u;
+        double d_u;
         double q;
         int loop_ub;
         // 'resampleCurv:52' else
@@ -237,16 +236,18 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
             // 'bspline_eval:21' x = 1;
             q = 1.0;
         }
-        // 'bspline_eval:23' coder.updateBuildInfo('addSourceFiles','c_spline.c',
-        // '$(START_DIR)/src'); 'bspline_eval:24' coder.updateBuildInfo('addLinkFlags',
-        // LibInfo.gsl.lflags); 'bspline_eval:25' coder.cinclude('src/c_spline.h');
-        // 'bspline_eval:26' coder.ceval('c_bspline_eval', coder.rref(Bl.handle),
-        // coder.rref(coeffs),... 'bspline_eval:27'                     x, coder.wref(X));
+        // 'bspline_eval:23' my_path = StructTypeName.WDIR + "/src";
+        // 'bspline_eval:24' coder.updateBuildInfo('addIncludePaths',my_path);
+        // 'bspline_eval:25' coder.updateBuildInfo('addSourceFiles','c_spline.c', my_path);
+        // 'bspline_eval:26' coder.updateBuildInfo('addLinkFlags', LibInfo.gsl.lflags);
+        // 'bspline_eval:27' coder.cinclude('c_spline.h');
+        // 'bspline_eval:29' coder.ceval('c_bspline_eval', coder.rref(Bl.handle),
+        // coder.rref(coeffs),... 'bspline_eval:30'                     x, coder.wref(X));
         c_bspline_eval(&Bl_handle, &coeffs[0], q, &X[0]);
-        // 'bspline_eval:28' x       = X(1);
-        // 'bspline_eval:29' xd      = X(2);
-        // 'bspline_eval:30' xdd     = X(3);
-        // 'bspline_eval:31' xddd    = X(4);
+        // 'bspline_eval:31' x       = X(1);
+        // 'bspline_eval:32' xd      = X(2);
+        // 'bspline_eval:33' xdd     = X(3);
+        // 'bspline_eval:34' xddd    = X(4);
         // 'resampleCurv:101' [ ud, udd, uddd ] = calcUfromQ( q, qd, qdd );
         //  calcQfromU : Compute q( u ) based on u and its derivatives.
         //  Inputs :
@@ -267,15 +268,15 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
         //  Taylor odre 2
         // 'resampleCurv:104' u = uk + ud * dt + ( udd * dt ^ 2 ) / 2;
         b_u_tmp = state->u + b_ud * state->dt;
-        c_u = b_u_tmp + b_udd * (state->dt * state->dt) / 2.0;
+        d_u = b_u_tmp + b_udd * (state->dt * state->dt) / 2.0;
         //  Ensure u > uk
         // 'resampleCurv:107' if( u  <= uk )
-        if (c_u <= state->u) {
+        if (d_u <= state->u) {
             //  Taylor odre 1. Note since ud > 0
             // 'resampleCurv:109' u = uk + ud * dt;
-            c_u = b_u_tmp;
+            d_u = b_u_tmp;
         }
-        b_u = c_u;
+        b_u = d_u;
         // 'resampleCurv:54' state.dt = dt;
         state->dt = dt;
         // 'ResampleStateClass:7' double
@@ -308,6 +309,7 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
         double d;
         // 'resampleCurv:64' if      ( curv_mode == ZSpdMode.NN )
         if (curv_mode == ZSpdMode_NN) {
+            double c_u[2];
             double b_d;
             int b_loop_ub;
             int c_loop_ub;
@@ -319,8 +321,8 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
             int i8;
             int i_loop_ub;
             // 'resampleCurv:65' [ q ]     = bspline_eval_vec( Bl, coeff', [ state.u, 1 ] );
-            d_u[0] = state->u;
-            d_u[1] = 1.0;
+            c_u[0] = state->u;
+            c_u[1] = 1.0;
             // 'bspline_eval_vec:3' x       = zeros(size(u));
             // 'bspline_eval_vec:4' xd      = zeros(size(u));
             // 'bspline_eval_vec:5' xdd     = zeros(size(u));
@@ -329,7 +331,7 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
             b_loop_ub = coeff.size(0);
             for (int k{0}; k < 2; k++) {
                 // 'bspline_eval_vec:9' [xk, xdk, xddk, xdddk] = bspline_eval(Bl, coeffs, u(k));
-                xk = d_u[k];
+                xk = c_u[k];
                 b_coeff.set_size(1, coeff.size(0));
                 for (int i1{0}; i1 < b_loop_ub; i1++) {
                     b_coeff[i1] = coeff[i1];

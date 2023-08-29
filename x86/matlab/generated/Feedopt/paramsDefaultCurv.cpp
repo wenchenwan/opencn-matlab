@@ -4,13 +4,14 @@
 // government, commercial, or other organizational use.
 // File: paramsDefaultCurv.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 // Include Files
 #include "paramsDefaultCurv.h"
 #include "opencn_matlab_data.h"
+#include "opencn_matlab_types2.h"
 #include "opencn_matlab_types3.h"
 #include "coder_array.h"
 
@@ -29,14 +30,14 @@
 //                int *params_gcodeInfoStruct_gcode_source_line
 //                bool *params_gcodeInfoStruct_G91
 //                bool *params_gcodeInfoStruct_G91_1
-//                int *params_spline_Bl_ncoeff
-//                ::coder::array<double, 2U> &params_spline_Bl_breakpoints
-//                unsigned long *params_spline_Bl_handle
-//                int *params_spline_Bl_order
-//                ::coder::array<double, 2U> &params_spline_coeff
-//                ::coder::array<double, 2U> &params_spline_knots
-//                double *params_spline_Ltot
-//                ::coder::array<double, 2U> &params_spline_Lk
+//                int *params_tool_toolno
+//                int *params_tool_pocketno
+//                Axes *params_tool_offset
+//                double *params_tool_diameter
+//                double *params_tool_frontangle
+//                double *params_tool_backangle
+//                int *params_tool_orientation
+//                SplineStruct *params_spline
 //                double params_R0[6]
 //                double params_R1[6]
 //                double params_Cprim[3]
@@ -54,14 +55,12 @@ void paramsDefaultCurv(
     bool *params_gcodeInfoStruct_TRAFO, bool *params_gcodeInfoStruct_HSC,
     double *params_gcodeInfoStruct_FeedRate, double *params_gcodeInfoStruct_SpindleSpeed,
     int *params_gcodeInfoStruct_gcode_source_line, bool *params_gcodeInfoStruct_G91,
-    bool *params_gcodeInfoStruct_G91_1, int *params_spline_Bl_ncoeff,
-    ::coder::array<double, 2U> &params_spline_Bl_breakpoints,
-    unsigned long *params_spline_Bl_handle, int *params_spline_Bl_order,
-    ::coder::array<double, 2U> &params_spline_coeff,
-    ::coder::array<double, 2U> &params_spline_knots, double *params_spline_Ltot,
-    ::coder::array<double, 2U> &params_spline_Lk, double params_R0[6], double params_R1[6],
-    double params_Cprim[3], double *params_delta, double params_evec[3], double *params_theta,
-    double *params_pitch, double params_CoeffP5[6], double *params_Coeff)
+    bool *params_gcodeInfoStruct_G91_1, int *params_tool_toolno, int *params_tool_pocketno,
+    Axes *params_tool_offset, double *params_tool_diameter, double *params_tool_frontangle,
+    double *params_tool_backangle, int *params_tool_orientation, SplineStruct *params_spline,
+    double params_R0[6], double params_R1[6], double params_Cprim[3], double *params_delta,
+    double params_evec[3], double *params_theta, double *params_pitch, double params_CoeffP5[6],
+    double *params_Coeff)
 {
     // 'paramsDefaultCurv:3' R0      = zeros( 6, 1 );
     // 'paramsDefaultCurv:4' R1      = zeros( 6, 1 );
@@ -84,9 +83,10 @@ void paramsDefaultCurv(
     }
     // 'paramsDefaultCurv:11' Coeff   = zeros( 1, 1 );
     // 'paramsDefaultCurv:13' if( coder.target( 'MATLAB' ) && nargin > 0 )
-    // 'paramsDefaultCurv:20' else
-    // 'paramsDefaultCurv:21' gcodeInfoStruct = constrGcodeInfoStructType;
-    // 'paramsDefaultCurv:22' spline          = constrSplineType;
+    // 'paramsDefaultCurv:21' else
+    // 'paramsDefaultCurv:22' gcodeInfoStruct = constrGcodeInfoStructType;
+    // 'paramsDefaultCurv:23' toolStruct      = constrToolStructType;
+    // 'paramsDefaultCurv:24' spline          = constrSplineType;
     //  constrSplineType : Constructs a constrSpline with default values.
     // 'constrSplineType:4' if( nargin > 0 )
     // 'constrSplineType:6' else
@@ -149,33 +149,47 @@ void paramsDefaultCurv(
     // 'constrSpline:19'                     'Ltot', 0.0, ...
     // 'constrSpline:20'                     'Lk', knots...
     // 'constrSpline:21'                     );
-    params_spline_Bl_breakpoints.set_size(1, 1);
-    params_spline_Bl_breakpoints[0] = 0.0;
-    params_spline_coeff.set_size(1, 1);
-    params_spline_coeff[0] = 0.0;
-    params_spline_knots.set_size(1, 1);
-    params_spline_knots[0] = 0.0;
-    params_spline_Lk.set_size(1, 1);
-    params_spline_Lk[0] = 0.0;
+    params_spline->Bl.ncoeff = 0;
+    params_spline->Bl.breakpoints.set_size(1, 1);
+    params_spline->Bl.breakpoints[0] = 0.0;
+    params_spline->Bl.handle = 0UL;
+    params_spline->Bl.order = 0;
+    params_spline->coeff.set_size(1, 1);
+    params_spline->coeff[0] = 0.0;
+    params_spline->knots.set_size(1, 1);
+    params_spline->knots[0] = 0.0;
+    params_spline->Ltot = 0.0;
+    params_spline->Lk.set_size(1, 1);
+    params_spline->Lk[0] = 0.0;
     // 'constrSpline:23' if ~coder.target( 'MATLAB' )
     // 'constrSpline:24' coder.varsize( 'SplineStrct.Lk',    StructTypeName.dimLk{ : } );
     // 'constrSpline:25' coder.varsize( 'SplineStrct.coeff', StructTypeName.dimCoeffs{ : } );
     // 'constrSpline:26' coder.varsize( 'SplineStrct.knots', StructTypeName.dimKnots{ : } );
     // 'constrSpline:27' coder.cstructname( SplineStrct.Bl, StructTypeName.BaseSpline );
     // 'constrSpline:28' coder.cstructname( SplineStrct, StructTypeName.Spline );
-    // 'paramsDefaultCurv:25' if( coder.target( 'MATLAB' ) )
-    // 'paramsDefaultCurv:28' else
-    // 'paramsDefaultCurv:29' params.gcodeInfoStruct = gcodeInfoStruct;
-    // 'paramsDefaultCurv:30' params.spline   = spline;
-    // 'paramsDefaultCurv:31' params.R0       = R0;
-    // 'paramsDefaultCurv:32' params.R1       = R1;
-    // 'paramsDefaultCurv:33' params.Cprim    = Cprim;
-    // 'paramsDefaultCurv:34' params.delta    = delta;
-    // 'paramsDefaultCurv:35' params.evec     = evec;
-    // 'paramsDefaultCurv:36' params.theta    = theta;
-    // 'paramsDefaultCurv:37' params.pitch    = pitch;
-    // 'paramsDefaultCurv:38' params.CoeffP5  = CoeffP5;
-    // 'paramsDefaultCurv:39' params.Coeff    = Coeff;
+    // 'paramsDefaultCurv:27' if( coder.target( 'MATLAB' ) )
+    // 'paramsDefaultCurv:30' else
+    // 'paramsDefaultCurv:31' params.gcodeInfoStruct  = gcodeInfoStruct;
+    // 'paramsDefaultCurv:32' params.tool             = toolStruct;
+    params_tool_offset->x = 0.0;
+    params_tool_offset->y = 0.0;
+    params_tool_offset->z = 0.0;
+    params_tool_offset->a = 0.0;
+    params_tool_offset->b = 0.0;
+    params_tool_offset->c = 0.0;
+    params_tool_offset->u = 0.0;
+    params_tool_offset->v = 0.0;
+    params_tool_offset->w = 0.0;
+    // 'paramsDefaultCurv:33' params.spline           = spline;
+    // 'paramsDefaultCurv:34' params.R0               = R0;
+    // 'paramsDefaultCurv:35' params.R1               = R1;
+    // 'paramsDefaultCurv:36' params.Cprim            = Cprim;
+    // 'paramsDefaultCurv:37' params.delta            = delta;
+    // 'paramsDefaultCurv:38' params.evec             = evec;
+    // 'paramsDefaultCurv:39' params.theta            = theta;
+    // 'paramsDefaultCurv:40' params.pitch            = pitch;
+    // 'paramsDefaultCurv:41' params.CoeffP5          = CoeffP5;
+    // 'paramsDefaultCurv:42' params.Coeff            = Coeff;
     *params_gcodeInfoStruct_Type = CurveType_Line;
     *params_gcodeInfoStruct_zspdmode = ZSpdMode_NN;
     *params_gcodeInfoStruct_TRAFO = false;
@@ -185,10 +199,12 @@ void paramsDefaultCurv(
     *params_gcodeInfoStruct_gcode_source_line = 0;
     *params_gcodeInfoStruct_G91 = false;
     *params_gcodeInfoStruct_G91_1 = true;
-    *params_spline_Bl_ncoeff = 0;
-    *params_spline_Bl_handle = 0UL;
-    *params_spline_Bl_order = 0;
-    *params_spline_Ltot = 0.0;
+    *params_tool_toolno = 0;
+    *params_tool_pocketno = 0;
+    *params_tool_diameter = 0.0;
+    *params_tool_frontangle = 0.0;
+    *params_tool_backangle = 0.0;
+    *params_tool_orientation = 0;
     *params_delta = 0.0;
     *params_theta = 0.0;
     *params_pitch = 0.0;

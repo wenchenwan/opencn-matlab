@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: smoothCurvStructs.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 // Include Files
@@ -18,11 +18,12 @@
 #include "opencn_matlab_internal_types.h"
 #include "opencn_matlab_types.h"
 #include "opencn_matlab_types1.h"
-#include "opencn_matlab_types2.h"
+#include "opencn_matlab_types21.h"
 #include "opencn_matlab_types3.h"
 #include "queue_coder.h"
 #include "sum.h"
 #include "coder_array.h"
+#include "coder_bounded_array.h"
 #include <cmath>
 #include <stdio.h>
 

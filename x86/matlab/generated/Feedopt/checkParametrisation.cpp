@@ -4,15 +4,15 @@
 // government, commercial, or other organizational use.
 // File: checkParametrisation.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 // Include Files
 #include "checkParametrisation.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_types1.h"
-#include "opencn_matlab_types2.h"
+#include "opencn_matlab_types21.h"
 #include "opencn_matlab_types3.h"
 #include "queue_coder.h"
 #include <cmath>
@@ -82,7 +82,7 @@ bool checkParametrisation(const queue_coder *queue)
                 if (!b_valide) {
                     exitg1 = 1;
                 } else {
-                    bool guard1{false};
+                    bool guard1;
                     // 'checkParametrisation:18' if( curvNext.Info.Type == CurveType.TransP5 )  ||
                     // ... 'checkParametrisation:19'       ( curv.Info.Type == CurveType.TransP5 )
                     guard1 = false;

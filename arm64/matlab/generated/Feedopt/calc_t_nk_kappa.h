@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: calc_t_nk_kappa.h
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 #ifndef CALC_T_NK_KAPPA_H
@@ -21,7 +21,7 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-void calc_t_nk_kappa(const double rD1[5], const double rD2[5], double t[5], double nk[5],
+void calc_t_nk_kappa(const double rD1[6], const double rD2[6], double t[6], double nk[6],
                      double *kappa);
 
 void calc_t_nk_kappa(const ::coder::array<double, 1U> &rD1, const ::coder::array<double, 1U> &rD2,

@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: ConfigSetSource.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 // Include Files
@@ -13,6 +13,7 @@
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_initialize.h"
 #include "opencn_matlab_types.h"
+#include "coder_bounded_array.h"
 #include <algorithm>
 #include <cstring>
 
@@ -38,25 +39,25 @@ void ConfigSetSource(FeedoptConfig *cfg, const char filename_data[], const int f
     // 'ConfigSetSource:2' coder.inline("never");
     // 'ConfigSetSource:4' N = size(filename, 2);
     // 'ConfigSetSource:5' cfg.source(1:N) = filename;
-    if (1 > filename_size[1]) {
+    if (filename_size[1] < 1) {
         loop_ub = 0;
     } else {
         loop_ub = filename_size[1];
     }
-    if (0 <= loop_ub - 1) {
-        std::copy(&filename_data[0], &filename_data[loop_ub], &cfg->source[0]);
+    if (loop_ub - 1 >= 0) {
+        std::copy(&filename_data[0], &filename_data[loop_ub], &cfg->source.data[0]);
     }
     // 'ConfigSetSource:6' cfg.source(N+1:end) = 0;
-    if (filename_size[1] + 1 > 1024) {
+    if (filename_size[1] + 1 > cfg->source.size[1]) {
         i = 0;
-        i1 = -1;
+        i1 = 0;
     } else {
         i = filename_size[1];
-        i1 = 1023;
+        i1 = cfg->source.size[1];
     }
-    b_loop_ub = (i1 - i) + 1;
-    if (0 <= b_loop_ub - 1) {
-        std::memset(&cfg->source[i], 0, ((b_loop_ub + i) - i) * sizeof(char));
+    b_loop_ub = i1 - i;
+    if (b_loop_ub - 1 >= 0) {
+        std::memset(&cfg->source.data[i], 0, ((b_loop_ub + i) - i) * sizeof(char));
     }
 }
 

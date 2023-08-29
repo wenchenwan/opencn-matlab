@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: cutCurvStruct.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 // Include Files
@@ -17,6 +17,7 @@
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_types1.h"
 #include "opencn_matlab_types2.h"
+#include "opencn_matlab_types21.h"
 #include "opencn_matlab_types3.h"
 #include "queue_coder.h"
 #include "sum.h"
@@ -86,12 +87,9 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
     ::coder::array<bool, 2U> b_LEnd;
     CurvStruct expl_temp;
     double dv[5];
-    double r1Dnorm[5];
     double u_tilda;
-    int LkEndVec_size[2];
     int LkEndVec_data;
     int b_ret;
-    int kStartVec_data;
     // 'cutCurvStruct:12' curv1 = curv;
     *curv1 = *curv;
     // 'cutCurvStruct:12' curv2 = curv1;
@@ -127,9 +125,11 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         // 'cutCurvStructU:20' b = curv.b_param;
         // 'cutCurvStructU:22' if ( curv.Info.Type == CurveType.Spline )
     } else if (curv->Info.Type == CurveType_Spline) {
+        double r1Dnorm[5];
         double LStart;
         double d;
         double u0;
+        int LkEndVec_size[2];
         int b_loop_ub;
         int b_scalarLB;
         int b_vectorUB;
@@ -140,12 +140,11 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         int g_loop_ub;
         int h_loop_ub;
         int i1;
-        int i11;
         int i2;
         int i3;
-        int i4;
         int i8;
         int i9;
+        int kStartVec_data;
         int scalarLB;
         int vectorUB;
         // 'cutCurvStructU:23' spline = ctx.q_spline.get( curv.sp_index );
@@ -188,15 +187,15 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         Knots.set_size(1, b_loop_ub);
         scalarLB = (b_loop_ub / 2) << 1;
         vectorUB = scalarLB - 2;
-        for (i4 = 0; i4 <= vectorUB; i4 += 2) {
+        for (int i4{0}; i4 <= vectorUB; i4 += 2) {
             __m128d r1;
             r1 = _mm_loadu_pd(&expl_temp.sp.knots[i2 + i4]);
             _mm_storeu_pd(&Knots[i4], _mm_sub_pd(_mm_set1_pd(1.0), r1));
         }
-        for (i4 = scalarLB; i4 < b_loop_ub; i4++) {
+        for (int i4{scalarLB}; i4 < b_loop_ub; i4++) {
             Knots[i4] = 1.0 - expl_temp.sp.knots[i2 + i4];
         }
-        if ((Knots.size(1) != 0) && (Knots.size(1) > 1)) {
+        if (Knots.size(1) > 1) {
             int lup;
             lup = Knots.size(1) >> 1;
             for (int k{0}; k < lup; k++) {
@@ -214,7 +213,7 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         for (int i5{0}; i5 < c_loop_ub; i5++) {
             Lk[i5] = expl_temp.sp.Lk[i5];
         }
-        if ((expl_temp.sp.Lk.size(1) != 0) && (expl_temp.sp.Lk.size(1) > 1)) {
+        if (expl_temp.sp.Lk.size(1) > 1) {
             int b_lup;
             b_lup = expl_temp.sp.Lk.size(1) >> 1;
             for (int b_k{0}; b_k < b_lup; b_k++) {
@@ -247,8 +246,8 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
             __m128d r2;
             __m128d r3;
             __m128d r4;
-            __m128d r5;
             __m128d r6;
+            __m128d r7;
             double b_r1Dnorm;
             int i_loop_ub;
             // 'splineLengthFindU:39' LStart = splineLengthApprox_Interval( cfg, spline, Knots(
@@ -272,15 +271,15 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
             r2 = _mm_loadu_pd((const double *)&ctx_cfg_GaussLegendreX[0]);
             r3 = _mm_set1_pd(1.0);
             r4 = _mm_set1_pd(1.0 - u0);
-            r5 = _mm_set1_pd(1.0 - d);
-            r6 = _mm_set1_pd(2.0);
+            r6 = _mm_set1_pd(1.0 - d);
+            r7 = _mm_set1_pd(2.0);
             _mm_storeu_pd(&dv[0], _mm_div_pd(_mm_add_pd(_mm_mul_pd(r4, _mm_sub_pd(r3, r2)),
-                                                        _mm_mul_pd(r5, _mm_add_pd(r2, r3))),
-                                             r6));
+                                                        _mm_mul_pd(r6, _mm_add_pd(r2, r3))),
+                                             r7));
             r2 = _mm_loadu_pd((const double *)&ctx_cfg_GaussLegendreX[2]);
             _mm_storeu_pd(&dv[2], _mm_div_pd(_mm_add_pd(_mm_mul_pd(r4, _mm_sub_pd(r3, r2)),
-                                                        _mm_mul_pd(r5, _mm_add_pd(r2, r3))),
-                                             r6));
+                                                        _mm_mul_pd(r6, _mm_add_pd(r2, r3))),
+                                             r7));
             dv[4] = ((1.0 - u0) * (1.0 - ctx_cfg_GaussLegendreX[4]) +
                      (1.0 - d) * (ctx_cfg_GaussLegendreX[4] + 1.0)) /
                     2.0;
@@ -290,11 +289,11 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
             // 'MyNorm:3' n = mysqrt(sum(x.^2));
             r8.set_size(r1D.size(0), 5);
             i_loop_ub = r1D.size(0);
-            for (int i13{0}; i13 < 5; i13++) {
-                for (int i14{0}; i14 < i_loop_ub; i14++) {
+            for (int i14{0}; i14 < 5; i14++) {
+                for (int i15{0}; i15 < i_loop_ub; i15++) {
                     double b_varargin_1;
-                    b_varargin_1 = r1D[i14 + r1D.size(0) * i13];
-                    r8[i14 + r8.size(0) * i13] = std::pow(b_varargin_1, 2.0);
+                    b_varargin_1 = r1D[i15 + r1D.size(0) * i14];
+                    r8[i15 + r8.size(0) * i14] = std::pow(b_varargin_1, 2.0);
                 }
             }
             coder::sum(r8, r1Dnorm);
@@ -332,7 +331,9 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
             x[i10] = Lk[(i8 + i10) + 1];
         }
         if ((f_loop_ub != 0) && (f_loop_ub != 1)) {
-            for (int c_k{0}; c_k <= f_loop_ub - 2; c_k++) {
+            int i11;
+            i11 = f_loop_ub - 2;
+            for (int c_k{0}; c_k <= i11; c_k++) {
                 x[c_k + 1] = x[c_k] + x[c_k + 1];
             }
         }
@@ -340,19 +341,19 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         g_loop_ub = x.size(1);
         b_scalarLB = (x.size(1) / 2) << 1;
         b_vectorUB = b_scalarLB - 2;
-        for (i11 = 0; i11 <= b_vectorUB; i11 += 2) {
-            __m128d r7;
-            r7 = _mm_loadu_pd(&x[i11]);
-            _mm_storeu_pd(&LEnd[i11], _mm_sub_pd(r7, _mm_set1_pd(LStart)));
+        for (int i12{0}; i12 <= b_vectorUB; i12 += 2) {
+            __m128d r5;
+            r5 = _mm_loadu_pd(&x[i12]);
+            _mm_storeu_pd(&LEnd[i12], _mm_sub_pd(r5, _mm_set1_pd(LStart)));
         }
-        for (i11 = b_scalarLB; i11 < g_loop_ub; i11++) {
-            LEnd[i11] = x[i11] - LStart;
+        for (int i12{b_scalarLB}; i12 < g_loop_ub; i12++) {
+            LEnd[i12] = x[i12] - LStart;
         }
         // 'splineLengthFindU:46' LkEndVec = find( LEnd >= L, 1, "first" );
         b_LEnd.set_size(1, LEnd.size(1));
         h_loop_ub = LEnd.size(1);
-        for (int i12{0}; i12 < h_loop_ub; i12++) {
-            b_LEnd[i12] = (LEnd[i12] >= L);
+        for (int i13{0}; i13 < h_loop_ub; i13++) {
+            b_LEnd[i13] = (LEnd[i13] >= L);
         }
         coder::b_eml_find(b_LEnd, (int *)&LkEndVec_data, LkEndVec_size);
         // 'splineLengthFindU:47' if( isempty( LkEndVec ) )
@@ -451,11 +452,11 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
                 // 'MyNorm:3' n = mysqrt(sum(x.^2));
                 r8.set_size(r1D.size(0), 5);
                 j_loop_ub = r1D.size(0);
-                for (int i15{0}; i15 < 5; i15++) {
-                    for (int i16{0}; i16 < j_loop_ub; i16++) {
+                for (int i16{0}; i16 < 5; i16++) {
+                    for (int i17{0}; i17 < j_loop_ub; i17++) {
                         double c_varargin_1;
-                        c_varargin_1 = r1D[i16 + r1D.size(0) * i15];
-                        r8[i16 + r8.size(0) * i15] = std::pow(c_varargin_1, 2.0);
+                        c_varargin_1 = r1D[i17 + r1D.size(0) * i16];
+                        r8[i17 + r8.size(0) * i16] = std::pow(c_varargin_1, 2.0);
                     }
                 }
                 coder::sum(r8, r1Dnorm);
@@ -636,12 +637,9 @@ void cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
     CurvStruct expl_temp;
     double b_uStart[5];
     double d_expl_temp[5];
-    double r1Dnorm[5];
     double u_tilda;
-    int LkEndVec_size[2];
     int LkEndVec_data;
     int b_ret;
-    int kStartVec_data;
     // 'cutCurvStruct:12' curv1 = curv;
     *curv1 = *curv;
     // 'cutCurvStruct:12' curv2 = curv1;
@@ -677,19 +675,21 @@ void cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
         // 'cutCurvStructU:20' b = curv.b_param;
         // 'cutCurvStructU:22' if ( curv.Info.Type == CurveType.Spline )
     } else if (curv->Info.Type == CurveType_Spline) {
+        double r1Dnorm[5];
         double LStart;
+        int LkEndVec_size[2];
         int b_loop_ub;
         int c_loop_ub;
         int d_loop_ub;
         int e_loop_ub;
         int f_loop_ub;
         int i1;
-        int i10;
         int i2;
         int i3;
         int i6;
         int i7;
         int i8;
+        int kStartVec_data;
         int scalarLB;
         int vectorUB;
         // 'cutCurvStructU:23' spline = ctx.q_spline.get( curv.sp_index );
@@ -790,11 +790,11 @@ void cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
             // 'MyNorm:3' n = mysqrt(sum(x.^2));
             r7.set_size(r1D.size(0), 5);
             g_loop_ub = r1D.size(0);
-            for (int i12{0}; i12 < 5; i12++) {
-                for (int i13{0}; i13 < g_loop_ub; i13++) {
+            for (int i13{0}; i13 < 5; i13++) {
+                for (int i14{0}; i14 < g_loop_ub; i14++) {
                     double b_varargin_1;
-                    b_varargin_1 = r1D[i13 + r1D.size(0) * i12];
-                    r7[i13 + r7.size(0) * i12] = std::pow(b_varargin_1, 2.0);
+                    b_varargin_1 = r1D[i14 + r1D.size(0) * i13];
+                    r7[i14 + r7.size(0) * i13] = std::pow(b_varargin_1, 2.0);
                 }
             }
             coder::sum(r7, r1Dnorm);
@@ -832,7 +832,9 @@ void cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
             x[i9] = expl_temp.sp.Lk[(i7 + i9) + 1];
         }
         if ((d_loop_ub != 0) && (d_loop_ub != 1)) {
-            for (int k{0}; k <= d_loop_ub - 2; k++) {
+            int i10;
+            i10 = d_loop_ub - 2;
+            for (int k{0}; k <= i10; k++) {
                 x[k + 1] = x[k] + x[k + 1];
             }
         }
@@ -840,19 +842,19 @@ void cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
         e_loop_ub = x.size(1);
         scalarLB = (x.size(1) / 2) << 1;
         vectorUB = scalarLB - 2;
-        for (i10 = 0; i10 <= vectorUB; i10 += 2) {
+        for (int i11{0}; i11 <= vectorUB; i11 += 2) {
             __m128d r6;
-            r6 = _mm_loadu_pd(&x[i10]);
-            _mm_storeu_pd(&LEnd[i10], _mm_sub_pd(r6, _mm_set1_pd(LStart)));
+            r6 = _mm_loadu_pd(&x[i11]);
+            _mm_storeu_pd(&LEnd[i11], _mm_sub_pd(r6, _mm_set1_pd(LStart)));
         }
-        for (i10 = scalarLB; i10 < e_loop_ub; i10++) {
-            LEnd[i10] = x[i10] - LStart;
+        for (int i11{scalarLB}; i11 < e_loop_ub; i11++) {
+            LEnd[i11] = x[i11] - LStart;
         }
         // 'splineLengthFindU:46' LkEndVec = find( LEnd >= L, 1, "first" );
         b_LEnd.set_size(1, LEnd.size(1));
         f_loop_ub = LEnd.size(1);
-        for (int i11{0}; i11 < f_loop_ub; i11++) {
-            b_LEnd[i11] = (LEnd[i11] >= L);
+        for (int i12{0}; i12 < f_loop_ub; i12++) {
+            b_LEnd[i12] = (LEnd[i12] >= L);
         }
         coder::b_eml_find(b_LEnd, (int *)&LkEndVec_data, LkEndVec_size);
         // 'splineLengthFindU:47' if( isempty( LkEndVec ) )
@@ -949,11 +951,11 @@ void cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
                 // 'MyNorm:3' n = mysqrt(sum(x.^2));
                 r7.set_size(r1D.size(0), 5);
                 h_loop_ub = r1D.size(0);
-                for (int i14{0}; i14 < 5; i14++) {
-                    for (int i15{0}; i15 < h_loop_ub; i15++) {
+                for (int i15{0}; i15 < 5; i15++) {
+                    for (int i16{0}; i16 < h_loop_ub; i16++) {
                         double c_varargin_1;
-                        c_varargin_1 = r1D[i15 + r1D.size(0) * i14];
-                        r7[i15 + r7.size(0) * i14] = std::pow(c_varargin_1, 2.0);
+                        c_varargin_1 = r1D[i16 + r1D.size(0) * i15];
+                        r7[i16 + r7.size(0) * i15] = std::pow(c_varargin_1, 2.0);
                     }
                 }
                 coder::sum(r7, r1Dnorm);

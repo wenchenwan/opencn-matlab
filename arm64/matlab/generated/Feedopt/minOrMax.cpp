@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: minOrMax.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 // Include Files
@@ -14,46 +14,46 @@
 
 // Function Definitions
 //
-// Arguments    : const ::coder::array<double, 2U> &z1
-//                const double vmax_data[]
-//                const int *vmax_size
-//                double *v_delta
-//                int *iindx
+// Arguments    : const ::coder::array<double, 2U> &in1
+//                const double in2_data[]
+//                const int *in2_size
+//                double *out1
+//                int *out2
 // Return Type  : void
 //
 namespace ocn {
-void binary_expand_op(const ::coder::array<double, 2U> &z1, const double vmax_data[],
-                      const int *vmax_size, double *v_delta, int *iindx)
+void binary_expand_op(const ::coder::array<double, 2U> &in1, const double in2_data[],
+                      const int *in2_size, double *out1, int *out2)
 {
-    ::coder::array<double, 2U> b_z1;
-    int b_vmax_idx_0;
+    ::coder::array<double, 2U> b_in1;
+    int b_in2_idx_0;
+    int in2_idx_0;
     int loop_ub;
     int stride_0_0;
     int stride_1_0;
-    int vmax_idx_0;
-    vmax_idx_0 = *vmax_size;
-    if (vmax_idx_0 == 1) {
-        b_vmax_idx_0 = z1.size(0);
+    in2_idx_0 = *in2_size;
+    if (in2_idx_0 == 1) {
+        b_in2_idx_0 = in1.size(0);
     } else {
-        b_vmax_idx_0 = vmax_idx_0;
+        b_in2_idx_0 = in2_idx_0;
     }
-    b_z1.set_size(b_vmax_idx_0, z1.size(1));
-    stride_0_0 = (z1.size(0) != 1);
-    stride_1_0 = (vmax_idx_0 != 1);
-    loop_ub = z1.size(1);
+    b_in1.set_size(b_in2_idx_0, in1.size(1));
+    stride_0_0 = (in1.size(0) != 1);
+    stride_1_0 = (in2_idx_0 != 1);
+    loop_ub = in1.size(1);
     for (int i{0}; i < loop_ub; i++) {
         int b_loop_ub;
-        if (vmax_idx_0 == 1) {
-            b_loop_ub = z1.size(0);
+        if (in2_idx_0 == 1) {
+            b_loop_ub = in1.size(0);
         } else {
-            b_loop_ub = vmax_idx_0;
+            b_loop_ub = in2_idx_0;
         }
         for (int i1{0}; i1 < b_loop_ub; i1++) {
-            b_z1[i1 + b_z1.size(0) * i] =
-                z1[i1 * stride_0_0 + z1.size(0) * i] - vmax_data[i1 * stride_1_0];
+            b_in1[i1 + b_in1.size(0) * i] =
+                in1[i1 * stride_0_0 + in1.size(0) * i] - in2_data[i1 * stride_1_0];
         }
     }
-    coder::internal::b_maximum(b_z1, v_delta, iindx);
+    coder::internal::b_maximum(b_in1, out1, out2);
 }
 
 //

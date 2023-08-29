@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: queue_coder.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 // Include Files
@@ -16,29 +16,10 @@
 //
 // function value = get(this, index)
 //
-// Arguments    : int b_index
-//                CurvStruct *value
-// Return Type  : void
-//
-namespace ocn {
-void queue_coder::get(int b_index, CurvStruct *value) const
-{
-    // 'queue_coder:20' coder.inline("never");
-    // 'queue_coder:21' value = queue_get(this.ptr, this.value_type, index);
-    *value = value_type;
-    // 'queue_get:2' if coder.target('matlab')
-    // 'queue_get:4' else
-    // 'queue_get:5' value = value_type;
-    // 'queue_get:6' coder.ceval('c_queue_get', uint64(ptr), uint32(index), coder.ref(value));
-    c_queue_get(ptr, static_cast<unsigned int>(b_index), value);
-}
-
-//
-// function value = get(this, index)
-//
 // Arguments    : CurvStruct *value
 // Return Type  : void
 //
+namespace ocn {
 void queue_coder::get(CurvStruct *value) const
 {
     // 'queue_coder:20' coder.inline("never");
@@ -49,6 +30,25 @@ void queue_coder::get(CurvStruct *value) const
     // 'queue_get:5' value = value_type;
     // 'queue_get:6' coder.ceval('c_queue_get', uint64(ptr), uint32(index), coder.ref(value));
     c_queue_get(ptr, 1U, value);
+}
+
+//
+// function value = get(this, index)
+//
+// Arguments    : int b_index
+//                CurvStruct *value
+// Return Type  : void
+//
+void queue_coder::get(int b_index, CurvStruct *value) const
+{
+    // 'queue_coder:20' coder.inline("never");
+    // 'queue_coder:21' value = queue_get(this.ptr, this.value_type, index);
+    *value = value_type;
+    // 'queue_get:2' if coder.target('matlab')
+    // 'queue_get:4' else
+    // 'queue_get:5' value = value_type;
+    // 'queue_get:6' coder.ceval('c_queue_get', uint64(ptr), uint32(index), coder.ref(value));
+    c_queue_get(ptr, static_cast<unsigned int>(b_index), value);
 }
 
 //
@@ -124,17 +124,13 @@ void queue_coder::push(const CurvStruct *value) const
 // Arguments    : void
 // Return Type  : queue_coder
 //
-queue_coder::queue_coder()
-{
-}
+queue_coder::queue_coder() = default;
 
 //
 // Arguments    : void
 // Return Type  : void
 //
-queue_coder::~queue_coder()
-{
-}
+queue_coder::~queue_coder() = default;
 
 //
 // function value = rget(this, index)

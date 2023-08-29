@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: EvalCurvStruct.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 // Include Files
@@ -17,10 +17,12 @@
 #include "opencn_matlab_types.h"
 #include "opencn_matlab_types1.h"
 #include "opencn_matlab_types2.h"
+#include "opencn_matlab_types21.h"
 #include "opencn_matlab_types3.h"
 #include "paramsDefaultCurv.h"
 #include "queue_coder.h"
 #include "coder_array.h"
+#include "coder_bounded_array.h"
 
 // Variable Definitions
 namespace ocn {
@@ -50,8 +52,8 @@ void EvalCurvStruct(const FeedoptContext *ctx, const CurvStruct *curv,
                     ::coder::array<double, 2U> &r3D)
 {
     ::coder::array<double, 2U> b_u_vec;
-    ::coder::array<int, 1U> t8_indCart;
-    ::coder::array<int, 1U> t8_indRot;
+    ::coder::array<int, 1U> t10_indCart;
+    ::coder::array<int, 1U> t10_indRot;
     CurvStruct spline;
     int b_loop_ub;
     int c_loop_ub;
@@ -73,15 +75,15 @@ void EvalCurvStruct(const FeedoptContext *ctx, const CurvStruct *curv,
     }
     // 'EvalCurvStruct:16' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
     // u_vec );
-    t8_indCart.set_size(ctx->cfg.indCart.size[0]);
+    t10_indCart.set_size(ctx->cfg.indCart.size[0]);
     loop_ub = ctx->cfg.indCart.size[0];
     for (int i{0}; i < loop_ub; i++) {
-        t8_indCart[i] = ctx->cfg.indCart.data[i];
+        t10_indCart[i] = ctx->cfg.indCart.data[i];
     }
-    t8_indRot.set_size(ctx->cfg.indRot.size[0]);
+    t10_indRot.set_size(ctx->cfg.indRot.size[0]);
     b_loop_ub = ctx->cfg.indRot.size[0];
     for (int i1{0}; i1 < b_loop_ub; i1++) {
-        t8_indRot[i1] = ctx->cfg.indRot.data[i1];
+        t10_indRot[i1] = ctx->cfg.indRot.data[i1];
     }
     b_u_vec.set_size(1, u_vec.size(1));
     c_loop_ub = u_vec.size(1) - 1;
@@ -90,7 +92,7 @@ void EvalCurvStruct(const FeedoptContext *ctx, const CurvStruct *curv,
     }
     EvalCurvStructNoCtx(ctx->cfg.maskTot.data, ctx->cfg.maskTot.size, ctx->cfg.maskCart.data,
                         ctx->cfg.maskCart.size, ctx->cfg.maskRot.data, ctx->cfg.maskRot.size,
-                        t8_indCart, t8_indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart, ctx->cfg.NRot,
+                        t10_indCart, t10_indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart, ctx->cfg.NRot,
                         curv, &spline, b_u_vec, r0D, r1D, r2D, r3D);
 }
 
@@ -102,10 +104,8 @@ void EvalCurvStruct(const FeedoptContext *ctx, const CurvStruct *curv,
 //
 void EvalCurvStruct_init()
 {
-    ::coder::array<double, 2U> params_spline_Bl_breakpoints;
-    ::coder::array<double, 2U> params_spline_Lk;
-    ::coder::array<double, 2U> params_spline_coeff;
-    ::coder::array<double, 2U> params_spline_knots;
+    Axes params_tool_offset;
+    SplineStruct params_spline;
     double params_CoeffP5[6];
     double params_R0[6];
     double params_R1[6];
@@ -117,11 +117,13 @@ void EvalCurvStruct_init()
     double expl_temp;
     double params_gcodeInfoStruct_FeedRate;
     double params_gcodeInfoStruct_SpindleSpeed;
-    double params_spline_Ltot;
-    unsigned long params_spline_Bl_handle;
+    double params_tool_backangle;
+    double params_tool_diameter;
+    double params_tool_frontangle;
     int params_gcodeInfoStruct_gcode_source_line;
-    int params_spline_Bl_ncoeff;
-    int params_spline_Bl_order;
+    int params_tool_orientation;
+    int params_tool_pocketno;
+    int params_tool_toolno;
     bool params_gcodeInfoStruct_G91;
     bool params_gcodeInfoStruct_G91_1;
     bool params_gcodeInfoStruct_HSC;
@@ -133,29 +135,29 @@ void EvalCurvStruct_init()
     // 'constrCurvStructType:4' if( nargin > 0 )
     // 'constrCurvStructType:6' else
     // 'constrCurvStructType:7' [ params ] = paramsDefaultCurv;
-    paramsDefaultCurv(
-        &params_gcodeInfoStruct_Type, &params_gcodeInfoStruct_zspdmode,
-        &params_gcodeInfoStruct_TRAFO, &params_gcodeInfoStruct_HSC,
-        &params_gcodeInfoStruct_FeedRate, &params_gcodeInfoStruct_SpindleSpeed,
-        &params_gcodeInfoStruct_gcode_source_line, &params_gcodeInfoStruct_G91,
-        &params_gcodeInfoStruct_G91_1, &params_spline_Bl_ncoeff, params_spline_Bl_breakpoints,
-        &params_spline_Bl_handle, &params_spline_Bl_order, params_spline_coeff, params_spline_knots,
-        &params_spline_Ltot, params_spline_Lk, params_R0, params_R1, params_Cprim, &expl_temp,
-        params_evec, &b_expl_temp, &c_expl_temp, params_CoeffP5, &d_expl_temp);
+    paramsDefaultCurv(&params_gcodeInfoStruct_Type, &params_gcodeInfoStruct_zspdmode,
+                      &params_gcodeInfoStruct_TRAFO, &params_gcodeInfoStruct_HSC,
+                      &params_gcodeInfoStruct_FeedRate, &params_gcodeInfoStruct_SpindleSpeed,
+                      &params_gcodeInfoStruct_gcode_source_line, &params_gcodeInfoStruct_G91,
+                      &params_gcodeInfoStruct_G91_1, &params_tool_toolno, &params_tool_pocketno,
+                      &params_tool_offset, &params_tool_diameter, &params_tool_frontangle,
+                      &params_tool_backangle, &params_tool_orientation, &params_spline, params_R0,
+                      params_R1, params_Cprim, &expl_temp, params_evec, &b_expl_temp, &c_expl_temp,
+                      params_CoeffP5, &d_expl_temp);
     // 'constrCurvStructType:10' if( coder.target( "MATLAB" ) )
     // 'constrCurvStructType:12' else
-    // 'constrCurvStructType:13' C = constrCurvStruct( params.gcodeInfoStruct, params.spline, ...
-    // 'constrCurvStructType:14'         params.R0, params.R1, ...
-    // 'constrCurvStructType:15'         params.Cprim, params.delta, params.evec, params.theta, ...
-    // 'constrCurvStructType:16'         params.pitch, params.CoeffP5, params.Coeff );
-    b_constrCurvStruct(
-        params_gcodeInfoStruct_Type, params_gcodeInfoStruct_zspdmode, params_gcodeInfoStruct_TRAFO,
-        params_gcodeInfoStruct_HSC, params_gcodeInfoStruct_FeedRate,
-        params_gcodeInfoStruct_SpindleSpeed, params_gcodeInfoStruct_gcode_source_line,
-        params_gcodeInfoStruct_G91, params_gcodeInfoStruct_G91_1, params_spline_Bl_ncoeff,
-        params_spline_Bl_breakpoints, params_spline_Bl_handle, params_spline_Bl_order,
-        params_spline_coeff, params_spline_knots, params_spline_Ltot, params_spline_Lk, params_R0,
-        params_R1, params_Cprim, params_evec, params_CoeffP5, &splineDefault);
+    // 'constrCurvStructType:13' C = constrCurvStruct( params.gcodeInfoStruct, params.tool, ...
+    // 'constrCurvStructType:14'         params.spline, params.R0, params.R1, params.Cprim, ...
+    // 'constrCurvStructType:15'         params.delta, params.evec, params.theta, params.pitch, ...
+    // 'constrCurvStructType:16'         params.CoeffP5, params.Coeff );
+    b_constrCurvStruct(params_gcodeInfoStruct_Type, params_gcodeInfoStruct_zspdmode,
+                       params_gcodeInfoStruct_TRAFO, params_gcodeInfoStruct_HSC,
+                       params_gcodeInfoStruct_FeedRate, params_gcodeInfoStruct_SpindleSpeed,
+                       params_gcodeInfoStruct_gcode_source_line, params_gcodeInfoStruct_G91,
+                       params_gcodeInfoStruct_G91_1, params_tool_toolno, params_tool_pocketno,
+                       &params_tool_offset, params_tool_diameter, params_tool_frontangle,
+                       params_tool_backangle, params_tool_orientation, &params_spline, params_R0,
+                       params_R1, params_Cprim, params_evec, params_CoeffP5, &splineDefault);
     splineDefault_not_empty = true;
 }
 
@@ -696,7 +698,7 @@ void k_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
 //
 // function [r0D, r1D, r2D, r3D] = EvalCurvStruct( ctx, curv, u_vec )
 //
-// Arguments    : const FeedoptConfig *ctx_cfg
+// Arguments    : const c_FeedoptConfig *ctx_cfg
 //                const CurvStruct *curv
 //                ::coder::array<double, 1U> &r0D
 //                ::coder::array<double, 1U> &r1D
@@ -704,16 +706,14 @@ void k_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
 //                ::coder::array<double, 1U> &r3D
 // Return Type  : void
 //
-void l_EvalCurvStruct(const FeedoptConfig *ctx_cfg, const CurvStruct *curv,
+void l_EvalCurvStruct(const c_FeedoptConfig *ctx_cfg, const CurvStruct *curv,
                       ::coder::array<double, 1U> &r0D, ::coder::array<double, 1U> &r1D,
                       ::coder::array<double, 1U> &r2D, ::coder::array<double, 1U> &r3D)
 {
-    ::coder::array<double, 2U> params_spline_Bl_breakpoints;
-    ::coder::array<double, 2U> params_spline_Lk;
-    ::coder::array<double, 2U> params_spline_coeff;
-    ::coder::array<double, 2U> params_spline_knots;
-    ::coder::array<int, 1U> t1_indCart;
-    ::coder::array<int, 1U> t1_indRot;
+    ::coder::array<int, 1U> t3_indCart;
+    ::coder::array<int, 1U> t3_indRot;
+    Axes params_tool_offset;
+    SplineStruct params_spline;
     double params_CoeffP5[6];
     double params_R0[6];
     double params_R1[6];
@@ -725,13 +725,15 @@ void l_EvalCurvStruct(const FeedoptConfig *ctx_cfg, const CurvStruct *curv,
     double expl_temp;
     double params_gcodeInfoStruct_FeedRate;
     double params_gcodeInfoStruct_SpindleSpeed;
-    double params_spline_Ltot;
-    unsigned long params_spline_Bl_handle;
+    double params_tool_backangle;
+    double params_tool_diameter;
+    double params_tool_frontangle;
     int b_loop_ub;
     int loop_ub;
     int params_gcodeInfoStruct_gcode_source_line;
-    int params_spline_Bl_ncoeff;
-    int params_spline_Bl_order;
+    int params_tool_orientation;
+    int params_tool_pocketno;
+    int params_tool_toolno;
     bool params_gcodeInfoStruct_G91;
     bool params_gcodeInfoStruct_G91_1;
     bool params_gcodeInfoStruct_HSC;
@@ -750,27 +752,26 @@ void l_EvalCurvStruct(const FeedoptConfig *ctx_cfg, const CurvStruct *curv,
                           &params_gcodeInfoStruct_TRAFO, &params_gcodeInfoStruct_HSC,
                           &params_gcodeInfoStruct_FeedRate, &params_gcodeInfoStruct_SpindleSpeed,
                           &params_gcodeInfoStruct_gcode_source_line, &params_gcodeInfoStruct_G91,
-                          &params_gcodeInfoStruct_G91_1, &params_spline_Bl_ncoeff,
-                          params_spline_Bl_breakpoints, &params_spline_Bl_handle,
-                          &params_spline_Bl_order, params_spline_coeff, params_spline_knots,
-                          &params_spline_Ltot, params_spline_Lk, params_R0, params_R1, params_Cprim,
-                          &expl_temp, params_evec, &b_expl_temp, &c_expl_temp, params_CoeffP5,
-                          &d_expl_temp);
+                          &params_gcodeInfoStruct_G91_1, &params_tool_toolno, &params_tool_pocketno,
+                          &params_tool_offset, &params_tool_diameter, &params_tool_frontangle,
+                          &params_tool_backangle, &params_tool_orientation, &params_spline,
+                          params_R0, params_R1, params_Cprim, &expl_temp, params_evec, &b_expl_temp,
+                          &c_expl_temp, params_CoeffP5, &d_expl_temp);
         // 'constrCurvStructType:10' if( coder.target( "MATLAB" ) )
         // 'constrCurvStructType:12' else
-        // 'constrCurvStructType:13' C = constrCurvStruct( params.gcodeInfoStruct, params.spline,
-        // ... 'constrCurvStructType:14'         params.R0, params.R1, ... 'constrCurvStructType:15'
-        // params.Cprim, params.delta, params.evec, params.theta, ... 'constrCurvStructType:16'
-        // params.pitch, params.CoeffP5, params.Coeff );
+        // 'constrCurvStructType:13' C = constrCurvStruct( params.gcodeInfoStruct, params.tool, ...
+        // 'constrCurvStructType:14'         params.spline, params.R0, params.R1, params.Cprim, ...
+        // 'constrCurvStructType:15'         params.delta, params.evec, params.theta, params.pitch,
+        // ... 'constrCurvStructType:16'         params.CoeffP5, params.Coeff );
         b_constrCurvStruct(params_gcodeInfoStruct_Type, params_gcodeInfoStruct_zspdmode,
                            params_gcodeInfoStruct_TRAFO, params_gcodeInfoStruct_HSC,
                            params_gcodeInfoStruct_FeedRate, params_gcodeInfoStruct_SpindleSpeed,
                            params_gcodeInfoStruct_gcode_source_line, params_gcodeInfoStruct_G91,
-                           params_gcodeInfoStruct_G91_1, params_spline_Bl_ncoeff,
-                           params_spline_Bl_breakpoints, params_spline_Bl_handle,
-                           params_spline_Bl_order, params_spline_coeff, params_spline_knots,
-                           params_spline_Ltot, params_spline_Lk, params_R0, params_R1, params_Cprim,
-                           params_evec, params_CoeffP5, &splineDefault);
+                           params_gcodeInfoStruct_G91_1, params_tool_toolno, params_tool_pocketno,
+                           &params_tool_offset, params_tool_diameter, params_tool_frontangle,
+                           params_tool_backangle, params_tool_orientation, &params_spline,
+                           params_R0, params_R1, params_Cprim, params_evec, params_CoeffP5,
+                           &splineDefault);
         splineDefault_not_empty = true;
     }
     // 'EvalCurvStruct:9' if( curv.Info.Type == CurveType.Spline )
@@ -778,19 +779,19 @@ void l_EvalCurvStruct(const FeedoptConfig *ctx_cfg, const CurvStruct *curv,
     // 'EvalCurvStruct:13' spline = splineDefault;
     // 'EvalCurvStruct:16' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
     // u_vec );
-    t1_indCart.set_size(ctx_cfg->indCart.size[0]);
+    t3_indCart.set_size(ctx_cfg->indCart.size[0]);
     loop_ub = ctx_cfg->indCart.size[0];
     for (int i{0}; i < loop_ub; i++) {
-        t1_indCart[i] = ctx_cfg->indCart.data[i];
+        t3_indCart[i] = ctx_cfg->indCart.data[i];
     }
-    t1_indRot.set_size(ctx_cfg->indRot.size[0]);
+    t3_indRot.set_size(ctx_cfg->indRot.size[0]);
     b_loop_ub = ctx_cfg->indRot.size[0];
     for (int i1{0}; i1 < b_loop_ub; i1++) {
-        t1_indRot[i1] = ctx_cfg->indRot.data[i1];
+        t3_indRot[i1] = ctx_cfg->indRot.data[i1];
     }
     d_EvalCurvStructNoCtx(ctx_cfg->maskTot.data, ctx_cfg->maskTot.size, ctx_cfg->maskCart.data,
                           ctx_cfg->maskCart.size, ctx_cfg->maskRot.data, ctx_cfg->maskRot.size,
-                          t1_indCart, t1_indRot, ctx_cfg->NumberAxis, ctx_cfg->NCart, ctx_cfg->NRot,
+                          t3_indCart, t3_indRot, ctx_cfg->NumberAxis, ctx_cfg->NCart, ctx_cfg->NRot,
                           curv, &splineDefault, r0D, r1D, r2D, r3D);
 }
 

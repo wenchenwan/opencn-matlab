@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: PrintCurvStruct.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 // Include Files
@@ -14,10 +14,10 @@
 #include "TransP5LengthApprox.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_initialize.h"
-#include "opencn_matlab_internal_types.h"
 #include "opencn_matlab_types.h"
 #include "opencn_matlab_types1.h"
 #include "opencn_matlab_types2.h"
+#include "opencn_matlab_types21.h"
 #include "opencn_matlab_types3.h"
 #include "queue_coder.h"
 #include "splineLength.h"
@@ -25,6 +25,7 @@
 #include "sum.h"
 #include "unsafeSxfun.h"
 #include "coder_array.h"
+#include "coder_bounded_array.h"
 #include <algorithm>
 #include <cmath>
 #include <stdio.h>
@@ -40,10 +41,10 @@
 namespace ocn {
 void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
 {
-    static const char b_cv[9]{'<', 'U', 'N', 'K', 'N', 'O', 'W', 'N', '>'};
-    static const char cv2[7]{'T', 'r', 'a', 'n', 's', 'P', '5'};
-    static const char cv3[6]{'S', 'p', 'l', 'i', 'n', 'e'};
-    static const char b_cv1[5]{'H', 'e', 'l', 'i', 'x'};
+    static const char cv3[9]{'<', 'U', 'N', 'K', 'N', 'O', 'W', 'N', '>'};
+    static const char b_cv1[7]{'T', 'r', 'a', 'n', 's', 'P', '5'};
+    static const char cv2[6]{'S', 'p', 'l', 'i', 'n', 'e'};
+    static const char b_cv[5]{'H', 'e', 'l', 'i', 'x'};
     coder::rtString formatSpec;
     ::coder::array<double, 1U> P0;
     ::coder::array<double, 1U> P1;
@@ -55,12 +56,12 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
     ::coder::array<double, 1U> r1D;
     ::coder::array<double, 1U> r2D;
     ::coder::array<double, 1U> r3D;
-    ::coder::array<int, 1U> t2_cfg_indCart;
-    ::coder::array<int, 1U> t2_cfg_indRot;
-    ::coder::array<int, 1U> t3_cfg_indCart;
-    ::coder::array<int, 1U> t3_cfg_indRot;
     ::coder::array<int, 1U> t4_cfg_indCart;
     ::coder::array<int, 1U> t4_cfg_indRot;
+    ::coder::array<int, 1U> t5_cfg_indCart;
+    ::coder::array<int, 1U> t5_cfg_indRot;
+    ::coder::array<int, 1U> t6_cfg_indCart;
+    ::coder::array<int, 1U> t6_cfg_indRot;
     CurvStruct expl_temp;
     double validatedHoleFilling_f2;
     int b_loop_ub;
@@ -68,7 +69,6 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
     int d_loop_ub;
     int loop_ub;
     int varargin_1_size_idx_1;
-    char message[29];
     char b_varargin_1_data[10];
     char varargin_2_data[10];
     char varargin_1_data[9];
@@ -94,39 +94,36 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
         // 'PrintCurvStruct:65' case CurveType.Helix
         // 'PrintCurvStruct:66' str = 'Helix';
         varargin_1_size_idx_1 = 5;
-        for (int i1{0}; i1 < 5; i1++) {
-            varargin_1_data[i1] = b_cv1[i1];
+        for (int i{0}; i < 5; i++) {
+            varargin_1_data[i] = b_cv[i];
         }
         break;
     case CurveType_TransP5:
         // 'PrintCurvStruct:67' case CurveType.TransP5
         // 'PrintCurvStruct:68' str = 'TransP5';
         varargin_1_size_idx_1 = 7;
-        for (int i2{0}; i2 < 7; i2++) {
-            varargin_1_data[i2] = cv2[i2];
+        for (int i1{0}; i1 < 7; i1++) {
+            varargin_1_data[i1] = b_cv1[i1];
         }
         break;
     case CurveType_Spline:
         // 'PrintCurvStruct:69' case CurveType.Spline
         // 'PrintCurvStruct:70' str = 'Spline';
         varargin_1_size_idx_1 = 6;
-        for (int i3{0}; i3 < 6; i3++) {
-            varargin_1_data[i3] = cv3[i3];
+        for (int i2{0}; i2 < 6; i2++) {
+            varargin_1_data[i2] = cv2[i2];
         }
         break;
     default:
         // 'PrintCurvStruct:71' otherwise
         // 'PrintCurvStruct:72' str = '<UNKNOWN>';
         varargin_1_size_idx_1 = 9;
-        for (int i{0}; i < 9; i++) {
-            varargin_1_data[i] = b_cv[i];
+        for (int i3{0}; i3 < 9; i3++) {
+            varargin_1_data[i3] = cv3[i3];
         }
         break;
     }
-    if (0 <= varargin_1_size_idx_1 - 1) {
-        std::copy(&varargin_1_data[0], &varargin_1_data[varargin_1_size_idx_1],
-                  &varargin_2_data[0]);
-    }
+    std::copy(&varargin_1_data[0], &varargin_1_data[varargin_1_size_idx_1], &varargin_2_data[0]);
     varargin_2_data[varargin_1_size_idx_1] = '\x00';
     printf("%10s: %s\n", "Type", &varargin_2_data[0]);
     fflush(stdout);
@@ -189,34 +186,34 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
         break;
     }
     // 'PrintCurvStruct:29' P0 = EvalCurvStruct( ctx, S, 0 );
-    t2_cfg_indCart.set_size(ctx->cfg.indCart.size[0]);
+    t4_cfg_indCart.set_size(ctx->cfg.indCart.size[0]);
     loop_ub = ctx->cfg.indCart.size[0];
     for (int i4{0}; i4 < loop_ub; i4++) {
-        t2_cfg_indCart[i4] = ctx->cfg.indCart.data[i4];
+        t4_cfg_indCart[i4] = ctx->cfg.indCart.data[i4];
     }
-    t2_cfg_indRot.set_size(ctx->cfg.indRot.size[0]);
+    t4_cfg_indRot.set_size(ctx->cfg.indRot.size[0]);
     b_loop_ub = ctx->cfg.indRot.size[0];
     for (int i5{0}; i5 < b_loop_ub; i5++) {
-        t2_cfg_indRot[i5] = ctx->cfg.indRot.data[i5];
+        t4_cfg_indRot[i5] = ctx->cfg.indRot.data[i5];
     }
     j_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                      ctx->cfg.maskCart.data, ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
-                     ctx->cfg.maskRot.size, t2_cfg_indCart, t2_cfg_indRot, ctx->cfg.NumberAxis,
+                     ctx->cfg.maskRot.size, t4_cfg_indCart, t4_cfg_indRot, ctx->cfg.NumberAxis,
                      ctx->cfg.NCart, ctx->cfg.NRot, S, P0);
     // 'PrintCurvStruct:30' P1 = EvalCurvStruct( ctx, S, 1 );
-    t3_cfg_indCart.set_size(ctx->cfg.indCart.size[0]);
+    t5_cfg_indCart.set_size(ctx->cfg.indCart.size[0]);
     c_loop_ub = ctx->cfg.indCart.size[0];
     for (int i7{0}; i7 < c_loop_ub; i7++) {
-        t3_cfg_indCart[i7] = ctx->cfg.indCart.data[i7];
+        t5_cfg_indCart[i7] = ctx->cfg.indCart.data[i7];
     }
-    t3_cfg_indRot.set_size(ctx->cfg.indRot.size[0]);
+    t5_cfg_indRot.set_size(ctx->cfg.indRot.size[0]);
     d_loop_ub = ctx->cfg.indRot.size[0];
     for (int i8{0}; i8 < d_loop_ub; i8++) {
-        t3_cfg_indRot[i8] = ctx->cfg.indRot.data[i8];
+        t5_cfg_indRot[i8] = ctx->cfg.indRot.data[i8];
     }
     k_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                      ctx->cfg.maskCart.data, ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
-                     ctx->cfg.maskRot.size, t3_cfg_indCart, t3_cfg_indRot, ctx->cfg.NumberAxis,
+                     ctx->cfg.maskRot.size, t5_cfg_indCart, t5_cfg_indRot, ctx->cfg.NumberAxis,
                      ctx->cfg.NCart, ctx->cfg.NRot, S, P1);
     // 'PrintCurvStruct:31' fprintf( '%10s: [%.4f %.4f %.4f] -> [%.4f %.4f %.4f]\n',...
     // 'PrintCurvStruct:32'     'P', P0(1), P0(2), P0(3), P1(1), P1(2), P1(3) )
@@ -262,6 +259,7 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
         // 'LengthCurv:14' L = TransP5LengthApprox( curv );
         validatedHoleFilling_f2 = TransP5LengthApprox(S->CoeffP5);
     } else {
+        char message[29];
         // 'LengthCurv:15' else
         // 'LengthCurv:16' c_assert(false, 'BAD CURVE TYPE IN LENGTH CURV');
         // 'c_assert:2' if coder.target('rtw')
@@ -283,24 +281,32 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
     case ZSpdMode_NN:
         // 'PrintCurvStruct:48' case ZSpdMode.NN
         // 'PrintCurvStruct:49' str = "NN";
+        formatSpec.Value.size[0] = 1;
+        formatSpec.Value.size[1] = 2;
         formatSpec.Value.data[0] = 'N';
         formatSpec.Value.data[1] = 'N';
         break;
     case ZSpdMode_ZN:
         // 'PrintCurvStruct:50' case ZSpdMode.ZN
         // 'PrintCurvStruct:51' str = "ZN";
+        formatSpec.Value.size[0] = 1;
+        formatSpec.Value.size[1] = 2;
         formatSpec.Value.data[0] = 'Z';
         formatSpec.Value.data[1] = 'N';
         break;
     case ZSpdMode_NZ:
         // 'PrintCurvStruct:52' case ZSpdMode.NZ
         // 'PrintCurvStruct:53' str = "NZ";
+        formatSpec.Value.size[0] = 1;
+        formatSpec.Value.size[1] = 2;
         formatSpec.Value.data[0] = 'N';
         formatSpec.Value.data[1] = 'Z';
         break;
     default:
         // 'PrintCurvStruct:54' case ZSpdMode.ZZ
         // 'PrintCurvStruct:55' str = "ZZ";
+        formatSpec.Value.size[0] = 1;
+        formatSpec.Value.size[1] = 2;
         formatSpec.Value.data[0] = 'Z';
         formatSpec.Value.data[1] = 'Z';
         break;
@@ -338,15 +344,15 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
             isEnd = true;
         }
         // 'PrintCurvStruct:39' [v_0, at_0] = calcZeroConstraints( ctx, S, isEnd );
-        t4_cfg_indCart.set_size(ctx->cfg.indCart.size[0]);
+        t6_cfg_indCart.set_size(ctx->cfg.indCart.size[0]);
         f_loop_ub = ctx->cfg.indCart.size[0];
         for (int i12{0}; i12 < f_loop_ub; i12++) {
-            t4_cfg_indCart[i12] = ctx->cfg.indCart.data[i12];
+            t6_cfg_indCart[i12] = ctx->cfg.indCart.data[i12];
         }
-        t4_cfg_indRot.set_size(ctx->cfg.indRot.size[0]);
+        t6_cfg_indRot.set_size(ctx->cfg.indRot.size[0]);
         g_loop_ub = ctx->cfg.indRot.size[0];
         for (int i13{0}; i13 < g_loop_ub; i13++) {
-            t4_cfg_indRot[i13] = ctx->cfg.indRot.data[i13];
+            t6_cfg_indRot[i13] = ctx->cfg.indRot.data[i13];
         }
         //  calcZeroConstraints : Compute the velocity and acceleration
         //  required for the continuity at zero start.
@@ -416,11 +422,11 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
         // 'calcZeroConstraints:22' [ r0D, r1D, r2D, r3D ]  = EvalCurvStruct( ctx, curv, u );
         i_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                          ctx->cfg.maskCart.data, ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
-                         ctx->cfg.maskRot.size, t4_cfg_indCart, t4_cfg_indRot, ctx->cfg.NumberAxis,
+                         ctx->cfg.maskRot.size, t6_cfg_indCart, t6_cfg_indRot, ctx->cfg.NumberAxis,
                          ctx->cfg.NCart, ctx->cfg.NRot, S, u, r0D, r1D, r2D, r3D);
         // 'calcZeroConstraints:24' [ ~, V, A, ~ ]          = calcRVAJfromUWithoutCurv( ud, udd,
         // uddd, r0D, ... 'calcZeroConstraints:25'                           r1D, r2D, r3D );
-        ud_vec = S->ConstJerk * std::pow(k_vec, 2.0) / 2.0;
+        ud_vec = S->ConstJerk * (k_vec * k_vec) / 2.0;
         //  calcRVAJfromU : Compute the pose, the velocity, the acceleration and the
         //  jerk for a given set of u variable.
         //  Inputs :
@@ -439,7 +445,7 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
         // 'calcRVAJfromUWithoutCurv:18' R = r0D;
         // 'calcRVAJfromUWithoutCurv:19' V = r1D .* ud_vec;
         // 'calcRVAJfromUWithoutCurv:20' A = r2D .* ud_vec .^2 + r1D .* udd_vec;
-        y = std::pow(ud_vec, 2.0);
+        y = ud_vec * ud_vec;
         // 'calcRVAJfromUWithoutCurv:21' J = r3D .* ud_vec .^3 + 3 * r2D .* ud_vec .* udd_vec + r1D
         // .* uddd_vec; 'calcZeroConstraints:27' [ vNorm, atNorm ]       = calcNormVNormAT( V, A,
         // r1D );

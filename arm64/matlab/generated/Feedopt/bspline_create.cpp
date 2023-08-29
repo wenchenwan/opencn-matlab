@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: bspline_create.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 // Include Files
@@ -13,8 +13,8 @@
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_initialize.h"
 #include "opencn_matlab_types3.h"
+#include "c_spline.h"
 #include "coder_array.h"
-#include "src/c_spline.h"
 #include <algorithm>
 
 // Function Definitions
@@ -30,22 +30,24 @@ namespace ocn {
 void bspline_create(int degree, const double breakpoints[10], BaseSplineStruct *Bl)
 {
     double b_breakpoints[10];
-    unsigned long t7_handle;
+    unsigned long t9_handle;
     if (!isInitialized_opencn_matlab) {
         opencn_matlab_initialize();
     }
-    // 'bspline_create:2' if coder.target('rtw') || coder.target('mex')
+    // 'bspline_create:2' if  coder.target('rtw') || coder.target('mex')
     // 'bspline_create:3' nbreak = length(breakpoints);
     // 'bspline_create:4' ncoeff = nbreak + degree - 2;
     // 'bspline_create:5' h = uint64(0);
-    // 'bspline_create:7' coder.updateBuildInfo('addSourceFiles','c_spline.c', '$(START_DIR)/src');
-    // 'bspline_create:8' coder.updateBuildInfo('addLinkFlags', LibInfo.gsl.lflags);
-    // 'bspline_create:9' coder.cinclude('src/c_spline.h');
-    // 'bspline_create:10' coder.ceval('c_bspline_create_with_breakpoints', coder.wref(h), degree,
+    // 'bspline_create:6' my_path = StructTypeName.WDIR + "/src";
+    // 'bspline_create:7' coder.updateBuildInfo('addIncludePaths',my_path);
+    // 'bspline_create:8' coder.updateBuildInfo('addSourceFiles','c_spline.c', my_path);
+    // 'bspline_create:9' coder.updateBuildInfo('addLinkFlags', LibInfo.gsl.lflags);
+    // 'bspline_create:10' coder.cinclude('c_spline.h');
+    // 'bspline_create:11' coder.ceval('c_bspline_create_with_breakpoints', coder.wref(h), degree,
     // breakpoints, int32(nbreak) );
     std::copy(&breakpoints[0], &breakpoints[10], &b_breakpoints[0]);
-    c_bspline_create_with_breakpoints(&t7_handle, degree, &b_breakpoints[0], 10);
-    // 'bspline_create:11' Bl = constrBaseSpline( ncoeff, breakpoints, h, int32(degree) );
+    c_bspline_create_with_breakpoints(&t9_handle, degree, &b_breakpoints[0], 10);
+    // 'bspline_create:12' Bl = constrBaseSpline( ncoeff, breakpoints, h, int32(degree) );
     //  Construct a struct base spline.
     //
     //  Inputs :
@@ -65,7 +67,7 @@ void bspline_create(int degree, const double breakpoints[10], BaseSplineStruct *
     for (int i{0}; i < 10; i++) {
         Bl->breakpoints[i] = breakpoints[i];
     }
-    Bl->handle = t7_handle;
+    Bl->handle = t9_handle;
     Bl->order = degree;
     // 'constrBaseSpline:19' if ~coder.target( 'MATLAB' )
     // 'constrBaseSpline:20' coder.varsize( 'BaseSplineStrct.breakpoints', StructTypeName.dimNBreak{

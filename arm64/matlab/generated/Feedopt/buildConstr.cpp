@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: buildConstr.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 // Include Files
@@ -16,7 +16,8 @@
 #include "linspace.h"
 #include "minOrMax.h"
 #include "opencn_matlab_types1.h"
-#include "opencn_matlab_types2.h"
+#include "opencn_matlab_types21.h"
+#include "opencn_matlab_types3.h"
 #include "queue_coder.h"
 #include "repmat.h"
 #include "vecnorm.h"
@@ -25,54 +26,55 @@
 
 // Function Declarations
 namespace ocn {
-static void b_binary_expand_op(::coder::array<double, 3U> &Acc, const ::coder::array<int, 1U> &r,
-                               const ::coder::array<double, 2U> &r2D_a, int j, int i4,
-                               const ::coder::array<double, 2U> &BasisVal,
-                               const ::coder::array<double, 1U> &r1,
-                               const ::coder::array<double, 2U> &BasisValD);
+static void b_binary_expand_op(::coder::array<double, 3U> &in1, const ::coder::array<int, 1U> &in2,
+                               const ::coder::array<double, 2U> &in3, int in4, int in5,
+                               const ::coder::array<double, 2U> &in6,
+                               const ::coder::array<double, 1U> &in7,
+                               const ::coder::array<double, 2U> &in8);
 
-static void binary_expand_op(::coder::array<double, 2U> &v_max, const double ctx_cfg_vmax[6],
-                             const signed char _data[], const int _size[2],
-                             const ::coder::array<double, 2U> &r1D_a);
+static void binary_expand_op(::coder::array<double, 2U> &in1, const double in4[6],
+                             const signed char in5_data[], const int in5_size[2],
+                             const ::coder::array<double, 2U> &in6);
 
-static void binary_expand_op(::coder::array<double, 3U> &Acc, const ::coder::array<int, 1U> &r,
-                             const ::coder::array<double, 2U> &r2D, int j, int i4,
-                             const ::coder::array<double, 2U> &BasisVal,
-                             const ::coder::array<double, 1U> &r1,
-                             const ::coder::array<double, 2U> &BasisValD);
+static void binary_expand_op(::coder::array<double, 3U> &in1, const ::coder::array<int, 1U> &in2,
+                             const ::coder::array<double, 2U> &in3, int in4, int in5,
+                             const ::coder::array<double, 2U> &in6,
+                             const ::coder::array<double, 1U> &in7,
+                             const ::coder::array<double, 2U> &in8);
 
-static void binary_expand_op(::coder::array<double, 2U> &Aeq, const int indAEL[4],
-                             const ::coder::array<int, 1U> &r,
-                             const ::coder::array<double, 3U> &v2_vec, int k,
-                             const ::coder::array<double, 3U> &at_norm,
-                             const signed char mask_continuity[4]);
+static void binary_expand_op(::coder::array<double, 2U> &in1, const int in2[4],
+                             const ::coder::array<int, 1U> &in3,
+                             const ::coder::array<double, 3U> &in4, int in5,
+                             const ::coder::array<double, 3U> &in6, const signed char in7[4]);
 
-static void binary_expand_op(::coder::array<double, 1U> &b, const ::coder::array<double, 2U> &ramp);
+static void binary_expand_op(::coder::array<double, 1U> &in1,
+                             const ::coder::array<double, 2U> &in2);
 
 } // namespace ocn
 
 // Function Definitions
 //
-// Arguments    : ::coder::array<double, 3U> &Acc
-//                const ::coder::array<int, 1U> &r
-//                const ::coder::array<double, 2U> &r2D_a
-//                int j
-//                int i4
-//                const ::coder::array<double, 2U> &BasisVal
-//                const ::coder::array<double, 1U> &r1
-//                const ::coder::array<double, 2U> &BasisValD
+// Arguments    : ::coder::array<double, 3U> &in1
+//                const ::coder::array<int, 1U> &in2
+//                const ::coder::array<double, 2U> &in3
+//                int in4
+//                int in5
+//                const ::coder::array<double, 2U> &in6
+//                const ::coder::array<double, 1U> &in7
+//                const ::coder::array<double, 2U> &in8
 // Return Type  : void
 //
 namespace ocn {
-static void b_binary_expand_op(::coder::array<double, 3U> &Acc, const ::coder::array<int, 1U> &r,
-                               const ::coder::array<double, 2U> &r2D_a, int j, int i4,
-                               const ::coder::array<double, 2U> &BasisVal,
-                               const ::coder::array<double, 1U> &r1,
-                               const ::coder::array<double, 2U> &BasisValD)
+static void b_binary_expand_op(::coder::array<double, 3U> &in1, const ::coder::array<int, 1U> &in2,
+                               const ::coder::array<double, 2U> &in3, int in4, int in5,
+                               const ::coder::array<double, 2U> &in6,
+                               const ::coder::array<double, 1U> &in7,
+                               const ::coder::array<double, 2U> &in8)
 {
     int aux_1_1;
     int aux_3_1;
     int i;
+    int in7_idx_0;
     int loop_ub;
     int stride_0_0;
     int stride_1_0;
@@ -80,56 +82,55 @@ static void b_binary_expand_op(::coder::array<double, 3U> &Acc, const ::coder::a
     int stride_2_0;
     int stride_3_0;
     int stride_3_1;
-    int unnamed_idx_0;
-    unnamed_idx_0 = r1.size(0);
-    stride_0_0 = (i4 != 1);
-    stride_1_0 = (BasisVal.size(0) != 1);
-    stride_1_1 = (BasisVal.size(1) != 1);
-    stride_2_0 = (unnamed_idx_0 != 1);
-    stride_3_0 = (BasisValD.size(0) != 1);
-    stride_3_1 = (BasisValD.size(1) != 1);
+    in7_idx_0 = in7.size(0);
+    stride_0_0 = (in5 != 1);
+    stride_1_0 = (in6.size(0) != 1);
+    stride_1_1 = (in6.size(1) != 1);
+    stride_2_0 = (in7_idx_0 != 1);
+    stride_3_0 = (in8.size(0) != 1);
+    stride_3_1 = (in8.size(1) != 1);
     aux_1_1 = 0;
     aux_3_1 = 0;
-    if (BasisValD.size(1) == 1) {
+    if (in8.size(1) == 1) {
         i = 1;
     } else {
-        i = BasisValD.size(1);
+        i = in8.size(1);
     }
     if (i == 1) {
-        if (BasisVal.size(1) == 1) {
+        if (in6.size(1) == 1) {
             loop_ub = 1;
         } else {
-            loop_ub = BasisVal.size(1);
+            loop_ub = in6.size(1);
         }
-    } else if (BasisValD.size(1) == 1) {
+    } else if (in8.size(1) == 1) {
         loop_ub = 1;
     } else {
-        loop_ub = BasisValD.size(1);
+        loop_ub = in8.size(1);
     }
     for (int i1{0}; i1 < loop_ub; i1++) {
         int b_loop_ub;
         int i2;
-        if (BasisValD.size(0) == 1) {
-            i2 = unnamed_idx_0;
+        if (in8.size(0) == 1) {
+            i2 = in7_idx_0;
         } else {
-            i2 = BasisValD.size(0);
+            i2 = in8.size(0);
         }
         if (i2 == 1) {
-            if (BasisVal.size(0) == 1) {
-                b_loop_ub = i4;
+            if (in6.size(0) == 1) {
+                b_loop_ub = in5;
             } else {
-                b_loop_ub = BasisVal.size(0);
+                b_loop_ub = in6.size(0);
             }
-        } else if (BasisValD.size(0) == 1) {
-            b_loop_ub = unnamed_idx_0;
+        } else if (in8.size(0) == 1) {
+            b_loop_ub = in7_idx_0;
         } else {
-            b_loop_ub = BasisValD.size(0);
+            b_loop_ub = in8.size(0);
         }
         for (int i3{0}; i3 < b_loop_ub; i3++) {
-            Acc[(r[i3] + Acc.size(0) * i1) - 1] =
-                r2D_a[j + r2D_a.size(0) * (i3 * stride_0_0)] *
-                    BasisVal[i3 * stride_1_0 + BasisVal.size(0) * aux_1_1] +
-                r1[i3 * stride_2_0] * BasisValD[i3 * stride_3_0 + BasisValD.size(0) * aux_3_1];
+            in1[(in2[i3] + in1.size(0) * i1) - 1] =
+                in3[in4 + in3.size(0) * (i3 * stride_0_0)] *
+                    in6[i3 * stride_1_0 + in6.size(0) * aux_1_1] +
+                in7[i3 * stride_2_0] * in8[i3 * stride_3_0 + in8.size(0) * aux_3_1];
         }
         aux_3_1 += stride_3_1;
         aux_1_1 += stride_1_1;
@@ -137,79 +138,79 @@ static void b_binary_expand_op(::coder::array<double, 3U> &Acc, const ::coder::a
 }
 
 //
-// Arguments    : ::coder::array<double, 2U> &v_max
-//                const double ctx_cfg_vmax[6]
-//                const signed char _data[]
-//                const int _size[2]
-//                const ::coder::array<double, 2U> &r1D_a
+// Arguments    : ::coder::array<double, 2U> &in1
+//                const double in4[6]
+//                const signed char in5_data[]
+//                const int in5_size[2]
+//                const ::coder::array<double, 2U> &in6
 // Return Type  : void
 //
-static void binary_expand_op(::coder::array<double, 2U> &v_max, const double ctx_cfg_vmax[6],
-                             const signed char _data[], const int _size[2],
-                             const ::coder::array<double, 2U> &r1D_a)
+static void binary_expand_op(::coder::array<double, 2U> &in1, const double in4[6],
+                             const signed char in5_data[], const int in5_size[2],
+                             const ::coder::array<double, 2U> &in6)
 {
-    ::coder::array<double, 2U> b_ctx_cfg_vmax;
+    ::coder::array<double, 2U> b_in4;
     int b_loop_ub;
     int i;
+    int in5_idx_0;
     int loop_ub;
     int stride_0_0;
     int stride_1_0;
-    int unnamed_idx_0;
-    unnamed_idx_0 = _size[1];
-    if (r1D_a.size(0) == 1) {
-        i = unnamed_idx_0;
+    in5_idx_0 = in5_size[1];
+    if (in6.size(0) == 1) {
+        i = in5_idx_0;
     } else {
-        i = r1D_a.size(0);
+        i = in6.size(0);
     }
-    b_ctx_cfg_vmax.set_size(i, r1D_a.size(1));
-    stride_0_0 = (unnamed_idx_0 != 1);
-    stride_1_0 = (r1D_a.size(0) != 1);
-    loop_ub = r1D_a.size(1);
+    b_in4.set_size(i, in6.size(1));
+    stride_0_0 = (in5_idx_0 != 1);
+    stride_1_0 = (in6.size(0) != 1);
+    loop_ub = in6.size(1);
     for (int i1{0}; i1 < loop_ub; i1++) {
         int c_loop_ub;
-        if (r1D_a.size(0) == 1) {
-            c_loop_ub = unnamed_idx_0;
+        if (in6.size(0) == 1) {
+            c_loop_ub = in5_idx_0;
         } else {
-            c_loop_ub = r1D_a.size(0);
+            c_loop_ub = in6.size(0);
         }
         for (int i3{0}; i3 < c_loop_ub; i3++) {
-            b_ctx_cfg_vmax[i3 + b_ctx_cfg_vmax.size(0) * i1] =
-                ctx_cfg_vmax[_data[i3 * stride_0_0] - 1] /
-                r1D_a[i3 * stride_1_0 + r1D_a.size(0) * i1];
+            b_in4[i3 + b_in4.size(0) * i1] =
+                in4[in5_data[i3 * stride_0_0] - 1] / in6[i3 * stride_1_0 + in6.size(0) * i1];
         }
     }
-    b_loop_ub = b_ctx_cfg_vmax.size(1);
+    b_loop_ub = b_in4.size(1);
     for (int i2{0}; i2 < b_loop_ub; i2++) {
         int d_loop_ub;
-        d_loop_ub = b_ctx_cfg_vmax.size(0);
+        d_loop_ub = b_in4.size(0);
         for (int i4{0}; i4 < d_loop_ub; i4++) {
             double varargin_1;
-            varargin_1 = b_ctx_cfg_vmax[i4 + b_ctx_cfg_vmax.size(0) * i2];
-            v_max[i4 + v_max.size(0) * i2] = std::pow(varargin_1, 2.0);
+            varargin_1 = b_in4[i4 + b_in4.size(0) * i2];
+            in1[i4 + in1.size(0) * i2] = std::pow(varargin_1, 2.0);
         }
     }
 }
 
 //
-// Arguments    : ::coder::array<double, 3U> &Acc
-//                const ::coder::array<int, 1U> &r
-//                const ::coder::array<double, 2U> &r2D
-//                int j
-//                int i4
-//                const ::coder::array<double, 2U> &BasisVal
-//                const ::coder::array<double, 1U> &r1
-//                const ::coder::array<double, 2U> &BasisValD
+// Arguments    : ::coder::array<double, 3U> &in1
+//                const ::coder::array<int, 1U> &in2
+//                const ::coder::array<double, 2U> &in3
+//                int in4
+//                int in5
+//                const ::coder::array<double, 2U> &in6
+//                const ::coder::array<double, 1U> &in7
+//                const ::coder::array<double, 2U> &in8
 // Return Type  : void
 //
-static void binary_expand_op(::coder::array<double, 3U> &Acc, const ::coder::array<int, 1U> &r,
-                             const ::coder::array<double, 2U> &r2D, int j, int i4,
-                             const ::coder::array<double, 2U> &BasisVal,
-                             const ::coder::array<double, 1U> &r1,
-                             const ::coder::array<double, 2U> &BasisValD)
+static void binary_expand_op(::coder::array<double, 3U> &in1, const ::coder::array<int, 1U> &in2,
+                             const ::coder::array<double, 2U> &in3, int in4, int in5,
+                             const ::coder::array<double, 2U> &in6,
+                             const ::coder::array<double, 1U> &in7,
+                             const ::coder::array<double, 2U> &in8)
 {
     int aux_1_1;
     int aux_3_1;
     int i;
+    int in7_idx_0;
     int loop_ub;
     int stride_0_0;
     int stride_1_0;
@@ -217,56 +218,55 @@ static void binary_expand_op(::coder::array<double, 3U> &Acc, const ::coder::arr
     int stride_2_0;
     int stride_3_0;
     int stride_3_1;
-    int unnamed_idx_0;
-    unnamed_idx_0 = r1.size(0);
-    stride_0_0 = (i4 != 1);
-    stride_1_0 = (BasisVal.size(0) != 1);
-    stride_1_1 = (BasisVal.size(1) != 1);
-    stride_2_0 = (unnamed_idx_0 != 1);
-    stride_3_0 = (BasisValD.size(0) != 1);
-    stride_3_1 = (BasisValD.size(1) != 1);
+    in7_idx_0 = in7.size(0);
+    stride_0_0 = (in5 != 1);
+    stride_1_0 = (in6.size(0) != 1);
+    stride_1_1 = (in6.size(1) != 1);
+    stride_2_0 = (in7_idx_0 != 1);
+    stride_3_0 = (in8.size(0) != 1);
+    stride_3_1 = (in8.size(1) != 1);
     aux_1_1 = 0;
     aux_3_1 = 0;
-    if (BasisValD.size(1) == 1) {
+    if (in8.size(1) == 1) {
         i = 1;
     } else {
-        i = BasisValD.size(1);
+        i = in8.size(1);
     }
     if (i == 1) {
-        if (BasisVal.size(1) == 1) {
+        if (in6.size(1) == 1) {
             loop_ub = 1;
         } else {
-            loop_ub = BasisVal.size(1);
+            loop_ub = in6.size(1);
         }
-    } else if (BasisValD.size(1) == 1) {
+    } else if (in8.size(1) == 1) {
         loop_ub = 1;
     } else {
-        loop_ub = BasisValD.size(1);
+        loop_ub = in8.size(1);
     }
     for (int i1{0}; i1 < loop_ub; i1++) {
         int b_loop_ub;
         int i2;
-        if (BasisValD.size(0) == 1) {
-            i2 = unnamed_idx_0;
+        if (in8.size(0) == 1) {
+            i2 = in7_idx_0;
         } else {
-            i2 = BasisValD.size(0);
+            i2 = in8.size(0);
         }
         if (i2 == 1) {
-            if (BasisVal.size(0) == 1) {
-                b_loop_ub = i4;
+            if (in6.size(0) == 1) {
+                b_loop_ub = in5;
             } else {
-                b_loop_ub = BasisVal.size(0);
+                b_loop_ub = in6.size(0);
             }
-        } else if (BasisValD.size(0) == 1) {
-            b_loop_ub = unnamed_idx_0;
+        } else if (in8.size(0) == 1) {
+            b_loop_ub = in7_idx_0;
         } else {
-            b_loop_ub = BasisValD.size(0);
+            b_loop_ub = in8.size(0);
         }
         for (int i3{0}; i3 < b_loop_ub; i3++) {
-            Acc[((r[i3] + Acc.size(0) * i1) + Acc.size(0) * Acc.size(1)) - 1] =
-                r2D[j + r2D.size(0) * (i3 * stride_0_0)] *
-                    BasisVal[i3 * stride_1_0 + BasisVal.size(0) * aux_1_1] +
-                r1[i3 * stride_2_0] * BasisValD[i3 * stride_3_0 + BasisValD.size(0) * aux_3_1];
+            in1[((in2[i3] + in1.size(0) * i1) + in1.size(0) * in1.size(1)) - 1] =
+                in3[in4 + in3.size(0) * (i3 * stride_0_0)] *
+                    in6[i3 * stride_1_0 + in6.size(0) * aux_1_1] +
+                in7[i3 * stride_2_0] * in8[i3 * stride_3_0 + in8.size(0) * aux_3_1];
         }
         aux_3_1 += stride_3_1;
         aux_1_1 += stride_1_1;
@@ -274,23 +274,22 @@ static void binary_expand_op(::coder::array<double, 3U> &Acc, const ::coder::arr
 }
 
 //
-// Arguments    : ::coder::array<double, 2U> &Aeq
-//                const int indAEL[4]
-//                const ::coder::array<int, 1U> &r
-//                const ::coder::array<double, 3U> &v2_vec
-//                int k
-//                const ::coder::array<double, 3U> &at_norm
-//                const signed char mask_continuity[4]
+// Arguments    : ::coder::array<double, 2U> &in1
+//                const int in2[4]
+//                const ::coder::array<int, 1U> &in3
+//                const ::coder::array<double, 3U> &in4
+//                int in5
+//                const ::coder::array<double, 3U> &in6
+//                const signed char in7[4]
 // Return Type  : void
 //
-static void binary_expand_op(::coder::array<double, 2U> &Aeq, const int indAEL[4],
-                             const ::coder::array<int, 1U> &r,
-                             const ::coder::array<double, 3U> &v2_vec, int k,
-                             const ::coder::array<double, 3U> &at_norm,
-                             const signed char mask_continuity[4])
+static void binary_expand_op(::coder::array<double, 2U> &in1, const int in2[4],
+                             const ::coder::array<int, 1U> &in3,
+                             const ::coder::array<double, 3U> &in4, int in5,
+                             const ::coder::array<double, 3U> &in6, const signed char in7[4])
 {
-    ::coder::array<double, 2U> b_Aeq;
-    ::coder::array<double, 2U> b_v2_vec;
+    ::coder::array<double, 2U> b_in1;
+    ::coder::array<double, 2U> b_in4;
     int aux_0_1;
     int aux_1_1;
     int b_loop_ub;
@@ -302,94 +301,94 @@ static void binary_expand_op(::coder::array<double, 2U> &Aeq, const int indAEL[4
     int loop_ub;
     int stride_0_1;
     int stride_1_1;
-    loop_ub = v2_vec.size(1);
-    b_loop_ub = at_norm.size(1);
-    c_loop_ub = v2_vec.size(1);
-    d_loop_ub = at_norm.size(1);
-    b_v2_vec.set_size(4, loop_ub);
+    loop_ub = in4.size(1);
+    b_loop_ub = in6.size(1);
+    c_loop_ub = in4.size(1);
+    d_loop_ub = in6.size(1);
+    b_in4.set_size(4, loop_ub);
     for (int i{0}; i < loop_ub; i++) {
-        b_v2_vec[4 * i] = v2_vec[2 * i + 2 * v2_vec.size(1) * k];
+        b_in4[4 * i] = in4[2 * i + 2 * in4.size(1) * in5];
     }
     for (int i1{0}; i1 < b_loop_ub; i1++) {
-        b_v2_vec[4 * i1 + 1] = at_norm[2 * i1 + 2 * at_norm.size(1) * k];
+        b_in4[4 * i1 + 1] = in6[2 * i1 + 2 * in6.size(1) * in5];
     }
     for (int i2{0}; i2 < c_loop_ub; i2++) {
-        b_v2_vec[4 * i2 + 2] = v2_vec[(2 * i2 + 2 * v2_vec.size(1) * k) + 1];
+        b_in4[4 * i2 + 2] = in4[(2 * i2 + 2 * in4.size(1) * in5) + 1];
     }
     for (int i3{0}; i3 < d_loop_ub; i3++) {
-        b_v2_vec[4 * i3 + 3] = at_norm[(2 * i3 + 2 * at_norm.size(1) * k) + 1];
+        b_in4[4 * i3 + 3] = in6[(2 * i3 + 2 * in6.size(1) * in5) + 1];
     }
-    if (b_v2_vec.size(1) == 1) {
-        i4 = r.size(0);
+    if (b_in4.size(1) == 1) {
+        i4 = in3.size(0);
     } else {
-        i4 = b_v2_vec.size(1);
+        i4 = b_in4.size(1);
     }
-    b_Aeq.set_size(4, i4);
-    stride_0_1 = (r.size(0) != 1);
-    stride_1_1 = (b_v2_vec.size(1) != 1);
+    b_in1.set_size(4, i4);
+    stride_0_1 = (in3.size(0) != 1);
+    stride_1_1 = (b_in4.size(1) != 1);
     aux_0_1 = 0;
     aux_1_1 = 0;
-    if (b_v2_vec.size(1) == 1) {
-        e_loop_ub = r.size(0);
+    if (b_in4.size(1) == 1) {
+        e_loop_ub = in3.size(0);
     } else {
-        e_loop_ub = b_v2_vec.size(1);
+        e_loop_ub = b_in4.size(1);
     }
     for (int i5{0}; i5 < e_loop_ub; i5++) {
-        b_Aeq[4 * i5] = Aeq[(indAEL[0] + Aeq.size(0) * (r[aux_0_1] - 1)) - 1] +
-                        b_v2_vec[4 * aux_1_1] * static_cast<double>(mask_continuity[0]);
-        b_Aeq[4 * i5 + 1] = Aeq[(indAEL[1] + Aeq.size(0) * (r[aux_0_1] - 1)) - 1] +
-                            b_v2_vec[4 * aux_1_1 + 1] * static_cast<double>(mask_continuity[1]);
-        b_Aeq[4 * i5 + 2] = Aeq[(indAEL[2] + Aeq.size(0) * (r[aux_0_1] - 1)) - 1] +
-                            b_v2_vec[4 * aux_1_1 + 2] * static_cast<double>(mask_continuity[2]);
-        b_Aeq[4 * i5 + 3] = Aeq[(indAEL[3] + Aeq.size(0) * (r[aux_0_1] - 1)) - 1] +
-                            b_v2_vec[4 * aux_1_1 + 3] * static_cast<double>(mask_continuity[3]);
+        b_in1[4 * i5] = in1[(in2[0] + in1.size(0) * (in3[aux_0_1] - 1)) - 1] +
+                        b_in4[4 * aux_1_1] * static_cast<double>(in7[0]);
+        b_in1[4 * i5 + 1] = in1[(in2[1] + in1.size(0) * (in3[aux_0_1] - 1)) - 1] +
+                            b_in4[4 * aux_1_1 + 1] * static_cast<double>(in7[1]);
+        b_in1[4 * i5 + 2] = in1[(in2[2] + in1.size(0) * (in3[aux_0_1] - 1)) - 1] +
+                            b_in4[4 * aux_1_1 + 2] * static_cast<double>(in7[2]);
+        b_in1[4 * i5 + 3] = in1[(in2[3] + in1.size(0) * (in3[aux_0_1] - 1)) - 1] +
+                            b_in4[4 * aux_1_1 + 3] * static_cast<double>(in7[3]);
         aux_1_1 += stride_1_1;
         aux_0_1 += stride_0_1;
     }
-    f_loop_ub = b_Aeq.size(1);
+    f_loop_ub = b_in1.size(1);
     for (int i6{0}; i6 < f_loop_ub; i6++) {
-        Aeq[(indAEL[0] + Aeq.size(0) * (r[i6] - 1)) - 1] = b_Aeq[4 * i6];
-        Aeq[(indAEL[1] + Aeq.size(0) * (r[i6] - 1)) - 1] = b_Aeq[4 * i6 + 1];
-        Aeq[(indAEL[2] + Aeq.size(0) * (r[i6] - 1)) - 1] = b_Aeq[4 * i6 + 2];
-        Aeq[(indAEL[3] + Aeq.size(0) * (r[i6] - 1)) - 1] = b_Aeq[4 * i6 + 3];
+        in1[(in2[0] + in1.size(0) * (in3[i6] - 1)) - 1] = b_in1[4 * i6];
+        in1[(in2[1] + in1.size(0) * (in3[i6] - 1)) - 1] = b_in1[4 * i6 + 1];
+        in1[(in2[2] + in1.size(0) * (in3[i6] - 1)) - 1] = b_in1[4 * i6 + 2];
+        in1[(in2[3] + in1.size(0) * (in3[i6] - 1)) - 1] = b_in1[4 * i6 + 3];
     }
 }
 
 //
-// Arguments    : ::coder::array<double, 1U> &b
-//                const ::coder::array<double, 2U> &ramp
+// Arguments    : ::coder::array<double, 1U> &in1
+//                const ::coder::array<double, 2U> &in2
 // Return Type  : void
 //
-static void binary_expand_op(::coder::array<double, 1U> &b, const ::coder::array<double, 2U> &ramp)
+static void binary_expand_op(::coder::array<double, 1U> &in1, const ::coder::array<double, 2U> &in2)
 {
-    ::coder::array<double, 1U> b_b;
+    ::coder::array<double, 1U> b_in1;
+    int b_in2;
     int b_loop_ub;
-    int b_ramp;
-    int c_ramp;
+    int c_in2;
     int loop_ub;
     int stride_0_0;
     int stride_1_0;
-    b_ramp = ramp.size(0) * ramp.size(1);
-    if (b_ramp == 1) {
-        c_ramp = b.size(0);
+    b_in2 = in2.size(0) * in2.size(1);
+    if (b_in2 == 1) {
+        c_in2 = in1.size(0);
     } else {
-        c_ramp = b_ramp;
+        c_in2 = b_in2;
     }
-    b_b.set_size(c_ramp);
-    stride_0_0 = (b.size(0) != 1);
-    stride_1_0 = (b_ramp != 1);
-    if (b_ramp == 1) {
-        loop_ub = b.size(0);
+    b_in1.set_size(c_in2);
+    stride_0_0 = (in1.size(0) != 1);
+    stride_1_0 = (b_in2 != 1);
+    if (b_in2 == 1) {
+        loop_ub = in1.size(0);
     } else {
-        loop_ub = b_ramp;
+        loop_ub = b_in2;
     }
     for (int i{0}; i < loop_ub; i++) {
-        b_b[i] = b[i * stride_0_0] * ramp[i * stride_1_0];
+        b_in1[i] = in1[i * stride_0_0] * in2[i * stride_1_0];
     }
-    b.set_size(b_b.size(0));
-    b_loop_ub = b_b.size(0);
+    in1.set_size(b_in1.size(0));
+    b_loop_ub = b_in1.size(0);
     for (int i1{0}; i1 < b_loop_ub; i1++) {
-        b[i1] = b_b[i1];
+        in1[i1] = b_in1[i1];
     }
 }
 
@@ -412,7 +411,7 @@ static void binary_expand_op(::coder::array<double, 1U> &b, const ::coder::array
 //                const double ctx_cfg_vmax[6]
 //                double ctx_cfg_opt_ACC_RAMP_OVER_WINDOWS
 //                double ctx_cfg_opt_VEL_RAMP_OVER_WINDOWS
-//                const Kinematics *ctx_kin
+//                Kinematics *ctx_kin
 //                const ::coder::array<CurvStruct, 2U> &windowCurv
 //                const double amax[6]
 //                double v_0
@@ -436,7 +435,7 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
                  const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
                  int ctx_cfg_NCart, int ctx_cfg_NRot, const double ctx_cfg_vmax[6],
                  double ctx_cfg_opt_ACC_RAMP_OVER_WINDOWS, double ctx_cfg_opt_VEL_RAMP_OVER_WINDOWS,
-                 const Kinematics *ctx_kin, const ::coder::array<CurvStruct, 2U> &windowCurv,
+                 Kinematics *ctx_kin, const ::coder::array<CurvStruct, 2U> &windowCurv,
                  const double amax[6], double v_0, double at_0, double v_1, double at_1,
                  const ::coder::array<double, 2U> &BasisVal,
                  const ::coder::array<double, 2U> &BasisValD,
@@ -451,10 +450,9 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
     ::coder::array<double, 3U> v2_vec;
     ::coder::array<double, 2U> a__1;
     ::coder::array<double, 2U> acc_ramp;
-    ::coder::array<double, 2U> amax_data;
     ::coder::array<double, 2U> b_Acc;
     ::coder::array<double, 2U> b_Aeq;
-    ::coder::array<double, 2U> b_amax;
+    ::coder::array<double, 2U> b_amax_data;
     ::coder::array<double, 2U> b_b;
     ::coder::array<double, 2U> b_ctx_cfg_vmax;
     ::coder::array<double, 2U> b_r1D_r;
@@ -486,53 +484,50 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
     ::coder::array<int, 2U> r1;
     ::coder::array<int, 1U> r4;
     ::coder::array<int, 1U> r5;
-    double b_amax_data[6];
-    double d_y[2];
+    double amax_data[6];
     double Nec;
     double Nx;
-    int indAEL[4];
     int iv[2];
     int iv1[2];
     int tmp_size[2];
     int M;
     int N;
-    int ab_loop_ub;
     int b_loop_ub;
     int b_unnamed_idx_1;
     int b_y;
     int c_loop_ub;
     int c_y;
+    int cb_loop_ub;
+    int db_loop_ub;
     int e_loop_ub;
-    int eb_loop_ub;
     int end;
     int end_tmp;
-    int fb_loop_ub;
-    int g_loop_ub;
+    int f_loop_ub;
+    int fc_loop_ub;
     int h_loop_ub;
-    int hc_loop_ub;
-    int i24;
+    int i22;
+    int i56;
     int i57;
-    int i59;
+    int i_loop_ub;
     int input_sizes_idx_0;
     int j_loop_ub;
-    int k_loop_ub;
     int l_loop_ub;
     int loop_ub;
+    int m_loop_ub;
     int n_loop_ub;
     int o_loop_ub;
+    int ob_loop_ub;
     int p_loop_ub;
     int partialTrueCount;
+    int pb_loop_ub;
     int q_loop_ub;
     int qb_loop_ub;
     int r_loop_ub;
     int rb_loop_ub;
-    int s_loop_ub;
     int sb_loop_ub;
-    int t_loop_ub;
-    int tb_loop_ub;
     int tmp_data_idx_1;
     int trueCount;
-    int ub_loop_ub;
+    int v_loop_ub;
     int varargin_1;
     int y;
     int y_tmp;
@@ -615,29 +610,20 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
         }
     }
     for (int i8{0}; i8 < trueCount; i8++) {
-        b_amax_data[i8] = amax[tmp_data[i8] - 1];
+        amax_data[i8] = amax[tmp_data[i8] - 1];
     }
-    amax_data.set(&b_amax_data[0], 1, trueCount);
+    b_amax_data.set(&amax_data[0], 1, trueCount);
     varargin_1 = BasisVal.size(0);
-    r.set_size(varargin_1, amax_data.size(1));
-    if ((varargin_1 != 0) && (amax_data.size(1) != 0)) {
+    r.set_size(varargin_1, b_amax_data.size(1));
+    if ((varargin_1 != 0) && (b_amax_data.size(1) != 0)) {
+        int i9;
         int na;
-        na = amax_data.size(1);
+        na = b_amax_data.size(1);
+        i9 = varargin_1 - 1;
         for (int k{0}; k < na; k++) {
-            int i10;
-            i10 = varargin_1 - 1;
-            for (int t{0}; t <= i10; t++) {
-                r[t + r.size(0) * k] = amax_data[k];
+            for (int t{0}; t <= i9; t++) {
+                r[t + r.size(0) * k] = b_amax_data[k];
             }
-        }
-    }
-    b_amax.set_size(r.size(0), r.size(1));
-    c_loop_ub = r.size(1);
-    for (int i9{0}; i9 < c_loop_ub; i9++) {
-        int d_loop_ub;
-        d_loop_ub = r.size(0);
-        for (int i11{0}; i11 < d_loop_ub; i11++) {
-            b_amax[i11 + b_amax.size(0) * i9] = r[i11 + r.size(0) * i9];
         }
     }
     //  at_norm   : Norm of tangential acceleration vector
@@ -649,45 +635,45 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
     //  mask_continuity : Mask used in the recursive form the continuity equ.
     // 'buildConstr:41' at_norm     = zeros( 2, N, Nwindow );
     at_norm.set_size(2, BasisVal.size(1), windowCurv.size(1));
-    e_loop_ub = windowCurv.size(1);
-    for (int i12{0}; i12 < e_loop_ub; i12++) {
-        int f_loop_ub;
-        f_loop_ub = BasisVal.size(1);
-        for (int i13{0}; i13 < f_loop_ub; i13++) {
-            at_norm[2 * i13 + 2 * at_norm.size(1) * i12] = 0.0;
-            at_norm[(2 * i13 + 2 * at_norm.size(1) * i12) + 1] = 0.0;
+    c_loop_ub = windowCurv.size(1);
+    for (int i10{0}; i10 < c_loop_ub; i10++) {
+        int d_loop_ub;
+        d_loop_ub = BasisVal.size(1);
+        for (int i11{0}; i11 < d_loop_ub; i11++) {
+            at_norm[2 * i11 + 2 * at_norm.size(1) * i10] = 0.0;
+            at_norm[(2 * i11 + 2 * at_norm.size(1) * i10) + 1] = 0.0;
         }
     }
     // 'buildConstr:42' t_vec       = zeros( Ndim, 2, Nwindow );
     t_vec.set_size(ctx_cfg_NumberAxis, 2, windowCurv.size(1));
-    g_loop_ub = windowCurv.size(1);
-    for (int i14{0}; i14 < g_loop_ub; i14++) {
-        for (int i15{0}; i15 < 2; i15++) {
-            for (int i16{0}; i16 < ctx_cfg_NumberAxis; i16++) {
-                t_vec[(i16 + t_vec.size(0) * i15) + t_vec.size(0) * 2 * i14] = 0.0;
+    e_loop_ub = windowCurv.size(1);
+    for (int i12{0}; i12 < e_loop_ub; i12++) {
+        for (int i13{0}; i13 < 2; i13++) {
+            for (int i14{0}; i14 < ctx_cfg_NumberAxis; i14++) {
+                t_vec[(i14 + t_vec.size(0) * i13) + t_vec.size(0) * 2 * i12] = 0.0;
             }
         }
     }
     // 'buildConstr:43' v2_vec      = zeros( 2, N, Nwindow );
     v2_vec.set_size(2, BasisVal.size(1), windowCurv.size(1));
-    h_loop_ub = windowCurv.size(1);
-    for (int i17{0}; i17 < h_loop_ub; i17++) {
-        int i_loop_ub;
-        i_loop_ub = BasisVal.size(1);
-        for (int i18{0}; i18 < i_loop_ub; i18++) {
-            v2_vec[2 * i18 + 2 * v2_vec.size(1) * i17] = 0.0;
-            v2_vec[(2 * i18 + 2 * v2_vec.size(1) * i17) + 1] = 0.0;
+    f_loop_ub = windowCurv.size(1);
+    for (int i15{0}; i15 < f_loop_ub; i15++) {
+        int g_loop_ub;
+        g_loop_ub = BasisVal.size(1);
+        for (int i16{0}; i16 < g_loop_ub; i16++) {
+            v2_vec[2 * i16 + 2 * v2_vec.size(1) * i15] = 0.0;
+            v2_vec[(2 * i16 + 2 * v2_vec.size(1) * i15) + 1] = 0.0;
         }
     }
     // 'buildConstr:44' Acc         = zeros( M * Ndim , N, 2 );
     c_y = static_cast<int>(static_cast<double>(BasisVal.size(0)) *
                            static_cast<double>(ctx_cfg_NumberAxis));
     Acc.set_size(c_y, BasisVal.size(1), 2);
-    j_loop_ub = BasisVal.size(1);
-    for (int i19{0}; i19 < 2; i19++) {
-        for (int i20{0}; i20 < j_loop_ub; i20++) {
-            for (int i21{0}; i21 < c_y; i21++) {
-                Acc[(i21 + Acc.size(0) * i20) + Acc.size(0) * Acc.size(1) * i19] = 0.0;
+    h_loop_ub = BasisVal.size(1);
+    for (int i17{0}; i17 < 2; i17++) {
+        for (int i18{0}; i18 < h_loop_ub; i18++) {
+            for (int i19{0}; i19 < c_y; i19++) {
+                Acc[(i19 + Acc.size(0) * i18) + Acc.size(0) * Acc.size(1) * i17] = 0.0;
             }
         }
     }
@@ -695,53 +681,55 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
     coder::eml_integer_colon_dispatcher(ctx_cfg_NumberAxis, r1);
     tmp_data_idx_1 = BasisVal.size(0);
     indAT.set_size(2, r1.size(1));
-    k_loop_ub = r1.size(1);
-    for (int i22{0}; i22 < k_loop_ub; i22++) {
+    i_loop_ub = r1.size(1);
+    for (int i20{0}; i20 < i_loop_ub; i20++) {
         int indAT_tmp;
-        indAT_tmp = r1[i22] - 1;
-        indAT[2 * i22] = static_cast<int>(static_cast<double>(indAT_tmp) *
+        indAT_tmp = r1[i20] - 1;
+        indAT[2 * i20] = static_cast<int>(static_cast<double>(indAT_tmp) *
                                           static_cast<double>(BasisVal.size(0))) +
                          1;
-        indAT[2 * i22 + 1] = static_cast<int>(static_cast<double>(indAT_tmp) *
+        indAT[2 * i20 + 1] = static_cast<int>(static_cast<double>(indAT_tmp) *
                                               static_cast<double>(BasisVal.size(0))) +
                              tmp_data_idx_1;
     }
     // 'buildConstr:46' mask_continuity = [ 1; 1; -1; -1 ];
     // 'buildConstr:47' v_max       = zeros( Ndim + 1, M );
     v_max.set_size(ctx_cfg_NumberAxis + 1, BasisVal.size(0));
-    l_loop_ub = BasisVal.size(0);
-    for (int i23{0}; i23 < l_loop_ub; i23++) {
-        int m_loop_ub;
-        m_loop_ub = ctx_cfg_NumberAxis + 1;
-        for (int i25{0}; i25 < m_loop_ub; i25++) {
-            v_max[i25 + v_max.size(0) * i23] = 0.0;
+    j_loop_ub = BasisVal.size(0);
+    for (int i21{0}; i21 < j_loop_ub; i21++) {
+        int k_loop_ub;
+        k_loop_ub = ctx_cfg_NumberAxis + 1;
+        for (int i23{0}; i23 < k_loop_ub; i23++) {
+            v_max[i23 + v_max.size(0) * i21] = 0.0;
         }
     }
     // 'buildConstr:49' for k = 1 : Nwindow
-    i24 = windowCurv.size(1);
-    if (0 <= windowCurv.size(1) - 1) {
+    i22 = windowCurv.size(1);
+    if (windowCurv.size(1) - 1 >= 0) {
         int unnamed_idx_1;
         end = ctx_cfg_maskTot_size[1] - 1;
         coder::eml_integer_colon_dispatcher(static_cast<int>(static_cast<double>(y_tmp + 2) *
                                                              static_cast<double>(BasisVal.size(0))),
                                             r1);
-        n_loop_ub = r1.size(1);
-        unnamed_idx_1 = b_amax.size(0) * b_amax.size(1);
-        p_loop_ub = unnamed_idx_1;
-        r_loop_ub = indAT.size(1);
-        s_loop_ub = indAT.size(1);
+        l_loop_ub = r1.size(1);
+        unnamed_idx_1 = r.size(0) * r.size(1);
+        m_loop_ub = unnamed_idx_1;
+        n_loop_ub = indAT.size(1);
+        p_loop_ub = indAT.size(1);
     }
-    if (0 <= i24 - 1) {
+    if (i22 - 1 >= 0) {
         tmp_size[0] = 1;
         o_loop_ub = BasisVal.size(1);
-        b_unnamed_idx_1 = b_amax.size(0) * b_amax.size(1);
+        b_unnamed_idx_1 = r.size(0) * r.size(1);
         q_loop_ub = BasisVal.size(1);
     }
-    for (int b_k{0}; b_k < i24; b_k++) {
+    for (int b_k{0}; b_k < i22; b_k++) {
+        double d_y[2];
         double c_k;
         double z1_idx_0;
         double z1_idx_1;
-        int ac_loop_ub;
+        int indAEL[4];
+        int ab_loop_ub;
         int b_inner;
         int b_input_sizes_idx_0;
         int b_nc;
@@ -751,105 +739,107 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
         int b_v_max;
         int bc_loop_ub;
         int c_unnamed_idx_1;
-        int cb_loop_ub;
         int d_k;
         int d_unnamed_idx_1;
         int dc_loop_ub;
+        int eb_loop_ub;
+        int ec_loop_ub;
         int f_y;
-        int fc_loop_ub;
         int gb_loop_ub;
         int gc_loop_ub;
+        int hc_loop_ub;
         int ic_loop_ub;
         int inner;
-        int jb_loop_ub;
         int jc_loop_ub;
         int kc_loop_ub;
+        int lb_loop_ub;
         int lc_loop_ub;
-        int mb_loop_ub;
         int mc_loop_ub;
         int nc;
         int nc_loop_ub;
         int oc_loop_ub;
         int pc_loop_ub;
         int qc_loop_ub;
-        int rc_loop_ub;
-        int sc_loop_ub;
-        int wb_loop_ub;
+        int ub_loop_ub;
+        int vb_loop_ub;
         int xb_loop_ub;
+        int yb_loop_ub;
         bool b_empty_non_axis_sizes;
-        bool guard1{false};
+        bool guard1;
         //  Compute the partial derivatives
         // 'buildConstr:51' [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, windowCurv( k ), u_vec );
         g_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                          ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                          ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                          ctx_cfg_NCart, ctx_cfg_NRot, &windowCurv[b_k], u_vec, r0D, r1D, r2D, r3D);
-        // 'buildConstr:53' if( windowCurv( k ).Info.TRAFO )
+        // 'buildConstr:52' ctx.kin = ctx.kin.set_tool_length(windowCurv( k ).Tool.offset.z);
+        ctx_kin->set_tool_length(windowCurv[b_k].b_Tool.offset.z);
+        // 'buildConstr:54' if( windowCurv( k ).Info.TRAFO )
         if (windowCurv[b_k].Info.TRAFO) {
-            int u_loop_ub;
-            // 'buildConstr:54' [ ~, r1D_a, r2D_a ]  = ctx.kin.joint( r0D, r1D, r2D, r3D );
+            int s_loop_ub;
+            // 'buildConstr:55' [ ~, r1D_a, r2D_a ]  = ctx.kin.joint( r0D, r1D, r2D, r3D );
             ctx_kin->joint(r0D, r1D, r2D, a__1, r1D_a, r2D_a);
-            // 'buildConstr:55' r1D_r    = r1D;
+            // 'buildConstr:56' r1D_r    = r1D;
             r1D_r.set_size(r1D.size(0), r1D.size(1));
-            u_loop_ub = r1D.size(1);
-            for (int i27{0}; i27 < u_loop_ub; i27++) {
-                int w_loop_ub;
-                w_loop_ub = r1D.size(0);
-                for (int i29{0}; i29 < w_loop_ub; i29++) {
-                    r1D_r[i29 + r1D_r.size(0) * i27] = r1D[i29 + r1D.size(0) * i27];
+            s_loop_ub = r1D.size(1);
+            for (int i25{0}; i25 < s_loop_ub; i25++) {
+                int u_loop_ub;
+                u_loop_ub = r1D.size(0);
+                for (int i27{0}; i27 < u_loop_ub; i27++) {
+                    r1D_r[i27 + r1D_r.size(0) * i25] = r1D[i27 + r1D.size(0) * i25];
                 }
             }
         } else {
-            int v_loop_ub;
-            int y_loop_ub;
-            // 'buildConstr:56' else
-            // 'buildConstr:57' [ r1D_r ] = ctx.kin.v_relative( r0D, r1D );
+            int t_loop_ub;
+            int x_loop_ub;
+            // 'buildConstr:57' else
+            // 'buildConstr:58' [ r1D_r ] = ctx.kin.v_relative( r0D, r1D );
             ctx_kin->v_relative(r0D, r1D, r1D_r);
-            // 'buildConstr:58' r1D_a    = r1D;
+            // 'buildConstr:59' r1D_a    = r1D;
             r1D_a.set_size(r1D.size(0), r1D.size(1));
-            v_loop_ub = r1D.size(1);
-            for (int i28{0}; i28 < v_loop_ub; i28++) {
-                int x_loop_ub;
-                x_loop_ub = r1D.size(0);
-                for (int i30{0}; i30 < x_loop_ub; i30++) {
-                    r1D_a[i30 + r1D_a.size(0) * i28] = r1D[i30 + r1D.size(0) * i28];
+            t_loop_ub = r1D.size(1);
+            for (int i26{0}; i26 < t_loop_ub; i26++) {
+                int w_loop_ub;
+                w_loop_ub = r1D.size(0);
+                for (int i29{0}; i29 < w_loop_ub; i29++) {
+                    r1D_a[i29 + r1D_a.size(0) * i26] = r1D[i29 + r1D.size(0) * i26];
                 }
             }
-            // 'buildConstr:59' r2D_a    = r2D;
-            y_loop_ub = r2D.size(1);
+            // 'buildConstr:60' r2D_a    = r2D;
+            x_loop_ub = r2D.size(1);
             r2D_a.set_size(r2D.size(0), r2D.size(1));
-            for (int i32{0}; i32 < y_loop_ub; i32++) {
-                int bb_loop_ub;
-                bb_loop_ub = r2D.size(0);
-                for (int i33{0}; i33 < bb_loop_ub; i33++) {
-                    r2D_a[i33 + r2D_a.size(0) * i32] = r2D[i33 + r2D.size(0) * i32];
+            for (int i30{0}; i30 < x_loop_ub; i30++) {
+                int y_loop_ub;
+                y_loop_ub = r2D.size(0);
+                for (int i31{0}; i31 < y_loop_ub; i31++) {
+                    r2D_a[i31 + r2D_a.size(0) * i30] = r2D[i31 + r2D.size(0) * i30];
                 }
             }
         }
         //  Tangent unit vector at start and at end
-        // 'buildConstr:63' normR1D = vecnorm( r1D );
+        // 'buildConstr:64' normR1D = vecnorm( r1D );
         coder::vecnorm(r1D, normR1D);
-        // 'buildConstr:64' t_vec( : , :, k ) = r1D( :, [ 1, end ] ) ./ normR1D( [1, end] );
+        // 'buildConstr:65' t_vec( : , :, k ) = r1D( :, [ 1, end ] ) ./ normR1D( [1, end] );
         iv[0] = 0;
         iv[1] = r1D.size(1) - 1;
-        cb_loop_ub = r1D.size(0);
+        ab_loop_ub = r1D.size(0);
         x.set_size(r1D.size(0), 2);
         iv1[0] = 0;
         iv1[1] = normR1D.size(1) - 1;
-        for (int i34{0}; i34 < 2; i34++) {
-            for (int i35{0}; i35 < cb_loop_ub; i35++) {
-                x[i35 + x.size(0) * i34] = r1D[i35 + r1D.size(0) * iv[i34]];
+        for (int i33{0}; i33 < 2; i33++) {
+            for (int i35{0}; i35 < ab_loop_ub; i35++) {
+                x[i35 + x.size(0) * i33] = r1D[i35 + r1D.size(0) * iv[i33]];
             }
-            d_y[i34] = normR1D[iv1[i34]];
+            d_y[i33] = normR1D[iv1[i33]];
         }
-        gb_loop_ub = x.size(0);
+        eb_loop_ub = x.size(0);
         for (int i37{0}; i37 < 2; i37++) {
-            for (int i39{0}; i39 < gb_loop_ub; i39++) {
-                t_vec[(i39 + t_vec.size(0) * i37) + t_vec.size(0) * 2 * b_k] =
-                    x[i39 + x.size(0) * i37] / d_y[i37];
+            for (int i38{0}; i38 < eb_loop_ub; i38++) {
+                t_vec[(i38 + t_vec.size(0) * i37) + t_vec.size(0) * 2 * b_k] =
+                    x[i38 + x.size(0) * i37] / d_y[i37];
             }
         }
-        // 'buildConstr:66' v_max( 1 : Ndim, : ) = ( ctx.cfg.vmax( ctx.cfg.maskTot ).'./ r1D_a ).^2;
+        // 'buildConstr:67' v_max( 1 : Ndim, : ) = ( ctx.cfg.vmax( ctx.cfg.maskTot ).'./ r1D_a ).^2;
         b_trueCount = 0;
         b_partialTrueCount = 0;
         for (int c_i{0}; c_i <= end; c_i++) {
@@ -861,141 +851,141 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
         }
         tmp_size[1] = b_trueCount;
         if (r1D_a.size(0) == b_trueCount) {
+            int fb_loop_ub;
             int hb_loop_ub;
-            int ib_loop_ub;
             b_ctx_cfg_vmax.set_size(b_trueCount, r1D_a.size(1));
-            hb_loop_ub = r1D_a.size(1);
-            for (int i41{0}; i41 < hb_loop_ub; i41++) {
-                for (int i42{0}; i42 < b_trueCount; i42++) {
-                    b_ctx_cfg_vmax[i42 + b_ctx_cfg_vmax.size(0) * i41] =
-                        ctx_cfg_vmax[b_tmp_data[i42] - 1] / r1D_a[i42 + r1D_a.size(0) * i41];
+            fb_loop_ub = r1D_a.size(1);
+            for (int i39{0}; i39 < fb_loop_ub; i39++) {
+                for (int i40{0}; i40 < b_trueCount; i40++) {
+                    b_ctx_cfg_vmax[i40 + b_ctx_cfg_vmax.size(0) * i39] =
+                        ctx_cfg_vmax[b_tmp_data[i40] - 1] / r1D_a[i40 + r1D_a.size(0) * i39];
                 }
             }
-            ib_loop_ub = b_ctx_cfg_vmax.size(1);
-            for (int i43{0}; i43 < ib_loop_ub; i43++) {
-                int kb_loop_ub;
-                kb_loop_ub = b_ctx_cfg_vmax.size(0);
-                for (int i45{0}; i45 < kb_loop_ub; i45++) {
+            hb_loop_ub = b_ctx_cfg_vmax.size(1);
+            for (int i41{0}; i41 < hb_loop_ub; i41++) {
+                int ib_loop_ub;
+                ib_loop_ub = b_ctx_cfg_vmax.size(0);
+                for (int i44{0}; i44 < ib_loop_ub; i44++) {
                     double b_varargin_1;
-                    b_varargin_1 = b_ctx_cfg_vmax[i45 + b_ctx_cfg_vmax.size(0) * i43];
-                    v_max[i45 + v_max.size(0) * i43] = std::pow(b_varargin_1, 2.0);
+                    b_varargin_1 = b_ctx_cfg_vmax[i44 + b_ctx_cfg_vmax.size(0) * i41];
+                    v_max[i44 + v_max.size(0) * i41] = std::pow(b_varargin_1, 2.0);
                 }
             }
         } else {
             binary_expand_op(v_max, ctx_cfg_vmax, b_tmp_data, tmp_size, r1D_a);
         }
         //  Maximum constraint on the speed
-        // 'buildConstr:69' v_max( end, : ) = ( windowCurv( k ).Info.FeedRate ./ ...
-        // 'buildConstr:70'         vecnorm( r1D_r( ctx.cfg.indCart, : ) ) ).^2;
-        jb_loop_ub = r1D_r.size(1);
+        // 'buildConstr:70' v_max( end, : ) = ( windowCurv( k ).Info.FeedRate ./ ...
+        // 'buildConstr:71'         vecnorm( r1D_r( ctx.cfg.indCart, : ) ) ).^2;
+        gb_loop_ub = r1D_r.size(1);
         b_r1D_r.set_size(ctx_cfg_indCart.size(0), r1D_r.size(1));
-        for (int i44{0}; i44 < jb_loop_ub; i44++) {
-            int lb_loop_ub;
-            lb_loop_ub = ctx_cfg_indCart.size(0);
-            for (int i46{0}; i46 < lb_loop_ub; i46++) {
-                b_r1D_r[i46 + b_r1D_r.size(0) * i44] =
-                    r1D_r[(ctx_cfg_indCart[i46] + r1D_r.size(0) * i44) - 1];
+        for (int i42{0}; i42 < gb_loop_ub; i42++) {
+            int jb_loop_ub;
+            jb_loop_ub = ctx_cfg_indCart.size(0);
+            for (int i46{0}; i46 < jb_loop_ub; i46++) {
+                b_r1D_r[i46 + b_r1D_r.size(0) * i42] =
+                    r1D_r[(ctx_cfg_indCart[i46] + r1D_r.size(0) * i42) - 1];
             }
         }
         coder::vecnorm(b_r1D_r, r2);
         b_v_max = v_max.size(0) - 1;
-        mb_loop_ub = r2.size(1);
-        for (int i48{0}; i48 < mb_loop_ub; i48++) {
+        lb_loop_ub = r2.size(1);
+        for (int i48{0}; i48 < lb_loop_ub; i48++) {
             double c_varargin_1;
             c_varargin_1 = windowCurv[b_k].Info.FeedRate / r2[i48];
             v_max[b_v_max + v_max.size(0) * i48] = std::pow(c_varargin_1, 2.0);
         }
-        // 'buildConstr:72' f_max = min( v_max, [], 1 );
+        // 'buildConstr:73' f_max = min( v_max, [], 1 );
         coder::internal::minimum(v_max, f_max);
-        // 'buildConstr:74' for j = 1 : Ndim
-        if (0 <= ctx_cfg_NumberAxis - 1) {
+        // 'buildConstr:75' for j = 1 : Ndim
+        if (ctx_cfg_NumberAxis - 1 >= 0) {
             if (M < 1) {
                 e_y.set_size(1, 0);
             } else {
-                int ob_loop_ub;
+                int nb_loop_ub;
                 e_y.set_size(1, M);
-                ob_loop_ub = M - 1;
-                for (int i56{0}; i56 <= ob_loop_ub; i56++) {
-                    e_y[i56] = i56 + 1U;
+                nb_loop_ub = M - 1;
+                for (int i55{0}; i55 <= nb_loop_ub; i55++) {
+                    e_y[i55] = i55 + 1U;
                 }
             }
-            i57 = r1D_a.size(1);
-            qb_loop_ub = r1D_a.size(1);
-            rb_loop_ub = e_y.size(1);
-            i59 = r1D.size(1);
-            sb_loop_ub = r1D.size(1);
-            tb_loop_ub = BasisVal.size(1);
-            ub_loop_ub = BasisVal.size(1);
+            i56 = r1D_a.size(1);
+            ob_loop_ub = r1D_a.size(1);
+            pb_loop_ub = e_y.size(1);
+            i57 = r1D.size(1);
+            qb_loop_ub = r1D.size(1);
+            rb_loop_ub = BasisVal.size(1);
+            sb_loop_ub = BasisVal.size(1);
         }
         for (int j{0}; j < ctx_cfg_NumberAxis; j++) {
             int g_y;
+            int i62;
             int i64;
-            int i66;
+            int i70;
             int i72;
-            int i74;
             //  Compute the acceleration matrix
-            // 'buildConstr:75' ind = int32( 1 : M ) + ( j - 1 ) * M ;
+            // 'buildConstr:76' ind = int32( 1 : M ) + ( j - 1 ) * M ;
             g_y = static_cast<int>((static_cast<double>(j + 1) - 1.0) * static_cast<double>(M));
-            // 'buildConstr:76' Acc( ind, :, 1 ) = r2D_a( j, : )' .* BasisVal + 0.5 * r1D_a( j, : )'
+            // 'buildConstr:77' Acc( ind, :, 1 ) = r2D_a( j, : )' .* BasisVal + 0.5 * r1D_a( j, : )'
             // .* BasisValD;
-            r3.set_size(i57);
-            for (int i61{0}; i61 < qb_loop_ub; i61++) {
-                r3[i61] = 0.5 * r1D_a[j + r1D_a.size(0) * i61];
+            r3.set_size(i56);
+            for (int i59{0}; i59 < ob_loop_ub; i59++) {
+                r3[i59] = 0.5 * r1D_a[j + r1D_a.size(0) * i59];
             }
             r4.set_size(e_y.size(1));
-            for (int i62{0}; i62 < rb_loop_ub; i62++) {
-                r4[i62] = static_cast<int>(e_y[i62]) + g_y;
+            for (int i60{0}; i60 < pb_loop_ub; i60++) {
+                r4[i60] = static_cast<int>(e_y[i60]) + g_y;
             }
             if (r2D_a.size(1) == 1) {
-                i64 = BasisVal.size(0);
+                i62 = BasisVal.size(0);
             } else {
-                i64 = r2D_a.size(1);
+                i62 = r2D_a.size(1);
             }
             if (r3.size(0) == 1) {
-                i66 = BasisValD.size(0);
+                i64 = BasisValD.size(0);
             } else {
-                i66 = r3.size(0);
+                i64 = r3.size(0);
             }
             if ((BasisVal.size(0) == r2D_a.size(1)) && (r3.size(0) == BasisValD.size(0)) &&
-                (i64 == i66) && (BasisVal.size(1) == BasisValD.size(1))) {
-                for (int i67{0}; i67 < tb_loop_ub; i67++) {
-                    int yb_loop_ub;
-                    yb_loop_ub = r2D_a.size(1);
-                    for (int i69{0}; i69 < yb_loop_ub; i69++) {
-                        Acc[(r4[i69] + Acc.size(0) * i67) - 1] =
-                            r2D_a[j + r2D_a.size(0) * i69] *
-                                BasisVal[i69 + BasisVal.size(0) * i67] +
-                            r3[i69] * BasisValD[i69 + BasisValD.size(0) * i67];
+                (i62 == i64) && (BasisVal.size(1) == BasisValD.size(1))) {
+                for (int i65{0}; i65 < rb_loop_ub; i65++) {
+                    int wb_loop_ub;
+                    wb_loop_ub = r2D_a.size(1);
+                    for (int i67{0}; i67 < wb_loop_ub; i67++) {
+                        Acc[(r4[i67] + Acc.size(0) * i65) - 1] =
+                            r2D_a[j + r2D_a.size(0) * i67] *
+                                BasisVal[i67 + BasisVal.size(0) * i65] +
+                            r3[i67] * BasisValD[i67 + BasisValD.size(0) * i65];
                     }
                 }
             } else {
                 b_binary_expand_op(Acc, r4, r2D_a, j, r2D_a.size(1), BasisVal, r3, BasisValD);
             }
-            // 'buildConstr:77' Acc( ind, :, 2 ) = r2D( j, : )'   .* BasisVal + 0.5 * r1D( j, : )'
+            // 'buildConstr:78' Acc( ind, :, 2 ) = r2D( j, : )'   .* BasisVal + 0.5 * r1D( j, : )'
             // .* BasisValD;
-            r3.set_size(i59);
-            for (int i70{0}; i70 < sb_loop_ub; i70++) {
-                r3[i70] = 0.5 * r1D[j + r1D.size(0) * i70];
+            r3.set_size(i57);
+            for (int i68{0}; i68 < qb_loop_ub; i68++) {
+                r3[i68] = 0.5 * r1D[j + r1D.size(0) * i68];
             }
             if (r2D.size(1) == 1) {
-                i72 = BasisVal.size(0);
+                i70 = BasisVal.size(0);
             } else {
-                i72 = r2D.size(1);
+                i70 = r2D.size(1);
             }
             if (r3.size(0) == 1) {
-                i74 = BasisValD.size(0);
+                i72 = BasisValD.size(0);
             } else {
-                i74 = r3.size(0);
+                i72 = r3.size(0);
             }
             if ((BasisVal.size(0) == r2D.size(1)) && (r3.size(0) == BasisValD.size(0)) &&
-                (i72 == i74) && (BasisVal.size(1) == BasisValD.size(1))) {
-                for (int i77{0}; i77 < ub_loop_ub; i77++) {
-                    int ec_loop_ub;
-                    ec_loop_ub = r2D.size(1);
-                    for (int i79{0}; i79 < ec_loop_ub; i79++) {
-                        Acc[((r4[i79] + Acc.size(0) * i77) + Acc.size(0) * Acc.size(1)) - 1] =
-                            r2D[j + r2D.size(0) * i79] * BasisVal[i79 + BasisVal.size(0) * i77] +
-                            r3[i79] * BasisValD[i79 + BasisValD.size(0) * i77];
+                (i70 == i72) && (BasisVal.size(1) == BasisValD.size(1))) {
+                for (int i75{0}; i75 < sb_loop_ub; i75++) {
+                    int cc_loop_ub;
+                    cc_loop_ub = r2D.size(1);
+                    for (int i77{0}; i77 < cc_loop_ub; i77++) {
+                        Acc[((r4[i77] + Acc.size(0) * i75) + Acc.size(0) * Acc.size(1)) - 1] =
+                            r2D[j + r2D.size(0) * i77] * BasisVal[i77 + BasisVal.size(0) * i75] +
+                            r3[i77] * BasisValD[i77 + BasisValD.size(0) * i75];
                     }
                 }
             } else {
@@ -1003,59 +993,59 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
             }
         }
         //  Inequality constraints
-        // 'buildConstr:81' indAL   = int32( 1 : Nc * M ) + ( k - 1 ) * Nc * M;
+        // 'buildConstr:82' indAL   = int32( 1 : Nc * M ) + ( k - 1 ) * Nc * M;
         f_y = static_cast<int>(
             static_cast<double>(static_cast<int>(((static_cast<double>(b_k) + 1.0) - 1.0) *
                                                  static_cast<double>(y_tmp + 2))) *
             static_cast<double>(M));
         indAL.set_size(1, r1.size(1));
-        for (int i60{0}; i60 < n_loop_ub; i60++) {
-            indAL[i60] = r1[i60] + f_y;
+        for (int i58{0}; i58 < l_loop_ub; i58++) {
+            indAL[i58] = r1[i58] + f_y;
         }
-        // 'buildConstr:82' indAC   = int32( 1 : N  ) + ( k - 1 ) * N;
+        // 'buildConstr:83' indAC   = int32( 1 : N  ) + ( k - 1 ) * N;
         if (N < 1) {
             e_y.set_size(1, 0);
         } else {
-            int vb_loop_ub;
+            int tb_loop_ub;
             e_y.set_size(1, N);
-            vb_loop_ub = N - 1;
-            for (int i63{0}; i63 <= vb_loop_ub; i63++) {
-                e_y[i63] = i63 + 1U;
+            tb_loop_ub = N - 1;
+            for (int i61{0}; i61 <= tb_loop_ub; i61++) {
+                e_y[i61] = i61 + 1U;
             }
         }
         c_k = ((static_cast<double>(b_k) + 1.0) - 1.0) * static_cast<double>(N);
         indAC_tmp.set_size(1, e_y.size(1));
-        wb_loop_ub = e_y.size(1);
-        for (int i65{0}; i65 < wb_loop_ub; i65++) {
-            indAC_tmp[i65] = static_cast<int>(static_cast<double>(e_y[i65]) + c_k);
+        ub_loop_ub = e_y.size(1);
+        for (int i63{0}; i63 < ub_loop_ub; i63++) {
+            indAC_tmp[i63] = static_cast<int>(static_cast<double>(e_y[i63]) + c_k);
         }
-        // 'buildConstr:83' A( indAL, indAC )   = [ BasisVal; -BasisVal ; Acc( :, :, 1) ; -Acc( :,
+        // 'buildConstr:84' A( indAL, indAC )   = [ BasisVal; -BasisVal ; Acc( :, :, 1) ; -Acc( :,
         // :, 1) ];
         r4.set_size(indAL.size(1));
-        xb_loop_ub = indAL.size(1);
-        for (int i68{0}; i68 < xb_loop_ub; i68++) {
-            r4[i68] = indAL[i68] - 1;
+        vb_loop_ub = indAL.size(1);
+        for (int i66{0}; i66 < vb_loop_ub; i66++) {
+            r4[i66] = indAL[i66] - 1;
         }
         r5.set_size(indAC_tmp.size(1));
-        ac_loop_ub = indAC_tmp.size(1);
-        for (int i71{0}; i71 < ac_loop_ub; i71++) {
-            r5[i71] = indAC_tmp[i71] - 1;
+        xb_loop_ub = indAC_tmp.size(1);
+        for (int i69{0}; i69 < xb_loop_ub; i69++) {
+            r5[i69] = indAC_tmp[i69] - 1;
         }
         varargin_2.set_size(BasisVal.size(0), BasisVal.size(1));
-        for (int i73{0}; i73 < o_loop_ub; i73++) {
-            int cc_loop_ub;
-            cc_loop_ub = BasisVal.size(0);
-            for (int i75{0}; i75 < cc_loop_ub; i75++) {
-                varargin_2[i75 + varargin_2.size(0) * i73] =
-                    -BasisVal[i75 + BasisVal.size(0) * i73];
+        for (int i71{0}; i71 < o_loop_ub; i71++) {
+            int ac_loop_ub;
+            ac_loop_ub = BasisVal.size(0);
+            for (int i73{0}; i73 < ac_loop_ub; i73++) {
+                varargin_2[i73 + varargin_2.size(0) * i71] =
+                    -BasisVal[i73 + BasisVal.size(0) * i71];
             }
         }
-        bc_loop_ub = Acc.size(0);
-        dc_loop_ub = Acc.size(1);
+        yb_loop_ub = Acc.size(0);
+        bc_loop_ub = Acc.size(1);
         varargin_4.set_size(Acc.size(0), Acc.size(1));
-        for (int i76{0}; i76 < dc_loop_ub; i76++) {
-            for (int i78{0}; i78 < bc_loop_ub; i78++) {
-                varargin_4[i78 + varargin_4.size(0) * i76] = -Acc[i78 + Acc.size(0) * i76];
+        for (int i74{0}; i74 < bc_loop_ub; i74++) {
+            for (int i76{0}; i76 < yb_loop_ub; i76++) {
+                varargin_4[i76 + varargin_4.size(0) * i74] = -Acc[i76 + Acc.size(0) * i74];
             }
         }
         if ((BasisVal.size(0) != 0) && (BasisVal.size(1) != 0)) {
@@ -1080,20 +1070,20 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
         }
         b_empty_non_axis_sizes = (b_result == 0);
         if (b_empty_non_axis_sizes || ((BasisVal.size(0) != 0) && (BasisVal.size(1) != 0))) {
-            fc_loop_ub = BasisVal.size(0);
+            dc_loop_ub = BasisVal.size(0);
         } else {
-            fc_loop_ub = 0;
+            dc_loop_ub = 0;
         }
         if (b_empty_non_axis_sizes || ((varargin_2.size(0) != 0) && (varargin_2.size(1) != 0))) {
-            gc_loop_ub = varargin_2.size(0);
+            ec_loop_ub = varargin_2.size(0);
         } else {
-            gc_loop_ub = 0;
+            ec_loop_ub = 0;
         }
         guard1 = false;
         if (b_empty_non_axis_sizes) {
             guard1 = true;
         } else {
-            hc_loop_ub = Acc.size(0);
+            fc_loop_ub = Acc.size(0);
             if ((Acc.size(0) != 0) && (Acc.size(1) != 0)) {
                 guard1 = true;
             } else {
@@ -1101,7 +1091,7 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
             }
         }
         if (guard1) {
-            hc_loop_ub = Acc.size(0);
+            fc_loop_ub = Acc.size(0);
             input_sizes_idx_0 = Acc.size(0);
         }
         if (b_empty_non_axis_sizes || ((varargin_4.size(0) != 0) && (varargin_4.size(1) != 0))) {
@@ -1109,77 +1099,76 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
         } else {
             b_input_sizes_idx_0 = 0;
         }
-        ic_loop_ub = Acc.size(1);
-        b_Acc.set_size(hc_loop_ub, Acc.size(1));
-        for (int i80{0}; i80 < ic_loop_ub; i80++) {
-            for (int i82{0}; i82 < hc_loop_ub; i82++) {
-                b_Acc[i82 + b_Acc.size(0) * i80] = Acc[i82 + Acc.size(0) * i80];
+        gc_loop_ub = Acc.size(1);
+        b_Acc.set_size(fc_loop_ub, Acc.size(1));
+        for (int i78{0}; i78 < gc_loop_ub; i78++) {
+            for (int i80{0}; i80 < fc_loop_ub; i80++) {
+                b_Acc[i80 + b_Acc.size(0) * i78] = Acc[i80 + Acc.size(0) * i78];
+            }
+        }
+        for (int i79{0}; i79 < b_result; i79++) {
+            for (int i82{0}; i82 < dc_loop_ub; i82++) {
+                A[r4[i82] + A.size(0) * r5[i79]] = BasisVal[i82 + dc_loop_ub * i79];
             }
         }
         for (int i81{0}; i81 < b_result; i81++) {
-            for (int i84{0}; i84 < fc_loop_ub; i84++) {
-                A[r4[i84] + A.size(0) * r5[i81]] = BasisVal[i84 + fc_loop_ub * i81];
+            for (int i84{0}; i84 < ec_loop_ub; i84++) {
+                A[r4[i84 + dc_loop_ub] + A.size(0) * r5[i81]] = varargin_2[i84 + ec_loop_ub * i81];
             }
         }
         for (int i83{0}; i83 < b_result; i83++) {
-            for (int i86{0}; i86 < gc_loop_ub; i86++) {
-                A[r4[i86 + fc_loop_ub] + A.size(0) * r5[i83]] = varargin_2[i86 + gc_loop_ub * i83];
+            for (int i86{0}; i86 < input_sizes_idx_0; i86++) {
+                A[r4[(i86 + dc_loop_ub) + ec_loop_ub] + A.size(0) * r5[i83]] =
+                    b_Acc[i86 + input_sizes_idx_0 * i83];
             }
         }
         for (int i85{0}; i85 < b_result; i85++) {
-            for (int i88{0}; i88 < input_sizes_idx_0; i88++) {
-                A[r4[(i88 + fc_loop_ub) + gc_loop_ub] + A.size(0) * r5[i85]] =
-                    b_Acc[i88 + input_sizes_idx_0 * i85];
+            for (int i87{0}; i87 < b_input_sizes_idx_0; i87++) {
+                A[r4[((i87 + dc_loop_ub) + ec_loop_ub) + input_sizes_idx_0] + A.size(0) * r5[i85]] =
+                    varargin_4[i87 + b_input_sizes_idx_0 * i85];
             }
         }
-        for (int i87{0}; i87 < b_result; i87++) {
-            for (int i89{0}; i89 < b_input_sizes_idx_0; i89++) {
-                A[r4[((i89 + fc_loop_ub) + gc_loop_ub) + input_sizes_idx_0] + A.size(0) * r5[i87]] =
-                    varargin_4[i89 + b_input_sizes_idx_0 * i87];
-            }
-        }
-        // 'buildConstr:84' b( indAL )          = [ f_max'; zeros( size(f_max) )';
-        // 'buildConstr:85'                             b_amax( : ); b_amax( : ) ];
+        // 'buildConstr:85' b( indAL )          = [ f_max'; zeros( size(f_max) )';
+        // 'buildConstr:86'                             b_amax( : ); b_amax( : ) ];
         c_unnamed_idx_1 = f_max.size(1);
         d_unnamed_idx_1 = f_max.size(1);
-        jc_loop_ub = f_max.size(1);
-        for (int i90{0}; i90 < jc_loop_ub; i90++) {
-            b[indAL[i90] - 1] = f_max[i90];
+        hc_loop_ub = f_max.size(1);
+        for (int i88{0}; i88 < hc_loop_ub; i88++) {
+            b[indAL[i88] - 1] = f_max[i88];
         }
-        kc_loop_ub = f_max.size(1);
-        for (int i91{0}; i91 < kc_loop_ub; i91++) {
-            b[indAL[i91 + c_unnamed_idx_1] - 1] = 0.0;
+        ic_loop_ub = f_max.size(1);
+        for (int i89{0}; i89 < ic_loop_ub; i89++) {
+            b[indAL[i89 + c_unnamed_idx_1] - 1] = 0.0;
         }
-        for (int i92{0}; i92 < b_unnamed_idx_1; i92++) {
-            b[indAL[(i92 + c_unnamed_idx_1) + d_unnamed_idx_1] - 1] = b_amax[i92];
+        for (int i90{0}; i90 < b_unnamed_idx_1; i90++) {
+            b[indAL[(i90 + c_unnamed_idx_1) + d_unnamed_idx_1] - 1] = r[i90];
         }
-        for (int i93{0}; i93 < p_loop_ub; i93++) {
-            b[indAL[((i93 + c_unnamed_idx_1) + d_unnamed_idx_1) + b_unnamed_idx_1] - 1] =
-                b_amax[i93];
+        for (int i91{0}; i91 < m_loop_ub; i91++) {
+            b[indAL[((i91 + c_unnamed_idx_1) + d_unnamed_idx_1) + b_unnamed_idx_1] - 1] = r[i91];
         }
         //  Continuity equations
-        // 'buildConstr:88' indAEL  = int32( 1 : 4 ) + ( k - 1 ) * 2 ;
+        // 'buildConstr:89' indAEL  = int32( 1 : 4 ) + ( k - 1 ) * 2 ;
         d_k = (b_k << 1) + 1;
         indAEL[0] = d_k;
         indAEL[1] = d_k + 1;
         indAEL[2] = d_k + 2;
         indAEL[3] = d_k + 3;
         //  Line   index
-        // 'buildConstr:89' indAEC  = int32( 1 : N ) + ( k - 1 ) * N ;
+        // 'buildConstr:90' indAEC  = int32( 1 : N ) + ( k - 1 ) * N ;
         //  Column index
-        // 'buildConstr:90' at_norm( 1, :, k )   = t_vec( : , 1, k )' * Acc( indAT( 1, : ) , :, 2 );
-        lc_loop_ub = Acc.size(1);
-        b_b.set_size(r_loop_ub, Acc.size(1));
-        for (int i94{0}; i94 < lc_loop_ub; i94++) {
-            for (int i95{0}; i95 < r_loop_ub; i95++) {
-                b_b[i95 + b_b.size(0) * i94] =
-                    Acc[((indAT[2 * i95] + Acc.size(0) * i94) + Acc.size(0) * Acc.size(1)) - 1];
+        // 'buildConstr:91' at_norm( 1, :, k )   = t_vec( : , 1, k )' * Acc( indAT( 1, : ) , :, 2 );
+        jc_loop_ub = Acc.size(1);
+        b_b.set_size(n_loop_ub, Acc.size(1));
+        for (int i92{0}; i92 < jc_loop_ub; i92++) {
+            for (int i93{0}; i93 < n_loop_ub; i93++) {
+                b_b[i93 + b_b.size(0) * i92] =
+                    Acc[((indAT[2 * i93] + Acc.size(0) * i92) + Acc.size(0) * Acc.size(1)) - 1];
             }
         }
-        mc_loop_ub = t_vec.size(0);
+        kc_loop_ub = t_vec.size(0);
         b_t_vec.set_size(t_vec.size(0));
-        for (int i96{0}; i96 < mc_loop_ub; i96++) {
-            b_t_vec[i96] = t_vec[i96 + t_vec.size(0) * 2 * b_k];
+        for (int i94{0}; i94 < kc_loop_ub; i94++) {
+            b_t_vec[i94] = t_vec[i94 + t_vec.size(0) * 2 * b_k];
         }
         inner = b_t_vec.size(0);
         nc = b_b.size(1);
@@ -1190,23 +1179,23 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
                 r2[b_j] = r2[b_j] + b_t_vec[e_k] * b_b[e_k + b_b.size(0) * b_j];
             }
         }
-        nc_loop_ub = r2.size(1);
-        for (int i97{0}; i97 < nc_loop_ub; i97++) {
-            at_norm[2 * i97 + 2 * at_norm.size(1) * b_k] = r2[i97];
+        lc_loop_ub = r2.size(1);
+        for (int i95{0}; i95 < lc_loop_ub; i95++) {
+            at_norm[2 * i95 + 2 * at_norm.size(1) * b_k] = r2[i95];
         }
-        // 'buildConstr:91' at_norm( 2, :, k )   = t_vec( : , 2, k )' * Acc( indAT( 2, : ) , :, 2 );
-        oc_loop_ub = Acc.size(1);
-        b_b.set_size(s_loop_ub, Acc.size(1));
-        for (int i98{0}; i98 < oc_loop_ub; i98++) {
-            for (int i99{0}; i99 < s_loop_ub; i99++) {
-                b_b[i99 + b_b.size(0) * i98] =
-                    Acc[((indAT[2 * i99 + 1] + Acc.size(0) * i98) + Acc.size(0) * Acc.size(1)) - 1];
+        // 'buildConstr:92' at_norm( 2, :, k )   = t_vec( : , 2, k )' * Acc( indAT( 2, : ) , :, 2 );
+        mc_loop_ub = Acc.size(1);
+        b_b.set_size(p_loop_ub, Acc.size(1));
+        for (int i96{0}; i96 < mc_loop_ub; i96++) {
+            for (int i97{0}; i97 < p_loop_ub; i97++) {
+                b_b[i97 + b_b.size(0) * i96] =
+                    Acc[((indAT[2 * i97 + 1] + Acc.size(0) * i96) + Acc.size(0) * Acc.size(1)) - 1];
             }
         }
-        pc_loop_ub = t_vec.size(0);
+        nc_loop_ub = t_vec.size(0);
         b_t_vec.set_size(t_vec.size(0));
-        for (int i100{0}; i100 < pc_loop_ub; i100++) {
-            b_t_vec[i100] = t_vec[(i100 + t_vec.size(0)) + t_vec.size(0) * 2 * b_k];
+        for (int i98{0}; i98 < nc_loop_ub; i98++) {
+            b_t_vec[i98] = t_vec[(i98 + t_vec.size(0)) + t_vec.size(0) * 2 * b_k];
         }
         b_inner = b_t_vec.size(0);
         b_nc = b_b.size(1);
@@ -1217,111 +1206,111 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
                 r2[c_j] = r2[c_j] + b_t_vec[f_k] * b_b[f_k + b_b.size(0) * c_j];
             }
         }
-        qc_loop_ub = r2.size(1);
-        for (int i101{0}; i101 < qc_loop_ub; i101++) {
-            at_norm[(2 * i101 + 2 * at_norm.size(1) * b_k) + 1] = r2[i101];
+        oc_loop_ub = r2.size(1);
+        for (int i99{0}; i99 < oc_loop_ub; i99++) {
+            at_norm[(2 * i99 + 2 * at_norm.size(1) * b_k) + 1] = r2[i99];
         }
-        // 'buildConstr:93' v2_vec( :, :, k ) = normR1D( [1, end] ).^2' .* BasisVal( [ 1; end ], :);
+        // 'buildConstr:94' v2_vec( :, :, k ) = normR1D( [1, end] ).^2' .* BasisVal( [ 1; end ], :);
         z1_idx_0 = std::pow(normR1D[0], 2.0);
         z1_idx_1 = std::pow(normR1D[normR1D.size(1) - 1], 2.0);
         iv[1] = BasisVal.size(0) - 1;
-        for (int i102{0}; i102 < q_loop_ub; i102++) {
-            v2_vec[2 * i102 + 2 * v2_vec.size(1) * b_k] =
-                z1_idx_0 * BasisVal[BasisVal.size(0) * i102];
-            v2_vec[(2 * i102 + 2 * v2_vec.size(1) * b_k) + 1] =
-                z1_idx_1 * BasisVal[iv[1] + BasisVal.size(0) * i102];
+        for (int i100{0}; i100 < q_loop_ub; i100++) {
+            v2_vec[2 * i100 + 2 * v2_vec.size(1) * b_k] =
+                z1_idx_0 * BasisVal[BasisVal.size(0) * i100];
+            v2_vec[(2 * i100 + 2 * v2_vec.size(1) * b_k) + 1] =
+                z1_idx_1 * BasisVal[iv[1] + BasisVal.size(0) * i100];
         }
-        // 'buildConstr:94' continuity = [ v2_vec( 1, :, k ); at_norm( 1, :, k ); ...
-        // 'buildConstr:95'                    v2_vec( 2, :, k ); at_norm( 2, :, k ) ];
-        // 'buildConstr:96' Aeq( indAEL, indAEC ) = Aeq( indAEL, indAEC ) + continuity.*
+        // 'buildConstr:95' continuity = [ v2_vec( 1, :, k ); at_norm( 1, :, k ); ...
+        // 'buildConstr:96'                    v2_vec( 2, :, k ); at_norm( 2, :, k ) ];
+        // 'buildConstr:97' Aeq( indAEL, indAEC ) = Aeq( indAEL, indAEC ) + continuity.*
         // mask_continuity;
         r4.set_size(indAC_tmp.size(1));
-        rc_loop_ub = indAC_tmp.size(1);
-        for (int i103{0}; i103 < rc_loop_ub; i103++) {
-            r4[i103] = indAC_tmp[i103];
+        pc_loop_ub = indAC_tmp.size(1);
+        for (int i101{0}; i101 < pc_loop_ub; i101++) {
+            r4[i101] = indAC_tmp[i101];
         }
-        sc_loop_ub = v2_vec.size(1);
+        qc_loop_ub = v2_vec.size(1);
         if (r4.size(0) == v2_vec.size(1)) {
+            int rc_loop_ub;
+            int sc_loop_ub;
             int tc_loop_ub;
-            int uc_loop_ub;
-            int vc_loop_ub;
-            tc_loop_ub = at_norm.size(1);
+            rc_loop_ub = at_norm.size(1);
             b_v2_vec.set_size(4, v2_vec.size(1));
-            for (int i104{0}; i104 < sc_loop_ub; i104++) {
-                b_v2_vec[4 * i104] = v2_vec[2 * i104 + 2 * v2_vec.size(1) * b_k];
+            for (int i102{0}; i102 < qc_loop_ub; i102++) {
+                b_v2_vec[4 * i102] = v2_vec[2 * i102 + 2 * v2_vec.size(1) * b_k];
             }
-            for (int i105{0}; i105 < tc_loop_ub; i105++) {
-                b_v2_vec[4 * i105 + 1] = at_norm[2 * i105 + 2 * at_norm.size(1) * b_k];
+            for (int i103{0}; i103 < rc_loop_ub; i103++) {
+                b_v2_vec[4 * i103 + 1] = at_norm[2 * i103 + 2 * at_norm.size(1) * b_k];
             }
-            for (int i106{0}; i106 < sc_loop_ub; i106++) {
-                b_v2_vec[4 * i106 + 2] = v2_vec[(2 * i106 + 2 * v2_vec.size(1) * b_k) + 1];
+            for (int i104{0}; i104 < qc_loop_ub; i104++) {
+                b_v2_vec[4 * i104 + 2] = v2_vec[(2 * i104 + 2 * v2_vec.size(1) * b_k) + 1];
             }
-            for (int i107{0}; i107 < tc_loop_ub; i107++) {
-                b_v2_vec[4 * i107 + 3] = at_norm[(2 * i107 + 2 * at_norm.size(1) * b_k) + 1];
+            for (int i105{0}; i105 < rc_loop_ub; i105++) {
+                b_v2_vec[4 * i105 + 3] = at_norm[(2 * i105 + 2 * at_norm.size(1) * b_k) + 1];
             }
             b_Aeq.set_size(4, r4.size(0));
-            uc_loop_ub = r4.size(0);
-            for (int i108{0}; i108 < uc_loop_ub; i108++) {
-                b_Aeq[4 * i108] =
-                    Aeq[(d_k + Aeq.size(0) * (r4[i108] - 1)) - 1] + b_v2_vec[4 * i108];
-                b_Aeq[4 * i108 + 1] =
-                    Aeq[d_k + Aeq.size(0) * (r4[i108] - 1)] + b_v2_vec[4 * i108 + 1];
-                b_Aeq[4 * i108 + 2] =
-                    Aeq[(d_k + Aeq.size(0) * (r4[i108] - 1)) + 1] + -b_v2_vec[4 * i108 + 2];
-                b_Aeq[4 * i108 + 3] =
-                    Aeq[(d_k + Aeq.size(0) * (r4[i108] - 1)) + 2] + -b_v2_vec[4 * i108 + 3];
+            sc_loop_ub = r4.size(0);
+            for (int i106{0}; i106 < sc_loop_ub; i106++) {
+                b_Aeq[4 * i106] =
+                    Aeq[(d_k + Aeq.size(0) * (r4[i106] - 1)) - 1] + b_v2_vec[4 * i106];
+                b_Aeq[4 * i106 + 1] =
+                    Aeq[d_k + Aeq.size(0) * (r4[i106] - 1)] + b_v2_vec[4 * i106 + 1];
+                b_Aeq[4 * i106 + 2] =
+                    Aeq[(d_k + Aeq.size(0) * (r4[i106] - 1)) + 1] + -b_v2_vec[4 * i106 + 2];
+                b_Aeq[4 * i106 + 3] =
+                    Aeq[(d_k + Aeq.size(0) * (r4[i106] - 1)) + 2] + -b_v2_vec[4 * i106 + 3];
             }
-            vc_loop_ub = b_Aeq.size(1);
-            for (int i109{0}; i109 < vc_loop_ub; i109++) {
-                Aeq[(d_k + Aeq.size(0) * (r4[i109] - 1)) - 1] = b_Aeq[4 * i109];
-                Aeq[d_k + Aeq.size(0) * (r4[i109] - 1)] = b_Aeq[4 * i109 + 1];
-                Aeq[(d_k + Aeq.size(0) * (r4[i109] - 1)) + 1] = b_Aeq[4 * i109 + 2];
-                Aeq[(d_k + Aeq.size(0) * (r4[i109] - 1)) + 2] = b_Aeq[4 * i109 + 3];
+            tc_loop_ub = b_Aeq.size(1);
+            for (int i107{0}; i107 < tc_loop_ub; i107++) {
+                Aeq[(d_k + Aeq.size(0) * (r4[i107] - 1)) - 1] = b_Aeq[4 * i107];
+                Aeq[d_k + Aeq.size(0) * (r4[i107] - 1)] = b_Aeq[4 * i107 + 1];
+                Aeq[(d_k + Aeq.size(0) * (r4[i107] - 1)) + 1] = b_Aeq[4 * i107 + 2];
+                Aeq[(d_k + Aeq.size(0) * (r4[i107] - 1)) + 2] = b_Aeq[4 * i107 + 3];
             }
         } else {
             binary_expand_op(Aeq, indAEL, r4, v2_vec, b_k, at_norm, mask_continuity);
         }
     }
-    // 'buildConstr:99' beq( [ 1, 2, end-1, end ] ) = [ v_0^2; at_0; v_1^2; at_1 ] .*
+    // 'buildConstr:100' beq( [ 1, 2, end-1, end ] ) = [ v_0^2; at_0; v_1^2; at_1 ] .*
     // mask_continuity;
     beq[0] = v_0 * v_0;
     beq[1] = at_0;
     beq[static_cast<int>(Nec) - 2] = -(v_1 * v_1);
     beq[static_cast<int>(Nec) - 1] = -at_1;
     //  Add a ramp on the acceleration and speed limits
-    // 'buildConstr:102' vel_ramp = linspace( 1, ctx.cfg.opt.VEL_RAMP_OVER_WINDOWS, M )';
+    // 'buildConstr:103' vel_ramp = linspace( 1, ctx.cfg.opt.VEL_RAMP_OVER_WINDOWS, M )';
     coder::b_linspace(ctx_cfg_opt_VEL_RAMP_OVER_WINDOWS, static_cast<double>(BasisVal.size(0)), r2);
     vel_ramp.set_size(r2.size(1));
-    t_loop_ub = r2.size(1);
-    for (int i26{0}; i26 < t_loop_ub; i26++) {
-        vel_ramp[i26] = r2[i26];
+    r_loop_ub = r2.size(1);
+    for (int i24{0}; i24 < r_loop_ub; i24++) {
+        vel_ramp[i24] = r2[i24];
     }
-    // 'buildConstr:103' acc_ramp = repmat( linspace( 1, ctx.cfg.opt.ACC_RAMP_OVER_WINDOWS, M )',1,
+    // 'buildConstr:104' acc_ramp = repmat( linspace( 1, ctx.cfg.opt.ACC_RAMP_OVER_WINDOWS, M )',1,
     // Nc -1 );
     coder::b_linspace(ctx_cfg_opt_ACC_RAMP_OVER_WINDOWS, static_cast<double>(BasisVal.size(0)), r2);
     r3.set_size(r2.size(1));
-    ab_loop_ub = r2.size(1);
-    for (int i31{0}; i31 < ab_loop_ub; i31++) {
-        r3[i31] = r2[i31];
+    v_loop_ub = r2.size(1);
+    for (int i28{0}; i28 < v_loop_ub; i28++) {
+        r3[i28] = r2[i28];
     }
     coder::repmat(r3, y_tmp + 1, acc_ramp);
-    // 'buildConstr:105' if( Nwindow > 1 )
+    // 'buildConstr:106' if( Nwindow > 1 )
     if (windowCurv.size(1) > 1) {
+        int bb_loop_ub;
         int c_input_sizes_idx_1;
         int d_input_sizes_idx_1;
-        int db_loop_ub;
         int input_sizes_idx_1;
-        int nb_loop_ub;
+        int kb_loop_ub;
         int result;
         signed char b_input_sizes_idx_1;
         bool empty_non_axis_sizes;
-        // 'buildConstr:106' ramp = [ones(M, Nc ), vel_ramp, acc_ramp, ...
-        // 'buildConstr:107'             repmat([vel_ramp(end), acc_ramp(end,:)], M, Nwindow-2)];
-        db_loop_ub = acc_ramp.size(1);
+        // 'buildConstr:107' ramp = [ones(M, Nc ), vel_ramp, acc_ramp, ...
+        // 'buildConstr:108'             repmat([vel_ramp(end), acc_ramp(end,:)], M, Nwindow-2)];
+        bb_loop_ub = acc_ramp.size(1);
         b_vel_ramp.set_size(1, acc_ramp.size(1) + 1);
         b_vel_ramp[0] = vel_ramp[vel_ramp.size(0) - 1];
-        for (int i36{0}; i36 < db_loop_ub; i36++) {
-            b_vel_ramp[i36 + 1] = acc_ramp[(acc_ramp.size(0) + acc_ramp.size(0) * i36) - 1];
+        for (int i32{0}; i32 < bb_loop_ub; i32++) {
+            b_vel_ramp[i32 + 1] = acc_ramp[(acc_ramp.size(0) + acc_ramp.size(0) * i32) - 1];
         }
         coder::repmat(b_vel_ramp, static_cast<double>(BasisVal.size(0)),
                       static_cast<double>(windowCurv.size(1)) - 2.0, varargin_4);
@@ -1365,53 +1354,53 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
         }
         ramp.set_size(result, ((input_sizes_idx_1 + b_input_sizes_idx_1) + c_input_sizes_idx_1) +
                                   d_input_sizes_idx_1);
-        for (int i47{0}; i47 < input_sizes_idx_1; i47++) {
-            for (int i49{0}; i49 < result; i49++) {
-                ramp[i49 + ramp.size(0) * i47] = 1.0;
+        for (int i43{0}; i43 < input_sizes_idx_1; i43++) {
+            for (int i45{0}; i45 < result; i45++) {
+                ramp[i45 + ramp.size(0) * i43] = 1.0;
             }
         }
-        nb_loop_ub = b_input_sizes_idx_1;
-        for (int i50{0}; i50 < nb_loop_ub; i50++) {
+        kb_loop_ub = b_input_sizes_idx_1;
+        for (int i47{0}; i47 < kb_loop_ub; i47++) {
+            for (int i50{0}; i50 < result; i50++) {
+                ramp[i50 + ramp.size(0) * input_sizes_idx_1] = vel_ramp[i50];
+            }
+        }
+        for (int i49{0}; i49 < c_input_sizes_idx_1; i49++) {
             for (int i52{0}; i52 < result; i52++) {
-                ramp[i52 + ramp.size(0) * input_sizes_idx_1] = vel_ramp[i52];
+                ramp[i52 + ramp.size(0) * ((i49 + input_sizes_idx_1) + b_input_sizes_idx_1)] =
+                    acc_ramp[i52 + result * i49];
             }
         }
-        for (int i51{0}; i51 < c_input_sizes_idx_1; i51++) {
-            for (int i54{0}; i54 < result; i54++) {
-                ramp[i54 + ramp.size(0) * ((i51 + input_sizes_idx_1) + b_input_sizes_idx_1)] =
-                    acc_ramp[i54 + result * i51];
+        for (int i51{0}; i51 < d_input_sizes_idx_1; i51++) {
+            for (int i53{0}; i53 < result; i53++) {
+                ramp[i53 + ramp.size(0) * (((i51 + input_sizes_idx_1) + b_input_sizes_idx_1) +
+                                           c_input_sizes_idx_1)] = varargin_4[i53 + result * i51];
             }
         }
-        for (int i53{0}; i53 < d_input_sizes_idx_1; i53++) {
-            for (int i55{0}; i55 < result; i55++) {
-                ramp[i55 + ramp.size(0) * (((i53 + input_sizes_idx_1) + b_input_sizes_idx_1) +
-                                           c_input_sizes_idx_1)] = varargin_4[i55 + result * i53];
-            }
-        }
-        // 'buildConstr:108' b  = b .* ramp(:);
+        // 'buildConstr:109' b  = b .* ramp(:);
         if (b.size(0) == ramp.size(0) * ramp.size(1)) {
-            int pb_loop_ub;
-            pb_loop_ub = b.size(0);
-            for (int i58{0}; i58 < pb_loop_ub; i58++) {
-                b[i58] = b[i58] * ramp[i58];
+            int mb_loop_ub;
+            mb_loop_ub = b.size(0);
+            for (int i54{0}; i54 < mb_loop_ub; i54++) {
+                b[i54] = b[i54] * ramp[i54];
             }
         } else {
             binary_expand_op(b, ramp);
         }
     }
     //  Continuity equations
-    // 'buildConstr:112' continuity = [ v2_vec( 2, : , 1 ); at_norm( 2, :, 1 ) ];
-    eb_loop_ub = v2_vec.size(1);
-    fb_loop_ub = at_norm.size(1);
+    // 'buildConstr:113' continuity = [ v2_vec( 2, : , 1 ); at_norm( 2, :, 1 ) ];
+    cb_loop_ub = v2_vec.size(1);
+    db_loop_ub = at_norm.size(1);
     continuity.set_size(2, v2_vec.size(1));
-    for (int i38{0}; i38 < eb_loop_ub; i38++) {
-        continuity[2 * i38] = v2_vec[2 * i38 + 1];
+    for (int i34{0}; i34 < cb_loop_ub; i34++) {
+        continuity[2 * i34] = v2_vec[2 * i34 + 1];
     }
-    for (int i40{0}; i40 < fb_loop_ub; i40++) {
-        continuity[2 * i40 + 1] = at_norm[2 * i40 + 1];
+    for (int i36{0}; i36 < db_loop_ub; i36++) {
+        continuity[2 * i36 + 1] = at_norm[2 * i36 + 1];
     }
-    // 'buildConstr:114' checkValidity( A, b, Aeq, beq, continuity );
-    // 'buildConstr:116' c_prof_out(mfilename);
+    // 'buildConstr:115' checkValidity( A, b, Aeq, beq, continuity );
+    // 'buildConstr:117' c_prof_out(mfilename);
 }
 
 } // namespace ocn

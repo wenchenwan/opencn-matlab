@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: EvalCostIntegral.h
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 #ifndef EVALCOSTINTEGRAL_H
@@ -21,9 +21,9 @@
 // Function Declarations
 namespace ocn {
 double EvalCostIntegral(double alpha0, double beta0, double alpha1, double beta1,
-                        const double in5[5], const double in6[5], const double in7[5],
-                        const double in8[5], const double in9[5], const double in10[5],
-                        const double in11_data[]);
+                        const double in5[6], const double in6[6], const double in7[6],
+                        const double in8[6], const double in9[6], const double in10[6],
+                        const double in11[6]);
 
 }
 

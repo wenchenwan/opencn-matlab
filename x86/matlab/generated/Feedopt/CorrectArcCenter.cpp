@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: CorrectArcCenter.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 // Include Files
@@ -109,7 +109,7 @@ void CorrectArcCenter(const double P0[2], const double P1[2], double C[2], doubl
         //  Unit vector on bisecting line
         //  Dealing with limit cases...
         // 'CorrectArcCenter:31' a = R.^2 - ( L10.^2 ) / 4;
-        a = std::pow(*R, 2.0) - std::pow(L10, 2.0) / 4.0;
+        a = *R * *R - L10 * L10 / 4.0;
         // 'CorrectArcCenter:32' if  a <= 0
         if (a <= 0.0) {
             //  Center is aligned with the two points

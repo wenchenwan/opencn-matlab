@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: mypolyval.h
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 #ifndef MYPOLYVAL_H
@@ -21,14 +21,14 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-void b_binary_expand_op(::coder::array<double, 2U> &y, const ::coder::array<double, 2U> &r1,
-                        const ::coder::array<double, 2U> &r2);
+void b_binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
+                        const ::coder::array<double, 2U> &in3);
 
-void binary_expand_op(::coder::array<double, 2U> &D0, const ::coder::array<double, 2U> &b,
-                      const ::coder::array<double, 2U> &r);
+void binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
+                      const ::coder::array<double, 2U> &in3);
 
-void binary_expand_op(::coder::array<double, 1U> &D0, double u_vec, const int outsize[2],
-                      const ::coder::array<double, 1U> &r);
+void binary_expand_op(::coder::array<double, 1U> &in1, double in2, const int in3[2],
+                      const ::coder::array<double, 1U> &in4);
 
 } // namespace ocn
 

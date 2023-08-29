@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: calc_t_nk_kappa.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 // Include Files
@@ -17,85 +17,99 @@
 
 // Function Declarations
 namespace ocn {
-static void binary_expand_op(::coder::array<double, 1U> &nk, const ::coder::array<double, 1U> &rD2,
-                             double a, const ::coder::array<double, 1U> &rD1, double norm_rD1);
+static void binary_expand_op(::coder::array<double, 1U> &in1, const ::coder::array<double, 1U> &in2,
+                             double in3, const ::coder::array<double, 1U> &in4, double in5);
 
 }
 
 // Function Definitions
 //
-// Arguments    : ::coder::array<double, 1U> &nk
-//                const ::coder::array<double, 1U> &rD2
-//                double a
-//                const ::coder::array<double, 1U> &rD1
-//                double norm_rD1
+// Arguments    : ::coder::array<double, 1U> &in1
+//                const ::coder::array<double, 1U> &in2
+//                double in3
+//                const ::coder::array<double, 1U> &in4
+//                double in5
 // Return Type  : void
 //
 namespace ocn {
-static void binary_expand_op(::coder::array<double, 1U> &nk, const ::coder::array<double, 1U> &rD2,
-                             double a, const ::coder::array<double, 1U> &rD1, double norm_rD1)
+static void binary_expand_op(::coder::array<double, 1U> &in1, const ::coder::array<double, 1U> &in2,
+                             double in3, const ::coder::array<double, 1U> &in4, double in5)
 {
-    double b_norm_rD1;
+    double b_in5;
     int i;
     int loop_ub;
     int stride_0_0;
     int stride_1_0;
-    b_norm_rD1 = norm_rD1 * norm_rD1;
-    if (rD1.size(0) == 1) {
-        i = rD2.size(0);
+    b_in5 = in5 * in5;
+    if (in4.size(0) == 1) {
+        i = in2.size(0);
     } else {
-        i = rD1.size(0);
+        i = in4.size(0);
     }
-    nk.set_size(i);
-    stride_0_0 = (rD2.size(0) != 1);
-    stride_1_0 = (rD1.size(0) != 1);
-    if (rD1.size(0) == 1) {
-        loop_ub = rD2.size(0);
+    in1.set_size(i);
+    stride_0_0 = (in2.size(0) != 1);
+    stride_1_0 = (in4.size(0) != 1);
+    if (in4.size(0) == 1) {
+        loop_ub = in2.size(0);
     } else {
-        loop_ub = rD1.size(0);
+        loop_ub = in4.size(0);
     }
     for (int i1{0}; i1 < loop_ub; i1++) {
-        nk[i1] = (rD2[i1 * stride_0_0] - a * rD1[i1 * stride_1_0]) / b_norm_rD1;
+        in1[i1] = (in2[i1 * stride_0_0] - in3 * in4[i1 * stride_1_0]) / b_in5;
     }
 }
 
 //
 // function [t, nk, kappa] = calc_t_nk_kappa(rD1, rD2)
 //
-// Arguments    : const double rD1[5]
-//                const double rD2[5]
-//                double t[5]
-//                double nk[5]
+// Arguments    : const double rD1[6]
+//                const double rD2[6]
+//                double t[6]
+//                double nk[6]
 //                double *kappa
 // Return Type  : void
 //
-void calc_t_nk_kappa(const double rD1[5], const double rD2[5], double t[5], double nk[5],
+void calc_t_nk_kappa(const double rD1[6], const double rD2[6], double t[6], double nk[6],
                      double *kappa)
 {
-    double z1[5];
+    double z1[6];
     double a;
     double a_tmp;
     double b_rD2;
+    double b_y;
     double norm_rD1;
     double norm_rD2;
     double num;
+    double y;
     //  computes the local Frenet frame (t, n, b) of a curve in R^n
     //  [t, nk, kappa] = calc_t_nk_kappa(rD1, rD2)
     //  where rD1 is the first derivative and rD2 the second one
     // 'calc_t_nk_kappa:5' norm_rD1 = MyNorm(rD1);
     // 'MyNorm:2' coder.inline('always');
     // 'MyNorm:3' n = mysqrt(sum(x.^2));
-    for (int k{0}; k < 5; k++) {
+    for (int k{0}; k < 6; k++) {
         z1[k] = std::pow(rD1[k], 2.0);
     }
+    y = z1[0];
+    for (int b_k{0}; b_k < 5; b_k++) {
+        y += z1[b_k + 1];
+    }
     // 'mysqrt:3' y = sqrt(x);
-    norm_rD1 = std::sqrt((((z1[0] + z1[1]) + z1[2]) + z1[3]) + z1[4]);
+    norm_rD1 = std::sqrt(y);
     // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
     sqrt_calls++;
     // 'calc_t_nk_kappa:6' norm_rD2 = MyNorm(rD2);
     // 'MyNorm:2' coder.inline('always');
     // 'MyNorm:3' n = mysqrt(sum(x.^2));
+    for (int c_k{0}; c_k < 6; c_k++) {
+        z1[c_k] = std::pow(rD2[c_k], 2.0);
+    }
+    b_y = z1[0];
+    for (int d_k{0}; d_k < 5; d_k++) {
+        b_y += z1[d_k + 1];
+    }
     // 'mysqrt:3' y = sqrt(x);
+    norm_rD2 = std::sqrt(b_y);
     // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
     sqrt_calls++;
     // 'calc_t_nk_kappa:8' t = rD1 / norm_rD1;
@@ -103,20 +117,16 @@ void calc_t_nk_kappa(const double rD1[5], const double rD2[5], double t[5], doub
     //
     // 'calc_t_nk_kappa:10' nk     = (rD2 - rD2'*rD1/(norm_rD1*norm_rD1)*rD1)/(norm_rD1*norm_rD1);
     b_rD2 = 0.0;
-    for (int b_k{0}; b_k < 5; b_k++) {
+    for (int i{0}; i < 6; i++) {
         double d;
-        double d1;
-        d = rD2[b_k];
-        z1[b_k] = std::pow(d, 2.0);
-        d1 = rD1[b_k];
-        t[b_k] = d1 / norm_rD1;
-        b_rD2 += d * d1;
+        d = rD1[i];
+        t[i] = d / norm_rD1;
+        b_rD2 += rD2[i] * d;
     }
-    norm_rD2 = std::sqrt((((z1[0] + z1[1]) + z1[2]) + z1[3]) + z1[4]);
     a_tmp = norm_rD1 * norm_rD1;
     a = b_rD2 / a_tmp;
-    for (int i{0}; i < 5; i++) {
-        nk[i] = (rD2[i] - a * rD1[i]) / a_tmp;
+    for (int b_i{0}; b_i < 6; b_i++) {
+        nk[b_i] = (rD2[b_i] - a * rD1[b_i]) / a_tmp;
     }
     //  normal unit vector
     //

@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: FeedoptDefaultConfig.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 // Include Files
@@ -15,8 +15,8 @@
 #include "opencn_matlab_types.h"
 #include "setMachineAxisInConfig.h"
 #include "coder_array.h"
+#include "coder_bounded_array.h"
 #include <algorithm>
-#include <cstring>
 
 // Function Definitions
 //
@@ -47,6 +47,7 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     int e_loop_ub;
     int f_loop_ub;
     int g_loop_ub;
+    int h_loop_ub;
     int loop_ub;
     if (!isInitialized_opencn_matlab) {
         opencn_matlab_initialize();
@@ -69,61 +70,70 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     // 'FeedoptDefaultConfig:19'     'USE_LINPROG', false);
     // 'FeedoptDefaultConfig:21' if( ~coder.target('MATLAB') )
     // 'FeedoptDefaultConfig:22' coder.cstructname( LP,          StructTypeName.LPCfg );
-    // 'FeedoptDefaultConfig:25' cfg = struct(...
-    // 'FeedoptDefaultConfig:26'     'maskTot',  logical( [ 1, 1, 1, 0, 1, 1 ] ),... % [X,Y,Z,A,B,C]
-    // 'FeedoptDefaultConfig:27'     'maskCart', logical( 0 ),...                    % Do not modify
-    // 'FeedoptDefaultConfig:28'     'maskRot',  logical( 0 ),...                    % Do not modify
-    // 'FeedoptDefaultConfig:29'     'indCart', int32( 0 ), ...                      % Do not modify
-    // 'FeedoptDefaultConfig:30'     'indRot',  int32( 0 ),...                       % Do not modify
-    // 'FeedoptDefaultConfig:31'     'NumberAxis', int32( 0 ), ...                   % Do not modify
-    // 'FeedoptDefaultConfig:32'     'NCart',   int32( 0 ), ...                      % Do not modify
-    // 'FeedoptDefaultConfig:33'     'NRot',    int32( 0 ), ...                      % Do not modify
-    // 'FeedoptDefaultConfig:34'     'D', 0, ...                                     % Do not modify
-    // 'FeedoptDefaultConfig:35'     'coeffD', 1, ...                                % Coefficient
-    // between cartésian and rotativ axis 'FeedoptDefaultConfig:36'     'kin_params', reshape( [ 0,
-    // 0, 0, 24.8760; 0, 0, 0, 0; 0, -24.8760, 0, 0 ], [], 1 ), ... 'FeedoptDefaultConfig:37'
-    // 'kin_type', 'xyzbc', ... 'FeedoptDefaultConfig:38'     'NDiscr', int32( 10 ),...
-    // 'FeedoptDefaultConfig:39'     'NBreak', int32( 5 ),...
-    // 'FeedoptDefaultConfig:40'     'UseDynamicBreakpoints',false,...       % Use a variable number
-    // of breakpoints for different lengths 'FeedoptDefaultConfig:41'
+    // 'FeedoptDefaultConfig:25' machine_off = [0; 0; 0];
+    //  mx, my, mz
+    // 'FeedoptDefaultConfig:26' piece_off   = [0; 0; -24.8760];
+    //  px, py, pz
+    // 'FeedoptDefaultConfig:27' tool_off    = [0; 0; 0];
+    //  tx, ty, tz
+    // 'FeedoptDefaultConfig:28' other_off   = [24.8760; 0; 0];
+    //  d1, d2, tool_length
+    // 'FeedoptDefaultConfig:31' kin_params = [machine_off, piece_off, tool_off, other_off];
+    // 'FeedoptDefaultConfig:33' cfg = struct(...
+    // 'FeedoptDefaultConfig:34'     'maskTot',  logical( [ 1, 1, 1, 0, 1, 1 ] ),... % [X,Y,Z,A,B,C]
+    // 'FeedoptDefaultConfig:35'     'maskCart', logical( 0 ),...                    % Do not modify
+    // 'FeedoptDefaultConfig:36'     'maskRot',  logical( 0 ),...                    % Do not modify
+    // 'FeedoptDefaultConfig:37'     'indCart', int32( 0 ), ...                      % Do not modify
+    // 'FeedoptDefaultConfig:38'     'indRot',  int32( 0 ),...                       % Do not modify
+    // 'FeedoptDefaultConfig:39'     'NumberAxis', int32( 0 ), ...                   % Do not modify
+    // 'FeedoptDefaultConfig:40'     'NCart',   int32( 0 ), ...                      % Do not modify
+    // 'FeedoptDefaultConfig:41'     'NRot',    int32( 0 ), ...                      % Do not modify
+    // 'FeedoptDefaultConfig:42'     'D', 0, ...                                     % Do not modify
+    // 'FeedoptDefaultConfig:43'     'coeffD', 1, ...                                % Coefficient
+    // between cartésian and rotativ axis 'FeedoptDefaultConfig:44'     'kin_params', reshape(
+    // kin_params, [], 1 ), ... 'FeedoptDefaultConfig:45'     'kin_type', 'xyzbc', ...
+    // 'FeedoptDefaultConfig:46'     'NDiscr', int32( 10 ),...
+    // 'FeedoptDefaultConfig:47'     'NBreak', int32( 5 ),...
+    // 'FeedoptDefaultConfig:48'     'UseDynamicBreakpoints',false,...       % Use a variable number
+    // of breakpoints for different lengths 'FeedoptDefaultConfig:49'
     // 'UseLinearBreakpoints',false,...        % Use a linear distribution of breakpoints (else
-    // sinspace) 'FeedoptDefaultConfig:42'     'DynamicBreakpointsDistance', 0.1,...   % Distance
-    // between two breakpoints in mm 'FeedoptDefaultConfig:43'     'NHorz', int32( 5 ),...
-    // 'FeedoptDefaultConfig:44'     'fmax', 1000,...
-    // 'FeedoptDefaultConfig:45'     'smax', 75000,...
-    // 'FeedoptDefaultConfig:46'     'vmax', [500,500,800,0, 40,50],... %[mm] [rad]
-    // 'FeedoptDefaultConfig:47'     'amax', [15000,15000,15000,0, 200,1000],...
-    // 'FeedoptDefaultConfig:48'     'jmax', [750000,750000,3000000,0,10000,50000],...
-    // 'FeedoptDefaultConfig:49'     'LeeSplineDegree', int32( 4 ),...
-    // 'FeedoptDefaultConfig:50'     'SplineDegree',    int32( 3 ),...
-    // 'FeedoptDefaultConfig:51'     'CutOff', 1E-3,...
-    // 'FeedoptDefaultConfig:52'     'LSplit', 1.0,...
-    // 'FeedoptDefaultConfig:53'     'LSplitZero', 1E-3,...
-    // 'FeedoptDefaultConfig:54'     'LThresholdMax', 5.0,...
-    // 'FeedoptDefaultConfig:55'     'LThresholdMin', 1E-3,...
-    // 'FeedoptDefaultConfig:56'     'v_0', 0, 'at_0', 0,...
-    // 'FeedoptDefaultConfig:57'     'v_1', 0, 'at_1', 0,...
-    // 'FeedoptDefaultConfig:58'     'dt', 1e-2, ...
-    // 'FeedoptDefaultConfig:59'     'ZeroStartAccLimit', 0.01, ...
-    // 'FeedoptDefaultConfig:60'     'ZeroStartJerkLimit', 1E6, ...
-    // 'FeedoptDefaultConfig:61'     'ZeroStartVelLimit', 0.5, ...
-    // 'FeedoptDefaultConfig:62'     'source', repmat(char(0), [1, 1024]),...
-    // 'FeedoptDefaultConfig:63'     'DebugCutZero', false,...
-    // 'FeedoptDefaultConfig:64'     'Cusp', struct(...
-    // 'FeedoptDefaultConfig:65'     'Skip', false,...
-    // 'FeedoptDefaultConfig:66'     'CuspThreshold', 45 ),...
-    // 'FeedoptDefaultConfig:67'     'Compressing', struct(...
-    // 'FeedoptDefaultConfig:68'     'Skip', false,...
-    // 'FeedoptDefaultConfig:69'     'ColTolCosLee',     cosd(tol_col_compress_deg)),...
-    // 'FeedoptDefaultConfig:70'     'Smoothing', struct( ...
-    // 'FeedoptDefaultConfig:71'     'Skip', false,...
-    // 'FeedoptDefaultConfig:72'     'ColTolCosSmooth',  cosd(tol_col_smooth_deg), ...
-    // 'FeedoptDefaultConfig:73'     'ColTolSmooth',     1E-5 ),...
-    // 'FeedoptDefaultConfig:74'     'GaussLegendreN', GaussLegendreN, ...
-    // 'FeedoptDefaultConfig:75'     'GaussLegendreX', GaussLegendreX, ...
-    // 'FeedoptDefaultConfig:76'     'GaussLegendreW', GaussLegendreW, ...
-    // 'FeedoptDefaultConfig:77'     'opt', LP,...
-    // 'FeedoptDefaultConfig:78'     'LogFileName', 'logs/logs');
+    // sinspace) 'FeedoptDefaultConfig:50'     'DynamicBreakpointsDistance', 0.1,...   % Distance
+    // between two breakpoints in mm 'FeedoptDefaultConfig:51'     'NHorz', int32( 5 ),...
+    // 'FeedoptDefaultConfig:52'     'fmax', 1000,...
+    // 'FeedoptDefaultConfig:53'     'smax', 75000,...
+    // 'FeedoptDefaultConfig:54'     'vmax', [500,500,800,0, 40,50],... %[mm] [rad]
+    // 'FeedoptDefaultConfig:55'     'amax', [15000,15000,15000,0, 200,1000],...
+    // 'FeedoptDefaultConfig:56'     'jmax', [750000,750000,3000000,0,10000,50000],...
+    // 'FeedoptDefaultConfig:57'     'LeeSplineDegree', int32( 4 ),...
+    // 'FeedoptDefaultConfig:58'     'SplineDegree',    int32( 3 ),...
+    // 'FeedoptDefaultConfig:59'     'CutOff', 1E-3,...
+    // 'FeedoptDefaultConfig:60'     'LSplit',  1.0,...
+    // 'FeedoptDefaultConfig:61'     'LSplitZero', 1E-3,...
+    // 'FeedoptDefaultConfig:62'     'LThresholdMax', 5.0,...
+    // 'FeedoptDefaultConfig:63'     'LThresholdMin', 1E-3,...
+    // 'FeedoptDefaultConfig:64'     'v_0', 0, 'at_0', 0,...
+    // 'FeedoptDefaultConfig:65'     'v_1', 0, 'at_1', 0,...
+    // 'FeedoptDefaultConfig:66'     'dt', 1e-3, ...
+    // 'FeedoptDefaultConfig:67'     'ZeroStartAccLimit', 0.01, ...
+    // 'FeedoptDefaultConfig:68'     'ZeroStartJerkLimit', 1E6, ...
+    // 'FeedoptDefaultConfig:69'     'ZeroStartVelLimit', 0.5, ...
+    // 'FeedoptDefaultConfig:70'     'source', repmat(char(0), [1, 1024]),...
+    // 'FeedoptDefaultConfig:71'     'DebugCutZero', false,...
+    // 'FeedoptDefaultConfig:72'     'Cusp', struct(...
+    // 'FeedoptDefaultConfig:73'     'Skip', false,...
+    // 'FeedoptDefaultConfig:74'     'CuspThreshold', 45 ),...
+    // 'FeedoptDefaultConfig:75'     'Compressing', struct(...
+    // 'FeedoptDefaultConfig:76'     'Skip', false,...
+    // 'FeedoptDefaultConfig:77'     'ColTolCosLee',     cosd(tol_col_compress_deg)),...
+    // 'FeedoptDefaultConfig:78'     'Smoothing', struct( ...
+    // 'FeedoptDefaultConfig:79'     'Skip', false,...
+    // 'FeedoptDefaultConfig:80'     'ColTolCosSmooth',  cosd(tol_col_smooth_deg), ...
+    // 'FeedoptDefaultConfig:81'     'ColTolSmooth',     1E-5 ),...
+    // 'FeedoptDefaultConfig:82'     'GaussLegendreN', GaussLegendreN, ...
+    // 'FeedoptDefaultConfig:83'     'GaussLegendreX', GaussLegendreX, ...
+    // 'FeedoptDefaultConfig:84'     'GaussLegendreW', GaussLegendreW, ...
+    // 'FeedoptDefaultConfig:85'     'opt', LP,...
+    // 'FeedoptDefaultConfig:86'     'LogFileName', 'logs/logs');
     cfg->maskCart.size[0] = 1;
     cfg->maskCart.size[1] = 1;
     cfg->maskCart.data[0] = false;
@@ -148,16 +158,16 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     //         % Use a linear distribution of breakpoints (else sinspace)
     //    % Distance between two breakpoints in mm
     //  %[mm] [rad]
-    // 'FeedoptDefaultConfig:80' if ~coder.target( 'MATLAB' )
-    // 'FeedoptDefaultConfig:81' coder.varsize( 'cfg.indCart',   StructTypeName.dimInd{ : } );
-    // 'FeedoptDefaultConfig:82' coder.varsize( 'cfg.indRot',    StructTypeName.dimInd{ : } );
-    // 'FeedoptDefaultConfig:83' coder.varsize( 'cfg.maskTot',   StructTypeName.dimMask{ : } );
-    // 'FeedoptDefaultConfig:84' coder.varsize( 'cfg.maskCart',  StructTypeName.dimMask{ : } );
-    // 'FeedoptDefaultConfig:85' coder.varsize( 'cfg.maskRot',   StructTypeName.dimMask{ : } );
-    // 'FeedoptDefaultConfig:86' coder.varsize( 'cfg.D',         StructTypeName.dimD{ : } );
-    // 'FeedoptDefaultConfig:87' coder.varsize( 'cfg.kin_params',StructTypeName.dimKinParams{ : } );
-    // 'FeedoptDefaultConfig:88' coder.cstructname( cfg,         StructTypeName.FeedoptCfg );
-    // 'FeedoptDefaultConfig:91' [ cfg ] = setMachineAxisInConfig( cfg, cfg.maskTot );
+    // 'FeedoptDefaultConfig:88' coder.varsize( 'cfg.source',    StructTypeName.dimFileName{ : } );
+    // 'FeedoptDefaultConfig:89' coder.varsize( 'cfg.indCart',   StructTypeName.dimInd{ : } );
+    // 'FeedoptDefaultConfig:90' coder.varsize( 'cfg.indRot',    StructTypeName.dimInd{ : } );
+    // 'FeedoptDefaultConfig:91' coder.varsize( 'cfg.maskTot',   StructTypeName.dimMask{ : } );
+    // 'FeedoptDefaultConfig:92' coder.varsize( 'cfg.maskCart',  StructTypeName.dimMask{ : } );
+    // 'FeedoptDefaultConfig:93' coder.varsize( 'cfg.maskRot',   StructTypeName.dimMask{ : } );
+    // 'FeedoptDefaultConfig:94' coder.varsize( 'cfg.D',         StructTypeName.dimD{ : } );
+    // 'FeedoptDefaultConfig:95' coder.varsize( 'cfg.kin_params',StructTypeName.dimKinParams{ : } );
+    // 'FeedoptDefaultConfig:96' coder.cstructname( cfg,         StructTypeName.FeedoptCfg );
+    // 'FeedoptDefaultConfig:98' [ cfg ] = setMachineAxisInConfig( cfg, cfg.maskTot );
     r.maskTot.size[0] = 1;
     r.maskTot.size[1] = 6;
     for (int i{0}; i < 6; i++) {
@@ -208,11 +218,14 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     r.at_0 = 0.0;
     r.v_1 = 0.0;
     r.at_1 = 0.0;
-    r.dt = 0.01;
+    r.dt = 0.001;
     r.ZeroStartAccLimit = 0.01;
     r.ZeroStartJerkLimit = 1.0E+6;
     r.ZeroStartVelLimit = 0.5;
-    std::memset(&r.source[0], 0, 1024U * sizeof(char));
+    r.source.set_size(1, 1024);
+    for (int i3{0}; i3 < 1024; i3++) {
+        r.source[i3] = '\x00';
+    }
     r.DebugCutZero = false;
     r.Cusp.Skip = false;
     r.Cusp.CuspThreshold = 45.0;
@@ -233,54 +246,54 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     r.opt.VEL_RAMP_OVER_WINDOWS = 0.999;
     r.opt.SLACK_PENALTY = 10000.0;
     r.opt.USE_LINPROG = false;
-    for (int i3{0}; i3 < 9; i3++) {
-        r.LogFileName[i3] = b_cv1[i3];
+    for (int i4{0}; i4 < 9; i4++) {
+        r.LogFileName[i4] = b_cv1[i4];
     }
     b_setMachineAxisInConfig(&r, bv);
     cfg->maskTot.size[0] = 1;
     cfg->maskTot.size[1] = r.maskTot.size[1];
     loop_ub = r.maskTot.size[1];
-    if (0 <= loop_ub - 1) {
+    if (loop_ub - 1 >= 0) {
         std::copy(&r.maskTot.data[0], &r.maskTot.data[loop_ub], &cfg->maskTot.data[0]);
     }
     cfg->maskCart.size[0] = 1;
     cfg->maskCart.size[1] = r.maskCart.size[1];
     b_loop_ub = r.maskCart.size[1];
-    if (0 <= b_loop_ub - 1) {
+    if (b_loop_ub - 1 >= 0) {
         std::copy(&r.maskCart.data[0], &r.maskCart.data[b_loop_ub], &cfg->maskCart.data[0]);
     }
     cfg->maskRot.size[0] = 1;
     cfg->maskRot.size[1] = r.maskRot.size[1];
     c_loop_ub = r.maskRot.size[1];
-    if (0 <= c_loop_ub - 1) {
+    if (c_loop_ub - 1 >= 0) {
         std::copy(&r.maskRot.data[0], &r.maskRot.data[c_loop_ub], &cfg->maskRot.data[0]);
     }
     cfg->indCart.size[0] = r.indCart.size(0);
     d_loop_ub = r.indCart.size(0);
-    for (int i4{0}; i4 < d_loop_ub; i4++) {
-        cfg->indCart.data[i4] = r.indCart[i4];
+    for (int i5{0}; i5 < d_loop_ub; i5++) {
+        cfg->indCart.data[i5] = r.indCart[i5];
     }
     cfg->indRot.size[0] = r.indRot.size(0);
     e_loop_ub = r.indRot.size(0);
-    for (int i5{0}; i5 < e_loop_ub; i5++) {
-        cfg->indRot.data[i5] = r.indRot[i5];
+    for (int i6{0}; i6 < e_loop_ub; i6++) {
+        cfg->indRot.data[i6] = r.indRot[i6];
     }
     cfg->NumberAxis = r.NumberAxis;
     cfg->NCart = r.NCart;
     cfg->NRot = r.NRot;
     cfg->D.size[0] = r.D.size(0);
     f_loop_ub = r.D.size(0);
-    for (int i6{0}; i6 < f_loop_ub; i6++) {
-        cfg->D.data[i6] = r.D[i6];
+    for (int i7{0}; i7 < f_loop_ub; i7++) {
+        cfg->D.data[i7] = r.D[i7];
     }
     cfg->coeffD = r.coeffD;
     cfg->kin_params.size[0] = r.kin_params.size[0];
     g_loop_ub = r.kin_params.size[0];
-    if (0 <= g_loop_ub - 1) {
+    if (g_loop_ub - 1 >= 0) {
         std::copy(&r.kin_params.data[0], &r.kin_params.data[g_loop_ub], &cfg->kin_params.data[0]);
     }
-    for (int i7{0}; i7 < 5; i7++) {
-        cfg->kin_type[i7] = r.kin_type[i7];
+    for (int i8{0}; i8 < 5; i8++) {
+        cfg->kin_type[i8] = r.kin_type[i8];
     }
     cfg->NDiscr = r.NDiscr;
     cfg->NBreak = r.NBreak;
@@ -290,10 +303,10 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     cfg->NHorz = r.NHorz;
     cfg->fmax = r.fmax;
     cfg->smax = r.smax;
-    for (int i8{0}; i8 < 6; i8++) {
-        cfg->vmax[i8] = r.vmax[i8];
-        cfg->amax[i8] = r.amax[i8];
-        cfg->jmax[i8] = r.jmax[i8];
+    for (int i9{0}; i9 < 6; i9++) {
+        cfg->vmax[i9] = r.vmax[i9];
+        cfg->amax[i9] = r.amax[i9];
+        cfg->jmax[i9] = r.jmax[i9];
     }
     cfg->LeeSplineDegree = r.LeeSplineDegree;
     cfg->SplineDegree = r.SplineDegree;
@@ -310,7 +323,12 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     cfg->ZeroStartAccLimit = r.ZeroStartAccLimit;
     cfg->ZeroStartJerkLimit = r.ZeroStartJerkLimit;
     cfg->ZeroStartVelLimit = r.ZeroStartVelLimit;
-    std::copy(&r.source[0], &r.source[1024], &cfg->source[0]);
+    cfg->source.size[0] = 1;
+    cfg->source.size[1] = r.source.size(1);
+    h_loop_ub = r.source.size(1);
+    for (int i10{0}; i10 < h_loop_ub; i10++) {
+        cfg->source.data[i10] = r.source[i10];
+    }
     cfg->DebugCutZero = r.DebugCutZero;
     cfg->Cusp = r.Cusp;
     cfg->Compressing = r.Compressing;
@@ -321,8 +339,8 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
         cfg->GaussLegendreW[c_i] = r.GaussLegendreW[c_i];
     }
     cfg->opt = r.opt;
-    for (int i9{0}; i9 < 9; i9++) {
-        cfg->LogFileName[i9] = r.LogFileName[i9];
+    for (int i11{0}; i11 < 9; i11++) {
+        cfg->LogFileName[i11] = r.LogFileName[i11];
     }
 }
 

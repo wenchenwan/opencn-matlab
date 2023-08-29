@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: vecnorm.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 // Include Files
@@ -35,7 +35,7 @@ void vecnorm(const ::coder::array<double, 2U> &x, ::coder::array<double, 2U> &y)
         y[i] = 0.0;
     }
     hi = x.size(1);
-    if (0 <= x.size(1) - 1) {
+    if (x.size(1) - 1 >= 0) {
         nx = x.size(0);
         outsize_idx_0 = x.size(0);
         b_loop_ub = x.size(0);

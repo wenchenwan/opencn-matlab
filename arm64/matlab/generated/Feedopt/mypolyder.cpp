@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: mypolyder.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 // Include Files
@@ -14,114 +14,113 @@
 
 // Function Definitions
 //
-// Arguments    : ::coder::array<double, 2U> &p5_2D
-//                const ::coder::array<double, 2U> &p5_1D
-//                const ::coder::array<signed char, 2U> &b
+// Arguments    : ::coder::array<double, 2U> &in1
+//                const ::coder::array<double, 2U> &in2
+//                const ::coder::array<signed char, 2U> &in3
 // Return Type  : void
 //
 namespace ocn {
-void b_binary_expand_op(::coder::array<double, 2U> &p5_2D, const ::coder::array<double, 2U> &p5_1D,
-                        const ::coder::array<signed char, 2U> &b)
+void b_binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
+                        const ::coder::array<signed char, 2U> &in3)
 {
     int i;
     int i1;
     int loop_ub;
     int stride_0_0;
     int stride_1_0;
-    i = p5_1D.size(0);
-    if (b.size(0) == 1) {
+    i = in2.size(0);
+    if (in3.size(0) == 1) {
         i1 = i;
     } else {
-        i1 = b.size(0);
+        i1 = in3.size(0);
     }
-    p5_2D.set_size(i1, 4);
+    in1.set_size(i1, 4);
     stride_0_0 = (i != 1);
-    stride_1_0 = (b.size(0) != 1);
-    if (b.size(0) == 1) {
+    stride_1_0 = (in3.size(0) != 1);
+    if (in3.size(0) == 1) {
         loop_ub = i;
     } else {
-        loop_ub = b.size(0);
+        loop_ub = in3.size(0);
     }
     for (int i2{0}; i2 < 4; i2++) {
         for (int i3{0}; i3 < loop_ub; i3++) {
-            p5_2D[i3 + p5_2D.size(0) * i2] =
-                p5_1D[i3 * stride_0_0 + p5_1D.size(0) * i2] *
-                static_cast<double>(b[i3 * stride_1_0 + b.size(0) * i2]);
+            in1[i3 + in1.size(0) * i2] =
+                in2[i3 * stride_0_0 + in2.size(0) * i2] *
+                static_cast<double>(in3[i3 * stride_1_0 + in3.size(0) * i2]);
         }
     }
 }
 
 //
-// Arguments    : ::coder::array<double, 2U> &p5_3D
-//                const ::coder::array<double, 2U> &p5_2D
-//                const ::coder::array<signed char, 2U> &b
+// Arguments    : ::coder::array<double, 2U> &in1
+//                const ::coder::array<double, 2U> &in2
+//                const ::coder::array<signed char, 2U> &in3
 // Return Type  : void
 //
-void binary_expand_op(::coder::array<double, 2U> &p5_3D, const ::coder::array<double, 2U> &p5_2D,
-                      const ::coder::array<signed char, 2U> &b)
+void binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
+                      const ::coder::array<signed char, 2U> &in3)
 {
     int i;
     int i1;
     int loop_ub;
     int stride_0_0;
     int stride_1_0;
-    i = p5_2D.size(0);
-    if (b.size(0) == 1) {
+    i = in2.size(0);
+    if (in3.size(0) == 1) {
         i1 = i;
     } else {
-        i1 = b.size(0);
+        i1 = in3.size(0);
     }
-    p5_3D.set_size(i1, 3);
+    in1.set_size(i1, 3);
     stride_0_0 = (i != 1);
-    stride_1_0 = (b.size(0) != 1);
-    if (b.size(0) == 1) {
+    stride_1_0 = (in3.size(0) != 1);
+    if (in3.size(0) == 1) {
         loop_ub = i;
     } else {
-        loop_ub = b.size(0);
+        loop_ub = in3.size(0);
     }
     for (int i2{0}; i2 < 3; i2++) {
         for (int i3{0}; i3 < loop_ub; i3++) {
-            p5_3D[i3 + p5_3D.size(0) * i2] =
-                p5_2D[i3 * stride_0_0 + p5_2D.size(0) * i2] *
-                static_cast<double>(b[i3 * stride_1_0 + b.size(0) * i2]);
+            in1[i3 + in1.size(0) * i2] =
+                in2[i3 * stride_0_0 + in2.size(0) * i2] *
+                static_cast<double>(in3[i3 * stride_1_0 + in3.size(0) * i2]);
         }
     }
 }
 
 //
-// Arguments    : ::coder::array<double, 2U> &p5_1D
-//                const ::coder::array<double, 2U> &CurvStruct_CoeffP5
-//                const ::coder::array<signed char, 2U> &b
+// Arguments    : ::coder::array<double, 2U> &in1
+//                const ::coder::array<double, 2U> &in2
+//                const ::coder::array<signed char, 2U> &in3
 // Return Type  : void
 //
-void c_binary_expand_op(::coder::array<double, 2U> &p5_1D,
-                        const ::coder::array<double, 2U> &CurvStruct_CoeffP5,
-                        const ::coder::array<signed char, 2U> &b)
+void c_binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
+                        const ::coder::array<signed char, 2U> &in3)
 {
     int i;
     int i1;
     int loop_ub;
     int stride_0_0;
     int stride_1_0;
-    i = CurvStruct_CoeffP5.size(0);
-    if (b.size(0) == 1) {
+    i = in2.size(0);
+    if (in3.size(0) == 1) {
         i1 = i;
     } else {
-        i1 = b.size(0);
+        i1 = in3.size(0);
     }
-    p5_1D.set_size(i1, 5);
+    in1.set_size(i1, 5);
     stride_0_0 = (i != 1);
-    stride_1_0 = (b.size(0) != 1);
-    if (b.size(0) == 1) {
+    stride_1_0 = (in3.size(0) != 1);
+    if (in3.size(0) == 1) {
         loop_ub = i;
     } else {
-        loop_ub = b.size(0);
+        loop_ub = in3.size(0);
     }
     for (int i2{0}; i2 < 5; i2++) {
         for (int i3{0}; i3 < loop_ub; i3++) {
-            p5_1D[i3 + p5_1D.size(0) * i2] =
-                CurvStruct_CoeffP5[i3 * stride_0_0 + CurvStruct_CoeffP5.size(0) * i2] *
-                static_cast<double>(b[i3 * stride_1_0 + b.size(0) * i2]);
+            in1[i3 + in1.size(0) * i2] =
+                in2[i3 * stride_0_0 + in2.size(0) * i2] *
+                static_cast<double>(in3[i3 * stride_1_0 + in3.size(0) * i2]);
         }
     }
 }

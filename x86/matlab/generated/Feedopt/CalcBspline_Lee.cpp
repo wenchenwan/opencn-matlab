@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: CalcBspline_Lee.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 // Include Files
@@ -14,8 +14,8 @@
 #include "opencn_matlab_types3.h"
 #include "sum.h"
 #include "tridiag.h"
+#include "c_spline.h"
 #include "coder_array.h"
-#include "src/c_spline.h"
 #include <cmath>
 #include <emmintrin.h>
 
@@ -78,7 +78,6 @@ void CalcBspline_Lee(int cfg_NumberAxis, int cfg_LeeSplineDegree,
     BaseSplineStruct expl_temp;
     double b_u;
     double w;
-    unsigned long h;
     int b_A;
     int b_B;
     int b_input_sizes_idx_0;
@@ -104,7 +103,6 @@ void CalcBspline_Lee(int cfg_NumberAxis, int cfg_LeeSplineDegree,
     int i36;
     int i42;
     int i43;
-    int i9;
     int i_loop_ub;
     int input_sizes_idx_0_tmp;
     int j_loop_ub;
@@ -233,12 +231,12 @@ void CalcBspline_Lee(int cfg_NumberAxis, int cfg_LeeSplineDegree,
     i_loop_ub = u.size(1);
     scalarLB = (u.size(1) / 2) << 1;
     vectorUB = scalarLB - 2;
-    for (i9 = 0; i9 <= vectorUB; i9 += 2) {
+    for (int i9{0}; i9 <= vectorUB; i9 += 2) {
         __m128d r3;
         r3 = _mm_loadu_pd(&u[i9]);
         _mm_storeu_pd(&u[i9], _mm_div_pd(r3, _mm_set1_pd(b_u)));
     }
-    for (i9 = scalarLB; i9 < i_loop_ub; i9++) {
+    for (int i9{scalarLB}; i9 < i_loop_ub; i9++) {
         u[i9] = u[i9] / b_u;
     }
     //  normalize knots to interval [0...1]
@@ -256,22 +254,25 @@ void CalcBspline_Lee(int cfg_NumberAxis, int cfg_LeeSplineDegree,
         spnD_knots[((i12 + cfg_LeeSplineDegree) + u.size(1)) - 1] = 1.0;
     }
     // 'CalcBspline_Lee:21' Bl = bspline_create( cfg.LeeSplineDegree, u );
-    // 'bspline_create:2' if coder.target('rtw') || coder.target('mex')
+    // 'bspline_create:2' if  coder.target('rtw') || coder.target('mex')
     // 'bspline_create:3' nbreak = length(breakpoints);
     // 'bspline_create:4' ncoeff = nbreak + degree - 2;
     // 'bspline_create:5' h = uint64(0);
-    // 'bspline_create:7' coder.updateBuildInfo('addSourceFiles','c_spline.c', '$(START_DIR)/src');
-    // 'bspline_create:8' coder.updateBuildInfo('addLinkFlags', LibInfo.gsl.lflags);
-    // 'bspline_create:9' coder.cinclude('src/c_spline.h');
-    // 'bspline_create:10' coder.ceval('c_bspline_create_with_breakpoints', coder.wref(h), degree,
+    // 'bspline_create:6' my_path = StructTypeName.WDIR + "/src";
+    // 'bspline_create:7' coder.updateBuildInfo('addIncludePaths',my_path);
+    // 'bspline_create:8' coder.updateBuildInfo('addSourceFiles','c_spline.c', my_path);
+    // 'bspline_create:9' coder.updateBuildInfo('addLinkFlags', LibInfo.gsl.lflags);
+    // 'bspline_create:10' coder.cinclude('c_spline.h');
+    // 'bspline_create:11' coder.ceval('c_bspline_create_with_breakpoints', coder.wref(h), degree,
     // breakpoints, int32(nbreak) );
     breakpoints.set_size(1, u.size(1));
     k_loop_ub = u.size(1);
     for (int i13{0}; i13 < k_loop_ub; i13++) {
         breakpoints[i13] = u[i13];
     }
+    unsigned long h;
     c_bspline_create_with_breakpoints(&h, cfg_LeeSplineDegree, &breakpoints[0], u.size(1));
-    // 'bspline_create:11' Bl = constrBaseSpline( ncoeff, breakpoints, h, int32(degree) );
+    // 'bspline_create:12' Bl = constrBaseSpline( ncoeff, breakpoints, h, int32(degree) );
     constrBaseSpline((u.size(1) + cfg_LeeSplineDegree) - 2, u, h, cfg_LeeSplineDegree, &expl_temp);
     // 'CalcBspline_Lee:23' [ BasisVal, BasisValDD0, BasisValDD1 ] = bspline_eval_lee( Bl, int32(
     // nCoeff ), u );
@@ -298,13 +299,15 @@ void CalcBspline_Lee(int cfg_NumberAxis, int cfg_LeeSplineDegree,
         BasisValDD0[i16] = 0.0;
         BasisValDD1[i16] = 0.0;
     }
-    // 'bspline_eval_lee:13' coder.updateBuildInfo('addSourceFiles','c_spline.c',
-    // '$(START_DIR)/src'); 'bspline_eval_lee:14' coder.updateBuildInfo('addLinkFlags',
-    // LibInfo.gsl.lflags); 'bspline_eval_lee:15' coder.cinclude('src/c_spline.h');
-    // 'bspline_eval_lee:16' coder.ceval('c_bspline_base_eval_lee', coder.rref(Bl.handle), ...
-    // 'bspline_eval_lee:17'             int32( nCoeff ), int32( N ), coder.rref( u_vec ), ...
-    // 'bspline_eval_lee:18'             coder.wref( BasisVal ), coder.wref( BasisValDD0 ), ...
-    // 'bspline_eval_lee:19'             coder.wref( BasisValDD1 ) );
+    // 'bspline_eval_lee:13' my_path = StructTypeName.WDIR + "/src";
+    // 'bspline_eval_lee:14' coder.updateBuildInfo('addIncludePaths',my_path);
+    // 'bspline_eval_lee:15' coder.updateBuildInfo('addSourceFiles','c_spline.c', my_path);
+    // 'bspline_eval_lee:16' coder.updateBuildInfo('addLinkFlags', LibInfo.gsl.lflags);
+    // 'bspline_eval_lee:17' coder.cinclude('c_spline.h');
+    // 'bspline_eval_lee:19' coder.ceval('c_bspline_base_eval_lee', coder.rref(Bl.handle), ...
+    // 'bspline_eval_lee:20'             int32( nCoeff ), int32( N ), coder.rref( u_vec ), ...
+    // 'bspline_eval_lee:21'             coder.wref( BasisVal ), coder.wref( BasisValDD0 ), ...
+    // 'bspline_eval_lee:22'             coder.wref( BasisValDD1 ) );
     c_bspline_base_eval_lee(&expl_temp.handle, points.size(1) + 2, u.size(1), &u[0], &BasisVal[0],
                             &BasisValDD0[0], &BasisValDD1[0]);
     //
@@ -472,13 +475,13 @@ void CalcBspline_Lee(int cfg_NumberAxis, int cfg_LeeSplineDegree,
         v_m[b_k] = A[b_k + A.size(0) * b_k];
     }
     // 'CalcBspline_Lee:56' v_l = [ 0; diag( A, -1 ) ];
-    if (1 > A.size(0)) {
+    if (A.size(0) < 1) {
         b_d.set_size(0);
     } else {
         int b_dlen;
         int b_i;
         int i34;
-        if (1 < A.size(0)) {
+        if (A.size(0) > 1) {
             int b_u1;
             int c_u0;
             c_u0 = A.size(0) - 1;

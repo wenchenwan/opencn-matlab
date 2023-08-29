@@ -4,14 +4,15 @@
 // government, commercial, or other organizational use.
 // File: buildConstrJerk.h
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 #ifndef BUILDCONSTRJERK_H
 #define BUILDCONSTRJERK_H
 
 // Include Files
+#include "opencn_matlab_types1.h"
 #include "rtwtypes.h"
 #include "coder_array.h"
 #include <cstddef>
@@ -25,8 +26,6 @@ class queue_coder;
 
 class Kinematics;
 
-struct CurvStruct;
-
 } // namespace ocn
 
 // Function Declarations
@@ -37,7 +36,7 @@ void buildConstrJerk(
     const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
     const int ctx_cfg_maskRot_size[2], const ::coder::array<int, 1U> &ctx_cfg_indCart,
     const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis, int ctx_cfg_NCart,
-    int ctx_cfg_NRot, const Kinematics *ctx_kin, const ::coder::array<CurvStruct, 2U> &windowCurv,
+    int ctx_cfg_NRot, Kinematics *ctx_kin, const ::coder::array<CurvStruct, 2U> &windowCurv,
     const ::coder::array<double, 2U> &coeff, const double jmax[6],
     const ::coder::array<double, 2U> &BasisVal, const ::coder::array<double, 2U> &BasisValD,
     const ::coder::array<double, 2U> &BasisValDD, const ::coder::array<double, 2U> &u_vec,

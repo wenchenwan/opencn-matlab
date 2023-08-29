@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: calcTransition.h
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 #ifndef CALCTRANSITION_H
@@ -43,8 +43,8 @@ void calcTransition(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_
                     const CurvStruct *curv1, const CurvStruct *curv2, TransitionResult *status,
                     CurvStruct *curv1C, CurvStruct *curv2C, CurvStruct *curvT);
 
-void minus(::coder::array<double, 1U> &x, const ::coder::array<double, 1U> &r11,
-           const ::coder::array<double, 1U> &r21);
+void minus(::coder::array<double, 1U> &in1, const ::coder::array<double, 1U> &in2,
+           const ::coder::array<double, 1U> &in3);
 
 } // namespace ocn
 

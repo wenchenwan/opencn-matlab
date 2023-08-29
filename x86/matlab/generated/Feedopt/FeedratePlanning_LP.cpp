@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: FeedratePlanning_LP.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 // Include Files
@@ -26,6 +26,7 @@
 #include "sum.h"
 #include "unsafeSxfun.h"
 #include "coder_array.h"
+#include "coder_bounded_array.h"
 #include <cmath>
 #include <emmintrin.h>
 
@@ -119,7 +120,7 @@ static void add_slack(const ::coder::array<double, 2U> &f, const ::coder::array<
     }
     // 'FeedratePlanning_LP:138' bpos = -1E-3 * ones( nAc -4 , 1);
     // 'FeedratePlanning_LP:139' Apos( : , 3 : end-3  ) = -eye( nAc -4  );
-    if (3 > A.size(1) - 2) {
+    if (A.size(1) - 2 < 3) {
         i2 = 0;
     } else {
         i2 = 2;
@@ -213,8 +214,12 @@ static void add_slack(const ::coder::array<double, 2U> &f, const ::coder::array<
     } else {
         b_input_sizes_idx_0 = 0;
     }
-    i13 = input_sizes_idx_0 + b_input_sizes_idx_0;
-    ASlack.set_size(i13 + 1, sizes_idx_1);
+    if ((b_result.size(0) != 0) && (b_result.size(1) != 0)) {
+        i13 = b_result.size(0);
+    } else {
+        i13 = 0;
+    }
+    ASlack.set_size((input_sizes_idx_0 + i13) + 1, sizes_idx_1);
     for (int i14{0}; i14 < sizes_idx_1; i14++) {
         for (int i16{0}; i16 < input_sizes_idx_0; i16++) {
             ASlack[i16 + ASlack.size(0) * i14] = Apos[i16 + input_sizes_idx_0 * i14];
@@ -227,7 +232,7 @@ static void add_slack(const ::coder::array<double, 2U> &f, const ::coder::array<
         }
     }
     for (int i17{0}; i17 < sizes_idx_1; i17++) {
-        ASlack[i13 + ASlack.size(0) * i17] = varargin_3[i17];
+        ASlack[(input_sizes_idx_0 + b_input_sizes_idx_0) + ASlack.size(0) * i17] = varargin_3[i17];
     }
     // 'FeedratePlanning_LP:145' bSlack      = [ bpos; b ; 0 ];
     bSlack.set_size((b.size(0) + A.size(1)) - 3);
@@ -342,7 +347,7 @@ static void add_slack(const ::coder::array<double, 2U> &f, const ::coder::array<
     }
     // 'FeedratePlanning_LP:138' bpos = -1E-3 * ones( nAc -4 , 1);
     // 'FeedratePlanning_LP:139' Apos( : , 3 : end-3  ) = -eye( nAc -4  );
-    if (3 > A.size(1) - 2) {
+    if (A.size(1) - 2 < 3) {
         i2 = 0;
     } else {
         i2 = 2;
@@ -450,8 +455,12 @@ static void add_slack(const ::coder::array<double, 2U> &f, const ::coder::array<
     } else {
         b_input_sizes_idx_0 = 0;
     }
-    i16 = input_sizes_idx_0 + b_input_sizes_idx_0;
-    ASlack.set_size(i16 + 1, sizes_idx_1);
+    if ((b_result.size(0) != 0) && (b_result.size(1) != 0)) {
+        i16 = b_result.size(0);
+    } else {
+        i16 = 0;
+    }
+    ASlack.set_size((input_sizes_idx_0 + i16) + 1, sizes_idx_1);
     for (int i17{0}; i17 < sizes_idx_1; i17++) {
         for (int i19{0}; i19 < input_sizes_idx_0; i19++) {
             ASlack[i19 + ASlack.size(0) * i17] = Apos[i19 + input_sizes_idx_0 * i17];
@@ -464,7 +473,7 @@ static void add_slack(const ::coder::array<double, 2U> &f, const ::coder::array<
         }
     }
     for (int i20{0}; i20 < sizes_idx_1; i20++) {
-        ASlack[i16 + ASlack.size(0) * i20] = varargin_3[i20];
+        ASlack[(input_sizes_idx_0 + b_input_sizes_idx_0) + ASlack.size(0) * i20] = varargin_3[i20];
     }
     // 'FeedratePlanning_LP:145' bSlack      = [ bpos; b ; 0 ];
     bSlack.set_size((b.size(0) + A.size(1)) - 3);
@@ -597,7 +606,7 @@ static void decrease_constjerk(const queue_coder *ctx_q_spline, const bool ctx_c
     // 'constJerkU:28' uddd    = pseudoJerk .* ones( size( k_vec ) );
     // 'constJerkU:29' udd     = pseudoJerk .* k_vec;
     // 'constJerkU:30' ud      = pseudoJerk .* k_vec .^2 / 2;
-    ud = pseudoJerk * std::pow(k_vec, 2.0) / 2.0;
+    ud = pseudoJerk * (k_vec * k_vec) / 2.0;
     // 'constJerkU:31' u       = pseudoJerk .* k_vec .^3 / 6;
     u = pseudoJerk * std::pow(k_vec, 3.0) / 6.0;
     // 'constJerkU:33' u( u > 1 ) = 1;
@@ -642,7 +651,7 @@ static void decrease_constjerk(const queue_coder *ctx_q_spline, const bool ctx_c
     // 'calcRVAJfromUWithoutCurv:18' R = r0D;
     // 'calcRVAJfromUWithoutCurv:19' V = r1D .* ud_vec;
     // 'calcRVAJfromUWithoutCurv:20' A = r2D .* ud_vec .^2 + r1D .* udd_vec;
-    y = std::pow(ud, 2.0);
+    y = ud * ud;
     // 'calcRVAJfromUWithoutCurv:21' J = r3D .* ud_vec .^3 + 3 * r2D .* ud_vec .* udd_vec + r1D .*
     // uddd_vec; 'calcZeroConstraints:27' [ vNorm, atNorm ]       = calcNormVNormAT( V, A, r1D );
     //  calcNormVNormAT : Compute the norm of velocity and the norm of tangential
@@ -739,6 +748,8 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
                          const ::coder::array<double, 2U> &u_vec, double NWindow,
                          ::coder::array<double, 2U> &Coeff, bool *success, int *status)
 {
+    Kinematics b_ctx;
+    Kinematics c_ctx;
     coder::sparse r1;
     coder::sparse r2;
     coder::sparse r3;
@@ -761,7 +772,7 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
     ::coder::array<double, 2U> varargin_2;
     ::coder::array<double, 1U> bSlack;
     ::coder::array<double, 1U> b_b;
-    ::coder::array<double, 1U> beq;
+    ::coder::array<double, 1U> beqSlack;
     ::coder::array<double, 1U> bj;
     ::coder::array<double, 1U> c_b;
     ::coder::array<double, 1U> fSlack;
@@ -805,7 +816,7 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
     // 'FeedratePlanning_LP:10' LP          = ctx.cfg.opt;
     //  Load parameters of the LP
     // 'FeedratePlanning_LP:11' CurvArray   = window( 1 : NWindow );
-    if (1.0 > NWindow) {
+    if (NWindow < 1.0) {
         loop_ub = 0;
     } else {
         loop_ub = static_cast<int>(NWindow);
@@ -831,18 +842,17 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
     b_loop_ub = b.size(1);
     for (int i1{0}; i1 < b_loop_ub; i1++) {
         int c_loop_ub;
-        int i2;
         int scalarLB;
         int vectorUB;
         c_loop_ub = b.size(0);
         scalarLB = (b.size(0) / 2) << 1;
         vectorUB = scalarLB - 2;
-        for (i2 = 0; i2 <= vectorUB; i2 += 2) {
+        for (int i2{0}; i2 <= vectorUB; i2 += 2) {
             __m128d r;
             r = _mm_loadu_pd(&b[i2 + b.size(0) * i1]);
             _mm_storeu_pd(&f[i2 + f.size(0) * i1], _mm_mul_pd(r, _mm_set1_pd(-1.0)));
         }
-        for (i2 = scalarLB; i2 < c_loop_ub; i2++) {
+        for (int i2{scalarLB}; i2 < c_loop_ub; i2++) {
             f[i2 + f.size(0) * i1] = -b[i2 + b.size(0) * i1];
         }
     }
@@ -855,12 +865,13 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
     for (int i3{0}; i3 < loop_ub; i3++) {
         b_window[i3] = window[i3];
     }
+    b_ctx = ctx->kin;
     buildConstr(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                 ctx->cfg.maskCart.data, ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
                 ctx->cfg.maskRot.size, ctx->cfg.indCart, ctx->cfg.indRot, ctx->cfg.NumberAxis,
                 ctx->cfg.NCart, ctx->cfg.NRot, ctx->cfg.vmax, ctx->cfg.opt.ACC_RAMP_OVER_WINDOWS,
-                ctx->cfg.opt.VEL_RAMP_OVER_WINDOWS, &ctx->kin, b_window, amax, ctx->v_0, ctx->at_0,
-                ctx->v_1, ctx->at_1, BasisVal, BasisValD, u_vec, A, b_b, Aeq, beq, continuity);
+                ctx->cfg.opt.VEL_RAMP_OVER_WINDOWS, &b_ctx, b_window, amax, ctx->v_0, ctx->at_0,
+                ctx->v_1, ctx->at_1, BasisVal, BasisValD, u_vec, A, b_b, Aeq, beqSlack, continuity);
     // 'FeedratePlanning_LP:23' indSlack =  [];
     // 1 : numel( b );
     // 'FeedratePlanning_LP:25' [ fSlack, ASlack, bSlack, AeqSlack, beqSlack ] = add_slack( f, ...
@@ -877,7 +888,7 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
     // 'FeedratePlanning_LP:72' [ Coeff0, success, status, msg ] = c_simplex( f, sparse( A ), b,
     // Aeq, ... 'FeedratePlanning_LP:73'     beq, ctx );
     coder::b_sparse(ASlack, &r1);
-    c_simplex(fSlack, &r1, bSlack, AeqSlack, beq, Coeff0, &b_success, &b_status);
+    c_simplex(fSlack, &r1, bSlack, AeqSlack, beqSlack, Coeff0, &b_success, &b_status);
     c_success = b_success;
     //  If optimization failed due with zero end constaints, decrease pseudo jerk
     // 'FeedratePlanning_LP:75' if( ~success && ( ctx.zero_end || ctx.zero_start ) )
@@ -910,13 +921,13 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
                 vNorm = b_vNorm;
                 atNorm = b_atNorm;
                 // 'FeedratePlanning_LP:85' beq( end-1 )   = -vNorm^2;
-                beq[beq.size(0) - 2] = -(b_vNorm * b_vNorm);
+                beqSlack[beqSlack.size(0) - 2] = -(b_vNorm * b_vNorm);
                 // 'FeedratePlanning_LP:86' beq( end )     = atNorm;
-                beq[beq.size(0) - 1] = b_atNorm;
+                beqSlack[beqSlack.size(0) - 1] = b_atNorm;
                 // 'FeedratePlanning_LP:87' [ Coeff0, success, status, msg ] = c_simplex( f, sparse(
                 // A ), b, ... 'FeedratePlanning_LP:88'                 Aeq, beq, ctx );
                 coder::b_sparse(ASlack, &r2);
-                c_simplex(fSlack, &r2, bSlack, AeqSlack, beq, Coeff0, &c_success, &c_status);
+                c_simplex(fSlack, &r2, bSlack, AeqSlack, beqSlack, Coeff0, &c_success, &c_status);
                 // 'FeedratePlanning_LP:89' count = count + 1;
                 count++;
             }
@@ -958,13 +969,13 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
                 vNorm = c_vNorm;
                 atNorm = c_atNorm;
                 // 'FeedratePlanning_LP:103' beq( 1 )   = vNorm^2;
-                beq[0] = c_vNorm * c_vNorm;
+                beqSlack[0] = c_vNorm * c_vNorm;
                 // 'FeedratePlanning_LP:104' beq( 2 )   = atNorm;
-                beq[1] = c_atNorm;
+                beqSlack[1] = c_atNorm;
                 // 'FeedratePlanning_LP:105' [ Coeff0, success, status, msg ] = c_simplex( f,
                 // sparse( A ), b, ... 'FeedratePlanning_LP:106'                 Aeq, beq, ctx );
                 coder::b_sparse(ASlack, &r3);
-                c_simplex(fSlack, &r3, bSlack, AeqSlack, beq, Coeff0, &c_success, &d_status);
+                c_simplex(fSlack, &r3, bSlack, AeqSlack, beqSlack, Coeff0, &c_success, &d_status);
                 // 'FeedratePlanning_LP:107' count = count + 1;
                 count++;
             }
@@ -983,7 +994,7 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
         int d_loop_ub;
         // 'FeedratePlanning_LP:123' else
         // 'FeedratePlanning_LP:124' Coeff   = reshape( Coeff0( 1 : end -1 ), N, NWindow );
-        if (1 > Coeff0.size(0) - 1) {
+        if (Coeff0.size(0) - 1 < 1) {
             d_loop_ub = 0;
         } else {
             d_loop_ub = Coeff0.size(0) - 1;
@@ -1015,10 +1026,11 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
     for (int i6{0}; i6 < loop_ub; i6++) {
         b_window[i6] = window[i6];
     }
+    c_ctx = ctx->kin;
     buildConstrJerk(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                     ctx->cfg.maskCart.data, ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
                     ctx->cfg.maskRot.size, ctx->cfg.indCart, ctx->cfg.indRot, ctx->cfg.NumberAxis,
-                    ctx->cfg.NCart, ctx->cfg.NRot, &ctx->kin, b_window, b_Coeff, jmax, BasisVal,
+                    ctx->cfg.NCart, ctx->cfg.NRot, &c_ctx, b_window, b_Coeff, jmax, BasisVal,
                     BasisValD, BasisValDD, u_vec, Aj, bj);
     // 'FeedratePlanning_LP:41' Atot = [ A; Aj ];
     if ((A.size(0) != 0) && (A.size(1) != 0)) {
@@ -1101,7 +1113,7 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
     // 'FeedratePlanning_LP:72' [ Coeff0, success, status, msg ] = c_simplex( f, sparse( A ), b,
     // Aeq, ... 'FeedratePlanning_LP:73'     beq, ctx );
     coder::b_sparse(ASlack, &r4);
-    c_simplex(fSlack, &r4, bSlack, AeqSlack, beq, Coeff0, &d_success, &e_status);
+    c_simplex(fSlack, &r4, bSlack, AeqSlack, beqSlack, Coeff0, &d_success, &e_status);
     e_success = d_success;
     //  If optimization failed due with zero end constaints, decrease pseudo jerk
     // 'FeedratePlanning_LP:75' if( ~success && ( ctx.zero_end || ctx.zero_start ) )
@@ -1134,13 +1146,13 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
                 d_vNorm = e_vNorm;
                 d_atNorm = e_atNorm;
                 // 'FeedratePlanning_LP:85' beq( end-1 )   = -vNorm^2;
-                beq[beq.size(0) - 2] = -(e_vNorm * e_vNorm);
+                beqSlack[beqSlack.size(0) - 2] = -(e_vNorm * e_vNorm);
                 // 'FeedratePlanning_LP:86' beq( end )     = atNorm;
-                beq[beq.size(0) - 1] = e_atNorm;
+                beqSlack[beqSlack.size(0) - 1] = e_atNorm;
                 // 'FeedratePlanning_LP:87' [ Coeff0, success, status, msg ] = c_simplex( f, sparse(
                 // A ), b, ... 'FeedratePlanning_LP:88'                 Aeq, beq, ctx );
                 coder::b_sparse(ASlack, &r7);
-                c_simplex(fSlack, &r7, bSlack, AeqSlack, beq, Coeff0, &e_success, &e_status);
+                c_simplex(fSlack, &r7, bSlack, AeqSlack, beqSlack, Coeff0, &e_success, &e_status);
                 // 'FeedratePlanning_LP:89' count = count + 1;
                 b_count++;
             }
@@ -1182,13 +1194,13 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
                 d_vNorm = f_vNorm;
                 d_atNorm = f_atNorm;
                 // 'FeedratePlanning_LP:103' beq( 1 )   = vNorm^2;
-                beq[0] = f_vNorm * f_vNorm;
+                beqSlack[0] = f_vNorm * f_vNorm;
                 // 'FeedratePlanning_LP:104' beq( 2 )   = atNorm;
-                beq[1] = f_atNorm;
+                beqSlack[1] = f_atNorm;
                 // 'FeedratePlanning_LP:105' [ Coeff0, success, status, msg ] = c_simplex( f,
                 // sparse( A ), b, ... 'FeedratePlanning_LP:106'                 Aeq, beq, ctx );
                 coder::b_sparse(ASlack, &r8);
-                c_simplex(fSlack, &r8, bSlack, AeqSlack, beq, Coeff0, &e_success, &e_status);
+                c_simplex(fSlack, &r8, bSlack, AeqSlack, beqSlack, Coeff0, &e_success, &e_status);
                 // 'FeedratePlanning_LP:107' count = count + 1;
                 b_count++;
             }
@@ -1207,7 +1219,7 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
         int i_loop_ub;
         // 'FeedratePlanning_LP:123' else
         // 'FeedratePlanning_LP:124' Coeff   = reshape( Coeff0( 1 : end -1 ), N, NWindow );
-        if (1 > Coeff0.size(0) - 1) {
+        if (Coeff0.size(0) - 1 < 1) {
             i_loop_ub = 0;
         } else {
             i_loop_ub = Coeff0.size(0) - 1;

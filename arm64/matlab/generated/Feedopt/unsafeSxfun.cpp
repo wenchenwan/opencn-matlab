@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: unsafeSxfun.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 // Include Files
@@ -15,49 +15,49 @@
 
 // Function Definitions
 //
-// Arguments    : ::coder::array<double, 1U> &r
-//                const ::coder::array<double, 1U> &r2D
-//                double y
-//                const ::coder::array<double, 1U> &r1D
-//                double udd
-//                double n
+// Arguments    : ::coder::array<double, 1U> &in1
+//                const ::coder::array<double, 1U> &in3
+//                double in4
+//                const ::coder::array<double, 1U> &in5
+//                double in6
+//                double in7
 // Return Type  : void
 //
 namespace ocn {
-void binary_expand_op(::coder::array<double, 1U> &r, const ::coder::array<double, 1U> &r2D,
-                      double y, const ::coder::array<double, 1U> &r1D, double udd, double n)
+void binary_expand_op(::coder::array<double, 1U> &in1, const ::coder::array<double, 1U> &in3,
+                      double in4, const ::coder::array<double, 1U> &in5, double in6, double in7)
 {
-    ::coder::array<double, 1U> b_r2D;
+    ::coder::array<double, 1U> b_in3;
     int b_loop_ub;
     int i;
     int loop_ub;
     int stride_0_0;
     int stride_1_0;
     int stride_2_0;
-    if (r1D.size(0) == 1) {
-        i = r2D.size(0);
+    if (in5.size(0) == 1) {
+        i = in3.size(0);
     } else {
-        i = r1D.size(0);
+        i = in5.size(0);
     }
-    b_r2D.set_size(i);
-    stride_0_0 = (r2D.size(0) != 1);
-    stride_1_0 = (r1D.size(0) != 1);
-    stride_2_0 = (r1D.size(0) != 1);
-    if (r1D.size(0) == 1) {
-        loop_ub = r2D.size(0);
+    b_in3.set_size(i);
+    stride_0_0 = (in3.size(0) != 1);
+    stride_1_0 = (in5.size(0) != 1);
+    stride_2_0 = (in5.size(0) != 1);
+    if (in5.size(0) == 1) {
+        loop_ub = in3.size(0);
     } else {
-        loop_ub = r1D.size(0);
+        loop_ub = in5.size(0);
     }
     for (int i1{0}; i1 < loop_ub; i1++) {
-        b_r2D[i1] =
-            (r2D[i1 * stride_0_0] * y + r1D[i1 * stride_1_0] * udd) * (r1D[i1 * stride_2_0] / n);
+        b_in3[i1] = (in3[i1 * stride_0_0] * in4 + in5[i1 * stride_1_0] * in6) *
+                    (in5[i1 * stride_2_0] / in7);
     }
-    r.set_size(b_r2D.size(0));
-    b_loop_ub = b_r2D.size(0);
+    in1.set_size(b_in3.size(0));
+    b_loop_ub = b_in3.size(0);
     for (int i2{0}; i2 < b_loop_ub; i2++) {
         double varargin_1;
-        varargin_1 = b_r2D[i2];
-        r[i2] = std::pow(varargin_1, 2.0);
+        varargin_1 = b_in3[i2];
+        in1[i2] = std::pow(varargin_1, 2.0);
     }
 }
 

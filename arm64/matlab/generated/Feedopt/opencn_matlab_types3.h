@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: opencn_matlab_types3.h
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 #ifndef OPENCN_MATLAB_TYPES3_H
@@ -21,6 +21,18 @@
 #include "functions.h"
 // Type Definitions
 namespace ocn {
+struct Axes {
+    double x;
+    double y;
+    double z;
+    double a;
+    double b;
+    double c;
+    double u;
+    double v;
+    double w;
+};
+
 struct BaseSplineStruct {
     int ncoeff;
     ::coder::array<double, 2U> breakpoints;

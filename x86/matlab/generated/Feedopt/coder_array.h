@@ -1,4 +1,4 @@
-/* Copyright 2019 The Mathworks, Inc. */
+/* Copyright 2019-2021 The MathWorks, Inc. */
 /* Copied from
  * fullfile(matlabroot,'extern','include','coder','coder_array','coder_array_rtw_cpp11.h') */
 
@@ -498,6 +498,8 @@ class array_base {
         (void)std::copy(_sz, _sz + N, size_);
     }
 
+    array_base(array_base const&) = default;
+
     array_base& operator=(array_base const& _other) {
         data_.copy(_other.data_);
         (void)std::copy(_other.size_, _other.size_ + N, size_);
@@ -535,6 +537,10 @@ class array_base {
     }
 
   public:
+    void reserve(SZ _n) {
+        ensureCapacity(_n);
+    }
+
     template <typename... Dims>
     void set_size(Dims... dims) {
         coder::detail::match_dimensions<N == sizeof...(dims)>::check();

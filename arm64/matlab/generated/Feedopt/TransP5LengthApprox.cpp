@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: TransP5LengthApprox.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 // Include Files
@@ -199,7 +199,7 @@ double TransP5LengthApprox(const ::coder::array<double, 2U> &CurvStruct_CoeffP5)
                     Integrand[e_k] += y[(g_k + y.size(0) * e_k) - 1];
                 }
             }
-            if (2 <= nblocks) {
+            if (nblocks >= 2) {
                 xsubs_idx_1 = e_k + 1;
                 ysubs_idx_1 = static_cast<short>(e_k + 1);
             }

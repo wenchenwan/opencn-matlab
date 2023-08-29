@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: calcZeroConstraints.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 // Include Files
@@ -102,7 +102,7 @@ void calcZeroConstraints(const queue_coder *ctx_q_spline, const bool ctx_cfg_mas
     // 'constJerkU:29' udd     = pseudoJerk .* k_vec;
     udd = curv->ConstJerk * k_vec;
     // 'constJerkU:30' ud      = pseudoJerk .* k_vec .^2 / 2;
-    ud = curv->ConstJerk * std::pow(k_vec, 2.0) / 2.0;
+    ud = curv->ConstJerk * (k_vec * k_vec) / 2.0;
     // 'constJerkU:31' u       = pseudoJerk .* k_vec .^3 / 6;
     u = curv->ConstJerk * std::pow(k_vec, 3.0) / 6.0;
     // 'constJerkU:33' u( u > 1 ) = 1;
@@ -141,7 +141,7 @@ void calcZeroConstraints(const queue_coder *ctx_q_spline, const bool ctx_cfg_mas
     // 'calcRVAJfromUWithoutCurv:18' R = r0D;
     // 'calcRVAJfromUWithoutCurv:19' V = r1D .* ud_vec;
     // 'calcRVAJfromUWithoutCurv:20' A = r2D .* ud_vec .^2 + r1D .* udd_vec;
-    y = std::pow(ud, 2.0);
+    y = ud * ud;
     // 'calcRVAJfromUWithoutCurv:21' J = r3D .* ud_vec .^3 + 3 * r2D .* ud_vec .* udd_vec + r1D .*
     // uddd_vec; 'calcZeroConstraints:27' [ vNorm, atNorm ]       = calcNormVNormAT( V, A, r1D );
     //  calcNormVNormAT : Compute the norm of velocity and the norm of tangential

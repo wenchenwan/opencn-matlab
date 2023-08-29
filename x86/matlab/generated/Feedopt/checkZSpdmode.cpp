@@ -4,15 +4,15 @@
 // government, commercial, or other organizational use.
 // File: checkZSpdmode.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 // Include Files
 #include "checkZSpdmode.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_types1.h"
-#include "opencn_matlab_types2.h"
+#include "opencn_matlab_types21.h"
 #include "opencn_matlab_types3.h"
 #include "queue_coder.h"
 
@@ -56,9 +56,9 @@ bool checkZSpdmode(const queue_coder *queue)
             // 'isAZeroEnd:5' if( curv.Info.zspdmode == ZSpdMode.NZ || ...
             // 'isAZeroEnd:6'         curv.Info.zspdmode == ZSpdMode.ZZ )
             if ((((curv_Info_zspdmode == ZSpdMode_NZ) || (curv_Info_zspdmode == ZSpdMode_ZZ)) &&
-                 ((!(expl_temp.Info.zspdmode == ZSpdMode_ZN)) &&
-                  (!(expl_temp.Info.zspdmode == ZSpdMode_ZZ)))) ||
-                ((!(curv_Info_zspdmode == ZSpdMode_NZ)) && (!(curv_Info_zspdmode == ZSpdMode_ZZ)) &&
+                 ((expl_temp.Info.zspdmode != ZSpdMode_ZN) &&
+                  (expl_temp.Info.zspdmode != ZSpdMode_ZZ))) ||
+                ((curv_Info_zspdmode != ZSpdMode_NZ) && (curv_Info_zspdmode != ZSpdMode_ZZ) &&
                  ((expl_temp.Info.zspdmode == ZSpdMode_ZN) ||
                   (expl_temp.Info.zspdmode == ZSpdMode_ZZ)))) {
                 // 'isAZeroEnd:7' zeroFlag = true;

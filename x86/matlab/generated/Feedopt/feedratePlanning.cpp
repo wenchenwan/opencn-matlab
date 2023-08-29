@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: feedratePlanning.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 // Include Files
@@ -19,12 +19,14 @@
 #include "opencn_matlab_types.h"
 #include "opencn_matlab_types1.h"
 #include "opencn_matlab_types2.h"
+#include "opencn_matlab_types21.h"
 #include "opencn_matlab_types3.h"
 #include "paramsDefaultCurv.h"
 #include "queue_coder.h"
 #include "sum.h"
 #include "unsafeSxfun.h"
 #include "coder_array.h"
+#include "coder_bounded_array.h"
 #include <cmath>
 #include <stdio.h>
 
@@ -53,17 +55,15 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
     ::coder::array<CurvStruct, 2U> b_window;
     ::coder::array<CurvStruct, 2U> window;
     ::coder::array<double, 2U> Coeff;
-    ::coder::array<double, 2U> params_tmp_spline_Bl_breakpoints;
-    ::coder::array<double, 2U> params_tmp_spline_Lk;
-    ::coder::array<double, 2U> params_tmp_spline_coeff;
-    ::coder::array<double, 2U> params_tmp_spline_knots;
     ::coder::array<double, 1U> r;
     ::coder::array<double, 1U> r0D;
     ::coder::array<double, 1U> r1D;
     ::coder::array<double, 1U> r2D;
     ::coder::array<double, 1U> r3D;
+    Axes params_tmp_tool_offset;
     CurvStruct curv;
     CurvStruct opt_struct_tmp;
+    SplineStruct params_tmp_spline;
     double params_tmp_CoeffP5[6];
     double params_tmp_R0[6];
     double params_tmp_R1[6];
@@ -75,11 +75,13 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
     double expl_temp;
     double params_tmp_gcodeInfoStruct_FeedRate;
     double params_tmp_gcodeInfoStruct_SpindleSpeed;
-    double params_tmp_spline_Ltot;
-    unsigned long params_tmp_spline_Bl_handle;
+    double params_tmp_tool_backangle;
+    double params_tmp_tool_diameter;
+    double params_tmp_tool_frontangle;
     int params_tmp_gcodeInfoStruct_gcode_source_line;
-    int params_tmp_spline_Bl_ncoeff;
-    int params_tmp_spline_Bl_order;
+    int params_tmp_tool_orientation;
+    int params_tmp_tool_pocketno;
+    int params_tmp_tool_toolno;
     int status;
     bool b_optimized;
     bool b_quit;
@@ -101,26 +103,26 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
         &params_tmp_gcodeInfoStruct_TRAFO, &params_tmp_gcodeInfoStruct_HSC,
         &params_tmp_gcodeInfoStruct_FeedRate, &params_tmp_gcodeInfoStruct_SpindleSpeed,
         &params_tmp_gcodeInfoStruct_gcode_source_line, &params_tmp_gcodeInfoStruct_G91,
-        &params_tmp_gcodeInfoStruct_G91_1, &params_tmp_spline_Bl_ncoeff,
-        params_tmp_spline_Bl_breakpoints, &params_tmp_spline_Bl_handle, &params_tmp_spline_Bl_order,
-        params_tmp_spline_coeff, params_tmp_spline_knots, &params_tmp_spline_Ltot,
-        params_tmp_spline_Lk, params_tmp_R0, params_tmp_R1, params_tmp_Cprim, &expl_temp,
-        params_tmp_evec, &b_expl_temp, &c_expl_temp, params_tmp_CoeffP5, &d_expl_temp);
+        &params_tmp_gcodeInfoStruct_G91_1, &params_tmp_tool_toolno, &params_tmp_tool_pocketno,
+        &params_tmp_tool_offset, &params_tmp_tool_diameter, &params_tmp_tool_frontangle,
+        &params_tmp_tool_backangle, &params_tmp_tool_orientation, &params_tmp_spline, params_tmp_R0,
+        params_tmp_R1, params_tmp_Cprim, &expl_temp, params_tmp_evec, &b_expl_temp, &c_expl_temp,
+        params_tmp_CoeffP5, &d_expl_temp);
     // 'constrCurvStructType:10' if( coder.target( "MATLAB" ) )
     // 'constrCurvStructType:12' else
-    // 'constrCurvStructType:13' C = constrCurvStruct( params.gcodeInfoStruct, params.spline, ...
-    // 'constrCurvStructType:14'         params.R0, params.R1, ...
-    // 'constrCurvStructType:15'         params.Cprim, params.delta, params.evec, params.theta, ...
-    // 'constrCurvStructType:16'         params.pitch, params.CoeffP5, params.Coeff );
-    b_constrCurvStruct(params_tmp_gcodeInfoStruct_Type, params_tmp_gcodeInfoStruct_zspdmode,
-                       params_tmp_gcodeInfoStruct_TRAFO, params_tmp_gcodeInfoStruct_HSC,
-                       params_tmp_gcodeInfoStruct_FeedRate, params_tmp_gcodeInfoStruct_SpindleSpeed,
-                       params_tmp_gcodeInfoStruct_gcode_source_line, params_tmp_gcodeInfoStruct_G91,
-                       params_tmp_gcodeInfoStruct_G91_1, params_tmp_spline_Bl_ncoeff,
-                       params_tmp_spline_Bl_breakpoints, params_tmp_spline_Bl_handle,
-                       params_tmp_spline_Bl_order, params_tmp_spline_coeff, params_tmp_spline_knots,
-                       params_tmp_spline_Ltot, params_tmp_spline_Lk, params_tmp_R0, params_tmp_R1,
-                       params_tmp_Cprim, params_tmp_evec, params_tmp_CoeffP5, &opt_struct_tmp);
+    // 'constrCurvStructType:13' C = constrCurvStruct( params.gcodeInfoStruct, params.tool, ...
+    // 'constrCurvStructType:14'         params.spline, params.R0, params.R1, params.Cprim, ...
+    // 'constrCurvStructType:15'         params.delta, params.evec, params.theta, params.pitch, ...
+    // 'constrCurvStructType:16'         params.CoeffP5, params.Coeff );
+    b_constrCurvStruct(
+        params_tmp_gcodeInfoStruct_Type, params_tmp_gcodeInfoStruct_zspdmode,
+        params_tmp_gcodeInfoStruct_TRAFO, params_tmp_gcodeInfoStruct_HSC,
+        params_tmp_gcodeInfoStruct_FeedRate, params_tmp_gcodeInfoStruct_SpindleSpeed,
+        params_tmp_gcodeInfoStruct_gcode_source_line, params_tmp_gcodeInfoStruct_G91,
+        params_tmp_gcodeInfoStruct_G91_1, params_tmp_tool_toolno, params_tmp_tool_pocketno,
+        &params_tmp_tool_offset, params_tmp_tool_diameter, params_tmp_tool_frontangle,
+        params_tmp_tool_backangle, params_tmp_tool_orientation, &params_tmp_spline, params_tmp_R0,
+        params_tmp_R1, params_tmp_Cprim, params_tmp_evec, params_tmp_CoeffP5, &opt_struct_tmp);
     *opt_struct = opt_struct_tmp;
     //  Type of returned curvStruct
     // 'feedratePlanning:8' quit        = false;
@@ -188,9 +190,9 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                     // 'constrCurvStructType:10' if( coder.target( "MATLAB" ) )
                     // 'constrCurvStructType:12' else
                     // 'constrCurvStructType:13' C = constrCurvStruct( params.gcodeInfoStruct,
-                    // params.spline, ... 'constrCurvStructType:14'         params.R0, params.R1,
-                    // ... 'constrCurvStructType:15'         params.Cprim, params.delta,
-                    // params.evec, params.theta, ... 'constrCurvStructType:16' params.pitch,
+                    // params.tool, ... 'constrCurvStructType:14'         params.spline, params.R0,
+                    // params.R1, params.Cprim, ... 'constrCurvStructType:15'         params.delta,
+                    // params.evec, params.theta, params.pitch, ... 'constrCurvStructType:16'
                     // params.CoeffP5, params.Coeff );
                     outsize_idx_1_tmp = ctx->cfg.NHorz;
                     window.set_size(1, outsize_idx_1_tmp);
@@ -258,7 +260,7 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                         // 'feedratePlanning:36' ctx.zero_start  = true;
                         ctx->zero_start = true;
                         // 'feedratePlanning:37' window          = window( 2 : end );
-                        if (2 > window.size(1)) {
+                        if (window.size(1) < 2) {
                             i3 = 0;
                             i4 = 0;
                         } else {
@@ -377,7 +379,7 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                         // 'constJerkU:28' uddd    = pseudoJerk .* ones( size( k_vec ) );
                         // 'constJerkU:29' udd     = pseudoJerk .* k_vec;
                         // 'constJerkU:30' ud      = pseudoJerk .* k_vec .^2 / 2;
-                        ud = pseudoJerk * std::pow(k_vec, 2.0) / 2.0;
+                        ud = pseudoJerk * (k_vec * k_vec) / 2.0;
                         // 'constJerkU:31' u       = pseudoJerk .* k_vec .^3 / 6;
                         u = pseudoJerk * std::pow(k_vec, 3.0) / 6.0;
                         // 'constJerkU:33' u( u > 1 ) = 1;
@@ -427,7 +429,7 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                         // 'calcRVAJfromUWithoutCurv:18' R = r0D;
                         // 'calcRVAJfromUWithoutCurv:19' V = r1D .* ud_vec;
                         // 'calcRVAJfromUWithoutCurv:20' A = r2D .* ud_vec .^2 + r1D .* udd_vec;
-                        b_y = std::pow(ud, 2.0);
+                        b_y = ud * ud;
                         // 'calcRVAJfromUWithoutCurv:21' J = r3D .* ud_vec .^3 + 3 * r2D .* ud_vec
                         // .* udd_vec + r1D .* uddd_vec; 'calcZeroConstraints:27' [ vNorm, atNorm ]
                         // = calcNormVNormAT( V, A, r1D );

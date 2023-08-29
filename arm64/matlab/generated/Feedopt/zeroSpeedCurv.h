@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: zeroSpeedCurv.h
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 #ifndef ZEROSPEEDCURV_H
@@ -39,9 +39,8 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
                      const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
                      int ctx_cfg_NCart, int ctx_cfg_NRot, const double ctx_cfg_vmax[6],
                      const double ctx_cfg_amax[6], const double ctx_cfg_jmax[6], double ctx_cfg_dt,
-                     const Kinematics *ctx_kin, const CurvStruct *curv,
-                     ::coder::array<double, 2U> &u, ::coder::array<double, 2U> &ud,
-                     ::coder::array<double, 2U> &udd, double *jps);
+                     Kinematics *ctx_kin, const CurvStruct *curv, ::coder::array<double, 2U> &u,
+                     ::coder::array<double, 2U> &ud, ::coder::array<double, 2U> &udd, double *jps);
 
 void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
                    const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
@@ -51,7 +50,7 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
                    const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
                    int ctx_cfg_NCart, int ctx_cfg_NRot, const double ctx_cfg_vmax[6],
                    const double ctx_cfg_amax[6], const double ctx_cfg_jmax[6], double ctx_cfg_dt,
-                   const Kinematics *ctx_kin, const CurvStruct *curv, ::coder::array<double, 2U> &u,
+                   Kinematics *ctx_kin, const CurvStruct *curv, ::coder::array<double, 2U> &u,
                    ::coder::array<double, 2U> &ud, ::coder::array<double, 2U> &udd, double *jps);
 
 } // namespace ocn

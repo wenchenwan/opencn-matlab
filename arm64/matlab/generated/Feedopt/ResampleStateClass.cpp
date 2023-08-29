@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: ResampleStateClass.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 // Include Files
@@ -17,17 +17,13 @@
 // Return Type  : ResampleStateClass
 //
 namespace ocn {
-ResampleStateClass::ResampleStateClass()
-{
-}
+ResampleStateClass::ResampleStateClass() = default;
 
 //
 // Arguments    : void
 // Return Type  : void
 //
-ResampleStateClass::~ResampleStateClass()
-{
-}
+ResampleStateClass::~ResampleStateClass() = default;
 
 } // namespace ocn
 

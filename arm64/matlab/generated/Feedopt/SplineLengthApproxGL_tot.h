@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: SplineLengthApproxGL_tot.h
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 #ifndef SPLINELENGTHAPPROXGL_TOT_H
@@ -27,11 +27,11 @@ struct CurvStruct;
 
 // Function Declarations
 namespace ocn {
-void binary_expand_op(CurvStruct *spline, const ::coder::array<double, 2U> &y, int i4, int i5,
-                      int i6, int i7);
+void binary_expand_op(CurvStruct *in1, const ::coder::array<double, 2U> &in2, int in3, int in7,
+                      int in8, int in11);
 
-void c_binary_expand_op(::coder::array<double, 2U> &Umat, const ::coder::array<double, 2U> &c,
-                        const ::coder::array<double, 2U> &b_c);
+void c_binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
+                        const ::coder::array<double, 2U> &in3);
 
 } // namespace ocn
 

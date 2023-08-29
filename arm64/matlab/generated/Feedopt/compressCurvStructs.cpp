@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: compressCurvStructs.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 // Include Files
@@ -23,11 +23,13 @@
 #include "opencn_matlab_types.h"
 #include "opencn_matlab_types1.h"
 #include "opencn_matlab_types2.h"
+#include "opencn_matlab_types21.h"
 #include "opencn_matlab_types3.h"
 #include "paramsDefaultCurv.h"
 #include "queue_coder.h"
 #include "sum.h"
 #include "coder_array.h"
+#include "coder_bounded_array.h"
 #include <cmath>
 #include <stdio.h>
 
@@ -75,17 +77,15 @@ static void create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_m
     ::coder::array<double, 2U> b_c;
     ::coder::array<double, 2U> b_spline;
     ::coder::array<double, 2U> c;
-    ::coder::array<double, 2U> params_spline_Bl_breakpoints;
-    ::coder::array<double, 2U> params_spline_Lk;
-    ::coder::array<double, 2U> params_spline_coeff;
-    ::coder::array<double, 2U> params_spline_knots;
     ::coder::array<double, 2U> r;
     ::coder::array<double, 2U> r1;
     ::coder::array<double, 2U> r1D;
     ::coder::array<double, 2U> r1Dnorm;
     ::coder::array<double, 2U> r2;
     ::coder::array<double, 2U> r3;
-    ::coder::array<double, 2U> y;
+    ::coder::array<double, 2U> r4;
+    Axes params_tool_offset;
+    SplineStruct params_spline;
     double dv[6];
     double dv1[6];
     double params_CoeffP5[6];
@@ -103,39 +103,32 @@ static void create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_m
     double expl_temp;
     double params_gcodeInfoStruct_FeedRate;
     double params_gcodeInfoStruct_SpindleSpeed;
-    double params_spline_Ltot;
-    unsigned long params_spline_Bl_handle;
-    int b_bcoef;
-    int c_batch_pvec;
-    int c_loop_ub;
-    int csz_idx_1;
+    double params_tool_backangle;
+    double params_tool_diameter;
+    double params_tool_frontangle;
     int csz_idx_1_tmp;
-    int ctx_cfg_GaussLegendreN_idx_0;
+    int d_loop_ub;
     int e_loop_ub;
     int end;
-    int f_loop_ub;
-    int g_loop_ub;
-    int h_loop_ub;
     int i15;
     int i16;
     int i17;
     int i2;
-    int i22;
-    int i28;
+    int i21;
+    int i26;
     int i3;
     int i4;
     int i5;
     int i6;
     int i7;
-    int i_loop_ub;
-    int j_loop_ub;
     int loop_ub;
     int params_gcodeInfoStruct_gcode_source_line;
-    int params_spline_Bl_ncoeff;
-    int params_spline_Bl_order;
+    int params_tool_orientation;
+    int params_tool_pocketno;
+    int params_tool_toolno;
     int partialTrueCount;
     int trueCount;
-    unsigned int unnamed_idx_1;
+    int unnamed_idx_1;
     signed char tmp_data[6];
     bool b_b;
     bool params_gcodeInfoStruct_G91;
@@ -149,29 +142,29 @@ static void create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_m
     // 'constrCurvStructType:4' if( nargin > 0 )
     // 'constrCurvStructType:6' else
     // 'constrCurvStructType:7' [ params ] = paramsDefaultCurv;
-    paramsDefaultCurv(
-        &params_gcodeInfoStruct_Type, &params_gcodeInfoStruct_zspdmode,
-        &params_gcodeInfoStruct_TRAFO, &params_gcodeInfoStruct_HSC,
-        &params_gcodeInfoStruct_FeedRate, &params_gcodeInfoStruct_SpindleSpeed,
-        &params_gcodeInfoStruct_gcode_source_line, &params_gcodeInfoStruct_G91,
-        &params_gcodeInfoStruct_G91_1, &params_spline_Bl_ncoeff, params_spline_Bl_breakpoints,
-        &params_spline_Bl_handle, &params_spline_Bl_order, params_spline_coeff, params_spline_knots,
-        &params_spline_Ltot, params_spline_Lk, params_R0, params_R1, params_Cprim, &expl_temp,
-        params_evec, &b_expl_temp, &c_expl_temp, params_CoeffP5, &d_expl_temp);
+    paramsDefaultCurv(&params_gcodeInfoStruct_Type, &params_gcodeInfoStruct_zspdmode,
+                      &params_gcodeInfoStruct_TRAFO, &params_gcodeInfoStruct_HSC,
+                      &params_gcodeInfoStruct_FeedRate, &params_gcodeInfoStruct_SpindleSpeed,
+                      &params_gcodeInfoStruct_gcode_source_line, &params_gcodeInfoStruct_G91,
+                      &params_gcodeInfoStruct_G91_1, &params_tool_toolno, &params_tool_pocketno,
+                      &params_tool_offset, &params_tool_diameter, &params_tool_frontangle,
+                      &params_tool_backangle, &params_tool_orientation, &params_spline, params_R0,
+                      params_R1, params_Cprim, &expl_temp, params_evec, &b_expl_temp, &c_expl_temp,
+                      params_CoeffP5, &d_expl_temp);
     // 'constrCurvStructType:10' if( coder.target( "MATLAB" ) )
     // 'constrCurvStructType:12' else
-    // 'constrCurvStructType:13' C = constrCurvStruct( params.gcodeInfoStruct, params.spline, ...
-    // 'constrCurvStructType:14'         params.R0, params.R1, ...
-    // 'constrCurvStructType:15'         params.Cprim, params.delta, params.evec, params.theta, ...
-    // 'constrCurvStructType:16'         params.pitch, params.CoeffP5, params.Coeff );
-    b_constrCurvStruct(
-        params_gcodeInfoStruct_Type, params_gcodeInfoStruct_zspdmode, params_gcodeInfoStruct_TRAFO,
-        params_gcodeInfoStruct_HSC, params_gcodeInfoStruct_FeedRate,
-        params_gcodeInfoStruct_SpindleSpeed, params_gcodeInfoStruct_gcode_source_line,
-        params_gcodeInfoStruct_G91, params_gcodeInfoStruct_G91_1, params_spline_Bl_ncoeff,
-        params_spline_Bl_breakpoints, params_spline_Bl_handle, params_spline_Bl_order,
-        params_spline_coeff, params_spline_knots, params_spline_Ltot, params_spline_Lk, params_R0,
-        params_R1, params_Cprim, params_evec, params_CoeffP5, spline);
+    // 'constrCurvStructType:13' C = constrCurvStruct( params.gcodeInfoStruct, params.tool, ...
+    // 'constrCurvStructType:14'         params.spline, params.R0, params.R1, params.Cprim, ...
+    // 'constrCurvStructType:15'         params.delta, params.evec, params.theta, params.pitch, ...
+    // 'constrCurvStructType:16'         params.CoeffP5, params.Coeff );
+    b_constrCurvStruct(params_gcodeInfoStruct_Type, params_gcodeInfoStruct_zspdmode,
+                       params_gcodeInfoStruct_TRAFO, params_gcodeInfoStruct_HSC,
+                       params_gcodeInfoStruct_FeedRate, params_gcodeInfoStruct_SpindleSpeed,
+                       params_gcodeInfoStruct_gcode_source_line, params_gcodeInfoStruct_G91,
+                       params_gcodeInfoStruct_G91_1, params_tool_toolno, params_tool_pocketno,
+                       &params_tool_offset, params_tool_diameter, params_tool_frontangle,
+                       params_tool_backangle, params_tool_orientation, &params_spline, params_R0,
+                       params_R1, params_Cprim, params_evec, params_CoeffP5, spline);
     // 'compressCurvStructs:159' spline.Info.Type  = CurveType.Spline;
     spline->Info.Type = CurveType_Spline;
     // 'compressCurvStructs:160' spline.sp_index   = spline_index;
@@ -211,29 +204,29 @@ static void create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_m
     //  sp     = Spline.sp;
     // 'SplineLengthApproxGL_tot:11' sp     = Curv.sp;
     // 'SplineLengthApproxGL_tot:12' Knots  = sp.knots(4:end-3);
-    if (4 > spline->sp.knots.size(1) - 3) {
-        i2 = -1;
+    if (spline->sp.knots.size(1) - 3 < 4) {
+        i2 = 0;
         i3 = -1;
     } else {
-        i2 = 2;
+        i2 = 3;
         i3 = spline->sp.knots.size(1) - 4;
     }
     //  eliminate multiplicities at the end points
     // 'SplineLengthApproxGL_tot:13' a      = Knots(1:end-1);
     i4 = i3 - i2;
-    if (1 > i4 - 1) {
+    if (i4 < 1) {
         i5 = 0;
     } else {
-        i5 = (i3 - i2) - 1;
+        i5 = i3 - i2;
     }
     //  lower integration limits
     // 'SplineLengthApproxGL_tot:14' b      = Knots(2:end);
-    if (2 > i4) {
+    if (i4 + 1 < 2) {
         i6 = -1;
         i7 = -1;
     } else {
         i6 = 0;
-        i7 = (i3 - i2) - 1;
+        i7 = i4;
     }
     //  upper integration limits
     //  get Gauss-Legendre knots and weights
@@ -256,7 +249,7 @@ static void create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_m
             int varargin_2;
             varargin_2 = acoef * k;
             for (int b_k{0}; b_k < 5; b_k++) {
-                c[b_k + 5 * k] = spline->sp.knots[(i2 + varargin_2) + 1] * b[b_k];
+                c[b_k + 5 * k] = spline->sp.knots[i2 + varargin_2] * b[b_k];
             }
         }
     }
@@ -274,7 +267,7 @@ static void create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_m
             int i11;
             i11 = (i6 + b_acoef * c_k) + 1;
             for (int d_k{0}; d_k < 5; d_k++) {
-                b_c[d_k + 5 * c_k] = spline->sp.knots[(i2 + i11) + 1] * b[d_k];
+                b_c[d_k + 5 * c_k] = spline->sp.knots[i2 + i11] * b[d_k];
             }
         }
     }
@@ -308,14 +301,13 @@ static void create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_m
     // 'EvalBSpline:15' N  = length( u_vec );
     // 'EvalBSpline:16' M  = size( sp.coeff, 1 );
     // 'EvalBSpline:18' r0D = zeros( M, N );
-    unnamed_idx_1 = static_cast<unsigned int>(5 * Umat.size(1));
+    unnamed_idx_1 = 5 * Umat.size(1);
     // 'EvalBSpline:18' r1D = r0D;
-    r1D.set_size(spline->sp.coeff.size(0), static_cast<int>(unnamed_idx_1));
-    c_loop_ub = static_cast<int>(unnamed_idx_1);
-    for (int i13{0}; i13 < c_loop_ub; i13++) {
-        int d_loop_ub;
-        d_loop_ub = spline->sp.coeff.size(0);
-        for (int i14{0}; i14 < d_loop_ub; i14++) {
+    r1D.set_size(spline->sp.coeff.size(0), unnamed_idx_1);
+    for (int i13{0}; i13 < unnamed_idx_1; i13++) {
+        int c_loop_ub;
+        c_loop_ub = spline->sp.coeff.size(0);
+        for (int i14{0}; i14 < c_loop_ub; i14++) {
             r1D[i14 + r1D.size(0) * i13] = 0.0;
         }
     }
@@ -323,174 +315,185 @@ static void create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_m
     // 'EvalBSpline:18' r3D = r2D;
     // 'EvalBSpline:20' for j = 1 : M
     i15 = spline->sp.coeff.size(0);
-    if (0 <= i15 - 1) {
-        e_loop_ub = 5 * Umat.size(1);
-        f_loop_ub = 5 * Umat.size(1);
-        g_loop_ub = 5 * Umat.size(1);
-        h_loop_ub = 5 * Umat.size(1);
+    if (spline->sp.coeff.size(0) - 1 >= 0) {
         i16 = 5 * Umat.size(1);
-        if (0 <= i16 - 1) {
+        if (i16 - 1 >= 0) {
             i17 = spline->sp.coeff.size(1);
-            j_loop_ub = spline->sp.coeff.size(1);
+            d_loop_ub = spline->sp.coeff.size(1);
         }
     }
     for (int j{0}; j < i15; j++) {
+        unsigned int b_unnamed_idx_1;
+        int f_loop_ub;
+        int h_loop_ub;
+        int i_loop_ub;
+        int j_loop_ub;
         int l_loop_ub;
         // 'EvalBSpline:21' [r0D( j , : ), r1D( j , : ), r2D( j , : ), r3D( j , : ) ] = ...
         // 'EvalBSpline:22'                             bspline_eval_vec( sp.Bl, sp.coeff( j, : ),
         // u_vec ); 'bspline_eval_vec:3' x       = zeros(size(u));
-        y.set_size(1, 5 * Umat.size(1));
-        for (int i18{0}; i18 < e_loop_ub; i18++) {
-            y[i18] = 0.0;
+        b_unnamed_idx_1 = static_cast<unsigned int>(5 * Umat.size(1));
+        r1.set_size(1, static_cast<int>(b_unnamed_idx_1));
+        f_loop_ub = static_cast<int>(b_unnamed_idx_1);
+        for (int i19{0}; i19 < f_loop_ub; i19++) {
+            r1[i19] = 0.0;
         }
         // 'bspline_eval_vec:4' xd      = zeros(size(u));
-        r1.set_size(1, 5 * Umat.size(1));
-        for (int i21{0}; i21 < f_loop_ub; i21++) {
-            r1[i21] = 0.0;
+        b_unnamed_idx_1 = static_cast<unsigned int>(5 * Umat.size(1));
+        r2.set_size(1, static_cast<int>(b_unnamed_idx_1));
+        h_loop_ub = static_cast<int>(b_unnamed_idx_1);
+        for (int i22{0}; i22 < h_loop_ub; i22++) {
+            r2[i22] = 0.0;
         }
         // 'bspline_eval_vec:5' xdd     = zeros(size(u));
-        r2.set_size(1, 5 * Umat.size(1));
-        for (int i23{0}; i23 < g_loop_ub; i23++) {
-            r2[i23] = 0.0;
+        b_unnamed_idx_1 = static_cast<unsigned int>(5 * Umat.size(1));
+        r3.set_size(1, static_cast<int>(b_unnamed_idx_1));
+        i_loop_ub = static_cast<int>(b_unnamed_idx_1);
+        for (int i23{0}; i23 < i_loop_ub; i23++) {
+            r3[i23] = 0.0;
         }
         // 'bspline_eval_vec:6' xddd    = zeros(size(u));
-        r3.set_size(1, 5 * Umat.size(1));
-        for (int i24{0}; i24 < h_loop_ub; i24++) {
-            r3[i24] = 0.0;
+        b_unnamed_idx_1 = static_cast<unsigned int>(5 * Umat.size(1));
+        r4.set_size(1, static_cast<int>(b_unnamed_idx_1));
+        j_loop_ub = static_cast<int>(b_unnamed_idx_1);
+        for (int i27{0}; i27 < j_loop_ub; i27++) {
+            r4[i27] = 0.0;
         }
         // 'bspline_eval_vec:8' for k = 1:length(u)
-        for (int f_k{0}; f_k < i16; f_k++) {
+        for (int i_k{0}; i_k < i16; i_k++) {
             // 'bspline_eval_vec:9' [xk, xdk, xddk, xdddk] = bspline_eval(Bl, coeffs, u(k));
-            y[f_k] = Umat[f_k];
+            r1[i_k] = Umat[i_k];
             b_spline.set_size(1, i17);
-            for (int i29{0}; i29 < j_loop_ub; i29++) {
-                b_spline[i29] = spline->sp.coeff[j + spline->sp.coeff.size(0) * i29];
+            for (int i30{0}; i30 < d_loop_ub; i30++) {
+                b_spline[i30] = spline->sp.coeff[j + spline->sp.coeff.size(0) * i30];
             }
-            bspline_eval(spline->sp.Bl.handle, b_spline, &y[f_k], &d, &d1, &d2);
-            r3[f_k] = d2;
-            r2[f_k] = d1;
-            r1[f_k] = d;
+            bspline_eval(spline->sp.Bl.handle, b_spline, &r1[i_k], &d, &d1, &d2);
+            r4[i_k] = d2;
+            r3[i_k] = d1;
+            r2[i_k] = d;
             // 'bspline_eval_vec:10' x(k)    = xk;
             // 'bspline_eval_vec:11' xd(k)   = xdk;
             // 'bspline_eval_vec:12' xdd(k)  = xddk;
             // 'bspline_eval_vec:13' xddd(k) = xdddk;
         }
-        l_loop_ub = r1.size(1);
-        for (int i27{0}; i27 < l_loop_ub; i27++) {
-            r1D[j + r1D.size(0) * i27] = r1[i27];
+        l_loop_ub = r2.size(1);
+        for (int i29{0}; i29 < l_loop_ub; i29++) {
+            r1D[j + r1D.size(0) * i29] = r2[i29];
         }
     }
     // 'SplineLengthApproxGL_tot:24' r1Dnorm   = MyNorm(r1D);
     // 'MyNorm:2' coder.inline('always');
     // 'MyNorm:3' n = mysqrt(sum(x.^2));
     r.set_size(r1D.size(0), r1D.size(1));
-    i_loop_ub = r1D.size(1);
-    for (int i19{0}; i19 < i_loop_ub; i19++) {
-        int k_loop_ub;
-        k_loop_ub = r1D.size(0);
-        for (int i20{0}; i20 < k_loop_ub; i20++) {
+    e_loop_ub = r1D.size(1);
+    for (int i18{0}; i18 < e_loop_ub; i18++) {
+        int g_loop_ub;
+        g_loop_ub = r1D.size(0);
+        for (int i20{0}; i20 < g_loop_ub; i20++) {
             double varargin_1;
-            varargin_1 = r1D[i20 + r1D.size(0) * i19];
-            r[i20 + r.size(0) * i19] = std::pow(varargin_1, 2.0);
+            varargin_1 = r1D[i20 + r1D.size(0) * i18];
+            r[i20 + r.size(0) * i18] = std::pow(varargin_1, 2.0);
         }
     }
     coder::sum(r, r1Dnorm);
     // 'mysqrt:3' y = sqrt(x);
-    i22 = r1Dnorm.size(1);
-    for (int e_k{0}; e_k < i22; e_k++) {
+    i21 = r1Dnorm.size(1);
+    for (int e_k{0}; e_k < i21; e_k++) {
         r1Dnorm[e_k] = std::sqrt(r1Dnorm[e_k]);
     }
     // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
     sqrt_calls++;
     // 'SplineLengthApproxGL_tot:25' r1DnormM  = reshape(r1Dnorm, GL_N, length(Knots)-1);
     // 'SplineLengthApproxGL_tot:26' Lk        = sum(bsxfun(@times, GL_W, r1DnormM)) .* (b-a)/2;
-    csz_idx_1 = (i3 - i2) - 1;
-    c.set_size(5, (i3 - i2) - 1);
-    if (csz_idx_1 != 0) {
+    c.set_size(5, i4);
+    if (i4 != 0) {
+        int b_bcoef;
         int bcoef;
-        int i25;
-        bcoef = ((i3 - i2) - 1 != 1);
-        i25 = csz_idx_1 - 1;
-        if (0 <= c.size(1) - 1) {
-            b_bcoef = (static_cast<int>(ctx_cfg_GaussLegendreN) != 1);
-            ctx_cfg_GaussLegendreN_idx_0 = static_cast<int>(ctx_cfg_GaussLegendreN);
-        }
-        for (int h_k{0}; h_k <= i25; h_k++) {
+        int i24;
+        bcoef = (i4 != 1);
+        i24 = i4 - 1;
+        b_bcoef = (static_cast<int>(ctx_cfg_GaussLegendreN) != 1);
+        for (int f_k{0}; f_k <= i24; f_k++) {
             int varargin_3;
-            varargin_3 = bcoef * h_k;
-            for (int i_k{0}; i_k < 5; i_k++) {
-                c[i_k + 5 * h_k] =
-                    ctx_cfg_GaussLegendreW[i_k] *
-                    r1Dnorm[b_bcoef * i_k + ctx_cfg_GaussLegendreN_idx_0 * varargin_3];
+            varargin_3 = bcoef * f_k;
+            for (int h_k{0}; h_k < 5; h_k++) {
+                c[h_k + 5 * f_k] =
+                    ctx_cfg_GaussLegendreW[h_k] *
+                    r1Dnorm[b_bcoef * h_k + static_cast<int>(ctx_cfg_GaussLegendreN) * varargin_3];
             }
         }
     }
     if (c.size(1) == 0) {
-        y.set_size(1, 0);
+        r1.set_size(1, 0);
     } else {
-        int i26;
-        y.set_size(1, c.size(1));
-        i26 = c.size(1);
-        for (int g_k{0}; g_k < i26; g_k++) {
-            y[g_k] = c[5 * g_k];
-            y[g_k] = y[g_k] + c[5 * g_k + 1];
-            y[g_k] = y[g_k] + c[5 * g_k + 2];
-            y[g_k] = y[g_k] + c[5 * g_k + 3];
-            y[g_k] = y[g_k] + c[5 * g_k + 4];
+        int i25;
+        r1.set_size(1, c.size(1));
+        i25 = c.size(1);
+        for (int g_k{0}; g_k < i25; g_k++) {
+            r1[g_k] = c[5 * g_k];
+            r1[g_k] = r1[g_k] + c[5 * g_k + 1];
+            r1[g_k] = r1[g_k] + c[5 * g_k + 2];
+            r1[g_k] = r1[g_k] + c[5 * g_k + 3];
+            r1[g_k] = r1[g_k] + c[5 * g_k + 4];
         }
     }
     if (i7 - i6 == 1) {
-        i28 = i5;
+        i26 = i5;
     } else {
-        i28 = i7 - i6;
+        i26 = i7 - i6;
     }
-    if ((csz_idx_1_tmp == i5) && (y.size(1) == i28)) {
-        int m_loop_ub;
-        spline->sp.Lk.set_size(1, y.size(1));
-        m_loop_ub = y.size(1);
-        for (int i30{0}; i30 < m_loop_ub; i30++) {
-            spline->sp.Lk[i30] =
-                y[i30] *
-                (spline->sp.knots[((i2 + i6) + i30) + 2] - spline->sp.knots[(i2 + i30) + 1]) / 2.0;
+    if ((csz_idx_1_tmp == i5) && (r1.size(1) == i26)) {
+        int k_loop_ub;
+        spline->sp.Lk.set_size(1, r1.size(1));
+        k_loop_ub = r1.size(1);
+        for (int i28{0}; i28 < k_loop_ub; i28++) {
+            spline->sp.Lk[i28] =
+                r1[i28] * (spline->sp.knots[((i2 + i6) + i28) + 1] - spline->sp.knots[i2 + i28]) /
+                2.0;
         }
     } else {
-        binary_expand_op(spline, y, i2 + 1, i6 + 1, i7, i5 - 1);
+        binary_expand_op(spline, r1, i2, i6 + 1, i7, i5 - 1);
     }
     //  Gauss Legendre integration
     // 'SplineLengthApproxGL_tot:27' L         = sum(Lk);
     spline->sp.Ltot = coder::sum(spline->sp.Lk);
     // 'compressCurvStructs:163' spline.sp.Ltot    = Ltot;
     // 'compressCurvStructs:164' spline.sp.Lk      = Lk;
-    // 'compressCurvStructs:166' curv    = constrSplineStruct( batch.curvArray( end ).Info,
-    // batch.pvec( :, 1 ), ... 'compressCurvStructs:167'     batch.pvec( :,end ), uint32(
+    // 'compressCurvStructs:166' curv    = constrSplineStruct( batch.curvArray( end ).Info, ...
+    // 'compressCurvStructs:167'                               batch.curvArray( end ).Tool, ...
+    // 'compressCurvStructs:168'                               batch.pvec( :, 1 ), ...
+    // 'compressCurvStructs:169'                               batch.pvec( :,end ), uint32(
     // spline_index ) );
-    c_batch_pvec = batch_pvec.size(1);
     for (int i31{0}; i31 < 6; i31++) {
         dv[i31] = (*(double(*)[6]) & batch_pvec[0])[i31];
     }
     for (int i32{0}; i32 < 6; i32++) {
-        dv1[i32] = (*(double(*)[6]) & batch_pvec[6 * (c_batch_pvec - 1)])[i32];
+        dv1[i32] = (*(double(*)[6]) & batch_pvec[6 * (batch_pvec.size(1) - 1)])[i32];
     }
     constrSplineStruct(batch_curvArray[1].Info.zspdmode, batch_curvArray[1].Info.TRAFO,
                        batch_curvArray[1].Info.HSC, batch_curvArray[1].Info.FeedRate,
                        batch_curvArray[1].Info.SpindleSpeed,
                        batch_curvArray[1].Info.gcode_source_line, batch_curvArray[1].Info.G91,
-                       batch_curvArray[1].Info.G91_1, dv, dv1, *spline_index, curv);
+                       batch_curvArray[1].Info.G91_1, batch_curvArray[1].b_Tool.toolno,
+                       batch_curvArray[1].b_Tool.pocketno, &batch_curvArray[1].b_Tool.offset,
+                       batch_curvArray[1].b_Tool.diameter, batch_curvArray[1].b_Tool.frontangle,
+                       batch_curvArray[1].b_Tool.backangle, batch_curvArray[1].b_Tool.orientation,
+                       dv, dv1, *spline_index, curv);
     //  Calculate the ZSpdMode for the spline
-    // 'compressCurvStructs:170' first   = batch.curvArray( 1 );
-    // 'compressCurvStructs:171' last    = batch.curvArray( end );
-    // 'compressCurvStructs:173' if ( ~isAZeroSpeed( first ) ) && ( ~isAZeroSpeed( last ) )
+    // 'compressCurvStructs:172' first   = batch.curvArray( 1 );
+    // 'compressCurvStructs:173' last    = batch.curvArray( end );
+    // 'compressCurvStructs:175' if ( ~isAZeroSpeed( first ) ) && ( ~isAZeroSpeed( last ) )
     //  isAZeroSpeed : Return true if the curv is has a zero speed
     //  Input :
     //  curv  : The curve struct
     // 'isAZeroSpeed:5' speedFlag = ( curv.Info.zspdmode ~= ZSpdMode.NN );
     b_b = (batch_curvArray[0].Info.zspdmode != ZSpdMode_NN);
-    if ((!b_b) && (!(batch_curvArray[1].Info.zspdmode != ZSpdMode_NN))) {
+    if ((!b_b) && (batch_curvArray[1].Info.zspdmode == ZSpdMode_NN)) {
         //  isAZeroSpeed : Return true if the curv is has a zero speed
         //  Input :
         //  curv  : The curve struct
         // 'isAZeroSpeed:5' speedFlag = ( curv.Info.zspdmode ~= ZSpdMode.NN );
-        // 'compressCurvStructs:174' curv.Info.zspdmode = ZSpdMode.NN;
+        // 'compressCurvStructs:176' curv.Info.zspdmode = ZSpdMode.NN;
         curv->Info.zspdmode = ZSpdMode_NN;
     } else if ((!b_b) && ((batch_curvArray[1].Info.zspdmode == ZSpdMode_NZ) ||
                           (batch_curvArray[1].Info.zspdmode == ZSpdMode_ZZ))) {
@@ -500,8 +503,8 @@ static void create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_m
         // 'isAZeroEnd:5' if( curv.Info.zspdmode == ZSpdMode.NZ || ...
         // 'isAZeroEnd:6'         curv.Info.zspdmode == ZSpdMode.ZZ )
         // 'isAZeroEnd:7' zeroFlag = true;
-        // 'compressCurvStructs:175' elseif ( ~isAZeroSpeed( first ) ) && ( isAZeroEnd( last ) )
-        // 'compressCurvStructs:176' curv.Info.zspdmode = ZSpdMode.NZ;
+        // 'compressCurvStructs:177' elseif ( ~isAZeroSpeed( first ) ) && ( isAZeroEnd( last ) )
+        // 'compressCurvStructs:178' curv.Info.zspdmode = ZSpdMode.NZ;
         curv->Info.zspdmode = ZSpdMode_NZ;
 
         // 'isAZeroEnd:9' zeroFlag = false;
@@ -511,22 +514,22 @@ static void create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_m
         // 'isAZeroStart:5'         curv.Info.zspdmode == ZSpdMode.ZZ )
     } else if (((batch_curvArray[0].Info.zspdmode == ZSpdMode_ZN) ||
                 (batch_curvArray[0].Info.zspdmode == ZSpdMode_ZZ)) &&
-               (!(batch_curvArray[1].Info.zspdmode != ZSpdMode_NN))) {
+               (batch_curvArray[1].Info.zspdmode == ZSpdMode_NN)) {
         // 'isAZeroStart:6' zeroFlag = true;
         //  isAZeroSpeed : Return true if the curv is has a zero speed
         //  Input :
         //  curv  : The curve struct
         // 'isAZeroSpeed:5' speedFlag = ( curv.Info.zspdmode ~= ZSpdMode.NN );
-        // 'compressCurvStructs:177' elseif ( isAZeroStart( first ) ) && ( ~isAZeroSpeed( last ) )
-        // 'compressCurvStructs:178' curv.Info.zspdmode = ZSpdMode.ZN;
+        // 'compressCurvStructs:179' elseif ( isAZeroStart( first ) ) && ( ~isAZeroSpeed( last ) )
+        // 'compressCurvStructs:180' curv.Info.zspdmode = ZSpdMode.ZN;
         curv->Info.zspdmode = ZSpdMode_ZN;
     } else {
         // 'isAZeroStart:8' zeroFlag = false;
-        // 'compressCurvStructs:179' else
-        // 'compressCurvStructs:180' curv.Info.zspdmode = ZSpdMode.ZZ;
+        // 'compressCurvStructs:181' else
+        // 'compressCurvStructs:182' curv.Info.zspdmode = ZSpdMode.ZZ;
         curv->Info.zspdmode = ZSpdMode_ZZ;
     }
-    // 'compressCurvStructs:183' spline_index = spline_index + 1;
+    // 'compressCurvStructs:185' spline_index = spline_index + 1;
     (*spline_index)++;
 }
 
@@ -551,23 +554,20 @@ static void create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_m
 void compressCurvStructs(const b_FeedoptContext *ctx)
 {
     ::coder::array<double, 2U> batch_pvec;
-    ::coder::array<double, 2U> params_spline_Bl_breakpoints;
-    ::coder::array<double, 2U> params_spline_Lk;
-    ::coder::array<double, 2U> params_spline_coeff;
-    ::coder::array<double, 2U> params_spline_knots;
     ::coder::array<double, 1U> V0;
     ::coder::array<double, 1U> V1;
     ::coder::array<double, 1U> a__1;
     ::coder::array<double, 1U> a__2;
     ::coder::array<double, 1U> r;
     ::coder::array<double, 1U> r1;
+    Axes params_tool_offset;
     CurvStruct batch_curvArray[2];
     CurvStruct C;
     CurvStruct curv;
     CurvStruct curvCompressed;
     CurvStruct prevCurv;
     CurvStruct spline;
-    double b_curv[2][6];
+    SplineStruct params_spline;
     double params_CoeffP5[6];
     double params_R0[6];
     double params_R1[6];
@@ -579,12 +579,14 @@ void compressCurvStructs(const b_FeedoptContext *ctx)
     double expl_temp;
     double params_gcodeInfoStruct_FeedRate;
     double params_gcodeInfoStruct_SpindleSpeed;
-    double params_spline_Ltot;
-    unsigned long params_spline_Bl_handle;
+    double params_tool_backangle;
+    double params_tool_diameter;
+    double params_tool_frontangle;
     unsigned int b_spline_index;
     int params_gcodeInfoStruct_gcode_source_line;
-    int params_spline_Bl_ncoeff;
-    int params_spline_Bl_order;
+    int params_tool_orientation;
+    int params_tool_pocketno;
+    int params_tool_toolno;
     unsigned int spline_index;
     bool params_gcodeInfoStruct_G91;
     bool params_gcodeInfoStruct_G91_1;
@@ -618,27 +620,25 @@ void compressCurvStructs(const b_FeedoptContext *ctx)
                           &params_gcodeInfoStruct_TRAFO, &params_gcodeInfoStruct_HSC,
                           &params_gcodeInfoStruct_FeedRate, &params_gcodeInfoStruct_SpindleSpeed,
                           &params_gcodeInfoStruct_gcode_source_line, &params_gcodeInfoStruct_G91,
-                          &params_gcodeInfoStruct_G91_1, &params_spline_Bl_ncoeff,
-                          params_spline_Bl_breakpoints, &params_spline_Bl_handle,
-                          &params_spline_Bl_order, params_spline_coeff, params_spline_knots,
-                          &params_spline_Ltot, params_spline_Lk, params_R0, params_R1, params_Cprim,
-                          &expl_temp, params_evec, &b_expl_temp, &c_expl_temp, params_CoeffP5,
-                          &d_expl_temp);
+                          &params_gcodeInfoStruct_G91_1, &params_tool_toolno, &params_tool_pocketno,
+                          &params_tool_offset, &params_tool_diameter, &params_tool_frontangle,
+                          &params_tool_backangle, &params_tool_orientation, &params_spline,
+                          params_R0, params_R1, params_Cprim, &expl_temp, params_evec, &b_expl_temp,
+                          &c_expl_temp, params_CoeffP5, &d_expl_temp);
         // 'constrCurvStructType:10' if( coder.target( "MATLAB" ) )
         // 'constrCurvStructType:12' else
-        // 'constrCurvStructType:13' C = constrCurvStruct( params.gcodeInfoStruct, params.spline,
-        // ... 'constrCurvStructType:14'         params.R0, params.R1, ... 'constrCurvStructType:15'
-        // params.Cprim, params.delta, params.evec, params.theta, ... 'constrCurvStructType:16'
-        // params.pitch, params.CoeffP5, params.Coeff );
+        // 'constrCurvStructType:13' C = constrCurvStruct( params.gcodeInfoStruct, params.tool, ...
+        // 'constrCurvStructType:14'         params.spline, params.R0, params.R1, params.Cprim, ...
+        // 'constrCurvStructType:15'         params.delta, params.evec, params.theta, params.pitch,
+        // ... 'constrCurvStructType:16'         params.CoeffP5, params.Coeff );
         b_constrCurvStruct(params_gcodeInfoStruct_Type, params_gcodeInfoStruct_zspdmode,
                            params_gcodeInfoStruct_TRAFO, params_gcodeInfoStruct_HSC,
                            params_gcodeInfoStruct_FeedRate, params_gcodeInfoStruct_SpindleSpeed,
                            params_gcodeInfoStruct_gcode_source_line, params_gcodeInfoStruct_G91,
-                           params_gcodeInfoStruct_G91_1, params_spline_Bl_ncoeff,
-                           params_spline_Bl_breakpoints, params_spline_Bl_handle,
-                           params_spline_Bl_order, params_spline_coeff, params_spline_knots,
-                           params_spline_Ltot, params_spline_Lk, params_R0, params_R1, params_Cprim,
-                           params_evec, params_CoeffP5, &C);
+                           params_gcodeInfoStruct_G91_1, params_tool_toolno, params_tool_pocketno,
+                           &params_tool_offset, params_tool_diameter, params_tool_frontangle,
+                           params_tool_backangle, params_tool_orientation, &params_spline,
+                           params_R0, params_R1, params_Cprim, params_evec, params_CoeffP5, &C);
         batch_pvec.set_size(6, 1);
         for (int i{0}; i < 6; i++) {
             batch_pvec[i] = 0.0;
@@ -664,6 +664,7 @@ void compressCurvStructs(const b_FeedoptContext *ctx)
         // 'compressCurvStructs:26' for k = 1 : Ncrv
         i1 = static_cast<int>(Ncrv);
         for (int k{0}; k < i1; k++) {
+            double b_curv[2][6];
             bool addBatch;
             bool addNewBatch;
             bool closeBatch;

@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: minOrMax.h
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 #ifndef MINORMAX_H
@@ -21,8 +21,8 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-void binary_expand_op(const ::coder::array<double, 2U> &z1, const double vmax_data[],
-                      const int *vmax_size, double *v_delta, int *iindx);
+void binary_expand_op(const ::coder::array<double, 2U> &in1, const double in2_data[],
+                      const int *in2_size, double *out1, int *out2);
 
 namespace coder {
 namespace internal {

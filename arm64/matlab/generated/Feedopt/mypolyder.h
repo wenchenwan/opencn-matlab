@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: mypolyder.h
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 #ifndef MYPOLYDER_H
@@ -21,15 +21,14 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-void b_binary_expand_op(::coder::array<double, 2U> &p5_2D, const ::coder::array<double, 2U> &p5_1D,
-                        const ::coder::array<signed char, 2U> &b);
+void b_binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
+                        const ::coder::array<signed char, 2U> &in3);
 
-void binary_expand_op(::coder::array<double, 2U> &p5_3D, const ::coder::array<double, 2U> &p5_2D,
-                      const ::coder::array<signed char, 2U> &b);
+void binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
+                      const ::coder::array<signed char, 2U> &in3);
 
-void c_binary_expand_op(::coder::array<double, 2U> &p5_1D,
-                        const ::coder::array<double, 2U> &CurvStruct_CoeffP5,
-                        const ::coder::array<signed char, 2U> &b);
+void c_binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
+                        const ::coder::array<signed char, 2U> &in3);
 
 } // namespace ocn
 

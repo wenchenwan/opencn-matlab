@@ -4,14 +4,14 @@
 // government, commercial, or other organizational use.
 // File: bspline_eval.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 // Include Files
 #include "bspline_eval.h"
+#include "c_spline.h"
 #include "coder_array.h"
-#include "src/c_spline.h"
 #include <stdio.h>
 
 // Function Definitions
@@ -52,19 +52,21 @@ void bspline_eval(unsigned long Bl_handle, const ::coder::array<double, 2U> &coe
         // 'bspline_eval:21' x = 1;
         *x = 1.0;
     }
-    // 'bspline_eval:23' coder.updateBuildInfo('addSourceFiles','c_spline.c', '$(START_DIR)/src');
-    // 'bspline_eval:24' coder.updateBuildInfo('addLinkFlags', LibInfo.gsl.lflags);
-    // 'bspline_eval:25' coder.cinclude('src/c_spline.h');
-    // 'bspline_eval:26' coder.ceval('c_bspline_eval', coder.rref(Bl.handle), coder.rref(coeffs),...
-    // 'bspline_eval:27'                     x, coder.wref(X));
+    // 'bspline_eval:23' my_path = StructTypeName.WDIR + "/src";
+    // 'bspline_eval:24' coder.updateBuildInfo('addIncludePaths',my_path);
+    // 'bspline_eval:25' coder.updateBuildInfo('addSourceFiles','c_spline.c', my_path);
+    // 'bspline_eval:26' coder.updateBuildInfo('addLinkFlags', LibInfo.gsl.lflags);
+    // 'bspline_eval:27' coder.cinclude('c_spline.h');
+    // 'bspline_eval:29' coder.ceval('c_bspline_eval', coder.rref(Bl.handle), coder.rref(coeffs),...
+    // 'bspline_eval:30'                     x, coder.wref(X));
     c_bspline_eval(&Bl_handle, &coeffs[0], *x, &X[0]);
-    // 'bspline_eval:28' x       = X(1);
+    // 'bspline_eval:31' x       = X(1);
     *x = X[0];
-    // 'bspline_eval:29' xd      = X(2);
+    // 'bspline_eval:32' xd      = X(2);
     *xd = X[1];
-    // 'bspline_eval:30' xdd     = X(3);
+    // 'bspline_eval:33' xdd     = X(3);
     *xdd = X[2];
-    // 'bspline_eval:31' xddd    = X(4);
+    // 'bspline_eval:34' xddd    = X(4);
     *xddd = X[3];
 }
 

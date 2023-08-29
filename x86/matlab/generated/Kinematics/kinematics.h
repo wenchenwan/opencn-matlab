@@ -4,8 +4,8 @@
  * government, commercial, or other organizational use.
  * File: kinematics.h
  *
- * MATLAB Coder version            : 5.3
- * C/C++ source code generated on  : 05-Aug-2022 16:13:08
+ * MATLAB Coder version            : 5.4
+ * C/C++ source code generated on  : 29-Aug-2023 15:49:53
  */
 
 #ifndef KINEMATICS_H

@@ -4,14 +4,15 @@
 // government, commercial, or other organizational use.
 // File: buildConstr.h
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 #ifndef BUILDCONSTR_H
 #define BUILDCONSTR_H
 
 // Include Files
+#include "opencn_matlab_types1.h"
 #include "rtwtypes.h"
 #include "coder_array.h"
 #include <cstddef>
@@ -25,8 +26,6 @@ class queue_coder;
 
 class Kinematics;
 
-struct CurvStruct;
-
 } // namespace ocn
 
 // Function Declarations
@@ -38,7 +37,7 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
                  const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
                  int ctx_cfg_NCart, int ctx_cfg_NRot, const double ctx_cfg_vmax[6],
                  double ctx_cfg_opt_ACC_RAMP_OVER_WINDOWS, double ctx_cfg_opt_VEL_RAMP_OVER_WINDOWS,
-                 const Kinematics *ctx_kin, const ::coder::array<CurvStruct, 2U> &windowCurv,
+                 Kinematics *ctx_kin, const ::coder::array<CurvStruct, 2U> &windowCurv,
                  const double amax[6], double v_0, double at_0, double v_1, double at_1,
                  const ::coder::array<double, 2U> &BasisVal,
                  const ::coder::array<double, 2U> &BasisValD,

@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: opencn_matlab_terminate.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 // Include Files
@@ -20,7 +20,6 @@
 namespace ocn {
 void opencn_matlab_terminate()
 {
-    // (no terminate code required)
     isInitialized_opencn_matlab = false;
 }
 

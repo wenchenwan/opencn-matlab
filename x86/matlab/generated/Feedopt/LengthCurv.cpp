@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: LengthCurv.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 // Include Files
@@ -15,6 +15,7 @@
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_types1.h"
 #include "opencn_matlab_types2.h"
+#include "opencn_matlab_types21.h"
 #include "opencn_matlab_types3.h"
 #include "queue_coder.h"
 #include "splineLength.h"
@@ -59,7 +60,6 @@ double LengthCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_da
     ::coder::array<double, 1U> r1D;
     CurvStruct expl_temp;
     double L;
-    char message[29];
     // 'LengthCurv:3' if ( curv.Info.Type == CurveType.Helix ) || ( curv.Info.Type == CurveType.Line
     // )
     if ((curv->Info.Type == CurveType_Helix) || (curv->Info.Type == CurveType_Line)) {
@@ -100,6 +100,7 @@ double LengthCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_da
         // 'LengthCurv:14' L = TransP5LengthApprox( curv );
         L = TransP5LengthApprox(curv->CoeffP5);
     } else {
+        char message[29];
         // 'LengthCurv:15' else
         // 'LengthCurv:16' c_assert(false, 'BAD CURVE TYPE IN LENGTH CURV');
         // 'c_assert:2' if coder.target('rtw')

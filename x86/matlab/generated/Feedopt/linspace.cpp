@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: linspace.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 // Include Files
@@ -65,7 +65,7 @@ void b_linspace(double d2, double n, ::coder::array<double, 2U> &y)
         if (y.size(1) >= 2) {
             y[0] = 1.0;
             if (y.size(1) >= 3) {
-                if ((1.0 == -d2) && (static_cast<int>(d) > 2)) {
+                if ((-d2 == 1.0) && (static_cast<int>(d) > 2)) {
                     double d2scaled;
                     d2scaled = d2 / (static_cast<double>(static_cast<int>(d)) - 1.0);
                     for (int k{2}; k <= y_tmp; k++) {

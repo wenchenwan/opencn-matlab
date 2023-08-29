@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: splineLength.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 // Include Files
@@ -55,8 +55,6 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
     ::coder::array<double, 2U> r;
     ::coder::array<double, 2U> r1D;
     ::coder::array<bool, 2U> b_spline_sp_knots;
-    double b_u2[5];
-    double e_spline_sp_knots[5];
     double r1Dnorm[5];
     double LEnd;
     double LStart;
@@ -67,15 +65,12 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
     int c_loop_ub;
     int i;
     int i1;
-    int i11;
+    int i10;
     int i2;
     int i9;
     int kEndVec_data;
     int kStartVec_data;
     int loop_ub;
-    char c_message[54];
-    char e_message[53];
-    char message[26];
     // 'splineLength:3' sp = spline.sp;
     // 'splineLength:4' IND_KNOTS_MULT  = sp.Bl.order;
     //  Index used to remove multiple knots
@@ -94,6 +89,7 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
     // 'c_assert:2' if coder.target('rtw')
     // 'c_assert:3' if ~condition
     if (u2 <= u1) {
+        char message[26];
         // 'c_assert:4' coder.ceval('c_assert_', message);
         for (int i3{0}; i3 < 26; i3++) {
             message[i3] = b_message[i3];
@@ -104,6 +100,7 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
     // 'splineLength:10' c_assert(u1 >= Knots(1),   'u1 must be greater or equal than the first
     // spline knot'); 'c_assert:2' if coder.target('rtw') 'c_assert:3' if ~condition
     if (u1 < spline_sp_knots[i1 + 1]) {
+        char c_message[54];
         // 'c_assert:4' coder.ceval('c_assert_', message);
         for (int i4{0}; i4 < 54; i4++) {
             c_message[i4] = d_message[i4];
@@ -114,6 +111,7 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
     // 'splineLength:11' c_assert(u2 <= Knots(end), 'u2 must be smaller or equal than the last
     // spline knot'); 'c_assert:2' if coder.target('rtw') 'c_assert:3' if ~condition
     if (u2 > spline_sp_knots[i2]) {
+        char e_message[53];
         // 'c_assert:4' coder.ceval('c_assert_', message);
         for (int i5{0}; i5 < 53; i5++) {
             e_message[i5] = f_message[i5];
@@ -143,6 +141,7 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
     // 'splineLength:18' if( Knots( kStart ) < u1 )
     c_spline_sp_knots = spline_sp_knots[i1 + kStartVec_data];
     if (c_spline_sp_knots < u1) {
+        double e_spline_sp_knots[5];
         double b_r1Dnorm;
         int d_loop_ub;
         // 'splineLength:19' LStart = splineLengthApprox_Interval( cfg, spline, Knots( kStart ), u1,
@@ -160,10 +159,10 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
         // ).';
         //
         // 'splineLengthApprox_Interval:20' [ ~, r1D ]  = EvalBSpline( spline, uvec );
-        for (int i10{0}; i10 < 5; i10++) {
+        for (int i11{0}; i11 < 5; i11++) {
             double d;
-            d = cfg_GaussLegendreX[i10];
-            e_spline_sp_knots[i10] = (c_spline_sp_knots * (1.0 - d) + u1 * (d + 1.0)) / 2.0;
+            d = cfg_GaussLegendreX[i11];
+            e_spline_sp_knots[i11] = (c_spline_sp_knots * (1.0 - d) + u1 * (d + 1.0)) / 2.0;
         }
         EvalBSpline(spline_sp_Bl_handle, spline_sp_coeff, e_spline_sp_knots, a__1, r1D);
         // 'splineLengthApprox_Interval:21' r1Dnorm     = MyNorm( r1D );
@@ -202,6 +201,7 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
     // 'splineLength:25' if( Knots( kEnd ) > u2 )
     d_spline_sp_knots = spline_sp_knots[i1 + kEndVec_data];
     if (d_spline_sp_knots > u2) {
+        double b_u2[5];
         double c_r1Dnorm;
         int e_loop_ub;
         // 'splineLength:26' LEnd = splineLengthApprox_Interval( cfg, spline, u2, Knots( kEnd ),
@@ -261,12 +261,12 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
     // 'splineLength:31' L = sum( Lk( kStart : ( kEnd -1 ) ) ) - LStart - LEnd;
     if (kStartVec_data > static_cast<double>(kEndVec_data) - 1.0) {
         i9 = 0;
-        i11 = 0;
+        i10 = 0;
     } else {
         i9 = kStartVec_data - 1;
-        i11 = kEndVec_data - 1;
+        i10 = kEndVec_data - 1;
     }
-    c_loop_ub = i11 - i9;
+    c_loop_ub = i10 - i9;
     b_spline_sp_Lk.set_size(1, c_loop_ub);
     for (int i12{0}; i12 < c_loop_ub; i12++) {
         b_spline_sp_Lk[i12] = spline_sp_Lk[i9 + i12];

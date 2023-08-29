@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: tridiag.h
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 #ifndef TRIDIAG_H
@@ -21,8 +21,9 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-void binary_expand_op(::coder::array<double, 2U> &c, int i, const ::coder::array<double, 2U> &B,
-                      const ::coder::array<double, 1U> &v_l, double w);
+void binary_expand_op(::coder::array<double, 2U> &in1, int in2,
+                      const ::coder::array<double, 2U> &in3, const ::coder::array<double, 1U> &in4,
+                      double in5);
 
 }
 

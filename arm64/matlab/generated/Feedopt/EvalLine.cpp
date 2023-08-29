@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: EvalLine.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 // Include Files
@@ -15,149 +15,129 @@
 
 // Function Declarations
 namespace ocn {
-static void binary_expand_op(::coder::array<double, 2U> &r0D, const double P1_data[],
-                             const int _size[2], const ::coder::array<double, 2U> &u_vec,
-                             const double P0_data[], const int b__size[2]);
+static void binary_expand_op(::coder::array<double, 2U> &in1, const double in2_data[],
+                             const int in3_size[2], const ::coder::array<double, 2U> &in4,
+                             const double in5_data[], const int in6_size[2]);
 
-static void binary_expand_op(double r0D_data[], int *r0D_size, const double P1_data[],
-                             const int *P1_size, double u_vec, const double P0_data[],
-                             const int *P0_size);
+static void binary_expand_op(double in1_data[], int *in1_size, const double in2_data[],
+                             const int *in2_size, double in3, const double in4_data[],
+                             const int *in4_size);
 
-static void binary_expand_op(::coder::array<double, 1U> &a, const double P1_data[],
-                             const int *P1_size, const double P0_data[], const int *P0_size);
+static void binary_expand_op(::coder::array<double, 1U> &in1, const double in2_data[],
+                             const int *in2_size, const double in3_data[], const int *in3_size);
 
 } // namespace ocn
 
 // Function Definitions
 //
-// Arguments    : ::coder::array<double, 2U> &r0D
-//                const double P1_data[]
-//                const int _size[2]
-//                const ::coder::array<double, 2U> &u_vec
-//                const double P0_data[]
-//                const int b__size[2]
+// Arguments    : ::coder::array<double, 2U> &in1
+//                const double in2_data[]
+//                const int in3_size[2]
+//                const ::coder::array<double, 2U> &in4
+//                const double in5_data[]
+//                const int in6_size[2]
 // Return Type  : void
 //
 namespace ocn {
-static void binary_expand_op(::coder::array<double, 2U> &r0D, const double P1_data[],
-                             const int _size[2], const ::coder::array<double, 2U> &u_vec,
-                             const double P0_data[], const int b__size[2])
+static void binary_expand_op(::coder::array<double, 2U> &in1, const double in2_data[],
+                             const int in3_size[2], const ::coder::array<double, 2U> &in4,
+                             const double in5_data[], const int in6_size[2])
 {
-    int aux_1_1;
-    int aux_3_1;
-    int b_unnamed_idx_0;
-    int c_unnamed_idx_0;
-    int i;
+    int b_in6_idx_0;
+    int in3_idx_0;
+    int in6_idx_0;
     int loop_ub;
     int stride_0_0;
-    int stride_1_1;
     int stride_2_0;
-    int stride_3_1;
-    int unnamed_idx_0;
-    unnamed_idx_0 = _size[1];
-    b_unnamed_idx_0 = b__size[1];
-    if (b_unnamed_idx_0 == 1) {
-        c_unnamed_idx_0 = unnamed_idx_0;
+    in3_idx_0 = in3_size[1];
+    in6_idx_0 = in6_size[1];
+    if (in6_idx_0 == 1) {
+        b_in6_idx_0 = in3_idx_0;
     } else {
-        c_unnamed_idx_0 = b_unnamed_idx_0;
+        b_in6_idx_0 = in6_idx_0;
     }
-    if (u_vec.size(1) == 1) {
-        i = 1;
-    } else {
-        i = u_vec.size(1);
-    }
-    r0D.set_size(c_unnamed_idx_0, i);
-    stride_0_0 = (unnamed_idx_0 != 1);
-    stride_1_1 = (u_vec.size(1) != 1);
-    stride_2_0 = (b_unnamed_idx_0 != 1);
-    stride_3_1 = (u_vec.size(1) != 1);
-    aux_1_1 = 0;
-    aux_3_1 = 0;
-    if (u_vec.size(1) == 1) {
-        loop_ub = 1;
-    } else {
-        loop_ub = u_vec.size(1);
-    }
-    for (int i1{0}; i1 < loop_ub; i1++) {
+    in1.set_size(b_in6_idx_0, in4.size(1));
+    stride_0_0 = (in3_idx_0 != 1);
+    stride_2_0 = (in6_idx_0 != 1);
+    loop_ub = in4.size(1);
+    for (int i{0}; i < loop_ub; i++) {
         int b_loop_ub;
-        if (b_unnamed_idx_0 == 1) {
-            b_loop_ub = unnamed_idx_0;
+        if (in6_idx_0 == 1) {
+            b_loop_ub = in3_idx_0;
         } else {
-            b_loop_ub = b_unnamed_idx_0;
+            b_loop_ub = in6_idx_0;
         }
-        for (int i2{0}; i2 < b_loop_ub; i2++) {
-            r0D[i2 + r0D.size(0) * i1] = P1_data[i2 * stride_0_0] * u_vec[aux_1_1] +
-                                         P0_data[i2 * stride_2_0] * (1.0 - u_vec[aux_3_1]);
+        for (int i1{0}; i1 < b_loop_ub; i1++) {
+            in1[i1 + in1.size(0) * i] =
+                in2_data[i1 * stride_0_0] * in4[i] + in5_data[i1 * stride_2_0] * (1.0 - in4[i]);
         }
-        aux_3_1 += stride_3_1;
-        aux_1_1 += stride_1_1;
     }
 }
 
 //
-// Arguments    : double r0D_data[]
-//                int *r0D_size
-//                const double P1_data[]
-//                const int *P1_size
-//                double u_vec
-//                const double P0_data[]
-//                const int *P0_size
+// Arguments    : double in1_data[]
+//                int *in1_size
+//                const double in2_data[]
+//                const int *in2_size
+//                double in3
+//                const double in4_data[]
+//                const int *in4_size
 // Return Type  : void
 //
-static void binary_expand_op(double r0D_data[], int *r0D_size, const double P1_data[],
-                             const int *P1_size, double u_vec, const double P0_data[],
-                             const int *P0_size)
+static void binary_expand_op(double in1_data[], int *in1_size, const double in2_data[],
+                             const int *in2_size, double in3, const double in4_data[],
+                             const int *in4_size)
 {
     int loop_ub;
     int stride_0_0;
     int stride_1_0;
-    if (*P0_size == 1) {
-        *r0D_size = *P1_size;
+    if (*in4_size == 1) {
+        *in1_size = *in2_size;
     } else {
-        *r0D_size = *P0_size;
+        *in1_size = *in4_size;
     }
-    stride_0_0 = (*P1_size != 1);
-    stride_1_0 = (*P0_size != 1);
-    if (*P0_size == 1) {
-        loop_ub = *P1_size;
+    stride_0_0 = (*in2_size != 1);
+    stride_1_0 = (*in4_size != 1);
+    if (*in4_size == 1) {
+        loop_ub = *in2_size;
     } else {
-        loop_ub = *P0_size;
+        loop_ub = *in4_size;
     }
     for (int i{0}; i < loop_ub; i++) {
-        r0D_data[i] = P1_data[i * stride_0_0] * u_vec + P0_data[i * stride_1_0] * (1.0 - u_vec);
+        in1_data[i] = in2_data[i * stride_0_0] * in3 + in4_data[i * stride_1_0] * (1.0 - in3);
     }
 }
 
 //
-// Arguments    : ::coder::array<double, 1U> &a
-//                const double P1_data[]
-//                const int *P1_size
-//                const double P0_data[]
-//                const int *P0_size
+// Arguments    : ::coder::array<double, 1U> &in1
+//                const double in2_data[]
+//                const int *in2_size
+//                const double in3_data[]
+//                const int *in3_size
 // Return Type  : void
 //
-static void binary_expand_op(::coder::array<double, 1U> &a, const double P1_data[],
-                             const int *P1_size, const double P0_data[], const int *P0_size)
+static void binary_expand_op(::coder::array<double, 1U> &in1, const double in2_data[],
+                             const int *in2_size, const double in3_data[], const int *in3_size)
 {
-    int b_P0_size;
+    int b_in3_size;
     int loop_ub;
     int stride_0_0;
     int stride_1_0;
-    if (*P0_size == 1) {
-        b_P0_size = *P1_size;
+    if (*in3_size == 1) {
+        b_in3_size = *in2_size;
     } else {
-        b_P0_size = *P0_size;
+        b_in3_size = *in3_size;
     }
-    a.set_size(b_P0_size);
-    stride_0_0 = (*P1_size != 1);
-    stride_1_0 = (*P0_size != 1);
-    if (*P0_size == 1) {
-        loop_ub = *P1_size;
+    in1.set_size(b_in3_size);
+    stride_0_0 = (*in2_size != 1);
+    stride_1_0 = (*in3_size != 1);
+    if (*in3_size == 1) {
+        loop_ub = *in2_size;
     } else {
-        loop_ub = *P0_size;
+        loop_ub = *in3_size;
     }
     for (int i{0}; i < loop_ub; i++) {
-        a[i] = P1_data[i * stride_0_0] - P0_data[i * stride_1_0];
+        in1[i] = in2_data[i * stride_0_0] - in3_data[i * stride_1_0];
     }
 }
 
@@ -298,10 +278,10 @@ void EvalLine(const double CurvStruct_R0[6], const double CurvStruct_R1[6],
     b.set_size(a.size(0), u_vec.size(1));
     if ((a.size(0) != 0) && (u_vec.size(1) != 0)) {
         int i5;
+        int na;
         i5 = u_vec.size(1) - 1;
+        na = a.size(0);
         for (int t{0}; t <= i5; t++) {
-            int na;
-            na = a.size(0);
             for (int b_k{0}; b_k < na; b_k++) {
                 b[b_k + b.size(0) * t] = a[b_k];
             }

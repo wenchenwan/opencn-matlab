@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: div.h
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 #ifndef DIV_H
@@ -21,21 +21,22 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-void b_binary_expand_op(double alpha1_t_data[], int *alpha1_t_size, const double CoefPS[16],
-                        const ::coder::array<double, 1U> &r, const ::coder::array<double, 1U> &r1,
-                        const double alpha0_t_data[], const int *alpha0_t_size);
+void b_binary_expand_op(double in1_data[], int *in1_size, const double in2[16],
+                        const ::coder::array<double, 1U> &in3,
+                        const ::coder::array<double, 1U> &in4, const double in5_data[],
+                        const int *in5_size);
 
-void binary_expand_op(double alpha0_t_data[], int *alpha0_t_size, const double CoefPS[16],
-                      const double alpha1_t_data[], const int *alpha1_t_size,
-                      const double t5_data[], const int *t5_size, const double t11_data[],
-                      const int *t11_size, const double t12_data[], const int *t12_size,
-                      const double t10_data[], const int *t10_size,
-                      const ::coder::array<double, 1U> &r, const ::coder::array<double, 1U> &z,
-                      const ::coder::array<double, 1U> &r1);
+void binary_expand_op(double in1_data[], int *in1_size, const double in2[16],
+                      const double in3_data[], const int *in3_size, const double in4_data[],
+                      const int *in4_size, const double in5_data[], const int *in5_size,
+                      const double in6_data[], const int *in6_size, const double in7_data[],
+                      const int *in7_size, const ::coder::array<double, 1U> &in8,
+                      const ::coder::array<double, 1U> &in9,
+                      const ::coder::array<double, 1U> &in10);
 
-void binary_expand_op(double alpha0_t_data[], int *alpha0_t_size, const double CoefPS[16],
-                      const ::coder::array<double, 1U> &r, const ::coder::array<double, 1U> &r1,
-                      const double alpha1_t_data[], const int *alpha1_t_size);
+void binary_expand_op(double in1_data[], int *in1_size, const double in2[16],
+                      const ::coder::array<double, 1U> &in3, const ::coder::array<double, 1U> &in4,
+                      const double in5_data[], const int *in5_size);
 
 } // namespace ocn
 

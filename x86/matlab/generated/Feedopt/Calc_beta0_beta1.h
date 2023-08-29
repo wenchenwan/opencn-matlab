@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: Calc_beta0_beta1.h
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 #ifndef CALC_BETA0_BETA1_H
@@ -20,9 +20,9 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-void Calc_beta0_beta1(double alpha0, double alpha1, const double in3[5], const double in4[5],
-                      const double in5[5], const double in6[5], const double in7[5],
-                      const double in8[5], const double in9_data[], double *beta0, double *beta1);
+void Calc_beta0_beta1(double alpha0, double alpha1, const double in3[6], const double in4[6],
+                      const double in5[6], const double in6[6], const double in7[6],
+                      const double in8[6], const double in9[6], double *beta0, double *beta1);
 
 }
 

@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: sum.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 // Include Files
@@ -62,7 +62,7 @@ void sum(const ::coder::array<double, 2U> &x, ::coder::array<double, 2U> &y)
                     y[k] = y[k] + x[(b_k + x.size(0) * k) - 1];
                 }
             }
-            if (2 <= nblocks) {
+            if (nblocks >= 2) {
                 xsubs_idx_1 = k + 1;
                 ysubs_idx_1 = k + 1;
             }
@@ -132,7 +132,7 @@ void sum(const ::coder::array<double, 2U> &x, double y[5])
                     y[k] += x[(b_k + x.size(0) * k) - 1];
                 }
             }
-            if (2 <= nblocks) {
+            if (nblocks >= 2) {
                 xsubs_idx_1 = k + 1;
                 ysubs_idx_1 = static_cast<short>(k + 1);
             }

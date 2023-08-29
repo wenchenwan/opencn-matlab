@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: constrHelixStruct.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 // Include Files
@@ -15,13 +15,14 @@
 #include "opencn_matlab_initialize.h"
 #include "opencn_matlab_types1.h"
 #include "opencn_matlab_types2.h"
+#include "opencn_matlab_types21.h"
 #include "opencn_matlab_types3.h"
 #include "coder_array.h"
 
 // Function Definitions
 //
-// function [ CStrct ] = constrHelixStruct( gcodeInfoStruct, R0, R1, Cprim, ...
-//                                          delta, evec, theta, pitch )
+// function [ CStrct ] = constrHelixStruct( gcodeInfoStruct, tool, R0, R1, ...
+//                                         Cprim, delta, evec, theta, pitch )
 //
 // constrHelixStructFromArcFeed : Construct a Curv struct filled with the
 //  parameters of a helix. The resulting helix is the combination of a linear
@@ -29,6 +30,7 @@
 //  motion in the perpendicular plan ( XY, ZX, YZ ).
 //
 //  gcodeInfoStruct : struct containing the information from the Gcode
+//  tool      : Struct containing the information of the tool
 //  R0        : Starting pose of the helix P0
 //  R1        : Ending pose of the helix P0
 //  Cprim     : Corrected center of the helix
@@ -41,6 +43,7 @@
 //  CStrct    : The resulting CurvStruct
 //
 // Arguments    : GcodeInfoStruct *gcodeInfoStruct
+//                const Tool *tool
 //                const double R0[6]
 //                const double R1[6]
 //                const double Cprim[3]
@@ -52,19 +55,19 @@
 // Return Type  : void
 //
 namespace ocn {
-void constrHelixStruct(GcodeInfoStruct *gcodeInfoStruct, const double R0[6], const double R1[6],
-                       const double Cprim[3], double delta, const double evec[3], double theta,
-                       double pitch, CurvStruct *CStrct)
+void constrHelixStruct(GcodeInfoStruct *gcodeInfoStruct, const Tool *tool, const double R0[6],
+                       const double R1[6], const double Cprim[3], double delta,
+                       const double evec[3], double theta, double pitch, CurvStruct *CStrct)
 {
     SplineStruct expl_temp;
     double dv[6];
     if (!isInitialized_opencn_matlab) {
         opencn_matlab_initialize();
     }
-    // 'constrHelixStruct:20' coder.inline( "never" );
-    // 'constrHelixStruct:22' gcodeInfoStruct.Type = CurveType.Helix;
+    // 'constrHelixStruct:21' coder.inline( "never" );
+    // 'constrHelixStruct:23' gcodeInfoStruct.Type = CurveType.Helix;
     gcodeInfoStruct->Type = CurveType_Helix;
-    // 'constrHelixStruct:24' spline  = constrSplineType();
+    // 'constrHelixStruct:25' spline  = constrSplineType();
     //  constrSplineType : Constructs a constrSpline with default values.
     // 'constrSplineType:4' if( nargin > 0 )
     // 'constrSplineType:6' else
@@ -108,11 +111,11 @@ void constrHelixStruct(GcodeInfoStruct *gcodeInfoStruct, const double R0[6], con
     // 'constrSplineType:10' if( coder.target( "MATLAB" ) )
     // 'constrSplineType:12' else
     // 'constrSplineType:13' C = constrSpline( params.coeff, params.knots, params.BlStruct );
-    // 'constrHelixStruct:25' CoeffP5 = zeros( 1, 6 );
-    // 'constrHelixStruct:26' Coeff   = zeros( 1, 1 );
-    // 'constrHelixStruct:28' CStrct = constrCurvStruct( gcodeInfoStruct, spline, R0, R1, Cprim,
-    // delta, ... 'constrHelixStruct:29'                             evec, theta, pitch, CoeffP5,
-    // Coeff );
+    // 'constrHelixStruct:26' CoeffP5 = zeros( 1, 6 );
+    // 'constrHelixStruct:27' Coeff   = zeros( 1, 1 );
+    // 'constrHelixStruct:29' CStrct = constrCurvStruct( gcodeInfoStruct, tool, spline, R0, R1,
+    // Cprim, ... 'constrHelixStruct:30'                             delta,evec, theta, pitch,
+    // CoeffP5, Coeff );
     //  Construct a struct for the spline.
     //
     //  Inputs :
@@ -153,8 +156,8 @@ void constrHelixStruct(GcodeInfoStruct *gcodeInfoStruct, const double R0[6], con
     for (int i{0}; i < 6; i++) {
         dv[i] = 0.0;
     }
-    c_constrCurvStruct(*gcodeInfoStruct, &expl_temp, R0, R1, Cprim, delta, evec, theta, pitch, dv,
-                       CStrct);
+    c_constrCurvStruct(*gcodeInfoStruct, tool, &expl_temp, R0, R1, Cprim, delta, evec, theta, pitch,
+                       dv, CStrct);
 }
 
 } // namespace ocn

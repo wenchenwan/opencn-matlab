@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: splineLength.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 // Include Files
@@ -74,9 +74,6 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
     int kEndVec_data;
     int kStartVec_data;
     int loop_ub;
-    char c_message[54];
-    char e_message[53];
-    char message[26];
     // 'splineLength:3' sp = spline.sp;
     // 'splineLength:4' IND_KNOTS_MULT  = sp.Bl.order;
     //  Index used to remove multiple knots
@@ -95,6 +92,7 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
     // 'c_assert:2' if coder.target('rtw')
     // 'c_assert:3' if ~condition
     if (u2 <= u1) {
+        char message[26];
         // 'c_assert:4' coder.ceval('c_assert_', message);
         for (int i3{0}; i3 < 26; i3++) {
             message[i3] = b_message[i3];
@@ -105,6 +103,7 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
     // 'splineLength:10' c_assert(u1 >= Knots(1),   'u1 must be greater or equal than the first
     // spline knot'); 'c_assert:2' if coder.target('rtw') 'c_assert:3' if ~condition
     if (u1 < spline_sp_knots[i1 + 1]) {
+        char c_message[54];
         // 'c_assert:4' coder.ceval('c_assert_', message);
         for (int i4{0}; i4 < 54; i4++) {
             c_message[i4] = d_message[i4];
@@ -115,6 +114,7 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
     // 'splineLength:11' c_assert(u2 <= Knots(end), 'u2 must be smaller or equal than the last
     // spline knot'); 'c_assert:2' if coder.target('rtw') 'c_assert:3' if ~condition
     if (u2 > spline_sp_knots[i2]) {
+        char e_message[53];
         // 'c_assert:4' coder.ceval('c_assert_', message);
         for (int i5{0}; i5 < 53; i5++) {
             e_message[i5] = f_message[i5];

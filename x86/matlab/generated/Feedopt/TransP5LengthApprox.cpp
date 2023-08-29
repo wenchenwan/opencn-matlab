@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: TransP5LengthApprox.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:07:54
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:40:50
 //
 
 // Include Files
@@ -159,8 +159,7 @@ double TransP5LengthApprox(const ::coder::array<double, 2U> &CurvStruct_CoeffP5)
             scalarLB = (c_loop_ub / 2) << 1;
             vectorUB = scalarLB - 2;
             for (int i9{0}; i9 < 9; i9++) {
-                int i10;
-                for (i10 = 0; i10 <= vectorUB; i10 += 2) {
+                for (int i10{0}; i10 <= vectorUB; i10 += 2) {
                     __m128d r5;
                     __m128d r6;
                     __m128d r7;
@@ -169,7 +168,7 @@ double TransP5LengthApprox(const ::coder::array<double, 2U> &CurvStruct_CoeffP5)
                     r7 = _mm_loadu_pd(&r1[i10 + r1.size(0) * i9]);
                     _mm_storeu_pd(&y[i10 + y.size(0) * i9], _mm_add_pd(_mm_mul_pd(r5, r6), r7));
                 }
-                for (i10 = scalarLB; i10 < c_loop_ub; i10++) {
+                for (int i10{scalarLB}; i10 < c_loop_ub; i10++) {
                     y[i10 + y.size(0) * i9] = r[i10 + r.size(0) * i9] * y[i10 + y.size(0) * i9] +
                                               r1[i10 + r1.size(0) * i9];
                 }
@@ -217,7 +216,7 @@ double TransP5LengthApprox(const ::coder::array<double, 2U> &CurvStruct_CoeffP5)
                     Integrand[e_k] += y[(f_k + y.size(0) * e_k) - 1];
                 }
             }
-            if (2 <= nblocks) {
+            if (nblocks >= 2) {
                 xsubs_idx_1 = e_k + 1;
                 ysubs_idx_1 = static_cast<short>(e_k + 1);
             }

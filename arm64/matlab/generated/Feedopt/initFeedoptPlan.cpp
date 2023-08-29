@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: initFeedoptPlan.cpp
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 // Include Files
@@ -19,11 +19,14 @@
 #include "opencn_matlab_types.h"
 #include "opencn_matlab_types1.h"
 #include "opencn_matlab_types2.h"
+#include "opencn_matlab_types21.h"
 #include "opencn_matlab_types3.h"
 #include "paramsDefaultCurv.h"
 #include "queue_coder.h"
+#include "c_spline.h"
 #include "coder_array.h"
-#include "src/c_spline.h"
+#include "coder_bounded_array.h"
+#include <algorithm>
 #include <cmath>
 
 // Function Definitions
@@ -45,20 +48,14 @@
 namespace ocn {
 void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
 {
-    ::coder::array<double, 2U> BasisVal;
-    ::coder::array<double, 2U> BasisValD;
-    ::coder::array<double, 2U> BasisValDD;
-    ::coder::array<double, 2U> BasisValDDD;
     ::coder::array<double, 2U> b_breakpoints;
     ::coder::array<double, 2U> breakpoints;
-    ::coder::array<double, 2U> params_spline_Bl_breakpoints;
-    ::coder::array<double, 2U> params_spline_Lk;
-    ::coder::array<double, 2U> params_spline_coeff;
-    ::coder::array<double, 2U> params_spline_knots;
     ::coder::array<double, 2U> r;
     ::coder::array<double, 2U> x;
     ::coder::array<double, 2U> y;
+    Axes params_tool_offset;
     CurvStruct Curv;
+    SplineStruct params_spline;
     double params_CoeffP5[6];
     double params_R0[6];
     double params_R1[6];
@@ -70,18 +67,26 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     double expl_temp;
     double params_gcodeInfoStruct_FeedRate;
     double params_gcodeInfoStruct_SpindleSpeed;
-    double params_spline_Ltot;
-    unsigned long b_h;
-    unsigned long h;
-    unsigned long params_spline_Bl_handle;
-    int k_loop_ub;
+    double params_tool_backangle;
+    double params_tool_diameter;
+    double params_tool_frontangle;
+    int e_loop_ub;
+    int g_loop_ub;
+    int i_loop_ub;
+    int l_loop_ub;
     int loop_ub_tmp;
-    int m_loop_ub;
     int o_loop_ub;
+    int p_loop_ub;
     int params_gcodeInfoStruct_gcode_source_line;
-    int params_spline_Bl_ncoeff;
-    int params_spline_Bl_order;
+    int params_tool_orientation;
+    int params_tool_pocketno;
+    int params_tool_toolno;
     int q_loop_ub;
+    int r_loop_ub;
+    int s_loop_ub;
+    int t_loop_ub;
+    int u_loop_ub;
+    int v_loop_ub;
     bool params_gcodeInfoStruct_G91;
     bool params_gcodeInfoStruct_G91_1;
     bool params_gcodeInfoStruct_HSC;
@@ -98,23 +103,26 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
         // 'initFeedoptPlan:13' Bl      = bspline_create( cfg.SplineDegree, linspace( 0, 1, ...
         // 'initFeedoptPlan:14'                                   cfg.NBreak ) );
         coder::b_linspace(cfg.NBreak, breakpoints);
-        // 'bspline_create:2' if coder.target('rtw') || coder.target('mex')
+        // 'bspline_create:2' if  coder.target('rtw') || coder.target('mex')
         // 'bspline_create:3' nbreak = length(breakpoints);
         // 'bspline_create:4' ncoeff = nbreak + degree - 2;
         // 'bspline_create:5' h = uint64(0);
-        // 'bspline_create:7' coder.updateBuildInfo('addSourceFiles','c_spline.c',
-        // '$(START_DIR)/src'); 'bspline_create:8' coder.updateBuildInfo('addLinkFlags',
-        // LibInfo.gsl.lflags); 'bspline_create:9' coder.cinclude('src/c_spline.h');
-        // 'bspline_create:10' coder.ceval('c_bspline_create_with_breakpoints', coder.wref(h),
+        // 'bspline_create:6' my_path = StructTypeName.WDIR + "/src";
+        // 'bspline_create:7' coder.updateBuildInfo('addIncludePaths',my_path);
+        // 'bspline_create:8' coder.updateBuildInfo('addSourceFiles','c_spline.c', my_path);
+        // 'bspline_create:9' coder.updateBuildInfo('addLinkFlags', LibInfo.gsl.lflags);
+        // 'bspline_create:10' coder.cinclude('c_spline.h');
+        // 'bspline_create:11' coder.ceval('c_bspline_create_with_breakpoints', coder.wref(h),
         // degree, breakpoints, int32(nbreak) );
         b_breakpoints.set_size(1, breakpoints.size(1));
         b_loop_ub = breakpoints.size(1);
         for (int i2{0}; i2 < b_loop_ub; i2++) {
             b_breakpoints[i2] = breakpoints[i2];
         }
+        unsigned long h;
         c_bspline_create_with_breakpoints(&h, cfg.SplineDegree, &b_breakpoints[0],
                                           breakpoints.size(1));
-        // 'bspline_create:11' Bl = constrBaseSpline( ncoeff, breakpoints, h, int32(degree) );
+        // 'bspline_create:12' Bl = constrBaseSpline( ncoeff, breakpoints, h, int32(degree) );
         constrBaseSpline((breakpoints.size(1) + cfg.SplineDegree) - 2, breakpoints, h,
                          cfg.SplineDegree, &ctx->Bl);
         // 'initFeedoptPlan:15' u_vec   = linspace( 0, 1, cfg.NDiscr );
@@ -122,11 +130,11 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     } else {
         int c_loop_ub;
         int d_loop_ub;
-        int f_loop_ub;
         int i1;
-        int i9;
-        int i_loop_ub;
+        int i12;
+        int j_loop_ub;
         int loop_ub;
+        int n_loop_ub;
         // 'initFeedoptPlan:16' else
         // 'initFeedoptPlan:17' Bl      = bspline_create( cfg.SplineDegree, sinspace( 0, 1, ...
         // 'initFeedoptPlan:18'                                   cfg.NBreak ) );
@@ -149,22 +157,25 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
         for (int i3{0}; i3 < c_loop_ub; i3++) {
             x[i3] = y[i3] * 0.5 + 0.5;
         }
-        // 'bspline_create:2' if coder.target('rtw') || coder.target('mex')
+        // 'bspline_create:2' if  coder.target('rtw') || coder.target('mex')
         // 'bspline_create:3' nbreak = length(breakpoints);
         // 'bspline_create:4' ncoeff = nbreak + degree - 2;
         // 'bspline_create:5' h = uint64(0);
-        // 'bspline_create:7' coder.updateBuildInfo('addSourceFiles','c_spline.c',
-        // '$(START_DIR)/src'); 'bspline_create:8' coder.updateBuildInfo('addLinkFlags',
-        // LibInfo.gsl.lflags); 'bspline_create:9' coder.cinclude('src/c_spline.h');
-        // 'bspline_create:10' coder.ceval('c_bspline_create_with_breakpoints', coder.wref(h),
+        // 'bspline_create:6' my_path = StructTypeName.WDIR + "/src";
+        // 'bspline_create:7' coder.updateBuildInfo('addIncludePaths',my_path);
+        // 'bspline_create:8' coder.updateBuildInfo('addSourceFiles','c_spline.c', my_path);
+        // 'bspline_create:9' coder.updateBuildInfo('addLinkFlags', LibInfo.gsl.lflags);
+        // 'bspline_create:10' coder.cinclude('c_spline.h');
+        // 'bspline_create:11' coder.ceval('c_bspline_create_with_breakpoints', coder.wref(h),
         // degree, breakpoints, int32(nbreak) );
         breakpoints.set_size(1, x.size(1));
         d_loop_ub = x.size(1);
         for (int i4{0}; i4 < d_loop_ub; i4++) {
             breakpoints[i4] = x[i4];
         }
+        unsigned long b_h;
         c_bspline_create_with_breakpoints(&b_h, cfg.SplineDegree, &breakpoints[0], x.size(1));
-        // 'bspline_create:11' Bl = constrBaseSpline( ncoeff, breakpoints, h, int32(degree) );
+        // 'bspline_create:12' Bl = constrBaseSpline( ncoeff, breakpoints, h, int32(degree) );
         constrBaseSpline((x.size(1) + cfg.SplineDegree) - 2, x, b_h, cfg.SplineDegree, &ctx->Bl);
         // 'initFeedoptPlan:19' u_vec   = sinspace( 0, 1, cfg.NDiscr );
         // 'sinspace:2' t = linspace(-1,0,N);
@@ -173,18 +184,18 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
         // 'sinspace:6' x = (cos(pi*t)*0.5 + 0.5)*(x1-x0) + x0;
         coder::c_linspace(cfg.NDiscr, r);
         y.set_size(1, r.size(1));
-        f_loop_ub = r.size(1);
-        for (int i7{0}; i7 < f_loop_ub; i7++) {
-            y[i7] = 3.1415926535897931 * r[i7];
+        j_loop_ub = r.size(1);
+        for (int i10{0}; i10 < j_loop_ub; i10++) {
+            y[i10] = 3.1415926535897931 * r[i10];
         }
-        i9 = y.size(1);
-        for (int b_k{0}; b_k < i9; b_k++) {
+        i12 = y.size(1);
+        for (int b_k{0}; b_k < i12; b_k++) {
             y[b_k] = std::cos(y[b_k]);
         }
         ctx->u_vec.set_size(1, y.size(1));
-        i_loop_ub = y.size(1);
-        for (int i11{0}; i11 < i_loop_ub; i11++) {
-            ctx->u_vec[i11] = y[i11] * 0.5 + 0.5;
+        n_loop_ub = y.size(1);
+        for (int i15{0}; i15 < n_loop_ub; i15++) {
+            ctx->u_vec[i15] = y[i15] * 0.5 + 0.5;
         }
     }
     // 'initFeedoptPlan:22' [ BasisVal, BasisValD, BasisValDD, BasisValDDD, BasisIntegr] = ...
@@ -193,95 +204,68 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     //  n, bspline_n
     // 'bspline_base_eval:6' samples     = int32(numel(xvec));
     // 'bspline_base_eval:7' BasisVal    = zeros(samples, Bl.ncoeff);
-    loop_ub_tmp = ctx->Bl.ncoeff;
-    BasisVal.set_size(ctx->u_vec.size(1), loop_ub_tmp);
-    // 'bspline_base_eval:8' BasisValD   = BasisVal;
-    BasisValD.set_size(ctx->u_vec.size(1), loop_ub_tmp);
-    // 'bspline_base_eval:9' BasisValDD  = BasisVal;
-    BasisValDD.set_size(ctx->u_vec.size(1), loop_ub_tmp);
-    // 'bspline_base_eval:10' BasisValDDD = BasisVal;
-    BasisValDDD.set_size(ctx->u_vec.size(1), loop_ub_tmp);
-    // 'bspline_base_eval:11' BasisIntegr = BasisVal(1, :)';
-    ctx->BasisIntegr.set_size(loop_ub_tmp);
-    for (int i5{0}; i5 < loop_ub_tmp; i5++) {
-        int e_loop_ub;
-        int g_loop_ub;
-        int h_loop_ub;
-        int j_loop_ub;
-        e_loop_ub = ctx->u_vec.size(1);
-        for (int i6{0}; i6 < e_loop_ub; i6++) {
-            BasisVal[i6 + BasisVal.size(0) * i5] = 0.0;
+    ctx->BasisVal.set_size(ctx->u_vec.size(1), ctx->Bl.ncoeff);
+    e_loop_ub = ctx->Bl.ncoeff;
+    for (int i5{0}; i5 < e_loop_ub; i5++) {
+        int f_loop_ub;
+        f_loop_ub = ctx->u_vec.size(1);
+        for (int i6{0}; i6 < f_loop_ub; i6++) {
+            ctx->BasisVal[i6 + ctx->BasisVal.size(0) * i5] = 0.0;
         }
-        g_loop_ub = ctx->u_vec.size(1);
-        for (int i8{0}; i8 < g_loop_ub; i8++) {
-            BasisValD[i8 + BasisValD.size(0) * i5] = 0.0;
-        }
-        h_loop_ub = ctx->u_vec.size(1);
-        for (int i10{0}; i10 < h_loop_ub; i10++) {
-            BasisValDD[i10 + BasisValDD.size(0) * i5] = 0.0;
-        }
-        j_loop_ub = ctx->u_vec.size(1);
-        for (int i12{0}; i12 < j_loop_ub; i12++) {
-            BasisValDDD[i12 + BasisValDDD.size(0) * i5] = 0.0;
-        }
-        ctx->BasisIntegr[i5] = 0.0;
     }
-    // 'bspline_base_eval:13' coder.updateBuildInfo('addSourceFiles','c_spline.c', ...
-    // 'bspline_base_eval:14'                               '$(START_DIR)/src' );
-    // 'bspline_base_eval:15' coder.updateBuildInfo( 'addLinkFlags', LibInfo.gsl.lflags );
-    // 'bspline_base_eval:16' coder.cinclude('src/c_spline.h');
-    // 'bspline_base_eval:17' coder.ceval( 'c_bspline_base_eval', coder.rref( Bl.handle ), samples,
-    // ... 'bspline_base_eval:18'                      coder.rref( xvec ), coder.ref( BasisVal ),
-    // ... 'bspline_base_eval:19'                      coder.ref( BasisValD ), coder.ref( BasisValDD
-    // ), ... 'bspline_base_eval:20'                      coder.ref( BasisValDDD ), coder.ref(
+    // 'bspline_base_eval:8' BasisValD   = BasisVal;
+    ctx->BasisValD.set_size(ctx->u_vec.size(1), ctx->Bl.ncoeff);
+    g_loop_ub = ctx->Bl.ncoeff;
+    for (int i7{0}; i7 < g_loop_ub; i7++) {
+        int h_loop_ub;
+        h_loop_ub = ctx->u_vec.size(1);
+        for (int i8{0}; i8 < h_loop_ub; i8++) {
+            ctx->BasisValD[i8 + ctx->BasisValD.size(0) * i7] = 0.0;
+        }
+    }
+    // 'bspline_base_eval:9' BasisValDD  = BasisVal;
+    ctx->BasisValDD.set_size(ctx->u_vec.size(1), ctx->Bl.ncoeff);
+    i_loop_ub = ctx->Bl.ncoeff;
+    for (int i9{0}; i9 < i_loop_ub; i9++) {
+        int k_loop_ub;
+        k_loop_ub = ctx->u_vec.size(1);
+        for (int i11{0}; i11 < k_loop_ub; i11++) {
+            ctx->BasisValDD[i11 + ctx->BasisValDD.size(0) * i9] = 0.0;
+        }
+    }
+    // 'bspline_base_eval:10' BasisValDDD = BasisVal;
+    ctx->BasisValDDD.set_size(ctx->u_vec.size(1), ctx->Bl.ncoeff);
+    l_loop_ub = ctx->Bl.ncoeff;
+    for (int i13{0}; i13 < l_loop_ub; i13++) {
+        int m_loop_ub;
+        m_loop_ub = ctx->u_vec.size(1);
+        for (int i14{0}; i14 < m_loop_ub; i14++) {
+            ctx->BasisValDDD[i14 + ctx->BasisValDDD.size(0) * i13] = 0.0;
+        }
+    }
+    // 'bspline_base_eval:11' BasisIntegr = BasisVal(1, :)';
+    loop_ub_tmp = ctx->Bl.ncoeff;
+    ctx->BasisIntegr.set_size(ctx->Bl.ncoeff);
+    for (int i16{0}; i16 < loop_ub_tmp; i16++) {
+        ctx->BasisIntegr[i16] = 0.0;
+    }
+    // 'bspline_base_eval:13' my_path = StructTypeName.WDIR + "/src";
+    // 'bspline_base_eval:14' coder.updateBuildInfo('addIncludePaths',my_path);
+    // 'bspline_base_eval:15' coder.updateBuildInfo('addSourceFiles','c_spline.c', my_path);
+    // 'bspline_base_eval:16' coder.updateBuildInfo('addLinkFlags', LibInfo.gsl.lflags );
+    // 'bspline_base_eval:17' coder.cinclude('c_spline.h');
+    // 'bspline_base_eval:18' coder.ceval( 'c_bspline_base_eval', coder.rref( Bl.handle ), samples,
+    // ... 'bspline_base_eval:19'                      coder.rref( xvec ), coder.ref( BasisVal ),
+    // ... 'bspline_base_eval:20'                      coder.ref( BasisValD ), coder.ref( BasisValDD
+    // ), ... 'bspline_base_eval:21'                      coder.ref( BasisValDDD ), coder.ref(
     // BasisIntegr ) );
-    c_bspline_base_eval(&ctx->Bl.handle, ctx->u_vec.size(1), &ctx->u_vec[0], &BasisVal[0],
-                        &BasisValD[0], &BasisValDD[0], &BasisValDDD[0],
+    c_bspline_base_eval(&ctx->Bl.handle, ctx->u_vec.size(1), &ctx->u_vec[0], &ctx->BasisVal[0],
+                        &ctx->BasisValD[0], &ctx->BasisValDD[0], &ctx->BasisValDDD[0],
                         &(ctx->BasisIntegr.data())[0]);
     // 'initFeedoptPlan:25' ctx.BasisVal    = BasisVal;
-    ctx->BasisVal.set_size(BasisVal.size(0), BasisVal.size(1));
-    k_loop_ub = BasisVal.size(1);
-    for (int i13{0}; i13 < k_loop_ub; i13++) {
-        int l_loop_ub;
-        l_loop_ub = BasisVal.size(0);
-        for (int i14{0}; i14 < l_loop_ub; i14++) {
-            ctx->BasisVal[i14 + ctx->BasisVal.size(0) * i13] =
-                BasisVal[i14 + BasisVal.size(0) * i13];
-        }
-    }
     // 'initFeedoptPlan:26' ctx.BasisValD   = BasisValD;
-    ctx->BasisValD.set_size(BasisValD.size(0), BasisValD.size(1));
-    m_loop_ub = BasisValD.size(1);
-    for (int i15{0}; i15 < m_loop_ub; i15++) {
-        int n_loop_ub;
-        n_loop_ub = BasisValD.size(0);
-        for (int i16{0}; i16 < n_loop_ub; i16++) {
-            ctx->BasisValD[i16 + ctx->BasisValD.size(0) * i15] =
-                BasisValD[i16 + BasisValD.size(0) * i15];
-        }
-    }
     // 'initFeedoptPlan:27' ctx.BasisValDD  = BasisValDD;
-    ctx->BasisValDD.set_size(BasisValDD.size(0), BasisValDD.size(1));
-    o_loop_ub = BasisValDD.size(1);
-    for (int i17{0}; i17 < o_loop_ub; i17++) {
-        int p_loop_ub;
-        p_loop_ub = BasisValDD.size(0);
-        for (int i18{0}; i18 < p_loop_ub; i18++) {
-            ctx->BasisValDD[i18 + ctx->BasisValDD.size(0) * i17] =
-                BasisValDD[i18 + BasisValDD.size(0) * i17];
-        }
-    }
     // 'initFeedoptPlan:28' ctx.BasisValDDD = BasisValDDD;
-    ctx->BasisValDDD.set_size(BasisValDDD.size(0), BasisValDDD.size(1));
-    q_loop_ub = BasisValDDD.size(1);
-    for (int i19{0}; i19 < q_loop_ub; i19++) {
-        int r_loop_ub;
-        r_loop_ub = BasisValDDD.size(0);
-        for (int i20{0}; i20 < r_loop_ub; i20++) {
-            ctx->BasisValDDD[i20 + ctx->BasisValDDD.size(0) * i19] =
-                BasisValDDD[i20 + BasisValDDD.size(0) * i19];
-        }
-    }
     // 'initFeedoptPlan:29' ctx.BasisIntegr = BasisIntegr;
     // 'initFeedoptPlan:30' ctx.Bl          = Bl;
     // 'initFeedoptPlan:31' ctx.u_vec       = u_vec;
@@ -290,29 +274,29 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     // 'constrCurvStructType:4' if( nargin > 0 )
     // 'constrCurvStructType:6' else
     // 'constrCurvStructType:7' [ params ] = paramsDefaultCurv;
-    paramsDefaultCurv(
-        &params_gcodeInfoStruct_Type, &params_gcodeInfoStruct_zspdmode,
-        &params_gcodeInfoStruct_TRAFO, &params_gcodeInfoStruct_HSC,
-        &params_gcodeInfoStruct_FeedRate, &params_gcodeInfoStruct_SpindleSpeed,
-        &params_gcodeInfoStruct_gcode_source_line, &params_gcodeInfoStruct_G91,
-        &params_gcodeInfoStruct_G91_1, &params_spline_Bl_ncoeff, params_spline_Bl_breakpoints,
-        &params_spline_Bl_handle, &params_spline_Bl_order, params_spline_coeff, params_spline_knots,
-        &params_spline_Ltot, params_spline_Lk, params_R0, params_R1, params_Cprim, &expl_temp,
-        params_evec, &b_expl_temp, &c_expl_temp, params_CoeffP5, &d_expl_temp);
+    paramsDefaultCurv(&params_gcodeInfoStruct_Type, &params_gcodeInfoStruct_zspdmode,
+                      &params_gcodeInfoStruct_TRAFO, &params_gcodeInfoStruct_HSC,
+                      &params_gcodeInfoStruct_FeedRate, &params_gcodeInfoStruct_SpindleSpeed,
+                      &params_gcodeInfoStruct_gcode_source_line, &params_gcodeInfoStruct_G91,
+                      &params_gcodeInfoStruct_G91_1, &params_tool_toolno, &params_tool_pocketno,
+                      &params_tool_offset, &params_tool_diameter, &params_tool_frontangle,
+                      &params_tool_backangle, &params_tool_orientation, &params_spline, params_R0,
+                      params_R1, params_Cprim, &expl_temp, params_evec, &b_expl_temp, &c_expl_temp,
+                      params_CoeffP5, &d_expl_temp);
     // 'constrCurvStructType:10' if( coder.target( "MATLAB" ) )
     // 'constrCurvStructType:12' else
-    // 'constrCurvStructType:13' C = constrCurvStruct( params.gcodeInfoStruct, params.spline, ...
-    // 'constrCurvStructType:14'         params.R0, params.R1, ...
-    // 'constrCurvStructType:15'         params.Cprim, params.delta, params.evec, params.theta, ...
-    // 'constrCurvStructType:16'         params.pitch, params.CoeffP5, params.Coeff );
-    b_constrCurvStruct(
-        params_gcodeInfoStruct_Type, params_gcodeInfoStruct_zspdmode, params_gcodeInfoStruct_TRAFO,
-        params_gcodeInfoStruct_HSC, params_gcodeInfoStruct_FeedRate,
-        params_gcodeInfoStruct_SpindleSpeed, params_gcodeInfoStruct_gcode_source_line,
-        params_gcodeInfoStruct_G91, params_gcodeInfoStruct_G91_1, params_spline_Bl_ncoeff,
-        params_spline_Bl_breakpoints, params_spline_Bl_handle, params_spline_Bl_order,
-        params_spline_coeff, params_spline_knots, params_spline_Ltot, params_spline_Lk, params_R0,
-        params_R1, params_Cprim, params_evec, params_CoeffP5, &Curv);
+    // 'constrCurvStructType:13' C = constrCurvStruct( params.gcodeInfoStruct, params.tool, ...
+    // 'constrCurvStructType:14'         params.spline, params.R0, params.R1, params.Cprim, ...
+    // 'constrCurvStructType:15'         params.delta, params.evec, params.theta, params.pitch, ...
+    // 'constrCurvStructType:16'         params.CoeffP5, params.Coeff );
+    b_constrCurvStruct(params_gcodeInfoStruct_Type, params_gcodeInfoStruct_zspdmode,
+                       params_gcodeInfoStruct_TRAFO, params_gcodeInfoStruct_HSC,
+                       params_gcodeInfoStruct_FeedRate, params_gcodeInfoStruct_SpindleSpeed,
+                       params_gcodeInfoStruct_gcode_source_line, params_gcodeInfoStruct_G91,
+                       params_gcodeInfoStruct_G91_1, params_tool_toolno, params_tool_pocketno,
+                       &params_tool_offset, params_tool_diameter, params_tool_frontangle,
+                       params_tool_backangle, params_tool_orientation, &params_spline, params_R0,
+                       params_R1, params_Cprim, params_evec, params_CoeffP5, &Curv);
     // 'initFeedoptPlan:34' ctx.q_spline    = queue( Curv );
     // 'queue:2' q = queue_coder(value_type);
     ctx->q_spline.init(&Curv);
@@ -353,7 +337,98 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     // 'initFeedoptPlan:50' ctx.at_1            = cfg.at_1;
     ctx->at_1 = cfg.at_1;
     // 'initFeedoptPlan:51' ctx.cfg             = cfg;
-    ctx->cfg = cfg;
+    ctx->cfg.maskTot.size[0] = 1;
+    ctx->cfg.maskTot.size[1] = cfg.maskTot.size[1];
+    o_loop_ub = cfg.maskTot.size[1];
+    if (o_loop_ub - 1 >= 0) {
+        std::copy(&cfg.maskTot.data[0], &cfg.maskTot.data[o_loop_ub], &ctx->cfg.maskTot.data[0]);
+    }
+    ctx->cfg.maskCart.size[0] = 1;
+    ctx->cfg.maskCart.size[1] = cfg.maskCart.size[1];
+    p_loop_ub = cfg.maskCart.size[1];
+    if (p_loop_ub - 1 >= 0) {
+        std::copy(&cfg.maskCart.data[0], &cfg.maskCart.data[p_loop_ub], &ctx->cfg.maskCart.data[0]);
+    }
+    ctx->cfg.maskRot.size[0] = 1;
+    ctx->cfg.maskRot.size[1] = cfg.maskRot.size[1];
+    q_loop_ub = cfg.maskRot.size[1];
+    if (q_loop_ub - 1 >= 0) {
+        std::copy(&cfg.maskRot.data[0], &cfg.maskRot.data[q_loop_ub], &ctx->cfg.maskRot.data[0]);
+    }
+    ctx->cfg.indCart.size[0] = cfg.indCart.size[0];
+    r_loop_ub = cfg.indCart.size[0];
+    if (r_loop_ub - 1 >= 0) {
+        std::copy(&cfg.indCart.data[0], &cfg.indCart.data[r_loop_ub], &ctx->cfg.indCart.data[0]);
+    }
+    ctx->cfg.indRot.size[0] = cfg.indRot.size[0];
+    s_loop_ub = cfg.indRot.size[0];
+    if (s_loop_ub - 1 >= 0) {
+        std::copy(&cfg.indRot.data[0], &cfg.indRot.data[s_loop_ub], &ctx->cfg.indRot.data[0]);
+    }
+    ctx->cfg.NumberAxis = cfg.NumberAxis;
+    ctx->cfg.NCart = cfg.NCart;
+    ctx->cfg.NRot = cfg.NRot;
+    ctx->cfg.D.size[0] = cfg.D.size[0];
+    t_loop_ub = cfg.D.size[0];
+    if (t_loop_ub - 1 >= 0) {
+        std::copy(&cfg.D.data[0], &cfg.D.data[t_loop_ub], &ctx->cfg.D.data[0]);
+    }
+    ctx->cfg.coeffD = cfg.coeffD;
+    ctx->cfg.kin_params.size[0] = cfg.kin_params.size[0];
+    u_loop_ub = cfg.kin_params.size[0];
+    if (u_loop_ub - 1 >= 0) {
+        std::copy(&cfg.kin_params.data[0], &cfg.kin_params.data[u_loop_ub],
+                  &ctx->cfg.kin_params.data[0]);
+    }
+    for (int i17{0}; i17 < 5; i17++) {
+        ctx->cfg.kin_type[i17] = cfg.kin_type[i17];
+    }
+    ctx->cfg.NDiscr = cfg.NDiscr;
+    ctx->cfg.NBreak = cfg.NBreak;
+    ctx->cfg.UseDynamicBreakpoints = cfg.UseDynamicBreakpoints;
+    ctx->cfg.UseLinearBreakpoints = cfg.UseLinearBreakpoints;
+    ctx->cfg.DynamicBreakpointsDistance = cfg.DynamicBreakpointsDistance;
+    ctx->cfg.NHorz = cfg.NHorz;
+    ctx->cfg.fmax = cfg.fmax;
+    ctx->cfg.smax = cfg.smax;
+    for (int i18{0}; i18 < 6; i18++) {
+        ctx->cfg.vmax[i18] = cfg.vmax[i18];
+        ctx->cfg.amax[i18] = cfg.amax[i18];
+        ctx->cfg.jmax[i18] = cfg.jmax[i18];
+    }
+    ctx->cfg.LeeSplineDegree = cfg.LeeSplineDegree;
+    ctx->cfg.SplineDegree = cfg.SplineDegree;
+    ctx->cfg.CutOff = cfg.CutOff;
+    ctx->cfg.LSplit = cfg.LSplit;
+    ctx->cfg.LSplitZero = cfg.LSplitZero;
+    ctx->cfg.LThresholdMax = cfg.LThresholdMax;
+    ctx->cfg.LThresholdMin = cfg.LThresholdMin;
+    ctx->cfg.v_0 = cfg.v_0;
+    ctx->cfg.at_0 = cfg.at_0;
+    ctx->cfg.v_1 = cfg.v_1;
+    ctx->cfg.at_1 = cfg.at_1;
+    ctx->cfg.dt = cfg.dt;
+    ctx->cfg.ZeroStartAccLimit = cfg.ZeroStartAccLimit;
+    ctx->cfg.ZeroStartJerkLimit = cfg.ZeroStartJerkLimit;
+    ctx->cfg.ZeroStartVelLimit = cfg.ZeroStartVelLimit;
+    ctx->cfg.source.set_size(1, cfg.source.size[1]);
+    v_loop_ub = cfg.source.size[1];
+    for (int i19{0}; i19 < v_loop_ub; i19++) {
+        ctx->cfg.source[i19] = cfg.source.data[i19];
+    }
+    ctx->cfg.DebugCutZero = cfg.DebugCutZero;
+    ctx->cfg.Cusp = cfg.Cusp;
+    ctx->cfg.Compressing = cfg.Compressing;
+    ctx->cfg.Smoothing = cfg.Smoothing;
+    ctx->cfg.GaussLegendreN = cfg.GaussLegendreN;
+    for (int b_i{0}; b_i < 5; b_i++) {
+        ctx->cfg.GaussLegendreX[b_i] = cfg.GaussLegendreX[b_i];
+        ctx->cfg.GaussLegendreW[b_i] = cfg.GaussLegendreW[b_i];
+    }
+    ctx->cfg.opt = cfg.opt;
+    for (int i20{0}; i20 < 9; i20++) {
+        ctx->cfg.LogFileName[i20] = cfg.LogFileName[i20];
+    }
     // 'initFeedoptPlan:52' ctx.errcode         = FeedoptPlanError.Success;
     ctx->errcode = FeedoptPlanError_Success;
     // 'initFeedoptPlan:53' ctx.jmax_increase_count = int32(0);

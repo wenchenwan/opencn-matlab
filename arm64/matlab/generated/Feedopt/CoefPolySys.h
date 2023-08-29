@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: CoefPolySys.h
 //
-// MATLAB Coder version            : 5.3
-// C/C++ source code generated on  : 05-Aug-2022 16:02:16
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 29-Aug-2023 15:52:02
 //
 
 #ifndef COEFPOLYSYS_H
@@ -20,9 +20,8 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-void CoefPolySys(const double in1[5], const double in2[5], const double in3[5], const double in4[5],
-                 const double in5[5], const double in6[5], const double in7_data[],
-                 double CoefPS[16]);
+void CoefPolySys(const double in1[6], const double in2[6], const double in3[6], const double in4[6],
+                 const double in5[6], const double in6[6], const double in7[6], double CoefPS[16]);
 
 }
 
