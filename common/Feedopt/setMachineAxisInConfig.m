@@ -28,13 +28,13 @@ function [ cfg ] = check_values( cfg )
     if( cfg.NCart > 0 )
         cfg.indCart = [ 1 : cfg.NCart ].';
     else
-        cfg.indCart = 0;
+        cfg.indCart = int32( 0 );
     end
 
     if( cfg.NRot > 0 )
         cfg.indRot = [ 1 : cfg.NRot ].' + cfg.NCart;
         cfg.D(cfg.indRot) = cfg.coeffD;
     else
-        cfg.indRot = 0;
+        cfg.indRot = int32( 0 );
     end        
 end

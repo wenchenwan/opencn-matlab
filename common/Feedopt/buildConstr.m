@@ -49,7 +49,8 @@ v_max       = zeros( Ndim + 1, M );
 for k = 1 : Nwindow
     % Compute the partial derivatives    
     [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, windowCurv( k ), u_vec );
-    
+    ctx.kin = ctx.kin.set_tool_length(windowCurv( k ).Tool.offset.z);
+
     if( windowCurv( k ).Info.TRAFO )
         [ ~, r1D_a, r2D_a ]  = ctx.kin.joint( r0D, r1D, r2D, r3D );
         r1D_r    = r1D;

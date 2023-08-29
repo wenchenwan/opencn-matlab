@@ -9,6 +9,9 @@ for j = 2 : N
     CurvStruct = queue.get( j );
     if( prevTrafo ~= CurvStruct.Info.TRAFO )
         disp( "trafo changed : line " + CurvStruct.Info.gcode_source_line );
+        
+        ctx.kin = ctx.kin.set_tool_length( CurvStruct.Tool.offset.z );
+
         if( CurvStruct.Info.TRAFO  )
             CurvStruct.R0( ctx.cfg.maskTot ) = ctx.kin.r_relative( CurvStruct.R0( ctx.cfg.maskTot ) );
         else

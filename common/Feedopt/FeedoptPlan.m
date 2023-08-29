@@ -18,7 +18,35 @@ switch ctx.op
         DebugLog( DebugCfg.Validate, 'Reading G-code...\n' );
         %
         while status
-            [ status, CurvStruct ] = ReadGCode( ReadGCodeCmd.Read, '' );
+            [ status, CurvStruct ] = ReadGCode( ReadGCodeCmd.Read, ...
+                ctx.cfg.source );
+            if( ctx.q_gcode.isempty )
+                prev_tool = constrToolStructType;
+            else
+                prev_tool = ctx.q_gcode.rget(1).Tool;
+                
+                if( ~toolIsEqual(prev_tool, CurvStruct.Tool ) )
+                    curv1 = ctx.q_gcode.rget(1);
+                    if( isAZeroStart(curv1) )
+                        curv1.Info.zspdmode = ZSpdMode.ZZ;
+                    else
+                        curv1.Info.zspdmode = ZSpdMode.NZ;
+                    end
+
+                    ctx.q_gcode.set(ctx.q_gcode.size, curv1);
+    
+                    if( isAZeroEnd(CurvStruct) )
+                        CurvStruct.Info.zspdmode = ZSpdMode.ZZ;
+                    else
+                        CurvStruct.Info.zspdmode = ZSpdMode.ZN;
+                    end
+                end
+            end
+
+            [CurvStruct] = add_tool_offset( CurvStruct, ctx.cfg.indCart, prev_tool );
+            
+            CurvStruct.R0( 4 : end ) = deg2rad( CurvStruct.R0( 4 : end ) );
+            CurvStruct.R1( 4 : end ) = deg2rad( CurvStruct.R1( 4 : end ) );
 
             for j = 1 : StructTypeName.NumberAxisMax
                 if isnan( CurvStruct.R0( j ) )
@@ -37,7 +65,6 @@ switch ctx.op
                     % check for undefined feedrate
                     CurvStruct.Info.FeedRate = ctx.cfg.fmax;
                 end
-                %                 PrintCurvStruct( ctx, CurvStruct );
                 ctx.q_gcode.push( CurvStruct );
             end
         end
@@ -48,10 +75,10 @@ switch ctx.op
             return;
         end
         last = ctx.q_gcode.rget(1);
-        if last.Info.zspdmode == ZSpdMode.NN
-            last.Info.zspdmode = ZSpdMode.NZ;
-        elseif last.Info.zspdmode == ZSpdMode.ZN
+        if( isAZeroStart(last) )
             last.Info.zspdmode = ZSpdMode.ZZ;
+        else
+            last.Info.zspdmode = ZSpdMode.NZ;
         end
         ctx.q_gcode.set( ctx.q_gcode.size, last );
 

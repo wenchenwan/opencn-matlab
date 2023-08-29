@@ -1,5 +1,4 @@
-function [cfg, output_root] = generate_c_config(generate_for_arm_32, ...
-                              generate_for_arm_64, ...
+function [cfg, output_root] = generate_c_config( generate_for_arm_64, ...
                               generate_for_x86_64 )
 % generate_c_config
 % 
@@ -21,7 +20,7 @@ cfg.BuildConfiguration = 'Faster Runs';
 % files for each MATLAB language file.
 
 % cfg.FilePartitionMethod = 'MapMFileToCFile';
-cfg.FilePartitionMethod = 'SingleFile';
+cfg.FilePartitionMethod = 'MapMFileToCFile';
 
 % The code generator produces a single file for C/C++.
 % functions that map to your MATLAB entry-point functions.
@@ -136,7 +135,7 @@ cfg.HighlightPotentialRowMajorIssues = true;
 % Custom code that appears near the top of each C/C++
 % header file generated from your MATLAB code,
 % except rtwtypes.h and rtwhalf.h
-cfg.CustomHeaderCode = '#include "functions.h"';
+
 % For Backward compatibility
 if(isprop(cfg,'CppGenerateEnumClass'))
     cfg.CppGenerateEnumClass = false;
@@ -160,10 +159,6 @@ if  generate_for_x86_64
     %       Coder product.
     cfg.CodeReplacementLibrary = 'Intel SSE (Linux)';
     output_root = '../x86';
-elseif generate_for_arm_32
-    cfg.HardwareImplementation.TargetHWDeviceType = 'ARM Compatible->ARM Cortex';
-    cfg.HardwareImplementation.ProdHWDeviceType = 'ARM Compatible->ARM Cortex';
-    output_root = '../arm';
 elseif generate_for_arm_64
     cfg.HardwareImplementation.TargetHWDeviceType = 'ARM Compatible->ARM 64-bit (LP64)';
     cfg.HardwareImplementation.ProdHWDeviceType = 'ARM Compatible->ARM 64-bit (LP64)';

@@ -45,6 +45,7 @@ for k = 1 : N
             [ r, ~, a, j ]  = calcRVAJfromU( ctx, Curv, state.u, ud, udd, uddd );
             [ r0D, r1D ]    = EvalCurvStruct( ctx, Curv, state.u );
             
+            ctx.kin = ctx.kin.set_tool_length( Curv.Tool.offset.z );
             r = ctx.kin.r_relative(r);
 
             if( ~Curv.Info.TRAFO )

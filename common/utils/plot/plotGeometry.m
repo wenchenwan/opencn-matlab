@@ -39,6 +39,8 @@ for j = 1 : NCurv
     point( 1 : end -1, ind ) = EvalCurvStructNoCtx( cfg, curv, spline, u_vec );
     point( end, ind ) = j;
 
+    ctx.kin = ctx.kin.set_tool_length( curv.Tool.offset.z );
+
     if( curv.Info.TRAFO )
         [ point(  1 : end -1, ind ) ] = ctx.kin.r_joint( point(  1 : end -1, ind ) );
     end

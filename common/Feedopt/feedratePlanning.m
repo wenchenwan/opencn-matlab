@@ -130,7 +130,6 @@ for curv_ind = k0 : int32( kend )
 end
 
 NWindow = ind;
-
 end
 
 function [ quit, ctx ] = opt_error( ctx, msg )

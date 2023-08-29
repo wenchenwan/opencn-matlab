@@ -3,9 +3,8 @@ function [ status, CurvStruct ] = ReadGCode( cmd, filename )
 % coder.extrinsic('ReadGCode_mex');
 % Wrapper for pulling the next gcode line from the interpreter
 persistent n data using_mat
-
-status = int32(0);
-CurvStruct = constrCurvStructType;
+status      = int32(0);
+CurvStruct  = constrCurvStructType;
 
 if ( coder.target('mex') || coder.target('rtw') )
     coder.updateBuildInfo('addDefines', '_POSIX_C_SOURCE=199309L')
@@ -50,9 +49,7 @@ if ( coder.target('mex') || coder.target('rtw') )
             is_loaded = int32(0);
             is_loaded = coder.ceval( 'cpp_interp_loaded' );
             if is_loaded
-                status = coder.ceval( 'cpp_interp_read', coder.ref( CurvStruct ) );
-                CurvStruct.R0( 4 : end ) = deg2rad( CurvStruct.R0( 4 : end ) );
-                CurvStruct.R1( 4 : end ) = deg2rad( CurvStruct.R1( 4 : end ) );
+                status = coder.ceval( 'cpp_interp_read', coder.ref( CurvStruct ) );                
             else
                 status = int32(0);
             end
@@ -63,6 +60,7 @@ elseif coder.target('matlab')
         disp( "The configuration file is located : " + ...
               getenv("INI_FILE_NAME") );
         ext = filename( end-3 : end );
+        disp("Filename : " + filename );
         if ext == ".mat"
             fprintf( 'Loading CurvStructs ... ' )
             data = load( filename, 'CurvStructs' );
@@ -73,7 +71,7 @@ elseif coder.target('matlab')
             status = ~isempty( data );
         else
             using_mat = false;
-            [status, CurvStruct] = ReadGCode_mex( 'ReadGCode', cmd, filename );
+            [status, CurvStruct] = ReadGCode_mex( 'ReadGCode', cmd, filename);
         end
     elseif cmd == ReadGCodeCmd.Read
         if using_mat

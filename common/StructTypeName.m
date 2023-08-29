@@ -19,6 +19,8 @@ classdef ( Sealed ) StructTypeName < handle
     end
 
     properties ( Constant )
+        % Default size for the file name path
+        dimFileName = { [ 1, 1024 ], [ 0, 1 ] }; 
         % Default size for the breakpoints vector
         dimNBreak   = { [ 1, Inf ], [ 0, 1 ] };   
         % Default size for the Coeff vector

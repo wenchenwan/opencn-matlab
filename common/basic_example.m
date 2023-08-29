@@ -25,7 +25,8 @@ try
 %     [ ret ] = saveCtx( ctx, "dev/test.mat" );
 
     % Plot geometry
-    plotGeometry(ctx, ctx.cfg, ctx.q_opt, ctx.q_spline );
+    plotGeometry(ctx, ctx.cfg, ctx.q_opt, ctx.q_spline);
+
     pause( 0.5 );
 % 
 %     % Resampling of the parameter
