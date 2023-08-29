@@ -5,7 +5,7 @@
 // File: EvalCurvStruct.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Aug-2023 15:40:50
+// C/C++ source code generated on  : 29-Aug-2023 16:29:37
 //
 
 // Include Files
@@ -698,7 +698,7 @@ void k_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
 //
 // function [r0D, r1D, r2D, r3D] = EvalCurvStruct( ctx, curv, u_vec )
 //
-// Arguments    : const c_FeedoptConfig *ctx_cfg
+// Arguments    : const FeedoptConfig *ctx_cfg
 //                const CurvStruct *curv
 //                ::coder::array<double, 1U> &r0D
 //                ::coder::array<double, 1U> &r1D
@@ -706,7 +706,7 @@ void k_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
 //                ::coder::array<double, 1U> &r3D
 // Return Type  : void
 //
-void l_EvalCurvStruct(const c_FeedoptConfig *ctx_cfg, const CurvStruct *curv,
+void l_EvalCurvStruct(const FeedoptConfig *ctx_cfg, const CurvStruct *curv,
                       ::coder::array<double, 1U> &r0D, ::coder::array<double, 1U> &r1D,
                       ::coder::array<double, 1U> &r2D, ::coder::array<double, 1U> &r3D)
 {

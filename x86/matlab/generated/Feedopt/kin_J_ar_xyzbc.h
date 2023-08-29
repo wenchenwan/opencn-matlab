@@ -5,7 +5,7 @@
 // File: kin_J_ar_xyzbc.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Aug-2023 15:40:50
+// C/C++ source code generated on  : 29-Aug-2023 16:29:37
 //
 
 #ifndef KIN_J_AR_XYZBC_H

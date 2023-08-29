@@ -5,7 +5,7 @@
 // File: CalcAlpha0.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Aug-2023 15:52:02
+// C/C++ source code generated on  : 29-Aug-2023 16:48:46
 //
 
 #ifndef CALCALPHA0_H

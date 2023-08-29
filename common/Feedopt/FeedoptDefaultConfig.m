@@ -85,7 +85,6 @@ cfg = struct(...
     'opt', LP,...
     'LogFileName', 'logs/logs');
 
-coder.varsize( 'cfg.source',    StructTypeName.dimFileName{ : } );
 coder.varsize( 'cfg.indCart',   StructTypeName.dimInd{ : } );
 coder.varsize( 'cfg.indRot',    StructTypeName.dimInd{ : } );
 coder.varsize( 'cfg.maskTot',   StructTypeName.dimMask{ : } );

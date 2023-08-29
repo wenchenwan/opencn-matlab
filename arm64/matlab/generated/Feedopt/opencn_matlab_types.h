@@ -5,7 +5,7 @@
 // File: opencn_matlab_types.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Aug-2023 15:52:02
+// C/C++ source code generated on  : 29-Aug-2023 16:48:46
 //
 
 #ifndef OPENCN_MATLAB_TYPES_H
@@ -87,7 +87,7 @@ struct FeedoptConfig {
     double ZeroStartAccLimit;
     double ZeroStartJerkLimit;
     double ZeroStartVelLimit;
-    ::coder::bounded_array<char, 1024U, 2U> source;
+    char source[1024];
     bool DebugCutZero;
     struct0_T Cusp;
     struct1_T Compressing;
@@ -138,58 +138,7 @@ struct b_FeedoptConfig {
     double ZeroStartAccLimit;
     double ZeroStartJerkLimit;
     double ZeroStartVelLimit;
-    ::coder::array<char, 2U> source;
-    bool DebugCutZero;
-    struct0_T Cusp;
-    struct1_T Compressing;
-    struct2_T Smoothing;
-    double GaussLegendreN;
-    double GaussLegendreX[5];
-    double GaussLegendreW[5];
-    LPCfg opt;
-    char LogFileName[9];
-};
-
-struct c_FeedoptConfig {
-    ::coder::bounded_array<bool, 6U, 2U> maskTot;
-    ::coder::bounded_array<bool, 6U, 2U> maskCart;
-    ::coder::bounded_array<bool, 6U, 2U> maskRot;
-    ::coder::bounded_array<int, 3U, 1U> indCart;
-    ::coder::bounded_array<int, 3U, 1U> indRot;
-    int NumberAxis;
-    int NCart;
-    int NRot;
-    ::coder::bounded_array<double, 6U, 1U> D;
-    double coeffD;
-    ::coder::bounded_array<double, 32U, 1U> kin_params;
-    char kin_type[5];
-    int NDiscr;
-    int NBreak;
-    bool UseDynamicBreakpoints;
-    bool UseLinearBreakpoints;
-    double DynamicBreakpointsDistance;
-    int NHorz;
-    double fmax;
-    double smax;
-    double vmax[6];
-    double amax[6];
-    double jmax[6];
-    int LeeSplineDegree;
-    int SplineDegree;
-    double CutOff;
-    double LSplit;
-    double LSplitZero;
-    double LThresholdMax;
-    double LThresholdMin;
-    double v_0;
-    double at_0;
-    double v_1;
-    double at_1;
-    double dt;
-    double ZeroStartAccLimit;
-    double ZeroStartJerkLimit;
-    double ZeroStartVelLimit;
-    ::coder::array<char, 2U> source;
+    char source[1024];
     bool DebugCutZero;
     struct0_T Cusp;
     struct1_T Compressing;
@@ -251,7 +200,7 @@ struct FeedoptContext {
     double v_1;
     double at_0;
     double at_1;
-    c_FeedoptConfig cfg;
+    FeedoptConfig cfg;
     FeedoptPlanError errcode;
     int jmax_increase_count;
     bool zero_start;

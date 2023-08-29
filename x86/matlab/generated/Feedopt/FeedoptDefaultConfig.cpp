@@ -5,7 +5,7 @@
 // File: FeedoptDefaultConfig.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Aug-2023 15:40:50
+// C/C++ source code generated on  : 29-Aug-2023 16:29:37
 //
 
 // Include Files
@@ -17,6 +17,7 @@
 #include "coder_array.h"
 #include "coder_bounded_array.h"
 #include <algorithm>
+#include <cstring>
 
 // Function Definitions
 //
@@ -47,7 +48,6 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     int e_loop_ub;
     int f_loop_ub;
     int g_loop_ub;
-    int h_loop_ub;
     int loop_ub;
     if (!isInitialized_opencn_matlab) {
         opencn_matlab_initialize();
@@ -158,16 +158,15 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     //         % Use a linear distribution of breakpoints (else sinspace)
     //    % Distance between two breakpoints in mm
     //  %[mm] [rad]
-    // 'FeedoptDefaultConfig:88' coder.varsize( 'cfg.source',    StructTypeName.dimFileName{ : } );
-    // 'FeedoptDefaultConfig:89' coder.varsize( 'cfg.indCart',   StructTypeName.dimInd{ : } );
-    // 'FeedoptDefaultConfig:90' coder.varsize( 'cfg.indRot',    StructTypeName.dimInd{ : } );
-    // 'FeedoptDefaultConfig:91' coder.varsize( 'cfg.maskTot',   StructTypeName.dimMask{ : } );
-    // 'FeedoptDefaultConfig:92' coder.varsize( 'cfg.maskCart',  StructTypeName.dimMask{ : } );
-    // 'FeedoptDefaultConfig:93' coder.varsize( 'cfg.maskRot',   StructTypeName.dimMask{ : } );
-    // 'FeedoptDefaultConfig:94' coder.varsize( 'cfg.D',         StructTypeName.dimD{ : } );
-    // 'FeedoptDefaultConfig:95' coder.varsize( 'cfg.kin_params',StructTypeName.dimKinParams{ : } );
-    // 'FeedoptDefaultConfig:96' coder.cstructname( cfg,         StructTypeName.FeedoptCfg );
-    // 'FeedoptDefaultConfig:98' [ cfg ] = setMachineAxisInConfig( cfg, cfg.maskTot );
+    // 'FeedoptDefaultConfig:88' coder.varsize( 'cfg.indCart',   StructTypeName.dimInd{ : } );
+    // 'FeedoptDefaultConfig:89' coder.varsize( 'cfg.indRot',    StructTypeName.dimInd{ : } );
+    // 'FeedoptDefaultConfig:90' coder.varsize( 'cfg.maskTot',   StructTypeName.dimMask{ : } );
+    // 'FeedoptDefaultConfig:91' coder.varsize( 'cfg.maskCart',  StructTypeName.dimMask{ : } );
+    // 'FeedoptDefaultConfig:92' coder.varsize( 'cfg.maskRot',   StructTypeName.dimMask{ : } );
+    // 'FeedoptDefaultConfig:93' coder.varsize( 'cfg.D',         StructTypeName.dimD{ : } );
+    // 'FeedoptDefaultConfig:94' coder.varsize( 'cfg.kin_params',StructTypeName.dimKinParams{ : } );
+    // 'FeedoptDefaultConfig:95' coder.cstructname( cfg,         StructTypeName.FeedoptCfg );
+    // 'FeedoptDefaultConfig:97' [ cfg ] = setMachineAxisInConfig( cfg, cfg.maskTot );
     r.maskTot.size[0] = 1;
     r.maskTot.size[1] = 6;
     for (int i{0}; i < 6; i++) {
@@ -222,10 +221,7 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     r.ZeroStartAccLimit = 0.01;
     r.ZeroStartJerkLimit = 1.0E+6;
     r.ZeroStartVelLimit = 0.5;
-    r.source.set_size(1, 1024);
-    for (int i3{0}; i3 < 1024; i3++) {
-        r.source[i3] = '\x00';
-    }
+    std::memset(&r.source[0], 0, 1024U * sizeof(char));
     r.DebugCutZero = false;
     r.Cusp.Skip = false;
     r.Cusp.CuspThreshold = 45.0;
@@ -246,8 +242,8 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     r.opt.VEL_RAMP_OVER_WINDOWS = 0.999;
     r.opt.SLACK_PENALTY = 10000.0;
     r.opt.USE_LINPROG = false;
-    for (int i4{0}; i4 < 9; i4++) {
-        r.LogFileName[i4] = b_cv1[i4];
+    for (int i3{0}; i3 < 9; i3++) {
+        r.LogFileName[i3] = b_cv1[i3];
     }
     b_setMachineAxisInConfig(&r, bv);
     cfg->maskTot.size[0] = 1;
@@ -270,21 +266,21 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     }
     cfg->indCart.size[0] = r.indCart.size(0);
     d_loop_ub = r.indCart.size(0);
-    for (int i5{0}; i5 < d_loop_ub; i5++) {
-        cfg->indCart.data[i5] = r.indCart[i5];
+    for (int i4{0}; i4 < d_loop_ub; i4++) {
+        cfg->indCart.data[i4] = r.indCart[i4];
     }
     cfg->indRot.size[0] = r.indRot.size(0);
     e_loop_ub = r.indRot.size(0);
-    for (int i6{0}; i6 < e_loop_ub; i6++) {
-        cfg->indRot.data[i6] = r.indRot[i6];
+    for (int i5{0}; i5 < e_loop_ub; i5++) {
+        cfg->indRot.data[i5] = r.indRot[i5];
     }
     cfg->NumberAxis = r.NumberAxis;
     cfg->NCart = r.NCart;
     cfg->NRot = r.NRot;
     cfg->D.size[0] = r.D.size(0);
     f_loop_ub = r.D.size(0);
-    for (int i7{0}; i7 < f_loop_ub; i7++) {
-        cfg->D.data[i7] = r.D[i7];
+    for (int i6{0}; i6 < f_loop_ub; i6++) {
+        cfg->D.data[i6] = r.D[i6];
     }
     cfg->coeffD = r.coeffD;
     cfg->kin_params.size[0] = r.kin_params.size[0];
@@ -292,8 +288,8 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     if (g_loop_ub - 1 >= 0) {
         std::copy(&r.kin_params.data[0], &r.kin_params.data[g_loop_ub], &cfg->kin_params.data[0]);
     }
-    for (int i8{0}; i8 < 5; i8++) {
-        cfg->kin_type[i8] = r.kin_type[i8];
+    for (int i7{0}; i7 < 5; i7++) {
+        cfg->kin_type[i7] = r.kin_type[i7];
     }
     cfg->NDiscr = r.NDiscr;
     cfg->NBreak = r.NBreak;
@@ -303,10 +299,10 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     cfg->NHorz = r.NHorz;
     cfg->fmax = r.fmax;
     cfg->smax = r.smax;
-    for (int i9{0}; i9 < 6; i9++) {
-        cfg->vmax[i9] = r.vmax[i9];
-        cfg->amax[i9] = r.amax[i9];
-        cfg->jmax[i9] = r.jmax[i9];
+    for (int i8{0}; i8 < 6; i8++) {
+        cfg->vmax[i8] = r.vmax[i8];
+        cfg->amax[i8] = r.amax[i8];
+        cfg->jmax[i8] = r.jmax[i8];
     }
     cfg->LeeSplineDegree = r.LeeSplineDegree;
     cfg->SplineDegree = r.SplineDegree;
@@ -323,12 +319,7 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     cfg->ZeroStartAccLimit = r.ZeroStartAccLimit;
     cfg->ZeroStartJerkLimit = r.ZeroStartJerkLimit;
     cfg->ZeroStartVelLimit = r.ZeroStartVelLimit;
-    cfg->source.size[0] = 1;
-    cfg->source.size[1] = r.source.size(1);
-    h_loop_ub = r.source.size(1);
-    for (int i10{0}; i10 < h_loop_ub; i10++) {
-        cfg->source.data[i10] = r.source[i10];
-    }
+    std::copy(&r.source[0], &r.source[1024], &cfg->source[0]);
     cfg->DebugCutZero = r.DebugCutZero;
     cfg->Cusp = r.Cusp;
     cfg->Compressing = r.Compressing;
@@ -339,8 +330,8 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
         cfg->GaussLegendreW[c_i] = r.GaussLegendreW[c_i];
     }
     cfg->opt = r.opt;
-    for (int i11{0}; i11 < 9; i11++) {
-        cfg->LogFileName[i11] = r.LogFileName[i11];
+    for (int i9{0}; i9 < 9; i9++) {
+        cfg->LogFileName[i9] = r.LogFileName[i9];
     }
 }
 

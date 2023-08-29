@@ -5,7 +5,7 @@
 // File: initFeedoptPlan.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Aug-2023 15:40:50
+// C/C++ source code generated on  : 29-Aug-2023 16:29:37
 //
 
 // Include Files
@@ -26,7 +26,6 @@
 #include "c_spline.h"
 #include "coder_array.h"
 #include "coder_bounded_array.h"
-#include <algorithm>
 #include <cmath>
 #include <emmintrin.h>
 
@@ -76,18 +75,10 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     int i_loop_ub;
     int k_loop_ub;
     int loop_ub_tmp;
-    int o_loop_ub;
-    int p_loop_ub;
     int params_gcodeInfoStruct_gcode_source_line;
     int params_tool_orientation;
     int params_tool_pocketno;
     int params_tool_toolno;
-    int q_loop_ub;
-    int r_loop_ub;
-    int s_loop_ub;
-    int t_loop_ub;
-    int u_loop_ub;
-    int v_loop_ub;
     bool params_gcodeInfoStruct_G91;
     bool params_gcodeInfoStruct_G91_1;
     bool params_gcodeInfoStruct_HSC;
@@ -378,98 +369,7 @@ void initFeedoptPlan(const FeedoptConfig cfg, FeedoptContext *ctx)
     // 'initFeedoptPlan:50' ctx.at_1            = cfg.at_1;
     ctx->at_1 = cfg.at_1;
     // 'initFeedoptPlan:51' ctx.cfg             = cfg;
-    ctx->cfg.maskTot.size[0] = 1;
-    ctx->cfg.maskTot.size[1] = cfg.maskTot.size[1];
-    o_loop_ub = cfg.maskTot.size[1];
-    if (o_loop_ub - 1 >= 0) {
-        std::copy(&cfg.maskTot.data[0], &cfg.maskTot.data[o_loop_ub], &ctx->cfg.maskTot.data[0]);
-    }
-    ctx->cfg.maskCart.size[0] = 1;
-    ctx->cfg.maskCart.size[1] = cfg.maskCart.size[1];
-    p_loop_ub = cfg.maskCart.size[1];
-    if (p_loop_ub - 1 >= 0) {
-        std::copy(&cfg.maskCart.data[0], &cfg.maskCart.data[p_loop_ub], &ctx->cfg.maskCart.data[0]);
-    }
-    ctx->cfg.maskRot.size[0] = 1;
-    ctx->cfg.maskRot.size[1] = cfg.maskRot.size[1];
-    q_loop_ub = cfg.maskRot.size[1];
-    if (q_loop_ub - 1 >= 0) {
-        std::copy(&cfg.maskRot.data[0], &cfg.maskRot.data[q_loop_ub], &ctx->cfg.maskRot.data[0]);
-    }
-    ctx->cfg.indCart.size[0] = cfg.indCart.size[0];
-    r_loop_ub = cfg.indCart.size[0];
-    if (r_loop_ub - 1 >= 0) {
-        std::copy(&cfg.indCart.data[0], &cfg.indCart.data[r_loop_ub], &ctx->cfg.indCart.data[0]);
-    }
-    ctx->cfg.indRot.size[0] = cfg.indRot.size[0];
-    s_loop_ub = cfg.indRot.size[0];
-    if (s_loop_ub - 1 >= 0) {
-        std::copy(&cfg.indRot.data[0], &cfg.indRot.data[s_loop_ub], &ctx->cfg.indRot.data[0]);
-    }
-    ctx->cfg.NumberAxis = cfg.NumberAxis;
-    ctx->cfg.NCart = cfg.NCart;
-    ctx->cfg.NRot = cfg.NRot;
-    ctx->cfg.D.size[0] = cfg.D.size[0];
-    t_loop_ub = cfg.D.size[0];
-    if (t_loop_ub - 1 >= 0) {
-        std::copy(&cfg.D.data[0], &cfg.D.data[t_loop_ub], &ctx->cfg.D.data[0]);
-    }
-    ctx->cfg.coeffD = cfg.coeffD;
-    ctx->cfg.kin_params.size[0] = cfg.kin_params.size[0];
-    u_loop_ub = cfg.kin_params.size[0];
-    if (u_loop_ub - 1 >= 0) {
-        std::copy(&cfg.kin_params.data[0], &cfg.kin_params.data[u_loop_ub],
-                  &ctx->cfg.kin_params.data[0]);
-    }
-    for (int i17{0}; i17 < 5; i17++) {
-        ctx->cfg.kin_type[i17] = cfg.kin_type[i17];
-    }
-    ctx->cfg.NDiscr = cfg.NDiscr;
-    ctx->cfg.NBreak = cfg.NBreak;
-    ctx->cfg.UseDynamicBreakpoints = cfg.UseDynamicBreakpoints;
-    ctx->cfg.UseLinearBreakpoints = cfg.UseLinearBreakpoints;
-    ctx->cfg.DynamicBreakpointsDistance = cfg.DynamicBreakpointsDistance;
-    ctx->cfg.NHorz = cfg.NHorz;
-    ctx->cfg.fmax = cfg.fmax;
-    ctx->cfg.smax = cfg.smax;
-    for (int i18{0}; i18 < 6; i18++) {
-        ctx->cfg.vmax[i18] = cfg.vmax[i18];
-        ctx->cfg.amax[i18] = cfg.amax[i18];
-        ctx->cfg.jmax[i18] = cfg.jmax[i18];
-    }
-    ctx->cfg.LeeSplineDegree = cfg.LeeSplineDegree;
-    ctx->cfg.SplineDegree = cfg.SplineDegree;
-    ctx->cfg.CutOff = cfg.CutOff;
-    ctx->cfg.LSplit = cfg.LSplit;
-    ctx->cfg.LSplitZero = cfg.LSplitZero;
-    ctx->cfg.LThresholdMax = cfg.LThresholdMax;
-    ctx->cfg.LThresholdMin = cfg.LThresholdMin;
-    ctx->cfg.v_0 = cfg.v_0;
-    ctx->cfg.at_0 = cfg.at_0;
-    ctx->cfg.v_1 = cfg.v_1;
-    ctx->cfg.at_1 = cfg.at_1;
-    ctx->cfg.dt = cfg.dt;
-    ctx->cfg.ZeroStartAccLimit = cfg.ZeroStartAccLimit;
-    ctx->cfg.ZeroStartJerkLimit = cfg.ZeroStartJerkLimit;
-    ctx->cfg.ZeroStartVelLimit = cfg.ZeroStartVelLimit;
-    ctx->cfg.source.set_size(1, cfg.source.size[1]);
-    v_loop_ub = cfg.source.size[1];
-    for (int i19{0}; i19 < v_loop_ub; i19++) {
-        ctx->cfg.source[i19] = cfg.source.data[i19];
-    }
-    ctx->cfg.DebugCutZero = cfg.DebugCutZero;
-    ctx->cfg.Cusp = cfg.Cusp;
-    ctx->cfg.Compressing = cfg.Compressing;
-    ctx->cfg.Smoothing = cfg.Smoothing;
-    ctx->cfg.GaussLegendreN = cfg.GaussLegendreN;
-    for (int b_i{0}; b_i < 5; b_i++) {
-        ctx->cfg.GaussLegendreX[b_i] = cfg.GaussLegendreX[b_i];
-        ctx->cfg.GaussLegendreW[b_i] = cfg.GaussLegendreW[b_i];
-    }
-    ctx->cfg.opt = cfg.opt;
-    for (int i20{0}; i20 < 9; i20++) {
-        ctx->cfg.LogFileName[i20] = cfg.LogFileName[i20];
-    }
+    ctx->cfg = cfg;
     // 'initFeedoptPlan:52' ctx.errcode         = FeedoptPlanError.Success;
     ctx->errcode = FeedoptPlanError_Success;
     // 'initFeedoptPlan:53' ctx.jmax_increase_count = int32(0);
