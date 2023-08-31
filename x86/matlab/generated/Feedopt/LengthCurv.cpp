@@ -5,7 +5,7 @@
 // File: LengthCurv.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Aug-2023 16:29:37
+// C/C++ source code generated on  : 31-Aug-2023 09:10:03
 //
 
 // Include Files
@@ -65,7 +65,7 @@ double LengthCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_da
     if ((curv->Info.Type == CurveType_Helix) || (curv->Info.Type == CurveType_Line)) {
         int loop_ub;
         // 'LengthCurv:4' [~, r1D, ~, ~] = EvalCurvStruct( ctx, curv, u0 );
-        d_EvalCurvStruct(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
+        b_EvalCurvStruct(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
                          ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
                          ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart,
                          ctx_cfg_NRot, curv, a__1, r1D, a__2, a__3);

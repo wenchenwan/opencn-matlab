@@ -5,7 +5,7 @@
 // File: constrCurvStruct.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Aug-2023 16:29:37
+// C/C++ source code generated on  : 31-Aug-2023 09:10:03
 //
 
 // Include Files
@@ -83,7 +83,7 @@ void b_constrCurvStruct(CurveType gcodeInfoStruct_Type, ZSpdMode gcodeInfoStruct
     // 'constrCurvStruct:24' coder.inline("never");
     // 'constrCurvStruct:26' CStrct = struct(...
     // 'constrCurvStruct:27'     'Info',                 gcodeInfoStruct, ...
-    // 'constrCurvStruct:28'     'Tool',                 toolStruct,...
+    // 'constrCurvStruct:28'     'tool',                 toolStruct,...
     // 'constrCurvStruct:29'     'sp',                   spline,...
     // 'constrCurvStruct:30'     'R0',                   R0, ...
     // 'constrCurvStruct:31'     'R1',                   R1, ...
@@ -112,13 +112,13 @@ void b_constrCurvStruct(CurveType gcodeInfoStruct_Type, ZSpdMode gcodeInfoStruct
     CStrct->Info.gcode_source_line = gcodeInfoStruct_gcode_source_line;
     CStrct->Info.G91 = gcodeInfoStruct_G91;
     CStrct->Info.G91_1 = gcodeInfoStruct_G91_1;
-    CStrct->b_Tool.toolno = toolStruct_toolno;
-    CStrct->b_Tool.pocketno = toolStruct_pocketno;
-    CStrct->b_Tool.offset = *toolStruct_offset;
-    CStrct->b_Tool.diameter = toolStruct_diameter;
-    CStrct->b_Tool.frontangle = toolStruct_frontangle;
-    CStrct->b_Tool.backangle = toolStruct_backangle;
-    CStrct->b_Tool.orientation = toolStruct_orientation;
+    CStrct->tool.toolno = toolStruct_toolno;
+    CStrct->tool.pocketno = toolStruct_pocketno;
+    CStrct->tool.offset = *toolStruct_offset;
+    CStrct->tool.diameter = toolStruct_diameter;
+    CStrct->tool.frontangle = toolStruct_frontangle;
+    CStrct->tool.backangle = toolStruct_backangle;
+    CStrct->tool.orientation = toolStruct_orientation;
     CStrct->sp = *spline;
     CStrct->delta = 0.0;
     CStrct->CorrectedHelixCenter[0] = Cprim[0];
@@ -151,8 +151,8 @@ void b_constrCurvStruct(CurveType gcodeInfoStruct_Type, ZSpdMode gcodeInfoStruct
     // 'constrCurvStruct:52' coder.varsize( 'CStrct.R1' ,        StructTypeName.dimR{ : } );
     // 'constrCurvStruct:53' coder.varsize( 'CStrct.CoeffP5' ,   StructTypeName.dimCoeffP5{ : } );
     // 'constrCurvStruct:55' coder.cstructname( CStrct.Info,     StructTypeName.GCodeInfo );
-    // 'constrCurvStruct:56' coder.cstructname( CStrct.Tool,     StructTypeName.Tool );
-    // 'constrCurvStruct:57' coder.cstructname( CStrct.Tool.offset, StructTypeName.Axes );
+    // 'constrCurvStruct:56' coder.cstructname( CStrct.tool,     StructTypeName.Tool );
+    // 'constrCurvStruct:57' coder.cstructname( CStrct.tool.offset, StructTypeName.Axes );
     // 'constrCurvStruct:58' coder.cstructname( CStrct.sp,       StructTypeName.Spline );
     // 'constrCurvStruct:59' coder.cstructname( CStrct.sp.Bl,    StructTypeName.BaseSpline );
     // 'constrCurvStruct:60' coder.cstructname( CStrct,          StructTypeName.Curve );
@@ -204,7 +204,7 @@ void c_constrCurvStruct(const GcodeInfoStruct gcodeInfoStruct, const Tool *toolS
     // 'constrCurvStruct:24' coder.inline("never");
     // 'constrCurvStruct:26' CStrct = struct(...
     // 'constrCurvStruct:27'     'Info',                 gcodeInfoStruct, ...
-    // 'constrCurvStruct:28'     'Tool',                 toolStruct,...
+    // 'constrCurvStruct:28'     'tool',                 toolStruct,...
     // 'constrCurvStruct:29'     'sp',                   spline,...
     // 'constrCurvStruct:30'     'R0',                   R0, ...
     // 'constrCurvStruct:31'     'R1',                   R1, ...
@@ -225,7 +225,7 @@ void c_constrCurvStruct(const GcodeInfoStruct gcodeInfoStruct, const Tool *toolS
     // 'constrCurvStruct:46'     'b_param',              0 ...
     // 'constrCurvStruct:47'     );
     CStrct->Info = gcodeInfoStruct;
-    CStrct->b_Tool = *toolStruct;
+    CStrct->tool = *toolStruct;
     CStrct->sp = *spline;
     CStrct->delta = delta;
     CStrct->CorrectedHelixCenter[0] = Cprim[0];
@@ -258,8 +258,8 @@ void c_constrCurvStruct(const GcodeInfoStruct gcodeInfoStruct, const Tool *toolS
     // 'constrCurvStruct:52' coder.varsize( 'CStrct.R1' ,        StructTypeName.dimR{ : } );
     // 'constrCurvStruct:53' coder.varsize( 'CStrct.CoeffP5' ,   StructTypeName.dimCoeffP5{ : } );
     // 'constrCurvStruct:55' coder.cstructname( CStrct.Info,     StructTypeName.GCodeInfo );
-    // 'constrCurvStruct:56' coder.cstructname( CStrct.Tool,     StructTypeName.Tool );
-    // 'constrCurvStruct:57' coder.cstructname( CStrct.Tool.offset, StructTypeName.Axes );
+    // 'constrCurvStruct:56' coder.cstructname( CStrct.tool,     StructTypeName.Tool );
+    // 'constrCurvStruct:57' coder.cstructname( CStrct.tool.offset, StructTypeName.Axes );
     // 'constrCurvStruct:58' coder.cstructname( CStrct.sp,       StructTypeName.Spline );
     // 'constrCurvStruct:59' coder.cstructname( CStrct.sp.Bl,    StructTypeName.BaseSpline );
     // 'constrCurvStruct:60' coder.cstructname( CStrct,          StructTypeName.Curve );
@@ -309,7 +309,7 @@ void c_constrCurvStruct(const GcodeInfoStruct gcodeInfoStruct, const Tool *toolS
     // 'constrCurvStruct:24' coder.inline("never");
     // 'constrCurvStruct:26' CStrct = struct(...
     // 'constrCurvStruct:27'     'Info',                 gcodeInfoStruct, ...
-    // 'constrCurvStruct:28'     'Tool',                 toolStruct,...
+    // 'constrCurvStruct:28'     'tool',                 toolStruct,...
     // 'constrCurvStruct:29'     'sp',                   spline,...
     // 'constrCurvStruct:30'     'R0',                   R0, ...
     // 'constrCurvStruct:31'     'R1',                   R1, ...
@@ -330,7 +330,7 @@ void c_constrCurvStruct(const GcodeInfoStruct gcodeInfoStruct, const Tool *toolS
     // 'constrCurvStruct:46'     'b_param',              0 ...
     // 'constrCurvStruct:47'     );
     CStrct->Info = gcodeInfoStruct;
-    CStrct->b_Tool = *toolStruct;
+    CStrct->tool = *toolStruct;
     CStrct->sp = *spline;
     CStrct->delta = 0.0;
     CStrct->CorrectedHelixCenter[0] = Cprim[0];
@@ -366,8 +366,8 @@ void c_constrCurvStruct(const GcodeInfoStruct gcodeInfoStruct, const Tool *toolS
     // 'constrCurvStruct:52' coder.varsize( 'CStrct.R1' ,        StructTypeName.dimR{ : } );
     // 'constrCurvStruct:53' coder.varsize( 'CStrct.CoeffP5' ,   StructTypeName.dimCoeffP5{ : } );
     // 'constrCurvStruct:55' coder.cstructname( CStrct.Info,     StructTypeName.GCodeInfo );
-    // 'constrCurvStruct:56' coder.cstructname( CStrct.Tool,     StructTypeName.Tool );
-    // 'constrCurvStruct:57' coder.cstructname( CStrct.Tool.offset, StructTypeName.Axes );
+    // 'constrCurvStruct:56' coder.cstructname( CStrct.tool,     StructTypeName.Tool );
+    // 'constrCurvStruct:57' coder.cstructname( CStrct.tool.offset, StructTypeName.Axes );
     // 'constrCurvStruct:58' coder.cstructname( CStrct.sp,       StructTypeName.Spline );
     // 'constrCurvStruct:59' coder.cstructname( CStrct.sp.Bl,    StructTypeName.BaseSpline );
     // 'constrCurvStruct:60' coder.cstructname( CStrct,          StructTypeName.Curve );
@@ -426,7 +426,7 @@ void constrCurvStruct(const GcodeInfoStruct *gcodeInfoStruct, const Tool *toolSt
     // 'constrCurvStruct:24' coder.inline("never");
     // 'constrCurvStruct:26' CStrct = struct(...
     // 'constrCurvStruct:27'     'Info',                 gcodeInfoStruct, ...
-    // 'constrCurvStruct:28'     'Tool',                 toolStruct,...
+    // 'constrCurvStruct:28'     'tool',                 toolStruct,...
     // 'constrCurvStruct:29'     'sp',                   spline,...
     // 'constrCurvStruct:30'     'R0',                   R0, ...
     // 'constrCurvStruct:31'     'R1',                   R1, ...
@@ -447,7 +447,7 @@ void constrCurvStruct(const GcodeInfoStruct *gcodeInfoStruct, const Tool *toolSt
     // 'constrCurvStruct:46'     'b_param',              0 ...
     // 'constrCurvStruct:47'     );
     CStrct->Info = *gcodeInfoStruct;
-    CStrct->b_Tool = *toolStruct;
+    CStrct->tool = *toolStruct;
     CStrct->sp = *spline;
     CStrct->delta = delta;
     CStrct->CorrectedHelixCenter[0] = Cprim[0];
@@ -486,8 +486,8 @@ void constrCurvStruct(const GcodeInfoStruct *gcodeInfoStruct, const Tool *toolSt
     // 'constrCurvStruct:52' coder.varsize( 'CStrct.R1' ,        StructTypeName.dimR{ : } );
     // 'constrCurvStruct:53' coder.varsize( 'CStrct.CoeffP5' ,   StructTypeName.dimCoeffP5{ : } );
     // 'constrCurvStruct:55' coder.cstructname( CStrct.Info,     StructTypeName.GCodeInfo );
-    // 'constrCurvStruct:56' coder.cstructname( CStrct.Tool,     StructTypeName.Tool );
-    // 'constrCurvStruct:57' coder.cstructname( CStrct.Tool.offset, StructTypeName.Axes );
+    // 'constrCurvStruct:56' coder.cstructname( CStrct.tool,     StructTypeName.Tool );
+    // 'constrCurvStruct:57' coder.cstructname( CStrct.tool.offset, StructTypeName.Axes );
     // 'constrCurvStruct:58' coder.cstructname( CStrct.sp,       StructTypeName.Spline );
     // 'constrCurvStruct:59' coder.cstructname( CStrct.sp.Bl,    StructTypeName.BaseSpline );
     // 'constrCurvStruct:60' coder.cstructname( CStrct,          StructTypeName.Curve );
@@ -553,7 +553,7 @@ void d_constrCurvStruct(bool gcodeInfoStruct_TRAFO, bool gcodeInfoStruct_HSC,
     // 'constrCurvStruct:24' coder.inline("never");
     // 'constrCurvStruct:26' CStrct = struct(...
     // 'constrCurvStruct:27'     'Info',                 gcodeInfoStruct, ...
-    // 'constrCurvStruct:28'     'Tool',                 toolStruct,...
+    // 'constrCurvStruct:28'     'tool',                 toolStruct,...
     // 'constrCurvStruct:29'     'sp',                   spline,...
     // 'constrCurvStruct:30'     'R0',                   R0, ...
     // 'constrCurvStruct:31'     'R1',                   R1, ...
@@ -582,13 +582,13 @@ void d_constrCurvStruct(bool gcodeInfoStruct_TRAFO, bool gcodeInfoStruct_HSC,
     CStrct->Info.gcode_source_line = gcodeInfoStruct_gcode_source_line;
     CStrct->Info.G91 = gcodeInfoStruct_G91;
     CStrct->Info.G91_1 = gcodeInfoStruct_G91_1;
-    CStrct->b_Tool.toolno = toolStruct_toolno;
-    CStrct->b_Tool.pocketno = toolStruct_pocketno;
-    CStrct->b_Tool.offset = *toolStruct_offset;
-    CStrct->b_Tool.diameter = toolStruct_diameter;
-    CStrct->b_Tool.frontangle = toolStruct_frontangle;
-    CStrct->b_Tool.backangle = toolStruct_backangle;
-    CStrct->b_Tool.orientation = toolStruct_orientation;
+    CStrct->tool.toolno = toolStruct_toolno;
+    CStrct->tool.pocketno = toolStruct_pocketno;
+    CStrct->tool.offset = *toolStruct_offset;
+    CStrct->tool.diameter = toolStruct_diameter;
+    CStrct->tool.frontangle = toolStruct_frontangle;
+    CStrct->tool.backangle = toolStruct_backangle;
+    CStrct->tool.orientation = toolStruct_orientation;
     CStrct->sp = *spline;
     CStrct->delta = 0.0;
     CStrct->CorrectedHelixCenter[0] = Cprim[0];
@@ -623,8 +623,8 @@ void d_constrCurvStruct(bool gcodeInfoStruct_TRAFO, bool gcodeInfoStruct_HSC,
     // 'constrCurvStruct:52' coder.varsize( 'CStrct.R1' ,        StructTypeName.dimR{ : } );
     // 'constrCurvStruct:53' coder.varsize( 'CStrct.CoeffP5' ,   StructTypeName.dimCoeffP5{ : } );
     // 'constrCurvStruct:55' coder.cstructname( CStrct.Info,     StructTypeName.GCodeInfo );
-    // 'constrCurvStruct:56' coder.cstructname( CStrct.Tool,     StructTypeName.Tool );
-    // 'constrCurvStruct:57' coder.cstructname( CStrct.Tool.offset, StructTypeName.Axes );
+    // 'constrCurvStruct:56' coder.cstructname( CStrct.tool,     StructTypeName.Tool );
+    // 'constrCurvStruct:57' coder.cstructname( CStrct.tool.offset, StructTypeName.Axes );
     // 'constrCurvStruct:58' coder.cstructname( CStrct.sp,       StructTypeName.Spline );
     // 'constrCurvStruct:59' coder.cstructname( CStrct.sp.Bl,    StructTypeName.BaseSpline );
     // 'constrCurvStruct:60' coder.cstructname( CStrct,          StructTypeName.Curve );

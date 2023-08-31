@@ -1,21 +1,28 @@
-function plotGeometry( ctx, cfg, q_curv, q_spline )
+function plotGeometry( ctx, cfg, q_curv, q_spline, isPieceFrame )
 % plotGeometry : Plot the geometric path of a given queue.
 % cfg       : The configuration structure
 % q_curv    : The queue that contains the curves
 % q_spline  : The queue that contains the spline
+
+if( isPieceFrame )
+    frame = "piece";
+else
+    frame = "world";
+end
+
 [ param ] = load_param();
-[ point ] = eval_points( ctx, cfg, q_curv, q_spline, param );
-plotCurvCartAndRot( cfg, point( 1 : end -1, : ), 'Geometry curve', ...
+[ point ] = eval_points( ctx, cfg, q_curv, q_spline, param, isPieceFrame );
+plotCurvCartAndRot( cfg, point( 1 : end -1, : ), "Geometry curve in " + frame, ...
                     point( end, : ) );
 
 end
 
 
 function [ param ] = load_param()
-    param.Nu    = 100;
+    param.Nu    = 500;
 end
 
-function [ point ] = eval_points( ctx, cfg, q_curv, q_spline, param )
+function [ point ] = eval_points( ctx, cfg, q_curv, q_spline, param, isPieceFrame )
 NCurv   = double( q_curv.size );
 NPoints = NCurv * param.Nu;
 NDim    = cfg.NumberAxis + 1;
@@ -39,10 +46,15 @@ for j = 1 : NCurv
     point( 1 : end -1, ind ) = EvalCurvStructNoCtx( cfg, curv, spline, u_vec );
     point( end, ind ) = j;
 
-    ctx.kin = ctx.kin.set_tool_length( curv.Tool.offset.z );
-
-    if( curv.Info.TRAFO )
-        [ point(  1 : end -1, ind ) ] = ctx.kin.r_joint( point(  1 : end -1, ind ) );
+    ctx.kin = ctx.kin.set_tool_length( curv.tool.offset.z );
+    if( isPieceFrame )
+        if( ~curv.Info.TRAFO )
+            [ point(  1 : end -1, ind ) ] = ctx.kin.r_relative( point(  1 : end -1, ind ) );
+        end
+    else
+        if( curv.Info.TRAFO )
+            [ point(  1 : end -1, ind ) ] = ctx.kin.r_joint( point(  1 : end -1, ind ) );
+        end
     end
 
 end

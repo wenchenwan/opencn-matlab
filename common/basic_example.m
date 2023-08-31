@@ -9,7 +9,8 @@ check_wkdir(); % If current directory is the working directory
 % Load default configuration parameters
 cfg = FeedoptDefaultConfig;
 % Set the path to the gcode file
-cfg.source = 'ngc_test/unit/013_anchor_5D_RTCP.ngc';
+cfg.source = 'ngc_test/misc/031_surfacage_TopLeftBack_V2.ngc';
+% cfg.source = 'ngc_test/misc/031_surfacage_TopLeftBack_V2_untouched.ngc';
 
 % Logging
 setupLogs( cfg.LogFileName ); diary on;
@@ -25,8 +26,9 @@ try
 %     [ ret ] = saveCtx( ctx, "dev/test.mat" );
 
     % Plot geometry
-    plotGeometry(ctx, ctx.cfg, ctx.q_opt, ctx.q_spline);
-
+    plotGeometry(ctx, ctx.cfg, ctx.q_gcode, ctx.q_spline, false);
+    plotGeometry(ctx, ctx.cfg, ctx.q_gcode, ctx.q_spline, true);
+    return;
     pause( 0.5 );
 % 
 %     % Resampling of the parameter

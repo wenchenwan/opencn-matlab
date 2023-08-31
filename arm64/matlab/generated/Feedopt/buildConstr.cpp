@@ -5,7 +5,7 @@
 // File: buildConstr.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Aug-2023 16:48:46
+// C/C++ source code generated on  : 31-Aug-2023 09:29:48
 //
 
 // Include Files
@@ -772,8 +772,8 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
                          ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                          ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                          ctx_cfg_NCart, ctx_cfg_NRot, &windowCurv[b_k], u_vec, r0D, r1D, r2D, r3D);
-        // 'buildConstr:52' ctx.kin = ctx.kin.set_tool_length(windowCurv( k ).Tool.offset.z);
-        ctx_kin->set_tool_length(windowCurv[b_k].b_Tool.offset.z);
+        // 'buildConstr:52' ctx.kin = ctx.kin.set_tool_length(windowCurv( k ).tool.offset.z);
+        ctx_kin->set_tool_length(windowCurv[b_k].tool.offset.z);
         // 'buildConstr:54' if( windowCurv( k ).Info.TRAFO )
         if (windowCurv[b_k].Info.TRAFO) {
             int s_loop_ub;

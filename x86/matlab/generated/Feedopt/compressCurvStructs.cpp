@@ -5,7 +5,7 @@
 // File: compressCurvStructs.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Aug-2023 16:29:37
+// C/C++ source code generated on  : 31-Aug-2023 09:10:03
 //
 
 // Include Files
@@ -504,7 +504,7 @@ static void create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_m
     // 'compressCurvStructs:163' spline.sp.Ltot    = Ltot;
     // 'compressCurvStructs:164' spline.sp.Lk      = Lk;
     // 'compressCurvStructs:166' curv    = constrSplineStruct( batch.curvArray( end ).Info, ...
-    // 'compressCurvStructs:167'                               batch.curvArray( end ).Tool, ...
+    // 'compressCurvStructs:167'                               batch.curvArray( end ).tool, ...
     // 'compressCurvStructs:168'                               batch.pvec( :, 1 ), ...
     // 'compressCurvStructs:169'                               batch.pvec( :,end ), uint32(
     // spline_index ) );
@@ -518,11 +518,11 @@ static void create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_m
                        batch_curvArray[1].Info.HSC, batch_curvArray[1].Info.FeedRate,
                        batch_curvArray[1].Info.SpindleSpeed,
                        batch_curvArray[1].Info.gcode_source_line, batch_curvArray[1].Info.G91,
-                       batch_curvArray[1].Info.G91_1, batch_curvArray[1].b_Tool.toolno,
-                       batch_curvArray[1].b_Tool.pocketno, &batch_curvArray[1].b_Tool.offset,
-                       batch_curvArray[1].b_Tool.diameter, batch_curvArray[1].b_Tool.frontangle,
-                       batch_curvArray[1].b_Tool.backangle, batch_curvArray[1].b_Tool.orientation,
-                       dv, dv1, *spline_index, curv);
+                       batch_curvArray[1].Info.G91_1, batch_curvArray[1].tool.toolno,
+                       batch_curvArray[1].tool.pocketno, &batch_curvArray[1].tool.offset,
+                       batch_curvArray[1].tool.diameter, batch_curvArray[1].tool.frontangle,
+                       batch_curvArray[1].tool.backangle, batch_curvArray[1].tool.orientation, dv,
+                       dv1, *spline_index, curv);
     //  Calculate the ZSpdMode for the spline
     // 'compressCurvStructs:172' first   = batch.curvArray( 1 );
     // 'compressCurvStructs:173' last    = batch.curvArray( end );
@@ -764,13 +764,13 @@ void compressCurvStructs(const b_FeedoptContext *ctx)
                 // 'compressCurvStructs:89' collinear = curvCollinear( ctx, prevCurv, curv, ...
                 // 'compressCurvStructs:90'         ctx.cfg.Compressing.ColTolCosLee );
                 // 'curvCollinear:3' [~, V0] = EvalCurvStruct(ctx, Curv1, 1);
-                b_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
+                c_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                                  ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
                                  ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
                                  ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart,
                                  ctx->cfg.NRot, &prevCurv, a__1, V0);
                 // 'curvCollinear:4' [~, V1] = EvalCurvStruct(ctx, Curv2, 0);
-                c_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
+                d_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                                  ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
                                  ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
                                  ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart,

@@ -5,7 +5,7 @@
 // File: buildConstrJerk.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Aug-2023 16:29:37
+// C/C++ source code generated on  : 31-Aug-2023 09:10:03
 //
 
 // Include Files
@@ -351,8 +351,8 @@ void buildConstrJerk(
                          ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                          ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                          ctx_cfg_NCart, ctx_cfg_NRot, &windowCurv[b_k], u_vec, r0D, r1D, r2D, r3D);
-        // 'buildConstrJerk:36' ctx.kin = ctx.kin.set_tool_length(windowCurv( k ).Tool.offset.z);
-        ctx_kin->set_tool_length(windowCurv[b_k].b_Tool.offset.z);
+        // 'buildConstrJerk:36' ctx.kin = ctx.kin.set_tool_length(windowCurv( k ).tool.offset.z);
+        ctx_kin->set_tool_length(windowCurv[b_k].tool.offset.z);
         // 'buildConstrJerk:38' if( windowCurv( k ).Info.TRAFO )
         if (windowCurv[b_k].Info.TRAFO) {
             int c_loop_ub;

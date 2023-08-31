@@ -23,9 +23,9 @@ switch ctx.op
             if( ctx.q_gcode.isempty )
                 prev_tool = constrToolStructType;
             else
-                prev_tool = ctx.q_gcode.rget(1).Tool;
+                prev_tool = ctx.q_gcode.rget(1).tool;
                 
-                if( ~toolIsEqual(prev_tool, CurvStruct.Tool ) )
+                if( ~toolIsEqual(prev_tool, CurvStruct.tool ) )
                     curv1 = ctx.q_gcode.rget(1);
                     if( isAZeroStart(curv1) )
                         curv1.Info.zspdmode = ZSpdMode.ZZ;
@@ -90,6 +90,7 @@ switch ctx.op
         ctx.op = Fopt.Check;
 
     case Fopt.Check
+        ctx.op = Fopt.Finished; return;
 %         [ ctx.q_gcode ] = checkTrafo( ctx, ctx.q_gcode );
 %         histogramLength( ctx, ctx.q_gcode, "Gcode");
         if ~ctx.cfg.Cusp.Skip

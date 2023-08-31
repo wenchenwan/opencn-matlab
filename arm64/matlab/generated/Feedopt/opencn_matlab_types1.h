@@ -5,7 +5,7 @@
 // File: opencn_matlab_types1.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Aug-2023 16:48:46
+// C/C++ source code generated on  : 31-Aug-2023 09:29:48
 //
 
 #ifndef OPENCN_MATLAB_TYPES1_H
@@ -25,7 +25,7 @@
 namespace ocn {
 struct CurvStruct {
     GcodeInfoStruct Info;
-    Tool b_Tool;
+    Tool tool;
     SplineStruct sp;
     double R0[6];
     double R1[6];

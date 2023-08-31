@@ -5,7 +5,7 @@
 // File: zeroSpeedCurv.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Aug-2023 16:48:46
+// C/C++ source code generated on  : 31-Aug-2023 09:29:48
 //
 
 // Include Files
@@ -225,12 +225,12 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
     // 'zeroSpeedCurv:15' if( isEnd )
     // 'zeroSpeedCurv:15' uk = 1 - uk ;
     // 'zeroSpeedCurv:17' [ r0D, r1D ] = EvalCurvStruct( ctx, curv, uk );
-    c_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+    d_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                      ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                      ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                      ctx_cfg_NCart, ctx_cfg_NRot, curv, r0D, r1D);
-    // 'zeroSpeedCurv:19' ctx.kin = ctx.kin.set_tool_length( curv.Tool.offset.z );
-    ctx_kin->set_tool_length(curv->b_Tool.offset.z);
+    // 'zeroSpeedCurv:19' ctx.kin = ctx.kin.set_tool_length( curv.tool.offset.z );
+    ctx_kin->set_tool_length(curv->tool.offset.z);
     // 'zeroSpeedCurv:21' if( curv.Info.TRAFO )
     if (curv->Info.TRAFO) {
         int loop_ub;
@@ -466,9 +466,9 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
                          ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                          ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                          ctx_cfg_NCart, ctx_cfg_NRot, curv, u, b_r0D, c_r1D, r2D, r3D);
-        // 'calcRVAJfromU:19' ctx.kin = ctx.kin.set_tool_length(curv.Tool.offset.z);
+        // 'calcRVAJfromU:19' ctx.kin = ctx.kin.set_tool_length(curv.tool.offset.z);
         b_ctx_kin = *ctx_kin;
-        b_ctx_kin.set_tool_length(curv->b_Tool.offset.z);
+        b_ctx_kin.set_tool_length(curv->tool.offset.z);
         // 'calcRVAJfromU:21' if( curv.Info.TRAFO )
         if (curv->Info.TRAFO) {
             int t_loop_ub;
@@ -659,9 +659,9 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
                          ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                          ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                          ctx_cfg_NCart, ctx_cfg_NRot, curv, u, b_r0D, c_r1D);
-        // 'zeroSpeedCurv:85' ctx.kin = ctx.kin.set_tool_length( curv.Tool.offset.z );
+        // 'zeroSpeedCurv:85' ctx.kin = ctx.kin.set_tool_length( curv.tool.offset.z );
         b_ctx_kin = *ctx_kin;
-        b_ctx_kin.set_tool_length(curv->b_Tool.offset.z);
+        b_ctx_kin.set_tool_length(curv->tool.offset.z);
         // 'zeroSpeedCurv:87' if( curv.Info.TRAFO )
         if (!curv->Info.TRAFO) {
             int ib_loop_ub;
@@ -1246,12 +1246,12 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
     // 'zeroSpeedCurv:13' uk = 1;
     // 'zeroSpeedCurv:15' if( isEnd )
     // 'zeroSpeedCurv:17' [ r0D, r1D ] = EvalCurvStruct( ctx, curv, uk );
-    b_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+    c_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                      ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                      ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                      ctx_cfg_NCart, ctx_cfg_NRot, curv, r0D, r1D);
-    // 'zeroSpeedCurv:19' ctx.kin = ctx.kin.set_tool_length( curv.Tool.offset.z );
-    ctx_kin->set_tool_length(curv->b_Tool.offset.z);
+    // 'zeroSpeedCurv:19' ctx.kin = ctx.kin.set_tool_length( curv.tool.offset.z );
+    ctx_kin->set_tool_length(curv->tool.offset.z);
     // 'zeroSpeedCurv:21' if( curv.Info.TRAFO )
     if (curv->Info.TRAFO) {
         int loop_ub;
@@ -1472,9 +1472,9 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
                          ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                          ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                          ctx_cfg_NCart, ctx_cfg_NRot, curv, u, b_r0D, c_r1D, r2D, r3D);
-        // 'calcRVAJfromU:19' ctx.kin = ctx.kin.set_tool_length(curv.Tool.offset.z);
+        // 'calcRVAJfromU:19' ctx.kin = ctx.kin.set_tool_length(curv.tool.offset.z);
         b_ctx_kin = *ctx_kin;
-        b_ctx_kin.set_tool_length(curv->b_Tool.offset.z);
+        b_ctx_kin.set_tool_length(curv->tool.offset.z);
         // 'calcRVAJfromU:21' if( curv.Info.TRAFO )
         if (curv->Info.TRAFO) {
             int r_loop_ub;
@@ -1665,9 +1665,9 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
                          ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                          ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                          ctx_cfg_NCart, ctx_cfg_NRot, curv, u, b_r0D, c_r1D);
-        // 'zeroSpeedCurv:85' ctx.kin = ctx.kin.set_tool_length( curv.Tool.offset.z );
+        // 'zeroSpeedCurv:85' ctx.kin = ctx.kin.set_tool_length( curv.tool.offset.z );
         b_ctx_kin = *ctx_kin;
-        b_ctx_kin.set_tool_length(curv->b_Tool.offset.z);
+        b_ctx_kin.set_tool_length(curv->tool.offset.z);
         // 'zeroSpeedCurv:87' if( curv.Info.TRAFO )
         if (!curv->Info.TRAFO) {
             int gb_loop_ub;

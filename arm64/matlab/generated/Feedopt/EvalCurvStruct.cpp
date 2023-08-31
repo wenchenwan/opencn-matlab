@@ -5,7 +5,7 @@
 // File: EvalCurvStruct.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Aug-2023 16:48:46
+// C/C++ source code generated on  : 31-Aug-2023 09:29:48
 //
 
 // Include Files
@@ -164,8 +164,7 @@ void EvalCurvStruct_init()
 //
 // function [r0D, r1D, r2D, r3D] = EvalCurvStruct( ctx, curv, u_vec )
 //
-// Arguments    : const queue_coder *ctx_q_spline
-//                const bool ctx_cfg_maskTot_data[]
+// Arguments    : const bool ctx_cfg_maskTot_data[]
 //                const int ctx_cfg_maskTot_size[2]
 //                const bool ctx_cfg_maskCart_data[]
 //                const int ctx_cfg_maskCart_size[2]
@@ -179,38 +178,30 @@ void EvalCurvStruct_init()
 //                const CurvStruct *curv
 //                ::coder::array<double, 1U> &r0D
 //                ::coder::array<double, 1U> &r1D
+//                ::coder::array<double, 1U> &r2D
+//                ::coder::array<double, 1U> &r3D
 // Return Type  : void
 //
-void b_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
-                      const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
-                      const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
-                      const int ctx_cfg_maskRot_size[2],
+void b_EvalCurvStruct(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_maskTot_size[2],
+                      const bool ctx_cfg_maskCart_data[], const int ctx_cfg_maskCart_size[2],
+                      const bool ctx_cfg_maskRot_data[], const int ctx_cfg_maskRot_size[2],
                       const ::coder::array<int, 1U> &ctx_cfg_indCart,
                       const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
                       int ctx_cfg_NCart, int ctx_cfg_NRot, const CurvStruct *curv,
-                      ::coder::array<double, 1U> &r0D, ::coder::array<double, 1U> &r1D)
+                      ::coder::array<double, 1U> &r0D, ::coder::array<double, 1U> &r1D,
+                      ::coder::array<double, 1U> &r2D, ::coder::array<double, 1U> &r3D)
 {
-    ::coder::array<double, 1U> r2D;
-    ::coder::array<double, 1U> r3D;
-    CurvStruct spline;
     // 'EvalCurvStruct:3' coder.inline("never");
     // 'EvalCurvStruct:7' if( isempty( splineDefault ) )
     // 'EvalCurvStruct:9' if( curv.Info.Type == CurveType.Spline )
-    if (curv->Info.Type == CurveType_Spline) {
-        // 'EvalCurvStruct:10' ptr    = curv.sp_index;
-        // 'EvalCurvStruct:11' spline = ctx.q_spline.get( ptr );
-        ctx_q_spline->get(curv->sp_index, &spline);
-    } else {
-        // 'EvalCurvStruct:12' else
-        // 'EvalCurvStruct:13' spline = splineDefault;
-        spline = splineDefault;
-    }
+    // 'EvalCurvStruct:12' else
+    // 'EvalCurvStruct:13' spline = splineDefault;
     // 'EvalCurvStruct:16' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
     // u_vec );
     c_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
                           ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
                           ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart,
-                          ctx_cfg_NRot, curv, &spline, r0D, r1D, r2D, r3D);
+                          ctx_cfg_NRot, curv, &splineDefault, r0D, r1D, r2D, r3D);
 }
 
 //
@@ -268,7 +259,8 @@ void c_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
 //
 // function [r0D, r1D, r2D, r3D] = EvalCurvStruct( ctx, curv, u_vec )
 //
-// Arguments    : const bool ctx_cfg_maskTot_data[]
+// Arguments    : const queue_coder *ctx_q_spline
+//                const bool ctx_cfg_maskTot_data[]
 //                const int ctx_cfg_maskTot_size[2]
 //                const bool ctx_cfg_maskCart_data[]
 //                const int ctx_cfg_maskCart_size[2]
@@ -282,30 +274,38 @@ void c_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
 //                const CurvStruct *curv
 //                ::coder::array<double, 1U> &r0D
 //                ::coder::array<double, 1U> &r1D
-//                ::coder::array<double, 1U> &r2D
-//                ::coder::array<double, 1U> &r3D
 // Return Type  : void
 //
-void d_EvalCurvStruct(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_maskTot_size[2],
-                      const bool ctx_cfg_maskCart_data[], const int ctx_cfg_maskCart_size[2],
-                      const bool ctx_cfg_maskRot_data[], const int ctx_cfg_maskRot_size[2],
+void d_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
+                      const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
+                      const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
+                      const int ctx_cfg_maskRot_size[2],
                       const ::coder::array<int, 1U> &ctx_cfg_indCart,
                       const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
                       int ctx_cfg_NCart, int ctx_cfg_NRot, const CurvStruct *curv,
-                      ::coder::array<double, 1U> &r0D, ::coder::array<double, 1U> &r1D,
-                      ::coder::array<double, 1U> &r2D, ::coder::array<double, 1U> &r3D)
+                      ::coder::array<double, 1U> &r0D, ::coder::array<double, 1U> &r1D)
 {
+    ::coder::array<double, 1U> r2D;
+    ::coder::array<double, 1U> r3D;
+    CurvStruct spline;
     // 'EvalCurvStruct:3' coder.inline("never");
     // 'EvalCurvStruct:7' if( isempty( splineDefault ) )
     // 'EvalCurvStruct:9' if( curv.Info.Type == CurveType.Spline )
-    // 'EvalCurvStruct:12' else
-    // 'EvalCurvStruct:13' spline = splineDefault;
+    if (curv->Info.Type == CurveType_Spline) {
+        // 'EvalCurvStruct:10' ptr    = curv.sp_index;
+        // 'EvalCurvStruct:11' spline = ctx.q_spline.get( ptr );
+        ctx_q_spline->get(curv->sp_index, &spline);
+    } else {
+        // 'EvalCurvStruct:12' else
+        // 'EvalCurvStruct:13' spline = splineDefault;
+        spline = splineDefault;
+    }
     // 'EvalCurvStruct:16' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
     // u_vec );
-    d_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
+    c_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
                           ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
                           ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart,
-                          ctx_cfg_NRot, curv, &splineDefault, r0D, r1D, r2D, r3D);
+                          ctx_cfg_NRot, curv, &spline, r0D, r1D, r2D, r3D);
 }
 
 //
@@ -355,7 +355,7 @@ void e_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
     }
     // 'EvalCurvStruct:16' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
     // u_vec );
-    c_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
+    d_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
                           ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
                           ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart,
                           ctx_cfg_NRot, curv, &spline, r0D, r1D, r2D, r3D);
@@ -408,7 +408,7 @@ void f_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
     }
     // 'EvalCurvStruct:16' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
     // u_vec );
-    d_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
+    c_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
                           ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
                           ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart,
                           ctx_cfg_NRot, curv, &spline, r0D, r1D, r2D, r3D);
@@ -637,7 +637,7 @@ void j_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
     }
     // 'EvalCurvStruct:16' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
     // u_vec );
-    d_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
+    c_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
                           ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
                           ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart,
                           ctx_cfg_NRot, curv, &spline, r0D, r1D, r2D, r3D);
@@ -689,7 +689,7 @@ void k_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
     }
     // 'EvalCurvStruct:16' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
     // u_vec );
-    c_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
+    d_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
                           ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
                           ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart,
                           ctx_cfg_NRot, curv, &spline, r0D, r1D, r2D, r3D);
@@ -789,7 +789,7 @@ void l_EvalCurvStruct(const FeedoptConfig *ctx_cfg, const CurvStruct *curv,
     for (int i1{0}; i1 < b_loop_ub; i1++) {
         t3_indRot[i1] = ctx_cfg->indRot.data[i1];
     }
-    d_EvalCurvStructNoCtx(ctx_cfg->maskTot.data, ctx_cfg->maskTot.size, ctx_cfg->maskCart.data,
+    c_EvalCurvStructNoCtx(ctx_cfg->maskTot.data, ctx_cfg->maskTot.size, ctx_cfg->maskCart.data,
                           ctx_cfg->maskCart.size, ctx_cfg->maskRot.data, ctx_cfg->maskRot.size,
                           t3_indCart, t3_indRot, ctx_cfg->NumberAxis, ctx_cfg->NCart, ctx_cfg->NRot,
                           curv, &splineDefault, r0D, r1D, r2D, r3D);

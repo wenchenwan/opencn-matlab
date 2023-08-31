@@ -16,7 +16,7 @@ function [ R, V, A, J ] = calcRVAJfromU( ctx, curv, u_vec, ud_vec, udd_vec, ...
 %   J   : [ N x M ] jerk
 [ r0D, r1D, r2D, r3D ]  = EvalCurvStruct( ctx, curv, u_vec );
 
-ctx.kin = ctx.kin.set_tool_length(curv.Tool.offset.z);
+ctx.kin = ctx.kin.set_tool_length(curv.tool.offset.z);
 
 if( curv.Info.TRAFO )
     [ r0D, r1D, r2D, r3D ] = ctx.kin.joint( r0D, r1D, r2D, r3D );

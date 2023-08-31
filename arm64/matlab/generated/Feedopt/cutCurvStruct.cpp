@@ -5,7 +5,7 @@
 // File: cutCurvStruct.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Aug-2023 16:48:46
+// C/C++ source code generated on  : 31-Aug-2023 09:29:48
 //
 
 // Include Files
@@ -463,7 +463,7 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         //  for 0 < u < 1
         // 'cutCurvStructU:29' if( isEnd )
         // 'cutCurvStructU:30' [ ~, r1D1 ] = EvalCurvStruct( ctx, curv, 1 );
-        b_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+        c_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                          ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                          ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                          ctx_cfg_NCart, ctx_cfg_NRot, curv, a__1, r1D1);
@@ -915,7 +915,7 @@ void cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
         // 'cutCurvStructU:29' if( isEnd )
         // 'cutCurvStructU:32' else
         // 'cutCurvStructU:33' [ ~, r1D0 ] = EvalCurvStruct( ctx, curv, 0 );
-        c_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+        d_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                          ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                          ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                          ctx_cfg_NCart, ctx_cfg_NRot, curv, a__2, r1D0);

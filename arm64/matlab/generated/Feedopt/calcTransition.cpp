@@ -5,7 +5,7 @@
 // File: calcTransition.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Aug-2023 16:48:46
+// C/C++ source code generated on  : 31-Aug-2023 09:29:48
 //
 
 // Include Files
@@ -341,14 +341,13 @@ void calcTransition(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_
         // 'calcTransition:40'                                                 r1D0, r1D1, r1D2);
         G2_Hermite_Interpolation_nAxis(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_D, r0D0,
                                        r0D1, r0D2, r1D0, r1D1, r1D2, p5, &ret);
-        // 'calcTransition:42' curvT = constrTransP5Struct( curv1.Info, curv1.Tool, curv1.R1, ...
+        // 'calcTransition:42' curvT = constrTransP5Struct( curv1.Info, curv1.tool, curv1.R1, ...
         // 'calcTransition:43'                              curv2.R0, p5 );
-        b_constrTransP5Struct(curv1->Info.TRAFO, curv1->Info.HSC, curv1->Info.FeedRate,
-                              curv1->Info.SpindleSpeed, curv1->Info.gcode_source_line,
-                              curv1->Info.G91, curv1->Info.G91_1, curv1->b_Tool.toolno,
-                              curv1->b_Tool.pocketno, &curv1->b_Tool.offset, curv1->b_Tool.diameter,
-                              curv1->b_Tool.frontangle, curv1->b_Tool.backangle,
-                              curv1->b_Tool.orientation, curv1->R1, curv2->R0, p5, curvT);
+        b_constrTransP5Struct(
+            curv1->Info.TRAFO, curv1->Info.HSC, curv1->Info.FeedRate, curv1->Info.SpindleSpeed,
+            curv1->Info.gcode_source_line, curv1->Info.G91, curv1->Info.G91_1, curv1->tool.toolno,
+            curv1->tool.pocketno, &curv1->tool.offset, curv1->tool.diameter, curv1->tool.frontangle,
+            curv1->tool.backangle, curv1->tool.orientation, curv1->R1, curv2->R0, p5, curvT);
         // 'calcTransition:44' curvT.Info.SpindleSpeed = min( curv1.Info.SpindleSpeed, ...
         // 'calcTransition:45'                                curv2.Info.SpindleSpeed );
         curvT->Info.SpindleSpeed = std::fmin(curv1->Info.SpindleSpeed, curv2->Info.SpindleSpeed);

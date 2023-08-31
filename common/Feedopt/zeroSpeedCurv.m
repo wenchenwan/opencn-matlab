@@ -16,7 +16,7 @@ if( isEnd ), uk = 1 - uk ;  end
 
 [ r0D, r1D ] = EvalCurvStruct( ctx, curv, uk );
 
-ctx.kin = ctx.kin.set_tool_length( curv.Tool.offset.z );
+ctx.kin = ctx.kin.set_tool_length( curv.tool.offset.z );
 
 if( curv.Info.TRAFO )
     r1D = ctx.kin.v_joint( r0D, r1D );
@@ -82,7 +82,7 @@ if( isempty( ratio ) ), ratio = 0.9; end
 
 [ r0D, r1D ]          = EvalCurvStruct( ctx, curv, u );
 
-ctx.kin = ctx.kin.set_tool_length( curv.Tool.offset.z );
+ctx.kin = ctx.kin.set_tool_length( curv.tool.offset.z );
 
 if( curv.Info.TRAFO )
     r1D_r     = r1D;
