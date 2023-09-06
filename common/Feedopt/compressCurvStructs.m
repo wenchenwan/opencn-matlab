@@ -26,27 +26,18 @@ end
 for k = 1 : Ncrv
     curv = ctx.q_gcode.get( k ); % Get next Curve in the queue
 
-    [ addBatch, addNewBatch ] = check_add_batch( ctx, curv, batch );
-    [ closeBatch ] = check_close_batch( curv, addBatch );
-
-    if( addBatch )
-        if( batch.size > 0)
-            [ batch ] = batch_add_curv( batch, curv );
-        else
-            [ batch ] = batch_reset( ctx, curv );
-        end
-    end
+    [ addBatch ]    = check_add_batch( ctx, curv );
+    [ closeBatch ]  = check_close_batch( ctx, batch, curv, addBatch);
 
     if( closeBatch )
         [ ctx, batch, spline_index ] = batch_close( ctx, batch, spline_index );
     end
 
-    if( addNewBatch )
-        [ batch ] = batch_reset( ctx, curv );
-    elseif( ~addBatch )
+    if( addBatch )
+        [ batch ] = batch_add_curv( batch, curv );
+    else
         ctx.q_compress.push( curv );
     end
-
 
 end
 
@@ -56,19 +47,19 @@ end
 
 %-------------------------------------------------------------------------%
 
-function [ addBatch, addNewBatch ] = check_add_batch( ctx, curv, batch )
+function [ addBatch ] = check_add_batch( ctx, curv )
 if( coder.target( "MATLAB" ) ), coder.inline( "always" ); end
 
 addBatch    = true;
-addNewBatch = false;
 
+% Cond 1. Keep only line segments
 if( curv.Info.Type ~= CurveType.Line )
     if( coder.target( "MATLAB" ) )
         DebugCompressing.getInstance.NotALineInc;
     end
     addBatch = false; return;
 end
-
+% Cond 2. Remove to large segment
 if( LengthCurv( ctx, curv, 0, 1 ) >  ctx.cfg.LThresholdMax )
     if( coder.target( "MATLAB" ) )
         DebugCompressing.getInstance.TooLargeInc;
@@ -76,47 +67,63 @@ if( LengthCurv( ctx, curv, 0, 1 ) >  ctx.cfg.LThresholdMax )
     addBatch = false; return;
 end
 
-if( LengthCurv( ctx, curv, 0, 1 ) < ctx.cfg.LThresholdMin )
-    addBatch = true; return;
 end
 
-if( batch.size > 0 )
-    if( batch.size > 1 )
-        prevCurv = batch.curvArray( end );
-    else
-        prevCurv = batch.curvArray( 1 );
-    end
-    collinear = curvCollinear( ctx, prevCurv, curv, ...
-        ctx.cfg.Compressing.ColTolCosLee );
-    if( ~collinear )
-        if( coder.target( "MATLAB" ) )
-            DebugCompressing.getInstance.NotCollinearInc;
-        end
-        addBatch = false; 
-        addNewBatch = true; return; 
-    end
-end
-
-end
-
-function [ closeBatch ] = check_close_batch( curv, addBatch )
+function [ closeBatch ] = check_close_batch( ctx, batch, curv, addBatch )
 if( coder.target( "MATLAB" ) ), coder.inline( "always" ); end
 
 closeBatch = false;
 
-if( ~addBatch ), closeBatch = true; return; end
+if( batch.size == 0 ), return; end
 
-if( isAZeroEnd( curv ) ), closeBatch = true; return; end
+% Cond 1. Curv not in the batch
+if( ~addBatch ) 
+    closeBatch = true;
+end
+
+% Cond 2. Curv require a stop
+if( isAZeroStart( curv ) )
+    if( coder.target( "MATLAB" ) )
+        DebugCompressing.getInstance.IsAZeroStartInc;
+    end
+    closeBatch = true;
+end
+
+% Cond 3. Machine parameters are not the same
+if( ~isSameMachiningParameters( batch.lastCurv, curv ) )
+    if( coder.target( "MATLAB" ) )
+        DebugCompressing.getInstance.NotSameMachineParamsInc;
+    end
+
+    closeBatch = true;
+end    
+
+% Cond 4. If to small don't test the collinearity
+if( LengthCurv( ctx, curv, 0, 1 ) <=  ctx.cfg.LThresholdMin )
+    if( coder.target( "MATLAB" ) )
+        DebugCompressing.getInstance.IsReallySmallInc;
+    end
+    return; 
+end
+
+% Cond 5. If not collinear lines, create a new batch
+collinear = curvCollinear( ctx, batch.lastCurv, curv, ...
+    ctx.cfg.Compressing.ColTolCosLee );
+if( ~collinear )
+    if( coder.target( "MATLAB" ) )
+        DebugCompressing.getInstance.NotCollinearInc;
+    end
+    closeBatch = true;
+end
 
 end
 
 function [ batch ] = batch_init()
 batch = struct( ...
     'pvec',          zeros( StructTypeName.NumberAxisMax, 1 ),...
-    'curvArray',     repmat( constrCurvStructType, 1, 2 ),...
-    'spindle_speed', 0,...
-    'feedrate',      0,...
-    'size',          0 ...
+    'lastCurv',      constrCurvStructType,...
+    'size',          0, ...
+    'zspdmode',      ZSpdMode.NN ...
     );
 
 if( ~coder.target( "MATLAB" ) )
@@ -125,62 +132,66 @@ end
 end
 
 function [ ctx, batch, spline_index ] = batch_close( ctx, batch, spline_index )
+
+if( batch.size == 0 )
+    batch = batch_init();
+    return
+end
+
 if( batch.size > 1 )
     [ curvCompressed, spline, spline_index ] = ...
         create_spline( ctx, batch, spline_index );
-
+    
     ctx.q_compress.push( curvCompressed );
     ctx.q_spline.push( spline );
-
-elseif( batch.size > 0 )
-    ctx.q_compress.push( batch.curvArray( 1 ) );
-end
-batch.size = 0;
+else
+    ctx.q_compress.push( batch.lastCurv );
 end
 
-function [ batch ] = batch_reset( ctx, curv )
-batch.pvec            = [curv.R0, curv.R1 ];
-batch.curvArray       = [ curv, curv ];
-batch.spindle_speed   = ctx.cfg.smax;
-batch.feedrate        = ctx.cfg.fmax;
-batch.size            = 1;
+if( coder.target( "MATLAB" ) )
+    DebugCompressing.getInstance.addBatch( batch.size, batch.zspdmode );
+end
+
+batch = batch_init();
 end
 
 function [ batch ] = batch_add_curv( batch, curv )
-batch.pvec             = [ batch.pvec, curv.R1 ];
-batch.curvArray( end ) = curv;
-batch.spindle_speed    = min( batch.spindle_speed , curv.Info.SpindleSpeed );
-batch.feedrate         = min( batch.feedrate, curv.Info.FeedRate );
-batch.size             = batch.size + 1;
+
+if( batch.size == 0 )
+    batch.pvec      = [ curv.R0, curv.R1 ];
+    batch.lastCurv  = curv;
+    batch.size      = 1;
+    batch.zspdmode  = curv.Info.zspdmode;
+else
+    batch.pvec      = [ batch.pvec, curv.R1 ];
+    batch.lastCurv  = curv;
+    batch.size      = batch.size + 1;
+    if( isAZeroEnd( curv ) )
+        if( isAZeroStart( batch.zspdmode ) )
+            batch.zspdmode = ZSpdMode.ZZ;
+        else
+            batch.zspdmode = ZSpdMode.NZ;
+        end
+    end
+end
+
 end
 
 function [ curv, spline, spline_index ] = create_spline( ctx, batch, spline_index )
-spline            = constrCurvStructType;
-spline.Info.Type  = CurveType.Spline;
-spline.sp_index   = spline_index;
+
+batch.lastCurv.Info.zspdmode = batch.zspdmode;
+
+curv    = constrSplineStruct( ...
+                              batch.lastCurv.Info, ...
+                              batch.lastCurv.tool, ...
+                              batch.pvec( :, 1 ), ...
+                              batch.pvec( :,end ), ...
+                              uint32( spline_index ) );
+
+spline            = curv;
 spline.sp         = CalcBspline_Lee( ctx.cfg, batch.pvec( ctx.cfg.maskTot, : ) );
 [ Ltot, Lk ]      = SplineLengthApproxGL_tot( ctx.cfg, spline );
 spline.sp.Ltot    = Ltot;
 spline.sp.Lk      = Lk;
-
-curv    = constrSplineStruct( batch.curvArray( end ).Info, ...
-                              batch.curvArray( end ).tool, ...
-                              batch.pvec( :, 1 ), ...
-                              batch.pvec( :,end ), uint32( spline_index ) );
-
-% Calculate the ZSpdMode for the spline
-first   = batch.curvArray( 1 );
-last    = batch.curvArray( end );
-
-if ( ~isAZeroSpeed( first ) ) && ( ~isAZeroSpeed( last ) )
-    curv.Info.zspdmode = ZSpdMode.NN;
-elseif ( ~isAZeroSpeed( first ) ) && ( isAZeroEnd( last ) )
-    curv.Info.zspdmode = ZSpdMode.NZ;
-elseif ( isAZeroStart( first ) ) && ( ~isAZeroSpeed( last ) )
-    curv.Info.zspdmode = ZSpdMode.ZN;
-else
-    curv.Info.zspdmode = ZSpdMode.ZZ;
-end
-
-spline_index = spline_index + 1;
+spline_index      = spline_index + 1;
 end

@@ -1,9 +1,16 @@
-function [ zeroFlag ] = isAZeroStart( curv )
+function [ zeroFlag ] = isAZeroStart( speed )
 % isAZeroStart : Return true if the curv starts with zero speed
-% curv  : The curve struct
-    if( curv.Info.zspdmode == ZSpdMode.ZN || ...
-        curv.Info.zspdmode == ZSpdMode.ZZ )
-        zeroFlag = true; return;
-    end
-    zeroFlag = false;
+% Input :
+% curv / Info / ZSpdMode : A structure containning the information of the
+% curv zero speed.    
+zeroFlag = false;
+
+[zspdmode, error] = getZspdmode( speed );
+
+if( error ), return; end
+
+if( zspdmode == ZSpdMode.ZN || ...
+    zspdmode == ZSpdMode.ZZ )
+    zeroFlag = true; return;
+end
 end

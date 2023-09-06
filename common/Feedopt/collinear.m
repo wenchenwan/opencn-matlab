@@ -3,6 +3,6 @@ function value = collinear(u, v, tol_cos)
         value = true;
         return;
     end
-    cos_angle = dot(u,v)/(MyNorm(u)*MyNorm(v));
+    cos_angle = abs( dot(u,v)/(MyNorm(u)*MyNorm(v)) );
     value = cos_angle >= tol_cos;
 end

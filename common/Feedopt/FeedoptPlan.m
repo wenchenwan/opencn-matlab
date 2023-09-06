@@ -90,7 +90,7 @@ switch ctx.op
         ctx.op = Fopt.Check;
 
     case Fopt.Check
-        ctx.op = Fopt.Finished; return;
+%         ctx.op = Fopt.Finished; return;
 %         [ ctx.q_gcode ] = checkTrafo( ctx, ctx.q_gcode );
 %         histogramLength( ctx, ctx.q_gcode, "Gcode");
         if ~ctx.cfg.Cusp.Skip
@@ -104,6 +104,8 @@ switch ctx.op
         ctx.op  = Fopt.Compress;
 
     case Fopt.Compress
+    %         ctx.op = Fopt.Finished; return;
+
         if ctx.cfg.Compressing.Skip
             for j = 1 : ctx.q_gcode.size % Copy queue GCode in queue Compress
                 ctx.q_compress.push( ctx.q_gcode.get( j ) );
@@ -121,6 +123,7 @@ switch ctx.op
         if( coder.target( 'MATLAB') ), ctx.q_gcode.delete(); end
 
     case Fopt.Smooth
+%         ctx.op = Fopt.Finished; return;
 %         histogramLength( ctx, ctx.q_compress, "Compressing" );
 
         ctx = smoothCurvStructs(ctx);
@@ -134,6 +137,7 @@ switch ctx.op
         if( coder.target( 'MATLAB') ), ctx.q_compress.delete(); end
 
     case Fopt.Split
+%         ctx.op = Fopt.Finished; return;
 %         histogramLength( ctx, ctx.q_smooth, "Smoothing" );
 
         ctx = splitQueue( ctx );
@@ -149,6 +153,8 @@ switch ctx.op
         if( coder.target( 'MATLAB' ) ), ctx.q_smooth.delete(); end
 
     case Fopt.Opt
+    %         ctx.op = Fopt.Finished; return;
+
         [ ctx, optimized, opt_struct, quit ] = feedratePlanning( ctx );
         if optimized
             ctx.go_next = true;
