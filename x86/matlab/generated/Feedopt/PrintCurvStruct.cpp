@@ -5,7 +5,7 @@
 // File: PrintCurvStruct.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 31-Aug-2023 09:10:03
+// C/C++ source code generated on  : 06-Sep-2023 13:36:32
 //
 
 // Include Files
@@ -196,7 +196,7 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
     for (int i5{0}; i5 < b_loop_ub; i5++) {
         t4_cfg_indRot[i5] = ctx->cfg.indRot.data[i5];
     }
-    j_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
+    k_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                      ctx->cfg.maskCart.data, ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
                      ctx->cfg.maskRot.size, t4_cfg_indCart, t4_cfg_indRot, ctx->cfg.NumberAxis,
                      ctx->cfg.NCart, ctx->cfg.NRot, S, P0);
@@ -211,7 +211,7 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
     for (int i8{0}; i8 < d_loop_ub; i8++) {
         t5_cfg_indRot[i8] = ctx->cfg.indRot.data[i8];
     }
-    k_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
+    l_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                      ctx->cfg.maskCart.data, ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
                      ctx->cfg.maskRot.size, t5_cfg_indCart, t5_cfg_indRot, ctx->cfg.NumberAxis,
                      ctx->cfg.NCart, ctx->cfg.NRot, S, P1);
@@ -226,7 +226,7 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
     if ((S->Info.Type == CurveType_Helix) || (S->Info.Type == CurveType_Line)) {
         int e_loop_ub;
         // 'LengthCurv:4' [~, r1D, ~, ~] = EvalCurvStruct( ctx, curv, u0 );
-        l_EvalCurvStruct(&ctx->cfg, S, a__1, r1D, a__2, a__3);
+        m_EvalCurvStruct(&ctx->cfg, S, a__1, r1D, a__2, a__3);
         // 'LengthCurv:5' L = MyNorm( r1D ) * ( u1 - u0 );
         // 'MyNorm:2' coder.inline('always');
         // 'MyNorm:3' n = mysqrt(sum(x.^2));
@@ -420,7 +420,7 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
             // 'constJerkU:40' uddd = uddd;
         }
         // 'calcZeroConstraints:22' [ r0D, r1D, r2D, r3D ]  = EvalCurvStruct( ctx, curv, u );
-        i_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
+        j_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                          ctx->cfg.maskCart.data, ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
                          ctx->cfg.maskRot.size, t6_cfg_indCart, t6_cfg_indRot, ctx->cfg.NumberAxis,
                          ctx->cfg.NCart, ctx->cfg.NRot, S, u, r0D, r1D, r2D, r3D);

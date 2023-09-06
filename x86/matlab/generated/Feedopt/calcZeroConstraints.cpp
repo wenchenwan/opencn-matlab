@@ -5,7 +5,7 @@
 // File: calcZeroConstraints.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 31-Aug-2023 09:10:03
+// C/C++ source code generated on  : 06-Sep-2023 13:36:32
 //
 
 // Include Files
@@ -117,7 +117,7 @@ void calcZeroConstraints(const queue_coder *ctx_q_spline, const bool ctx_cfg_mas
     }
     // 'constJerkU:36' if( isEnd )
     // 'calcZeroConstraints:22' [ r0D, r1D, r2D, r3D ]  = EvalCurvStruct( ctx, curv, u );
-    i_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+    j_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                      ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                      ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                      ctx_cfg_NCart, ctx_cfg_NRot, curv, b_unnamed_idx_0, r0D, r1D, r2D, r3D);

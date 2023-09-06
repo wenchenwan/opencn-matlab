@@ -5,7 +5,7 @@
 // File: splitQueue.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 31-Aug-2023 09:10:03
+// C/C++ source code generated on  : 06-Sep-2023 13:36:32
 //
 
 // Include Files
@@ -171,17 +171,32 @@ void splitQueue(const b_FeedoptContext *ctx)
             } else {
                 bool guard1;
                 bool guard2;
+                bool zeroFlag;
                 // 'splitCurvStruct:16' if( isAZeroStart( curv ) )
                 //  isAZeroStart : Return true if the curv starts with zero speed
-                //  curv  : The curve struct
-                // 'isAZeroStart:4' if( curv.Info.zspdmode == ZSpdMode.ZN || ...
-                // 'isAZeroStart:5'         curv.Info.zspdmode == ZSpdMode.ZZ )
+                //  Input :
+                //  curv / Info / ZSpdMode : A structure containning the information of the
+                //  curv zero speed.
+                // 'isAZeroStart:6' zeroFlag = false;
+                zeroFlag = false;
+                // 'isAZeroStart:8' [zspdmode, error] = getZspdmode( speed );
+                //  Get the zspdmode enum from either a curvStruct, infoStruct or zspdMode.
+                // 'getZspdmode:3' error = false;
+                // 'getZspdmode:5' if( isenum( speed ) )
+                // 'getZspdmode:7' elseif( isfield( speed, "Info") )
+                // 'getZspdmode:8' zspdmode = speed.Info.zspdmode;
+                // 'isAZeroStart:10' if( error )
+                // 'isAZeroStart:12' if( zspdmode == ZSpdMode.ZN || ...
+                // 'isAZeroStart:13'     zspdmode == ZSpdMode.ZZ )
+                if ((curv.Info.zspdmode == ZSpdMode_ZN) || (curv.Info.zspdmode == ZSpdMode_ZZ)) {
+                    // 'isAZeroStart:14' zeroFlag = true;
+                    zeroFlag = true;
+                }
                 guard1 = false;
                 guard2 = false;
-                if ((curv.Info.zspdmode == ZSpdMode_ZN) || (curv.Info.zspdmode == ZSpdMode_ZZ)) {
+                if (zeroFlag) {
                     double L;
                     double Lcut;
-                    // 'isAZeroStart:6' zeroFlag = true;
                     //  cut zero Start
                     // 'splitCurvStruct:18' [ ret, curvS, curv ] = cutZeroStart( ctx, curv );
                     //  cutZeroStart : Cut the start of the given to handle the zero speed.
@@ -287,23 +302,36 @@ void splitQueue(const b_FeedoptContext *ctx)
                         guard2 = true;
                     }
                 } else {
-                    // 'isAZeroStart:8' zeroFlag = false;
                     guard2 = true;
                 }
                 if (guard2) {
+                    bool b_zeroFlag;
                     // 'splitCurvStruct:23' hasEndSpeed = false;
                     hasEndSpeed = false;
                     // 'splitCurvStruct:24' if( isAZeroEnd( curv ) )
                     //  isAZeroEnd : Return true if the curv ends with zero speed
                     //  Input :
-                    //  curv  : The curve struct
-                    // 'isAZeroEnd:5' if( curv.Info.zspdmode == ZSpdMode.NZ || ...
-                    // 'isAZeroEnd:6'         curv.Info.zspdmode == ZSpdMode.ZZ )
+                    //  curv / Info / ZSpdMode : A structure containning the information of the
+                    //  curv zero speed.
+                    // 'isAZeroEnd:6' zeroFlag = false;
+                    b_zeroFlag = false;
+                    // 'isAZeroEnd:8' [zspdmode, error] = getZspdmode( speed );
+                    //  Get the zspdmode enum from either a curvStruct, infoStruct or zspdMode.
+                    // 'getZspdmode:3' error = false;
+                    // 'getZspdmode:5' if( isenum( speed ) )
+                    // 'getZspdmode:7' elseif( isfield( speed, "Info") )
+                    // 'getZspdmode:8' zspdmode = speed.Info.zspdmode;
+                    // 'isAZeroEnd:10' if( error )
+                    // 'isAZeroEnd:12' if( zspdmode == ZSpdMode.NZ || ...
+                    // 'isAZeroEnd:13'     zspdmode == ZSpdMode.ZZ )
                     if ((curv.Info.zspdmode == ZSpdMode_NZ) ||
                         (curv.Info.zspdmode == ZSpdMode_ZZ)) {
+                        // 'isAZeroEnd:14' zeroFlag = true;
+                        b_zeroFlag = true;
+                    }
+                    if (b_zeroFlag) {
                         double b_Lcut;
                         double c_L;
-                        // 'isAZeroEnd:7' zeroFlag = true;
                         //  cut zero End
                         // 'splitCurvStruct:26' [ ret, curv, curvE ] = cutZeroEnd( ctx, curv );
                         //  cutZeroEnd : Cut the end of the given to handle the zero speed.
@@ -415,7 +443,6 @@ void splitQueue(const b_FeedoptContext *ctx)
                             guard1 = true;
                         }
                     } else {
-                        // 'isAZeroEnd:9' zeroFlag = false;
                         guard1 = true;
                     }
                 }

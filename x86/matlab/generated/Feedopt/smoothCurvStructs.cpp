@@ -5,7 +5,7 @@
 // File: smoothCurvStructs.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 31-Aug-2023 09:10:03
+// C/C++ source code generated on  : 06-Sep-2023 13:36:32
 //
 
 // Include Files
@@ -28,7 +28,84 @@
 #include <emmintrin.h>
 #include <stdio.h>
 
+// Function Declarations
+namespace ocn {
+static void create_zero_end(CurvStruct *curv, CurvStruct *nextCurv);
+
+}
+
 // Function Definitions
+//
+// function [ curv, nextCurv ] = create_zero_end( curv, nextCurv )
+//
+// Arguments    : CurvStruct *curv
+//                CurvStruct *nextCurv
+// Return Type  : void
+//
+namespace ocn {
+static void create_zero_end(CurvStruct *curv, CurvStruct *nextCurv)
+{
+    bool b_zeroFlag;
+    bool zeroFlag;
+    // -------------------------------------------------------------------------%
+    // 'smoothCurvStructs:73' if( isAZeroStart( curv ) )
+    //  isAZeroStart : Return true if the curv starts with zero speed
+    //  Input :
+    //  curv / Info / ZSpdMode : A structure containning the information of the
+    //  curv zero speed.
+    // 'isAZeroStart:6' zeroFlag = false;
+    zeroFlag = false;
+    // 'isAZeroStart:8' [zspdmode, error] = getZspdmode( speed );
+    //  Get the zspdmode enum from either a curvStruct, infoStruct or zspdMode.
+    // 'getZspdmode:3' error = false;
+    // 'getZspdmode:5' if( isenum( speed ) )
+    // 'getZspdmode:7' elseif( isfield( speed, "Info") )
+    // 'getZspdmode:8' zspdmode = speed.Info.zspdmode;
+    // 'isAZeroStart:10' if( error )
+    // 'isAZeroStart:12' if( zspdmode == ZSpdMode.ZN || ...
+    // 'isAZeroStart:13'     zspdmode == ZSpdMode.ZZ )
+    if ((curv->Info.zspdmode == ZSpdMode_ZN) || (curv->Info.zspdmode == ZSpdMode_ZZ)) {
+        // 'isAZeroStart:14' zeroFlag = true;
+        zeroFlag = true;
+    }
+    if (zeroFlag) {
+        // 'smoothCurvStructs:74' curv.Info.zspdmode = ZSpdMode.ZZ;
+        curv->Info.zspdmode = ZSpdMode_ZZ;
+    } else {
+        // 'smoothCurvStructs:75' else
+        // 'smoothCurvStructs:76' curv.Info.zspdmode = ZSpdMode.NZ;
+        curv->Info.zspdmode = ZSpdMode_NZ;
+    }
+    // 'smoothCurvStructs:79' if( isAZeroEnd( nextCurv ) )
+    //  isAZeroEnd : Return true if the curv ends with zero speed
+    //  Input :
+    //  curv / Info / ZSpdMode : A structure containning the information of the
+    //  curv zero speed.
+    // 'isAZeroEnd:6' zeroFlag = false;
+    b_zeroFlag = false;
+    // 'isAZeroEnd:8' [zspdmode, error] = getZspdmode( speed );
+    //  Get the zspdmode enum from either a curvStruct, infoStruct or zspdMode.
+    // 'getZspdmode:3' error = false;
+    // 'getZspdmode:5' if( isenum( speed ) )
+    // 'getZspdmode:7' elseif( isfield( speed, "Info") )
+    // 'getZspdmode:8' zspdmode = speed.Info.zspdmode;
+    // 'isAZeroEnd:10' if( error )
+    // 'isAZeroEnd:12' if( zspdmode == ZSpdMode.NZ || ...
+    // 'isAZeroEnd:13'     zspdmode == ZSpdMode.ZZ )
+    if ((nextCurv->Info.zspdmode == ZSpdMode_NZ) || (nextCurv->Info.zspdmode == ZSpdMode_ZZ)) {
+        // 'isAZeroEnd:14' zeroFlag = true;
+        b_zeroFlag = true;
+    }
+    if (b_zeroFlag) {
+        // 'smoothCurvStructs:80' nextCurv.Info.zspdmode = ZSpdMode.ZZ;
+        nextCurv->Info.zspdmode = ZSpdMode_ZZ;
+    } else {
+        // 'smoothCurvStructs:81' else
+        // 'smoothCurvStructs:82' nextCurv.Info.zspdmode = ZSpdMode.ZN;
+        nextCurv->Info.zspdmode = ZSpdMode_ZN;
+    }
+}
+
 //
 // function ctx = smoothCurvStructs(ctx)
 //
@@ -37,7 +114,6 @@
 // Arguments    : b_FeedoptContext *ctx
 // Return Type  : void
 //
-namespace ocn {
 void smoothCurvStructs(b_FeedoptContext *ctx)
 {
     ::coder::array<double, 1U> a__1;
@@ -99,6 +175,7 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
         for (unsigned int k{2U}; k <= Ncrv; k++) {
             bool needStop;
             bool needTransition;
+            bool zeroFlag;
             // 'smoothCurvStructs:14' nextCurv = ctx.q_compress.get( k );
             ctx->q_compress.get(k, &nextCurv);
             // 'smoothCurvStructs:16' [ needStop, needTransition ] = check_stop_and_transition( ctx,
@@ -115,15 +192,27 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
             // 'smoothCurvStructs:61' if( isAZeroEnd( curv ) )
             //  isAZeroEnd : Return true if the curv ends with zero speed
             //  Input :
-            //  curv  : The curve struct
-            // 'isAZeroEnd:5' if( curv.Info.zspdmode == ZSpdMode.NZ || ...
-            // 'isAZeroEnd:6'         curv.Info.zspdmode == ZSpdMode.ZZ )
+            //  curv / Info / ZSpdMode : A structure containning the information of the
+            //  curv zero speed.
+            // 'isAZeroEnd:6' zeroFlag = false;
+            zeroFlag = false;
+            // 'isAZeroEnd:8' [zspdmode, error] = getZspdmode( speed );
+            //  Get the zspdmode enum from either a curvStruct, infoStruct or zspdMode.
+            // 'getZspdmode:3' error = false;
+            // 'getZspdmode:5' if( isenum( speed ) )
+            // 'getZspdmode:7' elseif( isfield( speed, "Info") )
+            // 'getZspdmode:8' zspdmode = speed.Info.zspdmode;
+            // 'isAZeroEnd:10' if( error )
+            // 'isAZeroEnd:12' if( zspdmode == ZSpdMode.NZ || ...
+            // 'isAZeroEnd:13'     zspdmode == ZSpdMode.ZZ )
             if ((curv.Info.zspdmode == ZSpdMode_NZ) || (curv.Info.zspdmode == ZSpdMode_ZZ)) {
-                // 'isAZeroEnd:7' zeroFlag = true;
+                // 'isAZeroEnd:14' zeroFlag = true;
+                zeroFlag = true;
+            }
+            if (zeroFlag) {
                 // 'smoothCurvStructs:61' needStop = true;
                 needStop = true;
 
-                // 'isAZeroEnd:9' zeroFlag = false;
                 // 'smoothCurvStructs:63' if( nextCurv.b_param > 0 )
             } else if (nextCurv.b_param <= 0.0) {
                 int b_loop_ub;
@@ -137,13 +226,13 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                 // tol_cos );
                 // -------------------------------------------------------------------------%
                 // 'smoothCurvStructs:88' [ r11, r1d1, r1dd1 ] = EvalCurvStruct( ctx, curv0, 1 );
-                e_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
+                f_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                                  ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
                                  ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
                                  ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart,
                                  ctx->cfg.NRot, &curv, r11, r1d1, r1dd1);
                 // 'smoothCurvStructs:89' [ r21, r2d1, r2dd1 ] = EvalCurvStruct( ctx, curv1, 0 );
-                f_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
+                g_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                                  ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
                                  ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
                                  ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart,
@@ -191,7 +280,7 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                     double c;
                     int c_loop_ub;
                     int d_loop_ub;
-                    // 'collinear:6' cos_angle = dot(u,v)/(MyNorm(u)*MyNorm(v));
+                    // 'collinear:6' cos_angle = abs( dot(u,v)/(MyNorm(u)*MyNorm(v)) );
                     // 'MyNorm:2' coder.inline('always');
                     // 'MyNorm:3' n = mysqrt(sum(x.^2));
                     // 'mysqrt:3' y = sqrt(x);
@@ -225,7 +314,7 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                         b_varargin_1 = t2[i4];
                         r3[i4] = std::pow(b_varargin_1, 2.0);
                     }
-                    isG1 = (c / (std::sqrt(coder::sum(r2)) * std::sqrt(coder::sum(r3))) >=
+                    isG1 = (std::abs(c / (std::sqrt(coder::sum(r2)) * std::sqrt(coder::sum(r3)))) >=
                             ctx->cfg.Smoothing.ColTolCosSmooth);
                 }
                 // 'smoothCurvStructs:96' isG2   = all( abs( kappa1 -kappa2 ) < tol, 'all' );
@@ -278,40 +367,7 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                     // );
                     b_curv = curv;
                     curv = nextCurv;
-                    // -------------------------------------------------------------------------%
-                    // 'smoothCurvStructs:73' if( isAZeroStart( curv ) )
-                    //  isAZeroStart : Return true if the curv starts with zero speed
-                    //  curv  : The curve struct
-                    // 'isAZeroStart:4' if( curv.Info.zspdmode == ZSpdMode.ZN || ...
-                    // 'isAZeroStart:5'         curv.Info.zspdmode == ZSpdMode.ZZ )
-                    if ((b_curv.Info.zspdmode == ZSpdMode_ZN) ||
-                        (b_curv.Info.zspdmode == ZSpdMode_ZZ)) {
-                        // 'isAZeroStart:6' zeroFlag = true;
-                        // 'smoothCurvStructs:74' curv.Info.zspdmode = ZSpdMode.ZZ;
-                        b_curv.Info.zspdmode = ZSpdMode_ZZ;
-                    } else {
-                        // 'isAZeroStart:8' zeroFlag = false;
-                        // 'smoothCurvStructs:75' else
-                        // 'smoothCurvStructs:76' curv.Info.zspdmode = ZSpdMode.NZ;
-                        b_curv.Info.zspdmode = ZSpdMode_NZ;
-                    }
-                    // 'smoothCurvStructs:79' if( isAZeroEnd( nextCurv ) )
-                    //  isAZeroEnd : Return true if the curv ends with zero speed
-                    //  Input :
-                    //  curv  : The curve struct
-                    // 'isAZeroEnd:5' if( curv.Info.zspdmode == ZSpdMode.NZ || ...
-                    // 'isAZeroEnd:6'         curv.Info.zspdmode == ZSpdMode.ZZ )
-                    if ((nextCurv.Info.zspdmode == ZSpdMode_NZ) ||
-                        (nextCurv.Info.zspdmode == ZSpdMode_ZZ)) {
-                        // 'isAZeroEnd:7' zeroFlag = true;
-                        // 'smoothCurvStructs:80' nextCurv.Info.zspdmode = ZSpdMode.ZZ;
-                        curv.Info.zspdmode = ZSpdMode_ZZ;
-                    } else {
-                        // 'isAZeroEnd:9' zeroFlag = false;
-                        // 'smoothCurvStructs:81' else
-                        // 'smoothCurvStructs:82' nextCurv.Info.zspdmode = ZSpdMode.ZN;
-                        curv.Info.zspdmode = ZSpdMode_ZN;
-                    }
+                    create_zero_end(&b_curv, &curv);
                     // 'smoothCurvStructs:27' [ ctx, curv ] = add_zero_stop( ctx, curv, nextCurv );
                     // -------------------------------------------------------------------------%
                     //
@@ -349,40 +405,7 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                         // nextCurv );
                         b_curv = curv;
                         curv = nextCurv;
-                        // -------------------------------------------------------------------------%
-                        // 'smoothCurvStructs:73' if( isAZeroStart( curv ) )
-                        //  isAZeroStart : Return true if the curv starts with zero speed
-                        //  curv  : The curve struct
-                        // 'isAZeroStart:4' if( curv.Info.zspdmode == ZSpdMode.ZN || ...
-                        // 'isAZeroStart:5'         curv.Info.zspdmode == ZSpdMode.ZZ )
-                        if ((b_curv.Info.zspdmode == ZSpdMode_ZN) ||
-                            (b_curv.Info.zspdmode == ZSpdMode_ZZ)) {
-                            // 'isAZeroStart:6' zeroFlag = true;
-                            // 'smoothCurvStructs:74' curv.Info.zspdmode = ZSpdMode.ZZ;
-                            b_curv.Info.zspdmode = ZSpdMode_ZZ;
-                        } else {
-                            // 'isAZeroStart:8' zeroFlag = false;
-                            // 'smoothCurvStructs:75' else
-                            // 'smoothCurvStructs:76' curv.Info.zspdmode = ZSpdMode.NZ;
-                            b_curv.Info.zspdmode = ZSpdMode_NZ;
-                        }
-                        // 'smoothCurvStructs:79' if( isAZeroEnd( nextCurv ) )
-                        //  isAZeroEnd : Return true if the curv ends with zero speed
-                        //  Input :
-                        //  curv  : The curve struct
-                        // 'isAZeroEnd:5' if( curv.Info.zspdmode == ZSpdMode.NZ || ...
-                        // 'isAZeroEnd:6'         curv.Info.zspdmode == ZSpdMode.ZZ )
-                        if ((nextCurv.Info.zspdmode == ZSpdMode_NZ) ||
-                            (nextCurv.Info.zspdmode == ZSpdMode_ZZ)) {
-                            // 'isAZeroEnd:7' zeroFlag = true;
-                            // 'smoothCurvStructs:80' nextCurv.Info.zspdmode = ZSpdMode.ZZ;
-                            curv.Info.zspdmode = ZSpdMode_ZZ;
-                        } else {
-                            // 'isAZeroEnd:9' zeroFlag = false;
-                            // 'smoothCurvStructs:81' else
-                            // 'smoothCurvStructs:82' nextCurv.Info.zspdmode = ZSpdMode.ZN;
-                            curv.Info.zspdmode = ZSpdMode_ZN;
-                        }
+                        create_zero_end(&b_curv, &curv);
                         // 'smoothCurvStructs:39' [ ctx, curv ] = add_zero_stop( ctx, curv, nextCurv
                         // );
                         // -------------------------------------------------------------------------%

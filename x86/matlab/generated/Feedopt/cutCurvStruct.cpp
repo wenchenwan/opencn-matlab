@@ -5,7 +5,7 @@
 // File: cutCurvStruct.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 31-Aug-2023 09:10:03
+// C/C++ source code generated on  : 06-Sep-2023 13:36:32
 //
 
 // Include Files
@@ -511,7 +511,7 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         //  for 0 < u < 1
         // 'cutCurvStructU:29' if( isEnd )
         // 'cutCurvStructU:30' [ ~, r1D1 ] = EvalCurvStruct( ctx, curv, 1 );
-        c_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+        d_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                          ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                          ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                          ctx_cfg_NCart, ctx_cfg_NRot, curv, a__1, r1D1);
@@ -536,6 +536,8 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         // 'cutCurvStruct:17' ret = -1;
         b_ret = -1;
     } else {
+        bool b_zeroFlag;
+        bool zeroFlag;
         // 'cutCurvStruct:19' a = curv.a_param;
         // 'cutCurvStruct:20' b = curv.b_param;
         // 'cutCurvStruct:22' curv2.b_param = u_tilda;
@@ -545,15 +547,27 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         // 'cutCurvStruct:25' if( isAZeroEnd( curv2 ) )
         //  isAZeroEnd : Return true if the curv ends with zero speed
         //  Input :
-        //  curv  : The curve struct
-        // 'isAZeroEnd:5' if( curv.Info.zspdmode == ZSpdMode.NZ || ...
-        // 'isAZeroEnd:6'         curv.Info.zspdmode == ZSpdMode.ZZ )
+        //  curv / Info / ZSpdMode : A structure containning the information of the
+        //  curv zero speed.
+        // 'isAZeroEnd:6' zeroFlag = false;
+        zeroFlag = false;
+        // 'isAZeroEnd:8' [zspdmode, error] = getZspdmode( speed );
+        //  Get the zspdmode enum from either a curvStruct, infoStruct or zspdMode.
+        // 'getZspdmode:3' error = false;
+        // 'getZspdmode:5' if( isenum( speed ) )
+        // 'getZspdmode:7' elseif( isfield( speed, "Info") )
+        // 'getZspdmode:8' zspdmode = speed.Info.zspdmode;
+        // 'isAZeroEnd:10' if( error )
+        // 'isAZeroEnd:12' if( zspdmode == ZSpdMode.NZ || ...
+        // 'isAZeroEnd:13'     zspdmode == ZSpdMode.ZZ )
         if ((curv->Info.zspdmode == ZSpdMode_NZ) || (curv->Info.zspdmode == ZSpdMode_ZZ)) {
-            // 'isAZeroEnd:7' zeroFlag = true;
+            // 'isAZeroEnd:14' zeroFlag = true;
+            zeroFlag = true;
+        }
+        if (zeroFlag) {
             // 'cutCurvStruct:26' curv2.Info.zspdmode = ZSpdMode.NZ;
             curv2->Info.zspdmode = ZSpdMode_NZ;
         } else {
-            // 'isAZeroEnd:9' zeroFlag = false;
             // 'cutCurvStruct:27' else
             // 'cutCurvStruct:28' curv2.Info.zspdmode = ZSpdMode.NN;
             curv2->Info.zspdmode = ZSpdMode_NN;
@@ -562,15 +576,28 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         curv1->a_param = u_tilda - curv->b_param;
         // 'cutCurvStruct:32' if( isAZeroStart( curv1 ) )
         //  isAZeroStart : Return true if the curv starts with zero speed
-        //  curv  : The curve struct
-        // 'isAZeroStart:4' if( curv.Info.zspdmode == ZSpdMode.ZN || ...
-        // 'isAZeroStart:5'         curv.Info.zspdmode == ZSpdMode.ZZ )
+        //  Input :
+        //  curv / Info / ZSpdMode : A structure containning the information of the
+        //  curv zero speed.
+        // 'isAZeroStart:6' zeroFlag = false;
+        b_zeroFlag = false;
+        // 'isAZeroStart:8' [zspdmode, error] = getZspdmode( speed );
+        //  Get the zspdmode enum from either a curvStruct, infoStruct or zspdMode.
+        // 'getZspdmode:3' error = false;
+        // 'getZspdmode:5' if( isenum( speed ) )
+        // 'getZspdmode:7' elseif( isfield( speed, "Info") )
+        // 'getZspdmode:8' zspdmode = speed.Info.zspdmode;
+        // 'isAZeroStart:10' if( error )
+        // 'isAZeroStart:12' if( zspdmode == ZSpdMode.ZN || ...
+        // 'isAZeroStart:13'     zspdmode == ZSpdMode.ZZ )
         if ((curv->Info.zspdmode == ZSpdMode_ZN) || (curv->Info.zspdmode == ZSpdMode_ZZ)) {
-            // 'isAZeroStart:6' zeroFlag = true;
+            // 'isAZeroStart:14' zeroFlag = true;
+            b_zeroFlag = true;
+        }
+        if (b_zeroFlag) {
             // 'cutCurvStruct:33' curv1.Info.zspdmode = ZSpdMode.ZN;
             curv1->Info.zspdmode = ZSpdMode_ZN;
         } else {
-            // 'isAZeroStart:8' zeroFlag = false;
             // 'cutCurvStruct:34' else
             // 'cutCurvStruct:35' curv1.Info.zspdmode = ZSpdMode.NN;
             curv1->Info.zspdmode = ZSpdMode_NN;
@@ -1006,7 +1033,7 @@ void cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
         // 'cutCurvStructU:29' if( isEnd )
         // 'cutCurvStructU:32' else
         // 'cutCurvStructU:33' [ ~, r1D0 ] = EvalCurvStruct( ctx, curv, 0 );
-        d_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+        e_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                          ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                          ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                          ctx_cfg_NCart, ctx_cfg_NRot, curv, a__2, r1D0);
@@ -1031,6 +1058,8 @@ void cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
         // 'cutCurvStruct:17' ret = -1;
         b_ret = -1;
     } else {
+        bool b_zeroFlag;
+        bool zeroFlag;
         // 'cutCurvStruct:19' a = curv.a_param;
         // 'cutCurvStruct:20' b = curv.b_param;
         // 'cutCurvStruct:22' curv2.b_param = u_tilda;
@@ -1040,15 +1069,27 @@ void cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
         // 'cutCurvStruct:25' if( isAZeroEnd( curv2 ) )
         //  isAZeroEnd : Return true if the curv ends with zero speed
         //  Input :
-        //  curv  : The curve struct
-        // 'isAZeroEnd:5' if( curv.Info.zspdmode == ZSpdMode.NZ || ...
-        // 'isAZeroEnd:6'         curv.Info.zspdmode == ZSpdMode.ZZ )
+        //  curv / Info / ZSpdMode : A structure containning the information of the
+        //  curv zero speed.
+        // 'isAZeroEnd:6' zeroFlag = false;
+        zeroFlag = false;
+        // 'isAZeroEnd:8' [zspdmode, error] = getZspdmode( speed );
+        //  Get the zspdmode enum from either a curvStruct, infoStruct or zspdMode.
+        // 'getZspdmode:3' error = false;
+        // 'getZspdmode:5' if( isenum( speed ) )
+        // 'getZspdmode:7' elseif( isfield( speed, "Info") )
+        // 'getZspdmode:8' zspdmode = speed.Info.zspdmode;
+        // 'isAZeroEnd:10' if( error )
+        // 'isAZeroEnd:12' if( zspdmode == ZSpdMode.NZ || ...
+        // 'isAZeroEnd:13'     zspdmode == ZSpdMode.ZZ )
         if ((curv->Info.zspdmode == ZSpdMode_NZ) || (curv->Info.zspdmode == ZSpdMode_ZZ)) {
-            // 'isAZeroEnd:7' zeroFlag = true;
+            // 'isAZeroEnd:14' zeroFlag = true;
+            zeroFlag = true;
+        }
+        if (zeroFlag) {
             // 'cutCurvStruct:26' curv2.Info.zspdmode = ZSpdMode.NZ;
             curv2->Info.zspdmode = ZSpdMode_NZ;
         } else {
-            // 'isAZeroEnd:9' zeroFlag = false;
             // 'cutCurvStruct:27' else
             // 'cutCurvStruct:28' curv2.Info.zspdmode = ZSpdMode.NN;
             curv2->Info.zspdmode = ZSpdMode_NN;
@@ -1057,15 +1098,28 @@ void cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
         curv1->a_param = u_tilda - curv->b_param;
         // 'cutCurvStruct:32' if( isAZeroStart( curv1 ) )
         //  isAZeroStart : Return true if the curv starts with zero speed
-        //  curv  : The curve struct
-        // 'isAZeroStart:4' if( curv.Info.zspdmode == ZSpdMode.ZN || ...
-        // 'isAZeroStart:5'         curv.Info.zspdmode == ZSpdMode.ZZ )
+        //  Input :
+        //  curv / Info / ZSpdMode : A structure containning the information of the
+        //  curv zero speed.
+        // 'isAZeroStart:6' zeroFlag = false;
+        b_zeroFlag = false;
+        // 'isAZeroStart:8' [zspdmode, error] = getZspdmode( speed );
+        //  Get the zspdmode enum from either a curvStruct, infoStruct or zspdMode.
+        // 'getZspdmode:3' error = false;
+        // 'getZspdmode:5' if( isenum( speed ) )
+        // 'getZspdmode:7' elseif( isfield( speed, "Info") )
+        // 'getZspdmode:8' zspdmode = speed.Info.zspdmode;
+        // 'isAZeroStart:10' if( error )
+        // 'isAZeroStart:12' if( zspdmode == ZSpdMode.ZN || ...
+        // 'isAZeroStart:13'     zspdmode == ZSpdMode.ZZ )
         if ((curv->Info.zspdmode == ZSpdMode_ZN) || (curv->Info.zspdmode == ZSpdMode_ZZ)) {
-            // 'isAZeroStart:6' zeroFlag = true;
+            // 'isAZeroStart:14' zeroFlag = true;
+            b_zeroFlag = true;
+        }
+        if (b_zeroFlag) {
             // 'cutCurvStruct:33' curv1.Info.zspdmode = ZSpdMode.ZN;
             curv1->Info.zspdmode = ZSpdMode_ZN;
         } else {
-            // 'isAZeroStart:8' zeroFlag = false;
             // 'cutCurvStruct:34' else
             // 'cutCurvStruct:35' curv1.Info.zspdmode = ZSpdMode.NN;
             curv1->Info.zspdmode = ZSpdMode_NN;

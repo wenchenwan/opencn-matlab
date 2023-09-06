@@ -5,7 +5,7 @@
 // File: calcTransition.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 31-Aug-2023 09:10:03
+// C/C++ source code generated on  : 06-Sep-2023 13:36:32
 //
 
 // Include Files
@@ -104,12 +104,12 @@ static bool check_continuity(const queue_coder *ctx_q_spline, const bool ctx_cfg
     // 'calcTransition:79' tol_cos     = ctx.cfg.Smoothing.ColTolCosSmooth;
     // 'calcTransition:80' tol_kappa   = 1E-3;
     // 'calcTransition:82' [ r11, r1d1, r1dd1 ] = EvalCurvStruct( ctx, curv1, 1 );
-    e_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+    f_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                      ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                      ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                      ctx_cfg_NCart, ctx_cfg_NRot, curv1, r11, r1d1, r1dd1);
     // 'calcTransition:83' [ r21, r2d1, r2dd1 ] = EvalCurvStruct( ctx, curv2, 0 );
-    f_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+    g_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                      ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                      ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                      ctx_cfg_NCart, ctx_cfg_NRot, curv2, r21, r2d1, r2dd1);
@@ -157,7 +157,7 @@ static bool check_continuity(const queue_coder *ctx_q_spline, const bool ctx_cfg
         double c;
         int c_loop_ub;
         int d_loop_ub;
-        // 'collinear:6' cos_angle = dot(u,v)/(MyNorm(u)*MyNorm(v));
+        // 'collinear:6' cos_angle = abs( dot(u,v)/(MyNorm(u)*MyNorm(v)) );
         // 'MyNorm:2' coder.inline('always');
         // 'MyNorm:3' n = mysqrt(sum(x.^2));
         // 'mysqrt:3' y = sqrt(x);
@@ -191,7 +191,7 @@ static bool check_continuity(const queue_coder *ctx_q_spline, const bool ctx_cfg
             b_varargin_1 = t2[i4];
             r3[i4] = std::pow(b_varargin_1, 2.0);
         }
-        isG1 = (c / (std::sqrt(coder::sum(r2)) * std::sqrt(coder::sum(r3))) >=
+        isG1 = (std::abs(c / (std::sqrt(coder::sum(r2)) * std::sqrt(coder::sum(r3)))) >=
                 ctx_cfg_Smoothing_ColTolCosSmooth);
     }
     // 'calcTransition:90' isG2    = abs( kappa1 -kappa2 )   < tol_kappa;
@@ -340,12 +340,12 @@ void calcTransition(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_
                    ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
                    ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart, ctx_cfg_NRot,
                    ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, curv2C);
-        e_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+        f_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                          ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                          ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                          ctx_cfg_NCart, ctx_cfg_NRot, curv1C, r0D0, r0D1, r0D2);
         // 'calcTransition:36' [r1D0, r1D1, r1D2] = EvalCurvStruct( ctx, curv2C, 0 );
-        f_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+        g_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                          ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                          ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                          ctx_cfg_NCart, ctx_cfg_NRot, curv2C, r1D0, r1D1, r1D2);
