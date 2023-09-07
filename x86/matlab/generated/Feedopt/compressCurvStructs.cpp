@@ -5,7 +5,7 @@
 // File: compressCurvStructs.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 06-Sep-2023 13:36:32
+// C/C++ source code generated on  : 06-Sep-2023 16:21:23
 //
 
 // Include Files
@@ -1277,7 +1277,7 @@ void compressCurvStructs(const b_FeedoptContext *ctx)
                         double c;
                         int c_loop_ub;
                         int d_loop_ub;
-                        // 'collinear:6' cos_angle = abs( dot(u,v)/(MyNorm(u)*MyNorm(v)) );
+                        // 'collinear:6' cos_angle = dot(u,v)/(MyNorm(u)*MyNorm(v));
                         // 'MyNorm:2' coder.inline('always');
                         // 'MyNorm:3' n = mysqrt(sum(x.^2));
                         // 'mysqrt:3' y = sqrt(x);
@@ -1311,9 +1311,8 @@ void compressCurvStructs(const b_FeedoptContext *ctx)
                             b_varargin_1 = v[i11];
                             r1[i11] = std::pow(b_varargin_1, 2.0);
                         }
-                        collinear =
-                            (std::abs(c / (std::sqrt(coder::sum(r)) * std::sqrt(coder::sum(r1)))) >=
-                             ctx->cfg.Compressing.ColTolCosLee);
+                        collinear = (c / (std::sqrt(coder::sum(r)) * std::sqrt(coder::sum(r1))) >=
+                                     ctx->cfg.Compressing.ColTolCosLee);
                     }
                     // 'compressCurvStructs:112' if( ~collinear )
                     if (!collinear) {

@@ -5,7 +5,7 @@
 // File: feedratePlanning.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 31-Aug-2023 09:29:48
+// C/C++ source code generated on  : 06-Sep-2023 16:04:28
 //
 
 // Include Files
@@ -178,6 +178,9 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                     int outsize_idx_1_tmp;
                     int x;
                     unsigned int y;
+                    bool c_zeroFlag;
+                    bool d_zeroFlag;
+                    bool e_zeroFlag;
                     bool exitg1;
                     // 'feedratePlanning:27' elseif ~ctx.zero_end
                     // 'feedratePlanning:29' [ window, NWindow ] = get_window( ctx.k0,
@@ -213,6 +216,7 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                     curv_ind = ctx->k0;
                     exitg1 = false;
                     while ((!exitg1) && (curv_ind <= static_cast<int>(kend))) {
+                        bool b_zeroFlag;
                         // 'feedratePlanning:123' ind = ind + 1;
                         ind++;
                         //  store the value in the queue
@@ -224,15 +228,27 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                         // 'feedratePlanning:129' if( isAZeroEnd( curv ) )
                         //  isAZeroEnd : Return true if the curv ends with zero speed
                         //  Input :
-                        //  curv  : The curve struct
-                        // 'isAZeroEnd:5' if( curv.Info.zspdmode == ZSpdMode.NZ || ...
-                        // 'isAZeroEnd:6'         curv.Info.zspdmode == ZSpdMode.ZZ )
+                        //  curv / Info / ZSpdMode : A structure containning the information of the
+                        //  curv zero speed.
+                        // 'isAZeroEnd:6' zeroFlag = false;
+                        b_zeroFlag = false;
+                        // 'isAZeroEnd:8' [zspdmode, error] = getZspdmode( speed );
+                        //  Get the zspdmode enum from either a curvStruct, infoStruct or zspdMode.
+                        // 'getZspdmode:3' error = false;
+                        // 'getZspdmode:5' if( isenum( speed ) )
+                        // 'getZspdmode:7' elseif( isfield( speed, "Info") )
+                        // 'getZspdmode:8' zspdmode = speed.Info.zspdmode;
+                        // 'isAZeroEnd:10' if( error )
+                        // 'isAZeroEnd:12' if( zspdmode == ZSpdMode.NZ || ...
+                        // 'isAZeroEnd:13'     zspdmode == ZSpdMode.ZZ )
                         if ((curv.Info.zspdmode == ZSpdMode_NZ) ||
                             (curv.Info.zspdmode == ZSpdMode_ZZ)) {
-                            // 'isAZeroEnd:7' zeroFlag = true;
+                            // 'isAZeroEnd:14' zeroFlag = true;
+                            b_zeroFlag = true;
+                        }
+                        if (b_zeroFlag) {
                             exitg1 = true;
                         } else {
-                            // 'isAZeroEnd:9' zeroFlag = false;
                             curv_ind++;
                         }
                     }
@@ -248,15 +264,29 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                     //  Handle the zero speed at start
                     // 'feedratePlanning:35' if ( isAZeroStart( first ) )
                     //  isAZeroStart : Return true if the curv starts with zero speed
-                    //  curv  : The curve struct
-                    // 'isAZeroStart:4' if( curv.Info.zspdmode == ZSpdMode.ZN || ...
-                    // 'isAZeroStart:5'         curv.Info.zspdmode == ZSpdMode.ZZ )
+                    //  Input :
+                    //  curv / Info / ZSpdMode : A structure containning the information of the
+                    //  curv zero speed.
+                    // 'isAZeroStart:6' zeroFlag = false;
+                    c_zeroFlag = false;
+                    // 'isAZeroStart:8' [zspdmode, error] = getZspdmode( speed );
+                    //  Get the zspdmode enum from either a curvStruct, infoStruct or zspdMode.
+                    // 'getZspdmode:3' error = false;
+                    // 'getZspdmode:5' if( isenum( speed ) )
+                    // 'getZspdmode:7' elseif( isfield( speed, "Info") )
+                    // 'getZspdmode:8' zspdmode = speed.Info.zspdmode;
+                    // 'isAZeroStart:10' if( error )
+                    // 'isAZeroStart:12' if( zspdmode == ZSpdMode.ZN || ...
+                    // 'isAZeroStart:13'     zspdmode == ZSpdMode.ZZ )
                     if ((window[0].Info.zspdmode == ZSpdMode_ZN) ||
                         (window[0].Info.zspdmode == ZSpdMode_ZZ)) {
+                        // 'isAZeroStart:14' zeroFlag = true;
+                        c_zeroFlag = true;
+                    }
+                    if (c_zeroFlag) {
                         int c_loop_ub;
                         int i3;
                         int i4;
-                        // 'isAZeroStart:6' zeroFlag = true;
                         // 'feedratePlanning:36' ctx.zero_start  = true;
                         ctx->zero_start = true;
                         // 'feedratePlanning:37' window          = window( 2 : end );
@@ -275,7 +305,6 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                         // 'feedratePlanning:38' NWindow         = NWindow -1;
                         NWindow = static_cast<int>(ind) - 1;
                     } else {
-                        // 'isAZeroStart:8' zeroFlag = false;
                         // 'feedratePlanning:39' else
                         // 'feedratePlanning:40' ctx.zero_start  = false;
                         ctx->zero_start = false;
@@ -284,31 +313,53 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                     // 'feedratePlanning:44' if( isAZeroEnd( last ) )
                     //  isAZeroEnd : Return true if the curv ends with zero speed
                     //  Input :
-                    //  curv  : The curve struct
-                    // 'isAZeroEnd:5' if( curv.Info.zspdmode == ZSpdMode.NZ || ...
-                    // 'isAZeroEnd:6'         curv.Info.zspdmode == ZSpdMode.ZZ )
+                    //  curv / Info / ZSpdMode : A structure containning the information of the
+                    //  curv zero speed.
+                    // 'isAZeroEnd:6' zeroFlag = false;
+                    d_zeroFlag = false;
+                    // 'isAZeroEnd:8' [zspdmode, error] = getZspdmode( speed );
+                    //  Get the zspdmode enum from either a curvStruct, infoStruct or zspdMode.
+                    // 'getZspdmode:3' error = false;
+                    // 'getZspdmode:5' if( isenum( speed ) )
+                    // 'getZspdmode:7' elseif( isfield( speed, "Info") )
+                    // 'getZspdmode:8' zspdmode = speed.Info.zspdmode;
+                    // 'isAZeroEnd:10' if( error )
+                    // 'isAZeroEnd:12' if( zspdmode == ZSpdMode.NZ || ...
+                    // 'isAZeroEnd:13'     zspdmode == ZSpdMode.ZZ )
                     if ((window[static_cast<int>(ind) - 1].Info.zspdmode == ZSpdMode_NZ) ||
                         (window[static_cast<int>(ind) - 1].Info.zspdmode == ZSpdMode_ZZ)) {
-                        // 'isAZeroEnd:7' zeroFlag = true;
+                        // 'isAZeroEnd:14' zeroFlag = true;
+                        d_zeroFlag = true;
+                    }
+                    if (d_zeroFlag) {
                         // 'feedratePlanning:45' NWindow         = NWindow -1;
                         NWindow--;
-                    } else {
-                        // 'isAZeroEnd:9' zeroFlag = false;
                     }
                     // 'feedratePlanning:48' if( isAZeroEnd( last ) && ~ctx.zero_start )
                     //  isAZeroEnd : Return true if the curv ends with zero speed
                     //  Input :
-                    //  curv  : The curve struct
-                    // 'isAZeroEnd:5' if( curv.Info.zspdmode == ZSpdMode.NZ || ...
-                    // 'isAZeroEnd:6'         curv.Info.zspdmode == ZSpdMode.ZZ )
-                    if (((window[static_cast<int>(ind) - 1].Info.zspdmode == ZSpdMode_NZ) ||
-                         (window[static_cast<int>(ind) - 1].Info.zspdmode == ZSpdMode_ZZ)) &&
-                        (!ctx->zero_start)) {
-                        // 'isAZeroEnd:7' zeroFlag = true;
+                    //  curv / Info / ZSpdMode : A structure containning the information of the
+                    //  curv zero speed.
+                    // 'isAZeroEnd:6' zeroFlag = false;
+                    e_zeroFlag = false;
+                    // 'isAZeroEnd:8' [zspdmode, error] = getZspdmode( speed );
+                    //  Get the zspdmode enum from either a curvStruct, infoStruct or zspdMode.
+                    // 'getZspdmode:3' error = false;
+                    // 'getZspdmode:5' if( isenum( speed ) )
+                    // 'getZspdmode:7' elseif( isfield( speed, "Info") )
+                    // 'getZspdmode:8' zspdmode = speed.Info.zspdmode;
+                    // 'isAZeroEnd:10' if( error )
+                    // 'isAZeroEnd:12' if( zspdmode == ZSpdMode.NZ || ...
+                    // 'isAZeroEnd:13'     zspdmode == ZSpdMode.ZZ )
+                    if ((window[static_cast<int>(ind) - 1].Info.zspdmode == ZSpdMode_NZ) ||
+                        (window[static_cast<int>(ind) - 1].Info.zspdmode == ZSpdMode_ZZ)) {
+                        // 'isAZeroEnd:14' zeroFlag = true;
+                        e_zeroFlag = true;
+                    }
+                    if (e_zeroFlag && (!ctx->zero_start)) {
                         // 'feedratePlanning:49' ctx.zero_end    = true;
                         ctx->zero_end = true;
                     } else {
-                        // 'isAZeroEnd:9' zeroFlag = false;
                         // 'feedratePlanning:50' else
                         // 'feedratePlanning:51' ctx.zero_end    = false;
                         ctx->zero_end = false;
@@ -401,7 +452,7 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                         // 'constJerkU:40' uddd = uddd;
                         // 'calcZeroConstraints:22' [ r0D, r1D, r2D, r3D ]  = EvalCurvStruct( ctx,
                         // curv, u );
-                        i_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data,
+                        j_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data,
                                          ctx->cfg.maskTot.size, ctx->cfg.maskCart.data,
                                          ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
                                          ctx->cfg.maskRot.size, ctx->cfg.indCart, ctx->cfg.indRot,
@@ -529,6 +580,7 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                         ctx->reached_end = true;
                     }
                 } else {
+                    bool zeroFlag;
                     // 'feedratePlanning:87' else
                     // 'feedratePlanning:88' optimized   = true;
                     b_optimized = true;
@@ -539,20 +591,26 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                     // 'feedratePlanning:92' if( ~isAZeroEnd( opt_struct ) )
                     //  isAZeroEnd : Return true if the curv ends with zero speed
                     //  Input :
-                    //  curv  : The curve struct
-                    // 'isAZeroEnd:5' if( curv.Info.zspdmode == ZSpdMode.NZ || ...
-                    // 'isAZeroEnd:6'         curv.Info.zspdmode == ZSpdMode.ZZ )
+                    //  curv / Info / ZSpdMode : A structure containning the information of the
+                    //  curv zero speed.
+                    // 'isAZeroEnd:6' zeroFlag = false;
+                    zeroFlag = false;
+                    // 'isAZeroEnd:8' [zspdmode, error] = getZspdmode( speed );
+                    //  Get the zspdmode enum from either a curvStruct, infoStruct or zspdMode.
+                    // 'getZspdmode:3' error = false;
+                    // 'getZspdmode:5' if( isenum( speed ) )
+                    // 'getZspdmode:7' elseif( isfield( speed, "Info") )
+                    // 'getZspdmode:8' zspdmode = speed.Info.zspdmode;
+                    // 'isAZeroEnd:10' if( error )
+                    // 'isAZeroEnd:12' if( zspdmode == ZSpdMode.NZ || ...
+                    // 'isAZeroEnd:13'     zspdmode == ZSpdMode.ZZ )
                     if ((opt_struct->Info.zspdmode == ZSpdMode_NZ) ||
                         (opt_struct->Info.zspdmode == ZSpdMode_ZZ)) {
-                        // 'isAZeroEnd:7' zeroFlag = true;
-                        // 'feedratePlanning:94' else
-                        // 'feedratePlanning:95' ctx.zero_end  = false;
-                        ctx->zero_end = false;
-                        // 'feedratePlanning:96' kopt = 1;
-                        kopt = 1.0;
-                    } else {
+                        // 'isAZeroEnd:14' zeroFlag = true;
+                        zeroFlag = true;
+                    }
+                    if (!zeroFlag) {
                         int loop_ub;
-                        // 'isAZeroEnd:9' zeroFlag = false;
                         // 'feedratePlanning:93' opt_struct.Coeff = ctx.Coeff( :, kopt );
                         loop_ub = ctx->Coeff.size(0);
                         opt_struct->Coeff.set_size(loop_ub);
@@ -560,6 +618,12 @@ void feedratePlanning(b_FeedoptContext *ctx, bool *optimized, CurvStruct *opt_st
                             opt_struct->Coeff[i1] =
                                 ctx->Coeff[i1 + ctx->Coeff.size(0) * (static_cast<int>(kopt) - 1)];
                         }
+                    } else {
+                        // 'feedratePlanning:94' else
+                        // 'feedratePlanning:95' ctx.zero_end  = false;
+                        ctx->zero_end = false;
+                        // 'feedratePlanning:96' kopt = 1;
+                        kopt = 1.0;
                     }
                 }
             } else {

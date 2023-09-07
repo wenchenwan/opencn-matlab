@@ -5,7 +5,7 @@
 // File: calcTransition.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 06-Sep-2023 13:36:32
+// C/C++ source code generated on  : 06-Sep-2023 16:21:23
 //
 
 // Include Files
@@ -157,7 +157,7 @@ static bool check_continuity(const queue_coder *ctx_q_spline, const bool ctx_cfg
         double c;
         int c_loop_ub;
         int d_loop_ub;
-        // 'collinear:6' cos_angle = abs( dot(u,v)/(MyNorm(u)*MyNorm(v)) );
+        // 'collinear:6' cos_angle = dot(u,v)/(MyNorm(u)*MyNorm(v));
         // 'MyNorm:2' coder.inline('always');
         // 'MyNorm:3' n = mysqrt(sum(x.^2));
         // 'mysqrt:3' y = sqrt(x);
@@ -191,7 +191,7 @@ static bool check_continuity(const queue_coder *ctx_q_spline, const bool ctx_cfg
             b_varargin_1 = t2[i4];
             r3[i4] = std::pow(b_varargin_1, 2.0);
         }
-        isG1 = (std::abs(c / (std::sqrt(coder::sum(r2)) * std::sqrt(coder::sum(r3)))) >=
+        isG1 = (c / (std::sqrt(coder::sum(r2)) * std::sqrt(coder::sum(r3))) >=
                 ctx_cfg_Smoothing_ColTolCosSmooth);
     }
     // 'calcTransition:90' isG2    = abs( kappa1 -kappa2 )   < tol_kappa;

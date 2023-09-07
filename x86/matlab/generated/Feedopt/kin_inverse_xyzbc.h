@@ -5,7 +5,7 @@
 // File: kin_inverse_xyzbc.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 06-Sep-2023 13:36:32
+// C/C++ source code generated on  : 06-Sep-2023 16:21:23
 //
 
 #ifndef KIN_INVERSE_XYZBC_H

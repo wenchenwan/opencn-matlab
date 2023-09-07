@@ -5,7 +5,7 @@
 // File: smoothCurvStructs.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 06-Sep-2023 13:36:32
+// C/C++ source code generated on  : 06-Sep-2023 16:21:23
 //
 
 // Include Files
@@ -280,7 +280,7 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                     double c;
                     int c_loop_ub;
                     int d_loop_ub;
-                    // 'collinear:6' cos_angle = abs( dot(u,v)/(MyNorm(u)*MyNorm(v)) );
+                    // 'collinear:6' cos_angle = dot(u,v)/(MyNorm(u)*MyNorm(v));
                     // 'MyNorm:2' coder.inline('always');
                     // 'MyNorm:3' n = mysqrt(sum(x.^2));
                     // 'mysqrt:3' y = sqrt(x);
@@ -314,7 +314,7 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                         b_varargin_1 = t2[i4];
                         r3[i4] = std::pow(b_varargin_1, 2.0);
                     }
-                    isG1 = (std::abs(c / (std::sqrt(coder::sum(r2)) * std::sqrt(coder::sum(r3)))) >=
+                    isG1 = (c / (std::sqrt(coder::sum(r2)) * std::sqrt(coder::sum(r3))) >=
                             ctx->cfg.Smoothing.ColTolCosSmooth);
                 }
                 // 'smoothCurvStructs:96' isG2   = all( abs( kappa1 -kappa2 ) < tol, 'all' );

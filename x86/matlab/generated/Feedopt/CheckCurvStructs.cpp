@@ -5,7 +5,7 @@
 // File: CheckCurvStructs.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 06-Sep-2023 13:36:32
+// C/C++ source code generated on  : 06-Sep-2023 16:21:23
 //
 
 // Include Files
@@ -165,7 +165,7 @@ void CheckCurvStructs(const b_FeedoptContext *ctx)
             for (int i1{0}; i1 < b_loop_ub; i1++) {
                 v_data[i1] = r1D1[ctx->cfg.indCart[i1] - 1];
             }
-            // 'iscusp:2' value = abs( dot(u,v)/(norm(u)*norm(v)) ) <= cosd(180 - angle_d);
+            // 'iscusp:2' value = dot(u,v)/(norm(u)*norm(v)) <= cosd(180 - angle_d);
             x = rt_remd(180.0 - ctx->cfg.Cusp.CuspThreshold, 360.0);
             absx = std::abs(x);
             if (absx > 180.0) {
@@ -213,7 +213,7 @@ void CheckCurvStructs(const b_FeedoptContext *ctx)
             } else {
                 b_n = -std::cos(x);
             }
-            if (std::abs(c / (coder::b_norm(b_u_data) * coder::b_norm(b_v_data))) <= b_n) {
+            if (c / (coder::b_norm(b_u_data) * coder::b_norm(b_v_data)) <= b_n) {
                 // 'CheckCurvStructs:20' switch curv1.Info.zspdmode
                 switch (curv1.Info.zspdmode) {
                 case ZSpdMode_NN:

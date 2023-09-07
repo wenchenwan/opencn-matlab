@@ -5,7 +5,7 @@
 // File: checkZSpdmode.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 31-Aug-2023 09:29:48
+// C/C++ source code generated on  : 06-Sep-2023 16:04:28
 //
 
 // Include Files
@@ -46,44 +46,117 @@ bool checkZSpdmode(const queue_coder *queue)
     do {
         exitg1 = 0;
         if (k <= N) {
+            bool guard1;
+            bool guard2;
+            bool zeroFlag;
             // 'checkZSpdmode:11' curvNext = queue.get( k );
             queue->get(k, &expl_temp);
             // 'checkZSpdmode:13' if( isAZeroEnd( curv ) && ~isAZeroStart( curvNext ) || ...
             // 'checkZSpdmode:14'        ~isAZeroEnd( curv ) &&  isAZeroStart( curvNext ) )
             //  isAZeroEnd : Return true if the curv ends with zero speed
             //  Input :
-            //  curv  : The curve struct
-            // 'isAZeroEnd:5' if( curv.Info.zspdmode == ZSpdMode.NZ || ...
-            // 'isAZeroEnd:6'         curv.Info.zspdmode == ZSpdMode.ZZ )
-            if ((((curv_Info_zspdmode == ZSpdMode_NZ) || (curv_Info_zspdmode == ZSpdMode_ZZ)) &&
-                 ((expl_temp.Info.zspdmode != ZSpdMode_ZN) &&
-                  (expl_temp.Info.zspdmode != ZSpdMode_ZZ))) ||
-                ((curv_Info_zspdmode != ZSpdMode_NZ) && (curv_Info_zspdmode != ZSpdMode_ZZ) &&
-                 ((expl_temp.Info.zspdmode == ZSpdMode_ZN) ||
-                  (expl_temp.Info.zspdmode == ZSpdMode_ZZ)))) {
-                // 'isAZeroEnd:7' zeroFlag = true;
+            //  curv / Info / ZSpdMode : A structure containning the information of the
+            //  curv zero speed.
+            // 'isAZeroEnd:6' zeroFlag = false;
+            zeroFlag = false;
+            // 'isAZeroEnd:8' [zspdmode, error] = getZspdmode( speed );
+            //  Get the zspdmode enum from either a curvStruct, infoStruct or zspdMode.
+            // 'getZspdmode:3' error = false;
+            // 'getZspdmode:5' if( isenum( speed ) )
+            // 'getZspdmode:7' elseif( isfield( speed, "Info") )
+            // 'getZspdmode:8' zspdmode = speed.Info.zspdmode;
+            // 'isAZeroEnd:10' if( error )
+            // 'isAZeroEnd:12' if( zspdmode == ZSpdMode.NZ || ...
+            // 'isAZeroEnd:13'     zspdmode == ZSpdMode.ZZ )
+            if ((curv_Info_zspdmode == ZSpdMode_NZ) || (curv_Info_zspdmode == ZSpdMode_ZZ)) {
+                // 'isAZeroEnd:14' zeroFlag = true;
+                zeroFlag = true;
+            }
+            guard1 = false;
+            guard2 = false;
+            if (zeroFlag) {
+                bool b_zeroFlag;
                 //  isAZeroStart : Return true if the curv starts with zero speed
-                //  curv  : The curve struct
-                // 'isAZeroStart:4' if( curv.Info.zspdmode == ZSpdMode.ZN || ...
-                // 'isAZeroStart:5'         curv.Info.zspdmode == ZSpdMode.ZZ )
-                // 'isAZeroStart:8' zeroFlag = false;
-                // 'isAZeroEnd:9' zeroFlag = false;
-                //  isAZeroStart : Return true if the curv starts with zero speed
-                //  curv  : The curve struct
-                // 'isAZeroStart:4' if( curv.Info.zspdmode == ZSpdMode.ZN || ...
-                // 'isAZeroStart:5'         curv.Info.zspdmode == ZSpdMode.ZZ )
-                // 'isAZeroStart:6' zeroFlag = true;
-                exitg1 = 1;
+                //  Input :
+                //  curv / Info / ZSpdMode : A structure containning the information of the
+                //  curv zero speed.
+                // 'isAZeroStart:6' zeroFlag = false;
+                b_zeroFlag = false;
+                // 'isAZeroStart:8' [zspdmode, error] = getZspdmode( speed );
+                //  Get the zspdmode enum from either a curvStruct, infoStruct or zspdMode.
+                // 'getZspdmode:3' error = false;
+                // 'getZspdmode:5' if( isenum( speed ) )
+                // 'getZspdmode:7' elseif( isfield( speed, "Info") )
+                // 'getZspdmode:8' zspdmode = speed.Info.zspdmode;
+                // 'isAZeroStart:10' if( error )
+                // 'isAZeroStart:12' if( zspdmode == ZSpdMode.ZN || ...
+                // 'isAZeroStart:13'     zspdmode == ZSpdMode.ZZ )
+                if ((expl_temp.Info.zspdmode == ZSpdMode_ZN) ||
+                    (expl_temp.Info.zspdmode == ZSpdMode_ZZ)) {
+                    // 'isAZeroStart:14' zeroFlag = true;
+                    b_zeroFlag = true;
+                }
+                if (!b_zeroFlag) {
+                    exitg1 = 1;
+                } else {
+                    guard2 = true;
+                }
             } else {
-                // 'isAZeroEnd:9' zeroFlag = false;
-                // 'isAZeroStart:6' zeroFlag = true;
+                guard2 = true;
+            }
+            if (guard2) {
+                bool c_zeroFlag;
                 //  isAZeroEnd : Return true if the curv ends with zero speed
                 //  Input :
-                //  curv  : The curve struct
-                // 'isAZeroEnd:5' if( curv.Info.zspdmode == ZSpdMode.NZ || ...
-                // 'isAZeroEnd:6'         curv.Info.zspdmode == ZSpdMode.ZZ )
-                // 'isAZeroEnd:7' zeroFlag = true;
-                // 'isAZeroStart:8' zeroFlag = false;
+                //  curv / Info / ZSpdMode : A structure containning the information of the
+                //  curv zero speed.
+                // 'isAZeroEnd:6' zeroFlag = false;
+                c_zeroFlag = false;
+                // 'isAZeroEnd:8' [zspdmode, error] = getZspdmode( speed );
+                //  Get the zspdmode enum from either a curvStruct, infoStruct or zspdMode.
+                // 'getZspdmode:3' error = false;
+                // 'getZspdmode:5' if( isenum( speed ) )
+                // 'getZspdmode:7' elseif( isfield( speed, "Info") )
+                // 'getZspdmode:8' zspdmode = speed.Info.zspdmode;
+                // 'isAZeroEnd:10' if( error )
+                // 'isAZeroEnd:12' if( zspdmode == ZSpdMode.NZ || ...
+                // 'isAZeroEnd:13'     zspdmode == ZSpdMode.ZZ )
+                if ((curv_Info_zspdmode == ZSpdMode_NZ) || (curv_Info_zspdmode == ZSpdMode_ZZ)) {
+                    // 'isAZeroEnd:14' zeroFlag = true;
+                    c_zeroFlag = true;
+                }
+                if (!c_zeroFlag) {
+                    bool d_zeroFlag;
+                    //  isAZeroStart : Return true if the curv starts with zero speed
+                    //  Input :
+                    //  curv / Info / ZSpdMode : A structure containning the information of the
+                    //  curv zero speed.
+                    // 'isAZeroStart:6' zeroFlag = false;
+                    d_zeroFlag = false;
+                    // 'isAZeroStart:8' [zspdmode, error] = getZspdmode( speed );
+                    //  Get the zspdmode enum from either a curvStruct, infoStruct or zspdMode.
+                    // 'getZspdmode:3' error = false;
+                    // 'getZspdmode:5' if( isenum( speed ) )
+                    // 'getZspdmode:7' elseif( isfield( speed, "Info") )
+                    // 'getZspdmode:8' zspdmode = speed.Info.zspdmode;
+                    // 'isAZeroStart:10' if( error )
+                    // 'isAZeroStart:12' if( zspdmode == ZSpdMode.ZN || ...
+                    // 'isAZeroStart:13'     zspdmode == ZSpdMode.ZZ )
+                    if ((expl_temp.Info.zspdmode == ZSpdMode_ZN) ||
+                        (expl_temp.Info.zspdmode == ZSpdMode_ZZ)) {
+                        // 'isAZeroStart:14' zeroFlag = true;
+                        d_zeroFlag = true;
+                    }
+                    if (d_zeroFlag) {
+                        exitg1 = 1;
+                    } else {
+                        guard1 = true;
+                    }
+                } else {
+                    guard1 = true;
+                }
+            }
+            if (guard1) {
                 // 'checkZSpdmode:18' curv = curvNext;
                 curv_Info_zspdmode = expl_temp.Info.zspdmode;
                 k++;
