@@ -5,7 +5,7 @@
 // File: find.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 06-Sep-2023 16:04:28
+// C/C++ source code generated on  : 14-Sep-2023 13:07:08
 //
 
 // Include Files
@@ -53,26 +53,26 @@ void b_eml_find(const ::coder::array<bool, 2U> &x, int i_data[], int i_size[2])
 }
 
 //
-// Arguments    : const bool x_data[]
-//                int x_size
-//                int i_data[]
-//                int *i_size
+// Arguments    : const ::coder::array<bool, 1U> &x
+//                ::coder::array<int, 1U> &i
 // Return Type  : void
 //
-void c_eml_find(const bool x_data[], int x_size, int i_data[], int *i_size)
+void c_eml_find(const ::coder::array<bool, 1U> &x, ::coder::array<int, 1U> &i)
 {
     int idx;
     int ii;
+    int nx;
     bool exitg1;
+    nx = x.size(0);
     idx = 0;
-    *i_size = x_size;
+    i.set_size(x.size(0));
     ii = 0;
     exitg1 = false;
-    while ((!exitg1) && (ii <= x_size - 1)) {
-        if (x_data[ii]) {
+    while ((!exitg1) && (ii <= nx - 1)) {
+        if (x[ii]) {
             idx++;
-            i_data[idx - 1] = ii + 1;
-            if (idx >= x_size) {
+            i[idx - 1] = ii + 1;
+            if (idx >= nx) {
                 exitg1 = true;
             } else {
                 ii++;
@@ -81,14 +81,18 @@ void c_eml_find(const bool x_data[], int x_size, int i_data[], int *i_size)
             ii++;
         }
     }
-    if (x_size == 1) {
+    if (x.size(0) == 1) {
         if (idx == 0) {
-            *i_size = 0;
+            i.set_size(0);
         }
-    } else if (idx < 1) {
-        *i_size = 0;
     } else {
-        *i_size = idx;
+        int b_idx;
+        if (idx < 1) {
+            b_idx = 0;
+        } else {
+            b_idx = idx;
+        }
+        i.set_size(b_idx);
     }
 }
 

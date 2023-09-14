@@ -5,7 +5,7 @@
 // File: buildConstr.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 06-Sep-2023 16:04:28
+// C/C++ source code generated on  : 14-Sep-2023 13:07:08
 //
 
 // Include Files
@@ -1400,7 +1400,13 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
         continuity[2 * i36 + 1] = at_norm[2 * i36 + 1];
     }
     // 'buildConstr:115' checkValidity( A, b, Aeq, beq, continuity );
-    // 'buildConstr:117' c_prof_out(mfilename);
+    // 'buildConstr:123' assert( ~any( isnan( A ) , 'all' ),          mfilename + " Error : A has
+    // NaN"); 'buildConstr:124' assert( ~any( isnan( b ) , 'all' ),          mfilename + " Error : b
+    // has NaN"); 'buildConstr:125' assert( ~any( find( b < 0 ) , 'all' ),       mfilename + " Error
+    // : b should be positive"); 'buildConstr:126' assert( ~any( isnan( Aeq ) , 'all' ), mfilename +
+    // " Error : Aeq has NaN"); 'buildConstr:127' assert( ~any( isnan( beq ) , 'all' ), mfilename +
+    // " Error : beq has NaN"); 'buildConstr:128' assert( ~any( isnan( continuity ) , 'all' ),
+    // mfilename + " Error : continuity has NaN"); 'buildConstr:117' c_prof_out(mfilename);
 }
 
 } // namespace ocn

@@ -5,7 +5,7 @@
 // File: splitQueue.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 06-Sep-2023 16:21:23
+// C/C++ source code generated on  : 14-Sep-2023 12:49:58
 //
 
 // Include Files
@@ -40,9 +40,9 @@ namespace ocn {
 void splitQueue(const b_FeedoptContext *ctx)
 {
     Kinematics b_ctx;
-    Kinematics c_ctx;
     Kinematics d_ctx;
     Kinematics e_ctx;
+    Kinematics f_ctx;
     ::coder::array<double, 2U> a__1;
     ::coder::array<double, 2U> a__2;
     ::coder::array<double, 2U> a__3;
@@ -53,6 +53,7 @@ void splitQueue(const b_FeedoptContext *ctx)
     CurvStruct b_curv;
     CurvStruct b_curvE;
     CurvStruct b_curvS;
+    CurvStruct c_ctx;
     CurvStruct c_curv;
     CurvStruct c_curvS;
     CurvStruct curv;
@@ -257,14 +258,14 @@ void splitQueue(const b_FeedoptContext *ctx)
                         curvS.UseConstJerk = true;
                         // 'cutZeroStart:23' [ ~, ~, ~, jps ]        = zeroSpeedCurv( ctx, curv1,
                         // false );
-                        c_ctx = ctx->kin;
+                        d_ctx = ctx->kin;
                         c_curvS = curvS;
                         zeroSpeedCurv(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                                       ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
                                       ctx->cfg.maskRot.data, ctx->cfg.maskRot.size,
                                       ctx->cfg.indCart, ctx->cfg.indRot, ctx->cfg.NumberAxis,
                                       ctx->cfg.NCart, ctx->cfg.NRot, ctx->cfg.vmax, ctx->cfg.amax,
-                                      ctx->cfg.jmax, ctx->cfg.dt, &c_ctx, &c_curvS, a__4, a__5,
+                                      ctx->cfg.jmax, ctx->cfg.dt, &d_ctx, &c_curvS, a__4, a__5,
                                       a__6, &curvS.ConstJerk);
                         // 'cutZeroStart:24' curv1.ConstJerk         = jps;
                         // 'cutZeroStart:25' curv2.UseConstJerk      = false;
@@ -367,14 +368,14 @@ void splitQueue(const b_FeedoptContext *ctx)
                             b_curv.UseConstJerk = true;
                             // 'cutZeroEnd:17' [ ~, ~, ~, jps ]        = zeroSpeedCurv( ctx, curv1,
                             // true );
-                            d_ctx = ctx->kin;
+                            e_ctx = ctx->kin;
                             d_curv = b_curv;
                             b_zeroSpeedCurv(
                                 &ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                                 ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
                                 ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
                                 ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart, ctx->cfg.NRot,
-                                ctx->cfg.vmax, ctx->cfg.amax, ctx->cfg.jmax, ctx->cfg.dt, &d_ctx,
+                                ctx->cfg.vmax, ctx->cfg.amax, ctx->cfg.jmax, ctx->cfg.dt, &e_ctx,
                                 &d_curv, a__1, a__2, a__3, &b_curv.ConstJerk);
                             // 'cutZeroEnd:18' curv1.ConstJerk         = jps;
                         } else {
@@ -393,14 +394,14 @@ void splitQueue(const b_FeedoptContext *ctx)
                             curvE.UseConstJerk = true;
                             // 'cutZeroEnd:23' [ ~, ~, ~, jps ]        = zeroSpeedCurv( ctx, curv2,
                             // true );
-                            e_ctx = ctx->kin;
+                            f_ctx = ctx->kin;
                             b_curvE = curvE;
                             b_zeroSpeedCurv(
                                 &ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                                 ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
                                 ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
                                 ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart, ctx->cfg.NRot,
-                                ctx->cfg.vmax, ctx->cfg.amax, ctx->cfg.jmax, ctx->cfg.dt, &e_ctx,
+                                ctx->cfg.vmax, ctx->cfg.amax, ctx->cfg.jmax, ctx->cfg.dt, &f_ctx,
                                 &b_curvE, a__4, a__5, a__6, &curvE.ConstJerk);
                             // 'cutZeroEnd:24' curv2.ConstJerk         = jps;
                             // 'cutZeroEnd:25' curv1.UseConstJerk      = false;
@@ -470,7 +471,12 @@ void splitQueue(const b_FeedoptContext *ctx)
                     b_k = 0;
                     exitg1 = false;
                     while ((!exitg1) && (b_k <= static_cast<int>(b_N - 1.0) - 1)) {
-                        // 'splitCurvStruct:44' [ ret, curvSplited, curv ] = cutCurvStruct( ctx,
+                        // 'splitCurvStruct:44' if( k > 1 )
+                        if (static_cast<double>(b_k) + 1.0 > 1.0) {
+                            // 'splitCurvStruct:45' curvTest = ctx.q_split.get( k );
+                            ctx->q_split.get(static_cast<double>(b_k) + 1.0, &c_ctx);
+                        }
+                        // 'splitCurvStruct:47' [ ret, curvSplited, curv ] = cutCurvStruct( ctx,
                         // curv, 0, L_split, false );
                         c_curv = curv;
                         cutCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
@@ -480,15 +486,15 @@ void splitQueue(const b_FeedoptContext *ctx)
                                       ctx->cfg.NCart, ctx->cfg.NRot, ctx->cfg.GaussLegendreX,
                                       ctx->cfg.GaussLegendreW, &c_curv, L_split, &b_ret,
                                       &curvSplited, &curv);
-                        // 'splitCurvStruct:45' if( ret < 0 )
+                        // 'splitCurvStruct:48' if( ret < 0 )
                         if (b_ret < 0.0) {
                             exitg1 = true;
                         } else {
                             double x;
-                            // 'splitCurvStruct:47' assert( check_curv_length( ctx, curvSplited,
-                            // L_split ), ... 'splitCurvStruct:48'             mfilename + " Curve
-                            // Length not valide"); 'splitCurvStruct:64' tol = 1E-3;
-                            // 'splitCurvStruct:66' isValid = ( abs( LengthCurv( ctx, curv, 0, 1 ) -
+                            // 'splitCurvStruct:50' assert( check_curv_length( ctx, curvSplited,
+                            // L_split ), ... 'splitCurvStruct:51'             mfilename + " Curve
+                            // Length not valide"); 'splitCurvStruct:67' tol = 1E-3;
+                            // 'splitCurvStruct:69' isValid = ( abs( LengthCurv( ctx, curv, 0, 1 ) -
                             // L ) <= tol );
                             x = LengthCurv(&ctx->q_spline, ctx->cfg.maskTot.data,
                                            ctx->cfg.maskTot.size, ctx->cfg.maskCart.data,
@@ -498,9 +504,9 @@ void splitQueue(const b_FeedoptContext *ctx)
                                            ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW,
                                            &curvSplited) -
                                 L_split;
-                            // 'splitCurvStruct:68' if( ~isValid )
+                            // 'splitCurvStruct:71' if( ~isValid )
                             if (std::abs(x) > 0.001) {
-                                // 'splitCurvStruct:69' disp("spline Length is not valid");
+                                // 'splitCurvStruct:72' disp("spline Length is not valid");
                                 printf("%s\n", "spline Length is not valid");
                                 fflush(stdout);
                             }
@@ -508,12 +514,12 @@ void splitQueue(const b_FeedoptContext *ctx)
                             b_k++;
                         }
                     }
-                    // 'splitCurvStruct:54' ctx.q_split.push( curv );
+                    // 'splitCurvStruct:57' ctx.q_split.push( curv );
                     ctx->q_split.push(&curv);
-                    // 'splitCurvStruct:56' if( hasEndSpeed )
+                    // 'splitCurvStruct:59' if( hasEndSpeed )
                     if (hasEndSpeed) {
                         //  cut zero End
-                        // 'splitCurvStruct:58' ctx.q_split.push( curvE );
+                        // 'splitCurvStruct:61' ctx.q_split.push( curvE );
                         ctx->q_split.push(&curvE);
                     }
                 }

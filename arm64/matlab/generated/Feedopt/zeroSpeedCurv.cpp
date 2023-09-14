@@ -5,7 +5,7 @@
 // File: zeroSpeedCurv.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 06-Sep-2023 16:04:28
+// C/C++ source code generated on  : 14-Sep-2023 13:07:08
 //
 
 // Include Files
@@ -24,7 +24,7 @@
 
 // Function Declarations
 namespace ocn {
-static void d_binary_expand_op(::coder::array<bool, 2U> &in1, const ::coder::array<double, 2U> &in2,
+static void e_binary_expand_op(::coder::array<bool, 2U> &in1, const ::coder::array<double, 2U> &in2,
                                const double in3_data[], const int *in3_size);
 
 static void times(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
@@ -41,7 +41,7 @@ static void times(::coder::array<double, 2U> &in1, const ::coder::array<double, 
 // Return Type  : void
 //
 namespace ocn {
-static void d_binary_expand_op(::coder::array<bool, 2U> &in1, const ::coder::array<double, 2U> &in2,
+static void e_binary_expand_op(::coder::array<bool, 2U> &in1, const ::coder::array<double, 2U> &in2,
                                const double in3_data[], const int *in3_size)
 {
     int b_in3_idx_0;
@@ -809,7 +809,7 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
                     }
                 }
             } else {
-                d_binary_expand_op(b_x, r1, vmax_data, &b_trueCount);
+                e_binary_expand_op(b_x, r1, vmax_data, &b_trueCount);
             }
             c_y = false;
             i_k = 0;
@@ -882,7 +882,7 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
                         }
                     }
                 } else {
-                    d_binary_expand_op(b_x, r1, amax_data, &c_trueCount);
+                    e_binary_expand_op(b_x, r1, amax_data, &c_trueCount);
                 }
                 d_y = false;
                 l_k = 0;
@@ -955,7 +955,7 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
                             }
                         }
                     } else {
-                        d_binary_expand_op(b_x, r1, jmax_data, &d_trueCount);
+                        e_binary_expand_op(b_x, r1, jmax_data, &d_trueCount);
                     }
                     e_y = false;
                     o_k = 0;
@@ -1815,7 +1815,7 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
                     }
                 }
             } else {
-                d_binary_expand_op(b_x, r1, vmax_data, &b_trueCount);
+                e_binary_expand_op(b_x, r1, vmax_data, &b_trueCount);
             }
             c_y = false;
             i_k = 0;
@@ -1888,7 +1888,7 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
                         }
                     }
                 } else {
-                    d_binary_expand_op(b_x, r1, amax_data, &c_trueCount);
+                    e_binary_expand_op(b_x, r1, amax_data, &c_trueCount);
                 }
                 d_y = false;
                 l_k = 0;
@@ -1961,7 +1961,7 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
                             }
                         }
                     } else {
-                        d_binary_expand_op(b_x, r1, jmax_data, &d_trueCount);
+                        e_binary_expand_op(b_x, r1, jmax_data, &d_trueCount);
                     }
                     e_y = false;
                     o_k = 0;

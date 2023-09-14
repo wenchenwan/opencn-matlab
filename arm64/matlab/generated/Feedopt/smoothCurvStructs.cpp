@@ -5,7 +5,7 @@
 // File: smoothCurvStructs.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 06-Sep-2023 16:04:28
+// C/C++ source code generated on  : 14-Sep-2023 13:07:08
 //
 
 // Include Files
@@ -169,7 +169,7 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
             fflush(stdout);
         }
         // 'smoothCurvStructs:12' curv = ctx.q_compress.get( 1 );
-        ctx->q_compress.get(&curv);
+        ctx->q_compress.get(static_cast<double>(1.0), &curv);
         // 'smoothCurvStructs:13' for k = 2 : Ncrv
         for (unsigned int k{2U}; k <= Ncrv; k++) {
             bool needStop;

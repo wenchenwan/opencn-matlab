@@ -5,7 +5,7 @@
 // File: diag.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 06-Sep-2023 16:21:23
+// C/C++ source code generated on  : 14-Sep-2023 12:49:58
 //
 
 // Include Files

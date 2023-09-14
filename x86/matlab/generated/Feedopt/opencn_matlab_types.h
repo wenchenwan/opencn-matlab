@@ -5,7 +5,7 @@
 // File: opencn_matlab_types.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 06-Sep-2023 16:21:23
+// C/C++ source code generated on  : 14-Sep-2023 12:49:58
 //
 
 #ifndef OPENCN_MATLAB_TYPES_H
@@ -41,6 +41,7 @@ struct struct2_T {
 
 struct LPCfg {
     char Type[2];
+    bool UseConstraintsOnJerk;
     bool EnableFindReasonInfeasibility;
     double ACC_RAMP_OVER_WINDOWS;
     double VEL_RAMP_OVER_WINDOWS;

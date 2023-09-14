@@ -5,7 +5,7 @@
 // File: resampleCurv.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 06-Sep-2023 16:21:23
+// C/C++ source code generated on  : 14-Sep-2023 12:49:58
 //
 
 // Include Files
@@ -31,7 +31,7 @@
 //
 //  state         : Structure about the current state
 //            u :       curv parameter [0,1]
-//            go_next : {0 : stay at on the same curve, 1 : move to the next}
+//            go_next : {0 : stay at the same curve, 1 : move to the next}
 //            dt :      time step used for the discretization
 //            isOutsideRange : {true : if u is out of range}
 //  Bl                : Structure for the spline object used during the optimization

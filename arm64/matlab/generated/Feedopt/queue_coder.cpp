@@ -5,33 +5,15 @@
 // File: queue_coder.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 06-Sep-2023 16:04:28
+// C/C++ source code generated on  : 14-Sep-2023 13:07:08
 //
 
 // Include Files
 #include "queue_coder.h"
 #include "opencn_matlab_types1.h"
+#include <cmath>
 
 // Function Definitions
-//
-// function value = get(this, index)
-//
-// Arguments    : CurvStruct *value
-// Return Type  : void
-//
-namespace ocn {
-void queue_coder::get(CurvStruct *value) const
-{
-    // 'queue_coder:20' coder.inline("never");
-    // 'queue_coder:21' value = queue_get(this.ptr, this.value_type, index);
-    *value = value_type;
-    // 'queue_get:2' if coder.target('matlab')
-    // 'queue_get:4' else
-    // 'queue_get:5' value = value_type;
-    // 'queue_get:6' coder.ceval('c_queue_get', uint64(ptr), uint32(index), coder.ref(value));
-    c_queue_get(ptr, 1U, value);
-}
-
 //
 // function value = get(this, index)
 //
@@ -39,6 +21,7 @@ void queue_coder::get(CurvStruct *value) const
 //                CurvStruct *value
 // Return Type  : void
 //
+namespace ocn {
 void queue_coder::get(int b_index, CurvStruct *value) const
 {
     // 'queue_coder:20' coder.inline("never");
@@ -49,6 +32,25 @@ void queue_coder::get(int b_index, CurvStruct *value) const
     // 'queue_get:5' value = value_type;
     // 'queue_get:6' coder.ceval('c_queue_get', uint64(ptr), uint32(index), coder.ref(value));
     c_queue_get(ptr, static_cast<unsigned int>(b_index), value);
+}
+
+//
+// function value = get(this, index)
+//
+// Arguments    : double b_index
+//                CurvStruct *value
+// Return Type  : void
+//
+void queue_coder::get(double b_index, CurvStruct *value) const
+{
+    // 'queue_coder:20' coder.inline("never");
+    // 'queue_coder:21' value = queue_get(this.ptr, this.value_type, index);
+    *value = value_type;
+    // 'queue_get:2' if coder.target('matlab')
+    // 'queue_get:4' else
+    // 'queue_get:5' value = value_type;
+    // 'queue_get:6' coder.ceval('c_queue_get', uint64(ptr), uint32(index), coder.ref(value));
+    c_queue_get(ptr, static_cast<unsigned int>(std::round(b_index)), value);
 }
 
 //
