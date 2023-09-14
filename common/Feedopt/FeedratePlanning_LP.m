@@ -32,7 +32,7 @@ indSlack =  []; %1 : numel( b );
 
 % 2) Optimization : second LP with jerk constraints and slack
 
-if( true )
+if( ctx.cfg.opt.UseConstraintsOnJerk )
     % B. Constraints : Inequality and Equality
     % Feedrate, acceleration and jerk
     [ Aj, bj ] =  buildConstrJerk( ctx, CurvArray, Coeff, jmax, ...
@@ -50,10 +50,9 @@ if( true )
         N, NWindow, "Second LP" );
 end
 
-% Compute the continuity equations
-X  = continuity * Coeff( : , 1 );
-
 if( ~ctx.zero_start )
+    % Compute the continuity equations
+    X           = continuity * Coeff( : , 1 );
     ctx.v_0     = sqrt( X( 1 ) );
     ctx.at_0    = X( 2 );
 end
@@ -73,45 +72,36 @@ function [ ctx, Coeff, success, status, msg, beq ] = solve_LP( f, A, b, Aeq, ...
     beq, ctx );
 % If optimization failed due with zero end constaints, decrease pseudo jerk
 if( ~success && ( ctx.zero_end || ctx.zero_start ) )
-    if( ctx.zero_end )
-        % Read last curve ( NZ )
-        last    = ctx.q_split.get( ctx.k0 + NWindow );
-        count   = 0; iterMax = 15;
-        atNorm  = -ctx.at_1;
-        vNorm   = -ctx.v_1;
+    Ntot        = NWindow;
+    maxIter     = 15;
+    indStart    = ctx.k0;   
+    indEnd      = ctx.k0;
 
-        while( ~success && count < iterMax )
-            [ last, vNorm , atNorm ] = decrease_constjerk( ctx, last, true );
-            beq( end-1 )   = -vNorm^2;
-            beq( end )     = atNorm;
-            [ Coeff0, success, status, msg ] = c_simplex( f, sparse( A ), b, ...
-                Aeq, beq, ctx );
-            count = count + 1;
-        end
-        % Set back the change into the queue
-        ctx.q_split.set( ctx.k0 + NWindow, last );
-        ctx.at_1    = -atNorm;
-        ctx.v_1     = -vNorm;
-    else
-        % Read first curve ( ZN )
-        first   = ctx.q_split.get( ctx.k0 );
-        count   = 0; iterMax = 15;
-        atNorm  = ctx.at_0;
-        vNorm   = ctx.v_0;
-        while( ~success && count < iterMax )
-            [ first, vNorm , atNorm ] = decrease_constjerk( ctx, first, false );
-            beq( 1 )   = vNorm^2;
-            beq( 2 )   = atNorm;
-            [ Coeff0, success, status, msg ] = c_simplex( f, sparse( A ), b, ...
-                Aeq, beq, ctx );
-            count = count + 1;
-        end
-        % Set back the change into the queue
-        ctx.q_split.set( ctx.k0, first );
-        ctx.at_0    = atNorm;
-        ctx.v_0     = vNorm;
+    if(ctx.zero_start)
+        Ntot        = Ntot + 1;
     end
 
+    if(ctx.zero_end)
+        Ntot        = Ntot + 1;
+        indEnd      = ctx.k0 + Ntot -1;
+    end
+
+    if( ctx.zero_start && ctx.zero_end )
+        beq( end-1 )    = -ctx.cfg.v_1^2;
+        beq( end )      = -ctx.cfg.at_1;
+        [ctx,Coeff0, success, status, msg] = relax_intial_constraints( ...
+                        f, A, b, Aeq, beq, ctx, indStart, false, maxIter);
+        beq( 1 )        = ctx.v_0^2;
+        beq( 2 )        = ctx.at_0;
+        [ctx, Coeff0, success, status, msg] = relax_intial_constraints( ...
+                        f, A, b, Aeq, beq, ctx, indEnd, true, maxIter); 
+    elseif( ctx.zero_start && ~ctx.zero_end )
+        [ctx, Coeff0, success, status, msg] = relax_intial_constraints( ...
+                        f, A, b, Aeq, beq, ctx, indStart, false, maxIter);
+    else
+        [ctx, Coeff0, success, status, msg] = relax_intial_constraints( ...
+                        f, A, b, Aeq, beq, ctx, indEnd, true, maxIter);    
+    end
 end
 
 % Check the status of the optimization
@@ -133,10 +123,15 @@ function [ fSlack, ASlack, bSlack, AeqSlack, beqSlack ] = add_slack( f, ...
     A, b, Aeq, beq, indSlack, LP )
 [ nAL, nAc ] = size( A );
 
-% Add condition of positivity on coeffs the 2 first and the two last are
-% nto
-Apos = zeros( nAc -4 , nAc + 1 ); bpos = -1E-3 * ones( nAc -4 , 1);
-Apos( : , 3 : end-3  ) = -eye( nAc -4  );
+if(0) % HGS : Not working as expected... Removed for now
+    % Add condition of positivity on coeffs the 2 first and the two last are
+    % not
+    Apos = zeros( nAc -4 , nAc + 1 ); bpos = -1E-3 * ones( nAc -4 , 1);
+    Apos( : , 3 : end-3  ) = -eye( nAc -4  );
+else
+    Apos = [];
+    bpos = [];
+end
 
 % Slack variables
 vecSlack    = zeros( nAL, 1 ); vecSlack( indSlack ) = -1;
@@ -149,6 +144,46 @@ beqSlack    = beq;
 end
 
 function [ curv, vNorm, atNorm ] = decrease_constjerk( ctx, curv, isEnd )
-curv.ConstJerk = curv.ConstJerk / 2;
+curv.ConstJerk = curv.ConstJerk / 8;
 [ vNorm, atNorm ] = calcZeroConstraints( ctx, curv, isEnd );
+end
+
+function [ctx, Coeff0, success, status, msg] = relax_intial_constraints( ...
+    f, A, b, Aeq, beq, ctx, indCurv, isEnd, maxIter)
+    success     = false;
+    count       = 0;
+    curv        = ctx.q_split.get( indCurv );
+    atNorm      = 0;
+    vNorm       = 0;
+    status      = int32( 0 );
+    Coeff0      = zeros( size( f ) );
+    msg         = "";
+    
+    while( ~success && count < maxIter )
+        [ curv, vNorm , atNorm ] = decrease_constjerk( ctx, curv, isEnd );
+    
+        if(isEnd)
+            beq( end-1 )    = -vNorm^2;
+            beq( end )      = atNorm;
+        else
+            beq( 1 )        = vNorm^2;
+            beq( 2 )        = atNorm;
+        end
+
+        [ Coeff0, success, status, msg ] = c_simplex( f, sparse( A ), b, ...
+            Aeq, beq, ctx );
+        count = count + 1;
+
+    end
+
+    % Set back the change into the queue
+    ctx.q_split.set( indCurv, curv );
+    if(isEnd)
+        ctx.at_1    = -atNorm;
+        ctx.v_1     = -vNorm;
+    else
+        ctx.at_0    = atNorm;
+        ctx.v_0     = vNorm;
+    end
+
 end

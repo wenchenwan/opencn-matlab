@@ -122,6 +122,7 @@ end
 function checkValidity( A, b, Aeq, beq, continuity )
 assert( ~any( isnan( A ) , 'all' ),          mfilename + " Error : A has NaN");
 assert( ~any( isnan( b ) , 'all' ),          mfilename + " Error : b has NaN");
+assert( ~any( find( b < 0 ) , 'all' ),       mfilename + " Error : b should be positive");
 assert( ~any( isnan( Aeq ) , 'all' ),        mfilename + " Error : Aeq has NaN");
 assert( ~any( isnan( beq ) , 'all' ),        mfilename + " Error : beq has NaN");
 assert( ~any( isnan( continuity ) , 'all' ), mfilename + " Error : continuity has NaN");

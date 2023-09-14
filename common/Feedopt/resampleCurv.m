@@ -6,7 +6,7 @@ function [ state, ud, udd, uddd ] = resampleCurv(state, Bl, curv_mode, ...
 %
 % state         : Structure about the current state
 %           u :       curv parameter [0,1]
-%           go_next : {0 : stay at on the same curve, 1 : move to the next}
+%           go_next : {0 : stay at the same curve, 1 : move to the next}
 %           dt :      time step used for the discretization
 %           isOutsideRange : {true : if u is out of range}
 % Bl                : Structure for the spline object used during the optimization

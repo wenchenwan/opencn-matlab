@@ -6,6 +6,11 @@ valid = false;
 
 N = queue.size;
 
+if( N == 0 ) 
+    valid = true; 
+    return; 
+end
+
 curv = queue.get( 1 );
 
 if( ~valid_curv_param( curv ) ), return; end

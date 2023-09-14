@@ -22,9 +22,8 @@ end
 if ctx.go_next, ctx.k0 = ctx.k0 + 1; end
 
 if ( ctx.k0 <= ctx.q_split.size )
-    if ctx.try_push_again
-        % Do nothing, we already have the last one optimized
-    elseif ~ctx.zero_end
+    
+    if ~ctx.zero_end
 
         [ window, NWindow ] = get_window( ctx.k0, ctx.cfg.NHorz, ctx.q_split );
 
@@ -42,15 +41,14 @@ if ( ctx.k0 <= ctx.q_split.size )
 
         % Handle the zero speed at end
         if( isAZeroEnd( last ) )
-            NWindow         = NWindow -1;
-        end
-
-        if( isAZeroEnd( last ) && ~ctx.zero_start )
             ctx.zero_end    = true;
+            NWindow         = NWindow -1;
+            window          = window( 1 : end-1 );
         else
             ctx.zero_end    = false;
         end
 
+        % Compute the boundary conditions (v_norm + at_norm)
         if( ctx.zero_start )
             [ v_0, at_0 ]   = calcZeroConstraints( ctx, first, false );
             ctx.v_0         = v_0;
@@ -66,15 +64,25 @@ if ( ctx.k0 <= ctx.q_split.size )
             ctx.at_1        = -ctx.cfg.at_1;
         end
 
+        % Start the optimization
         [ ctx, Coeff, success, status, msg ] = ...
             FeedratePlanning_LP( ctx, window, ctx.cfg.amax, ctx.cfg.jmax, ...
             ctx.BasisVal, ctx.BasisValD, ctx.BasisValDD, ctx.BasisIntegr, ...
             ctx.u_vec, NWindow );
 
+        % Extract the solution
         if( success == 1 )      % Optimization succed
+            kopt = 1;
+            % HGS : Probably a mistake here
             optimized   = true;
             opt_struct  = ctx.q_split.get( ctx.k0 );
-            opt_struct.Coeff = Coeff( :, 1 );
+            
+            if( ~isAZeroStart( opt_struct ) )
+                opt_struct.Coeff = Coeff( :, kopt );
+                kopt = kopt + 1;
+            else
+                ctx.zero_start  = false;
+            end
 
             % Check if end of the queue
             if( ctx.zero_end && ( ctx.k0 + NWindow ) >= ctx.q_split.size )
@@ -86,15 +94,14 @@ if ( ctx.k0 <= ctx.q_split.size )
         end
     else
         optimized   = true;
-        kopt = kopt + 1;
         opt_struct = ctx.q_split.get( ctx.k0 );
 
         if( ~isAZeroEnd( opt_struct ) )
             opt_struct.Coeff = ctx.Coeff( :, kopt );
         else
             ctx.zero_end  = false;
-            kopt = 1;
         end
+        kopt = kopt + 1;
     end
 else
     ctx.op = Fopt.Finished;

@@ -9,8 +9,7 @@ check_wkdir(); % If current directory is the working directory
 % Load default configuration parameters
 cfg = FeedoptDefaultConfig;
 % Set the path to the gcode file
-cfg.source = 'ngc_test/misc/test_G57_clearance_1.ngc';
-% cfg.source = 'ngc_test/misc/031_surfacage_TopLeftBack_V2_untouched.ngc';
+cfg.source = 'ngc_test/misc/031_surfacage_TopLeftBack_V2_untouched.ngc';
 
 % Logging
 setupLogs( cfg.LogFileName ); diary on;

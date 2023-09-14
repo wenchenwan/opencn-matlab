@@ -41,6 +41,9 @@ N = ceil( L / L_split );
 L_split = L / N;
 
 for k = 1 : N - 1
+    if( k > 1 )
+        curvTest = ctx.q_split.get( k );
+    end
     [ ret, curvSplited, curv ] = cutCurvStruct( ctx, curv, 0, L_split, false );
     if( ret < 0 ), break; end
 

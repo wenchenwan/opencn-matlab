@@ -5,12 +5,12 @@ disp("------------------------------------------------------------------");
 
 % Change this for using XSR log files 
 
-isXSR = true;
+isXSR = false;
 
 if( isXSR )
     data = importfile_XSR('log_test_G57_clearance_1_20230907_103105_XSR.csv');
 else
-    data = importfile('log_test_G57_clearance_1_20230907_111036.csv');
+    data = importfile('log_031_surfacage_TopLeftBack_V14_untouched_20230912_101934.csv');
 end
 
 
