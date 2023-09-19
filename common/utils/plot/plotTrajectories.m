@@ -7,6 +7,11 @@ function plotTrajectories(ctx, res_struct)
 % fOpt_vec  : A structure of the resulting trajectories
 PLOT_DIFF = false;
 
+axisNameGen = {"x", "y", "z", "a", "b", "c"};
+axisUnitGen = {"mm", "mm", "mm", "rad", "rad", "rad"};
+axisName    = axisNameGen(1, ctx.cfg.maskTot);
+axisUnit    = axisUnitGen(1, ctx.cfg.maskTot);
+
 data = table(res_struct.uvec, res_struct.tvec, res_struct.pvec, res_struct.vvec,...
     res_struct.avec, res_struct.jvec, res_struct.fvec, res_struct.cfvec);
 
@@ -41,10 +46,10 @@ ax(1) = subplot(3,3,3);
 
 if( PLOT_DIFF )
     plot(res_struct.uvec(2:end), v_diff * 60, 'b.', res_struct.uvec(2:end), ...
-        res_struct.fvec(2:end), 'r');
+        res_struct.cfvec(2:end), 'r');
 else
     plot(res_struct.uvec, res_struct.vvec, 'b', res_struct.uvec, ...
-        res_struct.fvec, 'r');
+        res_struct.cfvec, 'r');
 end
 
 title('Velocity in mm/min')
@@ -60,9 +65,9 @@ else
     plot(res_struct.uvec, res_struct.avec);
 end
 
-title('Normalized acceleration in mm/s^2')
-xlabel('Cumulative u')
-legend('x', 'y', 'z')
+title('Normalized acceleration')
+xlabel('Cumulative u');
+legend( axisName{ : } );
 ylim([-1.2 1.2])
 grid
 %
@@ -81,10 +86,10 @@ if( PLOT_DIFF )
 else
     plot(res_struct.uvec, res_struct.jvec);
 end
-title('Normalized jerk in mm/s^3')
+title('Normalized jerk')
 xlabel('Cumulative u')
 ylim([-1.4 1.4])
-legend('x', 'y', 'z')
+legend(axisName{ : });
 grid
 
 

@@ -26,7 +26,7 @@ timevec2 = zeros(200000, 1);
 
 ktick = 1;
 
-state = ResampleState(dt);
+state = ResampleState(dt, ctx.cfg.DefaultZeroStopCount);
 N = ctx.q_opt.size();
 fprintf('Resampling ...\n');
 global sin_calls cos_calls cot_calls sqrt_calls

@@ -22,7 +22,7 @@ uvec = zeros(ktick_max, 1);
 
 ktick = 1;
 
-state = ResampleState(dt);
+state = ResampleState(dt, ctx.cfg.DefaultZeroStopCount);
 N = ctx.q_opt.size();
 DebugLog(DebugCfg.Validate, 'Resampling ...\n');
 DebugLog(DebugCfg.OptimProgress, 'Resampling ...\n');

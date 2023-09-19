@@ -21,77 +21,50 @@ axisNames       = { "x", "y", "z", "b", "c" };
 fieldNnames     = targetPosition + axisNames;
 
 [N, M]  = size(data.Variables);
-dt      = 1e-2;
+dt      = 1e-3;
 
 time    = [ 0 : dt : (N -1)* dt ];
 
 %% Sampler results : Independant axis
 
-figure('Name', 'Sampler results : Independant axis');
+figure('Name', 'Sampler results : position');
 count   = 0;
 
 for f_ = fieldNnames
     count = count + 1;
     subplot( 5, 1, count );
     plot( time, data.(f_)); grid on;
-    if(0)
-        [x, y] = isMoving( data.(f_), time );
-        hold on ; fill( x, y, 'r', 'FaceAlpha', 0.1 ); hold off;
-        legend({f_, "Is Moving"});
-    end
     ylabel( "Axis " + axisNames{ count }, 'FontSize', 15 );
-    if( count == 1 ), title("Sampler Results", 'FontSize', 21); end
+    if( count == 1 ), title("Sampler Results : Position", 'FontSize', 21); end
 end
 
 xlabel( "Time [s]", 'FontSize', 21 );
 
+figure('Name', 'Sampler results : velocity');
+count   = 0;
 
-%% Sampler results : All in one
-
-figure('Name', 'Sampler results : All in one');
-
-signal = zeros( N, length(fieldNnames) );
-
-count = 0;
 for f_ = fieldNnames
     count = count + 1;
-    signal( :, count ) = data.(f_);
+    subplot( 5, 1, count );
+    plot( time(2 : end ), diff( data.(f_) ) / dt); grid on;
+    ylabel( "Axis " + axisNames{ count }, 'FontSize', 15 );
+    if( count == 1 ), title("Sampler Results : Velocity", 'FontSize', 21); end
 end
 
-plot( time, signal); grid on;
-title("Sampler Results", 'FontSize', 21);
-legend( fieldNnames{ : } );
-ylabel( "Axis Displacement [m] or [Deg]", 'FontSize', 21 );
 xlabel( "Time [s]", 'FontSize', 21 );
 
-function [ x, y ] = isMoving(s, t)
+figure('Name', 'Sampler results : acceleration');
+count   = 0;
 
-if( nargin  < 2 )
-    t = [1 : 1 : size(s, 1)]';
+for f_ = fieldNnames
+    count = count + 1;
+    subplot( 5, 1, count );
+    plot( time(3 : end ), diff( diff( data.(f_) )) / dt^2); grid on;
+    ylabel( "Axis " + axisNames{ count }, 'FontSize', 15 );
+    if( count == 1 ), title("Sampler Results : Acceleration", 'FontSize', 21); end
 end
 
-if( isrow(t) ) t = t'; end
-if( isrow(s) ) s = s'; end
-
-is_moving               = true( size(s) );
-ds                      = diff( s, 1 );
-is_moving( ds == 0 )    = false;
-is_moving(end)          = false;
-
-s_min                   = min( s );
-s_max                   = max( s );
-
-s_A                     = s_max - s_min;
-
-s_resized               = is_moving * s_A + s_min;
-y                       = [ s_resized; ones(size(s))* s_min ];
-x                       = [t; flip(t)];
-
-% figure();
-% plot( s );
-% hold on ; fill( x, y, 'r', 'FaceAlpha', 0.1 ); hold off;
-
-end
+xlabel( "Time [s]", 'FontSize', 21 );
 
 function data = importfile(filename, dataLines)
 %IMPORTFILE Import data from a text file
