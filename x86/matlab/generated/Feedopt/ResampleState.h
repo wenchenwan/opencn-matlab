@@ -5,7 +5,7 @@
 // File: ResampleState.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 14-Sep-2023 12:49:58
+// C/C++ source code generated on  : 19-Sep-2023 12:13:50
 //
 
 #ifndef RESAMPLESTATE_H
@@ -21,7 +21,7 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-extern void ResampleState(double dt, ResampleStateClass *state);
+extern void ResampleState(double dt, double zeroStopTime, ResampleStateClass *state);
 
 }
 

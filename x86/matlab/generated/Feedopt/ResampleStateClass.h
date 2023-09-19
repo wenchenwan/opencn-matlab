@@ -5,7 +5,7 @@
 // File: ResampleStateClass.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 14-Sep-2023 12:49:58
+// C/C++ source code generated on  : 19-Sep-2023 12:13:50
 //
 
 #ifndef RESAMPLESTATECLASS_H
@@ -27,9 +27,13 @@ class ResampleStateClass {
     double u;
     double ud;
     double udd;
-    bool go_next;
+    double uddd;
     double dt;
+    bool go_next;
     bool isOutsideRange;
+    bool isAStop;
+    int stopCounter;
+    int zeroStopTime;
 };
 
 } // namespace ocn

@@ -5,7 +5,7 @@
 // File: FeedoptPlan.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 14-Sep-2023 13:07:08
+// C/C++ source code generated on  : 19-Sep-2023 12:24:15
 //
 
 // Include Files
@@ -415,18 +415,18 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                 // 'add_tool_offset:10'         CurvStruct.R0( indCart ) + prev_off( : );
                 if (ctx->cfg.indCart.size[0] == 3) {
                     double b_prev_tool_offset_x[3];
-                    int ke_loop_ub;
+                    int je_loop_ub;
                     b_prev_tool_offset_x[0] = prev_tool_offset_x;
                     b_prev_tool_offset_x[1] = prev_tool_offset_y;
                     b_prev_tool_offset_x[2] = prev_tool_offset_z;
                     CurvStruct_size = ctx->cfg.indCart.size[0];
-                    ke_loop_ub = ctx->cfg.indCart.size[0];
-                    for (int i105{0}; i105 < ke_loop_ub; i105++) {
-                        CurvStruct_data[i105] = b_CurvStruct.R0[ctx->cfg.indCart.data[i105] - 1] +
-                                                b_prev_tool_offset_x[i105];
+                    je_loop_ub = ctx->cfg.indCart.size[0];
+                    for (int i104{0}; i104 < je_loop_ub; i104++) {
+                        CurvStruct_data[i104] = b_CurvStruct.R0[ctx->cfg.indCart.data[i104] - 1] +
+                                                b_prev_tool_offset_x[i104];
                     }
-                    for (int i112{0}; i112 < CurvStruct_size; i112++) {
-                        b_CurvStruct.R0[ctx->cfg.indCart.data[i112] - 1] = CurvStruct_data[i112];
+                    for (int i109{0}; i109 < CurvStruct_size; i109++) {
+                        b_CurvStruct.R0[ctx->cfg.indCart.data[i109] - 1] = CurvStruct_data[i109];
                     }
                 } else {
                     binary_expand_op(&b_CurvStruct, ctx, prev_tool_offset_x, prev_tool_offset_y,
@@ -435,15 +435,15 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                 // 'add_tool_offset:11' CurvStruct.R1( indCart ) = ...
                 // 'add_tool_offset:12'         CurvStruct.R1( indCart ) + off( : );
                 if (ctx->cfg.indCart.size[0] == 3) {
-                    int ne_loop_ub;
+                    int le_loop_ub;
                     CurvStruct_size = ctx->cfg.indCart.size[0];
-                    ne_loop_ub = ctx->cfg.indCart.size[0];
-                    for (int i108{0}; i108 < ne_loop_ub; i108++) {
-                        CurvStruct_data[i108] =
-                            b_CurvStruct.R1[ctx->cfg.indCart.data[i108] - 1] + off[i108];
+                    le_loop_ub = ctx->cfg.indCart.size[0];
+                    for (int i106{0}; i106 < le_loop_ub; i106++) {
+                        CurvStruct_data[i106] =
+                            b_CurvStruct.R1[ctx->cfg.indCart.data[i106] - 1] + off[i106];
                     }
-                    for (int i115{0}; i115 < CurvStruct_size; i115++) {
-                        b_CurvStruct.R1[ctx->cfg.indCart.data[i115] - 1] = CurvStruct_data[i115];
+                    for (int i113{0}; i113 < CurvStruct_size; i113++) {
+                        b_CurvStruct.R1[ctx->cfg.indCart.data[i113] - 1] = CurvStruct_data[i113];
                     }
                 } else {
                     binary_expand_op(&b_CurvStruct, ctx, off);
@@ -758,9 +758,9 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             int hf_loop_ub;
             int kc_loop_ub;
             int ld_loop_ub;
-            int le_loop_ub;
             int lf_loop_ub;
             int m_loop_ub;
+            int me_loop_ub;
             int ob_loop_ub;
             int oc_loop_ub;
             int pf_loop_ub;
@@ -917,6 +917,7 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             r.cfg.v_1 = ctx->cfg.v_1;
             r.cfg.at_1 = ctx->cfg.at_1;
             r.cfg.dt = ctx->cfg.dt;
+            r.cfg.DefaultZeroStopCount = ctx->cfg.DefaultZeroStopCount;
             r.cfg.ZeroStartAccLimit = ctx->cfg.ZeroStartAccLimit;
             r.cfg.ZeroStartJerkLimit = ctx->cfg.ZeroStartJerkLimit;
             r.cfg.ZeroStartVelLimit = ctx->cfg.ZeroStartVelLimit;
@@ -977,21 +978,21 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             ctx->BasisValDD.set_size(r.BasisValDD.size(0), r.BasisValDD.size(1));
             ce_loop_ub = r.BasisValDD.size(1);
             for (int i97{0}; i97 < ce_loop_ub; i97++) {
-                int je_loop_ub;
-                je_loop_ub = r.BasisValDD.size(0);
-                for (int i104{0}; i104 < je_loop_ub; i104++) {
-                    ctx->BasisValDD[i104 + ctx->BasisValDD.size(0) * i97] =
-                        r.BasisValDD[i104 + r.BasisValDD.size(0) * i97];
+                int ke_loop_ub;
+                ke_loop_ub = r.BasisValDD.size(0);
+                for (int i105{0}; i105 < ke_loop_ub; i105++) {
+                    ctx->BasisValDD[i105 + ctx->BasisValDD.size(0) * i97] =
+                        r.BasisValDD[i105 + r.BasisValDD.size(0) * i97];
                 }
             }
             ctx->BasisValDDD.set_size(r.BasisValDDD.size(0), r.BasisValDDD.size(1));
-            le_loop_ub = r.BasisValDDD.size(1);
-            for (int i106{0}; i106 < le_loop_ub; i106++) {
+            me_loop_ub = r.BasisValDDD.size(1);
+            for (int i107{0}; i107 < me_loop_ub; i107++) {
                 int te_loop_ub;
                 te_loop_ub = r.BasisValDDD.size(0);
                 for (int i116{0}; i116 < te_loop_ub; i116++) {
-                    ctx->BasisValDDD[i116 + ctx->BasisValDDD.size(0) * i106] =
-                        r.BasisValDDD[i116 + r.BasisValDDD.size(0) * i106];
+                    ctx->BasisValDDD[i116 + ctx->BasisValDDD.size(0) * i107] =
+                        r.BasisValDDD[i116 + r.BasisValDDD.size(0) * i107];
                 }
             }
             ctx->BasisIntegr.set_size(r.BasisIntegr.size(0));
@@ -1094,6 +1095,7 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             ctx->cfg.v_1 = r.cfg.v_1;
             ctx->cfg.at_1 = r.cfg.at_1;
             ctx->cfg.dt = r.cfg.dt;
+            ctx->cfg.DefaultZeroStopCount = r.cfg.DefaultZeroStopCount;
             ctx->cfg.ZeroStartAccLimit = r.cfg.ZeroStartAccLimit;
             ctx->cfg.ZeroStartJerkLimit = r.cfg.ZeroStartJerkLimit;
             ctx->cfg.ZeroStartVelLimit = r.cfg.ZeroStartVelLimit;
@@ -1313,6 +1315,7 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         r.cfg.v_1 = ctx->cfg.v_1;
         r.cfg.at_1 = ctx->cfg.at_1;
         r.cfg.dt = ctx->cfg.dt;
+        r.cfg.DefaultZeroStopCount = ctx->cfg.DefaultZeroStopCount;
         r.cfg.ZeroStartAccLimit = ctx->cfg.ZeroStartAccLimit;
         r.cfg.ZeroStartJerkLimit = ctx->cfg.ZeroStartJerkLimit;
         r.cfg.ZeroStartVelLimit = ctx->cfg.ZeroStartVelLimit;
@@ -1384,15 +1387,15 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         for (int i102{0}; i102 < he_loop_ub; i102++) {
             int oe_loop_ub;
             oe_loop_ub = r.BasisValDDD.size(0);
-            for (int i109{0}; i109 < oe_loop_ub; i109++) {
-                ctx->BasisValDDD[i109 + ctx->BasisValDDD.size(0) * i102] =
-                    r.BasisValDDD[i109 + r.BasisValDDD.size(0) * i102];
+            for (int i110{0}; i110 < oe_loop_ub; i110++) {
+                ctx->BasisValDDD[i110 + ctx->BasisValDDD.size(0) * i102] =
+                    r.BasisValDDD[i110 + r.BasisValDDD.size(0) * i102];
             }
         }
         ctx->BasisIntegr.set_size(r.BasisIntegr.size(0));
         re_loop_ub = r.BasisIntegr.size(0);
-        for (int i113{0}; i113 < re_loop_ub; i113++) {
-            ctx->BasisIntegr[i113] = r.BasisIntegr[i113];
+        for (int i114{0}; i114 < re_loop_ub; i114++) {
+            ctx->BasisIntegr[i114] = r.BasisIntegr[i114];
         }
         ctx->Bl = r.Bl;
         ctx->u_vec.set_size(1, r.u_vec.size(1));
@@ -1489,6 +1492,7 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         ctx->cfg.v_1 = r.cfg.v_1;
         ctx->cfg.at_1 = r.cfg.at_1;
         ctx->cfg.dt = r.cfg.dt;
+        ctx->cfg.DefaultZeroStopCount = r.cfg.DefaultZeroStopCount;
         ctx->cfg.ZeroStartAccLimit = r.cfg.ZeroStartAccLimit;
         ctx->cfg.ZeroStartJerkLimit = r.cfg.ZeroStartJerkLimit;
         ctx->cfg.ZeroStartVelLimit = r.cfg.ZeroStartVelLimit;
@@ -1707,6 +1711,7 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         r.cfg.v_1 = ctx->cfg.v_1;
         r.cfg.at_1 = ctx->cfg.at_1;
         r.cfg.dt = ctx->cfg.dt;
+        r.cfg.DefaultZeroStopCount = ctx->cfg.DefaultZeroStopCount;
         r.cfg.ZeroStartAccLimit = ctx->cfg.ZeroStartAccLimit;
         r.cfg.ZeroStartJerkLimit = ctx->cfg.ZeroStartJerkLimit;
         r.cfg.ZeroStartVelLimit = ctx->cfg.ZeroStartVelLimit;
@@ -1778,15 +1783,15 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         for (int i103{0}; i103 < ie_loop_ub; i103++) {
             int pe_loop_ub;
             pe_loop_ub = r.BasisValDDD.size(0);
-            for (int i110{0}; i110 < pe_loop_ub; i110++) {
-                ctx->BasisValDDD[i110 + ctx->BasisValDDD.size(0) * i103] =
-                    r.BasisValDDD[i110 + r.BasisValDDD.size(0) * i103];
+            for (int i111{0}; i111 < pe_loop_ub; i111++) {
+                ctx->BasisValDDD[i111 + ctx->BasisValDDD.size(0) * i103] =
+                    r.BasisValDDD[i111 + r.BasisValDDD.size(0) * i103];
             }
         }
         ctx->BasisIntegr.set_size(r.BasisIntegr.size(0));
         se_loop_ub = r.BasisIntegr.size(0);
-        for (int i114{0}; i114 < se_loop_ub; i114++) {
-            ctx->BasisIntegr[i114] = r.BasisIntegr[i114];
+        for (int i115{0}; i115 < se_loop_ub; i115++) {
+            ctx->BasisIntegr[i115] = r.BasisIntegr[i115];
         }
         ctx->Bl = r.Bl;
         ctx->u_vec.set_size(1, r.u_vec.size(1));
@@ -1883,6 +1888,7 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         ctx->cfg.v_1 = r.cfg.v_1;
         ctx->cfg.at_1 = r.cfg.at_1;
         ctx->cfg.dt = r.cfg.dt;
+        ctx->cfg.DefaultZeroStopCount = r.cfg.DefaultZeroStopCount;
         ctx->cfg.ZeroStartAccLimit = r.cfg.ZeroStartAccLimit;
         ctx->cfg.ZeroStartJerkLimit = r.cfg.ZeroStartJerkLimit;
         ctx->cfg.ZeroStartVelLimit = r.cfg.ZeroStartVelLimit;
@@ -2100,6 +2106,7 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         b_ctx.cfg.v_1 = ctx->cfg.v_1;
         b_ctx.cfg.at_1 = ctx->cfg.at_1;
         b_ctx.cfg.dt = ctx->cfg.dt;
+        b_ctx.cfg.DefaultZeroStopCount = ctx->cfg.DefaultZeroStopCount;
         b_ctx.cfg.ZeroStartAccLimit = ctx->cfg.ZeroStartAccLimit;
         b_ctx.cfg.ZeroStartJerkLimit = ctx->cfg.ZeroStartJerkLimit;
         b_ctx.cfg.ZeroStartVelLimit = ctx->cfg.ZeroStartVelLimit;
@@ -2170,17 +2177,17 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         ctx->BasisValDDD.set_size(b_ctx.BasisValDDD.size(0), b_ctx.BasisValDDD.size(1));
         ge_loop_ub = b_ctx.BasisValDDD.size(1);
         for (int i101{0}; i101 < ge_loop_ub; i101++) {
-            int me_loop_ub;
-            me_loop_ub = b_ctx.BasisValDDD.size(0);
-            for (int i107{0}; i107 < me_loop_ub; i107++) {
-                ctx->BasisValDDD[i107 + ctx->BasisValDDD.size(0) * i101] =
-                    b_ctx.BasisValDDD[i107 + b_ctx.BasisValDDD.size(0) * i101];
+            int ne_loop_ub;
+            ne_loop_ub = b_ctx.BasisValDDD.size(0);
+            for (int i108{0}; i108 < ne_loop_ub; i108++) {
+                ctx->BasisValDDD[i108 + ctx->BasisValDDD.size(0) * i101] =
+                    b_ctx.BasisValDDD[i108 + b_ctx.BasisValDDD.size(0) * i101];
             }
         }
         ctx->BasisIntegr.set_size(b_ctx.BasisIntegr.size(0));
         qe_loop_ub = b_ctx.BasisIntegr.size(0);
-        for (int i111{0}; i111 < qe_loop_ub; i111++) {
-            ctx->BasisIntegr[i111] = b_ctx.BasisIntegr[i111];
+        for (int i112{0}; i112 < qe_loop_ub; i112++) {
+            ctx->BasisIntegr[i112] = b_ctx.BasisIntegr[i112];
         }
         ctx->Bl = b_ctx.Bl;
         ctx->u_vec.set_size(1, b_ctx.u_vec.size(1));
@@ -2278,6 +2285,7 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         ctx->cfg.v_1 = b_ctx.cfg.v_1;
         ctx->cfg.at_1 = b_ctx.cfg.at_1;
         ctx->cfg.dt = b_ctx.cfg.dt;
+        ctx->cfg.DefaultZeroStopCount = b_ctx.cfg.DefaultZeroStopCount;
         ctx->cfg.ZeroStartAccLimit = b_ctx.cfg.ZeroStartAccLimit;
         ctx->cfg.ZeroStartJerkLimit = b_ctx.cfg.ZeroStartJerkLimit;
         ctx->cfg.ZeroStartVelLimit = b_ctx.cfg.ZeroStartVelLimit;

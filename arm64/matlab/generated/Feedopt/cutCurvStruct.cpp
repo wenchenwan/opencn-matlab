@@ -5,7 +5,7 @@
 // File: cutCurvStruct.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 14-Sep-2023 13:07:08
+// C/C++ source code generated on  : 19-Sep-2023 12:24:15
 //
 
 // Include Files
@@ -23,7 +23,6 @@
 #include "sum.h"
 #include "coder_array.h"
 #include <cmath>
-#include <stdio.h>
 
 // Function Definitions
 //
@@ -105,23 +104,17 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
     //  isEnd : Is a cut from the end
     //  Outputs :
     //  u1    : The last point of the splitted curv
-    // 'cutCurvStructU:13' if( L <= 1E-6 )
-    if (L <= 1.0E-6) {
-        // 'cutCurvStructU:14' disp( "here" );
-        printf("%s\n", "here");
-        fflush(stdout);
-    }
-    // 'cutCurvStructU:17' if( LengthCurv( ctx, curv, 0, 1 ) <= L )
+    // 'cutCurvStructU:13' if( LengthCurv( ctx, curv, 0, 1 ) <= L )
     if (LengthCurv(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
                    ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
                    ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart, ctx_cfg_NRot,
                    ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, curv) <= L) {
-        // 'cutCurvStructU:17' u1_tilda = -1;
+        // 'cutCurvStructU:13' u1_tilda = -1;
         u_tilda = -1.0;
 
-        // 'cutCurvStructU:19' a = curv.a_param;
-        // 'cutCurvStructU:20' b = curv.b_param;
-        // 'cutCurvStructU:22' if ( curv.Info.Type == CurveType.Spline )
+        // 'cutCurvStructU:15' a = curv.a_param;
+        // 'cutCurvStructU:16' b = curv.b_param;
+        // 'cutCurvStructU:18' if ( curv.Info.Type == CurveType.Spline )
     } else if (curv->Info.Type == CurveType_Spline) {
         double dv[5];
         double r1Dnorm[5];
@@ -142,9 +135,9 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         int i8;
         int i9;
         int kStartVec_data;
-        // 'cutCurvStructU:23' spline = ctx.q_spline.get( curv.sp_index );
+        // 'cutCurvStructU:19' spline = ctx.q_spline.get( curv.sp_index );
         ctx_q_spline->get(curv->sp_index, &expl_temp);
-        // 'cutCurvStructU:24' u1_tilda = splineLengthFindU( ctx.cfg, spline, L, a * u0 + b, isEnd
+        // 'cutCurvStructU:20' u1_tilda = splineLengthFindU( ctx.cfg, spline, L, a * u0 + b, isEnd
         // );
         //  Computes approximately the value of curve parameter u such that the arc
         //  length starting from u1 equals L.
@@ -458,22 +451,22 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         }
     } else {
         int loop_ub;
-        // 'cutCurvStructU:25' else
+        // 'cutCurvStructU:21' else
         //  In case of helix and line, ||r'(u)||=const,
         //  for 0 < u < 1
-        // 'cutCurvStructU:29' if( isEnd )
-        // 'cutCurvStructU:30' [ ~, r1D1 ] = EvalCurvStruct( ctx, curv, 1 );
+        // 'cutCurvStructU:25' if( isEnd )
+        // 'cutCurvStructU:26' [ ~, r1D1 ] = EvalCurvStruct( ctx, curv, 1 );
         d_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                          ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                          ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                          ctx_cfg_NCart, ctx_cfg_NRot, curv, a__1, r1D1);
-        // 'cutCurvStructU:31' u1 = u0 - L / MyNorm( r1D1 );
+        // 'cutCurvStructU:27' u1 = u0 - L / MyNorm( r1D1 );
         // 'MyNorm:2' coder.inline('always');
         // 'MyNorm:3' n = mysqrt(sum(x.^2));
         // 'mysqrt:3' y = sqrt(x);
         // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
         sqrt_calls++;
-        // 'cutCurvStructU:36' u1_tilda = a * u1 + b;
+        // 'cutCurvStructU:32' u1_tilda = a * u1 + b;
         r.set_size(r1D1.size(0));
         loop_ub = r1D1.size(0);
         for (int i{0}; i < loop_ub; i++) {
@@ -634,23 +627,17 @@ void cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
     //  isEnd : Is a cut from the end
     //  Outputs :
     //  u1    : The last point of the splitted curv
-    // 'cutCurvStructU:13' if( L <= 1E-6 )
-    if (L <= 1.0E-6) {
-        // 'cutCurvStructU:14' disp( "here" );
-        printf("%s\n", "here");
-        fflush(stdout);
-    }
-    // 'cutCurvStructU:17' if( LengthCurv( ctx, curv, 0, 1 ) <= L )
+    // 'cutCurvStructU:13' if( LengthCurv( ctx, curv, 0, 1 ) <= L )
     if (LengthCurv(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
                    ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
                    ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart, ctx_cfg_NRot,
                    ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, curv) <= L) {
-        // 'cutCurvStructU:17' u1_tilda = -1;
+        // 'cutCurvStructU:13' u1_tilda = -1;
         u_tilda = -1.0;
 
-        // 'cutCurvStructU:19' a = curv.a_param;
-        // 'cutCurvStructU:20' b = curv.b_param;
-        // 'cutCurvStructU:22' if ( curv.Info.Type == CurveType.Spline )
+        // 'cutCurvStructU:15' a = curv.a_param;
+        // 'cutCurvStructU:16' b = curv.b_param;
+        // 'cutCurvStructU:18' if ( curv.Info.Type == CurveType.Spline )
     } else if (curv->Info.Type == CurveType_Spline) {
         double r1Dnorm[5];
         double LStart;
@@ -667,9 +654,9 @@ void cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
         int i7;
         int i8;
         int kStartVec_data;
-        // 'cutCurvStructU:23' spline = ctx.q_spline.get( curv.sp_index );
+        // 'cutCurvStructU:19' spline = ctx.q_spline.get( curv.sp_index );
         ctx_q_spline->get(curv->sp_index, &expl_temp);
-        // 'cutCurvStructU:24' u1_tilda = splineLengthFindU( ctx.cfg, spline, L, a * u0 + b, isEnd
+        // 'cutCurvStructU:20' u1_tilda = splineLengthFindU( ctx.cfg, spline, L, a * u0 + b, isEnd
         // );
         //  Computes approximately the value of curve parameter u such that the arc
         //  length starting from u1 equals L.
@@ -936,23 +923,23 @@ void cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
         }
     } else {
         int loop_ub;
-        // 'cutCurvStructU:25' else
+        // 'cutCurvStructU:21' else
         //  In case of helix and line, ||r'(u)||=const,
         //  for 0 < u < 1
-        // 'cutCurvStructU:29' if( isEnd )
-        // 'cutCurvStructU:32' else
-        // 'cutCurvStructU:33' [ ~, r1D0 ] = EvalCurvStruct( ctx, curv, 0 );
+        // 'cutCurvStructU:25' if( isEnd )
+        // 'cutCurvStructU:28' else
+        // 'cutCurvStructU:29' [ ~, r1D0 ] = EvalCurvStruct( ctx, curv, 0 );
         e_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                          ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                          ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                          ctx_cfg_NCart, ctx_cfg_NRot, curv, a__2, r1D0);
-        // 'cutCurvStructU:34' u1 = u0 + L / MyNorm( r1D0 );
+        // 'cutCurvStructU:30' u1 = u0 + L / MyNorm( r1D0 );
         // 'MyNorm:2' coder.inline('always');
         // 'MyNorm:3' n = mysqrt(sum(x.^2));
         // 'mysqrt:3' y = sqrt(x);
         // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
         sqrt_calls++;
-        // 'cutCurvStructU:36' u1_tilda = a * u1 + b;
+        // 'cutCurvStructU:32' u1_tilda = a * u1 + b;
         r.set_size(r1D0.size(0));
         loop_ub = r1D0.size(0);
         for (int i{0}; i < loop_ub; i++) {

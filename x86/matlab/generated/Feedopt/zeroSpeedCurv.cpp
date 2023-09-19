@@ -5,7 +5,7 @@
 // File: zeroSpeedCurv.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 14-Sep-2023 12:49:58
+// C/C++ source code generated on  : 19-Sep-2023 12:13:50
 //
 
 // Include Files
@@ -384,24 +384,24 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         //    jps : The constant pseudo jerk
         //    u : The resulting u
         // 'zeroSpeedCurv:77' if( isempty( ratio ) )
-        // 'zeroSpeedCurv:79' [ u, ud, udd, uddd ]  = constJerkU( jps, k_vec * ctx.cfg.dt, isEnd );
+        // 'zeroSpeedCurv:79' [ u, ud, udd, uddd ]  = constJerkU( jps, k_vec * ctx.cfg.dt, isEnd,
+        // true );
         //  constJerkU : Compute u and its derivative based on the pseudo jerk
         //  approximation.
         //  Inputs :
-        //    pseudoJerk :  [ N x 1 ] The pseudo constant Jerk
-        //    k_vec      :  [ 1 x M ] The time vector
-        //    isEnd      :  ( Boolean ) Is the end of the Curve.
-        //    a          :  Curve parameter a for affine transforme
-        //    b          :  Curve parameter b for affine transforme
+        //    pseudoJerk      :  [ N x 1 ] The pseudo constant Jerk
+        //    k_vec           :  [ 1 x M ] The time vector
+        //    isEnd           :  ( Boolean ) Is the end of the Curve.
+        //    forceLimits     :  ( Boolean ) Force u to stay in bewteen 0 and 1
         //  Outputs :
-        //    u          :  [ N x M ]
-        //    ud         :  [ N x M ]
-        //    udd        :  [ N x M ]
-        //    uddd       :  [ N x M ]
-        // 'constJerkU:16' if( coder.target( "MATLAB" ) )
-        // 'constJerkU:22' if( isEnd )
-        // 'constJerkU:23' k_max  = ( 6 / pseudoJerk )^( 1 / 3 );
-        // 'constJerkU:24' k_vec  = k_max - k_vec;
+        //    u               :  [ N x M ]
+        //    ud              :  [ N x M ]
+        //    udd             :  [ N x M ]
+        //    uddd            :  [ N x M ]
+        // 'constJerkU:15' if( coder.target( "MATLAB" ) )
+        // 'constJerkU:21' if( isEnd )
+        // 'constJerkU:22' k_max  = ( 6 / pseudoJerk )^( 1 / 3 );
+        // 'constJerkU:23' k_vec  = k_max - k_vec;
         y.set_size(1, k_vec.size(1));
         i_loop_ub = k_vec.size(1);
         c_scalarLB = (k_vec.size(1) / 2) << 1;
@@ -416,11 +416,11 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
             y[i10] = b_k_tmp - k_vec[i10] * ctx_cfg_dt;
         }
         //  Compute u and its derivatives based on constant jerk
-        // 'constJerkU:28' uddd    = pseudoJerk .* ones( size( k_vec ) );
+        // 'constJerkU:27' uddd    = pseudoJerk .* ones( size( k_vec ) );
         uv[0] = 1U;
         uv[1] = static_cast<unsigned int>(y.size(1));
-        // 'constJerkU:29' udd     = pseudoJerk .* k_vec;
-        // 'constJerkU:30' ud      = pseudoJerk .* k_vec .^2 / 2;
+        // 'constJerkU:28' udd     = pseudoJerk .* k_vec;
+        // 'constJerkU:29' ud      = pseudoJerk .* k_vec .^2 / 2;
         r1.set_size(1, y.size(1));
         l_loop_ub = y.size(1);
         for (int i12{0}; i12 < l_loop_ub; i12++) {
@@ -441,7 +441,7 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         for (int i14{e_scalarLB}; i14 < m_loop_ub; i14++) {
             ud[i14] = b_jps * r1[i14] / 2.0;
         }
-        // 'constJerkU:31' u       = pseudoJerk .* k_vec .^3 / 6;
+        // 'constJerkU:30' u       = pseudoJerk .* k_vec .^3 / 6;
         r1.set_size(1, y.size(1));
         n_loop_ub = y.size(1);
         for (int i15{0}; i15 < n_loop_ub; i15++) {
@@ -462,6 +462,7 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         for (int i16{f_scalarLB}; i16 < o_loop_ub; i16++) {
             u[i16] = b_jps * r1[i16] / 6.0;
         }
+        // 'constJerkU:32' if( forceLimits )
         // 'constJerkU:33' u( u > 1 ) = 1;
         c_end = u.size(1);
         for (int e_i{0}; e_i < c_end; e_i++) {
@@ -476,9 +477,9 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
                 u[f_i] = 0.0;
             }
         }
-        // 'constJerkU:36' if( isEnd )
+        // 'constJerkU:37' if( isEnd )
         //  Reverse time ( Backward-like integration )
-        // 'constJerkU:37' u    = 1 - u;
+        // 'constJerkU:38' u    = 1 - u;
         u.set_size(1, u.size(1));
         r_loop_ub = u.size(1);
         i_scalarLB = (u.size(1) / 2) << 1;
@@ -491,9 +492,9 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         for (int i19{i_scalarLB}; i19 < r_loop_ub; i19++) {
             u[i19] = 1.0 - u[i19];
         }
-        // 'constJerkU:38' ud   = ud;
-        // 'constJerkU:39' udd  = -udd;
-        // 'constJerkU:40' uddd = uddd;
+        // 'constJerkU:39' ud   = ud;
+        // 'constJerkU:40' udd  = -udd;
+        // 'constJerkU:41' uddd = uddd;
         // 'zeroSpeedCurv:81' [ ~, V, A, J ]        = calcRVAJfromU( ctx, curv, u, ud, udd, uddd );
         udd_vec.set_size(1, y.size(1));
         s_loop_ub = y.size(1);
@@ -1199,24 +1200,23 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         k_vec.set_size(1, 1);
         k_vec[0] = 1.0;
     }
-    // 'zeroSpeedCurv:43' [ u, ud, udd ]        = constJerkU( jps, k_vec * ctx.cfg.dt, isEnd );
+    // 'zeroSpeedCurv:43' [ u, ud, udd ]        = constJerkU( jps, k_vec * ctx.cfg.dt, isEnd, true);
     //  constJerkU : Compute u and its derivative based on the pseudo jerk
     //  approximation.
     //  Inputs :
-    //    pseudoJerk :  [ N x 1 ] The pseudo constant Jerk
-    //    k_vec      :  [ 1 x M ] The time vector
-    //    isEnd      :  ( Boolean ) Is the end of the Curve.
-    //    a          :  Curve parameter a for affine transforme
-    //    b          :  Curve parameter b for affine transforme
+    //    pseudoJerk      :  [ N x 1 ] The pseudo constant Jerk
+    //    k_vec           :  [ 1 x M ] The time vector
+    //    isEnd           :  ( Boolean ) Is the end of the Curve.
+    //    forceLimits     :  ( Boolean ) Force u to stay in bewteen 0 and 1
     //  Outputs :
-    //    u          :  [ N x M ]
-    //    ud         :  [ N x M ]
-    //    udd        :  [ N x M ]
-    //    uddd       :  [ N x M ]
-    // 'constJerkU:16' if( coder.target( "MATLAB" ) )
-    // 'constJerkU:22' if( isEnd )
-    // 'constJerkU:23' k_max  = ( 6 / pseudoJerk )^( 1 / 3 );
-    // 'constJerkU:24' k_vec  = k_max - k_vec;
+    //    u               :  [ N x M ]
+    //    ud              :  [ N x M ]
+    //    udd             :  [ N x M ]
+    //    uddd            :  [ N x M ]
+    // 'constJerkU:15' if( coder.target( "MATLAB" ) )
+    // 'constJerkU:21' if( isEnd )
+    // 'constJerkU:22' k_max  = ( 6 / pseudoJerk )^( 1 / 3 );
+    // 'constJerkU:23' k_vec  = k_max - k_vec;
     y.set_size(1, k_vec.size(1));
     f_loop_ub = k_vec.size(1);
     scalarLB = (k_vec.size(1) / 2) << 1;
@@ -1231,9 +1231,9 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         y[i7] = k_tmp - k_vec[i7] * ctx_cfg_dt;
     }
     //  Compute u and its derivatives based on constant jerk
-    // 'constJerkU:28' uddd    = pseudoJerk .* ones( size( k_vec ) );
-    // 'constJerkU:29' udd     = pseudoJerk .* k_vec;
-    // 'constJerkU:30' ud      = pseudoJerk .* k_vec .^2 / 2;
+    // 'constJerkU:27' uddd    = pseudoJerk .* ones( size( k_vec ) );
+    // 'constJerkU:28' udd     = pseudoJerk .* k_vec;
+    // 'constJerkU:29' ud      = pseudoJerk .* k_vec .^2 / 2;
     r1.set_size(1, y.size(1));
     g_loop_ub = y.size(1);
     for (int i8{0}; i8 < g_loop_ub; i8++) {
@@ -1253,7 +1253,7 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
     for (int i9{b_scalarLB}; i9 < h_loop_ub; i9++) {
         ud[i9] = b_jps * r1[i9] / 2.0;
     }
-    // 'constJerkU:31' u       = pseudoJerk .* k_vec .^3 / 6;
+    // 'constJerkU:30' u       = pseudoJerk .* k_vec .^3 / 6;
     r1.set_size(1, y.size(1));
     j_loop_ub = y.size(1);
     for (int i11{0}; i11 < j_loop_ub; i11++) {
@@ -1273,6 +1273,7 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
     for (int i13{d_scalarLB}; i13 < k_loop_ub; i13++) {
         u[i13] = b_jps * r1[i13] / 6.0;
     }
+    // 'constJerkU:32' if( forceLimits )
     // 'constJerkU:33' u( u > 1 ) = 1;
     end = u.size(1);
     for (int c_i{0}; c_i < end; c_i++) {
@@ -1287,9 +1288,9 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
             u[d_i] = 0.0;
         }
     }
-    // 'constJerkU:36' if( isEnd )
+    // 'constJerkU:37' if( isEnd )
     //  Reverse time ( Backward-like integration )
-    // 'constJerkU:37' u    = 1 - u;
+    // 'constJerkU:38' u    = 1 - u;
     u.set_size(1, u.size(1));
     p_loop_ub = u.size(1);
     g_scalarLB = (u.size(1) / 2) << 1;
@@ -1302,8 +1303,8 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
     for (int i17{g_scalarLB}; i17 < p_loop_ub; i17++) {
         u[i17] = 1.0 - u[i17];
     }
-    // 'constJerkU:38' ud   = ud;
-    // 'constJerkU:39' udd  = -udd;
+    // 'constJerkU:39' ud   = ud;
+    // 'constJerkU:40' udd  = -udd;
     udd.set_size(1, y.size(1));
     q_loop_ub = y.size(1);
     h_scalarLB = (y.size(1) / 2) << 1;
@@ -1316,7 +1317,7 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
     for (int i18{h_scalarLB}; i18 < q_loop_ub; i18++) {
         udd[i18] = -(b_jps * y[i18]);
     }
-    // 'constJerkU:40' uddd = uddd;
+    // 'constJerkU:41' uddd = uddd;
     *jps = b_jps;
 }
 
@@ -1589,7 +1590,8 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
         //    jps : The constant pseudo jerk
         //    u : The resulting u
         // 'zeroSpeedCurv:77' if( isempty( ratio ) )
-        // 'zeroSpeedCurv:79' [ u, ud, udd, uddd ]  = constJerkU( jps, k_vec * ctx.cfg.dt, isEnd );
+        // 'zeroSpeedCurv:79' [ u, ud, udd, uddd ]  = constJerkU( jps, k_vec * ctx.cfg.dt, isEnd,
+        // true );
         y.set_size(1, k_vec.size(1));
         g_loop_ub = k_vec.size(1);
         b_scalarLB = (k_vec.size(1) / 2) << 1;
@@ -1605,24 +1607,23 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
         //  constJerkU : Compute u and its derivative based on the pseudo jerk
         //  approximation.
         //  Inputs :
-        //    pseudoJerk :  [ N x 1 ] The pseudo constant Jerk
-        //    k_vec      :  [ 1 x M ] The time vector
-        //    isEnd      :  ( Boolean ) Is the end of the Curve.
-        //    a          :  Curve parameter a for affine transforme
-        //    b          :  Curve parameter b for affine transforme
+        //    pseudoJerk      :  [ N x 1 ] The pseudo constant Jerk
+        //    k_vec           :  [ 1 x M ] The time vector
+        //    isEnd           :  ( Boolean ) Is the end of the Curve.
+        //    forceLimits     :  ( Boolean ) Force u to stay in bewteen 0 and 1
         //  Outputs :
-        //    u          :  [ N x M ]
-        //    ud         :  [ N x M ]
-        //    udd        :  [ N x M ]
-        //    uddd       :  [ N x M ]
-        // 'constJerkU:16' if( coder.target( "MATLAB" ) )
-        // 'constJerkU:22' if( isEnd )
+        //    u               :  [ N x M ]
+        //    ud              :  [ N x M ]
+        //    udd             :  [ N x M ]
+        //    uddd            :  [ N x M ]
+        // 'constJerkU:15' if( coder.target( "MATLAB" ) )
+        // 'constJerkU:21' if( isEnd )
         //  Compute u and its derivatives based on constant jerk
-        // 'constJerkU:28' uddd    = pseudoJerk .* ones( size( k_vec ) );
+        // 'constJerkU:27' uddd    = pseudoJerk .* ones( size( k_vec ) );
         uv[0] = 1U;
         uv[1] = static_cast<unsigned int>(y.size(1));
-        // 'constJerkU:29' udd     = pseudoJerk .* k_vec;
-        // 'constJerkU:30' ud      = pseudoJerk .* k_vec .^2 / 2;
+        // 'constJerkU:28' udd     = pseudoJerk .* k_vec;
+        // 'constJerkU:29' ud      = pseudoJerk .* k_vec .^2 / 2;
         r3.set_size(1, y.size(1));
         k_loop_ub = y.size(1);
         for (int i12{0}; i12 < k_loop_ub; i12++) {
@@ -1643,7 +1644,7 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
         for (int i14{e_scalarLB}; i14 < m_loop_ub; i14++) {
             ud[i14] = b_jps * r3[i14] / 2.0;
         }
-        // 'constJerkU:31' u       = pseudoJerk .* k_vec .^3 / 6;
+        // 'constJerkU:30' u       = pseudoJerk .* k_vec .^3 / 6;
         r3.set_size(1, y.size(1));
         o_loop_ub = y.size(1);
         for (int i16{0}; i16 < o_loop_ub; i16++) {
@@ -1664,6 +1665,7 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
         for (int i17{g_scalarLB}; i17 < p_loop_ub; i17++) {
             u[i17] = b_jps * r3[i17] / 6.0;
         }
+        // 'constJerkU:32' if( forceLimits )
         // 'constJerkU:33' u( u > 1 ) = 1;
         c_end = u.size(1);
         for (int e_i{0}; e_i < c_end; e_i++) {
@@ -1678,7 +1680,7 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
                 u[f_i] = 0.0;
             }
         }
-        // 'constJerkU:36' if( isEnd )
+        // 'constJerkU:37' if( isEnd )
         // 'zeroSpeedCurv:81' [ ~, V, A, J ]        = calcRVAJfromU( ctx, curv, u, ud, udd, uddd );
         udd_vec.set_size(1, y.size(1));
         q_loop_ub = y.size(1);
@@ -2382,7 +2384,7 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
         k_vec.set_size(1, 1);
         k_vec[0] = 1.0;
     }
-    // 'zeroSpeedCurv:43' [ u, ud, udd ]        = constJerkU( jps, k_vec * ctx.cfg.dt, isEnd );
+    // 'zeroSpeedCurv:43' [ u, ud, udd ]        = constJerkU( jps, k_vec * ctx.cfg.dt, isEnd, true);
     y.set_size(1, k_vec.size(1));
     d_loop_ub = k_vec.size(1);
     scalarLB = (k_vec.size(1) / 2) << 1;
@@ -2398,21 +2400,20 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
     //  constJerkU : Compute u and its derivative based on the pseudo jerk
     //  approximation.
     //  Inputs :
-    //    pseudoJerk :  [ N x 1 ] The pseudo constant Jerk
-    //    k_vec      :  [ 1 x M ] The time vector
-    //    isEnd      :  ( Boolean ) Is the end of the Curve.
-    //    a          :  Curve parameter a for affine transforme
-    //    b          :  Curve parameter b for affine transforme
+    //    pseudoJerk      :  [ N x 1 ] The pseudo constant Jerk
+    //    k_vec           :  [ 1 x M ] The time vector
+    //    isEnd           :  ( Boolean ) Is the end of the Curve.
+    //    forceLimits     :  ( Boolean ) Force u to stay in bewteen 0 and 1
     //  Outputs :
-    //    u          :  [ N x M ]
-    //    ud         :  [ N x M ]
-    //    udd        :  [ N x M ]
-    //    uddd       :  [ N x M ]
-    // 'constJerkU:16' if( coder.target( "MATLAB" ) )
-    // 'constJerkU:22' if( isEnd )
+    //    u               :  [ N x M ]
+    //    ud              :  [ N x M ]
+    //    udd             :  [ N x M ]
+    //    uddd            :  [ N x M ]
+    // 'constJerkU:15' if( coder.target( "MATLAB" ) )
+    // 'constJerkU:21' if( isEnd )
     //  Compute u and its derivatives based on constant jerk
-    // 'constJerkU:28' uddd    = pseudoJerk .* ones( size( k_vec ) );
-    // 'constJerkU:29' udd     = pseudoJerk .* k_vec;
+    // 'constJerkU:27' uddd    = pseudoJerk .* ones( size( k_vec ) );
+    // 'constJerkU:28' udd     = pseudoJerk .* k_vec;
     udd.set_size(1, y.size(1));
     h_loop_ub = y.size(1);
     c_scalarLB = (y.size(1) / 2) << 1;
@@ -2425,7 +2426,7 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
     for (int i9{c_scalarLB}; i9 < h_loop_ub; i9++) {
         udd[i9] = b_jps * y[i9];
     }
-    // 'constJerkU:30' ud      = pseudoJerk .* k_vec .^2 / 2;
+    // 'constJerkU:29' ud      = pseudoJerk .* k_vec .^2 / 2;
     r3.set_size(1, y.size(1));
     i_loop_ub = y.size(1);
     for (int i10{0}; i10 < i_loop_ub; i10++) {
@@ -2445,7 +2446,7 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
     for (int i11{d_scalarLB}; i11 < j_loop_ub; i11++) {
         ud[i11] = b_jps * r3[i11] / 2.0;
     }
-    // 'constJerkU:31' u       = pseudoJerk .* k_vec .^3 / 6;
+    // 'constJerkU:30' u       = pseudoJerk .* k_vec .^3 / 6;
     r3.set_size(1, y.size(1));
     l_loop_ub = y.size(1);
     for (int i13{0}; i13 < l_loop_ub; i13++) {
@@ -2465,6 +2466,7 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
     for (int i15{f_scalarLB}; i15 < n_loop_ub; i15++) {
         u[i15] = b_jps * r3[i15] / 6.0;
     }
+    // 'constJerkU:32' if( forceLimits )
     // 'constJerkU:33' u( u > 1 ) = 1;
     end = u.size(1);
     for (int c_i{0}; c_i < end; c_i++) {
@@ -2479,7 +2481,7 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
             u[d_i] = 0.0;
         }
     }
-    // 'constJerkU:36' if( isEnd )
+    // 'constJerkU:37' if( isEnd )
     *jps = b_jps;
 }
 

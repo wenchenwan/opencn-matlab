@@ -5,7 +5,7 @@
 // File: setMachineAxisInConfig.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 14-Sep-2023 13:07:08
+// C/C++ source code generated on  : 19-Sep-2023 12:24:15
 //
 
 // Include Files
@@ -294,6 +294,7 @@ void setMachineAxisInConfig(FeedoptConfig *cfg, const bool maskTot[6])
     r.v_1 = cfg->v_1;
     r.at_1 = cfg->at_1;
     r.dt = cfg->dt;
+    r.DefaultZeroStopCount = cfg->DefaultZeroStopCount;
     r.ZeroStartAccLimit = cfg->ZeroStartAccLimit;
     r.ZeroStartJerkLimit = cfg->ZeroStartJerkLimit;
     r.ZeroStartVelLimit = cfg->ZeroStartVelLimit;
@@ -382,6 +383,7 @@ void setMachineAxisInConfig(FeedoptConfig *cfg, const bool maskTot[6])
     cfg->v_1 = r.v_1;
     cfg->at_1 = r.at_1;
     cfg->dt = r.dt;
+    cfg->DefaultZeroStopCount = r.DefaultZeroStopCount;
     cfg->ZeroStartAccLimit = r.ZeroStartAccLimit;
     cfg->ZeroStartJerkLimit = r.ZeroStartJerkLimit;
     cfg->ZeroStartVelLimit = r.ZeroStartVelLimit;

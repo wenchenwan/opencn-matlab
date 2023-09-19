@@ -5,7 +5,7 @@
 // File: PrintCurvStruct.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 14-Sep-2023 12:49:58
+// C/C++ source code generated on  : 19-Sep-2023 12:13:50
 //
 
 // Include Files
@@ -367,37 +367,37 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
         // 'calcZeroConstraints:14' if( isEnd )
         if (isEnd) {
             // 'calcZeroConstraints:15' k  = 0;
-            // 'constJerkU:23' k_max  = ( 6 / pseudoJerk )^( 1 / 3 );
-            // 'constJerkU:24' k_vec  = k_max - k_vec;
+            // 'constJerkU:22' k_max  = ( 6 / pseudoJerk )^( 1 / 3 );
+            // 'constJerkU:23' k_vec  = k_max - k_vec;
             k_vec = std::pow(6.0 / S->ConstJerk, 0.33333333333333331);
         } else {
             // 'calcZeroConstraints:16' else
             // 'calcZeroConstraints:17' k   = ( 6 / jps )^( 1 / 3 );
             k_vec = std::pow(6.0 / S->ConstJerk, 0.33333333333333331);
         }
-        // 'calcZeroConstraints:20' [ u, ud, udd, uddd ]    = constJerkU( jps, k, isEnd );
+        // 'calcZeroConstraints:20' [ u, ud, udd, uddd ]    = constJerkU( jps, k, isEnd, true );
         //  constJerkU : Compute u and its derivative based on the pseudo jerk
         //  approximation.
         //  Inputs :
-        //    pseudoJerk :  [ N x 1 ] The pseudo constant Jerk
-        //    k_vec      :  [ 1 x M ] The time vector
-        //    isEnd      :  ( Boolean ) Is the end of the Curve.
-        //    a          :  Curve parameter a for affine transforme
-        //    b          :  Curve parameter b for affine transforme
+        //    pseudoJerk      :  [ N x 1 ] The pseudo constant Jerk
+        //    k_vec           :  [ 1 x M ] The time vector
+        //    isEnd           :  ( Boolean ) Is the end of the Curve.
+        //    forceLimits     :  ( Boolean ) Force u to stay in bewteen 0 and 1
         //  Outputs :
-        //    u          :  [ N x M ]
-        //    ud         :  [ N x M ]
-        //    udd        :  [ N x M ]
-        //    uddd       :  [ N x M ]
-        // 'constJerkU:16' if( coder.target( "MATLAB" ) )
-        // 'constJerkU:22' if( isEnd )
+        //    u               :  [ N x M ]
+        //    ud              :  [ N x M ]
+        //    udd             :  [ N x M ]
+        //    uddd            :  [ N x M ]
+        // 'constJerkU:15' if( coder.target( "MATLAB" ) )
+        // 'constJerkU:21' if( isEnd )
         //  Compute u and its derivatives based on constant jerk
-        // 'constJerkU:28' uddd    = pseudoJerk .* ones( size( k_vec ) );
-        // 'constJerkU:29' udd     = pseudoJerk .* k_vec;
+        // 'constJerkU:27' uddd    = pseudoJerk .* ones( size( k_vec ) );
+        // 'constJerkU:28' udd     = pseudoJerk .* k_vec;
         udd = S->ConstJerk * k_vec;
-        // 'constJerkU:30' ud      = pseudoJerk .* k_vec .^2 / 2;
-        // 'constJerkU:31' u       = pseudoJerk .* k_vec .^3 / 6;
+        // 'constJerkU:29' ud      = pseudoJerk .* k_vec .^2 / 2;
+        // 'constJerkU:30' u       = pseudoJerk .* k_vec .^3 / 6;
         u = S->ConstJerk * std::pow(k_vec, 3.0) / 6.0;
+        // 'constJerkU:32' if( forceLimits )
         // 'constJerkU:33' u( u > 1 ) = 1;
         unnamed_idx_0 = u;
         if (u > 1.0) {
@@ -409,15 +409,15 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
             b_unnamed_idx_0 = 0.0;
         }
         u = b_unnamed_idx_0;
-        // 'constJerkU:36' if( isEnd )
+        // 'constJerkU:37' if( isEnd )
         if (isEnd) {
             //  Reverse time ( Backward-like integration )
-            // 'constJerkU:37' u    = 1 - u;
+            // 'constJerkU:38' u    = 1 - u;
             u = 1.0 - b_unnamed_idx_0;
-            // 'constJerkU:38' ud   = ud;
-            // 'constJerkU:39' udd  = -udd;
+            // 'constJerkU:39' ud   = ud;
+            // 'constJerkU:40' udd  = -udd;
             udd = -udd;
-            // 'constJerkU:40' uddd = uddd;
+            // 'constJerkU:41' uddd = uddd;
         }
         // 'calcZeroConstraints:22' [ r0D, r1D, r2D, r3D ]  = EvalCurvStruct( ctx, curv, u );
         j_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,

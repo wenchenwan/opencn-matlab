@@ -5,7 +5,7 @@
 // File: calcZeroConstraints.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 14-Sep-2023 12:49:58
+// C/C++ source code generated on  : 19-Sep-2023 12:13:50
 //
 
 #ifndef CALCZEROCONSTRAINTS_H
@@ -29,6 +29,15 @@ struct CurvStruct;
 
 // Function Declarations
 namespace ocn {
+void b_calcZeroConstraints(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
+                           const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
+                           const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
+                           const int ctx_cfg_maskRot_size[2],
+                           const ::coder::array<int, 1U> &ctx_cfg_indCart,
+                           const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
+                           int ctx_cfg_NCart, int ctx_cfg_NRot, const CurvStruct *curv,
+                           double *vNorm, double *atNorm);
+
 void calcZeroConstraints(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
                          const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
                          const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
@@ -38,7 +47,7 @@ void calcZeroConstraints(const queue_coder *ctx_q_spline, const bool ctx_cfg_mas
                          int ctx_cfg_NCart, int ctx_cfg_NRot, const CurvStruct *curv, double *vNorm,
                          double *atNorm);
 
-}
+} // namespace ocn
 
 #endif
 //

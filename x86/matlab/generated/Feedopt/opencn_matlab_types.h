@@ -5,7 +5,7 @@
 // File: opencn_matlab_types.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 14-Sep-2023 12:49:58
+// C/C++ source code generated on  : 19-Sep-2023 12:13:50
 //
 
 #ifndef OPENCN_MATLAB_TYPES_H
@@ -85,6 +85,7 @@ struct FeedoptConfig {
     double v_1;
     double at_1;
     double dt;
+    double DefaultZeroStopCount;
     double ZeroStartAccLimit;
     double ZeroStartJerkLimit;
     double ZeroStartVelLimit;
@@ -136,6 +137,7 @@ struct b_FeedoptConfig {
     double v_1;
     double at_1;
     double dt;
+    double DefaultZeroStopCount;
     double ZeroStartAccLimit;
     double ZeroStartJerkLimit;
     double ZeroStartVelLimit;
