@@ -10,7 +10,7 @@ if ctx.q_opt.isempty(), return; end % No optimization performed
 
 N               = ctx.q_opt.size();
 dt              = ctx.cfg.dt;
-state           = ResampleState( dt );
+state           = ResampleState( dt, ctx.cfg.DefaultZeroStopCount );
 countInPercent  = double( 0 );
 
 ind = 0; sizeBuffer = 1E4; t = 0;
@@ -27,10 +27,9 @@ for k = 1 : N
         
     while ~state.go_next
 
-         [ state, ud, udd, uddd ] = resampleCurv(state, ctx.Bl, ...
+         [ state ] = resampleCurv(state, ctx.Bl, ...
                                     Curv.Info.zspdmode, Curv.Coeff, ...
-                                    Curv.ConstJerk, dt, Curv.a_param, ...
-                                    Curv.b_param, ctx.cfg.GaussLegendreX, ...
+                                    Curv.ConstJerk, dt, ctx.cfg.GaussLegendreX, ...
                                     ctx.cfg.GaussLegendreW );
         
         if( ~state.isOutsideRange )
@@ -41,7 +40,8 @@ for k = 1 : N
                 firstTime = write2files( firstTime, buffer, fileName );
             end
    
-            [ r ]  = calcRVAJfromU( ctx, Curv, state.u, ud, udd, uddd );
+            [ r ]  = calcRVAJfromU( ctx, Curv, state.u, state.ud, ...
+                                    state.udd, state.uddd );
             
             if( ctx.cfg.NRot > 0 )
                 r( ctx.cfg.indRot ) = rad2deg( r( ctx.cfg.indRot ) ); 

@@ -17,7 +17,7 @@ else
     k   = ( 6 / jps )^( 1 / 3 );
 end
 
-[ u, ud, udd, uddd ]    = constJerkU( jps, k, isEnd );
+[ u, ud, udd, uddd ]    = constJerkU( jps, k, isEnd, true );
 
 [ r0D, r1D, r2D, r3D ]  = EvalCurvStruct( ctx, curv, u );
 

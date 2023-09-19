@@ -15,7 +15,7 @@ if ctx.q_opt.isempty(), return; end % No optimization performed
 
 N               = ctx.q_opt.size();
 dt              = ctx.cfg.dt;
-state           = ResampleState( dt );
+state           = ResampleState( dt, ctx.cfg.DefaultZeroStopCount );
 countInPercent  = double( 0 );
 maxJerk         = 0;
 for k = 1 : N
@@ -29,10 +29,10 @@ for k = 1 : N
     
     while ~state.go_next
 
-         [ state, ud, udd, uddd ] = resampleCurv(state, ctx.Bl, ...
+         [ state ] = resampleCurv(state, ctx.Bl, ...
                                     Curv.Info.zspdmode, Curv.Coeff, ...
-                                    Curv.ConstJerk, dt, Curv.a_param, ...
-                                    Curv.b_param, ctx.cfg.GaussLegendreX, ...
+                                    Curv.ConstJerk, dt, ...
+                                    ctx.cfg.GaussLegendreX, ...
                                     ctx.cfg.GaussLegendreW );
         
         if( ~state.isOutsideRange )
@@ -41,7 +41,8 @@ for k = 1 : N
             u       = state.u + double(k) - 1 ; 
             cf      = 0;%GetCurvMaxFeedrate(ctx, Curv);
             f       = Curv.Info.FeedRate;
-            [ r, v, a, j ] = calcRVAJfromU( ctx, Curv, state.u, ud, udd, uddd );
+            [ r, v, a, j ] = calcRVAJfromU( ctx, Curv, state.u, state.ud, ...
+                                            state.udd, state.uddd );
             feed    = vecnorm( v );   
             feed    = feed / Curv.Info.FeedRate;
             a       = abs( a ./ ctx.cfg.amax( ctx.cfg.maskTot )' );

@@ -1,6 +1,6 @@
-function state = ResampleState(dt)
+function state = ResampleState(dt, zeroStopTime)
     coder.inline("never");
-    state = ResampleStateClass(dt);
+    state = ResampleStateClass(dt, zeroStopTime);
 end
 
     

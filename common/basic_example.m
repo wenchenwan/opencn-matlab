@@ -2,20 +2,23 @@
 % This is script provides a rapid overview of the different steps required
 % by the algorithm.
 %
-clc; clear all; %close all;
+clc; clear all; close all;
 
 check_wkdir(); % If current directory is the working directory
 
 % Load default configuration parameters
 cfg = FeedoptDefaultConfig;
 % Set the path to the gcode file
-cfg.source = 'ngc_test/misc/031_surfacage_TopLeftBack_V2_untouched.ngc';
+cfg.source = 'ngc_test/misc/031_surfacage_TopLeftBack_V14_untouched.ngc';
 
 % Logging
 setupLogs( cfg.LogFileName ); diary on;
 
 % Initialization of the feed operator
 ctx = initFeedoptPlan( cfg );
+
+% if(0)
+
 % DestroyContext( ctx );
 % [ ret, ctx ] = loadCtx( "dev/test.mat" );
 try
@@ -51,15 +54,23 @@ try
     % Plot the resulting trajectories
     plotTrajectories( ctx, res_struct );
 
+    % Plot the resulting axis commands
+    plotAxisCommands( ctx, res_struct );
+
 catch ME
     DestroyContext(ctx);
     error( '%s\n%s\n%s\n', ME.message, "File name : " + ME.stack(1).name, ...
                            "Line : " + ME.stack(1).line );
 end
+% end
+% % Plot the resulting axis commands
+% plotAxisCommands( ctx, res_struct );
+
 % Free external memory (see queue function)
 DestroyContext(ctx);
 
 diary off;
+
 
 %-------------------------------------------------------------------------%
 %% Utility Functions
@@ -187,4 +198,66 @@ EnableDebugLog(DebugCfg.Validate);
 EnableDebugLog(DebugCfg.FeedratePlanning);
 EnableDebugLog(DebugCfg.Error);
 EnableDebugLog(DebugCfg.Plots);
+end
+
+function plotAxisCommands( ctx, res_struct )
+    N = double( ctx.cfg.NumberAxis );
+    time = res_struct.tvec;
+    axisNameGen = {"x", "y", "z", "a", "b", "c"};
+    axisUnitGen = {"mm", "mm", "mm", "rad", "rad", "rad"};
+    axisName    = axisNameGen(1, ctx.cfg.maskTot);
+    axisUnit    = axisUnitGen(1, ctx.cfg.maskTot);
+
+    figure("Name","Axis Commands : Position");
+    for j = 1 : N
+        subplot(N, 1, j);
+        plot(time, res_struct.pvec(:, j)); grid on;
+        ylabel( axisName{ j } + " in " + axisUnit{ j } ); 
+    end
+    xlabel("Time in [s]");
+
+    plot_name = "Axis Commands : Computed feedrate"; figure("Name",plot_name);
+    
+    plot(time, res_struct.cfvec, 'r', 'LineWidth', 3); hold on;
+    plot(time, res_struct.fvec, 'b'); grid on;
+    title( plot_name );
+    ylabel( "Feedrate in [mm/s]" ); xlabel( "Time in [s]" );
+    legend( "Feedrate target", "Actual Feedrate");
+
+    v       = diff(res_struct.pvec) / ctx.cfg.dt;
+    v_norm  = v ./ ctx.cfg.vmax( ctx.cfg.maskTot );
+    
+    plot_name = "Axis Commands : Normalized Velocity"; figure("Name",plot_name);
+
+for j = 1 : N
+        subplot(N, 1, j);
+        plot(time(2:end), v_norm(:,j)); grid on;
+        ylabel( "v_" + axisName{ j } + " in " + axisUnit{ j } + "/s"); 
+        if( j == 1 ), title( plot_name ), end
+    end
+
+    xlabel("Time in [s]");
+    a       = diff(v) / ctx.cfg.dt;
+    a_norm  = a ./ ctx.cfg.amax( ctx.cfg.maskTot );
+
+    plot_name = "Axis Commands : Normalized Acceleration"; figure("Name",plot_name);
+    for j = 1 : N
+        subplot(N, 1, j);
+        plot(time(3:end), a_norm(:,j)); grid on;
+        ylabel( "a_" + axisName{ j } + " in " + axisUnit{ j } + "/s^2"); 
+        if( j == 1 ), title( plot_name ), end
+    end
+    xlabel("Time in [s]");
+
+    jerk    = diff(a) / ctx.cfg.dt;
+    j_norm  = jerk ./ ctx.cfg.jmax( ctx.cfg.maskTot );
+
+    plot_name = "Axis Commands : Normalized Jerk"; figure("Name",plot_name);
+    for j = 1 : N
+        subplot(N, 1, j);
+        plot(time(4:end), j_norm(:,j)); grid on;
+        ylabel( "j_" + axisName{ j } + " in " + axisUnit{ j } + "/s^3"); 
+        if( j == 1 ), title( plot_name ), end
+    end
+    xlabel("Time in [s]");
 end

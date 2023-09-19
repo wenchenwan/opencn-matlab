@@ -40,7 +40,7 @@ end
 if( coder.target( "MATLAB" ) ), disp( ind ); end
 
 [ k_vec ]             = compute_k( jps, ctx.cfg.dt, 1 );
-[ u, ud, udd ]        = constJerkU( jps, k_vec * ctx.cfg.dt, isEnd );
+[ u, ud, udd ]        = constJerkU( jps, k_vec * ctx.cfg.dt, isEnd, true);
 
 end
 
@@ -76,7 +76,7 @@ function [ searchJps, jps, u, ud, udd ] = calc_u( isEnd, searchJps, jps, ctx, ..
 persistent ratio
 if( isempty( ratio ) ), ratio = 0.9; end
 
-[ u, ud, udd, uddd ]  = constJerkU( jps, k_vec * ctx.cfg.dt, isEnd );
+[ u, ud, udd, uddd ]  = constJerkU( jps, k_vec * ctx.cfg.dt, isEnd, true );
 
 [ ~, V, A, J ]        = calcRVAJfromU( ctx, curv, u, ud, udd, uddd );
 

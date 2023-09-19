@@ -10,25 +10,27 @@ if ctx.q_opt.isempty(), return; end % No optimization performed
 
 N               = ctx.q_opt.size();
 dt              = ctx.cfg.dt;
-state           = ResampleState( dt );
+state           = ResampleState( dt, ctx.cfg.DefaultZeroStopCount );
 countInPercent  = double( 0 );
 
 ind = 0; sizeBuffer = 1E7; t = 0;
 buffer = zeros( sizeBuffer, 5 + 3 * ctx.cfg.NumberAxis );
 firstTime = true;
 
+counter = 0;
+
 for k = 1 : N
     countInPercent = printAvancement(countInPercent, k, N);
 
     Curv                        = ctx.q_opt.get( k );
     Curv.MaxConstantFeedRate    = 0;%GetCurvMaxFeedrate( ctx, Curv );
+    state.go_next               = false;
 
     while ~state.go_next
 
-        [ state, ud, udd, uddd ] = resampleCurv( state, ctx.Bl, ...
+        [ state ] = resampleCurv( state, ctx.Bl, ...
             Curv.Info.zspdmode, Curv.Coeff, ...
-            Curv.ConstJerk, dt, Curv.a_param, ...
-            Curv.b_param, ctx.cfg.GaussLegendreX, ...
+            Curv.ConstJerk, dt, ctx.cfg.GaussLegendreX, ...
             ctx.cfg.GaussLegendreW );
 
         if( ~state.isOutsideRange )
@@ -40,9 +42,9 @@ for k = 1 : N
             end
 
             u       = state.u + double(k) - 1 ;
-            cf      = 0; %GetCurvMaxFeedrate(ctx, Curv);
-            f       = Curv.Info.FeedRate;
-            [ r, ~, a, j ]  = calcRVAJfromU( ctx, Curv, state.u, ud, udd, uddd );
+            cf      = Curv.Info.FeedRate;
+            [ r, ~, a, j ]  = calcRVAJfromU( ctx, Curv, state.u, state.ud, ...
+                                             state.udd, state.uddd );
             [ r0D, r1D ]    = EvalCurvStruct( ctx, Curv, state.u );
             
             ctx.kin = ctx.kin.set_tool_length( Curv.tool.offset.z );
@@ -53,17 +55,24 @@ for k = 1 : N
             end
             v       = r1D .* state.ud;
             feed    = vecnorm( v( ctx.cfg.indCart ) );
-            feed    = feed / Curv.Info.FeedRate;
+
+            f_norm  = feed / Curv.Info.FeedRate;
             a       = abs( a ./ ctx.cfg.amax( ctx.cfg.maskTot )' );
             j       = abs( j ./ ctx.cfg.jmax( ctx.cfg.maskTot )' );
             
-            buffer( ind, : ) = [ t, u, feed, f, cf, r', a', j' ];
+            % Control numerical derivatives
+            
+            [v_norm, a_norm, j_norm] = assert_numerical_derivative( r, ctx.cfg );
+
+%             assert( all(v_norm <= 1), "Counter " + counter + " : Velocity is above the limits");
+%             assert( all(a_norm <= 1), "Counter " + counter + " : Acceleration is above the limits");
+%             assert( all(j_norm <= 1), "Counter " + counter + " : Jerk is above the limits");
+
+            buffer( ind, : ) = [ t, u, f_norm, feed, cf, r', a', j' ];
+            counter = counter + 1;
         end
     end
-    state.u = 0;
-    state.ud = 0;
-    state.isOutsideRange = false;
-    state.go_next = false;
+    state = ResampleState( state.dt, ctx.cfg.DefaultZeroStopCount );
 end
 
 write2files( firstTime, buffer( 1 : ind , : ) , fileName );
@@ -95,4 +104,27 @@ end
 
 writematrix( A, fileName, param{:} );
 
+end
+
+function [v_norm, a_norm, j_norm] = assert_numerical_derivative( pos, cfg )
+    persistent buffer;
+    if( isempty(buffer) ), buffer = []; end
+
+    [ buffer, v, a, j ] = numerical_derivatives( buffer, pos, cfg.dt );
+
+    v_norm = abs( v ./ cfg.vmax( cfg.maskTot )' );
+    a_norm = abs( a ./ cfg.amax( cfg.maskTot )' );
+    j_norm = abs( j ./ cfg.jmax( cfg.maskTot )' );
+    
+    if(any(v_norm > 1))
+        disp("Velocity is not in the limits");
+    end
+
+    if(any(a_norm > 1))
+        disp("Acceleration is not in the limits");
+    end
+
+    if(any(j_norm > 1))
+        disp("Jerk is not in the limits");
+    end
 end

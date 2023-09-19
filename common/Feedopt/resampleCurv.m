@@ -1,101 +1,92 @@
-function [ state, ud, udd, uddd ] = resampleCurv(state, Bl, curv_mode, ...
-    coeff, constJerk, dt, curv_a, curv_b, GaussLegendreX, GaussLegendreW )
+function [ state ] = resampleCurv(state, Bl, curv_mode, ...
+    coeff, constJerk, dt, GaussLegendreX, GaussLegendreW )
 % resampleCurv :
 %
 % Inputs :
 %
-% state         : Structure about the current state
-%           u :       curv parameter [0,1]
-%           go_next : {0 : stay at the same curve, 1 : move to the next}
-%           dt :      time step used for the discretization
-%           isOutsideRange : {true : if u is out of range}
+% state             : Structure containing the current state
 % Bl                : Structure for the spline object used during the optimization
 % curv_mode         : Zero speed mode for the curve
 % coeff             : The resulting coeff of the optimization
 % useConstJerk      : ( Boolean ) Use a constant jerk for u
 % constJerk         : The actual value of the const jerk
 % dt                : Sampling time
-% curv_a            : Curve parameter a for affine transform
-% curv_b            : Curve parameter b for affine transform
 % GaussLegendreX    : Nodes used for the gauss-legendre integration
 % GaussLegendreW    : Weights used for the gauss-legendre integration
 %
 % Outputs :
 % state         : Updated input state
-% ud            : Derivative of u
-% udd           : Second derivative of u
-% uddd          : Third derivatibe of u
 
 coder.inline( "never" );
 
 if coder.target( "MATLAB" )
-    [ state, ud, udd, uddd ] = resampling_mex( 'resampleCurv', state, Bl, curv_mode, ...
-    coeff, constJerk, dt, curv_a, curv_b, GaussLegendreX, GaussLegendreW );
+    [ state ] = resampling_mex( 'resampleCurv', state, Bl, curv_mode, ...
+    coeff, constJerk, dt, GaussLegendreX, GaussLegendreW );
 else
-
-    if      ( curv_mode == ZSpdMode.ZN )
-        [ u, ud, udd, uddd ] = constJerkU( constJerk, state.dt, false );
-        
-        if( u == 1 )
-            u = constJerk .* state.dt .^3 / 6;
-        end
-        state.dt = state.dt + dt;
-
-    elseif  ( curv_mode == ZSpdMode.NZ )        
-        [ u, ud, udd, uddd ] = constJerkU( constJerk, state.dt, true );
-        
-        if( u == 1 )
-            k_max  = ( 6 / constJerk )^( 1 / 3 );
-            u = 1 - constJerk .* ( k_max - state.dt ) .^3 / 6;
-        end        
-        state.dt = state.dt + dt;
+    % Check for a zero stop 
+    if( state.isAStop )
+        state = state.decreaseStopCounter(); 
+        return;
+    end
+    
+    % Compute new u state depending of zspdmode
+    if( curv_mode == ZSpdMode.ZN )
+        [ time ] = constJerkTime(constJerk, state.u, false);
+        isEnd = false; forcelimit = false;
+        [ u, ud, udd, uddd ] = constJerkU( constJerk, time + state.dt, isEnd, ...
+            forcelimit );
+    elseif( curv_mode == ZSpdMode.NZ )
+        [ time ] = constJerkTime(constJerk, state.u, true);
+        isEnd = true; forcelimit = false;
+        [ u, ud, udd, uddd ] = constJerkU( constJerk, time + state.dt, isEnd, ...
+            forcelimit );
     else
         [ u,  ud, udd, uddd ] = ResampleNN( coeff, Bl, state.u, state.dt );
-        state.dt = dt;
     end
+    state.dt = dt;
     
-    if( state.u > 0 )
-        du      = u - state.u;
-        du_min  = check_minimum_precision( du );    
-        if( du_min > du ), u = state.u + du_min - du; end
-    end
+    % Check the u state validity
+    u = check_u_state_validity( u, state );
     
+    % Check if u is outside the range
     if( u > 1 )
-        if      ( curv_mode == ZSpdMode.NN )
-            [ q ]     = bspline_eval_vec( Bl, coeff', [ state.u, 1 ] );
+        state.isOutsideRange = true;
+        if( curv_mode == ZSpdMode.NN )
             % Numerical integration : Gauss-Legendre
             GL_X   = GaussLegendreX;
             GL_W   = GaussLegendreW;
-
-            % Linear map from[-1, 1] to [state.u, 1]
+    
+            % Linear mapping from[-1, 1] to [state.u, 1]
             uval  = ( state.u * ( 1 - GL_X ) + ( 1 + GL_X) ) / 2;
             Ival  = 1 ./ sqrt( bspline_eval_vec( Bl, coeff', uval ) );
             % Gauss Legendre integration
             Tr    = Ival.' * GL_W * ( 1 - state.u ) / 2;
+        elseif( curv_mode == ZSpdMode.ZN )
+            [ time ] = constJerkTime(constJerk, [state.u, 1], false);
+            Tr = time(2) - time(1);
         else
-            Tuk = ( 6 * state.u / constJerk )^( 1 / 3 );
-            T1  = ( 6 / constJerk )^( 1 / 3 );
-            Tr  = T1 - Tuk; 
+            state = state.startZeroStopTime();
+            return;
         end
-        % Ensure Tr <= dt
+        % Ensure Tr <= dt and Tr >= 0
         state.dt = check_minimum_precision_dt( dt - Tr, dt );
-        state.isOutsideRange = true;
     else
-        state.u     = u;
-        state.ud    = ud;
-        state.udd   = udd;
+        state.isOutsideRange = false;
+        state = state.setU( u, ud, udd, uddd );
     end
-
+    
+    % Need to use the next curve structure
     if( u >= 1 )
         state.go_next = true;
     else
         state.go_next = false;
     end
+
 end
+
 end
 
 function [ u,  ud, udd, uddd ] = ResampleNN( coeff, Bl, uk, dt )
-
 [ q, qd, qdd ] = bspline_eval( Bl, coeff', uk );
 
 [ ud, udd, uddd ] = calcUfromQ( q, qd, qdd );
@@ -108,7 +99,6 @@ if( u  <= uk )
     % Taylor odre 1. Note since ud > 0
     u = uk + ud * dt;
 end
-
 end
 
 function [ d ] = check_minimum_precision( d )
@@ -117,20 +107,19 @@ persistent dMin;
 
 if( isempty( dMin ) ), dMin = eps; end
 
-if(d < dMin )
-    d = dMin; 
-end
+if(d < dMin ), d = dMin;  end
 
 end
 
 function [ d ] = check_minimum_precision_dt( d, dt )
 % check_minimum_precision : Avoid effect numerical problem
-if(d <= 0.0 )
-    d = 0.0; 
+if(d <= 0.0 ) d = 0.0;  end
+
+if(d > dt ), d = dt; end
 end
 
-if(d > dt )
-    d = dt; 
-end
+function [ u ] = check_u_state_validity( u, state )
+assert( u > 0, "U parameter should not be negative during resampling" );
 
+u  = state.u + check_minimum_precision( u - state.u );
 end
