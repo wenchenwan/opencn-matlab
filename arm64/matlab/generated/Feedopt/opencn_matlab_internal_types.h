@@ -5,7 +5,7 @@
 // File: opencn_matlab_internal_types.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 19-Sep-2023 12:24:15
+// C/C++ source code generated on  : 27-Sep-2023 09:27:31
 //
 
 #ifndef OPENCN_MATLAB_INTERNAL_TYPES_H

@@ -5,7 +5,7 @@
 // File: FeedoptDefaultConfig.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 19-Sep-2023 12:24:15
+// C/C++ source code generated on  : 27-Sep-2023 09:27:31
 //
 
 // Include Files
@@ -115,7 +115,7 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     // 'FeedoptDefaultConfig:65'     'LThresholdMin', 0.001,...
     // 'FeedoptDefaultConfig:66'     'v_0', 0, 'at_0', 0,...
     // 'FeedoptDefaultConfig:67'     'v_1', 0, 'at_1', 0,...
-    // 'FeedoptDefaultConfig:68'     'dt', 1e-3, ...
+    // 'FeedoptDefaultConfig:68'     'dt', 1e-1, ...
     // 'FeedoptDefaultConfig:69'     'DefaultZeroStopCount', 1,...
     // 'FeedoptDefaultConfig:70'     'ZeroStartAccLimit', 0.01, ...
     // 'FeedoptDefaultConfig:71'     'ZeroStartJerkLimit', 1E6, ...
@@ -226,7 +226,7 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     r.at_0 = 0.0;
     r.v_1 = 0.0;
     r.at_1 = 0.0;
-    r.dt = 0.001;
+    r.dt = 0.1;
     r.DefaultZeroStopCount = 1.0;
     r.ZeroStartAccLimit = 0.01;
     r.ZeroStartJerkLimit = 1.0E+6;

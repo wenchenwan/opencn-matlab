@@ -5,7 +5,7 @@
 // File: resampleCurv.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 19-Sep-2023 12:24:15
+// C/C++ source code generated on  : 27-Sep-2023 09:27:31
 //
 
 // Include Files
@@ -212,7 +212,7 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
             int loop_ub;
             // 'resampleCurv:43' else
             // 'resampleCurv:44' [ u,  ud, udd, uddd ] = ResampleNN( coeff, Bl, state.u, state.dt );
-            // 'resampleCurv:90' [ q, qd, qdd ] = bspline_eval( Bl, coeff', uk );
+            // 'resampleCurv:109' [ q, qd, qdd ] = bspline_eval( Bl, coeff', uk );
             coeffs.set_size(1, coeff.size(0));
             loop_ub = coeff.size(0);
             for (int i{0}; i < loop_ub; i++) {
@@ -251,7 +251,7 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
             // 'bspline_eval:32' xd      = X(2);
             // 'bspline_eval:33' xdd     = X(3);
             // 'bspline_eval:34' xddd    = X(4);
-            // 'resampleCurv:92' [ ud, udd, uddd ] = calcUfromQ( q, qd, qdd );
+            // 'resampleCurv:111' [ ud, udd, uddd ] = calcUfromQ( q, qd, qdd );
             //  calcQfromU : Compute q( u ) based on u and its derivatives.
             //  Inputs :
             //  q     : [ N x M ] q( u )
@@ -270,14 +270,14 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
             ud = b_ud;
             udd = b_udd;
             //  Taylor odre 2
-            // 'resampleCurv:95' u = uk + ud * dt + ( udd * dt ^ 2 ) / 2;
+            // 'resampleCurv:114' u = uk + ud * dt + ( udd * dt ^ 2 ) / 2;
             u_tmp = state->u + b_ud * state->dt;
             b_u = u_tmp + b_udd * (state->dt * state->dt) / 2.0;
             //  Ensure u > uk
-            // 'resampleCurv:98' if( u  <= uk )
+            // 'resampleCurv:117' if( u  <= uk )
             if (b_u <= state->u) {
                 //  Taylor odre 1. Note since ud > 0
-                // 'resampleCurv:100' u = uk + ud * dt;
+                // 'resampleCurv:119' u = uk + ud * dt;
                 b_u = u_tmp;
             }
             u = b_u;
@@ -286,27 +286,26 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
         state->dt = dt;
         // 'ResampleStateClass:7' double
         // 'ResampleStateClass:7' dt
-        //  Check the u state validity
-        // 'resampleCurv:49' u = check_u_state_validity( u, state );
-        // 'resampleCurv:122' assert( u > 0, "U parameter should not be negative during resampling"
-        // ); 'resampleCurv:124' u  = state.u + check_minimum_precision( u - state.u );
+        // 'resampleCurv:48' u = check_u_state_validity( u, state );
+        // 'resampleCurv:141' assert( u > 0, "U parameter should not be negative during resampling"
+        // ); 'resampleCurv:143' u  = state.u + check_minimum_precision( u - state.u );
         d = u - state->u;
         //  check_minimum_precision : Avoid effect numerical problem
-        // 'resampleCurv:108' if( isempty( dMin ) )
-        // 'resampleCurv:110' if(d < dMin )
+        // 'resampleCurv:127' if( isempty( dMin ) )
+        // 'resampleCurv:129' if(d < dMin )
         if (d < 2.2204460492503131E-16) {
-            // 'resampleCurv:110' d = dMin;
+            // 'resampleCurv:129' d = dMin;
             d = 2.2204460492503131E-16;
         }
         u = state->u + d;
         //  Check if u is outside the range
-        // 'resampleCurv:52' if( u > 1 )
+        // 'resampleCurv:51' if( u > 1 )
         guard1 = false;
         guard2 = false;
         if (u > 1.0) {
-            // 'resampleCurv:53' state.isOutsideRange = true;
+            // 'resampleCurv:52' state.isOutsideRange = true;
             state->isOutsideRange = true;
-            // 'resampleCurv:54' if( curv_mode == ZSpdMode.NN )
+            // 'resampleCurv:53' if( curv_mode == ZSpdMode.NN )
             if (curv_mode == ZSpdMode_NN) {
                 double c_d;
                 int b_loop_ub;
@@ -318,17 +317,17 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
                 int i6;
                 int i7;
                 //  Numerical integration : Gauss-Legendre
-                // 'resampleCurv:56' GL_X   = GaussLegendreX;
-                // 'resampleCurv:57' GL_W   = GaussLegendreW;
+                // 'resampleCurv:55' GL_X   = GaussLegendreX;
+                // 'resampleCurv:56' GL_W   = GaussLegendreW;
                 //  Linear mapping from[-1, 1] to [state.u, 1]
-                // 'resampleCurv:60' uval  = ( state.u * ( 1 - GL_X ) + ( 1 + GL_X) ) / 2;
+                // 'resampleCurv:59' uval  = ( state.u * ( 1 - GL_X ) + ( 1 + GL_X) ) / 2;
                 uval.set_size(GaussLegendreX.size(0));
                 b_loop_ub = GaussLegendreX.size(0);
                 for (int i1{0}; i1 < b_loop_ub; i1++) {
                     uval[i1] =
                         (state->u * (1.0 - GaussLegendreX[i1]) + (GaussLegendreX[i1] + 1.0)) / 2.0;
                 }
-                // 'resampleCurv:61' Ival  = 1 ./ sqrt( bspline_eval_vec( Bl, coeff', uval ) );
+                // 'resampleCurv:60' Ival  = 1 ./ sqrt( bspline_eval_vec( Bl, coeff', uval ) );
                 // 'bspline_eval_vec:3' x       = zeros(size(u));
                 x.set_size(uval.size(0));
                 c_loop_ub = uval.size(0);
@@ -374,7 +373,7 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
                     // 'bspline_eval_vec:13' xddd(k) = xdddk;
                 }
                 //  Gauss Legendre integration
-                // 'resampleCurv:63' Tr    = Ival.' * GL_W * ( 1 - state.u ) / 2;
+                // 'resampleCurv:62' Tr    = Ival.' * GL_W * ( 1 - state.u ) / 2;
                 i7 = x.size(0);
                 for (int b_k{0}; b_k < i7; b_k++) {
                     x[b_k] = std::sqrt(x[b_k]);
@@ -385,10 +384,37 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
                     c_d += 1.0 / x[i9] * GaussLegendreW[i9];
                 }
                 Tr = c_d * (1.0 - state->u) / 2.0;
+                //  Check remaining time is bellow current time step
+                // 'resampleCurv:64' if( Tr >= dt )
+                if (Tr >= dt) {
+                    double Tr2;
+                    double Tr_tmp;
+                    double a;
+                    //  Second order Taylor interpolation
+                    // 'resampleCurv:66' a = udd/2;
+                    a = udd / 2.0;
+                    // 'resampleCurv:66' b = ud;
+                    // 'resampleCurv:66' c = state.u -1;
+                    // 'resampleCurv:68' Delta = b^2 - 4 * a * c;
+                    // 'resampleCurv:69' Tr  = (-b + sqrt(Delta) ) / ( 2 *  a);
+                    Tr_tmp = std::sqrt(ud * ud - 4.0 * a * (state->u - 1.0));
+                    Tr = (-ud + Tr_tmp) / (2.0 * a);
+                    //  Need to use first order Taylor
+                    // 'resampleCurv:72' if( isnan(Tr) )
+                    // 'resampleCurv:74' else
+                    //  Check the second solution
+                    // 'resampleCurv:76' Tr2 = (-b - sqrt(Delta) ) / ( 2 *  a);
+                    Tr2 = (-ud - Tr_tmp) / (2.0 * a);
+                    // 'resampleCurv:78' if((Tr2 > 0) && (Tr2 <= dt))
+                    if ((Tr2 > 0.0) && (Tr2 <= dt)) {
+                        // 'resampleCurv:79' Tr = Tr2;
+                        Tr = Tr2;
+                    }
+                }
                 guard2 = true;
             } else if (curv_mode == ZSpdMode_ZN) {
-                // 'resampleCurv:64' elseif( curv_mode == ZSpdMode.ZN )
-                // 'resampleCurv:65' [ time ] = constJerkTime(constJerk, [state.u, 1], false);
+                // 'resampleCurv:83' elseif( curv_mode == ZSpdMode.ZN )
+                // 'resampleCurv:84' [ time ] = constJerkTime(constJerk, [state.u, 1], false);
                 //  constJerkN : Compute k
                 //  Inputs :
                 //    pseudoJerk :  [ N x 1 ] The pseudo constant Jerk
@@ -400,13 +426,13 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
                 // 'constJerkTime:16' if( isEnd )
                 // 'constJerkTime:20' k_vec = (u_vec * 6 / pseudoJerk).^(1/3);
                 // 'constJerkTime:22' if( isEnd )
-                // 'resampleCurv:66' Tr = time(2) - time(1);
+                // 'resampleCurv:85' Tr = time(2) - time(1);
                 Tr = std::pow(6.0 / constJerk, 0.33333333333333331) -
                      std::pow(state->u * 6.0 / constJerk, 0.33333333333333331);
                 guard2 = true;
             } else {
-                // 'resampleCurv:67' else
-                // 'resampleCurv:68' state = state.startZeroStopTime();
+                // 'resampleCurv:86' else
+                // 'resampleCurv:87' state = state.startZeroStopTime();
                 // 'ResampleStateClass:67' this = this.setZeroStop( this.dt, this.zeroStopTime );
                 // 'ResampleStateClass:31' this.dt             = dt;
                 // 'ResampleStateClass:7' double
@@ -443,10 +469,10 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
                 // 'ResampleStateClass:12' zeroStopTime
             }
         } else {
-            // 'resampleCurv:73' else
-            // 'resampleCurv:74' state.isOutsideRange = false;
+            // 'resampleCurv:92' else
+            // 'resampleCurv:93' state.isOutsideRange = false;
             state->isOutsideRange = false;
-            // 'resampleCurv:75' state = state.setU( u, ud, udd, uddd );
+            // 'resampleCurv:94' state = state.setU( u, ud, udd, uddd );
             state->u = u;
             state->ud = ud;
             state->udd = udd;
@@ -468,17 +494,17 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
         if (guard2) {
             double b_d;
             //  Ensure Tr <= dt and Tr >= 0
-            // 'resampleCurv:72' state.dt = check_minimum_precision_dt( dt - Tr, dt );
+            // 'resampleCurv:91' state.dt = check_minimum_precision_dt( dt - Tr, dt );
             b_d = dt - Tr;
             //  check_minimum_precision : Avoid effect numerical problem
-            // 'resampleCurv:116' if(d <= 0.0 )
+            // 'resampleCurv:135' if(d <= 0.0 )
             if (b_d <= 0.0) {
-                // 'resampleCurv:116' d = 0.0;
+                // 'resampleCurv:135' d = 0.0;
                 b_d = 0.0;
             }
-            // 'resampleCurv:118' if(d > dt )
+            // 'resampleCurv:137' if(d > dt )
             if (b_d > dt) {
-                // 'resampleCurv:118' d = dt;
+                // 'resampleCurv:137' d = dt;
                 b_d = dt;
             }
             state->dt = b_d;
@@ -488,13 +514,13 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
         }
         if (guard1) {
             //  Need to use the next curve structure
-            // 'resampleCurv:79' if( u >= 1 )
+            // 'resampleCurv:98' if( u >= 1 )
             if (u >= 1.0) {
-                // 'resampleCurv:80' state.go_next = true;
+                // 'resampleCurv:99' state.go_next = true;
                 state->go_next = true;
             } else {
-                // 'resampleCurv:81' else
-                // 'resampleCurv:82' state.go_next = false;
+                // 'resampleCurv:100' else
+                // 'resampleCurv:101' state.go_next = false;
                 state->go_next = false;
             }
         }
