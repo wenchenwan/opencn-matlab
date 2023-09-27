@@ -2,14 +2,14 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: cosd.h
+// File: CheckCurvStructs.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 27-Sep-2023 09:15:18
+// C/C++ source code generated on  : 27-Sep-2023 11:07:13
 //
 
-#ifndef COSD_H
-#define COSD_H
+#ifndef CHECKCURVSTRUCTS_H
+#define CHECKCURVSTRUCTS_H
 
 // Include Files
 #include "rtwtypes.h"
@@ -18,17 +18,21 @@
 
 // Custom Header Code
 #include "functions.h"
-// Function Declarations
+// Type Declarations
 namespace ocn {
-namespace coder {
-void b_cosd(double *x);
+struct b_FeedoptContext;
 
 }
-} // namespace ocn
+
+// Function Declarations
+namespace ocn {
+void CheckCurvStructs(b_FeedoptContext *ctx);
+
+}
 
 #endif
 //
-// File trailer for cosd.h
+// File trailer for CheckCurvStructs.h
 //
 // [EOF]
 //

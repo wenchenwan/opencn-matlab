@@ -5,7 +5,7 @@
 // File: splitQueue.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 27-Sep-2023 09:15:18
+// C/C++ source code generated on  : 27-Sep-2023 11:17:01
 //
 
 // Include Files
@@ -33,11 +33,11 @@
 //
 // function ctx = splitQueue( ctx )
 //
-// Arguments    : const b_FeedoptContext *ctx
+// Arguments    : b_FeedoptContext *ctx
 // Return Type  : void
 //
 namespace ocn {
-void splitQueue(const b_FeedoptContext *ctx)
+void splitQueue(b_FeedoptContext *ctx)
 {
     Kinematics b_ctx;
     Kinematics d_ctx;
@@ -94,6 +94,8 @@ void splitQueue(const b_FeedoptContext *ctx)
     if (!ctx->q_smooth.isempty()) {
         unsigned int N;
         int i;
+        // 'splitQueue:4' ctx.k0 = int32( 1 );
+        ctx->k0 = 1;
         // 'splitQueue:5' DebugLog( DebugCfg.Validate,        'Splitting...\n' );
         //  1 -> stdout
         //  2 -> stderr
@@ -135,7 +137,9 @@ void splitQueue(const b_FeedoptContext *ctx)
                 params_CoeffP5, &d_expl_temp);
         }
         for (int k{0}; k < i; k++) {
-            // 'splitQueue:12' ctx = splitCurvStruct( ctx, ctx.q_smooth.get( k ) );
+            // 'splitQueue:12' ctx.k0  = ctx.k0 + 1;
+            ctx->k0++;
+            // 'splitQueue:13' ctx     = splitCurvStruct( ctx, ctx.q_smooth.get( k ) );
             ctx->q_smooth.get(k + 1U, &curv);
             //  SplitCurvStruct : Split the curv structs with a zero speed.
             //  Inputs  :

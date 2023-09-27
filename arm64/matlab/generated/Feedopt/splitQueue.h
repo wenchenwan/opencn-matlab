@@ -5,7 +5,7 @@
 // File: splitQueue.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 27-Sep-2023 09:27:31
+// C/C++ source code generated on  : 27-Sep-2023 11:07:13
 //
 
 #ifndef SPLITQUEUE_H
@@ -26,7 +26,7 @@ struct b_FeedoptContext;
 
 // Function Declarations
 namespace ocn {
-void splitQueue(const b_FeedoptContext *ctx);
+void splitQueue(b_FeedoptContext *ctx);
 
 }
 
