@@ -44,8 +44,7 @@ else
         [ u,  ud, udd, uddd ] = ResampleNN( coeff, Bl, state.u, state.dt );
     end
     state.dt = dt;
-    
-    % Check the u state validity
+
     u = check_u_state_validity( u, state );
     
     % Check if u is outside the range
@@ -61,6 +60,26 @@ else
             Ival  = 1 ./ sqrt( bspline_eval_vec( Bl, coeff', uval ) );
             % Gauss Legendre integration
             Tr    = Ival.' * GL_W * ( 1 - state.u ) / 2;
+            % Check remaining time is bellow current time step
+            if( Tr >= dt )
+                % Second order Taylor interpolation
+                a = udd/2; b = ud; c = state.u -1;
+            
+                Delta = b^2 - 4 * a * c;
+                Tr  = (-b + sqrt(Delta) ) / ( 2 *  a);
+                
+                % Need to use first order Taylor
+                if( isnan(Tr) )
+                    Tr = -c / b;
+                else
+                    % Check the second solution
+                    Tr2 = (-b - sqrt(Delta) ) / ( 2 *  a);
+                
+                    if((Tr2 > 0) && (Tr2 <= dt))
+                        Tr = Tr2;
+                    end
+                end
+            end
         elseif( curv_mode == ZSpdMode.ZN )
             [ time ] = constJerkTime(constJerk, [state.u, 1], false);
             Tr = time(2) - time(1);
