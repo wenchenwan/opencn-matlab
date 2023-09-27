@@ -3,14 +3,15 @@ function ctx = smoothCurvStructs(ctx)
 % Optimal transitions calculation between segments whith G2 continuity
 
 if ctx.q_compress.isempty(), return; end
-
-Ncrv = ctx.q_compress.size;
+ctx.k0  = int32( 1 );
+Ncrv    = ctx.q_compress.size;
 
 DebugLog( DebugCfg.Validate,         'Smoothing...\n' );
 DebugLog( DebugCfg.OptimProgress,    'Smoothing...\n' );
 
 curv = ctx.q_compress.get( 1 );
 for k = 2 : Ncrv
+    ctx.k0 = ctx.k0 + 1;
     nextCurv = ctx.q_compress.get( k );
 
     [ needStop, needTransition ] = check_stop_and_transition( ctx, ...

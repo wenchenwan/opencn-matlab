@@ -14,10 +14,12 @@ switch ctx.op
         ctx.op = Fopt.GCode;
         %
     case Fopt.GCode
+        ctx.k0  = int32(1);
         status = int32( ReadGCode( ReadGCodeCmd.Load, ctx.cfg.source ) );
         DebugLog( DebugCfg.Validate, 'Reading G-code...\n' );
         %
         while status
+            ctx.k0 = ctx.k0 + 1;
             [ status, CurvStruct ] = ReadGCode( ReadGCodeCmd.Read, ...
                 ctx.cfg.source );
             if( ctx.q_gcode.isempty )
@@ -94,7 +96,7 @@ switch ctx.op
     case Fopt.Check
 %         ctx.op = Fopt.Finished; return;
 %         [ ctx.q_gcode ] = checkTrafo( ctx, ctx.q_gcode );
-%         histogramLength( ctx, ctx.q_gcode, "Gcode");
+%         histogramLength( ctx, ctx.q_gcode, "Gcode");        
         if ~ctx.cfg.Cusp.Skip
             ctx     = CheckCurvStructs( ctx );
         end
@@ -147,9 +149,8 @@ switch ctx.op
 %         ctx.op = Fopt.Finished; return;
 %         histogramLength( ctx, ctx.q_smooth, "Smoothing" );
 
-        ctx = splitQueue( ctx );
-
-        ctx.op = Fopt.Opt;
+        ctx     = splitQueue( ctx );
+        ctx.op  = Fopt.Opt;
 
         assert( checkZSpdmode( ctx.q_split ), "ERROR : " + mfilename ...
             + ".m : splitted zspdmode failed " );
@@ -161,8 +162,8 @@ switch ctx.op
         if( coder.target( 'MATLAB' ) ), ctx.q_smooth.delete(); end
 
     case Fopt.Opt
+        if( ctx.q_opt.size() == 0 ), ctx.k0 = int32( 1 ); end
     %         ctx.op = Fopt.Finished; return;
-
         [ ctx, optimized, opt_struct, quit ] = feedratePlanning( ctx );
         if optimized
             ctx.go_next = true;

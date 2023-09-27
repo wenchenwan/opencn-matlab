@@ -1,5 +1,5 @@
 function [ ctx ] = CheckCurvStructs( ctx )
-
+ctx.k0 = int32( 1 );
 N = ctx.q_gcode.size;
 
 DebugLog( DebugCfg.Validate, 'Checking for cusps...\n' );
@@ -7,7 +7,8 @@ DebugLog( DebugCfg.OptimProgress, 'Checking for cusps...\n' );
 
 curv1 = ctx.q_gcode.get( 1 );
 for k = 2 : N
-    curv2 = ctx.q_gcode.get( k );
+    ctx.k0  = ctx.k0 + 1;
+    curv2   = ctx.q_gcode.get( k );
 
     % Detect cusp in piece frame
     [~, r0D1] = EvalCurvStructInPieceFrame( ctx, curv1, 1 );
