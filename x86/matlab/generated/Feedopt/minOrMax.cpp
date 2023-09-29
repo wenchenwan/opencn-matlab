@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: minOrMax.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 27-Sep-2023 11:17:01
 //
 
 // Include Files
@@ -94,38 +94,6 @@ void b_maximum(const ::coder::array<double, 2U> &x, double *ex, int *idx)
 }
 
 //
-// Arguments    : const ::coder::array<double, 1U> &x
-// Return Type  : double
-//
-double maximum(const ::coder::array<double, 1U> &x)
-{
-    double ex;
-    int last;
-    last = x.size(0);
-    if (x.size(0) <= 2) {
-        if (x.size(0) == 1) {
-            ex = x[0];
-        } else if (x[0] < x[x.size(0) - 1]) {
-            ex = x[x.size(0) - 1];
-        } else {
-            ex = x[0];
-        }
-    } else {
-        double b_ex;
-        b_ex = x[0];
-        for (int k{2}; k <= last; k++) {
-            double d;
-            d = x[k - 1];
-            if (b_ex < d) {
-                b_ex = d;
-            }
-        }
-        ex = b_ex;
-    }
-    return ex;
-}
-
-//
 // Arguments    : const ::coder::array<double, 2U> &x
 //                double *ex
 //                int *idx
@@ -200,43 +168,6 @@ void minimum(const double x_data[], int x_size, double *ex, int *idx)
         }
         *ex = b_ex;
     }
-}
-
-//
-// Arguments    : const double x_data[]
-//                const int x_size[2]
-// Return Type  : double
-//
-double minimum(const double x_data[], const int x_size[2])
-{
-    double ex;
-    int last;
-    last = x_size[1];
-    if (x_size[1] <= 2) {
-        if (x_size[1] == 1) {
-            ex = x_data[0];
-        } else {
-            double d;
-            d = x_data[x_size[1] - 1];
-            if (x_data[0] > d) {
-                ex = d;
-            } else {
-                ex = x_data[0];
-            }
-        }
-    } else {
-        double b_ex;
-        b_ex = x_data[0];
-        for (int k{2}; k <= last; k++) {
-            double d1;
-            d1 = x_data[k - 1];
-            if (b_ex > d1) {
-                b_ex = d1;
-            }
-        }
-        ex = b_ex;
-    }
-    return ex;
 }
 
 //

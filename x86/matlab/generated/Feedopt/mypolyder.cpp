@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,11 +6,11 @@
 // File: mypolyder.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 27-Sep-2023 11:17:01
 //
 
 // Include Files
 #include "mypolyder.h"
+#include "opencn_matlab_types1.h"
 #include "coder_array.h"
 
 // Function Definitions
@@ -46,6 +47,43 @@ void b_binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<do
         for (int i3{0}; i3 < loop_ub; i3++) {
             in1[i3 + in1.size(0) * i2] =
                 in2[i3 * stride_0_0 + in2.size(0) * i2] *
+                static_cast<double>(in3[i3 * stride_1_0 + in3.size(0) * i2]);
+        }
+    }
+}
+
+//
+// Arguments    : ::coder::array<double, 2U> &in1
+//                const CurvStruct *in2
+//                const ::coder::array<signed char, 2U> &in3
+// Return Type  : void
+//
+void binary_expand_op(::coder::array<double, 2U> &in1, const CurvStruct *in2,
+                      const ::coder::array<signed char, 2U> &in3)
+{
+    int i;
+    int i1;
+    int loop_ub;
+    int stride_0_0;
+    int stride_1_0;
+    i = in2->CoeffP5.size(0);
+    if (in3.size(0) == 1) {
+        i1 = i;
+    } else {
+        i1 = in3.size(0);
+    }
+    in1.set_size(i1, 5);
+    stride_0_0 = (i != 1);
+    stride_1_0 = (in3.size(0) != 1);
+    if (in3.size(0) == 1) {
+        loop_ub = i;
+    } else {
+        loop_ub = in3.size(0);
+    }
+    for (int i2{0}; i2 < 5; i2++) {
+        for (int i3{0}; i3 < loop_ub; i3++) {
+            in1[i3 + in1.size(0) * i2] =
+                in2->CoeffP5[i3 * stride_0_0 + in2->CoeffP5.size(0) * i2] *
                 static_cast<double>(in3[i3 * stride_1_0 + in3.size(0) * i2]);
         }
     }

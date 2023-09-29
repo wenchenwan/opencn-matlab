@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: CheckCurvStructs.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 27-Sep-2023 11:17:01
 //
 
 // Include Files
@@ -104,32 +104,33 @@ void CheckCurvStructs(b_FeedoptContext *ctx)
         fflush(stdout);
     }
     // 'CheckCurvStructs:8' curv1 = ctx.q_gcode.get( 1 );
-    ctx->q_gcode.get(static_cast<double>(1.0), &curv1);
+    ctx->q_gcode.get(&curv1);
     // 'CheckCurvStructs:9' for k = 2 : N
     for (unsigned int k{2U}; k <= N; k++) {
         bool zeroFlag;
         // 'CheckCurvStructs:10' ctx.k0  = ctx.k0 + 1;
         ctx->k0++;
-        // 'CheckCurvStructs:11' curv2   = ctx.q_gcode.get( k );
+        // 'CheckCurvStructs:11' if(coder.target("MATLAB"))
+        // 'CheckCurvStructs:12' curv2   = ctx.q_gcode.get( k );
         ctx->q_gcode.get(k, &curv2);
         //  Detect cusp in piece frame
-        // 'CheckCurvStructs:14' [~, r0D1] = EvalCurvStructInPieceFrame( ctx, curv1, 1 );
+        // 'CheckCurvStructs:15' [~, r0D1] = EvalCurvStructInPieceFrame( ctx, curv1, 1 );
         EvalCurvStructInPieceFrame(
             &ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size, ctx->cfg.maskCart.data,
             ctx->cfg.maskCart.size, ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
             ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart, ctx->cfg.NRot, curv1.Info,
             curv1.R0, curv1.R1, curv1.CorrectedHelixCenter, curv1.evec, curv1.theta, curv1.pitch,
             curv1.CoeffP5, curv1.sp_index, curv1.a_param, curv1.b_param, a__1, r0D1);
-        // 'CheckCurvStructs:15' [~, r1D1] = EvalCurvStructInPieceFrame( ctx, curv2, 0 );
+        // 'CheckCurvStructs:16' [~, r1D1] = EvalCurvStructInPieceFrame( ctx, curv2, 0 );
         b_curv2 = curv2;
         b_EvalCurvStructInPieceFrame(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                                      ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
                                      ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
                                      ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart,
                                      ctx->cfg.NRot, &b_curv2, a__2, r1D1);
-        // 'CheckCurvStructs:17' if ( ~isAZeroEnd( curv1 ) ) && ...
-        // 'CheckCurvStructs:18'         iscusp( r0D1( ctx.cfg.indCart ), r1D1( ctx.cfg.indCart ),
-        // ... 'CheckCurvStructs:19'                 ctx.cfg.Cusp.CuspThreshold )
+        // 'CheckCurvStructs:18' if ( ~isAZeroEnd( curv1 ) ) && ...
+        // 'CheckCurvStructs:19'         iscusp( r0D1( ctx.cfg.indCart ), r1D1( ctx.cfg.indCart ),
+        // ... 'CheckCurvStructs:20'                 ctx.cfg.Cusp.CuspThreshold )
         //  isAZeroEnd : Return true if the curv ends with zero speed
         //  Input :
         //  curv / Info / ZSpdMode : A structure containning the information of the
@@ -218,39 +219,39 @@ void CheckCurvStructs(b_FeedoptContext *ctx)
                 b_n = -std::cos(x);
             }
             if (c / (coder::b_norm(b_u_data) * coder::b_norm(b_v_data)) <= b_n) {
-                // 'CheckCurvStructs:21' switch curv1.Info.zspdmode
+                // 'CheckCurvStructs:22' switch curv1.Info.zspdmode
                 switch (curv1.Info.zspdmode) {
                 case ZSpdMode_NN:
-                    // 'CheckCurvStructs:22' case ZSpdMode.NN
-                    // 'CheckCurvStructs:23' curv1.Info.zspdmode = ZSpdMode.NZ;
+                    // 'CheckCurvStructs:23' case ZSpdMode.NN
+                    // 'CheckCurvStructs:24' curv1.Info.zspdmode = ZSpdMode.NZ;
                     curv1.Info.zspdmode = ZSpdMode_NZ;
                     break;
                 case ZSpdMode_ZN:
-                    // 'CheckCurvStructs:24' case ZSpdMode.ZN
-                    // 'CheckCurvStructs:25' curv1.Info.zspdmode = ZSpdMode.ZZ;
+                    // 'CheckCurvStructs:25' case ZSpdMode.ZN
+                    // 'CheckCurvStructs:26' curv1.Info.zspdmode = ZSpdMode.ZZ;
                     curv1.Info.zspdmode = ZSpdMode_ZZ;
                     break;
                 }
-                // 'CheckCurvStructs:28' switch curv2.Info.zspdmode
+                // 'CheckCurvStructs:29' switch curv2.Info.zspdmode
                 switch (curv2.Info.zspdmode) {
                 case ZSpdMode_NN:
-                    // 'CheckCurvStructs:29' case ZSpdMode.NN
-                    // 'CheckCurvStructs:30' curv2.Info.zspdmode = ZSpdMode.ZN;
+                    // 'CheckCurvStructs:30' case ZSpdMode.NN
+                    // 'CheckCurvStructs:31' curv2.Info.zspdmode = ZSpdMode.ZN;
                     curv2.Info.zspdmode = ZSpdMode_ZN;
                     break;
                 case ZSpdMode_NZ:
-                    // 'CheckCurvStructs:31' case ZSpdMode.NZ
-                    // 'CheckCurvStructs:32' curv2.Info.zspdmode = ZSpdMode.ZZ;
+                    // 'CheckCurvStructs:32' case ZSpdMode.NZ
+                    // 'CheckCurvStructs:33' curv2.Info.zspdmode = ZSpdMode.ZZ;
                     curv2.Info.zspdmode = ZSpdMode_ZZ;
                     break;
                 }
-                // 'CheckCurvStructs:35' ctx.q_gcode.set( k - 1,   curv1 );
+                // 'CheckCurvStructs:36' ctx.q_gcode.set( k - 1,   curv1 );
                 ctx->q_gcode.set(k - 1U, &curv1);
-                // 'CheckCurvStructs:36' ctx.q_gcode.set( k, curv2 );
+                // 'CheckCurvStructs:37' ctx.q_gcode.set( k, curv2 );
                 ctx->q_gcode.set(k, &curv2);
             }
         }
-        // 'CheckCurvStructs:39' curv1 = curv2;
+        // 'CheckCurvStructs:40' curv1 = curv2;
         curv1 = curv2;
     }
 }

@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: FeedoptDefaultConfig.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 27-Sep-2023 11:17:01
 //
 
 // Include Files
@@ -38,8 +38,8 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     static const int iv2[6]{750000, 750000, 3000000, 0, 10000, 50000};
     static const short iv[6]{500, 500, 800, 0, 40, 50};
     static const short iv1[6]{15000, 15000, 15000, 0, 200, 1000};
-    static const char b_cv1[9]{'l', 'o', 'g', 's', '/', 'l', 'o', 'g', 's'};
-    static const char b_cv[5]{'x', 'y', 'z', 'b', 'c'};
+    static const char cv1[9]{'l', 'o', 'g', 's', '/', 'l', 'o', 'g', 's'};
+    static const char cv[5]{'x', 'y', 'z', 'b', 'c'};
     static const bool bv[6]{true, true, true, false, true, true};
     b_FeedoptConfig r;
     int b_loop_ub;
@@ -115,7 +115,7 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     // 'FeedoptDefaultConfig:65'     'LThresholdMin', 0.001,...
     // 'FeedoptDefaultConfig:66'     'v_0', 0, 'at_0', 0,...
     // 'FeedoptDefaultConfig:67'     'v_1', 0, 'at_1', 0,...
-    // 'FeedoptDefaultConfig:68'     'dt', 1e-3, ...
+    // 'FeedoptDefaultConfig:68'     'dt', 1e-2, ...
     // 'FeedoptDefaultConfig:69'     'DefaultZeroStopCount', 1,...
     // 'FeedoptDefaultConfig:70'     'ZeroStartAccLimit', 0.01, ...
     // 'FeedoptDefaultConfig:71'     'ZeroStartJerkLimit', 1E6, ...
@@ -200,7 +200,7 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     r.kin_params.size[0] = 12;
     std::copy(&dv[0], &dv[12], &r.kin_params.data[0]);
     for (int i1{0}; i1 < 5; i1++) {
-        r.kin_type[i1] = b_cv[i1];
+        r.kin_type[i1] = cv[i1];
     }
     r.NDiscr = 20;
     r.NBreak = 10;
@@ -226,7 +226,7 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     r.at_0 = 0.0;
     r.v_1 = 0.0;
     r.at_1 = 0.0;
-    r.dt = 0.001;
+    r.dt = 0.01;
     r.DefaultZeroStopCount = 1.0;
     r.ZeroStartAccLimit = 0.01;
     r.ZeroStartJerkLimit = 1.0E+6;
@@ -254,7 +254,7 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     r.opt.SLACK_PENALTY = 10000.0;
     r.opt.USE_LINPROG = false;
     for (int i3{0}; i3 < 9; i3++) {
-        r.LogFileName[i3] = b_cv1[i3];
+        r.LogFileName[i3] = cv1[i3];
     }
     b_setMachineAxisInConfig(&r, bv);
     cfg->maskTot.size[0] = 1;

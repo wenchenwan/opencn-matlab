@@ -5,7 +5,7 @@
 // File: EvalHelix.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 27-Sep-2023 11:07:13
+// C/C++ source code generated on  : 29-Sep-2023 09:56:15
 //
 
 #ifndef EVALHELIX_H
@@ -23,15 +23,26 @@
 namespace ocn {
 void EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedHelixCenter[3],
                const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
-               const ::coder::array<double, 2U> &u_vec, const bool maskCart_data[],
-               const int maskCart_size[2], ::coder::array<double, 2U> &r0D,
-               ::coder::array<double, 2U> &r1D, ::coder::array<double, 2U> &r2D,
-               ::coder::array<double, 2U> &r3D);
+               const ::coder::array<double, 1U> &u_vec, const bool maskCart_data[],
+               const int maskCart_size[2], double r0D[3], double r1D[3], double r2D[3],
+               double r3D[3]);
 
 void b_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedHelixCenter[3],
                  const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
                  double u_vec, const bool maskCart_data[], const int maskCart_size[2],
                  double r0D[3], double r1D[3], double r2D[3], double r3D[3]);
+
+void c_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedHelixCenter[3],
+                 const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+                 const ::coder::array<double, 2U> &u_vec, const bool maskCart_data[],
+                 const int maskCart_size[2], ::coder::array<double, 2U> &r0D,
+                 ::coder::array<double, 2U> &r1D, ::coder::array<double, 2U> &r2D,
+                 ::coder::array<double, 2U> &r3D);
+
+void d_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedHelixCenter[3],
+                 const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+                 const double u_vec[2], const bool maskCart_data[], const int maskCart_size[2],
+                 double r0D[2][3], double r1D[2][3], double r2D[2][3], double r3D[2][3]);
 
 } // namespace ocn
 

@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: PrintCurvStruct.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 27-Sep-2023 11:17:01
 //
 
 // Include Files
@@ -42,9 +42,9 @@ namespace ocn {
 void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
 {
     static const char cv3[9]{'<', 'U', 'N', 'K', 'N', 'O', 'W', 'N', '>'};
-    static const char b_cv1[7]{'T', 'r', 'a', 'n', 's', 'P', '5'};
+    static const char cv1[7]{'T', 'r', 'a', 'n', 's', 'P', '5'};
     static const char cv2[6]{'S', 'p', 'l', 'i', 'n', 'e'};
-    static const char b_cv[5]{'H', 'e', 'l', 'i', 'x'};
+    static const char cv[5]{'H', 'e', 'l', 'i', 'x'};
     coder::rtString formatSpec;
     ::coder::array<double, 1U> P0;
     ::coder::array<double, 1U> P1;
@@ -63,13 +63,13 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
     ::coder::array<int, 1U> t6_cfg_indCart;
     ::coder::array<int, 1U> t6_cfg_indRot;
     CurvStruct expl_temp;
-    double validatedHoleFilling_f2;
+    double varargin_1;
     int b_loop_ub;
     int c_loop_ub;
     int d_loop_ub;
     int loop_ub;
     int varargin_1_size_idx_1;
-    char b_varargin_1_data[10];
+    char b_varargin_1_data[97];
     char varargin_2_data[10];
     char varargin_1_data[9];
     if (!isInitialized_opencn_matlab) {
@@ -95,7 +95,7 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
         // 'PrintCurvStruct:66' str = 'Helix';
         varargin_1_size_idx_1 = 5;
         for (int i{0}; i < 5; i++) {
-            varargin_1_data[i] = b_cv[i];
+            varargin_1_data[i] = cv[i];
         }
         break;
     case CurveType_TransP5:
@@ -103,7 +103,7 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
         // 'PrintCurvStruct:68' str = 'TransP5';
         varargin_1_size_idx_1 = 7;
         for (int i1{0}; i1 < 7; i1++) {
-            varargin_1_data[i1] = b_cv1[i1];
+            varargin_1_data[i1] = cv1[i1];
         }
         break;
     case CurveType_Spline:
@@ -196,7 +196,7 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
     for (int i5{0}; i5 < b_loop_ub; i5++) {
         t4_cfg_indRot[i5] = ctx->cfg.indRot.data[i5];
     }
-    k_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
+    l_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                      ctx->cfg.maskCart.data, ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
                      ctx->cfg.maskRot.size, t4_cfg_indCart, t4_cfg_indRot, ctx->cfg.NumberAxis,
                      ctx->cfg.NCart, ctx->cfg.NRot, S, P0);
@@ -211,7 +211,7 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
     for (int i8{0}; i8 < d_loop_ub; i8++) {
         t5_cfg_indRot[i8] = ctx->cfg.indRot.data[i8];
     }
-    l_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
+    m_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                      ctx->cfg.maskCart.data, ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
                      ctx->cfg.maskRot.size, t5_cfg_indCart, t5_cfg_indRot, ctx->cfg.NumberAxis,
                      ctx->cfg.NCart, ctx->cfg.NRot, S, P1);
@@ -226,19 +226,19 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
     if ((S->Info.Type == CurveType_Helix) || (S->Info.Type == CurveType_Line)) {
         int e_loop_ub;
         // 'LengthCurv:4' [~, r1D, ~, ~] = EvalCurvStruct( ctx, curv, u0 );
-        m_EvalCurvStruct(&ctx->cfg, S, a__1, r1D, a__2, a__3);
+        n_EvalCurvStruct(&ctx->cfg, S, a__1, r1D, a__2, a__3);
         // 'LengthCurv:5' L = MyNorm( r1D ) * ( u1 - u0 );
         // 'MyNorm:2' coder.inline('always');
         // 'MyNorm:3' n = mysqrt(sum(x.^2));
         // 'mysqrt:3' y = sqrt(x);
         r.set_size(r1D.size(0));
         e_loop_ub = r1D.size(0);
-        for (int i10{0}; i10 < e_loop_ub; i10++) {
-            double varargin_1;
-            varargin_1 = r1D[i10];
-            r[i10] = std::pow(varargin_1, 2.0);
+        for (int i9{0}; i9 < e_loop_ub; i9++) {
+            double b_varargin_1;
+            b_varargin_1 = r1D[i9];
+            r[i9] = std::pow(b_varargin_1, 2.0);
         }
-        validatedHoleFilling_f2 = std::sqrt(coder::sum(r));
+        varargin_1 = std::sqrt(coder::sum(r));
         // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
         sqrt_calls++;
     } else if (S->Info.Type == CurveType_Spline) {
@@ -250,30 +250,19 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
         // 'LengthCurv:11' spline   = ctx.q_spline.get( curv.sp_index );
         ctx->q_spline.get(S->sp_index, &expl_temp);
         // 'LengthCurv:12' [ L ]    = splineLength( ctx.cfg, spline, u0_tilda, u1_tilda );
-        validatedHoleFilling_f2 =
+        varargin_1 =
             splineLength(ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW, expl_temp.sp.Bl.handle,
                          expl_temp.sp.Bl.order, expl_temp.sp.coeff, expl_temp.sp.knots,
                          expl_temp.sp.Lk, S->b_param, S->a_param + S->b_param);
     } else if (S->Info.Type == CurveType_TransP5) {
         // 'LengthCurv:13' elseif ( curv.Info.Type == CurveType.TransP5 )
         // 'LengthCurv:14' L = TransP5LengthApprox( curv );
-        validatedHoleFilling_f2 = TransP5LengthApprox(S->CoeffP5);
+        varargin_1 = TransP5LengthApprox(S);
     } else {
-        char message[29];
         // 'LengthCurv:15' else
-        // 'LengthCurv:16' c_assert(false, 'BAD CURVE TYPE IN LENGTH CURV');
-        // 'c_assert:2' if coder.target('rtw')
-        // 'c_assert:3' if ~condition
-        // 'c_assert:4' coder.ceval('c_assert_', message);
-        for (int i9{0}; i9 < 29; i9++) {
-            message[i9] = cv1[i9];
-        }
-        c_assert_(&message[0]);
-        // 'c_assert:6' value = condition;
-        // 'LengthCurv:17' L = 0;
-        validatedHoleFilling_f2 = 0.0;
+        // 'LengthCurv:16' ocn_assert( false, "BAD CURVE TYPE IN LENGTH CURV", mfilename );
     }
-    printf("%10s: %e\n", "Length", validatedHoleFilling_f2);
+    printf("%10s: %e\n", "Length", varargin_1);
     fflush(stdout);
     // 'PrintCurvStruct:34' fprintf( 'ZSpdMode: %s\n', PrintZSpdMode( S.Info.zspdmode ) )
     // 'PrintCurvStruct:47' switch m
@@ -311,8 +300,8 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
         formatSpec.Value.data[1] = 'Z';
         break;
     }
-    for (int i11{0}; i11 < 2; i11++) {
-        b_varargin_1_data[i11] = formatSpec.Value.data[i11];
+    for (int i10{0}; i10 < 2; i10++) {
+        b_varargin_1_data[i10] = formatSpec.Value.data[i10];
     }
     b_varargin_1_data[2] = '\x00';
     printf("ZSpdMode: %s\n", &b_varargin_1_data[0]);
@@ -333,7 +322,7 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
         int f_loop_ub;
         int g_loop_ub;
         int h_loop_ub;
-        int i16;
+        int i15;
         int i_loop_ub;
         bool isEnd;
         // 'PrintCurvStruct:37' isEnd = false;
@@ -346,13 +335,13 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
         // 'PrintCurvStruct:39' [v_0, at_0] = calcZeroConstraints( ctx, S, isEnd );
         t6_cfg_indCart.set_size(ctx->cfg.indCart.size[0]);
         f_loop_ub = ctx->cfg.indCart.size[0];
-        for (int i12{0}; i12 < f_loop_ub; i12++) {
-            t6_cfg_indCart[i12] = ctx->cfg.indCart.data[i12];
+        for (int i11{0}; i11 < f_loop_ub; i11++) {
+            t6_cfg_indCart[i11] = ctx->cfg.indCart.data[i11];
         }
         t6_cfg_indRot.set_size(ctx->cfg.indRot.size[0]);
         g_loop_ub = ctx->cfg.indRot.size[0];
-        for (int i13{0}; i13 < g_loop_ub; i13++) {
-            t6_cfg_indRot[i13] = ctx->cfg.indRot.data[i13];
+        for (int i12{0}; i12 < g_loop_ub; i12++) {
+            t6_cfg_indRot[i12] = ctx->cfg.indRot.data[i12];
         }
         //  calcZeroConstraints : Compute the velocity and acceleration
         //  required for the continuity at zero start.
@@ -420,7 +409,7 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
             // 'constJerkU:41' uddd = uddd;
         }
         // 'calcZeroConstraints:22' [ r0D, r1D, r2D, r3D ]  = EvalCurvStruct( ctx, curv, u );
-        j_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
+        k_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                          ctx->cfg.maskCart.data, ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
                          ctx->cfg.maskRot.size, t6_cfg_indCart, t6_cfg_indRot, ctx->cfg.NumberAxis,
                          ctx->cfg.NCart, ctx->cfg.NRot, S, u, r0D, r1D, r2D, r3D);
@@ -470,10 +459,10 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
         // 'mysqrt:3' y = sqrt(x);
         r.set_size(r1D.size(0));
         h_loop_ub = r1D.size(0);
-        for (int i14{0}; i14 < h_loop_ub; i14++) {
-            double b_varargin_1;
-            b_varargin_1 = r1D[i14];
-            r[i14] = std::pow(b_varargin_1, 2.0);
+        for (int i13{0}; i13 < h_loop_ub; i13++) {
+            double c_varargin_1;
+            c_varargin_1 = r1D[i13];
+            r[i13] = std::pow(c_varargin_1, 2.0);
         }
         n = std::sqrt(coder::sum(r));
         // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
@@ -490,27 +479,27 @@ void PrintCurvStruct(const FeedoptContext *ctx, const CurvStruct *S)
         // 'PrintCurvStruct:41' fprintf( 'v_0      : %f\n', v_0 )
         r.set_size(r1D.size(0));
         i_loop_ub = r1D.size(0);
-        for (int i15{0}; i15 < i_loop_ub; i15++) {
-            double c_varargin_1;
-            c_varargin_1 = r1D[i15] * ud_vec;
-            r[i15] = std::pow(c_varargin_1, 2.0);
+        for (int i14{0}; i14 < i_loop_ub; i14++) {
+            double d_varargin_1;
+            d_varargin_1 = r1D[i14] * ud_vec;
+            r[i14] = std::pow(d_varargin_1, 2.0);
         }
         printf("v_0      : %f\n", std::sqrt(coder::sum(r)));
         fflush(stdout);
         // 'PrintCurvStruct:42' fprintf( 'at_0     : %f\n', at_0 )
         if (r2D.size(0) == 1) {
-            i16 = r1D.size(0);
+            i15 = r1D.size(0);
         } else {
-            i16 = r2D.size(0);
+            i15 = r2D.size(0);
         }
-        if ((r2D.size(0) == r1D.size(0)) && (i16 == r1D.size(0))) {
+        if ((r2D.size(0) == r1D.size(0)) && (i15 == r1D.size(0))) {
             int j_loop_ub;
             r.set_size(r2D.size(0));
             j_loop_ub = r2D.size(0);
-            for (int i17{0}; i17 < j_loop_ub; i17++) {
-                double d_varargin_1;
-                d_varargin_1 = (r2D[i17] * y + r1D[i17] * udd) * (r1D[i17] / n);
-                r[i17] = std::pow(d_varargin_1, 2.0);
+            for (int i16{0}; i16 < j_loop_ub; i16++) {
+                double e_varargin_1;
+                e_varargin_1 = (r2D[i16] * y + r1D[i16] * udd) * (r1D[i16] / n);
+                r[i16] = std::pow(e_varargin_1, 2.0);
             }
         } else {
             binary_expand_op(r, r2D, y, r1D, udd, n);

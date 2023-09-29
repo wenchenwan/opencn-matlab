@@ -5,7 +5,7 @@
 // File: mypolyder.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 27-Sep-2023 11:07:13
+// C/C++ source code generated on  : 29-Sep-2023 09:56:15
 //
 
 #ifndef MYPOLYDER_H
@@ -19,10 +19,19 @@
 
 // Custom Header Code
 #include "functions.h"
+// Type Declarations
+namespace ocn {
+struct CurvStruct;
+
+}
+
 // Function Declarations
 namespace ocn {
 void b_binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
                         const ::coder::array<signed char, 2U> &in3);
+
+void binary_expand_op(::coder::array<double, 2U> &in1, const CurvStruct *in2,
+                      const ::coder::array<signed char, 2U> &in3);
 
 void binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
                       const ::coder::array<signed char, 2U> &in3);

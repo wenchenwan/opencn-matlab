@@ -5,7 +5,7 @@
 // File: string1.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 27-Sep-2023 11:07:13
+// C/C++ source code generated on  : 29-Sep-2023 09:56:15
 //
 
 #ifndef STRING1_H
@@ -24,7 +24,7 @@ namespace ocn {
 namespace coder {
 class rtString {
   public:
-    ::coder::bounded_array<char, 9U, 2U> Value;
+    ::coder::bounded_array<char, 109U, 2U> Value;
 };
 
 } // namespace coder

@@ -5,7 +5,7 @@
 // File: smoothCurvStructs.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 27-Sep-2023 11:07:13
+// C/C++ source code generated on  : 29-Sep-2023 09:56:15
 //
 
 #ifndef SMOOTHCURVSTRUCTS_H

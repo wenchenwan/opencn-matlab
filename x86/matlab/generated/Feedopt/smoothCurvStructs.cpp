@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: smoothCurvStructs.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 27-Sep-2023 11:17:01
 //
 
 // Include Files
@@ -48,7 +48,7 @@ static void create_zero_end(CurvStruct *curv, CurvStruct *nextCurv)
     bool b_zeroFlag;
     bool zeroFlag;
     // -------------------------------------------------------------------------%
-    // 'smoothCurvStructs:74' if( isAZeroStart( curv ) )
+    // 'smoothCurvStructs:76' if( isAZeroStart( curv ) )
     //  isAZeroStart : Return true if the curv starts with zero speed
     //  Input :
     //  curv / Info / ZSpdMode : A structure containning the information of the
@@ -69,14 +69,14 @@ static void create_zero_end(CurvStruct *curv, CurvStruct *nextCurv)
         zeroFlag = true;
     }
     if (zeroFlag) {
-        // 'smoothCurvStructs:75' curv.Info.zspdmode = ZSpdMode.ZZ;
+        // 'smoothCurvStructs:77' curv.Info.zspdmode = ZSpdMode.ZZ;
         curv->Info.zspdmode = ZSpdMode_ZZ;
     } else {
-        // 'smoothCurvStructs:76' else
-        // 'smoothCurvStructs:77' curv.Info.zspdmode = ZSpdMode.NZ;
+        // 'smoothCurvStructs:78' else
+        // 'smoothCurvStructs:79' curv.Info.zspdmode = ZSpdMode.NZ;
         curv->Info.zspdmode = ZSpdMode_NZ;
     }
-    // 'smoothCurvStructs:80' if( isAZeroEnd( nextCurv ) )
+    // 'smoothCurvStructs:82' if( isAZeroEnd( nextCurv ) )
     //  isAZeroEnd : Return true if the curv ends with zero speed
     //  Input :
     //  curv / Info / ZSpdMode : A structure containning the information of the
@@ -97,11 +97,11 @@ static void create_zero_end(CurvStruct *curv, CurvStruct *nextCurv)
         b_zeroFlag = true;
     }
     if (b_zeroFlag) {
-        // 'smoothCurvStructs:81' nextCurv.Info.zspdmode = ZSpdMode.ZZ;
+        // 'smoothCurvStructs:83' nextCurv.Info.zspdmode = ZSpdMode.ZZ;
         nextCurv->Info.zspdmode = ZSpdMode_ZZ;
     } else {
-        // 'smoothCurvStructs:82' else
-        // 'smoothCurvStructs:83' nextCurv.Info.zspdmode = ZSpdMode.ZN;
+        // 'smoothCurvStructs:84' else
+        // 'smoothCurvStructs:85' nextCurv.Info.zspdmode = ZSpdMode.ZN;
         nextCurv->Info.zspdmode = ZSpdMode_ZN;
     }
 }
@@ -172,7 +172,7 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
             fflush(stdout);
         }
         // 'smoothCurvStructs:12' curv = ctx.q_compress.get( 1 );
-        ctx->q_compress.get(static_cast<double>(1.0), &curv);
+        ctx->q_compress.get(&curv);
         // 'smoothCurvStructs:13' for k = 2 : Ncrv
         for (unsigned int k{2U}; k <= Ncrv; k++) {
             bool needStop;
@@ -180,20 +180,21 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
             bool zeroFlag;
             // 'smoothCurvStructs:14' ctx.k0 = ctx.k0 + 1;
             ctx->k0++;
-            // 'smoothCurvStructs:15' nextCurv = ctx.q_compress.get( k );
+            // 'smoothCurvStructs:15' if(coder.target("MATLAB"))
+            // 'smoothCurvStructs:17' nextCurv = ctx.q_compress.get( k );
             ctx->q_compress.get(k, &nextCurv);
-            // 'smoothCurvStructs:17' [ needStop, needTransition ] = check_stop_and_transition( ctx,
-            // ... 'smoothCurvStructs:18'             curv, nextCurv,
-            // ctx.cfg.Smoothing.ColTolSmooth, ... 'smoothCurvStructs:19'
+            // 'smoothCurvStructs:19' [ needStop, needTransition ] = check_stop_and_transition( ctx,
+            // ... 'smoothCurvStructs:20'             curv, nextCurv,
+            // ctx.cfg.Smoothing.ColTolSmooth, ... 'smoothCurvStructs:21'
             // ctx.cfg.Smoothing.ColTolCosSmooth );
             // -------------------------------------------------------------------------%
             //  Functions
             // -------------------------------------------------------------------------%
-            // 'smoothCurvStructs:59' needStop        = false;
+            // 'smoothCurvStructs:61' needStop        = false;
             needStop = false;
-            // 'smoothCurvStructs:60' needTransition  = false;
+            // 'smoothCurvStructs:62' needTransition  = false;
             needTransition = false;
-            // 'smoothCurvStructs:62' if( isAZeroEnd( curv ) )
+            // 'smoothCurvStructs:64' if( isAZeroEnd( curv ) )
             //  isAZeroEnd : Return true if the curv ends with zero speed
             //  Input :
             //  curv / Info / ZSpdMode : A structure containning the information of the
@@ -214,10 +215,10 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                 zeroFlag = true;
             }
             if (zeroFlag) {
-                // 'smoothCurvStructs:62' needStop = true;
+                // 'smoothCurvStructs:64' needStop = true;
                 needStop = true;
 
-                // 'smoothCurvStructs:64' if( nextCurv.b_param > 0 )
+                // 'smoothCurvStructs:66' if( nextCurv.b_param > 0 )
             } else if (nextCurv.b_param <= 0.0) {
                 int b_loop_ub;
                 int c_k;
@@ -226,26 +227,26 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                 bool isG1;
                 bool isSmooth;
                 bool y;
-                // 'smoothCurvStructs:66' [ isSmooth ] = check_smoothness( ctx, curv, nextCurv, tol,
+                // 'smoothCurvStructs:68' [ isSmooth ] = check_smoothness( ctx, curv, nextCurv, tol,
                 // tol_cos );
                 // -------------------------------------------------------------------------%
-                // 'smoothCurvStructs:89' [ r11, r1d1, r1dd1 ] = EvalCurvStruct( ctx, curv0, 1 );
+                // 'smoothCurvStructs:91' [ r11, r1d1, r1dd1 ] = EvalCurvStruct( ctx, curv0, 1 );
                 f_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                                  ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
                                  ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
                                  ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart,
                                  ctx->cfg.NRot, &curv, r11, r1d1, r1dd1);
-                // 'smoothCurvStructs:90' [ r21, r2d1, r2dd1 ] = EvalCurvStruct( ctx, curv1, 0 );
+                // 'smoothCurvStructs:92' [ r21, r2d1, r2dd1 ] = EvalCurvStruct( ctx, curv1, 0 );
                 g_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                                  ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
                                  ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
                                  ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart,
                                  ctx->cfg.NRot, &nextCurv, r21, r2d1, r2dd1);
-                // 'smoothCurvStructs:92' [t1, ~,  kappa1] = calc_t_nk_kappa( r1d1, r1dd1 );
+                // 'smoothCurvStructs:94' [t1, ~,  kappa1] = calc_t_nk_kappa( r1d1, r1dd1 );
                 calc_t_nk_kappa(r1d1, r1dd1, t1, a__1, &kappa1);
-                // 'smoothCurvStructs:93' [t2, ~,  kappa2] = calc_t_nk_kappa( r2d1, r2dd1 );
+                // 'smoothCurvStructs:95' [t2, ~,  kappa2] = calc_t_nk_kappa( r2d1, r2dd1 );
                 calc_t_nk_kappa(r2d1, r2dd1, t2, a__2, &kappa2);
-                // 'smoothCurvStructs:95' isC0   = all( abs( r11 - r21 ) < tol, 'all' );
+                // 'smoothCurvStructs:97' isC0   = all( abs( r11 - r21 ) < tol, 'all' );
                 loop_ub = r11.size(0);
                 if (r11.size(0) == r21.size(0)) {
                     int scalarLB;
@@ -274,7 +275,7 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                         z1[b_k] = std::abs(x[b_k]);
                     }
                 }
-                // 'smoothCurvStructs:96' isG1   = collinear( t1, t2, tol_cos );
+                // 'smoothCurvStructs:98' isG1   = collinear( t1, t2, tol_cos );
                 // 'collinear:2' if (norm(u) < eps || norm(v) < eps)
                 if ((coder::b_norm(t1) < 2.2204460492503131E-16) ||
                     (coder::b_norm(t2) < 2.2204460492503131E-16)) {
@@ -321,8 +322,8 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                     isG1 = (c / (std::sqrt(coder::sum(r2)) * std::sqrt(coder::sum(r3))) >=
                             ctx->cfg.Smoothing.ColTolCosSmooth);
                 }
-                // 'smoothCurvStructs:97' isG2   = all( abs( kappa1 -kappa2 ) < tol, 'all' );
-                // 'smoothCurvStructs:99' isSmooth = ( isC0 && isG1 && isG2 );
+                // 'smoothCurvStructs:99' isG2   = all( abs( kappa1 -kappa2 ) < tol, 'all' );
+                // 'smoothCurvStructs:101' isSmooth = ( isC0 && isG1 && isG2 );
                 b_x.set_size(z1.size(0));
                 b_loop_ub = z1.size(0);
                 for (int i2{0}; i2 < b_loop_ub; i2++) {
@@ -344,47 +345,47 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                 } else {
                     isSmooth = false;
                 }
-                // 'smoothCurvStructs:68' if( ~isSmooth )
+                // 'smoothCurvStructs:70' if( ~isSmooth )
                 if (!isSmooth) {
-                    // 'smoothCurvStructs:68' needTransition = true;
+                    // 'smoothCurvStructs:70' needTransition = true;
                     needTransition = true;
                 }
             }
-            // 'smoothCurvStructs:21' if( needStop )
+            // 'smoothCurvStructs:23' if( needStop )
             if (needStop) {
                 //  Add a zero stop
-                // 'smoothCurvStructs:23' [ ctx, curv ] = add_zero_stop( ctx, curv, nextCurv );
+                // 'smoothCurvStructs:25' [ ctx, curv ] = add_zero_stop( ctx, curv, nextCurv );
                 // -------------------------------------------------------------------------%
                 //
-                // 'smoothCurvStructs:105' ctx.programmed_stop = ctx.programmed_stop + 1;
+                // 'smoothCurvStructs:107' ctx.programmed_stop = ctx.programmed_stop + 1;
                 ctx->programmed_stop++;
-                // 'smoothCurvStructs:106' ctx.q_smooth.push( curv );
+                // 'smoothCurvStructs:108' ctx.q_smooth.push( curv );
                 ctx->q_smooth.push(&curv);
-                // 'smoothCurvStructs:107' curv = nextCurv;
+                // 'smoothCurvStructs:109' curv = nextCurv;
                 curv = nextCurv;
             } else if (needTransition) {
-                // 'smoothCurvStructs:24' elseif( needTransition  )
-                // 'smoothCurvStructs:25' if( ctx.cfg.Smoothing.Skip  )
+                // 'smoothCurvStructs:26' elseif( needTransition  )
+                // 'smoothCurvStructs:27' if( ctx.cfg.Smoothing.Skip  )
                 if (ctx->cfg.Smoothing.Skip) {
                     //  Force a zero stop
-                    // 'smoothCurvStructs:27' [ curv, nextCurv ] = create_zero_end( curv, nextCurv
+                    // 'smoothCurvStructs:29' [ curv, nextCurv ] = create_zero_end( curv, nextCurv
                     // );
                     b_curv = curv;
                     curv = nextCurv;
                     create_zero_end(&b_curv, &curv);
-                    // 'smoothCurvStructs:28' [ ctx, curv ] = add_zero_stop( ctx, curv, nextCurv );
+                    // 'smoothCurvStructs:30' [ ctx, curv ] = add_zero_stop( ctx, curv, nextCurv );
                     // -------------------------------------------------------------------------%
                     //
-                    // 'smoothCurvStructs:105' ctx.programmed_stop = ctx.programmed_stop + 1;
+                    // 'smoothCurvStructs:107' ctx.programmed_stop = ctx.programmed_stop + 1;
                     ctx->programmed_stop++;
-                    // 'smoothCurvStructs:106' ctx.q_smooth.push( curv );
+                    // 'smoothCurvStructs:108' ctx.q_smooth.push( curv );
                     ctx->q_smooth.push(&b_curv);
-                    // 'smoothCurvStructs:107' curv = nextCurv;
+                    // 'smoothCurvStructs:109' curv = nextCurv;
                 } else {
-                    // 'smoothCurvStructs:29' else
+                    // 'smoothCurvStructs:31' else
                     //  Do the transition
-                    // 'smoothCurvStructs:31' [ status, curv1C, curv2C, curvT ] = ...
-                    // 'smoothCurvStructs:32'                 calcTransition( ctx, curv, nextCurv );
+                    // 'smoothCurvStructs:33' [ status, curv1C, curv2C, curvT ] = ...
+                    // 'smoothCurvStructs:34'                 calcTransition( ctx, curv, nextCurv );
                     calcTransition(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                                    ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
                                    ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
@@ -394,43 +395,43 @@ void smoothCurvStructs(b_FeedoptContext *ctx)
                                    ctx->cfg.Smoothing.ColTolSmooth, ctx->cfg.GaussLegendreX,
                                    ctx->cfg.GaussLegendreW, &curv, &nextCurv, &status, &curv1C,
                                    &curv2C, &curvT);
-                    // 'smoothCurvStructs:33' if( status == TransitionResult.Ok )
+                    // 'smoothCurvStructs:35' if( status == TransitionResult.Ok )
                     if (status == TransitionResult_Ok) {
-                        // 'smoothCurvStructs:34' ctx.q_smooth.push( curv1C );
+                        // 'smoothCurvStructs:36' ctx.q_smooth.push( curv1C );
                         ctx->q_smooth.push(&curv1C);
-                        // 'smoothCurvStructs:35' ctx.q_smooth.push( curvT );
+                        // 'smoothCurvStructs:37' ctx.q_smooth.push( curvT );
                         ctx->q_smooth.push(&curvT);
-                        // 'smoothCurvStructs:36' curv = curv2C;
+                        // 'smoothCurvStructs:38' curv = curv2C;
                         curv = curv2C;
                     } else {
-                        // 'smoothCurvStructs:37' else
+                        // 'smoothCurvStructs:39' else
                         //  Force a zero stop
-                        // 'smoothCurvStructs:39' [ curv, nextCurv ] = create_zero_end( curv,
+                        // 'smoothCurvStructs:41' [ curv, nextCurv ] = create_zero_end( curv,
                         // nextCurv );
                         b_curv = curv;
                         curv = nextCurv;
                         create_zero_end(&b_curv, &curv);
-                        // 'smoothCurvStructs:40' [ ctx, curv ] = add_zero_stop( ctx, curv, nextCurv
+                        // 'smoothCurvStructs:42' [ ctx, curv ] = add_zero_stop( ctx, curv, nextCurv
                         // );
                         // -------------------------------------------------------------------------%
                         //
-                        // 'smoothCurvStructs:105' ctx.programmed_stop = ctx.programmed_stop + 1;
+                        // 'smoothCurvStructs:107' ctx.programmed_stop = ctx.programmed_stop + 1;
                         ctx->programmed_stop++;
-                        // 'smoothCurvStructs:106' ctx.q_smooth.push( curv );
+                        // 'smoothCurvStructs:108' ctx.q_smooth.push( curv );
                         ctx->q_smooth.push(&b_curv);
-                        // 'smoothCurvStructs:107' curv = nextCurv;
+                        // 'smoothCurvStructs:109' curv = nextCurv;
                     }
                 }
             } else {
-                // 'smoothCurvStructs:43' else
+                // 'smoothCurvStructs:45' else
                 //  Nothing to do with the curve
-                // 'smoothCurvStructs:45' ctx.q_smooth.push( curv );
+                // 'smoothCurvStructs:47' ctx.q_smooth.push( curv );
                 ctx->q_smooth.push(&curv);
-                // 'smoothCurvStructs:46' curv = nextCurv;
+                // 'smoothCurvStructs:48' curv = nextCurv;
                 curv = nextCurv;
             }
         }
-        // 'smoothCurvStructs:50' ctx.q_smooth.push( curv );
+        // 'smoothCurvStructs:52' ctx.q_smooth.push( curv );
         ctx->q_smooth.push(&curv);
     }
 }

@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: checkGeometry.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 27-Sep-2023 11:17:01
 //
 
 // Include Files
@@ -68,7 +68,7 @@ bool checkGeometry(const queue_coder *queue)
         bool curv_Info_TRAFO;
         CurveType curv_Info_Type;
         // 'checkGeometry:13' curv = queue.get( 1 );
-        queue->get(static_cast<double>(1.0), &expl_temp);
+        queue->get(&expl_temp);
         curv_Info_Type = expl_temp.Info.Type;
         curv_Info_TRAFO = expl_temp.Info.TRAFO;
         curv_Info_gcode_source_line = expl_temp.Info.gcode_source_line;

@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: resampleCurv.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 27-Sep-2023 11:07:13
 //
 
 // Include Files
@@ -221,36 +221,35 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
             q = state->u;
             //  void c_bspline_eval(uint64_t *handle, const double *c, double x, double X[3]);
             // 'bspline_eval:3' X = zeros(1, 4);
-            // 'bspline_eval:4' if( ~isreal(x) )
-            // 'bspline_eval:8' if coder.target('matlab')
-            // 'bspline_eval:15' if coder.target('rtw') || coder.target('mex')
-            // 'bspline_eval:16' if x < 0
+            // 'bspline_eval:6' ocn_assert( isreal(x), "x should be real", mfilename );
+            // 'bspline_eval:8' if coder.target('rtw') || coder.target('mex')
+            // 'bspline_eval:9' if x < 0
             if (state->u < 0.0) {
-                // 'bspline_eval:17' fprintf('ERROR: C_BSPLINE_EVAL: X < 0 (%f)\n', x);
+                // 'bspline_eval:10' fprintf('ERROR: C_BSPLINE_EVAL: X < 0 (%f)\n', x);
                 printf("ERROR: C_BSPLINE_EVAL: X < 0 (%f)\n", state->u);
                 fflush(stdout);
-                // 'bspline_eval:18' x = 0;
+                // 'bspline_eval:11' x = 0;
                 q = 0.0;
             } else if (state->u > 1.0) {
-                // 'bspline_eval:19' elseif x > 1
-                // 'bspline_eval:20' fprintf('ERROR: C_BSPLINE_EVAL: X > 1 (%f)\n', x);
+                // 'bspline_eval:12' elseif x > 1
+                // 'bspline_eval:13' fprintf('ERROR: C_BSPLINE_EVAL: X > 1 (%f)\n', x);
                 printf("ERROR: C_BSPLINE_EVAL: X > 1 (%f)\n", state->u);
                 fflush(stdout);
-                // 'bspline_eval:21' x = 1;
+                // 'bspline_eval:14' x = 1;
                 q = 1.0;
             }
-            // 'bspline_eval:23' my_path = StructTypeName.WDIR + "/src";
-            // 'bspline_eval:24' coder.updateBuildInfo('addIncludePaths',my_path);
-            // 'bspline_eval:25' coder.updateBuildInfo('addSourceFiles','c_spline.c', my_path);
-            // 'bspline_eval:26' coder.updateBuildInfo('addLinkFlags', LibInfo.gsl.lflags);
-            // 'bspline_eval:27' coder.cinclude('c_spline.h');
-            // 'bspline_eval:29' coder.ceval('c_bspline_eval', coder.rref(Bl.handle),
-            // coder.rref(coeffs),... 'bspline_eval:30'                     x, coder.wref(X));
+            // 'bspline_eval:16' my_path = StructTypeName.WDIR + "/src";
+            // 'bspline_eval:17' coder.updateBuildInfo('addIncludePaths',my_path);
+            // 'bspline_eval:18' coder.updateBuildInfo('addSourceFiles','c_spline.c', my_path);
+            // 'bspline_eval:19' coder.updateBuildInfo('addLinkFlags', LibInfo.gsl.lflags);
+            // 'bspline_eval:20' coder.cinclude('c_spline.h');
+            // 'bspline_eval:22' coder.ceval('c_bspline_eval', coder.rref(Bl.handle),
+            // coder.rref(coeffs),... 'bspline_eval:23'                     x, coder.wref(X));
             c_bspline_eval(&Bl_handle, &coeffs[0], q, &X[0]);
-            // 'bspline_eval:31' x       = X(1);
-            // 'bspline_eval:32' xd      = X(2);
-            // 'bspline_eval:33' xdd     = X(3);
-            // 'bspline_eval:34' xddd    = X(4);
+            // 'bspline_eval:24' x       = X(1);
+            // 'bspline_eval:25' xd      = X(2);
+            // 'bspline_eval:26' xdd     = X(3);
+            // 'bspline_eval:27' xddd    = X(4);
             // 'resampleCurv:111' [ ud, udd, uddd ] = calcUfromQ( q, qd, qdd );
             //  calcQfromU : Compute q( u ) based on u and its derivatives.
             //  Inputs :
@@ -287,8 +286,9 @@ void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode c
         // 'ResampleStateClass:7' double
         // 'ResampleStateClass:7' dt
         // 'resampleCurv:48' u = check_u_state_validity( u, state );
-        // 'resampleCurv:141' assert( u > 0, "U parameter should not be negative during resampling"
-        // ); 'resampleCurv:143' u  = state.u + check_minimum_precision( u - state.u );
+        // 'resampleCurv:141' ocn_assert( u > 0, "U parameter should not be negative during
+        // resampling", mfilename); 'resampleCurv:142' u  = state.u + check_minimum_precision( u -
+        // state.u );
         d = u - state->u;
         //  check_minimum_precision : Avoid effect numerical problem
         // 'resampleCurv:127' if( isempty( dMin ) )

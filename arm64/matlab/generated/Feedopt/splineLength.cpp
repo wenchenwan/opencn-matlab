@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: splineLength.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 27-Sep-2023 11:07:13
 //
 
 // Include Files
@@ -39,17 +39,6 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
                     const ::coder::array<double, 2U> &spline_sp_knots,
                     const ::coder::array<double, 2U> &spline_sp_Lk, double u1, double u2)
 {
-    static const char d_message[54]{
-        'u', '1', ' ', 'm', 'u', 's', 't', ' ', 'b', 'e', ' ', 'g', 'r', 'e', 'a', 't', 'e', 'r',
-        ' ', 'o', 'r', ' ', 'e', 'q', 'u', 'a', 'l', ' ', 't', 'h', 'a', 'n', ' ', 't', 'h', 'e',
-        ' ', 'f', 'i', 'r', 's', 't', ' ', 's', 'p', 'l', 'i', 'n', 'e', ' ', 'k', 'n', 'o', 't'};
-    static const char f_message[53]{
-        'u', '2', ' ', 'm', 'u', 's', 't', ' ', 'b', 'e', ' ', 's', 'm', 'a', 'l', 'l', 'e', 'r',
-        ' ', 'o', 'r', ' ', 'e', 'q', 'u', 'a', 'l', ' ', 't', 'h', 'a', 'n', ' ', 't', 'h', 'e',
-        ' ', 'l', 'a', 's', 't', ' ', 's', 'p', 'l', 'i', 'n', 'e', ' ', 'k', 'n', 'o', 't'};
-    static const char b_message[26]{'u', '2', ' ', 'm', 'u', 's', 't', ' ', 'b',
-                                    'e', ' ', 'g', 'r', 'e', 'a', 't', 'e', 'r',
-                                    ' ', 't', 'h', 'a', 'n', ' ', 'u', '1'};
     ::coder::array<double, 2U> a__1;
     ::coder::array<double, 2U> b_spline_sp_Lk;
     ::coder::array<double, 2U> r;
@@ -65,9 +54,9 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
     int c_loop_ub;
     int i;
     int i1;
-    int i10;
     int i2;
-    int i9;
+    int i6;
+    int i7;
     int kEndVec_data;
     int kStartVec_data;
     int loop_ub;
@@ -85,55 +74,25 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
         i2 = i;
     }
     // 'splineLength:7' Lk     = sp.Lk;
-    // 'splineLength:9' c_assert(u2 > u1,          'u2 must be greater than u1');
-    // 'c_assert:2' if coder.target('rtw')
-    // 'c_assert:3' if ~condition
-    if (u2 <= u1) {
-        char message[26];
-        // 'c_assert:4' coder.ceval('c_assert_', message);
-        for (int i3{0}; i3 < 26; i3++) {
-            message[i3] = b_message[i3];
-        }
-        c_assert_(&message[0]);
-    }
-    // 'c_assert:6' value = condition;
-    // 'splineLength:10' c_assert(u1 >= Knots(1),   'u1 must be greater or equal than the first
-    // spline knot'); 'c_assert:2' if coder.target('rtw') 'c_assert:3' if ~condition
-    if (u1 < spline_sp_knots[i1 + 1]) {
-        char c_message[54];
-        // 'c_assert:4' coder.ceval('c_assert_', message);
-        for (int i4{0}; i4 < 54; i4++) {
-            c_message[i4] = d_message[i4];
-        }
-        c_assert_(&c_message[0]);
-    }
-    // 'c_assert:6' value = condition;
-    // 'splineLength:11' c_assert(u2 <= Knots(end), 'u2 must be smaller or equal than the last
-    // spline knot'); 'c_assert:2' if coder.target('rtw') 'c_assert:3' if ~condition
-    if (u2 > spline_sp_knots[i2]) {
-        char e_message[53];
-        // 'c_assert:4' coder.ceval('c_assert_', message);
-        for (int i5{0}; i5 < 53; i5++) {
-            e_message[i5] = f_message[i5];
-        }
-        c_assert_(&e_message[0]);
-    }
-    // 'c_assert:6' value = condition;
-    // 'splineLength:13' kStartVec  = find( Knots <= u1, 1, "last" );
+    // 'splineLength:9' ocn_assert( u2 > u1,          'u2 must be greater than u1', mfilename);
+    // 'splineLength:10' ocn_assert( u1 >= Knots(1),   'u1 must be greater or equal than the first
+    // spline knot', mfilename); 'splineLength:11' ocn_assert( u2 <= Knots(end), 'u2 must be smaller
+    // or equal than the last spline knot', mfilename); 'splineLength:13' kStartVec  = find( Knots
+    // <= u1, 1, "last" );
     loop_ub = i2 - i1;
     b_spline_sp_knots.set_size(1, loop_ub);
-    for (int i6{0}; i6 < loop_ub; i6++) {
-        b_spline_sp_knots[i6] = (spline_sp_knots[(i1 + i6) + 1] <= u1);
+    for (int i3{0}; i3 < loop_ub; i3++) {
+        b_spline_sp_knots[i3] = (spline_sp_knots[(i1 + i3) + 1] <= u1);
     }
     coder::eml_find(b_spline_sp_knots, (int *)&kEndVec_data, kEndVec_size);
     b_loop_ub = kEndVec_size[1];
-    for (int i7{0}; i7 < b_loop_ub; i7++) {
+    for (int i4{0}; i4 < b_loop_ub; i4++) {
         kStartVec_data = kEndVec_data;
     }
     // 'splineLength:14' kEndVec    = find( Knots >= u2, 1, "first" );
     b_spline_sp_knots.set_size(1, loop_ub);
-    for (int i8{0}; i8 < loop_ub; i8++) {
-        b_spline_sp_knots[i8] = (spline_sp_knots[(i1 + i8) + 1] >= u2);
+    for (int i5{0}; i5 < loop_ub; i5++) {
+        b_spline_sp_knots[i5] = (spline_sp_knots[(i1 + i5) + 1] >= u2);
     }
     coder::b_eml_find(b_spline_sp_knots, (int *)&kEndVec_data, kEndVec_size);
     // 'splineLength:15' kStart     = kStartVec( 1 );
@@ -159,10 +118,10 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
         // ).';
         //
         // 'splineLengthApprox_Interval:20' [ ~, r1D ]  = EvalBSpline( spline, uvec );
-        for (int i11{0}; i11 < 5; i11++) {
+        for (int i8{0}; i8 < 5; i8++) {
             double d;
-            d = cfg_GaussLegendreX[i11];
-            e_spline_sp_knots[i11] = (c_spline_sp_knots * (1.0 - d) + u1 * (d + 1.0)) / 2.0;
+            d = cfg_GaussLegendreX[i8];
+            e_spline_sp_knots[i8] = (c_spline_sp_knots * (1.0 - d) + u1 * (d + 1.0)) / 2.0;
         }
         EvalBSpline(spline_sp_Bl_handle, spline_sp_coeff, e_spline_sp_knots, a__1, r1D);
         // 'splineLengthApprox_Interval:21' r1Dnorm     = MyNorm( r1D );
@@ -170,11 +129,11 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
         // 'MyNorm:3' n = mysqrt(sum(x.^2));
         r.set_size(r1D.size(0), 5);
         d_loop_ub = r1D.size(0);
-        for (int i14{0}; i14 < 5; i14++) {
-            for (int i15{0}; i15 < d_loop_ub; i15++) {
+        for (int i11{0}; i11 < 5; i11++) {
+            for (int i12{0}; i12 < d_loop_ub; i12++) {
                 double varargin_1;
-                varargin_1 = r1D[i15 + r1D.size(0) * i14];
-                r[i15 + r.size(0) * i14] = std::pow(varargin_1, 2.0);
+                varargin_1 = r1D[i12 + r1D.size(0) * i11];
+                r[i12 + r.size(0) * i11] = std::pow(varargin_1, 2.0);
             }
         }
         coder::sum(r, r1Dnorm);
@@ -219,10 +178,10 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
         // ).';
         //
         // 'splineLengthApprox_Interval:20' [ ~, r1D ]  = EvalBSpline( spline, uvec );
-        for (int i13{0}; i13 < 5; i13++) {
+        for (int i10{0}; i10 < 5; i10++) {
             double d1;
-            d1 = cfg_GaussLegendreX[i13];
-            b_u2[i13] = (u2 * (1.0 - d1) + d_spline_sp_knots * (d1 + 1.0)) / 2.0;
+            d1 = cfg_GaussLegendreX[i10];
+            b_u2[i10] = (u2 * (1.0 - d1) + d_spline_sp_knots * (d1 + 1.0)) / 2.0;
         }
         EvalBSpline(spline_sp_Bl_handle, spline_sp_coeff, b_u2, a__1, r1D);
         // 'splineLengthApprox_Interval:21' r1Dnorm     = MyNorm( r1D );
@@ -230,11 +189,11 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
         // 'MyNorm:3' n = mysqrt(sum(x.^2));
         r.set_size(r1D.size(0), 5);
         e_loop_ub = r1D.size(0);
-        for (int i16{0}; i16 < 5; i16++) {
-            for (int i17{0}; i17 < e_loop_ub; i17++) {
+        for (int i13{0}; i13 < 5; i13++) {
+            for (int i14{0}; i14 < e_loop_ub; i14++) {
                 double b_varargin_1;
-                b_varargin_1 = r1D[i17 + r1D.size(0) * i16];
-                r[i17 + r.size(0) * i16] = std::pow(b_varargin_1, 2.0);
+                b_varargin_1 = r1D[i14 + r1D.size(0) * i13];
+                r[i14 + r.size(0) * i13] = std::pow(b_varargin_1, 2.0);
             }
         }
         coder::sum(r, r1Dnorm);
@@ -260,16 +219,16 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
     }
     // 'splineLength:31' L = sum( Lk( kStart : ( kEnd -1 ) ) ) - LStart - LEnd;
     if (kStartVec_data > static_cast<double>(kEndVec_data) - 1.0) {
-        i9 = 0;
-        i10 = 0;
+        i6 = 0;
+        i7 = 0;
     } else {
-        i9 = kStartVec_data - 1;
-        i10 = kEndVec_data - 1;
+        i6 = kStartVec_data - 1;
+        i7 = kEndVec_data - 1;
     }
-    c_loop_ub = i10 - i9;
+    c_loop_ub = i7 - i6;
     b_spline_sp_Lk.set_size(1, c_loop_ub);
-    for (int i12{0}; i12 < c_loop_ub; i12++) {
-        b_spline_sp_Lk[i12] = spline_sp_Lk[i9 + i12];
+    for (int i9{0}; i9 < c_loop_ub; i9++) {
+        b_spline_sp_Lk[i9] = spline_sp_Lk[i6 + i9];
     }
     return (coder::sum(b_spline_sp_Lk) - LStart) - LEnd;
 }

@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,24 +6,21 @@
 // File: queue_coder.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 27-Sep-2023 11:17:01
 //
 
 // Include Files
 #include "queue_coder.h"
 #include "opencn_matlab_types1.h"
-#include <cmath>
 
 // Function Definitions
 //
 // function value = get(this, index)
 //
-// Arguments    : double b_index
-//                CurvStruct *value
+// Arguments    : CurvStruct *value
 // Return Type  : void
 //
 namespace ocn {
-void queue_coder::get(double b_index, CurvStruct *value) const
+void queue_coder::get(CurvStruct *value) const
 {
     // 'queue_coder:20' coder.inline("never");
     // 'queue_coder:21' value = queue_get(this.ptr, this.value_type, index);
@@ -31,7 +29,7 @@ void queue_coder::get(double b_index, CurvStruct *value) const
     // 'queue_get:4' else
     // 'queue_get:5' value = value_type;
     // 'queue_get:6' coder.ceval('c_queue_get', uint64(ptr), uint32(index), coder.ref(value));
-    c_queue_get(ptr, static_cast<unsigned int>(std::round(b_index)), value);
+    c_queue_get(ptr, 1U, value);
 }
 
 //

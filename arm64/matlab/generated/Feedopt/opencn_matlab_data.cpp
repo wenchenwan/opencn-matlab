@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: opencn_matlab_data.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 27-Sep-2023 11:07:13
 //
 
 // Include Files
@@ -20,9 +20,6 @@ double cos_calls;
 double sin_calls;
 
 double DebugConfig;
-
-const char cv1[29]{'B', 'A', 'D', ' ', 'C', 'U', 'R', 'V', 'E', ' ', 'T', 'Y', 'P', 'E', ' ',
-                   'I', 'N', ' ', 'L', 'E', 'N', 'G', 'T', 'H', ' ', 'C', 'U', 'R', 'V'};
 
 bool isInitialized_opencn_matlab{false};
 

@@ -5,7 +5,7 @@
 // File: EvalTransP5.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 27-Sep-2023 11:07:13
+// C/C++ source code generated on  : 29-Sep-2023 09:56:15
 //
 
 #ifndef EVALTRANSP5_H
@@ -21,6 +21,11 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
+void EvalTransP5(const ::coder::array<double, 2U> &CurvStruct_CoeffP5,
+                 const ::coder::array<double, 1U> &u_vec, int nAxis,
+                 ::coder::array<double, 2U> &r_0D, ::coder::array<double, 2U> &r_1D,
+                 ::coder::array<double, 2U> &r_2D, ::coder::array<double, 2U> &r_3D);
+
 void EvalTransP5(const ::coder::array<double, 2U> &CurvStruct_CoeffP5,
                  const ::coder::array<double, 2U> &u_vec, int nAxis,
                  ::coder::array<double, 2U> &r_0D, ::coder::array<double, 2U> &r_1D,

@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: TransP5LengthApprox.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 27-Sep-2023 11:07:13
 //
 
 // Include Files
@@ -13,6 +13,7 @@
 #include "mypolyder.h"
 #include "mypolyval.h"
 #include "opencn_matlab_data.h"
+#include "opencn_matlab_types1.h"
 #include "coder_array.h"
 #include <cmath>
 #include <cstring>
@@ -23,11 +24,11 @@
 //
 // Computes approximately the arc length of a parametric spline
 //
-// Arguments    : const ::coder::array<double, 2U> &CurvStruct_CoeffP5
+// Arguments    : const CurvStruct *b_CurvStruct
 // Return Type  : double
 //
 namespace ocn {
-double TransP5LengthApprox(const ::coder::array<double, 2U> &CurvStruct_CoeffP5)
+double TransP5LengthApprox(const CurvStruct *b_CurvStruct)
 {
     static const double a[9]{
         0.055555555555555552, 0.16666666666666666, 0.27777777777777779, 0.38888888888888884, 0.5,
@@ -56,29 +57,29 @@ double TransP5LengthApprox(const ::coder::array<double, 2U> &CurvStruct_CoeffP5)
     // 'mypolyder:6' if nu < 2
     // 'mypolyder:8' else
     // 'mypolyder:9' a = u(:, 1:nu-1) .* repmat(nu-1:-1:1, nD, 1);
-    b.set_size(CurvStruct_CoeffP5.size(0), 5);
-    if (CurvStruct_CoeffP5.size(0) != 0) {
+    b.set_size(b_CurvStruct->CoeffP5.size(0), 5);
+    if (b_CurvStruct->CoeffP5.size(0) != 0) {
         int i;
-        i = CurvStruct_CoeffP5.size(0) - 1;
+        i = b_CurvStruct->CoeffP5.size(0) - 1;
         for (int k{0}; k < 5; k++) {
             for (int t{0}; t <= i; t++) {
                 b[t + b.size(0) * k] = static_cast<signed char>(5 - k);
             }
         }
     }
-    if (CurvStruct_CoeffP5.size(0) == b.size(0)) {
+    if (b_CurvStruct->CoeffP5.size(0) == b.size(0)) {
         int loop_ub;
-        loop_ub = CurvStruct_CoeffP5.size(0);
-        p5_1D.set_size(CurvStruct_CoeffP5.size(0), 5);
+        loop_ub = b_CurvStruct->CoeffP5.size(0);
+        p5_1D.set_size(b_CurvStruct->CoeffP5.size(0), 5);
         for (int i1{0}; i1 < 5; i1++) {
             for (int i2{0}; i2 < loop_ub; i2++) {
                 p5_1D[i2 + p5_1D.size(0) * i1] =
-                    CurvStruct_CoeffP5[i2 + CurvStruct_CoeffP5.size(0) * i1] *
+                    b_CurvStruct->CoeffP5[i2 + b_CurvStruct->CoeffP5.size(0) * i1] *
                     static_cast<double>(b[i2 + b.size(0) * i1]);
             }
         }
     } else {
-        c_binary_expand_op(p5_1D, CurvStruct_CoeffP5, b);
+        binary_expand_op(p5_1D, b_CurvStruct, b);
     }
     //  Derivative
     // 'TransP5LengthApprox:5' u_vec     = linspace(0,1,10);
@@ -157,7 +158,7 @@ double TransP5LengthApprox(const ::coder::array<double, 2U> &CurvStruct_CoeffP5)
                 }
             }
         } else {
-            b_binary_expand_op(y, r, r1);
+            binary_expand_op(y, r, r1);
         }
     }
     y.set_size(y.size(0), 9);

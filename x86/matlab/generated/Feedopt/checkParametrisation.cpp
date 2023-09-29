@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: checkParametrisation.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 27-Sep-2023 11:17:01
 //
 
 // Include Files
@@ -47,7 +47,7 @@ bool checkParametrisation(const queue_coder *queue)
         bool valide;
         CurveType curv_Info_Type;
         // 'checkParametrisation:14' curv = queue.get( 1 );
-        queue->get(static_cast<double>(1.0), &expl_temp);
+        queue->get(&expl_temp);
         curv_Info_Type = expl_temp.Info.Type;
         curv_a_param = expl_temp.a_param;
         curv_b_param = expl_temp.b_param;

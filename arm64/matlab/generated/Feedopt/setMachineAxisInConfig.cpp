@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: setMachineAxisInConfig.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 27-Sep-2023 11:07:13
 //
 
 // Include Files
@@ -175,8 +175,8 @@ static void check_values(b_FeedoptConfig *cfg)
 void b_setMachineAxisInConfig(b_FeedoptConfig *cfg, const bool maskTot_data[])
 {
     // 'setMachineAxisInConfig:11' coder.inline("never");
-    // 'setMachineAxisInConfig:13' assert( numel( maskTot ) == 6, "Error : maskTot should have 6
-    // elements\n" ); 'setMachineAxisInConfig:14' cfg.maskTot = maskTot;
+    // 'setMachineAxisInConfig:12' ocn_assert( numel( maskTot ) == 6, "MaskTot should have 6
+    // elements...", mfilename); 'setMachineAxisInConfig:14' cfg.maskTot = maskTot;
     cfg->maskTot.size[0] = 1;
     cfg->maskTot.size[1] = 6;
     for (int i{0}; i < 6; i++) {
@@ -221,9 +221,9 @@ void setMachineAxisInConfig(FeedoptConfig *cfg, const bool maskTot[6])
         opencn_matlab_initialize();
     }
     // 'setMachineAxisInConfig:11' coder.inline("never");
-    // 'setMachineAxisInConfig:13' assert( numel( maskTot ) == 6, "Error : maskTot should have 6
-    // elements\n" ); 'setMachineAxisInConfig:14' cfg.maskTot = maskTot; 'setMachineAxisInConfig:16'
-    // cfg = check_values( cfg );
+    // 'setMachineAxisInConfig:12' ocn_assert( numel( maskTot ) == 6, "MaskTot should have 6
+    // elements...", mfilename); 'setMachineAxisInConfig:14' cfg.maskTot = maskTot;
+    // 'setMachineAxisInConfig:16' cfg = check_values( cfg );
     r.maskTot.size[0] = 1;
     r.maskTot.size[1] = 6;
     for (int i{0}; i < 6; i++) {

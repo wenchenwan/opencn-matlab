@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: zeroSpeedCurv.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 27-Sep-2023 11:07:13
 //
 
 // Include Files
@@ -183,16 +183,16 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
     ::coder::array<double, 1U> z1;
     ::coder::array<bool, 2U> b_x;
     ::coder::array<bool, 2U> x;
-    double ctx_cfg_jmax_data[6];
     double a_delta;
+    double b_ex;
     double b_fmax;
     double b_jps;
-    double b_k;
+    double d_ex;
+    double d_k;
     double f_delta;
     double j_delta;
     double k_tmp;
     double v_delta;
-    int ctx_cfg_jmax_size[2];
     unsigned int uv[2];
     int b_end;
     int b_iindx;
@@ -206,9 +206,10 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
     int f_loop_ub;
     int g_loop_ub;
     int h_loop_ub;
+    int i_loop_ub;
     int iindx;
-    int j_loop_ub;
     int k_loop_ub;
+    int last;
     int lb_loop_ub;
     int nx;
     int o_loop_ub;
@@ -262,27 +263,69 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
             z1[k] = std::abs(r1D[k]);
         }
     }
-    ctx_cfg_jmax_size[0] = 1;
-    ctx_cfg_jmax_size[1] = trueCount;
-    for (int i2{0}; i2 < trueCount; i2++) {
-        ctx_cfg_jmax_data[i2] = ctx_cfg_jmax[tmp_data[i2] - 1];
+    if (trueCount <= 2) {
+        if (trueCount == 1) {
+            b_ex = ctx_cfg_jmax[tmp_data[0] - 1];
+        } else {
+            double d;
+            double d1;
+            d = ctx_cfg_jmax[tmp_data[0] - 1];
+            d1 = ctx_cfg_jmax[tmp_data[trueCount - 1] - 1];
+            if (d > d1) {
+                b_ex = d1;
+            } else {
+                b_ex = d;
+            }
+        }
+    } else {
+        double ex;
+        ex = ctx_cfg_jmax[tmp_data[0] - 1];
+        for (int b_k{2}; b_k <= trueCount; b_k++) {
+            double d2;
+            d2 = ctx_cfg_jmax[tmp_data[b_k - 1] - 1];
+            if (ex > d2) {
+                ex = d2;
+            }
+        }
+        b_ex = ex;
     }
-    b_jps = coder::internal::minimum(ctx_cfg_jmax_data, ctx_cfg_jmax_size) /
-            coder::internal::maximum(z1);
+    last = z1.size(0);
+    if (z1.size(0) <= 2) {
+        if (z1.size(0) == 1) {
+            d_ex = z1[0];
+        } else if (z1[0] < z1[z1.size(0) - 1]) {
+            d_ex = z1[z1.size(0) - 1];
+        } else {
+            d_ex = z1[0];
+        }
+    } else {
+        double c_ex;
+        c_ex = z1[0];
+        for (int c_k{2}; c_k <= last; c_k++) {
+            double d3;
+            d3 = z1[c_k - 1];
+            if (c_ex < d3) {
+                c_ex = d3;
+            }
+        }
+        d_ex = c_ex;
+    }
+    b_jps = b_ex / d_ex;
     //  searchU   = true;
     // while searchU
     // 'zeroSpeedCurv:31' searchJps = true;
     // 'zeroSpeedCurv:33' ind = 0;
     // 'zeroSpeedCurv:34' while searchJps
     b_fmax = curv->Info.FeedRate * 0.5;
+    uv[0] = 1U;
     searchJps = true;
     while (searchJps) {
         double amax_data[6];
         double jmax_data[6];
         double vmax_data[6];
-        double b_k_tmp;
         double c_jps;
-        double c_k;
+        double e_k;
+        double k_max;
         int b_partialTrueCount;
         int bb_loop_ub;
         int c_end;
@@ -290,10 +333,11 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         int d_end;
         int d_partialTrueCount;
         int eb_loop_ub;
-        int f_k;
+        int h_k;
         int hi;
+        int i29;
         int i30;
-        int i31;
+        int i34;
         int i35;
         int i36;
         int i37;
@@ -302,8 +346,7 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         int i40;
         int i41;
         int i42;
-        int i43;
-        int i_loop_ub;
+        int j_loop_ub;
         int kb_loop_ub;
         int l_loop_ub;
         int m_loop_ub;
@@ -318,32 +361,31 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         // 'zeroSpeedCurv:36' [ k_vec ]         = compute_k( jps, ctx.cfg.dt, 1 );
         //  compute_k : Compute the vector of time steps required by the paramter u to
         //  go from 0 to 1.
-        // 'zeroSpeedCurv:50' k       = ( 6 * uk / jps )^( 1 / 3 ) / dt;
-        b_k_tmp = std::pow(6.0 / b_jps, 0.33333333333333331);
-        c_k = b_k_tmp / ctx_cfg_dt;
-        // 'zeroSpeedCurv:52' if( k > 0 )
-        if (c_k > 0.0) {
+        // 'zeroSpeedCurv:48' k       = ( 6 * uk / jps )^( 1 / 3 ) / dt;
+        e_k = std::pow(6.0 / b_jps, 0.33333333333333331) / ctx_cfg_dt;
+        // 'zeroSpeedCurv:50' if( k > 0 )
+        if (e_k > 0.0) {
             int c_loop_ub;
-            // 'zeroSpeedCurv:53' k_vec = 0 : k;
-            k_vec.set_size(1, static_cast<int>(c_k) + 1);
-            c_loop_ub = static_cast<int>(c_k);
-            for (int i4{0}; i4 <= c_loop_ub; i4++) {
-                k_vec[i4] = i4;
+            // 'zeroSpeedCurv:51' k_vec = 0 : k;
+            k_vec.set_size(1, static_cast<int>(e_k) + 1);
+            c_loop_ub = static_cast<int>(e_k);
+            for (int i3{0}; i3 <= c_loop_ub; i3++) {
+                k_vec[i3] = i3;
             }
-            // 'zeroSpeedCurv:54' if( k_vec( end ) < k )
-            if (static_cast<int>(c_k) < c_k) {
+            // 'zeroSpeedCurv:52' if( k_vec( end ) < k )
+            if (static_cast<int>(e_k) < e_k) {
                 int e_loop_ub;
-                // 'zeroSpeedCurv:54' k_vec = [ k_vec, k ];
-                k_vec.set_size(1, static_cast<int>(c_k) + 2);
-                e_loop_ub = static_cast<int>(c_k);
-                for (int i6{0}; i6 <= e_loop_ub; i6++) {
-                    k_vec[i6] = i6;
+                // 'zeroSpeedCurv:52' k_vec = [ k_vec, k ];
+                k_vec.set_size(1, static_cast<int>(e_k) + 2);
+                e_loop_ub = static_cast<int>(e_k);
+                for (int i5{0}; i5 <= e_loop_ub; i5++) {
+                    k_vec[i5] = i5;
                 }
-                k_vec[static_cast<int>(c_k) + 1] = c_k;
+                k_vec[static_cast<int>(e_k) + 1] = e_k;
             }
         } else {
-            // 'zeroSpeedCurv:55' else
-            // 'zeroSpeedCurv:56' k_vec = 1;
+            // 'zeroSpeedCurv:53' else
+            // 'zeroSpeedCurv:54' k_vec = 1;
             k_vec.set_size(1, 1);
             k_vec[0] = 1.0;
         }
@@ -362,8 +404,8 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         //    searchU : ( Boolean ) is searching a U
         //    jps : The constant pseudo jerk
         //    u : The resulting u
-        // 'zeroSpeedCurv:77' if( isempty( ratio ) )
-        // 'zeroSpeedCurv:79' [ u, ud, udd, uddd ]  = constJerkU( jps, k_vec * ctx.cfg.dt, isEnd,
+        // 'zeroSpeedCurv:75' if( isempty( ratio ) )
+        // 'zeroSpeedCurv:77' [ u, ud, udd, uddd ]  = constJerkU( jps, k_vec * ctx.cfg.dt, isEnd,
         // true );
         //  constJerkU : Compute u and its derivative based on the pseudo jerk
         //  approximation.
@@ -380,42 +422,42 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         // 'constJerkU:15' if( coder.target( "MATLAB" ) )
         // 'constJerkU:21' if( isEnd )
         // 'constJerkU:22' k_max  = ( 6 / pseudoJerk )^( 1 / 3 );
+        k_max = std::pow(6.0 / b_jps, 0.33333333333333331);
         // 'constJerkU:23' k_vec  = k_max - k_vec;
         y.set_size(1, k_vec.size(1));
-        i_loop_ub = k_vec.size(1);
-        for (int i10{0}; i10 < i_loop_ub; i10++) {
-            y[i10] = b_k_tmp - k_vec[i10] * ctx_cfg_dt;
+        j_loop_ub = k_vec.size(1);
+        for (int i10{0}; i10 < j_loop_ub; i10++) {
+            y[i10] = k_max - k_vec[i10] * ctx_cfg_dt;
         }
         //  Compute u and its derivatives based on constant jerk
         // 'constJerkU:27' uddd    = pseudoJerk .* ones( size( k_vec ) );
-        uv[0] = 1U;
         uv[1] = static_cast<unsigned int>(y.size(1));
         // 'constJerkU:28' udd     = pseudoJerk .* k_vec;
         // 'constJerkU:29' ud      = pseudoJerk .* k_vec .^2 / 2;
         r.set_size(1, y.size(1));
         l_loop_ub = y.size(1);
-        for (int i13{0}; i13 < l_loop_ub; i13++) {
+        for (int i12{0}; i12 < l_loop_ub; i12++) {
             double c_varargin_1;
-            c_varargin_1 = y[i13];
-            r[i13] = std::pow(c_varargin_1, 2.0);
+            c_varargin_1 = y[i12];
+            r[i12] = std::pow(c_varargin_1, 2.0);
         }
         ud.set_size(1, r.size(1));
         m_loop_ub = r.size(1);
-        for (int i14{0}; i14 < m_loop_ub; i14++) {
-            ud[i14] = b_jps * r[i14] / 2.0;
+        for (int i13{0}; i13 < m_loop_ub; i13++) {
+            ud[i13] = b_jps * r[i13] / 2.0;
         }
         // 'constJerkU:30' u       = pseudoJerk .* k_vec .^3 / 6;
         r.set_size(1, y.size(1));
         n_loop_ub = y.size(1);
-        for (int i15{0}; i15 < n_loop_ub; i15++) {
+        for (int i14{0}; i14 < n_loop_ub; i14++) {
             double d_varargin_1;
-            d_varargin_1 = y[i15];
-            r[i15] = std::pow(d_varargin_1, 3.0);
+            d_varargin_1 = y[i14];
+            r[i14] = std::pow(d_varargin_1, 3.0);
         }
         u.set_size(1, r.size(1));
         p_loop_ub = r.size(1);
-        for (int i17{0}; i17 < p_loop_ub; i17++) {
-            u[i17] = b_jps * r[i17] / 6.0;
+        for (int i16{0}; i16 < p_loop_ub; i16++) {
+            u[i16] = b_jps * r[i16] / 6.0;
         }
         // 'constJerkU:32' if( forceLimits )
         // 'constJerkU:33' u( u > 1 ) = 1;
@@ -437,17 +479,17 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         // 'constJerkU:38' u    = 1 - u;
         u.set_size(1, u.size(1));
         r_loop_ub = u.size(1);
-        for (int i19{0}; i19 < r_loop_ub; i19++) {
-            u[i19] = 1.0 - u[i19];
+        for (int i18{0}; i18 < r_loop_ub; i18++) {
+            u[i18] = 1.0 - u[i18];
         }
         // 'constJerkU:39' ud   = ud;
         // 'constJerkU:40' udd  = -udd;
         // 'constJerkU:41' uddd = uddd;
-        // 'zeroSpeedCurv:81' [ ~, V, A, J ]        = calcRVAJfromU( ctx, curv, u, ud, udd, uddd );
+        // 'zeroSpeedCurv:79' [ ~, V, A, J ]        = calcRVAJfromU( ctx, curv, u, ud, udd, uddd );
         udd_vec.set_size(1, y.size(1));
         s_loop_ub = y.size(1);
-        for (int i20{0}; i20 < s_loop_ub; i20++) {
-            udd_vec[i20] = -(b_jps * y[i20]);
+        for (int i19{0}; i19 < s_loop_ub; i19++) {
+            udd_vec[i19] = -(b_jps * y[i19]);
         }
         //  calcRVAJfromU : Compute the pose, the velocity, the acceleration and the
         //  jerk for a given set of u variable.
@@ -478,29 +520,29 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
             // 'calcRVAJfromU:22' [ r0D, r1D, r2D, r3D ] = ctx.kin.joint( r0D, r1D, r2D, r3D );
             d_r1D.set_size(c_r1D.size(0), c_r1D.size(1));
             t_loop_ub = c_r1D.size(1) - 1;
-            for (int i21{0}; i21 <= t_loop_ub; i21++) {
+            for (int i20{0}; i20 <= t_loop_ub; i20++) {
                 int u_loop_ub;
                 u_loop_ub = c_r1D.size(0) - 1;
-                for (int i22{0}; i22 <= u_loop_ub; i22++) {
-                    d_r1D[i22 + d_r1D.size(0) * i21] = c_r1D[i22 + c_r1D.size(0) * i21];
+                for (int i21{0}; i21 <= u_loop_ub; i21++) {
+                    d_r1D[i21 + d_r1D.size(0) * i20] = c_r1D[i21 + c_r1D.size(0) * i20];
                 }
             }
             b_r2D.set_size(r2D.size(0), r2D.size(1));
             v_loop_ub = r2D.size(1) - 1;
-            for (int i23{0}; i23 <= v_loop_ub; i23++) {
+            for (int i22{0}; i22 <= v_loop_ub; i22++) {
                 int w_loop_ub;
                 w_loop_ub = r2D.size(0) - 1;
-                for (int i24{0}; i24 <= w_loop_ub; i24++) {
-                    b_r2D[i24 + b_r2D.size(0) * i23] = r2D[i24 + r2D.size(0) * i23];
+                for (int i23{0}; i23 <= w_loop_ub; i23++) {
+                    b_r2D[i23 + b_r2D.size(0) * i22] = r2D[i23 + r2D.size(0) * i22];
                 }
             }
             b_r3D.set_size(r3D.size(0), r3D.size(1));
             x_loop_ub = r3D.size(1) - 1;
-            for (int i25{0}; i25 <= x_loop_ub; i25++) {
+            for (int i24{0}; i24 <= x_loop_ub; i24++) {
                 int y_loop_ub;
                 y_loop_ub = r3D.size(0) - 1;
-                for (int i26{0}; i26 <= y_loop_ub; i26++) {
-                    b_r3D[i26 + b_r3D.size(0) * i25] = r3D[i26 + r3D.size(0) * i25];
+                for (int i25{0}; i25 <= y_loop_ub; i25++) {
+                    b_r3D[i25 + b_r3D.size(0) * i24] = r3D[i25 + r3D.size(0) * i24];
                 }
             }
             b_ctx_kin.joint(b_r0D, d_r1D, b_r2D, b_r3D, a__1, c_r1D, r2D, r3D);
@@ -528,11 +570,11 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
             int ab_loop_ub;
             V.set_size(c_r1D.size(0), c_r1D.size(1));
             ab_loop_ub = c_r1D.size(1);
-            for (int i27{0}; i27 < ab_loop_ub; i27++) {
+            for (int i26{0}; i26 < ab_loop_ub; i26++) {
                 int cb_loop_ub;
                 cb_loop_ub = c_r1D.size(0);
-                for (int i29{0}; i29 < cb_loop_ub; i29++) {
-                    V[i29 + V.size(0) * i27] = c_r1D[i29 + c_r1D.size(0) * i27] * ud[i27];
+                for (int i28{0}; i28 < cb_loop_ub; i28++) {
+                    V[i28 + V.size(0) * i26] = c_r1D[i28 + c_r1D.size(0) * i26] * ud[i26];
                 }
             }
         } else {
@@ -541,32 +583,32 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         // 'calcRVAJfromUWithoutCurv:20' A = r2D .* ud_vec .^2 + r1D .* udd_vec;
         r.set_size(1, ud.size(1));
         bb_loop_ub = ud.size(1);
-        for (int i28{0}; i28 < bb_loop_ub; i28++) {
+        for (int i27{0}; i27 < bb_loop_ub; i27++) {
             double e_varargin_1;
-            e_varargin_1 = ud[i28];
-            r[i28] = std::pow(e_varargin_1, 2.0);
+            e_varargin_1 = ud[i27];
+            r[i27] = std::pow(e_varargin_1, 2.0);
         }
         if (r2D.size(1) == 1) {
-            i30 = r.size(1);
+            i29 = r.size(1);
         } else {
-            i30 = r2D.size(1);
+            i29 = r2D.size(1);
         }
         if (c_r1D.size(1) == 1) {
-            i31 = udd_vec.size(1);
+            i30 = udd_vec.size(1);
         } else {
-            i31 = c_r1D.size(1);
+            i30 = c_r1D.size(1);
         }
         if ((r2D.size(1) == r.size(1)) && (c_r1D.size(1) == udd_vec.size(1)) &&
-            (r2D.size(0) == c_r1D.size(0)) && (i30 == i31)) {
+            (r2D.size(0) == c_r1D.size(0)) && (i29 == i30)) {
             int db_loop_ub;
             A.set_size(r2D.size(0), r2D.size(1));
             db_loop_ub = r2D.size(1);
-            for (int i32{0}; i32 < db_loop_ub; i32++) {
+            for (int i31{0}; i31 < db_loop_ub; i31++) {
                 int fb_loop_ub;
                 fb_loop_ub = r2D.size(0);
-                for (int i34{0}; i34 < fb_loop_ub; i34++) {
-                    A[i34 + A.size(0) * i32] = r2D[i34 + r2D.size(0) * i32] * r[i32] +
-                                               c_r1D[i34 + c_r1D.size(0) * i32] * udd_vec[i32];
+                for (int i33{0}; i33 < fb_loop_ub; i33++) {
+                    A[i33 + A.size(0) * i31] = r2D[i33 + r2D.size(0) * i31] * r[i31] +
+                                               c_r1D[i33 + c_r1D.size(0) * i31] * udd_vec[i31];
                 }
             }
         } else {
@@ -576,114 +618,114 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         // .* uddd_vec;
         r.set_size(1, ud.size(1));
         eb_loop_ub = ud.size(1);
-        for (int i33{0}; i33 < eb_loop_ub; i33++) {
+        for (int i32{0}; i32 < eb_loop_ub; i32++) {
             double f_varargin_1;
-            f_varargin_1 = ud[i33];
-            r[i33] = std::pow(f_varargin_1, 3.0);
+            f_varargin_1 = ud[i32];
+            r[i32] = std::pow(f_varargin_1, 3.0);
         }
         if (r2D.size(1) == 1) {
-            i35 = ud.size(1);
+            i34 = ud.size(1);
         } else {
-            i35 = r2D.size(1);
+            i34 = r2D.size(1);
         }
         if (r3D.size(1) == 1) {
-            i36 = r.size(1);
+            i35 = r.size(1);
         } else {
-            i36 = r3D.size(1);
+            i35 = r3D.size(1);
         }
         if (r2D.size(1) == 1) {
+            i36 = ud.size(1);
+        } else {
+            i36 = r2D.size(1);
+        }
+        if (i36 == 1) {
+            i37 = udd_vec.size(1);
+        } else if (r2D.size(1) == 1) {
             i37 = ud.size(1);
         } else {
             i37 = r2D.size(1);
         }
-        if (i37 == 1) {
-            i38 = udd_vec.size(1);
-        } else if (r2D.size(1) == 1) {
-            i38 = ud.size(1);
-        } else {
-            i38 = r2D.size(1);
-        }
         if (r3D.size(0) == 1) {
-            i39 = r2D.size(0);
+            i38 = r2D.size(0);
         } else {
-            i39 = r3D.size(0);
+            i38 = r3D.size(0);
         }
         if (r3D.size(1) == 1) {
-            i40 = r.size(1);
+            i39 = r.size(1);
         } else {
-            i40 = r3D.size(1);
+            i39 = r3D.size(1);
         }
         if (r2D.size(1) == 1) {
-            i41 = ud.size(1);
+            i40 = ud.size(1);
         } else {
-            i41 = r2D.size(1);
+            i40 = r2D.size(1);
         }
-        if (i40 == 1) {
-            if (i41 == 1) {
-                i42 = udd_vec.size(1);
+        if (i39 == 1) {
+            if (i40 == 1) {
+                i41 = udd_vec.size(1);
             } else if (r2D.size(1) == 1) {
-                i42 = ud.size(1);
+                i41 = ud.size(1);
             } else {
-                i42 = r2D.size(1);
+                i41 = r2D.size(1);
             }
         } else if (r3D.size(1) == 1) {
-            i42 = r.size(1);
+            i41 = r.size(1);
         } else {
-            i42 = r3D.size(1);
+            i41 = r3D.size(1);
         }
         if (c_r1D.size(1) == 1) {
-            i43 = y.size(1);
+            i42 = y.size(1);
         } else {
-            i43 = c_r1D.size(1);
+            i42 = c_r1D.size(1);
         }
-        if ((r3D.size(1) == r.size(1)) && (r2D.size(1) == ud.size(1)) && (i35 == udd_vec.size(1)) &&
-            (r3D.size(0) == r2D.size(0)) && (i36 == i38) && (c_r1D.size(1) == y.size(1)) &&
-            (i39 == c_r1D.size(0)) && (i42 == i43)) {
+        if ((r3D.size(1) == r.size(1)) && (r2D.size(1) == ud.size(1)) && (i34 == udd_vec.size(1)) &&
+            (r3D.size(0) == r2D.size(0)) && (i35 == i37) && (c_r1D.size(1) == y.size(1)) &&
+            (i38 == c_r1D.size(0)) && (i41 == i42)) {
             int gb_loop_ub;
             J.set_size(r3D.size(0), r3D.size(1));
             gb_loop_ub = r3D.size(1);
-            for (int i44{0}; i44 < gb_loop_ub; i44++) {
+            for (int i43{0}; i43 < gb_loop_ub; i43++) {
                 int hb_loop_ub;
                 hb_loop_ub = r3D.size(0);
-                for (int i45{0}; i45 < hb_loop_ub; i45++) {
-                    J[i45 + J.size(0) * i44] =
-                        (r3D[i45 + r3D.size(0) * i44] * r[i44] +
-                         3.0 * r2D[i45 + r2D.size(0) * i44] * ud[i44] * udd_vec[i44]) +
-                        c_r1D[i45 + c_r1D.size(0) * i44] * b_jps;
+                for (int i44{0}; i44 < hb_loop_ub; i44++) {
+                    J[i44 + J.size(0) * i43] =
+                        (r3D[i44 + r3D.size(0) * i43] * r[i43] +
+                         3.0 * r2D[i44 + r2D.size(0) * i43] * ud[i43] * udd_vec[i43]) +
+                        c_r1D[i44 + c_r1D.size(0) * i43] * b_jps;
                 }
             }
         } else {
             binary_expand_op(J, r3D, r, r2D, ud, udd_vec, c_r1D, b_jps, uv);
         }
-        // 'zeroSpeedCurv:83' [ r0D, r1D ]          = EvalCurvStruct( ctx, curv, u );
+        // 'zeroSpeedCurv:81' [ r0D, r1D ]          = EvalCurvStruct( ctx, curv, u );
         i_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                          ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                          ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                          ctx_cfg_NCart, ctx_cfg_NRot, curv, u, b_r0D, c_r1D);
-        // 'zeroSpeedCurv:85' ctx.kin = ctx.kin.set_tool_length( curv.tool.offset.z );
+        // 'zeroSpeedCurv:83' ctx.kin = ctx.kin.set_tool_length( curv.tool.offset.z );
         b_ctx_kin = *ctx_kin;
         b_ctx_kin.set_tool_length(curv->tool.offset.z);
-        // 'zeroSpeedCurv:87' if( curv.Info.TRAFO )
+        // 'zeroSpeedCurv:85' if( curv.Info.TRAFO )
         if (!curv->Info.TRAFO) {
             int ib_loop_ub;
-            // 'zeroSpeedCurv:89' else
-            // 'zeroSpeedCurv:90' [ r1D_r ] = ctx.kin.v_relative( r0D, r1D );
+            // 'zeroSpeedCurv:87' else
+            // 'zeroSpeedCurv:88' [ r1D_r ] = ctx.kin.v_relative( r0D, r1D );
             e_r1D.set_size(c_r1D.size(0), c_r1D.size(1));
             ib_loop_ub = c_r1D.size(1) - 1;
-            for (int i46{0}; i46 <= ib_loop_ub; i46++) {
+            for (int i45{0}; i45 <= ib_loop_ub; i45++) {
                 int jb_loop_ub;
                 jb_loop_ub = c_r1D.size(0) - 1;
-                for (int i47{0}; i47 <= jb_loop_ub; i47++) {
-                    e_r1D[i47 + e_r1D.size(0) * i46] = c_r1D[i47 + c_r1D.size(0) * i46];
+                for (int i46{0}; i46 <= jb_loop_ub; i46++) {
+                    e_r1D[i46 + e_r1D.size(0) * i45] = c_r1D[i46 + c_r1D.size(0) * i45];
                 }
             }
             b_ctx_kin.v_relative(b_r0D, e_r1D, c_r1D);
         } else {
-            // 'zeroSpeedCurv:88' r1D_r     = r1D;
+            // 'zeroSpeedCurv:86' r1D_r     = r1D;
         }
-        // 'zeroSpeedCurv:93' safetyFactor = 0.5;
-        // 'zeroSpeedCurv:94' fmax =  curv.Info.FeedRate * safetyFactor;
-        // 'zeroSpeedCurv:95' vmax =  ctx.cfg.vmax( ctx.cfg.maskTot ).' * safetyFactor;
+        // 'zeroSpeedCurv:91' safetyFactor = 0.5;
+        // 'zeroSpeedCurv:92' fmax =  curv.Info.FeedRate * safetyFactor;
+        // 'zeroSpeedCurv:93' vmax =  ctx.cfg.vmax( ctx.cfg.maskTot ).' * safetyFactor;
         b_trueCount = 0;
         b_partialTrueCount = 0;
         for (int g_i{0}; g_i <= end_tmp; g_i++) {
@@ -693,10 +735,10 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
                 b_partialTrueCount++;
             }
         }
-        for (int i48{0}; i48 < b_trueCount; i48++) {
-            vmax_data[i48] = ctx_cfg_vmax[b_tmp_data[i48] - 1] * 0.5;
+        for (int i47{0}; i47 < b_trueCount; i47++) {
+            vmax_data[i47] = ctx_cfg_vmax[b_tmp_data[i47] - 1] * 0.5;
         }
-        // 'zeroSpeedCurv:96' amax =  ctx.cfg.amax( ctx.cfg.maskTot ).' * safetyFactor;
+        // 'zeroSpeedCurv:94' amax =  ctx.cfg.amax( ctx.cfg.maskTot ).' * safetyFactor;
         c_trueCount = 0;
         c_partialTrueCount = 0;
         for (int h_i{0}; h_i <= end_tmp; h_i++) {
@@ -706,10 +748,10 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
                 c_partialTrueCount++;
             }
         }
-        for (int i49{0}; i49 < c_trueCount; i49++) {
-            amax_data[i49] = ctx_cfg_amax[c_tmp_data[i49] - 1] * 0.5;
+        for (int i48{0}; i48 < c_trueCount; i48++) {
+            amax_data[i48] = ctx_cfg_amax[c_tmp_data[i48] - 1] * 0.5;
         }
-        // 'zeroSpeedCurv:97' jmax =  ctx.cfg.jmax( ctx.cfg.maskTot ).' * safetyFactor;
+        // 'zeroSpeedCurv:95' jmax =  ctx.cfg.jmax( ctx.cfg.maskTot ).' * safetyFactor;
         d_trueCount = 0;
         d_partialTrueCount = 0;
         for (int i_i{0}; i_i <= end_tmp; i_i++) {
@@ -719,14 +761,14 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
                 d_partialTrueCount++;
             }
         }
-        for (int i50{0}; i50 < d_trueCount; i50++) {
-            jmax_data[i50] = ctx_cfg_jmax[d_tmp_data[i50] - 1] * 0.5;
+        for (int i49{0}; i49 < d_trueCount; i49++) {
+            jmax_data[i49] = ctx_cfg_jmax[d_tmp_data[i49] - 1] * 0.5;
         }
-        // 'zeroSpeedCurv:99' feed  = vecnorm( r1D_r( ctx.cfg.indCart, : ) ) .* ud ;
+        // 'zeroSpeedCurv:97' feed  = vecnorm( r1D_r( ctx.cfg.indCart, : ) ) .* ud ;
         y.set_size(1, c_r1D.size(1));
         kb_loop_ub = c_r1D.size(1);
-        for (int i51{0}; i51 < kb_loop_ub; i51++) {
-            y[i51] = 0.0;
+        for (int i50{0}; i50 < kb_loop_ub; i50++) {
+            y[i50] = 0.0;
         }
         hi = c_r1D.size(1) - 1;
         if (c_r1D.size(1) - 1 >= 0) {
@@ -734,66 +776,66 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
             outsize_idx_0 = static_cast<signed char>(ctx_cfg_indCart.size(0));
             lb_loop_ub = static_cast<signed char>(ctx_cfg_indCart.size(0));
         }
-        for (int d_k{0}; d_k <= hi; d_k++) {
+        for (int f_k{0}; f_k <= hi; f_k++) {
             xv.set_size(outsize_idx_0);
-            for (int i52{0}; i52 < lb_loop_ub; i52++) {
-                xv[i52] = 0.0;
+            for (int i51{0}; i51 < lb_loop_ub; i51++) {
+                xv[i51] = 0.0;
             }
-            for (int e_k{0}; e_k < nx; e_k++) {
-                xv[e_k] = c_r1D[(ctx_cfg_indCart[e_k] + c_r1D.size(0) * d_k) - 1];
+            for (int g_k{0}; g_k < nx; g_k++) {
+                xv[g_k] = c_r1D[(ctx_cfg_indCart[g_k] + c_r1D.size(0) * f_k) - 1];
             }
-            y[d_k] = coder::b_norm(xv);
+            y[f_k] = coder::b_norm(xv);
         }
         if (y.size(1) == ud.size(1)) {
             int mb_loop_ub;
             feed.set_size(1, y.size(1));
             mb_loop_ub = y.size(1);
-            for (int i53{0}; i53 < mb_loop_ub; i53++) {
-                feed[i53] = y[i53] * ud[i53];
+            for (int i52{0}; i52 < mb_loop_ub; i52++) {
+                feed[i52] = y[i52] * ud[i52];
             }
         } else {
             times(feed, y, ud);
         }
-        // 'zeroSpeedCurv:101' if( any( feed > fmax ) )
+        // 'zeroSpeedCurv:99' if( any( feed > fmax ) )
         x.set_size(1, feed.size(1));
         nb_loop_ub = feed.size(1);
-        for (int i54{0}; i54 < nb_loop_ub; i54++) {
-            x[i54] = (feed[i54] > b_fmax);
+        for (int i53{0}; i53 < nb_loop_ub; i53++) {
+            x[i53] = (feed[i53] > b_fmax);
         }
         b_y = false;
-        f_k = 0;
+        h_k = 0;
         exitg1 = false;
-        while ((!exitg1) && (f_k <= x.size(1) - 1)) {
-            if (x[f_k]) {
+        while ((!exitg1) && (h_k <= x.size(1) - 1)) {
+            if (x[h_k]) {
                 b_y = true;
                 exitg1 = true;
             } else {
-                f_k++;
+                h_k++;
             }
         }
         if (b_y) {
             int ob_loop_ub;
-            // 'zeroSpeedCurv:102' [ f_delta, ind ] = max( feed - fmax );
+            // 'zeroSpeedCurv:100' [ f_delta, ind ] = max( feed - fmax );
             b_feed.set_size(1, feed.size(1));
             ob_loop_ub = feed.size(1);
-            for (int i56{0}; i56 < ob_loop_ub; i56++) {
-                b_feed[i56] = feed[i56] - b_fmax;
+            for (int i55{0}; i55 < ob_loop_ub; i55++) {
+                b_feed[i55] = feed[i55] - b_fmax;
             }
             coder::internal::maximum(b_feed, &f_delta, &iindx);
-            // 'zeroSpeedCurv:103' jps = jps * ( 1 - ratio * ( 1 - f_delta / feed( ind ) ) );
+            // 'zeroSpeedCurv:101' jps = jps * ( 1 - ratio * ( 1 - f_delta / feed( ind ) ) );
             c_jps = b_jps * (1.0 - 0.9 * (1.0 - f_delta / feed[iindx - 1]));
         } else {
-            int i_k;
-            bool c_y;
+            int k_k;
+            bool varargout_1;
             r1.set_size(V.size(0), V.size(1));
             if ((V.size(0) != 0) && (V.size(1) != 0)) {
-                int i55;
-                i55 = V.size(1);
-                for (int g_k{0}; g_k < i55; g_k++) {
-                    int i57;
-                    i57 = r1.size(0);
-                    for (int h_k{0}; h_k < i57; h_k++) {
-                        r1[h_k + r1.size(0) * g_k] = std::abs(V[h_k + V.size(0) * g_k]);
+                int i54;
+                i54 = V.size(1);
+                for (int i_k{0}; i_k < i54; i_k++) {
+                    int i56;
+                    i56 = r1.size(0);
+                    for (int j_k{0}; j_k < i56; j_k++) {
+                        r1[j_k + r1.size(0) * i_k] = std::abs(V[j_k + V.size(0) * i_k]);
                     }
                 }
             }
@@ -801,72 +843,72 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
                 int pb_loop_ub;
                 b_x.set_size(r1.size(0), r1.size(1));
                 pb_loop_ub = r1.size(1);
-                for (int i58{0}; i58 < pb_loop_ub; i58++) {
+                for (int i57{0}; i57 < pb_loop_ub; i57++) {
                     int qb_loop_ub;
                     qb_loop_ub = r1.size(0);
-                    for (int i59{0}; i59 < qb_loop_ub; i59++) {
-                        b_x[i59 + b_x.size(0) * i58] =
-                            (r1[i59 + r1.size(0) * i58] > vmax_data[i59]);
+                    for (int i58{0}; i58 < qb_loop_ub; i58++) {
+                        b_x[i58 + b_x.size(0) * i57] =
+                            (r1[i58 + r1.size(0) * i57] > vmax_data[i58]);
                     }
                 }
             } else {
                 e_binary_expand_op(b_x, r1, vmax_data, &b_trueCount);
             }
-            c_y = false;
-            i_k = 0;
+            varargout_1 = false;
+            k_k = 0;
             exitg1 = false;
-            while ((!exitg1) && (i_k <= b_x.size(0) * b_x.size(1) - 1)) {
-                if (b_x[i_k]) {
-                    c_y = true;
+            while ((!exitg1) && (k_k <= b_x.size(0) * b_x.size(1) - 1)) {
+                if (b_x[k_k]) {
+                    varargout_1 = true;
                     exitg1 = true;
                 } else {
-                    i_k++;
+                    k_k++;
                 }
             }
-            if (c_y) {
-                // 'zeroSpeedCurv:104' elseif( any( abs( V ) > vmax, 'all' ) )
-                // 'zeroSpeedCurv:105' [ v_delta, ind ] = max( abs( V ) - vmax, [], 'all' );
+            if (varargout_1) {
+                // 'zeroSpeedCurv:102' elseif( any( abs( V ) > vmax, 'all' ) )
+                // 'zeroSpeedCurv:103' [ v_delta, ind ] = max( abs( V ) - vmax, [], 'all' );
                 if (r1.size(0) == b_trueCount) {
                     int rb_loop_ub;
-                    int ub_loop_ub;
+                    int vb_loop_ub;
                     r2.set_size(r1.size(0), r1.size(1));
                     rb_loop_ub = r1.size(1);
                     for (int i61{0}; i61 < rb_loop_ub; i61++) {
                         int tb_loop_ub;
                         tb_loop_ub = r1.size(0);
-                        for (int i64{0}; i64 < tb_loop_ub; i64++) {
-                            r2[i64 + r2.size(0) * i61] =
-                                r1[i64 + r1.size(0) * i61] - vmax_data[i64];
+                        for (int i63{0}; i63 < tb_loop_ub; i63++) {
+                            r2[i63 + r2.size(0) * i61] =
+                                r1[i63 + r1.size(0) * i61] - vmax_data[i63];
                         }
                     }
                     r1.set_size(r2.size(0), r2.size(1));
-                    ub_loop_ub = r2.size(1);
-                    for (int i65{0}; i65 < ub_loop_ub; i65++) {
+                    vb_loop_ub = r2.size(1);
+                    for (int i65{0}; i65 < vb_loop_ub; i65++) {
                         int wb_loop_ub;
                         wb_loop_ub = r2.size(0);
-                        for (int i67{0}; i67 < wb_loop_ub; i67++) {
-                            r1[i67 + r1.size(0) * i65] = r2[i67 + r2.size(0) * i65];
+                        for (int i66{0}; i66 < wb_loop_ub; i66++) {
+                            r1[i66 + r1.size(0) * i65] = r2[i66 + r2.size(0) * i65];
                         }
                     }
                     coder::internal::b_maximum(r1, &v_delta, &b_iindx);
                 } else {
                     binary_expand_op(r1, vmax_data, &b_trueCount, &v_delta, &b_iindx);
                 }
-                // 'zeroSpeedCurv:106' jps = jps * ( 1 - ratio * ( 1 - v_delta / abs( V( ind ) ) )
+                // 'zeroSpeedCurv:104' jps = jps * ( 1 - ratio * ( 1 - v_delta / abs( V( ind ) ) )
                 // );
                 c_jps = b_jps * (1.0 - 0.9 * (1.0 - v_delta / std::abs(V[b_iindx - 1])));
             } else {
-                int l_k;
-                bool d_y;
+                int n_k;
+                bool b_varargout_1;
                 r1.set_size(A.size(0), A.size(1));
                 if ((A.size(0) != 0) && (A.size(1) != 0)) {
-                    int i60;
-                    i60 = A.size(1);
-                    for (int j_k{0}; j_k < i60; j_k++) {
-                        int i62;
-                        i62 = r1.size(0);
-                        for (int k_k{0}; k_k < i62; k_k++) {
-                            r1[k_k + r1.size(0) * j_k] = std::abs(A[k_k + A.size(0) * j_k]);
+                    int i59;
+                    i59 = A.size(1);
+                    for (int l_k{0}; l_k < i59; l_k++) {
+                        int i60;
+                        i60 = r1.size(0);
+                        for (int m_k{0}; m_k < i60; m_k++) {
+                            r1[m_k + r1.size(0) * l_k] = std::abs(A[m_k + A.size(0) * l_k]);
                         }
                     }
                 }
@@ -874,72 +916,72 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
                     int sb_loop_ub;
                     b_x.set_size(r1.size(0), r1.size(1));
                     sb_loop_ub = r1.size(1);
-                    for (int i63{0}; i63 < sb_loop_ub; i63++) {
-                        int vb_loop_ub;
-                        vb_loop_ub = r1.size(0);
-                        for (int i66{0}; i66 < vb_loop_ub; i66++) {
-                            b_x[i66 + b_x.size(0) * i63] =
-                                (r1[i66 + r1.size(0) * i63] > amax_data[i66]);
+                    for (int i62{0}; i62 < sb_loop_ub; i62++) {
+                        int ub_loop_ub;
+                        ub_loop_ub = r1.size(0);
+                        for (int i64{0}; i64 < ub_loop_ub; i64++) {
+                            b_x[i64 + b_x.size(0) * i62] =
+                                (r1[i64 + r1.size(0) * i62] > amax_data[i64]);
                         }
                     }
                 } else {
                     e_binary_expand_op(b_x, r1, amax_data, &c_trueCount);
                 }
-                d_y = false;
-                l_k = 0;
+                b_varargout_1 = false;
+                n_k = 0;
                 exitg1 = false;
-                while ((!exitg1) && (l_k <= b_x.size(0) * b_x.size(1) - 1)) {
-                    if (b_x[l_k]) {
-                        d_y = true;
+                while ((!exitg1) && (n_k <= b_x.size(0) * b_x.size(1) - 1)) {
+                    if (b_x[n_k]) {
+                        b_varargout_1 = true;
                         exitg1 = true;
                     } else {
-                        l_k++;
+                        n_k++;
                     }
                 }
-                if (d_y) {
-                    // 'zeroSpeedCurv:107' elseif( any( abs( A ) > amax, 'all' ) )
-                    // 'zeroSpeedCurv:108' [ a_delta, ind ] = max( abs( A ) - amax, [], 'all' );
+                if (b_varargout_1) {
+                    // 'zeroSpeedCurv:105' elseif( any( abs( A ) > amax, 'all' ) )
+                    // 'zeroSpeedCurv:106' [ a_delta, ind ] = max( abs( A ) - amax, [], 'all' );
                     if (r1.size(0) == c_trueCount) {
-                        int bc_loop_ub;
+                        int cc_loop_ub;
                         int xb_loop_ub;
                         r3.set_size(r1.size(0), r1.size(1));
                         xb_loop_ub = r1.size(1);
                         for (int i69{0}; i69 < xb_loop_ub; i69++) {
                             int ac_loop_ub;
                             ac_loop_ub = r1.size(0);
-                            for (int i72{0}; i72 < ac_loop_ub; i72++) {
-                                r3[i72 + r3.size(0) * i69] =
-                                    r1[i72 + r1.size(0) * i69] - amax_data[i72];
+                            for (int i71{0}; i71 < ac_loop_ub; i71++) {
+                                r3[i71 + r3.size(0) * i69] =
+                                    r1[i71 + r1.size(0) * i69] - amax_data[i71];
                             }
                         }
                         r1.set_size(r3.size(0), r3.size(1));
-                        bc_loop_ub = r3.size(1);
-                        for (int i73{0}; i73 < bc_loop_ub; i73++) {
+                        cc_loop_ub = r3.size(1);
+                        for (int i73{0}; i73 < cc_loop_ub; i73++) {
                             int dc_loop_ub;
                             dc_loop_ub = r3.size(0);
-                            for (int i75{0}; i75 < dc_loop_ub; i75++) {
-                                r1[i75 + r1.size(0) * i73] = r3[i75 + r3.size(0) * i73];
+                            for (int i74{0}; i74 < dc_loop_ub; i74++) {
+                                r1[i74 + r1.size(0) * i73] = r3[i74 + r3.size(0) * i73];
                             }
                         }
                         coder::internal::b_maximum(r1, &a_delta, &c_iindx);
                     } else {
                         binary_expand_op(r1, amax_data, &c_trueCount, &a_delta, &c_iindx);
                     }
-                    // 'zeroSpeedCurv:109' jps = jps * ( 1 - ratio * ( 1 - a_delta / abs( A( ind ) )
+                    // 'zeroSpeedCurv:107' jps = jps * ( 1 - ratio * ( 1 - a_delta / abs( A( ind ) )
                     // ) );
                     c_jps = b_jps * (1.0 - 0.9 * (1.0 - a_delta / std::abs(A[c_iindx - 1])));
                 } else {
-                    int o_k;
-                    bool e_y;
+                    int q_k;
+                    bool c_varargout_1;
                     r1.set_size(J.size(0), J.size(1));
                     if ((J.size(0) != 0) && (J.size(1) != 0)) {
-                        int i68;
-                        i68 = J.size(1);
-                        for (int m_k{0}; m_k < i68; m_k++) {
-                            int i70;
-                            i70 = r1.size(0);
-                            for (int n_k{0}; n_k < i70; n_k++) {
-                                r1[n_k + r1.size(0) * m_k] = std::abs(J[n_k + J.size(0) * m_k]);
+                        int i67;
+                        i67 = J.size(1);
+                        for (int o_k{0}; o_k < i67; o_k++) {
+                            int i68;
+                            i68 = r1.size(0);
+                            for (int p_k{0}; p_k < i68; p_k++) {
+                                r1[p_k + r1.size(0) * o_k] = std::abs(J[p_k + J.size(0) * o_k]);
                             }
                         }
                     }
@@ -947,63 +989,63 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
                         int yb_loop_ub;
                         b_x.set_size(r1.size(0), r1.size(1));
                         yb_loop_ub = r1.size(1);
-                        for (int i71{0}; i71 < yb_loop_ub; i71++) {
-                            int cc_loop_ub;
-                            cc_loop_ub = r1.size(0);
-                            for (int i74{0}; i74 < cc_loop_ub; i74++) {
-                                b_x[i74 + b_x.size(0) * i71] =
-                                    (r1[i74 + r1.size(0) * i71] > jmax_data[i74]);
+                        for (int i70{0}; i70 < yb_loop_ub; i70++) {
+                            int bc_loop_ub;
+                            bc_loop_ub = r1.size(0);
+                            for (int i72{0}; i72 < bc_loop_ub; i72++) {
+                                b_x[i72 + b_x.size(0) * i70] =
+                                    (r1[i72 + r1.size(0) * i70] > jmax_data[i72]);
                             }
                         }
                     } else {
                         e_binary_expand_op(b_x, r1, jmax_data, &d_trueCount);
                     }
-                    e_y = false;
-                    o_k = 0;
+                    c_varargout_1 = false;
+                    q_k = 0;
                     exitg1 = false;
-                    while ((!exitg1) && (o_k <= b_x.size(0) * b_x.size(1) - 1)) {
-                        if (b_x[o_k]) {
-                            e_y = true;
+                    while ((!exitg1) && (q_k <= b_x.size(0) * b_x.size(1) - 1)) {
+                        if (b_x[q_k]) {
+                            c_varargout_1 = true;
                             exitg1 = true;
                         } else {
-                            o_k++;
+                            q_k++;
                         }
                     }
-                    if (e_y) {
-                        // 'zeroSpeedCurv:110' elseif( any( abs( J ) > jmax, 'all' ) )
-                        // 'zeroSpeedCurv:111' [ j_delta, ind ] = max( abs( J ) - jmax, [], 'all' );
+                    if (c_varargout_1) {
+                        // 'zeroSpeedCurv:108' elseif( any( abs( J ) > jmax, 'all' ) )
+                        // 'zeroSpeedCurv:109' [ j_delta, ind ] = max( abs( J ) - jmax, [], 'all' );
                         if (r1.size(0) == d_trueCount) {
                             int ec_loop_ub;
                             int gc_loop_ub;
                             r4.set_size(r1.size(0), r1.size(1));
                             ec_loop_ub = r1.size(1);
-                            for (int i76{0}; i76 < ec_loop_ub; i76++) {
+                            for (int i75{0}; i75 < ec_loop_ub; i75++) {
                                 int fc_loop_ub;
                                 fc_loop_ub = r1.size(0);
-                                for (int i77{0}; i77 < fc_loop_ub; i77++) {
-                                    r4[i77 + r4.size(0) * i76] =
-                                        r1[i77 + r1.size(0) * i76] - jmax_data[i77];
+                                for (int i76{0}; i76 < fc_loop_ub; i76++) {
+                                    r4[i76 + r4.size(0) * i75] =
+                                        r1[i76 + r1.size(0) * i75] - jmax_data[i76];
                                 }
                             }
                             r1.set_size(r4.size(0), r4.size(1));
                             gc_loop_ub = r4.size(1);
-                            for (int i78{0}; i78 < gc_loop_ub; i78++) {
+                            for (int i77{0}; i77 < gc_loop_ub; i77++) {
                                 int hc_loop_ub;
                                 hc_loop_ub = r4.size(0);
-                                for (int i79{0}; i79 < hc_loop_ub; i79++) {
-                                    r1[i79 + r1.size(0) * i78] = r4[i79 + r4.size(0) * i78];
+                                for (int i78{0}; i78 < hc_loop_ub; i78++) {
+                                    r1[i78 + r1.size(0) * i77] = r4[i78 + r4.size(0) * i77];
                                 }
                             }
                             coder::internal::b_maximum(r1, &j_delta, &d_iindx);
                         } else {
                             binary_expand_op(r1, jmax_data, &d_trueCount, &j_delta, &d_iindx);
                         }
-                        // 'zeroSpeedCurv:112' jps = jps * ( 1 - ratio * ( 1 - j_delta / abs( J( ind
+                        // 'zeroSpeedCurv:110' jps = jps * ( 1 - ratio * ( 1 - j_delta / abs( J( ind
                         // ) ) ) );
                         c_jps = b_jps * (1.0 - 0.9 * (1.0 - j_delta / std::abs(J[d_iindx - 1])));
                     } else {
-                        // 'zeroSpeedCurv:113' else
-                        // 'zeroSpeedCurv:114' searchJps = false;
+                        // 'zeroSpeedCurv:111' else
+                        // 'zeroSpeedCurv:112' searchJps = false;
                         searchJps = false;
                     }
                 }
@@ -1011,40 +1053,39 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
         }
         b_jps = c_jps;
     }
-    // 'zeroSpeedCurv:40' if( coder.target( "MATLAB" ) )
-    // 'zeroSpeedCurv:42' [ k_vec ]             = compute_k( jps, ctx.cfg.dt, 1 );
+    // 'zeroSpeedCurv:40' [ k_vec ]             = compute_k( jps, ctx.cfg.dt, 1 );
     //  compute_k : Compute the vector of time steps required by the paramter u to
     //  go from 0 to 1.
-    // 'zeroSpeedCurv:50' k       = ( 6 * uk / jps )^( 1 / 3 ) / dt;
+    // 'zeroSpeedCurv:48' k       = ( 6 * uk / jps )^( 1 / 3 ) / dt;
     k_tmp = std::pow(6.0 / b_jps, 0.33333333333333331);
-    b_k = k_tmp / ctx_cfg_dt;
-    // 'zeroSpeedCurv:52' if( k > 0 )
-    if (b_k > 0.0) {
+    d_k = k_tmp / ctx_cfg_dt;
+    // 'zeroSpeedCurv:50' if( k > 0 )
+    if (d_k > 0.0) {
         int b_loop_ub;
-        // 'zeroSpeedCurv:53' k_vec = 0 : k;
-        k_vec.set_size(1, static_cast<int>(b_k) + 1);
-        b_loop_ub = static_cast<int>(b_k);
-        for (int i3{0}; i3 <= b_loop_ub; i3++) {
-            k_vec[i3] = i3;
+        // 'zeroSpeedCurv:51' k_vec = 0 : k;
+        k_vec.set_size(1, static_cast<int>(d_k) + 1);
+        b_loop_ub = static_cast<int>(d_k);
+        for (int i2{0}; i2 <= b_loop_ub; i2++) {
+            k_vec[i2] = i2;
         }
-        // 'zeroSpeedCurv:54' if( k_vec( end ) < k )
-        if (static_cast<int>(b_k) < b_k) {
+        // 'zeroSpeedCurv:52' if( k_vec( end ) < k )
+        if (static_cast<int>(d_k) < d_k) {
             int d_loop_ub;
-            // 'zeroSpeedCurv:54' k_vec = [ k_vec, k ];
-            k_vec.set_size(1, static_cast<int>(b_k) + 2);
-            d_loop_ub = static_cast<int>(b_k);
-            for (int i5{0}; i5 <= d_loop_ub; i5++) {
-                k_vec[i5] = i5;
+            // 'zeroSpeedCurv:52' k_vec = [ k_vec, k ];
+            k_vec.set_size(1, static_cast<int>(d_k) + 2);
+            d_loop_ub = static_cast<int>(d_k);
+            for (int i4{0}; i4 <= d_loop_ub; i4++) {
+                k_vec[i4] = i4;
             }
-            k_vec[static_cast<int>(b_k) + 1] = b_k;
+            k_vec[static_cast<int>(d_k) + 1] = d_k;
         }
     } else {
-        // 'zeroSpeedCurv:55' else
-        // 'zeroSpeedCurv:56' k_vec = 1;
+        // 'zeroSpeedCurv:53' else
+        // 'zeroSpeedCurv:54' k_vec = 1;
         k_vec.set_size(1, 1);
         k_vec[0] = 1.0;
     }
-    // 'zeroSpeedCurv:43' [ u, ud, udd ]        = constJerkU( jps, k_vec * ctx.cfg.dt, isEnd, true);
+    // 'zeroSpeedCurv:41' [ u, ud, udd ]        = constJerkU( jps, k_vec * ctx.cfg.dt, isEnd, true);
     //  constJerkU : Compute u and its derivative based on the pseudo jerk
     //  approximation.
     //  Inputs :
@@ -1063,8 +1104,8 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
     // 'constJerkU:23' k_vec  = k_max - k_vec;
     y.set_size(1, k_vec.size(1));
     f_loop_ub = k_vec.size(1);
-    for (int i7{0}; i7 < f_loop_ub; i7++) {
-        y[i7] = k_tmp - k_vec[i7] * ctx_cfg_dt;
+    for (int i6{0}; i6 < f_loop_ub; i6++) {
+        y[i6] = k_tmp - k_vec[i6] * ctx_cfg_dt;
     }
     //  Compute u and its derivatives based on constant jerk
     // 'constJerkU:27' uddd    = pseudoJerk .* ones( size( k_vec ) );
@@ -1072,28 +1113,28 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
     // 'constJerkU:29' ud      = pseudoJerk .* k_vec .^2 / 2;
     r.set_size(1, y.size(1));
     g_loop_ub = y.size(1);
-    for (int i8{0}; i8 < g_loop_ub; i8++) {
+    for (int i7{0}; i7 < g_loop_ub; i7++) {
         double varargin_1;
-        varargin_1 = y[i8];
-        r[i8] = std::pow(varargin_1, 2.0);
+        varargin_1 = y[i7];
+        r[i7] = std::pow(varargin_1, 2.0);
     }
     ud.set_size(1, r.size(1));
     h_loop_ub = r.size(1);
-    for (int i9{0}; i9 < h_loop_ub; i9++) {
-        ud[i9] = b_jps * r[i9] / 2.0;
+    for (int i8{0}; i8 < h_loop_ub; i8++) {
+        ud[i8] = b_jps * r[i8] / 2.0;
     }
     // 'constJerkU:30' u       = pseudoJerk .* k_vec .^3 / 6;
     r.set_size(1, y.size(1));
-    j_loop_ub = y.size(1);
-    for (int i11{0}; i11 < j_loop_ub; i11++) {
+    i_loop_ub = y.size(1);
+    for (int i9{0}; i9 < i_loop_ub; i9++) {
         double b_varargin_1;
-        b_varargin_1 = y[i11];
-        r[i11] = std::pow(b_varargin_1, 3.0);
+        b_varargin_1 = y[i9];
+        r[i9] = std::pow(b_varargin_1, 3.0);
     }
     u.set_size(1, r.size(1));
     k_loop_ub = r.size(1);
-    for (int i12{0}; i12 < k_loop_ub; i12++) {
-        u[i12] = b_jps * r[i12] / 6.0;
+    for (int i11{0}; i11 < k_loop_ub; i11++) {
+        u[i11] = b_jps * r[i11] / 6.0;
     }
     // 'constJerkU:32' if( forceLimits )
     // 'constJerkU:33' u( u > 1 ) = 1;
@@ -1115,15 +1156,15 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
     // 'constJerkU:38' u    = 1 - u;
     u.set_size(1, u.size(1));
     o_loop_ub = u.size(1);
-    for (int i16{0}; i16 < o_loop_ub; i16++) {
-        u[i16] = 1.0 - u[i16];
+    for (int i15{0}; i15 < o_loop_ub; i15++) {
+        u[i15] = 1.0 - u[i15];
     }
     // 'constJerkU:39' ud   = ud;
     // 'constJerkU:40' udd  = -udd;
     udd.set_size(1, y.size(1));
     q_loop_ub = y.size(1);
-    for (int i18{0}; i18 < q_loop_ub; i18++) {
-        udd[i18] = -(b_jps * y[i18]);
+    for (int i17{0}; i17 < q_loop_ub; i17++) {
+        udd[i17] = -(b_jps * y[i17]);
     }
     // 'constJerkU:41' uddd = uddd;
     *jps = b_jps;
@@ -1208,15 +1249,15 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
     ::coder::array<double, 1U> z1;
     ::coder::array<bool, 2U> b_x;
     ::coder::array<bool, 2U> x;
-    double ctx_cfg_jmax_data[6];
     double a_delta;
+    double b_ex;
     double b_fmax;
     double b_jps;
-    double b_k;
+    double d_ex;
+    double d_k;
     double f_delta;
     double j_delta;
     double v_delta;
-    int ctx_cfg_jmax_size[2];
     unsigned int uv[2];
     int b_end;
     int b_iindx;
@@ -1235,6 +1276,7 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
     int jb_loop_ub;
     int k_loop_ub;
     int l_loop_ub;
+    int last;
     int nx;
     int outsize_idx_0;
     int partialTrueCount;
@@ -1284,37 +1326,80 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
             z1[k] = std::abs(r1D[k]);
         }
     }
-    ctx_cfg_jmax_size[0] = 1;
-    ctx_cfg_jmax_size[1] = trueCount;
-    for (int i2{0}; i2 < trueCount; i2++) {
-        ctx_cfg_jmax_data[i2] = ctx_cfg_jmax[tmp_data[i2] - 1];
+    if (trueCount <= 2) {
+        if (trueCount == 1) {
+            b_ex = ctx_cfg_jmax[tmp_data[0] - 1];
+        } else {
+            double d;
+            double d1;
+            d = ctx_cfg_jmax[tmp_data[0] - 1];
+            d1 = ctx_cfg_jmax[tmp_data[trueCount - 1] - 1];
+            if (d > d1) {
+                b_ex = d1;
+            } else {
+                b_ex = d;
+            }
+        }
+    } else {
+        double ex;
+        ex = ctx_cfg_jmax[tmp_data[0] - 1];
+        for (int b_k{2}; b_k <= trueCount; b_k++) {
+            double d2;
+            d2 = ctx_cfg_jmax[tmp_data[b_k - 1] - 1];
+            if (ex > d2) {
+                ex = d2;
+            }
+        }
+        b_ex = ex;
     }
-    b_jps = coder::internal::minimum(ctx_cfg_jmax_data, ctx_cfg_jmax_size) /
-            coder::internal::maximum(z1);
+    last = z1.size(0);
+    if (z1.size(0) <= 2) {
+        if (z1.size(0) == 1) {
+            d_ex = z1[0];
+        } else if (z1[0] < z1[z1.size(0) - 1]) {
+            d_ex = z1[z1.size(0) - 1];
+        } else {
+            d_ex = z1[0];
+        }
+    } else {
+        double c_ex;
+        c_ex = z1[0];
+        for (int c_k{2}; c_k <= last; c_k++) {
+            double d3;
+            d3 = z1[c_k - 1];
+            if (c_ex < d3) {
+                c_ex = d3;
+            }
+        }
+        d_ex = c_ex;
+    }
+    b_jps = b_ex / d_ex;
     //  searchU   = true;
     // while searchU
     // 'zeroSpeedCurv:31' searchJps = true;
     // 'zeroSpeedCurv:33' ind = 0;
     // 'zeroSpeedCurv:34' while searchJps
     b_fmax = curv->Info.FeedRate * 0.5;
+    uv[0] = 1U;
     searchJps = true;
     while (searchJps) {
         double amax_data[6];
         double jmax_data[6];
         double vmax_data[6];
         double c_jps;
-        double c_k;
+        double e_k;
         int b_partialTrueCount;
         int c_end;
         int c_partialTrueCount;
         int cb_loop_ub;
         int d_end;
         int d_partialTrueCount;
-        int f_k;
         int g_loop_ub;
+        int h_k;
         int hi;
+        int i27;
         int i28;
-        int i29;
+        int i32;
         int i33;
         int i34;
         int i35;
@@ -1323,7 +1408,6 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
         int i38;
         int i39;
         int i40;
-        int i41;
         int ib_loop_ub;
         int lb_loop_ub;
         int m_loop_ub;
@@ -1338,31 +1422,31 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
         // 'zeroSpeedCurv:36' [ k_vec ]         = compute_k( jps, ctx.cfg.dt, 1 );
         //  compute_k : Compute the vector of time steps required by the paramter u to
         //  go from 0 to 1.
-        // 'zeroSpeedCurv:50' k       = ( 6 * uk / jps )^( 1 / 3 ) / dt;
-        c_k = std::pow(6.0 / b_jps, 0.33333333333333331) / ctx_cfg_dt;
-        // 'zeroSpeedCurv:52' if( k > 0 )
-        if (c_k > 0.0) {
+        // 'zeroSpeedCurv:48' k       = ( 6 * uk / jps )^( 1 / 3 ) / dt;
+        e_k = std::pow(6.0 / b_jps, 0.33333333333333331) / ctx_cfg_dt;
+        // 'zeroSpeedCurv:50' if( k > 0 )
+        if (e_k > 0.0) {
             int c_loop_ub;
-            // 'zeroSpeedCurv:53' k_vec = 0 : k;
-            k_vec.set_size(1, static_cast<int>(c_k) + 1);
-            c_loop_ub = static_cast<int>(c_k);
-            for (int i4{0}; i4 <= c_loop_ub; i4++) {
-                k_vec[i4] = i4;
+            // 'zeroSpeedCurv:51' k_vec = 0 : k;
+            k_vec.set_size(1, static_cast<int>(e_k) + 1);
+            c_loop_ub = static_cast<int>(e_k);
+            for (int i3{0}; i3 <= c_loop_ub; i3++) {
+                k_vec[i3] = i3;
             }
-            // 'zeroSpeedCurv:54' if( k_vec( end ) < k )
-            if (static_cast<int>(c_k) < c_k) {
+            // 'zeroSpeedCurv:52' if( k_vec( end ) < k )
+            if (static_cast<int>(e_k) < e_k) {
                 int f_loop_ub;
-                // 'zeroSpeedCurv:54' k_vec = [ k_vec, k ];
-                k_vec.set_size(1, static_cast<int>(c_k) + 2);
-                f_loop_ub = static_cast<int>(c_k);
-                for (int i7{0}; i7 <= f_loop_ub; i7++) {
-                    k_vec[i7] = i7;
+                // 'zeroSpeedCurv:52' k_vec = [ k_vec, k ];
+                k_vec.set_size(1, static_cast<int>(e_k) + 2);
+                f_loop_ub = static_cast<int>(e_k);
+                for (int i6{0}; i6 <= f_loop_ub; i6++) {
+                    k_vec[i6] = i6;
                 }
-                k_vec[static_cast<int>(c_k) + 1] = c_k;
+                k_vec[static_cast<int>(e_k) + 1] = e_k;
             }
         } else {
-            // 'zeroSpeedCurv:55' else
-            // 'zeroSpeedCurv:56' k_vec = 1;
+            // 'zeroSpeedCurv:53' else
+            // 'zeroSpeedCurv:54' k_vec = 1;
             k_vec.set_size(1, 1);
             k_vec[0] = 1.0;
         }
@@ -1381,13 +1465,13 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
         //    searchU : ( Boolean ) is searching a U
         //    jps : The constant pseudo jerk
         //    u : The resulting u
-        // 'zeroSpeedCurv:77' if( isempty( ratio ) )
-        // 'zeroSpeedCurv:79' [ u, ud, udd, uddd ]  = constJerkU( jps, k_vec * ctx.cfg.dt, isEnd,
+        // 'zeroSpeedCurv:75' if( isempty( ratio ) )
+        // 'zeroSpeedCurv:77' [ u, ud, udd, uddd ]  = constJerkU( jps, k_vec * ctx.cfg.dt, isEnd,
         // true );
         y.set_size(1, k_vec.size(1));
         g_loop_ub = k_vec.size(1);
-        for (int i8{0}; i8 < g_loop_ub; i8++) {
-            y[i8] = k_vec[i8] * ctx_cfg_dt;
+        for (int i7{0}; i7 < g_loop_ub; i7++) {
+            y[i7] = k_vec[i7] * ctx_cfg_dt;
         }
         //  constJerkU : Compute u and its derivative based on the pseudo jerk
         //  approximation.
@@ -1405,34 +1489,33 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
         // 'constJerkU:21' if( isEnd )
         //  Compute u and its derivatives based on constant jerk
         // 'constJerkU:27' uddd    = pseudoJerk .* ones( size( k_vec ) );
-        uv[0] = 1U;
         uv[1] = static_cast<unsigned int>(y.size(1));
         // 'constJerkU:28' udd     = pseudoJerk .* k_vec;
         // 'constJerkU:29' ud      = pseudoJerk .* k_vec .^2 / 2;
         r.set_size(1, y.size(1));
         m_loop_ub = y.size(1);
-        for (int i14{0}; i14 < m_loop_ub; i14++) {
+        for (int i13{0}; i13 < m_loop_ub; i13++) {
             double c_varargin_1;
-            c_varargin_1 = y[i14];
-            r[i14] = std::pow(c_varargin_1, 2.0);
+            c_varargin_1 = y[i13];
+            r[i13] = std::pow(c_varargin_1, 2.0);
         }
         ud.set_size(1, r.size(1));
         n_loop_ub = r.size(1);
-        for (int i15{0}; i15 < n_loop_ub; i15++) {
-            ud[i15] = b_jps * r[i15] / 2.0;
+        for (int i14{0}; i14 < n_loop_ub; i14++) {
+            ud[i14] = b_jps * r[i14] / 2.0;
         }
         // 'constJerkU:30' u       = pseudoJerk .* k_vec .^3 / 6;
         r.set_size(1, y.size(1));
         o_loop_ub = y.size(1);
-        for (int i16{0}; i16 < o_loop_ub; i16++) {
+        for (int i15{0}; i15 < o_loop_ub; i15++) {
             double d_varargin_1;
-            d_varargin_1 = y[i16];
-            r[i16] = std::pow(d_varargin_1, 3.0);
+            d_varargin_1 = y[i15];
+            r[i15] = std::pow(d_varargin_1, 3.0);
         }
         u.set_size(1, r.size(1));
         p_loop_ub = r.size(1);
-        for (int i17{0}; i17 < p_loop_ub; i17++) {
-            u[i17] = b_jps * r[i17] / 6.0;
+        for (int i16{0}; i16 < p_loop_ub; i16++) {
+            u[i16] = b_jps * r[i16] / 6.0;
         }
         // 'constJerkU:32' if( forceLimits )
         // 'constJerkU:33' u( u > 1 ) = 1;
@@ -1450,11 +1533,11 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
             }
         }
         // 'constJerkU:37' if( isEnd )
-        // 'zeroSpeedCurv:81' [ ~, V, A, J ]        = calcRVAJfromU( ctx, curv, u, ud, udd, uddd );
+        // 'zeroSpeedCurv:79' [ ~, V, A, J ]        = calcRVAJfromU( ctx, curv, u, ud, udd, uddd );
         udd_vec.set_size(1, y.size(1));
         q_loop_ub = y.size(1);
-        for (int i18{0}; i18 < q_loop_ub; i18++) {
-            udd_vec[i18] = b_jps * y[i18];
+        for (int i17{0}; i17 < q_loop_ub; i17++) {
+            udd_vec[i17] = b_jps * y[i17];
         }
         //  calcRVAJfromU : Compute the pose, the velocity, the acceleration and the
         //  jerk for a given set of u variable.
@@ -1485,29 +1568,29 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
             // 'calcRVAJfromU:22' [ r0D, r1D, r2D, r3D ] = ctx.kin.joint( r0D, r1D, r2D, r3D );
             d_r1D.set_size(c_r1D.size(0), c_r1D.size(1));
             r_loop_ub = c_r1D.size(1) - 1;
-            for (int i19{0}; i19 <= r_loop_ub; i19++) {
+            for (int i18{0}; i18 <= r_loop_ub; i18++) {
                 int s_loop_ub;
                 s_loop_ub = c_r1D.size(0) - 1;
-                for (int i20{0}; i20 <= s_loop_ub; i20++) {
-                    d_r1D[i20 + d_r1D.size(0) * i19] = c_r1D[i20 + c_r1D.size(0) * i19];
+                for (int i19{0}; i19 <= s_loop_ub; i19++) {
+                    d_r1D[i19 + d_r1D.size(0) * i18] = c_r1D[i19 + c_r1D.size(0) * i18];
                 }
             }
             b_r2D.set_size(r2D.size(0), r2D.size(1));
             t_loop_ub = r2D.size(1) - 1;
-            for (int i21{0}; i21 <= t_loop_ub; i21++) {
+            for (int i20{0}; i20 <= t_loop_ub; i20++) {
                 int u_loop_ub;
                 u_loop_ub = r2D.size(0) - 1;
-                for (int i22{0}; i22 <= u_loop_ub; i22++) {
-                    b_r2D[i22 + b_r2D.size(0) * i21] = r2D[i22 + r2D.size(0) * i21];
+                for (int i21{0}; i21 <= u_loop_ub; i21++) {
+                    b_r2D[i21 + b_r2D.size(0) * i20] = r2D[i21 + r2D.size(0) * i20];
                 }
             }
             b_r3D.set_size(r3D.size(0), r3D.size(1));
             v_loop_ub = r3D.size(1) - 1;
-            for (int i23{0}; i23 <= v_loop_ub; i23++) {
+            for (int i22{0}; i22 <= v_loop_ub; i22++) {
                 int w_loop_ub;
                 w_loop_ub = r3D.size(0) - 1;
-                for (int i24{0}; i24 <= w_loop_ub; i24++) {
-                    b_r3D[i24 + b_r3D.size(0) * i23] = r3D[i24 + r3D.size(0) * i23];
+                for (int i23{0}; i23 <= w_loop_ub; i23++) {
+                    b_r3D[i23 + b_r3D.size(0) * i22] = r3D[i23 + r3D.size(0) * i22];
                 }
             }
             b_ctx_kin.joint(b_r0D, d_r1D, b_r2D, b_r3D, a__1, c_r1D, r2D, r3D);
@@ -1535,11 +1618,11 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
             int x_loop_ub;
             V.set_size(c_r1D.size(0), c_r1D.size(1));
             x_loop_ub = c_r1D.size(1);
-            for (int i25{0}; i25 < x_loop_ub; i25++) {
+            for (int i24{0}; i24 < x_loop_ub; i24++) {
                 int ab_loop_ub;
                 ab_loop_ub = c_r1D.size(0);
-                for (int i27{0}; i27 < ab_loop_ub; i27++) {
-                    V[i27 + V.size(0) * i25] = c_r1D[i27 + c_r1D.size(0) * i25] * ud[i25];
+                for (int i26{0}; i26 < ab_loop_ub; i26++) {
+                    V[i26 + V.size(0) * i24] = c_r1D[i26 + c_r1D.size(0) * i24] * ud[i24];
                 }
             }
         } else {
@@ -1548,32 +1631,32 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
         // 'calcRVAJfromUWithoutCurv:20' A = r2D .* ud_vec .^2 + r1D .* udd_vec;
         r.set_size(1, ud.size(1));
         y_loop_ub = ud.size(1);
-        for (int i26{0}; i26 < y_loop_ub; i26++) {
+        for (int i25{0}; i25 < y_loop_ub; i25++) {
             double e_varargin_1;
-            e_varargin_1 = ud[i26];
-            r[i26] = std::pow(e_varargin_1, 2.0);
+            e_varargin_1 = ud[i25];
+            r[i25] = std::pow(e_varargin_1, 2.0);
         }
         if (r2D.size(1) == 1) {
-            i28 = r.size(1);
+            i27 = r.size(1);
         } else {
-            i28 = r2D.size(1);
+            i27 = r2D.size(1);
         }
         if (c_r1D.size(1) == 1) {
-            i29 = udd_vec.size(1);
+            i28 = udd_vec.size(1);
         } else {
-            i29 = c_r1D.size(1);
+            i28 = c_r1D.size(1);
         }
         if ((r2D.size(1) == r.size(1)) && (c_r1D.size(1) == udd_vec.size(1)) &&
-            (r2D.size(0) == c_r1D.size(0)) && (i28 == i29)) {
+            (r2D.size(0) == c_r1D.size(0)) && (i27 == i28)) {
             int bb_loop_ub;
             A.set_size(r2D.size(0), r2D.size(1));
             bb_loop_ub = r2D.size(1);
-            for (int i30{0}; i30 < bb_loop_ub; i30++) {
+            for (int i29{0}; i29 < bb_loop_ub; i29++) {
                 int db_loop_ub;
                 db_loop_ub = r2D.size(0);
-                for (int i32{0}; i32 < db_loop_ub; i32++) {
-                    A[i32 + A.size(0) * i30] = r2D[i32 + r2D.size(0) * i30] * r[i30] +
-                                               c_r1D[i32 + c_r1D.size(0) * i30] * udd_vec[i30];
+                for (int i31{0}; i31 < db_loop_ub; i31++) {
+                    A[i31 + A.size(0) * i29] = r2D[i31 + r2D.size(0) * i29] * r[i29] +
+                                               c_r1D[i31 + c_r1D.size(0) * i29] * udd_vec[i29];
                 }
             }
         } else {
@@ -1583,114 +1666,114 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
         // .* uddd_vec;
         r.set_size(1, ud.size(1));
         cb_loop_ub = ud.size(1);
-        for (int i31{0}; i31 < cb_loop_ub; i31++) {
+        for (int i30{0}; i30 < cb_loop_ub; i30++) {
             double f_varargin_1;
-            f_varargin_1 = ud[i31];
-            r[i31] = std::pow(f_varargin_1, 3.0);
+            f_varargin_1 = ud[i30];
+            r[i30] = std::pow(f_varargin_1, 3.0);
         }
         if (r2D.size(1) == 1) {
-            i33 = ud.size(1);
+            i32 = ud.size(1);
         } else {
-            i33 = r2D.size(1);
+            i32 = r2D.size(1);
         }
         if (r3D.size(1) == 1) {
-            i34 = r.size(1);
+            i33 = r.size(1);
         } else {
-            i34 = r3D.size(1);
+            i33 = r3D.size(1);
         }
         if (r2D.size(1) == 1) {
+            i34 = ud.size(1);
+        } else {
+            i34 = r2D.size(1);
+        }
+        if (i34 == 1) {
+            i35 = udd_vec.size(1);
+        } else if (r2D.size(1) == 1) {
             i35 = ud.size(1);
         } else {
             i35 = r2D.size(1);
         }
-        if (i35 == 1) {
-            i36 = udd_vec.size(1);
-        } else if (r2D.size(1) == 1) {
-            i36 = ud.size(1);
-        } else {
-            i36 = r2D.size(1);
-        }
         if (r3D.size(0) == 1) {
-            i37 = r2D.size(0);
+            i36 = r2D.size(0);
         } else {
-            i37 = r3D.size(0);
+            i36 = r3D.size(0);
         }
         if (r3D.size(1) == 1) {
-            i38 = r.size(1);
+            i37 = r.size(1);
         } else {
-            i38 = r3D.size(1);
+            i37 = r3D.size(1);
         }
         if (r2D.size(1) == 1) {
-            i39 = ud.size(1);
+            i38 = ud.size(1);
         } else {
-            i39 = r2D.size(1);
+            i38 = r2D.size(1);
         }
-        if (i38 == 1) {
-            if (i39 == 1) {
-                i40 = udd_vec.size(1);
+        if (i37 == 1) {
+            if (i38 == 1) {
+                i39 = udd_vec.size(1);
             } else if (r2D.size(1) == 1) {
-                i40 = ud.size(1);
+                i39 = ud.size(1);
             } else {
-                i40 = r2D.size(1);
+                i39 = r2D.size(1);
             }
         } else if (r3D.size(1) == 1) {
-            i40 = r.size(1);
+            i39 = r.size(1);
         } else {
-            i40 = r3D.size(1);
+            i39 = r3D.size(1);
         }
         if (c_r1D.size(1) == 1) {
-            i41 = y.size(1);
+            i40 = y.size(1);
         } else {
-            i41 = c_r1D.size(1);
+            i40 = c_r1D.size(1);
         }
-        if ((r3D.size(1) == r.size(1)) && (r2D.size(1) == ud.size(1)) && (i33 == udd_vec.size(1)) &&
-            (r3D.size(0) == r2D.size(0)) && (i34 == i36) && (c_r1D.size(1) == y.size(1)) &&
-            (i37 == c_r1D.size(0)) && (i40 == i41)) {
+        if ((r3D.size(1) == r.size(1)) && (r2D.size(1) == ud.size(1)) && (i32 == udd_vec.size(1)) &&
+            (r3D.size(0) == r2D.size(0)) && (i33 == i35) && (c_r1D.size(1) == y.size(1)) &&
+            (i36 == c_r1D.size(0)) && (i39 == i40)) {
             int eb_loop_ub;
             J.set_size(r3D.size(0), r3D.size(1));
             eb_loop_ub = r3D.size(1);
-            for (int i42{0}; i42 < eb_loop_ub; i42++) {
+            for (int i41{0}; i41 < eb_loop_ub; i41++) {
                 int fb_loop_ub;
                 fb_loop_ub = r3D.size(0);
-                for (int i43{0}; i43 < fb_loop_ub; i43++) {
-                    J[i43 + J.size(0) * i42] =
-                        (r3D[i43 + r3D.size(0) * i42] * r[i42] +
-                         3.0 * r2D[i43 + r2D.size(0) * i42] * ud[i42] * udd_vec[i42]) +
-                        c_r1D[i43 + c_r1D.size(0) * i42] * b_jps;
+                for (int i42{0}; i42 < fb_loop_ub; i42++) {
+                    J[i42 + J.size(0) * i41] =
+                        (r3D[i42 + r3D.size(0) * i41] * r[i41] +
+                         3.0 * r2D[i42 + r2D.size(0) * i41] * ud[i41] * udd_vec[i41]) +
+                        c_r1D[i42 + c_r1D.size(0) * i41] * b_jps;
                 }
             }
         } else {
             binary_expand_op(J, r3D, r, r2D, ud, udd_vec, c_r1D, b_jps, uv);
         }
-        // 'zeroSpeedCurv:83' [ r0D, r1D ]          = EvalCurvStruct( ctx, curv, u );
+        // 'zeroSpeedCurv:81' [ r0D, r1D ]          = EvalCurvStruct( ctx, curv, u );
         i_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                          ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                          ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                          ctx_cfg_NCart, ctx_cfg_NRot, curv, u, b_r0D, c_r1D);
-        // 'zeroSpeedCurv:85' ctx.kin = ctx.kin.set_tool_length( curv.tool.offset.z );
+        // 'zeroSpeedCurv:83' ctx.kin = ctx.kin.set_tool_length( curv.tool.offset.z );
         b_ctx_kin = *ctx_kin;
         b_ctx_kin.set_tool_length(curv->tool.offset.z);
-        // 'zeroSpeedCurv:87' if( curv.Info.TRAFO )
+        // 'zeroSpeedCurv:85' if( curv.Info.TRAFO )
         if (!curv->Info.TRAFO) {
             int gb_loop_ub;
-            // 'zeroSpeedCurv:89' else
-            // 'zeroSpeedCurv:90' [ r1D_r ] = ctx.kin.v_relative( r0D, r1D );
+            // 'zeroSpeedCurv:87' else
+            // 'zeroSpeedCurv:88' [ r1D_r ] = ctx.kin.v_relative( r0D, r1D );
             e_r1D.set_size(c_r1D.size(0), c_r1D.size(1));
             gb_loop_ub = c_r1D.size(1) - 1;
-            for (int i44{0}; i44 <= gb_loop_ub; i44++) {
+            for (int i43{0}; i43 <= gb_loop_ub; i43++) {
                 int hb_loop_ub;
                 hb_loop_ub = c_r1D.size(0) - 1;
-                for (int i45{0}; i45 <= hb_loop_ub; i45++) {
-                    e_r1D[i45 + e_r1D.size(0) * i44] = c_r1D[i45 + c_r1D.size(0) * i44];
+                for (int i44{0}; i44 <= hb_loop_ub; i44++) {
+                    e_r1D[i44 + e_r1D.size(0) * i43] = c_r1D[i44 + c_r1D.size(0) * i43];
                 }
             }
             b_ctx_kin.v_relative(b_r0D, e_r1D, c_r1D);
         } else {
-            // 'zeroSpeedCurv:88' r1D_r     = r1D;
+            // 'zeroSpeedCurv:86' r1D_r     = r1D;
         }
-        // 'zeroSpeedCurv:93' safetyFactor = 0.5;
-        // 'zeroSpeedCurv:94' fmax =  curv.Info.FeedRate * safetyFactor;
-        // 'zeroSpeedCurv:95' vmax =  ctx.cfg.vmax( ctx.cfg.maskTot ).' * safetyFactor;
+        // 'zeroSpeedCurv:91' safetyFactor = 0.5;
+        // 'zeroSpeedCurv:92' fmax =  curv.Info.FeedRate * safetyFactor;
+        // 'zeroSpeedCurv:93' vmax =  ctx.cfg.vmax( ctx.cfg.maskTot ).' * safetyFactor;
         b_trueCount = 0;
         b_partialTrueCount = 0;
         for (int g_i{0}; g_i <= end_tmp; g_i++) {
@@ -1700,10 +1783,10 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
                 b_partialTrueCount++;
             }
         }
-        for (int i46{0}; i46 < b_trueCount; i46++) {
-            vmax_data[i46] = ctx_cfg_vmax[b_tmp_data[i46] - 1] * 0.5;
+        for (int i45{0}; i45 < b_trueCount; i45++) {
+            vmax_data[i45] = ctx_cfg_vmax[b_tmp_data[i45] - 1] * 0.5;
         }
-        // 'zeroSpeedCurv:96' amax =  ctx.cfg.amax( ctx.cfg.maskTot ).' * safetyFactor;
+        // 'zeroSpeedCurv:94' amax =  ctx.cfg.amax( ctx.cfg.maskTot ).' * safetyFactor;
         c_trueCount = 0;
         c_partialTrueCount = 0;
         for (int h_i{0}; h_i <= end_tmp; h_i++) {
@@ -1713,10 +1796,10 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
                 c_partialTrueCount++;
             }
         }
-        for (int i47{0}; i47 < c_trueCount; i47++) {
-            amax_data[i47] = ctx_cfg_amax[c_tmp_data[i47] - 1] * 0.5;
+        for (int i46{0}; i46 < c_trueCount; i46++) {
+            amax_data[i46] = ctx_cfg_amax[c_tmp_data[i46] - 1] * 0.5;
         }
-        // 'zeroSpeedCurv:97' jmax =  ctx.cfg.jmax( ctx.cfg.maskTot ).' * safetyFactor;
+        // 'zeroSpeedCurv:95' jmax =  ctx.cfg.jmax( ctx.cfg.maskTot ).' * safetyFactor;
         d_trueCount = 0;
         d_partialTrueCount = 0;
         for (int i_i{0}; i_i <= end_tmp; i_i++) {
@@ -1726,14 +1809,14 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
                 d_partialTrueCount++;
             }
         }
-        for (int i48{0}; i48 < d_trueCount; i48++) {
-            jmax_data[i48] = ctx_cfg_jmax[d_tmp_data[i48] - 1] * 0.5;
+        for (int i47{0}; i47 < d_trueCount; i47++) {
+            jmax_data[i47] = ctx_cfg_jmax[d_tmp_data[i47] - 1] * 0.5;
         }
-        // 'zeroSpeedCurv:99' feed  = vecnorm( r1D_r( ctx.cfg.indCart, : ) ) .* ud ;
+        // 'zeroSpeedCurv:97' feed  = vecnorm( r1D_r( ctx.cfg.indCart, : ) ) .* ud ;
         y.set_size(1, c_r1D.size(1));
         ib_loop_ub = c_r1D.size(1);
-        for (int i49{0}; i49 < ib_loop_ub; i49++) {
-            y[i49] = 0.0;
+        for (int i48{0}; i48 < ib_loop_ub; i48++) {
+            y[i48] = 0.0;
         }
         hi = c_r1D.size(1) - 1;
         if (c_r1D.size(1) - 1 >= 0) {
@@ -1741,66 +1824,66 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
             outsize_idx_0 = static_cast<signed char>(ctx_cfg_indCart.size(0));
             jb_loop_ub = static_cast<signed char>(ctx_cfg_indCart.size(0));
         }
-        for (int d_k{0}; d_k <= hi; d_k++) {
+        for (int f_k{0}; f_k <= hi; f_k++) {
             xv.set_size(outsize_idx_0);
-            for (int i50{0}; i50 < jb_loop_ub; i50++) {
-                xv[i50] = 0.0;
+            for (int i49{0}; i49 < jb_loop_ub; i49++) {
+                xv[i49] = 0.0;
             }
-            for (int e_k{0}; e_k < nx; e_k++) {
-                xv[e_k] = c_r1D[(ctx_cfg_indCart[e_k] + c_r1D.size(0) * d_k) - 1];
+            for (int g_k{0}; g_k < nx; g_k++) {
+                xv[g_k] = c_r1D[(ctx_cfg_indCart[g_k] + c_r1D.size(0) * f_k) - 1];
             }
-            y[d_k] = coder::b_norm(xv);
+            y[f_k] = coder::b_norm(xv);
         }
         if (y.size(1) == ud.size(1)) {
             int kb_loop_ub;
             feed.set_size(1, y.size(1));
             kb_loop_ub = y.size(1);
-            for (int i51{0}; i51 < kb_loop_ub; i51++) {
-                feed[i51] = y[i51] * ud[i51];
+            for (int i50{0}; i50 < kb_loop_ub; i50++) {
+                feed[i50] = y[i50] * ud[i50];
             }
         } else {
             times(feed, y, ud);
         }
-        // 'zeroSpeedCurv:101' if( any( feed > fmax ) )
+        // 'zeroSpeedCurv:99' if( any( feed > fmax ) )
         x.set_size(1, feed.size(1));
         lb_loop_ub = feed.size(1);
-        for (int i52{0}; i52 < lb_loop_ub; i52++) {
-            x[i52] = (feed[i52] > b_fmax);
+        for (int i51{0}; i51 < lb_loop_ub; i51++) {
+            x[i51] = (feed[i51] > b_fmax);
         }
         b_y = false;
-        f_k = 0;
+        h_k = 0;
         exitg1 = false;
-        while ((!exitg1) && (f_k <= x.size(1) - 1)) {
-            if (x[f_k]) {
+        while ((!exitg1) && (h_k <= x.size(1) - 1)) {
+            if (x[h_k]) {
                 b_y = true;
                 exitg1 = true;
             } else {
-                f_k++;
+                h_k++;
             }
         }
         if (b_y) {
             int mb_loop_ub;
-            // 'zeroSpeedCurv:102' [ f_delta, ind ] = max( feed - fmax );
+            // 'zeroSpeedCurv:100' [ f_delta, ind ] = max( feed - fmax );
             b_feed.set_size(1, feed.size(1));
             mb_loop_ub = feed.size(1);
-            for (int i54{0}; i54 < mb_loop_ub; i54++) {
-                b_feed[i54] = feed[i54] - b_fmax;
+            for (int i53{0}; i53 < mb_loop_ub; i53++) {
+                b_feed[i53] = feed[i53] - b_fmax;
             }
             coder::internal::maximum(b_feed, &f_delta, &iindx);
-            // 'zeroSpeedCurv:103' jps = jps * ( 1 - ratio * ( 1 - f_delta / feed( ind ) ) );
+            // 'zeroSpeedCurv:101' jps = jps * ( 1 - ratio * ( 1 - f_delta / feed( ind ) ) );
             c_jps = b_jps * (1.0 - 0.9 * (1.0 - f_delta / feed[iindx - 1]));
         } else {
-            int i_k;
-            bool c_y;
+            int k_k;
+            bool varargout_1;
             r1.set_size(V.size(0), V.size(1));
             if ((V.size(0) != 0) && (V.size(1) != 0)) {
-                int i53;
-                i53 = V.size(1);
-                for (int g_k{0}; g_k < i53; g_k++) {
-                    int i55;
-                    i55 = r1.size(0);
-                    for (int h_k{0}; h_k < i55; h_k++) {
-                        r1[h_k + r1.size(0) * g_k] = std::abs(V[h_k + V.size(0) * g_k]);
+                int i52;
+                i52 = V.size(1);
+                for (int i_k{0}; i_k < i52; i_k++) {
+                    int i54;
+                    i54 = r1.size(0);
+                    for (int j_k{0}; j_k < i54; j_k++) {
+                        r1[j_k + r1.size(0) * i_k] = std::abs(V[j_k + V.size(0) * i_k]);
                     }
                 }
             }
@@ -1808,72 +1891,72 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
                 int nb_loop_ub;
                 b_x.set_size(r1.size(0), r1.size(1));
                 nb_loop_ub = r1.size(1);
-                for (int i56{0}; i56 < nb_loop_ub; i56++) {
+                for (int i55{0}; i55 < nb_loop_ub; i55++) {
                     int ob_loop_ub;
                     ob_loop_ub = r1.size(0);
-                    for (int i57{0}; i57 < ob_loop_ub; i57++) {
-                        b_x[i57 + b_x.size(0) * i56] =
-                            (r1[i57 + r1.size(0) * i56] > vmax_data[i57]);
+                    for (int i56{0}; i56 < ob_loop_ub; i56++) {
+                        b_x[i56 + b_x.size(0) * i55] =
+                            (r1[i56 + r1.size(0) * i55] > vmax_data[i56]);
                     }
                 }
             } else {
                 e_binary_expand_op(b_x, r1, vmax_data, &b_trueCount);
             }
-            c_y = false;
-            i_k = 0;
+            varargout_1 = false;
+            k_k = 0;
             exitg1 = false;
-            while ((!exitg1) && (i_k <= b_x.size(0) * b_x.size(1) - 1)) {
-                if (b_x[i_k]) {
-                    c_y = true;
+            while ((!exitg1) && (k_k <= b_x.size(0) * b_x.size(1) - 1)) {
+                if (b_x[k_k]) {
+                    varargout_1 = true;
                     exitg1 = true;
                 } else {
-                    i_k++;
+                    k_k++;
                 }
             }
-            if (c_y) {
-                // 'zeroSpeedCurv:104' elseif( any( abs( V ) > vmax, 'all' ) )
-                // 'zeroSpeedCurv:105' [ v_delta, ind ] = max( abs( V ) - vmax, [], 'all' );
+            if (varargout_1) {
+                // 'zeroSpeedCurv:102' elseif( any( abs( V ) > vmax, 'all' ) )
+                // 'zeroSpeedCurv:103' [ v_delta, ind ] = max( abs( V ) - vmax, [], 'all' );
                 if (r1.size(0) == b_trueCount) {
                     int pb_loop_ub;
-                    int sb_loop_ub;
+                    int tb_loop_ub;
                     r2.set_size(r1.size(0), r1.size(1));
                     pb_loop_ub = r1.size(1);
                     for (int i59{0}; i59 < pb_loop_ub; i59++) {
                         int rb_loop_ub;
                         rb_loop_ub = r1.size(0);
-                        for (int i62{0}; i62 < rb_loop_ub; i62++) {
-                            r2[i62 + r2.size(0) * i59] =
-                                r1[i62 + r1.size(0) * i59] - vmax_data[i62];
+                        for (int i61{0}; i61 < rb_loop_ub; i61++) {
+                            r2[i61 + r2.size(0) * i59] =
+                                r1[i61 + r1.size(0) * i59] - vmax_data[i61];
                         }
                     }
                     r1.set_size(r2.size(0), r2.size(1));
-                    sb_loop_ub = r2.size(1);
-                    for (int i63{0}; i63 < sb_loop_ub; i63++) {
+                    tb_loop_ub = r2.size(1);
+                    for (int i63{0}; i63 < tb_loop_ub; i63++) {
                         int ub_loop_ub;
                         ub_loop_ub = r2.size(0);
-                        for (int i65{0}; i65 < ub_loop_ub; i65++) {
-                            r1[i65 + r1.size(0) * i63] = r2[i65 + r2.size(0) * i63];
+                        for (int i64{0}; i64 < ub_loop_ub; i64++) {
+                            r1[i64 + r1.size(0) * i63] = r2[i64 + r2.size(0) * i63];
                         }
                     }
                     coder::internal::b_maximum(r1, &v_delta, &b_iindx);
                 } else {
                     binary_expand_op(r1, vmax_data, &b_trueCount, &v_delta, &b_iindx);
                 }
-                // 'zeroSpeedCurv:106' jps = jps * ( 1 - ratio * ( 1 - v_delta / abs( V( ind ) ) )
+                // 'zeroSpeedCurv:104' jps = jps * ( 1 - ratio * ( 1 - v_delta / abs( V( ind ) ) )
                 // );
                 c_jps = b_jps * (1.0 - 0.9 * (1.0 - v_delta / std::abs(V[b_iindx - 1])));
             } else {
-                int l_k;
-                bool d_y;
+                int n_k;
+                bool b_varargout_1;
                 r1.set_size(A.size(0), A.size(1));
                 if ((A.size(0) != 0) && (A.size(1) != 0)) {
-                    int i58;
-                    i58 = A.size(1);
-                    for (int j_k{0}; j_k < i58; j_k++) {
-                        int i60;
-                        i60 = r1.size(0);
-                        for (int k_k{0}; k_k < i60; k_k++) {
-                            r1[k_k + r1.size(0) * j_k] = std::abs(A[k_k + A.size(0) * j_k]);
+                    int i57;
+                    i57 = A.size(1);
+                    for (int l_k{0}; l_k < i57; l_k++) {
+                        int i58;
+                        i58 = r1.size(0);
+                        for (int m_k{0}; m_k < i58; m_k++) {
+                            r1[m_k + r1.size(0) * l_k] = std::abs(A[m_k + A.size(0) * l_k]);
                         }
                     }
                 }
@@ -1881,72 +1964,72 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
                     int qb_loop_ub;
                     b_x.set_size(r1.size(0), r1.size(1));
                     qb_loop_ub = r1.size(1);
-                    for (int i61{0}; i61 < qb_loop_ub; i61++) {
-                        int tb_loop_ub;
-                        tb_loop_ub = r1.size(0);
-                        for (int i64{0}; i64 < tb_loop_ub; i64++) {
-                            b_x[i64 + b_x.size(0) * i61] =
-                                (r1[i64 + r1.size(0) * i61] > amax_data[i64]);
+                    for (int i60{0}; i60 < qb_loop_ub; i60++) {
+                        int sb_loop_ub;
+                        sb_loop_ub = r1.size(0);
+                        for (int i62{0}; i62 < sb_loop_ub; i62++) {
+                            b_x[i62 + b_x.size(0) * i60] =
+                                (r1[i62 + r1.size(0) * i60] > amax_data[i62]);
                         }
                     }
                 } else {
                     e_binary_expand_op(b_x, r1, amax_data, &c_trueCount);
                 }
-                d_y = false;
-                l_k = 0;
+                b_varargout_1 = false;
+                n_k = 0;
                 exitg1 = false;
-                while ((!exitg1) && (l_k <= b_x.size(0) * b_x.size(1) - 1)) {
-                    if (b_x[l_k]) {
-                        d_y = true;
+                while ((!exitg1) && (n_k <= b_x.size(0) * b_x.size(1) - 1)) {
+                    if (b_x[n_k]) {
+                        b_varargout_1 = true;
                         exitg1 = true;
                     } else {
-                        l_k++;
+                        n_k++;
                     }
                 }
-                if (d_y) {
-                    // 'zeroSpeedCurv:107' elseif( any( abs( A ) > amax, 'all' ) )
-                    // 'zeroSpeedCurv:108' [ a_delta, ind ] = max( abs( A ) - amax, [], 'all' );
+                if (b_varargout_1) {
+                    // 'zeroSpeedCurv:105' elseif( any( abs( A ) > amax, 'all' ) )
+                    // 'zeroSpeedCurv:106' [ a_delta, ind ] = max( abs( A ) - amax, [], 'all' );
                     if (r1.size(0) == c_trueCount) {
+                        int ac_loop_ub;
                         int vb_loop_ub;
-                        int yb_loop_ub;
                         r3.set_size(r1.size(0), r1.size(1));
                         vb_loop_ub = r1.size(1);
                         for (int i67{0}; i67 < vb_loop_ub; i67++) {
                             int xb_loop_ub;
                             xb_loop_ub = r1.size(0);
-                            for (int i70{0}; i70 < xb_loop_ub; i70++) {
-                                r3[i70 + r3.size(0) * i67] =
-                                    r1[i70 + r1.size(0) * i67] - amax_data[i70];
+                            for (int i69{0}; i69 < xb_loop_ub; i69++) {
+                                r3[i69 + r3.size(0) * i67] =
+                                    r1[i69 + r1.size(0) * i67] - amax_data[i69];
                             }
                         }
                         r1.set_size(r3.size(0), r3.size(1));
-                        yb_loop_ub = r3.size(1);
-                        for (int i71{0}; i71 < yb_loop_ub; i71++) {
+                        ac_loop_ub = r3.size(1);
+                        for (int i71{0}; i71 < ac_loop_ub; i71++) {
                             int bc_loop_ub;
                             bc_loop_ub = r3.size(0);
-                            for (int i73{0}; i73 < bc_loop_ub; i73++) {
-                                r1[i73 + r1.size(0) * i71] = r3[i73 + r3.size(0) * i71];
+                            for (int i72{0}; i72 < bc_loop_ub; i72++) {
+                                r1[i72 + r1.size(0) * i71] = r3[i72 + r3.size(0) * i71];
                             }
                         }
                         coder::internal::b_maximum(r1, &a_delta, &c_iindx);
                     } else {
                         binary_expand_op(r1, amax_data, &c_trueCount, &a_delta, &c_iindx);
                     }
-                    // 'zeroSpeedCurv:109' jps = jps * ( 1 - ratio * ( 1 - a_delta / abs( A( ind ) )
+                    // 'zeroSpeedCurv:107' jps = jps * ( 1 - ratio * ( 1 - a_delta / abs( A( ind ) )
                     // ) );
                     c_jps = b_jps * (1.0 - 0.9 * (1.0 - a_delta / std::abs(A[c_iindx - 1])));
                 } else {
-                    int o_k;
-                    bool e_y;
+                    int q_k;
+                    bool c_varargout_1;
                     r1.set_size(J.size(0), J.size(1));
                     if ((J.size(0) != 0) && (J.size(1) != 0)) {
-                        int i66;
-                        i66 = J.size(1);
-                        for (int m_k{0}; m_k < i66; m_k++) {
-                            int i68;
-                            i68 = r1.size(0);
-                            for (int n_k{0}; n_k < i68; n_k++) {
-                                r1[n_k + r1.size(0) * m_k] = std::abs(J[n_k + J.size(0) * m_k]);
+                        int i65;
+                        i65 = J.size(1);
+                        for (int o_k{0}; o_k < i65; o_k++) {
+                            int i66;
+                            i66 = r1.size(0);
+                            for (int p_k{0}; p_k < i66; p_k++) {
+                                r1[p_k + r1.size(0) * o_k] = std::abs(J[p_k + J.size(0) * o_k]);
                             }
                         }
                     }
@@ -1954,63 +2037,63 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
                         int wb_loop_ub;
                         b_x.set_size(r1.size(0), r1.size(1));
                         wb_loop_ub = r1.size(1);
-                        for (int i69{0}; i69 < wb_loop_ub; i69++) {
-                            int ac_loop_ub;
-                            ac_loop_ub = r1.size(0);
-                            for (int i72{0}; i72 < ac_loop_ub; i72++) {
-                                b_x[i72 + b_x.size(0) * i69] =
-                                    (r1[i72 + r1.size(0) * i69] > jmax_data[i72]);
+                        for (int i68{0}; i68 < wb_loop_ub; i68++) {
+                            int yb_loop_ub;
+                            yb_loop_ub = r1.size(0);
+                            for (int i70{0}; i70 < yb_loop_ub; i70++) {
+                                b_x[i70 + b_x.size(0) * i68] =
+                                    (r1[i70 + r1.size(0) * i68] > jmax_data[i70]);
                             }
                         }
                     } else {
                         e_binary_expand_op(b_x, r1, jmax_data, &d_trueCount);
                     }
-                    e_y = false;
-                    o_k = 0;
+                    c_varargout_1 = false;
+                    q_k = 0;
                     exitg1 = false;
-                    while ((!exitg1) && (o_k <= b_x.size(0) * b_x.size(1) - 1)) {
-                        if (b_x[o_k]) {
-                            e_y = true;
+                    while ((!exitg1) && (q_k <= b_x.size(0) * b_x.size(1) - 1)) {
+                        if (b_x[q_k]) {
+                            c_varargout_1 = true;
                             exitg1 = true;
                         } else {
-                            o_k++;
+                            q_k++;
                         }
                     }
-                    if (e_y) {
-                        // 'zeroSpeedCurv:110' elseif( any( abs( J ) > jmax, 'all' ) )
-                        // 'zeroSpeedCurv:111' [ j_delta, ind ] = max( abs( J ) - jmax, [], 'all' );
+                    if (c_varargout_1) {
+                        // 'zeroSpeedCurv:108' elseif( any( abs( J ) > jmax, 'all' ) )
+                        // 'zeroSpeedCurv:109' [ j_delta, ind ] = max( abs( J ) - jmax, [], 'all' );
                         if (r1.size(0) == d_trueCount) {
                             int cc_loop_ub;
                             int ec_loop_ub;
                             r4.set_size(r1.size(0), r1.size(1));
                             cc_loop_ub = r1.size(1);
-                            for (int i74{0}; i74 < cc_loop_ub; i74++) {
+                            for (int i73{0}; i73 < cc_loop_ub; i73++) {
                                 int dc_loop_ub;
                                 dc_loop_ub = r1.size(0);
-                                for (int i75{0}; i75 < dc_loop_ub; i75++) {
-                                    r4[i75 + r4.size(0) * i74] =
-                                        r1[i75 + r1.size(0) * i74] - jmax_data[i75];
+                                for (int i74{0}; i74 < dc_loop_ub; i74++) {
+                                    r4[i74 + r4.size(0) * i73] =
+                                        r1[i74 + r1.size(0) * i73] - jmax_data[i74];
                                 }
                             }
                             r1.set_size(r4.size(0), r4.size(1));
                             ec_loop_ub = r4.size(1);
-                            for (int i76{0}; i76 < ec_loop_ub; i76++) {
+                            for (int i75{0}; i75 < ec_loop_ub; i75++) {
                                 int fc_loop_ub;
                                 fc_loop_ub = r4.size(0);
-                                for (int i77{0}; i77 < fc_loop_ub; i77++) {
-                                    r1[i77 + r1.size(0) * i76] = r4[i77 + r4.size(0) * i76];
+                                for (int i76{0}; i76 < fc_loop_ub; i76++) {
+                                    r1[i76 + r1.size(0) * i75] = r4[i76 + r4.size(0) * i75];
                                 }
                             }
                             coder::internal::b_maximum(r1, &j_delta, &d_iindx);
                         } else {
                             binary_expand_op(r1, jmax_data, &d_trueCount, &j_delta, &d_iindx);
                         }
-                        // 'zeroSpeedCurv:112' jps = jps * ( 1 - ratio * ( 1 - j_delta / abs( J( ind
+                        // 'zeroSpeedCurv:110' jps = jps * ( 1 - ratio * ( 1 - j_delta / abs( J( ind
                         // ) ) ) );
                         c_jps = b_jps * (1.0 - 0.9 * (1.0 - j_delta / std::abs(J[d_iindx - 1])));
                     } else {
-                        // 'zeroSpeedCurv:113' else
-                        // 'zeroSpeedCurv:114' searchJps = false;
+                        // 'zeroSpeedCurv:111' else
+                        // 'zeroSpeedCurv:112' searchJps = false;
                         searchJps = false;
                     }
                 }
@@ -2018,43 +2101,42 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
         }
         b_jps = c_jps;
     }
-    // 'zeroSpeedCurv:40' if( coder.target( "MATLAB" ) )
-    // 'zeroSpeedCurv:42' [ k_vec ]             = compute_k( jps, ctx.cfg.dt, 1 );
+    // 'zeroSpeedCurv:40' [ k_vec ]             = compute_k( jps, ctx.cfg.dt, 1 );
     //  compute_k : Compute the vector of time steps required by the paramter u to
     //  go from 0 to 1.
-    // 'zeroSpeedCurv:50' k       = ( 6 * uk / jps )^( 1 / 3 ) / dt;
-    b_k = std::pow(6.0 / b_jps, 0.33333333333333331) / ctx_cfg_dt;
-    // 'zeroSpeedCurv:52' if( k > 0 )
-    if (b_k > 0.0) {
+    // 'zeroSpeedCurv:48' k       = ( 6 * uk / jps )^( 1 / 3 ) / dt;
+    d_k = std::pow(6.0 / b_jps, 0.33333333333333331) / ctx_cfg_dt;
+    // 'zeroSpeedCurv:50' if( k > 0 )
+    if (d_k > 0.0) {
         int b_loop_ub;
-        // 'zeroSpeedCurv:53' k_vec = 0 : k;
-        k_vec.set_size(1, static_cast<int>(b_k) + 1);
-        b_loop_ub = static_cast<int>(b_k);
-        for (int i3{0}; i3 <= b_loop_ub; i3++) {
-            k_vec[i3] = i3;
+        // 'zeroSpeedCurv:51' k_vec = 0 : k;
+        k_vec.set_size(1, static_cast<int>(d_k) + 1);
+        b_loop_ub = static_cast<int>(d_k);
+        for (int i2{0}; i2 <= b_loop_ub; i2++) {
+            k_vec[i2] = i2;
         }
-        // 'zeroSpeedCurv:54' if( k_vec( end ) < k )
-        if (static_cast<int>(b_k) < b_k) {
+        // 'zeroSpeedCurv:52' if( k_vec( end ) < k )
+        if (static_cast<int>(d_k) < d_k) {
             int e_loop_ub;
-            // 'zeroSpeedCurv:54' k_vec = [ k_vec, k ];
-            k_vec.set_size(1, static_cast<int>(b_k) + 2);
-            e_loop_ub = static_cast<int>(b_k);
-            for (int i6{0}; i6 <= e_loop_ub; i6++) {
-                k_vec[i6] = i6;
+            // 'zeroSpeedCurv:52' k_vec = [ k_vec, k ];
+            k_vec.set_size(1, static_cast<int>(d_k) + 2);
+            e_loop_ub = static_cast<int>(d_k);
+            for (int i5{0}; i5 <= e_loop_ub; i5++) {
+                k_vec[i5] = i5;
             }
-            k_vec[static_cast<int>(b_k) + 1] = b_k;
+            k_vec[static_cast<int>(d_k) + 1] = d_k;
         }
     } else {
-        // 'zeroSpeedCurv:55' else
-        // 'zeroSpeedCurv:56' k_vec = 1;
+        // 'zeroSpeedCurv:53' else
+        // 'zeroSpeedCurv:54' k_vec = 1;
         k_vec.set_size(1, 1);
         k_vec[0] = 1.0;
     }
-    // 'zeroSpeedCurv:43' [ u, ud, udd ]        = constJerkU( jps, k_vec * ctx.cfg.dt, isEnd, true);
+    // 'zeroSpeedCurv:41' [ u, ud, udd ]        = constJerkU( jps, k_vec * ctx.cfg.dt, isEnd, true);
     y.set_size(1, k_vec.size(1));
     d_loop_ub = k_vec.size(1);
-    for (int i5{0}; i5 < d_loop_ub; i5++) {
-        y[i5] = k_vec[i5] * ctx_cfg_dt;
+    for (int i4{0}; i4 < d_loop_ub; i4++) {
+        y[i4] = k_vec[i4] * ctx_cfg_dt;
     }
     //  constJerkU : Compute u and its derivative based on the pseudo jerk
     //  approximation.
@@ -2075,34 +2157,34 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
     // 'constJerkU:28' udd     = pseudoJerk .* k_vec;
     udd.set_size(1, y.size(1));
     h_loop_ub = y.size(1);
-    for (int i9{0}; i9 < h_loop_ub; i9++) {
-        udd[i9] = b_jps * y[i9];
+    for (int i8{0}; i8 < h_loop_ub; i8++) {
+        udd[i8] = b_jps * y[i8];
     }
     // 'constJerkU:29' ud      = pseudoJerk .* k_vec .^2 / 2;
     r.set_size(1, y.size(1));
     i_loop_ub = y.size(1);
-    for (int i10{0}; i10 < i_loop_ub; i10++) {
+    for (int i9{0}; i9 < i_loop_ub; i9++) {
         double varargin_1;
-        varargin_1 = y[i10];
-        r[i10] = std::pow(varargin_1, 2.0);
+        varargin_1 = y[i9];
+        r[i9] = std::pow(varargin_1, 2.0);
     }
     ud.set_size(1, r.size(1));
     j_loop_ub = r.size(1);
-    for (int i11{0}; i11 < j_loop_ub; i11++) {
-        ud[i11] = b_jps * r[i11] / 2.0;
+    for (int i10{0}; i10 < j_loop_ub; i10++) {
+        ud[i10] = b_jps * r[i10] / 2.0;
     }
     // 'constJerkU:30' u       = pseudoJerk .* k_vec .^3 / 6;
     r.set_size(1, y.size(1));
     k_loop_ub = y.size(1);
-    for (int i12{0}; i12 < k_loop_ub; i12++) {
+    for (int i11{0}; i11 < k_loop_ub; i11++) {
         double b_varargin_1;
-        b_varargin_1 = y[i12];
-        r[i12] = std::pow(b_varargin_1, 3.0);
+        b_varargin_1 = y[i11];
+        r[i11] = std::pow(b_varargin_1, 3.0);
     }
     u.set_size(1, r.size(1));
     l_loop_ub = r.size(1);
-    for (int i13{0}; i13 < l_loop_ub; i13++) {
-        u[i13] = b_jps * r[i13] / 6.0;
+    for (int i12{0}; i12 < l_loop_ub; i12++) {
+        u[i12] = b_jps * r[i12] / 6.0;
     }
     // 'constJerkU:32' if( forceLimits )
     // 'constJerkU:33' u( u > 1 ) = 1;
