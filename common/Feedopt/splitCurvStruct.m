@@ -41,14 +41,11 @@ N = ceil( L / L_split );
 L_split = L / N;
 
 for k = 1 : N - 1
-    if( k > 1 )
-        curvTest = ctx.q_split.get( k );
-    end
     [ ret, curvSplited, curv ] = cutCurvStruct( ctx, curv, 0, L_split, false );
     if( ret < 0 ), break; end
 
-    assert( check_curv_length( ctx, curvSplited, L_split ), ...
-            mfilename + " Curve Length not valide");
+    ocn_assert( check_curv_length( ctx, curvSplited, L_split ), ...
+        "Curve Length not valide", mfilename );
 
     ctx.q_split.push( curvSplited );
     
@@ -67,9 +64,4 @@ function [ isValid ] = check_curv_length( ctx, curv, L )
 tol = 1E-3;
 
 isValid = ( abs( LengthCurv( ctx, curv, 0, 1 ) - L ) <= tol );
-
-if( ~isValid )
-    disp("spline Length is not valid");
-end
-
 end

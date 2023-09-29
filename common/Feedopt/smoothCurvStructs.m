@@ -12,6 +12,8 @@ DebugLog( DebugCfg.OptimProgress,    'Smoothing...\n' );
 curv = ctx.q_compress.get( 1 );
 for k = 2 : Ncrv
     ctx.k0 = ctx.k0 + 1;
+    if(coder.target("MATLAB")), disp( "" + ctx.k0 + "/" + Ncrv ); end
+
     nextCurv = ctx.q_compress.get( k );
 
     [ needStop, needTransition ] = check_stop_and_transition( ctx, ...

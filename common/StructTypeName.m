@@ -16,6 +16,8 @@ classdef ( Sealed ) StructTypeName < handle
     properties ( Constant )
         % Maximum number of axis
         NumberAxisMax = 6;
+        % Disable Assert
+        AssertDisable = false;
     end
 
     properties ( Constant )

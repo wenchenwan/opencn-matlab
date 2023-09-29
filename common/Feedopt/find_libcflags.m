@@ -1,7 +1,7 @@
 function cflags = find_libcflags(name)
 
 [status, cflags] = system(sprintf("pkg-config --cflags %s", name));
-assert(status == 0);
+ocn_assert( status == 0, "Fails to find the libraries", mfilename);
 
 cflags = strip(cflags);
 

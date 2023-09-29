@@ -13,7 +13,7 @@ elseif ( curv.Info.Type == CurveType.Spline )
 elseif ( curv.Info.Type == CurveType.TransP5 )
     L = TransP5LengthApprox( curv );
 else
-    c_assert(false, 'BAD CURVE TYPE IN LENGTH CURV');
+    ocn_assert( false, "BAD CURVE TYPE IN LENGTH CURV", mfilename );
     L = 0;
 end
 

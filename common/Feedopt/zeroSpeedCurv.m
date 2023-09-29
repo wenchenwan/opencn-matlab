@@ -37,8 +37,6 @@ while searchJps
     [ searchJps, jps] = calc_u( isEnd, searchJps, jps, ctx, curv, k_vec );
 end
 
-if( coder.target( "MATLAB" ) ), disp( ind ); end
-
 [ k_vec ]             = compute_k( jps, ctx.cfg.dt, 1 );
 [ u, ud, udd ]        = constJerkU( jps, k_vec * ctx.cfg.dt, isEnd, true);
 

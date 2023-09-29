@@ -60,8 +60,8 @@ end
 
 function checkValidity( A, b )
 
-assert( ~any( isnan( A ) , 'all' ),          mfilename + " Error : A has NaN");
-assert( ~any( isnan( b ) , 'all' ),          mfilename + " Error : b has NaN");
+ocn_assert( ~any( isnan( A ) , 'all' ), "A has NaN", mfilename );
+ocn_assert( ~any( isnan( b ) , 'all' ), "b has NaN", mfilename );
 
 end
 

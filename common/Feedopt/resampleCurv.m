@@ -138,7 +138,6 @@ if(d > dt ), d = dt; end
 end
 
 function [ u ] = check_u_state_validity( u, state )
-assert( u > 0, "U parameter should not be negative during resampling" );
-
+ocn_assert( u > 0, "U parameter should not be negative during resampling", mfilename);
 u  = state.u + check_minimum_precision( u - state.u );
 end

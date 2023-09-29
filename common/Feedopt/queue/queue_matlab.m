@@ -25,9 +25,7 @@ classdef queue_matlab
         end
         
         function value = get(this, index)
-            if index > this.count
-                error('Outside of range')
-            end
+            ocn_assert(~(index > this.count), "Outside of range", mfilename);    
             value = this.data(index);
         end
         

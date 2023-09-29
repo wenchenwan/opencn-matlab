@@ -8,6 +8,7 @@ DebugLog( DebugCfg.OptimProgress, 'Checking for cusps...\n' );
 curv1 = ctx.q_gcode.get( 1 );
 for k = 2 : N
     ctx.k0  = ctx.k0 + 1;
+    if(coder.target("MATLAB")), disp( "" + ctx.k0 + "/" + N ); end
     curv2   = ctx.q_gcode.get( k );
 
     % Detect cusp in piece frame

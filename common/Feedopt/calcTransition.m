@@ -28,9 +28,9 @@ if( ( L1 < 3 * Lcut1 ) || ( L2 < 3 * Lcut2 ) )
 end
 
 [ ~, curv1C, ~ ] = cutCurvStruct( ctx, curv1, 0, L1-Lcut1, false );
-assert( check_curv_length( ctx, curv1C, L1-Lcut1 ), mfilename + " Curve Length not valide");
+ocn_assert( check_curv_length( ctx, curv1C, L1-Lcut1 ), "Curve Length not valide", mfilename );
 [ ~, ~, curv2C ] = cutCurvStruct( ctx, curv2, 1, L2-Lcut2, true );
-assert( check_curv_length( ctx, curv2C, L2-Lcut2 ), mfilename + " Curve Length not valide");
+ocn_assert( check_curv_length( ctx, curv2C, L2-Lcut2 ), "Curve Length not valide", mfilename );
 
 [r0D0, r0D1, r0D2] = EvalCurvStruct( ctx, curv1C, 1 );
 [r1D0, r1D1, r1D2] = EvalCurvStruct( ctx, curv2C, 0 );

@@ -3,13 +3,9 @@ function [r0D, r1D, r2D, r3D] = EvalCurvStructNoCtx( cfg, curv, spline, u_vec )
 %#codegen
 
 coder.inline("never");
-if any( u_vec > 1.0 )
-    u_vec( u_vec > 1.0 ) = 1.0; printMsg( "Error : u_vec > 1\n" );
-end
 
-if any( u_vec < 0.0 )
-    u_vec( u_vec < 0.0 ) = 0.0; printMsg( "Error : u_vec < 0\n" );
-end
+ocn_assert( ~any( u_vec > 1.0 ), "u_vec > 1", mfilename );
+ocn_assert( ~any( u_vec < 0.0 ), "u_vec < 0", mfilename );
 
 %
 Type    = curv.Info.Type;
@@ -48,19 +44,9 @@ switch Type
     case CurveType.Spline   % Spline
         [ r0D, r1D, r2D, r3D ]  = EvalBSpline( spline, u_vec_tilda );
     otherwise
-        c_assert( false, 'Unknown Curve Type for Eval.\n' );
+        ocn_assert( false, "Unknown Curve Type for Eval...", mfilename ); 
 end
 
 r1D = a   .* r1D;
 r2D = a^2 .* r2D;
 r3D = a^3 .* r3D;
-
-
-function [] = printMsg( err_msg )
-% printMsg : Print erro message according to the coder.target.
-err_msg = "EvalCurvStruct : " + err_msg;
-if coder.target('matlab')
-    error(err_msg);
-else
-    fprintf(err_msg);
-end

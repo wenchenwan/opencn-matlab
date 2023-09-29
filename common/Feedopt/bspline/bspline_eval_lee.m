@@ -1,8 +1,7 @@
 function [ BasisVal, BasisValDD0, BasisValDD1 ] = bspline_eval_lee( Bl, nCoeff, u_vec )
 %#codegen
-    assert( all( u_vec >= 0, 'all' ), "ERROR : u_vec should be greater or equal to 0" );
-    assert( all( u_vec <= 1, 'all' ), "ERROR : u_vec should be lower or equal to 1" );
-
+    ocn_assert( all( u_vec >= 0, 'all' ), "u_vec should be greater or equal to 0", mfilename );
+    ocn_assert( all( u_vec <= 1, 'all' ), "u_vec should be greater or equal to 1", mfilename );
     if ( coder.target('rtw') || coder.target('mex') )
         N = numel( u_vec );
 

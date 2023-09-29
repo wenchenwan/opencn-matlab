@@ -141,7 +141,7 @@ end
 
 function [ quit, ctx ] = opt_error( ctx, msg )
 if coder.target('MATLAB')
-    c_assert( true, 'OPTIMIZATION FAILED' );
+    ocn_assert( true, "OPTIMIZATION FAILED", mfilename );
 else
     DebugLog( DebugCfg.Global, 'OPTIMIZATION FAILED!\n' );
     ctx.errcode = FeedoptPlanError.OptimizationFailed;

@@ -9,8 +9,8 @@ function [ cfg ] = setMachineAxisInConfig( cfg, maskTot )
 %#codegen
 
 coder.inline("never");
+ocn_assert( numel( maskTot ) == 6, "MaskTot should have 6 elements...", mfilename);
 
-assert( numel( maskTot ) == 6, "Error : maskTot should have 6 elements\n" );
 cfg.maskTot = maskTot;
 
 cfg = check_values( cfg );

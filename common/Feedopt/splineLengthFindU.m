@@ -29,8 +29,8 @@ if( isEnd )
 end
 
 C_ASSERT_MSG = 'u0 must be %s or equal than the first spline knot';
-assert( u0 >= Knots(1),   sprintf(C_ASSERT_MSG, 'greater') );
-assert( u0 <= Knots(end), sprintf(C_ASSERT_MSG, 'smaller') );
+ocn_assert( u0 >= Knots(1),   sprintf(C_ASSERT_MSG, 'greater'), mfilename );
+ocn_assert( u0 <= Knots(end), sprintf(C_ASSERT_MSG, 'smaller'), mfilename );
 
 kStartVec = find( Knots <= u0, 1, "last" );
 kStart    = kStartVec( 1 );
@@ -62,7 +62,7 @@ uRight      = Knots( kEnd );
 
 [ u, count ] = bisection( uLeft, uRight, cfg, spline, LDiff, ITER_MAX, DEFAULT_TOL, isEnd );
 
-if( u < 0 ), error( mfilename + " : Fails to compute length\n" ); end
+ocn_assert(~(u < 0), "Fails to compute length", mfilename);
 
 if( isEnd && u >= 0 )
     u = 1 -u;

@@ -15,7 +15,7 @@ GenerateAll = true;
 
 if( ~GenerateAll )
     GenerateFeedopt    = true;
-    GenerateKinematics = true;
+    GenerateKinematics = false;
 end
 
 DEBUG = false;
@@ -31,6 +31,7 @@ if( GenerateAll || GenerateFeedopt )
     disp(name + "start" );
     try
         generate_feedopt_c( cfg, dirName, DEBUG );
+        remove_date_from_headers( dirName, "*.cpp" );
     catch ME
         fprintf( ERROR_COLOR, name + "failed : " + ME.message + "\n" );
     end
@@ -43,6 +44,7 @@ if( GenerateAll || GenerateKinematics )
     disp(name + "start" );
     try
         generate_kinematics_c( cfg, dirName, DEBUG );
+        remove_date_from_headers( dirName, "*.cpp" );
     catch ME
         fprintf( ERROR_COLOR, name + "failed : " + ME.message + "\n" );
     end
@@ -54,4 +56,43 @@ cfg.TargetLang = 'C';
 % For C, the default library is 'C99 (ISO)'.
 cfg.TargetLangStandard  = 'C89/C90 (ANSI)';
 cfg.FilePartitionMethod = 'SingleFile';
+end
+
+
+function [] = remove_date_from_headers( output_dir, fileType )
+% remove_date_from_headers : Remove the date from generated files. It is a must have to simplify the git history of the generated files.
+% Inputs :
+%   output_dir  : The folder which contains the files to parse
+%   fileType    : The file extenssion to consider
+% 
+% Outputs : 
+%
+files = {dir(fullfile(output_dir, fileType)).name};
+    
+    % Return if fails to find any files
+    if( isempty(files) ), return; end
+    
+    expression = "code generated on";
+
+    for f_ = files
+        fileName = fullfile(output_dir, f_{:});
+
+        fid = fopen(fileName,'r');          % Open File to read
+        tline = 's';
+        A = {[]};
+        while ischar(tline)
+            tline = fgetl(fid);
+            if ischar(tline) && ~contains(tline, expression)                
+                A{ end + 1 } = tline;
+            end
+        end
+        fclose(fid);
+
+        fid2=fopen(fileName,'w');            % Open file to write
+        for i = 1:length(A)
+            fprintf(fid2,'%s\n', A{i});
+        end
+        fclose(fid2);
+    end
+
 end

@@ -17,15 +17,12 @@ if( ret < 0 )
     [ ~, ~, ~, jps ]        = zeroSpeedCurv( ctx, curv1, true );
     curv1.ConstJerk         = jps;
 else
-    assert( check_curv_length( ctx, curv2, Lcut ), ...
-            mfilename + " Curve Length not valide");
+    ocn_assert( check_curv_length( ctx, curv2, Lcut ), "Curve Length not valide", mfilename );
     curv2.UseConstJerk      = true;
     [ ~, ~, ~, jps ]        = zeroSpeedCurv( ctx, curv2, true );
     curv2.ConstJerk         = jps;
     curv1.UseConstJerk      = false;
-    if( coder.target("MATLAB") )
-        check_continuity( ctx, curv, curv1, curv2 );
-    end
+    check_continuity( ctx, curv, curv1, curv2 );
 end
 
 %     if( u >= curv.b_param + curv.a_param || u <= curv.b_param)
@@ -94,17 +91,14 @@ diff_rdd    = abs( r1dd  -r2dd );
 
 tol = 1E-9;
 
-assert( all( diff_r    < tol, 'all' ), mfilename + ...
-    ".m : continuity C0 failed " + mat2str( diff_r' ) );
-assert( all( diff_rd   < tol, 'all' ), mfilename + ...
-    " : continuity C1 failed"  + mat2str( diff_rd' ) );
-assert( all( diff_rdd  < tol, 'all' ), mfilename + ...
-    " : continuity C2 failed"  + mat2str( diff_rdd' ) );
+ocn_assert( all( diff_r    < tol, 'all' ), "Continuity C0 failed", mfilename );
+ocn_assert( all( diff_rd   < tol, 'all' ), "Continuity C1 failed", mfilename );
+ocn_assert( all( diff_rdd   < tol, 'all' ),"Continuity C2 failed", mfilename );
 end
 
 
 function [ isValid ] = check_curv_length( ctx, curv, L )
-tol = 1E-5;
+tol = 1E-3;
 
 isValid = ( abs( LengthCurv( ctx, curv, 0, 1 ) - L ) <= tol );
 

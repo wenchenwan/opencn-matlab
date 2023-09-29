@@ -1,9 +1,8 @@
 function [ctx, optimized, opt_struct] = FeedoptPlan(ctx)
 %#codegen
 % See InitFeedoptPlan for information about the context variable ctx
-
-c_assert( ctx.errcode == FeedoptPlanError.Success, ...
-    'FeedoptPlan: error code was not handled' );
+ocn_assert( ctx.errcode == FeedoptPlanError.Success, ...
+    "FeedoptPlan: error code was not handled...", mfilename ); 
 
 optimized = false;
 
@@ -83,14 +82,9 @@ switch ctx.op
             last.Info.zspdmode = ZSpdMode.NZ;
         end
         ctx.q_gcode.set( ctx.q_gcode.size, last );
-
-        assert( checkGeometry( ctx.q_gcode ), "ERROR : " + mfilename ...
-            + ".m : Check geometry failed " );
-        assert( checkZSpdmode( ctx.q_gcode ), "ERROR : " + mfilename ...
-            + ".m : Check zspdmode failed " );
-        assert( checkParametrisation( ctx.q_gcode ), "ERROR : " + mfilename ...
-            + ".m : Check parametrisation failed " );
-
+        
+        assert_queue( ctx.op, ctx.q_gcode );
+        
         ctx.op = Fopt.Check;
 
     case Fopt.Check
@@ -100,12 +94,8 @@ switch ctx.op
         if ~ctx.cfg.Cusp.Skip
             ctx     = CheckCurvStructs( ctx );
         end
-        assert( checkGeometry( ctx.q_gcode ), "ERROR : " + mfilename ...
-            + ".m : Check geometry failed " );
-        assert( checkZSpdmode( ctx.q_gcode ), "ERROR : " + mfilename ...
-            + ".m : Check zspdmode failed " );
-        assert( checkParametrisation( ctx.q_gcode ), "ERROR : " + mfilename ...
-            + ".m : Check parametrisation failed " );
+        
+        assert_queue( ctx.op, ctx.q_gcode );
 
         ctx.op  = Fopt.Compress;
 
@@ -119,12 +109,8 @@ switch ctx.op
         else
             ctx = compressCurvStructs(ctx);
         end
-        assert( checkGeometry( ctx.q_compress ), "ERROR : " + mfilename ...
-            + ".m : Check geometry failed " );
-        assert( checkZSpdmode( ctx.q_compress ), "ERROR : " + mfilename ...
-            + ".m : compress zspdmode failed " );
-        assert( checkParametrisation( ctx.q_compress ), "ERROR : " + mfilename ...
-            + ".m : Check parametrisation failed " );
+
+        assert_queue( ctx.op, ctx.q_compress );
 
         ctx.op = Fopt.Smooth;
         if( coder.target( 'MATLAB') ), ctx.q_gcode.delete(); end
@@ -136,12 +122,7 @@ switch ctx.op
         ctx = smoothCurvStructs(ctx);
         ctx.op = Fopt.Split;
 
-        assert( checkGeometry( ctx.q_smooth ), "ERROR : " + mfilename ...
-            + ".m : Check geometry failed " );
-        assert( checkZSpdmode( ctx.q_smooth ), "ERROR : " + mfilename ...
-            + ".m : smooth zspdmode failed " );
-        assert( checkParametrisation( ctx.q_smooth ), "ERROR : " + mfilename ...
-            + ".m : Check parametrisation failed " );
+        assert_queue( ctx.op, ctx.q_smooth );
 
         if( coder.target( 'MATLAB') ), ctx.q_compress.delete(); end
 
@@ -152,12 +133,8 @@ switch ctx.op
         ctx     = splitQueue( ctx );
         ctx.op  = Fopt.Opt;
 
-        assert( checkZSpdmode( ctx.q_split ), "ERROR : " + mfilename ...
-            + ".m : splitted zspdmode failed " );
-        assert( checkParametrisation( ctx.q_split ), "ERROR : " + mfilename ...
-            + ".m : Check parametrisation failed " );
-        assert( checkGeometry( ctx.q_split ), "ERROR : " + mfilename ...
-            + ".m : Check geometry failed " );
+        assert_queue( ctx.op, ctx.q_split );
+
 %         histogramLength( ctx, ctx.q_split, "Splitting" );        
         if( coder.target( 'MATLAB' ) ), ctx.q_smooth.delete(); end
 
@@ -181,4 +158,14 @@ switch ctx.op
 
 end
 
+end
+
+function assert_queue(op, queue)
+    msg = string( op );
+    ocn_assert( checkGeometry( queue ), ...
+    msg + " - Check geometry failed...", mfilename ); 
+    ocn_assert( checkZSpdmode( queue ), ...
+    msg + " - Check zspdmode failed...", mfilename );
+    ocn_assert( checkParametrisation( queue ), ...
+    msg + " - Check parametrisation failed...", mfilename );
 end

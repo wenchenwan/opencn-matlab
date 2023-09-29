@@ -27,6 +27,7 @@ ctx.k0 = int32( 1 );
 
 for k = 1 : Ncrv
     ctx.k0 = ctx.k0 + 1;
+    if(coder.target("MATLAB")), disp( "" + ctx.k0 + "/" + Ncrv ); end
     curv = ctx.q_gcode.get( k ); % Get next Curve in the queue
 
     [ addBatch ]    = check_add_batch( ctx, curv );
