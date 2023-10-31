@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,14 +6,13 @@
 // File: resampleCurv.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Sep-2023 09:32:18
 //
 
 #ifndef RESAMPLECURV_H
 #define RESAMPLECURV_H
 
 // Include Files
-#include "opencn_matlab_types3.h"
+#include "opencn_matlab_types11.h"
 #include "rtwtypes.h"
 #include "coder_array.h"
 #include <cstddef>
@@ -28,7 +28,7 @@ class ResampleStateClass;
 
 // Function Declarations
 namespace ocn {
-void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode curv_mode,
+void resampleCurv(ResampleStateClass *b_state, unsigned long Bl_handle, ZSpdMode curv_mode,
                   const ::coder::array<double, 1U> &coeff, double constJerk, double dt,
                   const ::coder::array<double, 1U> &GaussLegendreX,
                   const ::coder::array<double, 1U> &GaussLegendreW);

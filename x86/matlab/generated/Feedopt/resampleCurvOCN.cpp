@@ -13,7 +13,8 @@
 #include "ResampleStateClass.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_initialize.h"
-#include "opencn_matlab_types3.h"
+#include "opencn_matlab_types11.h"
+#include "opencn_matlab_types2.h"
 #include "resampleCurv.h"
 #include "coder_array.h"
 
@@ -25,7 +26,7 @@
 // resampleCurvOCN :
 //  Interface for the resampling in ocn
 //
-// Arguments    : ResampleStateClass *state
+// Arguments    : ResampleStateClass *b_state
 //                const BaseSplineStruct *Bl
 //                ZSpdMode curv_mode
 //                const ::coder::array<double, 1U> &coeff
@@ -36,7 +37,7 @@
 // Return Type  : void
 //
 namespace ocn {
-void resampleCurvOCN(ResampleStateClass *state, const BaseSplineStruct *Bl, ZSpdMode curv_mode,
+void resampleCurvOCN(ResampleStateClass *b_state, const BaseSplineStruct *Bl, ZSpdMode curv_mode,
                      const ::coder::array<double, 1U> &coeff, double constJerk, double dt,
                      const ::coder::array<double, 1U> &GaussLegendreX,
                      const ::coder::array<double, 1U> &GaussLegendreW)
@@ -46,7 +47,7 @@ void resampleCurvOCN(ResampleStateClass *state, const BaseSplineStruct *Bl, ZSpd
     }
     // 'resampleCurvOCN:5' [ state ] = resampleCurv(state, Bl, curv_mode, coeff, constJerk, dt, ...
     // 'resampleCurvOCN:6'     GaussLegendreX, GaussLegendreW );
-    resampleCurv(state, Bl->handle, curv_mode, coeff, constJerk, dt, GaussLegendreX,
+    resampleCurv(b_state, Bl->handle, curv_mode, coeff, constJerk, dt, GaussLegendreX,
                  GaussLegendreW);
 }
 

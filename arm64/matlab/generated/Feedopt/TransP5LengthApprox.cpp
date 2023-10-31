@@ -13,148 +13,197 @@
 #include "mypolyder.h"
 #include "mypolyval.h"
 #include "opencn_matlab_data.h"
-#include "opencn_matlab_types1.h"
 #include "coder_array.h"
 #include <cmath>
 #include <cstring>
 
 // Function Definitions
 //
-// function L = TransP5LengthApprox(CurvStruct)
+// function L = TransP5LengthApprox( CurvStruct, u0, u1 )
 //
 // Computes approximately the arc length of a parametric spline
 //
-// Arguments    : const CurvStruct *b_CurvStruct
+// Arguments    : const ::coder::array<double, 2U> &CurvStruct_CoeffP5
+//                double u0
+//                double u1
 // Return Type  : double
 //
 namespace ocn {
-double TransP5LengthApprox(const CurvStruct *b_CurvStruct)
+double TransP5LengthApprox(const ::coder::array<double, 2U> &CurvStruct_CoeffP5, double u0,
+                           double u1)
 {
-    static const double a[9]{
-        0.055555555555555552, 0.16666666666666666, 0.27777777777777779, 0.38888888888888884, 0.5,
-        0.61111111111111116,  0.7222222222222221,  0.83333333333333326, 0.94444444444444442};
     ::coder::array<double, 2U> p5_1D;
     ::coder::array<double, 2U> r;
     ::coder::array<double, 2U> r1;
     ::coder::array<double, 2U> y;
-    ::coder::array<signed char, 2U> b;
+    ::coder::array<int, 2U> b;
+    double u_vec[10];
     double Integrand[9];
     double b_y1[9];
+    double u_mid[9];
     double x[9];
     double b_y;
     double work;
-    int ixLead;
-    int nD;
+    int b_outsize_idx_0;
+    int c_loop_ub;
+    int i3;
+    int outsize_idx_0;
     int vlen;
     int xsubs_idx_1;
     short ysubs_idx_1;
-    // 'TransP5LengthApprox:3' p5    = CurvStruct.CoeffP5;
-    // 'TransP5LengthApprox:4' p5_1D = mypolyder(p5);
+    // 'TransP5LengthApprox:3' p5          = CurvStruct.CoeffP5;
+    // 'TransP5LengthApprox:4' p5_1D       = mypolyder( p5 );
     // MYPOLYDER Differentiate polynomial.
     //
     // u  = u(:).';
     // 'mypolyder:5' [nD, nu] = size(u);
     // 'mypolyder:6' if nu < 2
-    // 'mypolyder:8' else
-    // 'mypolyder:9' a = u(:, 1:nu-1) .* repmat(nu-1:-1:1, nD, 1);
-    b.set_size(b_CurvStruct->CoeffP5.size(0), 5);
-    if (b_CurvStruct->CoeffP5.size(0) != 0) {
-        int i;
-        i = b_CurvStruct->CoeffP5.size(0) - 1;
-        for (int k{0}; k < 5; k++) {
-            for (int t{0}; t <= i; t++) {
-                b[t + b.size(0) * k] = static_cast<signed char>(5 - k);
-            }
-        }
-    }
-    if (b_CurvStruct->CoeffP5.size(0) == b.size(0)) {
-        int loop_ub;
-        loop_ub = b_CurvStruct->CoeffP5.size(0);
-        p5_1D.set_size(b_CurvStruct->CoeffP5.size(0), 5);
-        for (int i1{0}; i1 < 5; i1++) {
-            for (int i2{0}; i2 < loop_ub; i2++) {
-                p5_1D[i2 + p5_1D.size(0) * i1] =
-                    b_CurvStruct->CoeffP5[i2 + b_CurvStruct->CoeffP5.size(0) * i1] *
-                    static_cast<double>(b[i2 + b.size(0) * i1]);
-            }
-        }
+    if (CurvStruct_CoeffP5.size(1) < 2) {
+        // 'mypolyder:7' a = 0;
+        p5_1D.set_size(1, 1);
+        p5_1D[0] = 0.0;
     } else {
-        binary_expand_op(p5_1D, b_CurvStruct, b);
+        // 'mypolyder:8' else
+        // 'mypolyder:9' a = u(:, 1:nu-1) .* repmat(nu-1:-1:1, nD, 1);
+        b.set_size(CurvStruct_CoeffP5.size(0), CurvStruct_CoeffP5.size(1) - 1);
+        if (CurvStruct_CoeffP5.size(0) != 0) {
+            int i;
+            int na;
+            na = CurvStruct_CoeffP5.size(1) - 2;
+            i = CurvStruct_CoeffP5.size(0) - 1;
+            for (int k{0}; k <= na; k++) {
+                for (int t{0}; t <= i; t++) {
+                    b[t + b.size(0) * k] = (CurvStruct_CoeffP5.size(1) - k) - 1;
+                }
+            }
+        }
+        if ((CurvStruct_CoeffP5.size(0) == b.size(0)) &&
+            (CurvStruct_CoeffP5.size(1) - 1 == b.size(1))) {
+            int b_loop_ub;
+            int loop_ub;
+            loop_ub = CurvStruct_CoeffP5.size(0);
+            b_loop_ub = CurvStruct_CoeffP5.size(1) - 1;
+            p5_1D.set_size(CurvStruct_CoeffP5.size(0), CurvStruct_CoeffP5.size(1) - 1);
+            for (int i1{0}; i1 < b_loop_ub; i1++) {
+                for (int i2{0}; i2 < loop_ub; i2++) {
+                    p5_1D[i2 + p5_1D.size(0) * i1] =
+                        CurvStruct_CoeffP5[i2 + CurvStruct_CoeffP5.size(0) * i1] *
+                        static_cast<double>(b[i2 + b.size(0) * i1]);
+                }
+            }
+        } else {
+            binary_expand_op(p5_1D, CurvStruct_CoeffP5, b);
+        }
     }
     //  Derivative
-    // 'TransP5LengthApprox:5' u_vec     = linspace(0,1,10);
-    // 'TransP5LengthApprox:6' u_mid     = 0.5*(u_vec(1:end-1) +u_vec(2:end));
-    //  Midpoint values
-    // 'TransP5LengthApprox:7' du        = diff(u_vec);
-    ixLead = 1;
-    work = 0.0;
-    for (int m{0}; m < 9; m++) {
-        double tmp2;
-        double work_tmp;
-        tmp2 = work;
-        work_tmp = 0.1111111111111111 * static_cast<double>(ixLead);
-        work = work_tmp;
-        b_y1[m] = work_tmp - tmp2;
-        ixLead++;
+    // 'TransP5LengthApprox:5' u_vec       = linspace( u0, u1, 10 );
+    u_vec[9] = u1;
+    u_vec[0] = u0;
+    if (u0 == -u1) {
+        double d2scaled;
+        d2scaled = u1 / 9.0;
+        for (int b_k{0}; b_k < 8; b_k++) {
+            u_vec[b_k + 1] = (2.0 * (static_cast<double>(b_k) + 2.0) - 11.0) * d2scaled;
+        }
+    } else if (((u0 < 0.0) != (u1 < 0.0)) && ((std::abs(u0) > 8.9884656743115785E+307) ||
+                                              (std::abs(u1) > 8.9884656743115785E+307))) {
+        double delta1;
+        double delta2;
+        delta1 = u0 / 9.0;
+        delta2 = u1 / 9.0;
+        for (int d_k{0}; d_k < 8; d_k++) {
+            u_vec[d_k + 1] = (u0 + delta2 * (static_cast<double>(d_k) + 1.0)) -
+                             delta1 * (static_cast<double>(d_k) + 1.0);
+        }
+    } else {
+        double delta1;
+        delta1 = (u1 - u0) / 9.0;
+        for (int c_k{0}; c_k < 8; c_k++) {
+            u_vec[c_k + 1] = u0 + (static_cast<double>(c_k) + 1.0) * delta1;
+        }
     }
-    // 'TransP5LengthApprox:8' Integrand = mysqrt(sum(mypolyval(p5_1D, u_mid).^2));
+    // 'TransP5LengthApprox:6' u_mid       = 0.5 * ( u_vec( 1 : end-1 ) + u_vec( 2 : end ) );
+    //  Midpoint values
+    // 'TransP5LengthApprox:7' du          = diff( u_vec );
+    work = u_vec[0];
+    // 'TransP5LengthApprox:8' Integrand   = mysqrt( sum( mypolyval( p5_1D, u_mid ) .^ 2 ) );
     // POLYVAL Evaluate array of polynomials with same degree.
     //
     // 'mypolyval:4' [nD, nc] = size(p);
-    nD = p5_1D.size(0);
     // 'mypolyval:5' siz_x    = length(x);
     //
     //  Use Horner's method for general case where X is an array.
     // 'mypolyval:8' y = zeros(nD, siz_x);
-    // 'mypolyval:9' if nc > 0
-    // 'mypolyval:10' y(:) = repmat(p(:, 1), 1, siz_x);
     y.set_size(p5_1D.size(0), 9);
-    if (p5_1D.size(0) != 0) {
-        int i3;
-        i3 = p5_1D.size(0) - 1;
-        for (int b_t{0}; b_t < 9; b_t++) {
-            for (int b_k{0}; b_k <= i3; b_k++) {
-                y[b_k + y.size(0) * b_t] = p5_1D[b_k];
+    c_loop_ub = p5_1D.size(0);
+    for (int m{0}; m < 9; m++) {
+        double tmp2;
+        double u_mid_tmp;
+        u_mid_tmp = u_vec[m + 1];
+        u_mid[m] = 0.5 * (u_vec[m] + u_mid_tmp);
+        tmp2 = work;
+        work = u_mid_tmp;
+        b_y1[m] = u_mid_tmp - tmp2;
+        for (int i5{0}; i5 < c_loop_ub; i5++) {
+            y[i5 + y.size(0) * m] = 0.0;
+        }
+    }
+    // 'mypolyval:9' if nc > 0
+    if (p5_1D.size(1) > 0) {
+        // 'mypolyval:10' y(:) = repmat(p(:, 1), 1, siz_x);
+        y.set_size(p5_1D.size(0), 9);
+        if (p5_1D.size(0) != 0) {
+            int i4;
+            i4 = p5_1D.size(0) - 1;
+            for (int b_t{0}; b_t < 9; b_t++) {
+                for (int e_k{0}; e_k <= i4; e_k++) {
+                    y[e_k + y.size(0) * b_t] = p5_1D[e_k];
+                }
             }
         }
     }
     // 'mypolyval:12' for i=2:nc
-    for (int b_i{0}; b_i < 4; b_i++) {
-        int i8;
+    i3 = p5_1D.size(1);
+    if (p5_1D.size(1) - 2 >= 0) {
+        outsize_idx_0 = p5_1D.size(0);
+        b_outsize_idx_0 = p5_1D.size(0);
+    }
+    for (int b_i{0}; b_i <= i3 - 2; b_i++) {
+        int i10;
         // 'mypolyval:13' y = repmat(x, nD, 1) .* y + repmat(p(:, i), 1, siz_x);
-        r.set_size(nD, 9);
-        if (p5_1D.size(0) != 0) {
-            int i5;
-            i5 = nD - 1;
-            for (int c_k{0}; c_k < 9; c_k++) {
-                for (int c_t{0}; c_t <= i5; c_t++) {
-                    r[c_t + r.size(0) * c_k] = a[c_k];
+        r.set_size(outsize_idx_0, 9);
+        if (outsize_idx_0 != 0) {
+            int i7;
+            i7 = p5_1D.size(0) - 1;
+            for (int f_k{0}; f_k < 9; f_k++) {
+                for (int c_t{0}; c_t <= i7; c_t++) {
+                    r[c_t + r.size(0) * f_k] = u_mid[f_k];
                 }
             }
         }
-        r1.set_size(p5_1D.size(0), 9);
-        if (p5_1D.size(0) != 0) {
-            int i7;
-            i7 = p5_1D.size(0) - 1;
+        r1.set_size(b_outsize_idx_0, 9);
+        if (b_outsize_idx_0 != 0) {
+            int i9;
+            i9 = p5_1D.size(0) - 1;
             for (int d_t{0}; d_t < 9; d_t++) {
-                for (int d_k{0}; d_k <= i7; d_k++) {
-                    r1[d_k + r1.size(0) * d_t] = p5_1D[d_k + p5_1D.size(0) * (b_i + 1)];
+                for (int g_k{0}; g_k <= i9; g_k++) {
+                    r1[g_k + r1.size(0) * d_t] = p5_1D[g_k + p5_1D.size(0) * (b_i + 1)];
                 }
             }
         }
         if (r.size(0) == 1) {
-            i8 = y.size(0);
+            i10 = y.size(0);
         } else {
-            i8 = r.size(0);
+            i10 = r.size(0);
         }
-        if ((r.size(0) == y.size(0)) && (i8 == r1.size(0))) {
-            int c_loop_ub;
+        if ((r.size(0) == y.size(0)) && (i10 == r1.size(0))) {
+            int e_loop_ub;
             y.set_size(r.size(0), 9);
-            c_loop_ub = r.size(0);
-            for (int i9{0}; i9 < 9; i9++) {
-                for (int i10{0}; i10 < c_loop_ub; i10++) {
-                    y[i10 + y.size(0) * i9] = r[i10 + r.size(0) * i9] * y[i10 + y.size(0) * i9] +
-                                              r1[i10 + r1.size(0) * i9];
+            e_loop_ub = r.size(0);
+            for (int i11{0}; i11 < 9; i11++) {
+                for (int i12{0}; i12 < e_loop_ub; i12++) {
+                    y[i12 + y.size(0) * i11] = r[i12 + r.size(0) * i11] * y[i12 + y.size(0) * i11] +
+                                               r1[i12 + r1.size(0) * i11];
                 }
             }
         } else {
@@ -162,13 +211,13 @@ double TransP5LengthApprox(const CurvStruct *b_CurvStruct)
         }
     }
     y.set_size(y.size(0), 9);
-    for (int i4{0}; i4 < 9; i4++) {
-        int b_loop_ub;
-        b_loop_ub = y.size(0);
-        for (int i6{0}; i6 < b_loop_ub; i6++) {
+    for (int i6{0}; i6 < 9; i6++) {
+        int d_loop_ub;
+        d_loop_ub = y.size(0);
+        for (int i8{0}; i8 < d_loop_ub; i8++) {
             double varargin_1;
-            varargin_1 = y[i6 + y.size(0) * i4];
-            y[i6 + y.size(0) * i4] = std::pow(varargin_1, 2.0);
+            varargin_1 = y[i8 + y.size(0) * i6];
+            y[i8 + y.size(0) * i6] = std::pow(varargin_1, 2.0);
         }
     }
     vlen = y.size(0);
@@ -192,17 +241,17 @@ double TransP5LengthApprox(const CurvStruct *b_CurvStruct)
                 lastBlockLength = 1024;
             }
         }
-        for (int e_k{0}; e_k < 9; e_k++) {
-            Integrand[e_k] = y[y.size(0) * e_k];
-            for (int g_k{2}; g_k <= firstBlockLength; g_k++) {
+        for (int h_k{0}; h_k < 9; h_k++) {
+            Integrand[h_k] = y[y.size(0) * h_k];
+            for (int j_k{2}; j_k <= firstBlockLength; j_k++) {
                 if (vlen >= 2) {
-                    ysubs_idx_1 = static_cast<short>(e_k + 1);
-                    Integrand[e_k] += y[(g_k + y.size(0) * e_k) - 1];
+                    ysubs_idx_1 = static_cast<short>(h_k + 1);
+                    Integrand[h_k] += y[(j_k + y.size(0) * h_k) - 1];
                 }
             }
             if (nblocks >= 2) {
-                xsubs_idx_1 = e_k + 1;
-                ysubs_idx_1 = static_cast<short>(e_k + 1);
+                xsubs_idx_1 = h_k + 1;
+                ysubs_idx_1 = static_cast<short>(h_k + 1);
             }
             for (int ib{2}; ib <= nblocks; ib++) {
                 double bsum;
@@ -215,11 +264,11 @@ double TransP5LengthApprox(const CurvStruct *b_CurvStruct)
                 } else {
                     hi = 1024;
                 }
-                for (int i_k{2}; i_k <= hi; i_k++) {
+                for (int l_k{2}; l_k <= hi; l_k++) {
                     double b_bsum;
                     b_bsum = bsum;
                     if (vlen >= 2) {
-                        b_bsum = bsum + y[((offset + i_k) + y.size(0) * e_k) - 1];
+                        b_bsum = bsum + y[((offset + l_k) + y.size(0) * h_k) - 1];
                     }
                     bsum = b_bsum;
                 }
@@ -230,16 +279,16 @@ double TransP5LengthApprox(const CurvStruct *b_CurvStruct)
     // 'mysqrt:3' y = sqrt(x);
     // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
     sqrt_calls++;
-    // 'TransP5LengthApprox:9' L         = sum(Integrand.*du);
-    for (int f_k{0}; f_k < 9; f_k++) {
+    // 'TransP5LengthApprox:9' L           = sum( Integrand .* du );
+    for (int i_k{0}; i_k < 9; i_k++) {
         double d;
-        d = std::sqrt(Integrand[f_k]);
-        Integrand[f_k] = d;
-        x[f_k] = d * b_y1[f_k];
+        d = std::sqrt(Integrand[i_k]);
+        Integrand[i_k] = d;
+        x[i_k] = d * b_y1[i_k];
     }
     b_y = x[0];
-    for (int h_k{0}; h_k < 8; h_k++) {
-        b_y += x[h_k + 1];
+    for (int k_k{0}; k_k < 8; k_k++) {
+        b_y += x[k_k + 1];
     }
     return b_y;
 }

@@ -13,10 +13,15 @@
 #include "constrCurvStruct.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_initialize.h"
+#include "opencn_matlab_types.h"
 #include "opencn_matlab_types1.h"
+#include "opencn_matlab_types11.h"
+#include "opencn_matlab_types111.h"
 #include "opencn_matlab_types2.h"
 #include "opencn_matlab_types3.h"
 #include "paramsDefaultCurv.h"
+#include "coder_array.h"
+#include "coder_bounded_array.h"
 
 // Function Definitions
 //
@@ -33,6 +38,7 @@ void constrCurvStructType(double, CurvStruct *C)
 {
     Axes params_tool_offset;
     SplineStruct params_spline;
+    b_CurvStruct e_expl_temp;
     double params_CoeffP5[6];
     double params_R0[6];
     double params_R1[6];
@@ -47,6 +53,10 @@ void constrCurvStructType(double, CurvStruct *C)
     double params_tool_backangle;
     double params_tool_diameter;
     double params_tool_frontangle;
+    int b_loop_ub;
+    int c_loop_ub;
+    int e_loop_ub;
+    int loop_ub;
     int params_gcodeInfoStruct_gcode_source_line;
     int params_tool_orientation;
     int params_tool_pocketno;
@@ -84,7 +94,52 @@ void constrCurvStructType(double, CurvStruct *C)
                        params_gcodeInfoStruct_G91_1, params_tool_toolno, params_tool_pocketno,
                        &params_tool_offset, params_tool_diameter, params_tool_frontangle,
                        params_tool_backangle, params_tool_orientation, &params_spline, params_R0,
-                       params_R1, params_Cprim, params_evec, params_CoeffP5, C);
+                       params_R1, params_Cprim, params_evec, params_CoeffP5, &e_expl_temp);
+    C->Info = e_expl_temp.Info;
+    C->tool = e_expl_temp.tool;
+    C->sp = e_expl_temp.sp;
+    C->R0.set_size(e_expl_temp.R0.size[0]);
+    loop_ub = e_expl_temp.R0.size[0];
+    for (int i{0}; i < loop_ub; i++) {
+        C->R0[i] = e_expl_temp.R0.data[i];
+    }
+    C->R1.set_size(e_expl_temp.R1.size[0]);
+    b_loop_ub = e_expl_temp.R1.size[0];
+    for (int i1{0}; i1 < b_loop_ub; i1++) {
+        C->R1[i1] = e_expl_temp.R1.data[i1];
+    }
+    C->delta = e_expl_temp.delta;
+    C->CorrectedHelixCenter[0] = e_expl_temp.CorrectedHelixCenter[0];
+    C->evec[0] = e_expl_temp.evec[0];
+    C->CorrectedHelixCenter[1] = e_expl_temp.CorrectedHelixCenter[1];
+    C->evec[1] = e_expl_temp.evec[1];
+    C->CorrectedHelixCenter[2] = e_expl_temp.CorrectedHelixCenter[2];
+    C->evec[2] = e_expl_temp.evec[2];
+    C->theta = e_expl_temp.theta;
+    C->pitch = e_expl_temp.pitch;
+    C->CoeffP5.set_size(e_expl_temp.CoeffP5.size(0), e_expl_temp.CoeffP5.size(1));
+    c_loop_ub = e_expl_temp.CoeffP5.size(1);
+    for (int i2{0}; i2 < c_loop_ub; i2++) {
+        int d_loop_ub;
+        d_loop_ub = e_expl_temp.CoeffP5.size(0);
+        for (int i3{0}; i3 < d_loop_ub; i3++) {
+            C->CoeffP5[i3 + C->CoeffP5.size(0) * i2] =
+                e_expl_temp.CoeffP5[i3 + e_expl_temp.CoeffP5.size(0) * i2];
+        }
+    }
+    C->sp_index = e_expl_temp.sp_index;
+    C->i_begin_sp = e_expl_temp.i_begin_sp;
+    C->i_end_sp = e_expl_temp.i_end_sp;
+    C->index_smooth = e_expl_temp.index_smooth;
+    C->UseConstJerk = e_expl_temp.UseConstJerk;
+    C->ConstJerk = e_expl_temp.ConstJerk;
+    C->Coeff.set_size(e_expl_temp.Coeff.size(0));
+    e_loop_ub = e_expl_temp.Coeff.size(0);
+    for (int i4{0}; i4 < e_loop_ub; i4++) {
+        C->Coeff[i4] = e_expl_temp.Coeff[i4];
+    }
+    C->a_param = e_expl_temp.a_param;
+    C->b_param = e_expl_temp.b_param;
 }
 
 } // namespace ocn

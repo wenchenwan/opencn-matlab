@@ -13,8 +13,8 @@
 #include "constrGcodeInfoStruct.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_initialize.h"
-#include "opencn_matlab_types21.h"
-#include "opencn_matlab_types3.h"
+#include "opencn_matlab_types11.h"
+#include "opencn_matlab_types2.h"
 
 // Function Definitions
 //
@@ -41,7 +41,7 @@ void constrGcodeInfoStructType(double, GcodeInfoStruct *C)
     // params.TRAFO, ... 'constrGcodeInfoStructType:15'         params.HSC, params.G91,
     // params.G91_1, params.FeedRate, ... 'constrGcodeInfoStructType:16' params.SpindleSpeed,
     // params.gcode_source_line );
-    constrGcodeInfoStruct(CurveType_Line, ZSpdMode_NN, false, false, false, true, 0.0, 0.0, 0, C);
+    constrGcodeInfoStruct(CurveType_None, ZSpdMode_NN, false, false, false, true, 0.0, 0.0, 0, C);
 }
 
 } // namespace ocn

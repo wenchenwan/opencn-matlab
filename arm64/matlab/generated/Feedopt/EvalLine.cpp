@@ -271,8 +271,8 @@ static void binary_expand_op(::coder::array<double, 1U> &in1, const double in2_d
 //  r2D           :   nDxn : 2nd order parametric derivative for the line at u\_vec points
 //  r3D           :   nDxn : 3rd order parametric derivative for the line at u\_vec points
 //
-// Arguments    : const double CurvStruct_R0[6]
-//                const double CurvStruct_R1[6]
+// Arguments    : const ::coder::array<double, 1U> &CurvStruct_R0
+//                const ::coder::array<double, 1U> &CurvStruct_R1
 //                const ::coder::array<double, 1U> &u_vec
 //                const bool mask_data[]
 //                const int mask_size[2]
@@ -282,7 +282,8 @@ static void binary_expand_op(::coder::array<double, 1U> &in1, const double in2_d
 //                ::coder::array<double, 2U> &r3D
 // Return Type  : void
 //
-void EvalLine(const double CurvStruct_R0[6], const double CurvStruct_R1[6],
+void EvalLine(const ::coder::array<double, 1U> &CurvStruct_R0,
+              const ::coder::array<double, 1U> &CurvStruct_R1,
               const ::coder::array<double, 1U> &u_vec, const bool mask_data[],
               const int mask_size[2], ::coder::array<double, 1U> &r0D,
               ::coder::array<double, 2U> &r1D, ::coder::array<double, 2U> &r2D,
@@ -446,8 +447,8 @@ void EvalLine(const double CurvStruct_R0[6], const double CurvStruct_R1[6],
 //  r2D           :   nDxn : 2nd order parametric derivative for the line at u\_vec points
 //  r3D           :   nDxn : 3rd order parametric derivative for the line at u\_vec points
 //
-// Arguments    : const double CurvStruct_R0[6]
-//                const double CurvStruct_R1[6]
+// Arguments    : const ::coder::array<double, 1U> &CurvStruct_R0
+//                const ::coder::array<double, 1U> &CurvStruct_R1
 //                double u_vec
 //                const bool mask_data[]
 //                const int mask_size[2]
@@ -459,7 +460,8 @@ void EvalLine(const double CurvStruct_R0[6], const double CurvStruct_R1[6],
 //                ::coder::array<double, 1U> &r3D
 // Return Type  : void
 //
-void b_EvalLine(const double CurvStruct_R0[6], const double CurvStruct_R1[6], double u_vec,
+void b_EvalLine(const ::coder::array<double, 1U> &CurvStruct_R0,
+                const ::coder::array<double, 1U> &CurvStruct_R1, double u_vec,
                 const bool mask_data[], const int mask_size[2], double r0D_data[], int *r0D_size,
                 double r1D_data[], int *r1D_size, ::coder::array<double, 1U> &r2D,
                 ::coder::array<double, 1U> &r3D)
@@ -591,8 +593,8 @@ void b_EvalLine(const double CurvStruct_R0[6], const double CurvStruct_R1[6], do
 //  r2D           :   nDxn : 2nd order parametric derivative for the line at u\_vec points
 //  r3D           :   nDxn : 3rd order parametric derivative for the line at u\_vec points
 //
-// Arguments    : const double CurvStruct_R0[6]
-//                const double CurvStruct_R1[6]
+// Arguments    : const ::coder::array<double, 1U> &CurvStruct_R0
+//                const ::coder::array<double, 1U> &CurvStruct_R1
 //                const ::coder::array<double, 2U> &u_vec
 //                const bool mask_data[]
 //                const int mask_size[2]
@@ -602,7 +604,8 @@ void b_EvalLine(const double CurvStruct_R0[6], const double CurvStruct_R1[6], do
 //                ::coder::array<double, 2U> &r3D
 // Return Type  : void
 //
-void c_EvalLine(const double CurvStruct_R0[6], const double CurvStruct_R1[6],
+void c_EvalLine(const ::coder::array<double, 1U> &CurvStruct_R0,
+                const ::coder::array<double, 1U> &CurvStruct_R1,
                 const ::coder::array<double, 2U> &u_vec, const bool mask_data[],
                 const int mask_size[2], ::coder::array<double, 2U> &r0D,
                 ::coder::array<double, 2U> &r1D, ::coder::array<double, 2U> &r2D,
@@ -765,8 +768,8 @@ void c_EvalLine(const double CurvStruct_R0[6], const double CurvStruct_R1[6],
 //  r2D           :   nDxn : 2nd order parametric derivative for the line at u\_vec points
 //  r3D           :   nDxn : 3rd order parametric derivative for the line at u\_vec points
 //
-// Arguments    : const double CurvStruct_R0[6]
-//                const double CurvStruct_R1[6]
+// Arguments    : const ::coder::array<double, 1U> &CurvStruct_R0
+//                const ::coder::array<double, 1U> &CurvStruct_R1
 //                const double u_vec[2]
 //                const bool mask_data[]
 //                const int mask_size[2]
@@ -778,7 +781,8 @@ void c_EvalLine(const double CurvStruct_R0[6], const double CurvStruct_R1[6],
 //                ::coder::array<double, 2U> &r3D
 // Return Type  : void
 //
-void d_EvalLine(const double CurvStruct_R0[6], const double CurvStruct_R1[6], const double u_vec[2],
+void d_EvalLine(const ::coder::array<double, 1U> &CurvStruct_R0,
+                const ::coder::array<double, 1U> &CurvStruct_R1, const double u_vec[2],
                 const bool mask_data[], const int mask_size[2], double r0D_data[], int r0D_size[2],
                 double r1D_data[], int r1D_size[2], ::coder::array<double, 2U> &r2D,
                 ::coder::array<double, 2U> &r3D)

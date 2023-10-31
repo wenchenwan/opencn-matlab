@@ -12,6 +12,7 @@
 #include "splineLength.h"
 #include "EvalBSpline.h"
 #include "find.h"
+#include "ocn_assert.h"
 #include "opencn_matlab_data.h"
 #include "sum.h"
 #include "coder_array.h"
@@ -78,10 +79,14 @@ double splineLength(const double cfg_GaussLegendreX[5], const double cfg_GaussLe
     }
     // 'splineLength:7' Lk     = sp.Lk;
     // 'splineLength:9' ocn_assert( u2 > u1,          'u2 must be greater than u1', mfilename);
+    g_ocn_assert(u2 > u1);
     // 'splineLength:10' ocn_assert( u1 >= Knots(1),   'u1 must be greater or equal than the first
-    // spline knot', mfilename); 'splineLength:11' ocn_assert( u2 <= Knots(end), 'u2 must be smaller
-    // or equal than the last spline knot', mfilename); 'splineLength:13' kStartVec  = find( Knots
-    // <= u1, 1, "last" );
+    // spline knot', mfilename);
+    h_ocn_assert(u1 >= spline_sp_knots[i1 + 1]);
+    // 'splineLength:11' ocn_assert( u2 <= Knots(end), 'u2 must be smaller or equal than the last
+    // spline knot', mfilename);
+    i_ocn_assert(u2 <= spline_sp_knots[i2]);
+    // 'splineLength:13' kStartVec  = find( Knots <= u1, 1, "last" );
     loop_ub = i2 - i1;
     b_spline_sp_knots.set_size(1, loop_ub);
     for (int i3{0}; i3 < loop_ub; i3++) {

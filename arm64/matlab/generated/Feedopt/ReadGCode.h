@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: ReadGCode.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Sep-2023 09:56:15
 //
 
 #ifndef READGCODE_H
@@ -13,7 +13,7 @@
 
 // Include Files
 #include "opencn_matlab_types.h"
-#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types111.h"
 #include "rtwtypes.h"
 #include <cstddef>
 #include <cstdlib>
@@ -23,7 +23,7 @@
 // Function Declarations
 namespace ocn {
 extern void ReadGCode(ReadGCodeCmd cmd, const char filename_data[], const int filename_size[2],
-                      int *status, CurvStruct *b_CurvStruct);
+                      ReadGCodeError *status, CurvStruct *c_CurvStruct, MsgStruct *err_msg);
 
 }
 

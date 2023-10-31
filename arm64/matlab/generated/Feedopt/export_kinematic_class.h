@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: export_kinematic_class.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Sep-2023 09:56:15
 //
 
 #ifndef EXPORT_KINEMATIC_CLASS_H
@@ -22,7 +22,7 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-extern void export_kinematic_class(const FeedoptConfig cfg, ::coder::array<double, 2U> &vec,
+extern void export_kinematic_class(const FeedoptConfig cfg, const ::coder::array<double, 2U> &vec,
                                    const ::coder::array<double, 2U> &vecd,
                                    const ::coder::array<double, 2U> &vecdd,
                                    const ::coder::array<double, 2U> &vecddd,

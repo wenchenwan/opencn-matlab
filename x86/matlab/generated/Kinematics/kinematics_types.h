@@ -1,3 +1,4 @@
+
 /*
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
  * File: kinematics_types.h
  *
  * MATLAB Coder version            : 5.4
- * C/C++ source code generated on  : 29-Sep-2023 09:41:05
  */
 
 #ifndef KINEMATICS_TYPES_H

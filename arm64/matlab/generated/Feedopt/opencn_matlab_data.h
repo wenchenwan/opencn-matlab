@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: opencn_matlab_data.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Sep-2023 09:56:15
 //
 
 #ifndef OPENCN_MATLAB_DATA_H
@@ -14,7 +14,7 @@
 // Include Files
 #include "opencn_matlab_internal_types.h"
 #include "opencn_matlab_types.h"
-#include "opencn_matlab_types3.h"
+#include "opencn_matlab_types11.h"
 #include "rtwtypes.h"
 #include <cstddef>
 #include <cstdlib>
@@ -27,6 +27,8 @@ extern double sqrt_calls;
 extern double cos_calls;
 extern double sin_calls;
 extern double DebugConfig;
+extern unsigned int state[625];
+extern const char cv[2048];
 extern bool isInitialized_opencn_matlab;
 } // namespace ocn
 

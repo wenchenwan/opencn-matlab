@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: SplineLengthApproxGL_tot.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Sep-2023 09:32:18
 //
 
 #ifndef SPLINELENGTHAPPROXGL_TOT_H
@@ -30,7 +30,7 @@ namespace ocn {
 void binary_expand_op(CurvStruct *in1, const ::coder::array<double, 2U> &in2, int in3, int in7,
                       int in8, int in11);
 
-void c_binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
+void i_binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
                         const ::coder::array<double, 2U> &in3);
 
 } // namespace ocn

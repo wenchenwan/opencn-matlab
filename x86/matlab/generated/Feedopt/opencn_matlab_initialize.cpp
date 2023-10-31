@@ -11,6 +11,7 @@
 // Include Files
 #include "opencn_matlab_initialize.h"
 #include "EvalCurvStruct.h"
+#include "eml_rand_mt19937ar_stateful.h"
 #include "feedratePlanning.h"
 #include "opencn_matlab_data.h"
 
@@ -28,6 +29,7 @@ void opencn_matlab_initialize()
     sqrt_calls = 0.0;
     EvalCurvStruct_init();
     feedratePlanning_init();
+    eml_rand_mt19937ar_stateful_init();
     isInitialized_opencn_matlab = true;
 }
 

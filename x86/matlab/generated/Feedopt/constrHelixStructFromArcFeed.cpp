@@ -14,8 +14,10 @@
 #include "constrHelixStruct.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_initialize.h"
-#include "opencn_matlab_types1.h"
-#include "opencn_matlab_types21.h"
+#include "opencn_matlab_types11.h"
+#include "opencn_matlab_types111.h"
+#include "opencn_matlab_types2.h"
+#include "opencn_matlab_types3.h"
 #include <cmath>
 #include <emmintrin.h>
 
@@ -61,7 +63,6 @@ void constrHelixStructFromArcFeed(const GcodeInfoStruct *gcodeInfoStruct, const 
                                   const double A0[3], const double A1[3], double rotation,
                                   const double evec[3], CurvStruct *CStrct)
 {
-    GcodeInfoStruct b_gcodeInfoStruct;
     double c_P0[6];
     double c_P1[6];
     double b[3];
@@ -266,9 +267,12 @@ void constrHelixStructFromArcFeed(const GcodeInfoStruct *gcodeInfoStruct, const 
     c_P0[5] = A0[2];
     c_P1[2] = P1[2];
     c_P1[5] = A1[2];
-    b_gcodeInfoStruct = *gcodeInfoStruct;
-    constrHelixStruct(&b_gcodeInfoStruct, tool, c_P0, c_P1, b_Cprim, delta, evec, theta, pitch,
-                      CStrct);
+    b_constrHelixStruct(gcodeInfoStruct->zspdmode, gcodeInfoStruct->TRAFO, gcodeInfoStruct->HSC,
+                        gcodeInfoStruct->FeedRate, gcodeInfoStruct->SpindleSpeed,
+                        gcodeInfoStruct->gcode_source_line, gcodeInfoStruct->G91,
+                        gcodeInfoStruct->G91_1, tool->toolno, tool->pocketno, &tool->offset,
+                        tool->diameter, tool->frontangle, tool->backangle, tool->orientation, c_P0,
+                        c_P1, b_Cprim, delta, evec, theta, pitch, CStrct);
 }
 
 } // namespace ocn

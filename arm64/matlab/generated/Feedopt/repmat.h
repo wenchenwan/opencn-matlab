@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: repmat.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Sep-2023 09:56:15
 //
 
 #ifndef REPMAT_H
@@ -22,6 +22,8 @@
 // Function Declarations
 namespace ocn {
 namespace coder {
+void repmat(const ::coder::array<double, 1U> &a, double varargin_2, ::coder::array<double, 2U> &b);
+
 void repmat(const ::coder::array<double, 1U> &a, int varargin_2, ::coder::array<double, 2U> &b);
 
 void repmat(const ::coder::array<double, 2U> &a, double varargin_1, double varargin_2,

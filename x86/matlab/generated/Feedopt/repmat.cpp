@@ -15,12 +15,34 @@
 // Function Definitions
 //
 // Arguments    : const ::coder::array<double, 1U> &a
-//                int varargin_2
+//                double varargin_2
 //                ::coder::array<double, 2U> &b
 // Return Type  : void
 //
 namespace ocn {
 namespace coder {
+void repmat(const ::coder::array<double, 1U> &a, double varargin_2, ::coder::array<double, 2U> &b)
+{
+    b.set_size(a.size(0), static_cast<int>(varargin_2));
+    if ((a.size(0) != 0) && (static_cast<int>(varargin_2) != 0)) {
+        int i;
+        i = static_cast<int>(varargin_2) - 1;
+        for (int t{0}; t <= i; t++) {
+            int na;
+            na = a.size(0);
+            for (int k{0}; k < na; k++) {
+                b[k + b.size(0) * t] = a[k];
+            }
+        }
+    }
+}
+
+//
+// Arguments    : const ::coder::array<double, 1U> &a
+//                int varargin_2
+//                ::coder::array<double, 2U> &b
+// Return Type  : void
+//
 void repmat(const ::coder::array<double, 1U> &a, int varargin_2, ::coder::array<double, 2U> &b)
 {
     ::coder::array<double, 2U> b_b;

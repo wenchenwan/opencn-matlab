@@ -1,3 +1,4 @@
+
 /*
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
  * File: kinematics.c
  *
  * MATLAB Coder version            : 5.4
- * C/C++ source code generated on  : 29-Sep-2023 09:41:05
  */
 
 /* Include Files */
@@ -14,1713 +14,1486 @@
 
 /* Function Definitions */
 /*
- * function J2P_ar = kin_J2P_ar_xyzbc(in1,in2,in3,in4)
+ * function J2P_jt = kin_xyzbc_tt_J2P_jt(in1,in2,in3,in4)
  *
- * kin_J2P_ar_xyzbc
- *     J2P_ar = kin_J2P_ar_xyzbc(IN1,IN2,IN3,IN4)
+ * kin_xyzbc_tt_J2P_jt
+ *     J2P_jt = kin_xyzbc_tt_J2P_jt(IN1,IN2,IN3,IN4)
  *
  * Arguments    : const double in1[5]
  *                const double in2[5]
  *                const double in3[5]
- *                double in4[4][3]
- *                double J2P_ar[5][5]
+ *                double in4[5][3]
+ *                double J2P_jt[5][5]
  * Return Type  : void
  */
-void kin_J2P_ar_xyzbc(const double in1[5], const double in2[5], const double in3[5],
-                      double in4[4][3], double J2P_ar[5][5])
+void kin_xyzbc_tt_J2P_jt(const double in1[5], const double in2[5], const double in3[5],
+                         double in4[5][3], double J2P_jt[5][5])
 {
-    double b_in3[25];
-    double ab_in3_tmp;
-    double ac_in3_tmp;
-    double ad_in3_tmp;
-    double b_in3_tmp;
-    double b_in3_tmp_tmp;
-    double bb_in3_tmp;
-    double bc_in3_tmp;
-    double bd_in3_tmp;
-    double c_in3_tmp;
-    double c_in3_tmp_tmp;
-    double cb_in3_tmp;
-    double cc_in3_tmp;
-    double cd_in3_tmp;
-    double d_in3_tmp;
-    double d_in3_tmp_tmp;
-    double db_in3_tmp;
-    double dc_in3_tmp;
-    double dd_in3_tmp;
-    double e_in3_tmp;
-    double e_in3_tmp_tmp;
-    double eb_in3_tmp;
-    double ec_in3_tmp;
-    double ed_in3_tmp;
-    double f_in3_tmp;
-    double f_in3_tmp_tmp;
-    double fb_in3_tmp;
-    double fc_in3_tmp;
-    double fd_in3_tmp;
-    double g_in3_tmp;
-    double g_in3_tmp_tmp;
-    double gb_in3_tmp;
-    double gc_in3_tmp;
-    double gd_in3_tmp;
-    double h_in3_tmp;
-    double h_in3_tmp_tmp;
-    double hb_in3_tmp;
-    double hc_in3_tmp;
-    double hd_in3_tmp;
-    double i_in3_tmp;
-    double i_in3_tmp_tmp;
-    double ib_in3_tmp;
-    double ic_in3_tmp;
-    double id_in3_tmp;
-    double in3_tmp;
-    double in3_tmp_tmp;
-    double j_in3_tmp;
-    double jb_in3_tmp;
-    double jc_in3_tmp;
-    double jd_in3_tmp;
-    double k_in3_tmp;
-    double kb_in3_tmp;
-    double kc_in3_tmp;
-    double kd_in3_tmp;
-    double l_in3_tmp;
-    double lb_in3_tmp;
-    double lc_in3_tmp;
-    double ld_in3_tmp;
-    double m_in3_tmp;
-    double mb_in3_tmp;
-    double mc_in3_tmp;
-    double n_in3_tmp;
-    double nb_in3_tmp;
-    double nc_in3_tmp;
-    double o_in3_tmp;
-    double ob_in3_tmp;
-    double oc_in3_tmp;
-    double p_in3_tmp;
-    double pb_in3_tmp;
-    double pc_in3_tmp;
-    double q_in3_tmp;
-    double qb_in3_tmp;
-    double qc_in3_tmp;
-    double r_in3_tmp;
-    double rb_in3_tmp;
-    double rc_in3_tmp;
-    double s_in3_tmp;
-    double sb_in3_tmp;
-    double sc_in3_tmp;
+    double b_t2[25];
+    double ab_t2_tmp;
+    double ac_t2_tmp;
+    double b_t2_tmp;
+    double b_t2_tmp_tmp;
+    double bb_t2_tmp;
+    double bc_t2_tmp;
+    double c_t2_tmp;
+    double c_t2_tmp_tmp;
+    double cb_t2_tmp;
+    double cc_t2_tmp;
+    double d_t2_tmp;
+    double d_t2_tmp_tmp;
+    double db_t2_tmp;
+    double dc_t2_tmp;
+    double e_t2_tmp;
+    double eb_t2_tmp;
+    double ec_t2_tmp;
+    double f_t2_tmp;
+    double fb_t2_tmp;
+    double fc_t2_tmp;
+    double g_t2_tmp;
+    double gb_t2_tmp;
+    double gc_t2_tmp;
+    double h_t2_tmp;
+    double hb_t2_tmp;
+    double hc_t2_tmp;
+    double i_t2_tmp;
+    double ib_t2_tmp;
+    double ic_t2_tmp;
+    double j_t2_tmp;
+    double jb_t2_tmp;
+    double jc_t2_tmp;
+    double k_t2_tmp;
+    double kb_t2_tmp;
+    double kc_t2_tmp;
+    double l_t2_tmp;
+    double lb_t2_tmp;
+    double lc_t2_tmp;
+    double m_t2_tmp;
+    double mb_t2_tmp;
+    double mc_t2_tmp;
+    double n_t2_tmp;
+    double nb_t2_tmp;
+    double nc_t2_tmp;
+    double o_t2_tmp;
+    double ob_t2_tmp;
+    double oc_t2_tmp;
+    double p_t2_tmp;
+    double pb_t2_tmp;
+    double q_t2_tmp;
+    double qb_t2_tmp;
+    double r_t2_tmp;
+    double rb_t2_tmp;
+    double s_t2_tmp;
+    double sb_t2_tmp;
     double t2;
+    double t2_tmp;
+    double t2_tmp_tmp;
     double t3;
     double t4;
     double t5;
     double t6;
     double t7;
-    double t_in3_tmp;
-    double tb_in3_tmp;
-    double tc_in3_tmp;
-    double u_in3_tmp;
-    double ub_in3_tmp;
-    double uc_in3_tmp;
-    double v_in3_tmp;
-    double vb_in3_tmp;
-    double vc_in3_tmp;
-    double w_in3_tmp;
-    double wb_in3_tmp;
-    double wc_in3_tmp;
-    double x_in3_tmp;
-    double xb_in3_tmp;
-    double xc_in3_tmp;
-    double y_in3_tmp;
-    double yb_in3_tmp;
-    double yc_in3_tmp;
+    double t_t2_tmp;
+    double tb_t2_tmp;
+    double u_t2_tmp;
+    double ub_t2_tmp;
+    double v_t2_tmp;
+    double vb_t2_tmp;
+    double w_t2_tmp;
+    double wb_t2_tmp;
+    double x_t2_tmp;
+    double xb_t2_tmp;
+    double y_t2_tmp;
+    double yb_t2_tmp;
     int i;
     int i1;
     /*     This function was generated by the Symbolic Math Toolbox version 9.1. */
-    /*     01-Sep-2023 14:01:22 */
-    /* Jacobian second derivative ( backward ) :  */
+    /*     09-Oct-2023 10:15:23 */
+    /* Jacobian second derivative ( Inverse Kinematics ) :  */
     /* INPUTS :  */
-    /* 	r_r : 5 x 1 : pose vector ( relative ) */
-    /* 	v_r : 5 x 1 : speed vector ( relative ) */
-    /* 	a_a : 5 x 1 : acceleration vector( relative ) */
-    /* 	j_r : 5 x 1 : jerk vector( relative ) */
-    /* 	p   : 5 x 1 : parameters */
+    /* 	r_t    (5x1) : pose vector ( piece frame ) */
+    /* 	v_t    (5x1) : speed vector ( piece frame ) */
+    /* 	a_t    (5x1) : acceleration vector( piece frame ) */
+    /* 	j_t    (5x1) : jerk vector( piece frame ) */
+    /* 	p      (3x5) : parameters */
     /* OUTPUTS :  */
-    /* 	M   : 5 x 5 : resulting matrix */
-    /* 'kin_J2P_ar_xyzbc:18' P1_2 = in4(4); */
-    /* 'kin_J2P_ar_xyzbc:19' P1_3 = in4(7); */
-    /* 'kin_J2P_ar_xyzbc:20' P2_2 = in4(5); */
-    /* 'kin_J2P_ar_xyzbc:21' P2_3 = in4(8); */
-    /* 'kin_J2P_ar_xyzbc:22' P2_4 = in4(11); */
-    /* 'kin_J2P_ar_xyzbc:23' P3_2 = in4(6); */
-    /* 'kin_J2P_ar_xyzbc:24' P3_3 = in4(9); */
-    /* 'kin_J2P_ar_xyzbc:25' P3_4 = in4(12); */
-    /* 'kin_J2P_ar_xyzbc:26' R1 = in1(1,:); */
-    /* 'kin_J2P_ar_xyzbc:27' R2 = in1(2,:); */
-    /* 'kin_J2P_ar_xyzbc:28' R3 = in1(3,:); */
-    /* 'kin_J2P_ar_xyzbc:29' R4 = in1(4,:); */
-    /* 'kin_J2P_ar_xyzbc:30' R5 = in1(5,:); */
-    /* 'kin_J2P_ar_xyzbc:31' Rp1 = in2(1,:); */
-    /* 'kin_J2P_ar_xyzbc:32' Rp2 = in2(2,:); */
-    /* 'kin_J2P_ar_xyzbc:33' Rp3 = in2(3,:); */
-    /* 'kin_J2P_ar_xyzbc:34' Rp4 = in2(4,:); */
-    /* 'kin_J2P_ar_xyzbc:35' Rp5 = in2(5,:); */
-    /* 'kin_J2P_ar_xyzbc:36' Rpp1 = in3(1,:); */
-    /* 'kin_J2P_ar_xyzbc:37' Rpp2 = in3(2,:); */
-    /* 'kin_J2P_ar_xyzbc:38' Rpp3 = in3(3,:); */
-    /* 'kin_J2P_ar_xyzbc:39' Rpp4 = in3(4,:); */
-    /* 'kin_J2P_ar_xyzbc:40' Rpp5 = in3(5,:); */
-    /* 'kin_J2P_ar_xyzbc:41' t2 = cos(R4); */
+    /* 	M      (5x5) : resulting matrix */
+    /* 'kin_xyzbc_tt_J2P_jt:18' b = in1(4,:); */
+    /* 'kin_xyzbc_tt_J2P_jt:19' c = in1(5,:); */
+    /* 'kin_xyzbc_tt_J2P_jt:20' offB1 = in4(10); */
+    /* 'kin_xyzbc_tt_J2P_jt:21' offC1 = in4(13); */
+    /* 'kin_xyzbc_tt_J2P_jt:22' offB3 = in4(12); */
+    /* 'kin_xyzbc_tt_J2P_jt:23' offC2 = in4(14); */
+    /* 'kin_xyzbc_tt_J2P_jt:24' offC3 = in4(15); */
+    /* 'kin_xyzbc_tt_J2P_jt:25' offP1 = in4(7); */
+    /* 'kin_xyzbc_tt_J2P_jt:26' offP2 = in4(8); */
+    /* 'kin_xyzbc_tt_J2P_jt:27' offP3 = in4(9); */
+    /* 'kin_xyzbc_tt_J2P_jt:28' tp1 = in2(1,:); */
+    /* 'kin_xyzbc_tt_J2P_jt:29' tp2 = in2(2,:); */
+    /* 'kin_xyzbc_tt_J2P_jt:30' tp3 = in2(3,:); */
+    /* 'kin_xyzbc_tt_J2P_jt:31' tp4 = in2(4,:); */
+    /* 'kin_xyzbc_tt_J2P_jt:32' tp5 = in2(5,:); */
+    /* 'kin_xyzbc_tt_J2P_jt:33' tpp1 = in3(1,:); */
+    /* 'kin_xyzbc_tt_J2P_jt:34' tpp2 = in3(2,:); */
+    /* 'kin_xyzbc_tt_J2P_jt:35' tpp3 = in3(3,:); */
+    /* 'kin_xyzbc_tt_J2P_jt:36' tpp4 = in3(4,:); */
+    /* 'kin_xyzbc_tt_J2P_jt:37' tpp5 = in3(5,:); */
+    /* 'kin_xyzbc_tt_J2P_jt:38' x = in1(1,:); */
+    /* 'kin_xyzbc_tt_J2P_jt:39' y = in1(2,:); */
+    /* 'kin_xyzbc_tt_J2P_jt:40' z = in1(3,:); */
+    /* 'kin_xyzbc_tt_J2P_jt:41' t2 = cos(b); */
     t2 = cos(in1[3]);
-    /* 'kin_J2P_ar_xyzbc:42' t3 = cos(R5); */
+    /* 'kin_xyzbc_tt_J2P_jt:42' t3 = cos(c); */
     t3 = cos(in1[4]);
-    /* 'kin_J2P_ar_xyzbc:43' t4 = sin(R4); */
+    /* 'kin_xyzbc_tt_J2P_jt:43' t4 = sin(b); */
     t4 = sin(in1[3]);
-    /* 'kin_J2P_ar_xyzbc:44' t5 = sin(R5); */
+    /* 'kin_xyzbc_tt_J2P_jt:44' t5 = sin(c); */
     t5 = sin(in1[4]);
-    /* 'kin_J2P_ar_xyzbc:45' t6 = Rp4.^2; */
+    /* 'kin_xyzbc_tt_J2P_jt:45' t6 = tp4.^2; */
     t6 = in2[3] * in2[3];
-    /* 'kin_J2P_ar_xyzbc:46' t7 = Rp5.^2; */
+    /* 'kin_xyzbc_tt_J2P_jt:46' t7 = tp5.^2; */
     t7 = in2[4] * in2[4];
-    /* 'kin_J2P_ar_xyzbc:47' et1 =
-     * Rpp3.*t2-P2_4.*Rpp4.*t4-P3_2.*Rpp4.*t4-P3_3.*Rpp4.*t4+P3_4.*Rpp4.*t4-R3.*Rpp4.*t4-Rp3.*Rp4.*t4.*2.0-P2_4.*t2.*t6-P3_2.*t2.*t6-P3_3.*t2.*t6+P3_4.*t2.*t6-R3.*t2.*t6-Rpp1.*t3.*t4-Rpp2.*t4.*t5+P1_2.*t3.*t4.*t6+P1_2.*t3.*t4.*t7+P1_3.*t3.*t4.*t6+P1_3.*t3.*t4.*t7-P2_2.*t4.*t5.*t6-P2_2.*t4.*t5.*t7+P2_3.*t4.*t5.*t6+P2_3.*t4.*t5.*t7+R1.*t3.*t4.*t6+R1.*t3.*t4.*t7+R2.*t4.*t5.*t6+R2.*t4.*t5.*t7-P1_2.*Rpp4.*t2.*t3-P1_3.*Rpp4.*t2.*t3+P1_2.*Rpp5.*t4.*t5+P1_3.*Rpp5.*t4.*t5+P2_2.*Rpp4.*t2.*t5+P2_2.*Rpp5.*t3.*t4-P2_3.*Rpp4.*t2.*t5-P2_3.*Rpp5.*t3.*t4-R1.*Rpp4.*t2.*t3;
+    /* 'kin_xyzbc_tt_J2P_jt:47' et1 =
+     * t2.*tpp3+offB1.*t4.*t6-offB3.*t2.*t6-offC3.*t2.*t6-offP3.*t2.*t6-offB1.*t2.*tpp4-offB3.*t4.*tpp4-offC3.*t4.*tpp4-offP3.*t4.*tpp4-t3.*t4.*tpp1+t4.*t5.*tpp2-t4.*tp3.*tp4.*2.0-t2.*t6.*z-t4.*tpp4.*z+offC1.*t3.*t4.*t6+offC1.*t3.*t4.*t7-offC2.*t4.*t5.*t6-offC2.*t4.*t5.*t7+offP1.*t3.*t4.*t6+offP1.*t3.*t4.*t7-offP2.*t4.*t5.*t6-offP2.*t4.*t5.*t7-offC1.*t2.*t3.*tpp4+offC2.*t2.*t5.*tpp4+offC2.*t3.*t4.*tpp5+offC1.*t4.*t5.*tpp5-offP1.*t2.*t3.*tpp4+offP2.*t2.*t5.*tpp4+offP2.*t3.*t4.*tpp5+offP1.*t4.*t5.*tpp5-t2.*t3.*tp1.*tp4.*2.0+t2.*t5.*tp2.*tp4.*2.0+t3.*t4.*tp2.*tp5.*2.0+t4.*t5.*tp1.*tp5.*2.0+t3.*t4.*t6.*x;
      */
-    /* 'kin_J2P_ar_xyzbc:48' et2 =
-     * -R2.*Rpp4.*t2.*t5-R2.*Rpp5.*t3.*t4+R1.*Rpp5.*t4.*t5-Rp1.*Rp4.*t2.*t3.*2.0-Rp2.*Rp4.*t2.*t5.*2.0-Rp2.*Rp5.*t3.*t4.*2.0+Rp1.*Rp5.*t4.*t5.*2.0+P1_2.*Rp4.*Rp5.*t2.*t5.*2.0+P1_3.*Rp4.*Rp5.*t2.*t5.*2.0+P2_2.*Rp4.*Rp5.*t2.*t3.*2.0-P2_3.*Rp4.*Rp5.*t2.*t3.*2.0-R2.*Rp4.*Rp5.*t2.*t3.*2.0+R1.*Rp4.*Rp5.*t2.*t5.*2.0;
+    /* 'kin_xyzbc_tt_J2P_jt:48' et2 =
+     * t3.*t4.*t7.*x-t2.*t3.*tpp4.*x+t4.*t5.*tpp5.*x-t4.*t5.*t6.*y-t4.*t5.*t7.*y+t2.*t5.*tpp4.*y+t3.*t4.*tpp5.*y+offC2.*t2.*t3.*tp4.*tp5.*2.0+offC1.*t2.*t5.*tp4.*tp5.*2.0+offP2.*t2.*t3.*tp4.*tp5.*2.0+offP1.*t2.*t5.*tp4.*tp5.*2.0+t2.*t5.*tp4.*tp5.*x.*2.0+t2.*t3.*tp4.*tp5.*y.*2.0;
      */
-    /* 'kin_J2P_ar_xyzbc:49' et3 =
-     * Rpp2.*t2.*t3-Rpp1.*t2.*t5+P1_2.*t2.*t5.*t6+P1_2.*t2.*t5.*t7+P1_3.*t2.*t5.*t6+P1_3.*t2.*t5.*t7+P2_2.*t2.*t3.*t6+P2_2.*t2.*t3.*t7-P2_3.*t2.*t3.*t6-P2_3.*t2.*t3.*t7-R2.*t2.*t3.*t6+R1.*t2.*t5.*t6-R2.*t2.*t3.*t7+R1.*t2.*t5.*t7-P1_2.*Rpp5.*t2.*t3-P1_3.*Rpp5.*t2.*t3+P1_2.*Rpp4.*t4.*t5+P1_3.*Rpp4.*t4.*t5+P2_2.*Rpp4.*t3.*t4+P2_2.*Rpp5.*t2.*t5-P2_3.*Rpp4.*t3.*t4-P2_3.*Rpp5.*t2.*t5-R1.*Rpp5.*t2.*t3-R2.*Rpp4.*t3.*t4+R1.*Rpp4.*t4.*t5-R2.*Rpp5.*t2.*t5-Rp1.*Rp5.*t2.*t3.*2.0-Rp2.*Rp4.*t3.*t4.*2.0+Rp1.*Rp4.*t4.*t5.*2.0-Rp2.*Rp5.*t2.*t5.*2.0+P1_2.*Rp4.*Rp5.*t3.*t4.*2.0+P1_3.*Rp4.*Rp5.*t3.*t4.*2.0;
+    /* 'kin_xyzbc_tt_J2P_jt:49' et3 =
+     * -t2.*t3.*tpp2-t2.*t5.*tpp1+offC2.*t2.*t3.*t6+offC1.*t2.*t5.*t6+offC2.*t2.*t3.*t7+offC1.*t2.*t5.*t7+offP2.*t2.*t3.*t6+offP1.*t2.*t5.*t6+offP2.*t2.*t3.*t7+offP1.*t2.*t5.*t7-offC1.*t2.*t3.*tpp5+offC2.*t3.*t4.*tpp4+offC1.*t4.*t5.*tpp4+offC2.*t2.*t5.*tpp5-offP1.*t2.*t3.*tpp5+offP2.*t3.*t4.*tpp4+offP1.*t4.*t5.*tpp4+offP2.*t2.*t5.*tpp5-t2.*t3.*tp1.*tp5.*2.0+t3.*t4.*tp2.*tp4.*2.0+t2.*t5.*tp2.*tp5.*2.0+t4.*t5.*tp1.*tp4.*2.0+t2.*t5.*t6.*x+t2.*t5.*t7.*x-t2.*t3.*tpp5.*x+t4.*t5.*tpp4.*x+t2.*t3.*t6.*y+t2.*t3.*t7.*y+t3.*t4.*tpp4.*y+t2.*t5.*tpp5.*y+offC1.*t3.*t4.*tp4.*tp5.*2.0-offC2.*t4.*t5.*tp4.*tp5.*2.0+offP1.*t3.*t4.*tp4.*tp5.*2.0-offP2.*t4.*t5.*tp4.*tp5.*2.0+t3.*t4.*tp4.*tp5.*x.*2.0;
      */
-    /* 'kin_J2P_ar_xyzbc:50' et4 =
-     * P2_2.*Rp4.*Rp5.*t4.*t5.*-2.0+P2_3.*Rp4.*Rp5.*t4.*t5.*2.0+R1.*Rp4.*Rp5.*t3.*t4.*2.0+R2.*Rp4.*Rp5.*t4.*t5.*2.0;
+    /* 'kin_xyzbc_tt_J2P_jt:50' et4 = t4.*t5.*tp4.*tp5.*y.*-2.0; */
+    /* 'kin_xyzbc_tt_J2P_jt:51' et5 =
+     * -t4.*tpp3+offB1.*t2.*t6+offB3.*t4.*t6+offC3.*t4.*t6+offP3.*t4.*t6+offB1.*t4.*tpp4-offB3.*t2.*tpp4-offC3.*t2.*tpp4-offP3.*t2.*tpp4-t2.*t3.*tpp1+t2.*t5.*tpp2-t2.*tp3.*tp4.*2.0+t4.*t6.*z-t2.*tpp4.*z+offC1.*t2.*t3.*t6+offC1.*t2.*t3.*t7-offC2.*t2.*t5.*t6-offC2.*t2.*t5.*t7+offP1.*t2.*t3.*t6+offP1.*t2.*t3.*t7-offP2.*t2.*t5.*t6-offP2.*t2.*t5.*t7+offC1.*t3.*t4.*tpp4+offC2.*t2.*t3.*tpp5+offC1.*t2.*t5.*tpp5-offC2.*t4.*t5.*tpp4+offP1.*t3.*t4.*tpp4+offP2.*t2.*t3.*tpp5+offP1.*t2.*t5.*tpp5-offP2.*t4.*t5.*tpp4+t2.*t3.*tp2.*tp5.*2.0+t3.*t4.*tp1.*tp4.*2.0+t2.*t5.*tp1.*tp5.*2.0-t4.*t5.*tp2.*tp4.*2.0+t2.*t3.*t6.*x+t2.*t3.*t7.*x;
      */
-    /* 'kin_J2P_ar_xyzbc:51' et5 =
-     * -Rpp3.*t4-P2_4.*Rpp4.*t2-P3_2.*Rpp4.*t2-P3_3.*Rpp4.*t2+P3_4.*Rpp4.*t2-R3.*Rpp4.*t2-Rp3.*Rp4.*t2.*2.0+P2_4.*t4.*t6+P3_2.*t4.*t6+P3_3.*t4.*t6-P3_4.*t4.*t6+R3.*t4.*t6-Rpp1.*t2.*t3-Rpp2.*t2.*t5+P1_2.*t2.*t3.*t6+P1_2.*t2.*t3.*t7+P1_3.*t2.*t3.*t6+P1_3.*t2.*t3.*t7-P2_2.*t2.*t5.*t6-P2_2.*t2.*t5.*t7+P2_3.*t2.*t5.*t6+P2_3.*t2.*t5.*t7+R1.*t2.*t3.*t6+R1.*t2.*t3.*t7+R2.*t2.*t5.*t6+R2.*t2.*t5.*t7+P1_2.*Rpp4.*t3.*t4+P1_2.*Rpp5.*t2.*t5+P1_3.*Rpp4.*t3.*t4+P1_3.*Rpp5.*t2.*t5+P2_2.*Rpp5.*t2.*t3-P2_3.*Rpp5.*t2.*t3-P2_2.*Rpp4.*t4.*t5+P2_3.*Rpp4.*t4.*t5+R1.*Rpp4.*t3.*t4-R2.*Rpp5.*t2.*t3+R1.*Rpp5.*t2.*t5;
+    /* 'kin_xyzbc_tt_J2P_jt:52' et6 =
+     * t3.*t4.*tpp4.*x+t2.*t5.*tpp5.*x-t2.*t5.*t6.*y-t2.*t5.*t7.*y+t2.*t3.*tpp5.*y-t4.*t5.*tpp4.*y-offC2.*t3.*t4.*tp4.*tp5.*2.0-offC1.*t4.*t5.*tp4.*tp5.*2.0-offP2.*t3.*t4.*tp4.*tp5.*2.0-offP1.*t4.*t5.*tp4.*tp5.*2.0-t4.*t5.*tp4.*tp5.*x.*2.0-t3.*t4.*tp4.*tp5.*y.*2.0;
      */
-    /* 'kin_J2P_ar_xyzbc:52' et6 =
-     * R2.*Rpp4.*t4.*t5+Rp1.*Rp4.*t3.*t4.*2.0-Rp2.*Rp5.*t2.*t3.*2.0+Rp1.*Rp5.*t2.*t5.*2.0+Rp2.*Rp4.*t4.*t5.*2.0-P1_2.*Rp4.*Rp5.*t4.*t5.*2.0-P1_3.*Rp4.*Rp5.*t4.*t5.*2.0-P2_2.*Rp4.*Rp5.*t3.*t4.*2.0+P2_3.*Rp4.*Rp5.*t3.*t4.*2.0+R2.*Rp4.*Rp5.*t3.*t4.*2.0-R1.*Rp4.*Rp5.*t4.*t5.*2.0;
+    /* 'kin_xyzbc_tt_J2P_jt:53' et7 =
+     * t3.*t4.*tpp2+t4.*t5.*tpp1-offC2.*t3.*t4.*t6-offC1.*t4.*t5.*t6-offC2.*t3.*t4.*t7-offC1.*t4.*t5.*t7-offP2.*t3.*t4.*t6-offP1.*t4.*t5.*t6-offP2.*t3.*t4.*t7-offP1.*t4.*t5.*t7+offC2.*t2.*t3.*tpp4+offC1.*t2.*t5.*tpp4+offC1.*t3.*t4.*tpp5-offC2.*t4.*t5.*tpp5+offP2.*t2.*t3.*tpp4+offP1.*t2.*t5.*tpp4+offP1.*t3.*t4.*tpp5-offP2.*t4.*t5.*tpp5+t2.*t3.*tp2.*tp4.*2.0+t2.*t5.*tp1.*tp4.*2.0+t3.*t4.*tp1.*tp5.*2.0-t4.*t5.*tp2.*tp5.*2.0-t4.*t5.*t6.*x-t4.*t5.*t7.*x+t2.*t5.*tpp4.*x+t3.*t4.*tpp5.*x-t3.*t4.*t6.*y-t3.*t4.*t7.*y+t2.*t3.*tpp4.*y-t4.*t5.*tpp5.*y+offC1.*t2.*t3.*tp4.*tp5.*2.0-offC2.*t2.*t5.*tp4.*tp5.*2.0;
      */
-    /* 'kin_J2P_ar_xyzbc:53' et7 =
-     * -Rpp2.*t3.*t4+Rpp1.*t4.*t5-P1_2.*t4.*t5.*t6-P1_2.*t4.*t5.*t7-P1_3.*t4.*t5.*t6-P1_3.*t4.*t5.*t7-P2_2.*t3.*t4.*t6-P2_2.*t3.*t4.*t7+P2_3.*t3.*t4.*t6+P2_3.*t3.*t4.*t7+R2.*t3.*t4.*t6-R1.*t4.*t5.*t6+R2.*t3.*t4.*t7-R1.*t4.*t5.*t7+P1_2.*Rpp4.*t2.*t5+P1_2.*Rpp5.*t3.*t4+P1_3.*Rpp4.*t2.*t5+P1_3.*Rpp5.*t3.*t4+P2_2.*Rpp4.*t2.*t3-P2_3.*Rpp4.*t2.*t3-P2_2.*Rpp5.*t4.*t5+P2_3.*Rpp5.*t4.*t5-R2.*Rpp4.*t2.*t3+R1.*Rpp4.*t2.*t5+R1.*Rpp5.*t3.*t4+R2.*Rpp5.*t4.*t5-Rp2.*Rp4.*t2.*t3.*2.0+Rp1.*Rp4.*t2.*t5.*2.0+Rp1.*Rp5.*t3.*t4.*2.0+Rp2.*Rp5.*t4.*t5.*2.0+P1_2.*Rp4.*Rp5.*t2.*t3.*2.0+P1_3.*Rp4.*Rp5.*t2.*t3.*2.0-P2_2.*Rp4.*Rp5.*t2.*t5.*2.0;
+    /* 'kin_xyzbc_tt_J2P_jt:54' et8 =
+     * offP1.*t2.*t3.*tp4.*tp5.*2.0-offP2.*t2.*t5.*tp4.*tp5.*2.0+t2.*t3.*tp4.*tp5.*x.*2.0-t2.*t5.*tp4.*tp5.*y.*2.0;
      */
-    /* 'kin_J2P_ar_xyzbc:54' et8 =
-     * P2_3.*Rp4.*Rp5.*t2.*t5.*2.0+R1.*Rp4.*Rp5.*t2.*t3.*2.0+R2.*Rp4.*Rp5.*t2.*t5.*2.0; */
-    /* 'kin_J2P_ar_xyzbc:55' mt1 =
-     * [-Rpp4.*t3.*t4-Rpp5.*t2.*t5-t2.*t3.*t6-t2.*t3.*t7+Rp4.*Rp5.*t4.*t5.*2.0,-Rpp5.*t3+t5.*t7,-Rpp4.*t2.*t3+Rpp5.*t4.*t5+t3.*t4.*t6+t3.*t4.*t7+Rp4.*Rp5.*t2.*t5.*2.0,0.0,0.0,Rpp5.*t2.*t3-Rpp4.*t4.*t5-t2.*t5.*t6-t2.*t5.*t7-Rp4.*Rp5.*t3.*t4.*2.0,-Rpp5.*t5-t3.*t7,-Rpp4.*t2.*t5-Rpp5.*t3.*t4+t4.*t5.*t6+t4.*t5.*t7-Rp4.*Rp5.*t2.*t3.*2.0,0.0,0.0,Rpp4.*t2-t4.*t6,0.0,-Rpp4.*t4-t2.*t6,0.0,0.0,et1+et2,0.0,et5+et6,0.0,0.0,et3+et4];
+    /* 'kin_xyzbc_tt_J2P_jt:55' mt1 =
+     * [-t2.*t3.*t6-t2.*t3.*t7-t3.*t4.*tpp4-t2.*t5.*tpp5+t4.*t5.*tp4.*tp5.*2.0,-t5.*t7+t3.*tpp5,t3.*t4.*t6+t3.*t4.*t7-t2.*t3.*tpp4+t4.*t5.*tpp5+t2.*t5.*tp4.*tp5.*2.0,0.0,0.0,t2.*t5.*t6+t2.*t5.*t7-t2.*t3.*tpp5+t4.*t5.*tpp4+t3.*t4.*tp4.*tp5.*2.0,-t3.*t7-t5.*tpp5,-t4.*t5.*t6-t4.*t5.*t7+t2.*t5.*tpp4+t3.*t4.*tpp5+t2.*t3.*tp4.*tp5.*2.0,0.0,0.0,-t4.*t6+t2.*tpp4,0.0,-t2.*t6-t4.*tpp4,0.0,0.0,et1+et2,0.0,et5+et6,0.0,0.0,et3+et4];
      */
-    /* 'kin_J2P_ar_xyzbc:56' mt2 =
-     * [-Rpp1.*t3-Rpp2.*t5+P1_2.*Rpp5.*t5+P1_3.*Rpp5.*t5+P2_2.*Rpp5.*t3-P2_3.*Rpp5.*t3-R2.*Rpp5.*t3+R1.*Rpp5.*t5-Rp2.*Rp5.*t3.*2.0+Rp1.*Rp5.*t5.*2.0+P1_2.*t3.*t7+P1_3.*t3.*t7-P2_2.*t5.*t7+P2_3.*t5.*t7+R1.*t3.*t7+R2.*t5.*t7,et7+et8,0.0,0.0];
+    /* 'kin_xyzbc_tt_J2P_jt:56' mt2 =
+     * [t3.*tpp1-t5.*tpp2-offC1.*t3.*t7+offC2.*t5.*t7-offP1.*t3.*t7+offP2.*t5.*t7-offC2.*t3.*tpp5-offC1.*t5.*tpp5-offP2.*t3.*tpp5-offP1.*t5.*tpp5-t3.*tp2.*tp5.*2.0-t5.*tp1.*tp5.*2.0-t3.*t7.*x-t5.*tpp5.*x+t5.*t7.*y-t3.*tpp5.*y,et7+et8,0.0,0.0];
      */
-    /* 'kin_J2P_ar_xyzbc:57' J2P_ar = reshape([mt1,mt2],5,5); */
-    in3_tmp = t2 * t3;
-    b_in3_tmp = in2[3] * in2[4];
-    c_in3_tmp = in3[4] * t2;
-    b_in3[0] = (((-in3[3] * t3 * t4 - c_in3_tmp * t5) - in3_tmp * t6) - in3_tmp * t7) +
-               b_in3_tmp * t4 * t5 * 2.0;
-    b_in3[1] = -in3[4] * t3 + t5 * t7;
-    d_in3_tmp = t3 * t4;
-    e_in3_tmp = -in3[3] * t2;
-    f_in3_tmp = b_in3_tmp * t2;
-    b_in3[2] = (((e_in3_tmp * t3 + in3[4] * t4 * t5) + d_in3_tmp * t6) + d_in3_tmp * t7) +
-               f_in3_tmp * t5 * 2.0;
-    b_in3[3] = 0.0;
-    b_in3[4] = 0.0;
-    g_in3_tmp = t2 * t5;
-    b_in3[5] = (((c_in3_tmp * t3 - in3[3] * t4 * t5) - g_in3_tmp * t6) - g_in3_tmp * t7) -
-               b_in3_tmp * t3 * t4 * 2.0;
-    b_in3[6] = -in3[4] * t5 - t3 * t7;
-    h_in3_tmp = t4 * t5;
-    b_in3[7] = (((e_in3_tmp * t5 - in3[4] * t3 * t4) + h_in3_tmp * t6) + h_in3_tmp * t7) -
-               f_in3_tmp * t3 * 2.0;
-    b_in3[8] = 0.0;
-    b_in3[9] = 0.0;
-    b_in3[10] = in3[3] * t2 - t4 * t6;
-    b_in3[11] = 0.0;
-    b_in3[12] = -in3[3] * t4 - t2 * t6;
-    b_in3[13] = 0.0;
-    b_in3[14] = 0.0;
-    in3_tmp_tmp = (&in4[0][0])[3] * t3;
-    i_in3_tmp = in3_tmp_tmp * t4;
-    b_in3_tmp_tmp = (&in4[0][0])[6] * t3;
-    j_in3_tmp = b_in3_tmp_tmp * t4;
-    k_in3_tmp = (&in4[0][0])[4] * t4 * t5;
-    l_in3_tmp = (&in4[0][0])[7] * t4 * t5;
-    c_in3_tmp_tmp = in1[0] * t3;
-    m_in3_tmp = c_in3_tmp_tmp * t4;
-    n_in3_tmp = in1[1] * t4 * t5;
-    o_in3_tmp = in3[3] * (&in4[0][0])[10];
-    p_in3_tmp = in3[3] * (&in4[0][0])[5];
-    q_in3_tmp = in3[3] * (&in4[0][0])[8];
-    r_in3_tmp = in3[3] * (&in4[0][0])[11];
-    s_in3_tmp = in1[2] * in3[3];
-    t_in3_tmp = in2[2] * in2[3];
-    u_in3_tmp = (&in4[0][0])[3] * in3[3];
-    v_in3_tmp = (&in4[0][0])[3] * in3[4];
-    w_in3_tmp = in3[3] * (&in4[0][0])[6];
-    x_in3_tmp = in3[4] * (&in4[0][0])[6];
-    y_in3_tmp = (&in4[0][0])[4] * in3[4];
-    ab_in3_tmp = in3[4] * (&in4[0][0])[7];
-    bb_in3_tmp = in3[3] * (&in4[0][0])[4];
-    cb_in3_tmp = in3[3] * (&in4[0][0])[7];
-    db_in3_tmp = in1[0] * in3[3];
-    eb_in3_tmp = in1[1] * in3[4];
-    fb_in3_tmp = in1[0] * in3[4];
-    gb_in3_tmp = in2[0] * in2[3];
-    hb_in3_tmp = in2[1] * in2[4];
-    ib_in3_tmp = in2[0] * in2[4];
-    jb_in3_tmp = in2[1] * in2[3];
-    kb_in3_tmp = (&in4[0][0])[3] * in2[3] * in2[4];
-    lb_in3_tmp = in2[3] * (&in4[0][0])[6] * in2[4];
-    mb_in3_tmp = in2[3] * (&in4[0][0])[4] * in2[4];
-    nb_in3_tmp = in2[3] * (&in4[0][0])[7] * in2[4];
-    ob_in3_tmp = in1[1] * in2[3] * in2[4];
-    pb_in3_tmp = in1[0] * in2[3] * in2[4];
-    qb_in3_tmp = y_in3_tmp * t3;
-    rb_in3_tmp = ab_in3_tmp * t3;
-    sb_in3_tmp = eb_in3_tmp * t3;
-    tb_in3_tmp = hb_in3_tmp * t3;
-    ub_in3_tmp = u_in3_tmp * t2;
-    vb_in3_tmp = w_in3_tmp * t2;
-    wb_in3_tmp = bb_in3_tmp * t2;
-    xb_in3_tmp = cb_in3_tmp * t2;
-    yb_in3_tmp = db_in3_tmp * t2;
-    ac_in3_tmp = jb_in3_tmp * t2;
-    bc_in3_tmp = gb_in3_tmp * t2;
-    cc_in3_tmp = kb_in3_tmp * t2;
-    dc_in3_tmp = lb_in3_tmp * t2;
-    ec_in3_tmp = mb_in3_tmp * t2;
-    fc_in3_tmp = nb_in3_tmp * t2;
-    gc_in3_tmp = pb_in3_tmp * t2;
-    hc_in3_tmp = ob_in3_tmp * t2;
-    b_in3[15] = ((((((((((((((((((((((((((((((((((in3[2] * t2 - o_in3_tmp * t4) - p_in3_tmp * t4) -
-                                                q_in3_tmp * t4) +
-                                               r_in3_tmp * t4) -
-                                              s_in3_tmp * t4) -
-                                             t_in3_tmp * t4 * 2.0) -
-                                            (&in4[0][0])[10] * t2 * t6) -
-                                           (&in4[0][0])[5] * t2 * t6) -
-                                          (&in4[0][0])[8] * t2 * t6) +
-                                         (&in4[0][0])[11] * t2 * t6) -
-                                        in1[2] * t2 * t6) -
-                                       in3[0] * t3 * t4) -
-                                      in3[1] * t4 * t5) +
-                                     i_in3_tmp * t6) +
-                                    i_in3_tmp * t7) +
-                                   j_in3_tmp * t6) +
-                                  j_in3_tmp * t7) -
-                                 k_in3_tmp * t6) -
-                                k_in3_tmp * t7) +
-                               l_in3_tmp * t6) +
-                              l_in3_tmp * t7) +
-                             m_in3_tmp * t6) +
-                            m_in3_tmp * t7) +
-                           n_in3_tmp * t6) +
-                          n_in3_tmp * t7) -
-                         ub_in3_tmp * t3) -
-                        vb_in3_tmp * t3) +
-                       v_in3_tmp * t4 * t5) +
-                      x_in3_tmp * t4 * t5) +
-                     wb_in3_tmp * t5) +
-                    qb_in3_tmp * t4) -
-                   xb_in3_tmp * t5) -
-                  rb_in3_tmp * t4) -
-                 yb_in3_tmp * t3) +
-                ((((((((((((-in1[1] * in3[3] * t2 * t5 - sb_in3_tmp * t4) + fb_in3_tmp * t4 * t5) -
-                          bc_in3_tmp * t3 * 2.0) -
-                         ac_in3_tmp * t5 * 2.0) -
-                        tb_in3_tmp * t4 * 2.0) +
-                       ib_in3_tmp * t4 * t5 * 2.0) +
-                      cc_in3_tmp * t5 * 2.0) +
-                     dc_in3_tmp * t5 * 2.0) +
-                    ec_in3_tmp * t3 * 2.0) -
-                   fc_in3_tmp * t3 * 2.0) -
-                  hc_in3_tmp * t3 * 2.0) +
-                 gc_in3_tmp * t5 * 2.0);
-    b_in3[16] = 0.0;
-    d_in3_tmp_tmp = (&in4[0][0])[3] * t2;
-    ic_in3_tmp = d_in3_tmp_tmp * t3;
-    e_in3_tmp_tmp = (&in4[0][0])[6] * t2;
-    jc_in3_tmp = e_in3_tmp_tmp * t3;
-    f_in3_tmp_tmp = (&in4[0][0])[4] * t2;
-    kc_in3_tmp = f_in3_tmp_tmp * t5;
-    g_in3_tmp_tmp = (&in4[0][0])[7] * t2;
-    lc_in3_tmp = g_in3_tmp_tmp * t5;
-    h_in3_tmp_tmp = in1[0] * t2;
-    mc_in3_tmp = h_in3_tmp_tmp * t3;
-    i_in3_tmp_tmp = in1[1] * t2;
-    nc_in3_tmp = i_in3_tmp_tmp * t5;
-    oc_in3_tmp = in3[1] * t2;
-    pc_in3_tmp = in3[0] * t2;
-    qc_in3_tmp = v_in3_tmp * t2;
-    rc_in3_tmp = x_in3_tmp * t2;
-    sc_in3_tmp = y_in3_tmp * t2;
-    tc_in3_tmp = ab_in3_tmp * t2;
-    uc_in3_tmp = fb_in3_tmp * t2;
-    vc_in3_tmp = in1[1] * in3[3];
-    wc_in3_tmp = eb_in3_tmp * t2;
-    xc_in3_tmp = ib_in3_tmp * t2;
-    yc_in3_tmp = hb_in3_tmp * t2;
-    b_in3[17] =
-        ((((((((((((((((((((((((((((((((((((-in3[2] * t4 - o_in3_tmp * t2) - p_in3_tmp * t2) -
-                                          q_in3_tmp * t2) +
-                                         r_in3_tmp * t2) -
-                                        s_in3_tmp * t2) -
-                                       t_in3_tmp * t2 * 2.0) +
-                                      (&in4[0][0])[10] * t4 * t6) +
-                                     (&in4[0][0])[5] * t4 * t6) +
-                                    (&in4[0][0])[8] * t4 * t6) -
-                                   (&in4[0][0])[11] * t4 * t6) +
-                                  in1[2] * t4 * t6) -
-                                 pc_in3_tmp * t3) -
-                                oc_in3_tmp * t5) +
-                               ic_in3_tmp * t6) +
-                              ic_in3_tmp * t7) +
-                             jc_in3_tmp * t6) +
-                            jc_in3_tmp * t7) -
-                           kc_in3_tmp * t6) -
-                          kc_in3_tmp * t7) +
-                         lc_in3_tmp * t6) +
-                        lc_in3_tmp * t7) +
-                       mc_in3_tmp * t6) +
-                      mc_in3_tmp * t7) +
-                     nc_in3_tmp * t6) +
-                    nc_in3_tmp * t7) +
-                   u_in3_tmp * t3 * t4) +
-                  qc_in3_tmp * t5) +
-                 w_in3_tmp * t3 * t4) +
-                rc_in3_tmp * t5) +
-               sc_in3_tmp * t3) -
-              tc_in3_tmp * t3) -
-             bb_in3_tmp * t4 * t5) +
-            cb_in3_tmp * t4 * t5) +
-           db_in3_tmp * t3 * t4) -
-          wc_in3_tmp * t3) +
-         uc_in3_tmp * t5) +
-        ((((((((((vc_in3_tmp * t4 * t5 + gb_in3_tmp * t3 * t4 * 2.0) - yc_in3_tmp * t3 * 2.0) +
-                xc_in3_tmp * t5 * 2.0) +
-               jb_in3_tmp * t4 * t5 * 2.0) -
-              kb_in3_tmp * t4 * t5 * 2.0) -
-             lb_in3_tmp * t4 * t5 * 2.0) -
-            mb_in3_tmp * t3 * t4 * 2.0) +
-           nb_in3_tmp * t3 * t4 * 2.0) +
-          ob_in3_tmp * t3 * t4 * 2.0) -
-         pb_in3_tmp * t4 * t5 * 2.0);
-    b_in3[18] = 0.0;
-    b_in3[19] = 0.0;
-    ad_in3_tmp = d_in3_tmp_tmp * t5;
-    bd_in3_tmp = e_in3_tmp_tmp * t5;
-    cd_in3_tmp = f_in3_tmp_tmp * t3;
-    dd_in3_tmp = g_in3_tmp_tmp * t3;
-    ed_in3_tmp = i_in3_tmp_tmp * t3;
-    fd_in3_tmp = h_in3_tmp_tmp * t5;
-    b_in3[20] =
-        (((((((((((((((((((((((((((((((oc_in3_tmp * t3 - pc_in3_tmp * t5) + ad_in3_tmp * t6) +
-                                     ad_in3_tmp * t7) +
-                                    bd_in3_tmp * t6) +
-                                   bd_in3_tmp * t7) +
-                                  cd_in3_tmp * t6) +
-                                 cd_in3_tmp * t7) -
-                                dd_in3_tmp * t6) -
-                               dd_in3_tmp * t7) -
-                              ed_in3_tmp * t6) +
-                             fd_in3_tmp * t6) -
-                            ed_in3_tmp * t7) +
-                           fd_in3_tmp * t7) -
-                          qc_in3_tmp * t3) -
-                         rc_in3_tmp * t3) +
-                        u_in3_tmp * t4 * t5) +
-                       w_in3_tmp * t4 * t5) +
-                      bb_in3_tmp * t3 * t4) +
-                     sc_in3_tmp * t5) -
-                    cb_in3_tmp * t3 * t4) -
-                   tc_in3_tmp * t5) -
-                  uc_in3_tmp * t3) -
-                 vc_in3_tmp * t3 * t4) +
-                db_in3_tmp * t4 * t5) -
-               wc_in3_tmp * t5) -
-              xc_in3_tmp * t3 * 2.0) -
-             jb_in3_tmp * t3 * t4 * 2.0) +
-            gb_in3_tmp * t4 * t5 * 2.0) -
-           yc_in3_tmp * t5 * 2.0) +
-          kb_in3_tmp * t3 * t4 * 2.0) +
-         lb_in3_tmp * t3 * t4 * 2.0) +
-        (((mb_in3_tmp * t4 * t5 * -2.0 + nb_in3_tmp * t4 * t5 * 2.0) + pb_in3_tmp * t3 * t4 * 2.0) +
-         ob_in3_tmp * t4 * t5 * 2.0);
-    b_in3[21] = ((((((((((((((-in3[0] * t3 - in3[1] * t5) + v_in3_tmp * t5) + x_in3_tmp * t5) +
-                           qb_in3_tmp) -
-                          rb_in3_tmp) -
-                         sb_in3_tmp) +
-                        fb_in3_tmp * t5) -
-                       tb_in3_tmp * 2.0) +
-                      ib_in3_tmp * t5 * 2.0) +
-                     in3_tmp_tmp * t7) +
-                    b_in3_tmp_tmp * t7) -
-                   (&in4[0][0])[4] * t5 * t7) +
-                  (&in4[0][0])[7] * t5 * t7) +
-                 c_in3_tmp_tmp * t7) +
-                in1[1] * t5 * t7;
-    gd_in3_tmp = (&in4[0][0])[3] * t4 * t5;
-    hd_in3_tmp = (&in4[0][0])[6] * t4 * t5;
-    id_in3_tmp = (&in4[0][0])[4] * t3 * t4;
-    jd_in3_tmp = (&in4[0][0])[7] * t3 * t4;
-    kd_in3_tmp = in1[1] * t3 * t4;
-    ld_in3_tmp = in1[0] * t4 * t5;
-    b_in3[22] =
-        ((((((((((((((((((((((((((((((((-in3[1] * t3 * t4 + in3[0] * t4 * t5) - gd_in3_tmp * t6) -
-                                      gd_in3_tmp * t7) -
-                                     hd_in3_tmp * t6) -
-                                    hd_in3_tmp * t7) -
-                                   id_in3_tmp * t6) -
-                                  id_in3_tmp * t7) +
-                                 jd_in3_tmp * t6) +
-                                jd_in3_tmp * t7) +
-                               kd_in3_tmp * t6) -
-                              ld_in3_tmp * t6) +
-                             kd_in3_tmp * t7) -
-                            ld_in3_tmp * t7) +
-                           ub_in3_tmp * t5) +
-                          v_in3_tmp * t3 * t4) +
-                         vb_in3_tmp * t5) +
-                        x_in3_tmp * t3 * t4) +
-                       wb_in3_tmp * t3) -
-                      xb_in3_tmp * t3) -
-                     y_in3_tmp * t4 * t5) +
-                    ab_in3_tmp * t4 * t5) -
-                   vc_in3_tmp * t2 * t3) +
-                  yb_in3_tmp * t5) +
-                 fb_in3_tmp * t3 * t4) +
-                eb_in3_tmp * t4 * t5) -
-               ac_in3_tmp * t3 * 2.0) +
-              bc_in3_tmp * t5 * 2.0) +
-             ib_in3_tmp * t3 * t4 * 2.0) +
-            hb_in3_tmp * t4 * t5 * 2.0) +
-           cc_in3_tmp * t3 * 2.0) +
-          dc_in3_tmp * t3 * 2.0) -
-         ec_in3_tmp * t5 * 2.0) +
-        ((fc_in3_tmp * t5 * 2.0 + gc_in3_tmp * t3 * 2.0) + hc_in3_tmp * t5 * 2.0);
-    b_in3[23] = 0.0;
-    b_in3[24] = 0.0;
+    /* 'kin_xyzbc_tt_J2P_jt:57' J2P_jt = reshape([mt1,mt2],5,5); */
+    t2_tmp = t3 * t4;
+    b_t2_tmp = t2 * t3;
+    c_t2_tmp = t4 * t5;
+    d_t2_tmp = t2 * t5;
+    e_t2_tmp = b_t2_tmp * t7;
+    f_t2_tmp = t2_tmp * in3[3];
+    g_t2_tmp = d_t2_tmp * in3[4];
+    h_t2_tmp = c_t2_tmp * in2[3] * in2[4];
+    i_t2_tmp = -t2 * t3;
+    b_t2[0] = (((i_t2_tmp * t6 - e_t2_tmp) - f_t2_tmp) - g_t2_tmp) + h_t2_tmp * 2.0;
+    j_t2_tmp = t3 * in3[4];
+    b_t2[1] = -t5 * t7 + j_t2_tmp;
+    k_t2_tmp = t2_tmp * t6;
+    l_t2_tmp = t2_tmp * t7;
+    m_t2_tmp = b_t2_tmp * in3[3];
+    n_t2_tmp = c_t2_tmp * in3[4];
+    o_t2_tmp = d_t2_tmp * in2[3] * in2[4];
+    b_t2[2] = (((k_t2_tmp + l_t2_tmp) - m_t2_tmp) + n_t2_tmp) + o_t2_tmp * 2.0;
+    b_t2[3] = 0.0;
+    b_t2[4] = 0.0;
+    p_t2_tmp = d_t2_tmp * t6;
+    q_t2_tmp = d_t2_tmp * t7;
+    r_t2_tmp = b_t2_tmp * in3[4];
+    s_t2_tmp = c_t2_tmp * in3[3];
+    t_t2_tmp = t2_tmp * in2[3] * in2[4];
+    b_t2[5] = (((p_t2_tmp + q_t2_tmp) - r_t2_tmp) + s_t2_tmp) + t_t2_tmp * 2.0;
+    u_t2_tmp = t5 * in3[4];
+    b_t2[6] = -t3 * t7 - u_t2_tmp;
+    v_t2_tmp = c_t2_tmp * t7;
+    w_t2_tmp = d_t2_tmp * in3[3];
+    x_t2_tmp = t2_tmp * in3[4];
+    y_t2_tmp = b_t2_tmp * in2[3] * in2[4];
+    b_t2[7] = (((-t4 * t5 * t6 - v_t2_tmp) + w_t2_tmp) + x_t2_tmp) + y_t2_tmp * 2.0;
+    b_t2[8] = 0.0;
+    b_t2[9] = 0.0;
+    ab_t2_tmp = t2 * in3[3];
+    b_t2[10] = -t4 * t6 + ab_t2_tmp;
+    b_t2[11] = 0.0;
+    bb_t2_tmp = t4 * in3[3];
+    b_t2[12] = -t2 * t6 - bb_t2_tmp;
+    b_t2[13] = 0.0;
+    b_t2[14] = 0.0;
+    t2_tmp_tmp = (&in4[0][0])[12] * t3;
+    cb_t2_tmp = t2_tmp_tmp * t4;
+    db_t2_tmp = (&in4[0][0])[13] * t4 * t5;
+    b_t2_tmp_tmp = (&in4[0][0])[6] * t3;
+    eb_t2_tmp = b_t2_tmp_tmp * t4;
+    fb_t2_tmp = (&in4[0][0])[7] * t4 * t5;
+    gb_t2_tmp = (&in4[0][0])[13] * t2;
+    hb_t2_tmp = (&in4[0][0])[12] * t2;
+    ib_t2_tmp = (&in4[0][0])[7] * t2;
+    jb_t2_tmp = (&in4[0][0])[6] * t2;
+    kb_t2_tmp = (&in4[0][0])[9] * t2;
+    lb_t2_tmp = (&in4[0][0])[11] * t4;
+    mb_t2_tmp = (&in4[0][0])[14] * t4;
+    nb_t2_tmp = (&in4[0][0])[8] * t4;
+    ob_t2_tmp = (&in4[0][0])[9] * t4;
+    pb_t2_tmp = (&in4[0][0])[11] * t2;
+    qb_t2_tmp = (&in4[0][0])[14] * t2;
+    rb_t2_tmp = (&in4[0][0])[8] * t2;
+    sb_t2_tmp = hb_t2_tmp * t3;
+    tb_t2_tmp = gb_t2_tmp * t5;
+    ub_t2_tmp = jb_t2_tmp * t3;
+    vb_t2_tmp = ib_t2_tmp * t5;
+    wb_t2_tmp = gb_t2_tmp * t3;
+    xb_t2_tmp = hb_t2_tmp * t5;
+    yb_t2_tmp = ib_t2_tmp * t3;
+    ac_t2_tmp = jb_t2_tmp * t5;
+    c_t2_tmp_tmp = (&in4[0][0])[13] * t3;
+    bc_t2_tmp = c_t2_tmp_tmp * t4;
+    cc_t2_tmp = (&in4[0][0])[12] * t4 * t5;
+    d_t2_tmp_tmp = (&in4[0][0])[7] * t3;
+    dc_t2_tmp = d_t2_tmp_tmp * t4;
+    ec_t2_tmp = (&in4[0][0])[6] * t4 * t5;
+    fc_t2_tmp = b_t2_tmp * in2[0];
+    gc_t2_tmp = t2_tmp * in2[1];
+    hc_t2_tmp = d_t2_tmp * in2[1];
+    ic_t2_tmp = c_t2_tmp * in2[0];
+    jc_t2_tmp = c_t2_tmp * t6;
+    b_t2[15] = ((((((((((((((((((((((((((((((((((t2 * in3[2] + ob_t2_tmp * t6) - pb_t2_tmp * t6) -
+                                               qb_t2_tmp * t6) -
+                                              rb_t2_tmp * t6) -
+                                             kb_t2_tmp * in3[3]) -
+                                            lb_t2_tmp * in3[3]) -
+                                           mb_t2_tmp * in3[3]) -
+                                          nb_t2_tmp * in3[3]) -
+                                         t2_tmp * in3[0]) +
+                                        c_t2_tmp * in3[1]) -
+                                       t4 * in2[2] * in2[3] * 2.0) -
+                                      t2 * t6 * in1[2]) -
+                                     bb_t2_tmp * in1[2]) +
+                                    cb_t2_tmp * t6) +
+                                   cb_t2_tmp * t7) -
+                                  db_t2_tmp * t6) -
+                                 db_t2_tmp * t7) +
+                                eb_t2_tmp * t6) +
+                               eb_t2_tmp * t7) -
+                              fb_t2_tmp * t6) -
+                             fb_t2_tmp * t7) -
+                            sb_t2_tmp * in3[3]) +
+                           tb_t2_tmp * in3[3]) +
+                          bc_t2_tmp * in3[4]) +
+                         cc_t2_tmp * in3[4]) -
+                        ub_t2_tmp * in3[3]) +
+                       vb_t2_tmp * in3[3]) +
+                      dc_t2_tmp * in3[4]) +
+                     ec_t2_tmp * in3[4]) -
+                    fc_t2_tmp * in2[3] * 2.0) +
+                   hc_t2_tmp * in2[3] * 2.0) +
+                  gc_t2_tmp * in2[4] * 2.0) +
+                 ic_t2_tmp * in2[4] * 2.0) +
+                k_t2_tmp * in1[0]) +
+               ((((((((((((l_t2_tmp * in1[0] - m_t2_tmp * in1[0]) + n_t2_tmp * in1[0]) -
+                         jc_t2_tmp * in1[1]) -
+                        v_t2_tmp * in1[1]) +
+                       w_t2_tmp * in1[1]) +
+                      x_t2_tmp * in1[1]) +
+                     wb_t2_tmp * in2[3] * in2[4] * 2.0) +
+                    xb_t2_tmp * in2[3] * in2[4] * 2.0) +
+                   yb_t2_tmp * in2[3] * in2[4] * 2.0) +
+                  ac_t2_tmp * in2[3] * in2[4] * 2.0) +
+                 o_t2_tmp * in1[0] * 2.0) +
+                y_t2_tmp * in1[1] * 2.0);
+    b_t2[16] = 0.0;
+    kc_t2_tmp = b_t2_tmp * t6;
+    lc_t2_tmp = b_t2_tmp * in2[1];
+    mc_t2_tmp = d_t2_tmp * in2[0];
+    nc_t2_tmp = t2_tmp * in2[0];
+    oc_t2_tmp = c_t2_tmp * in2[1];
+    b_t2[17] = (((((((((((((((((((((((((((((((((((-t4 * in3[2] + kb_t2_tmp * t6) + lb_t2_tmp * t6) +
+                                                mb_t2_tmp * t6) +
+                                               nb_t2_tmp * t6) +
+                                              ob_t2_tmp * in3[3]) -
+                                             pb_t2_tmp * in3[3]) -
+                                            qb_t2_tmp * in3[3]) -
+                                           rb_t2_tmp * in3[3]) -
+                                          b_t2_tmp * in3[0]) +
+                                         d_t2_tmp * in3[1]) -
+                                        t2 * in2[2] * in2[3] * 2.0) +
+                                       t4 * t6 * in1[2]) -
+                                      ab_t2_tmp * in1[2]) +
+                                     sb_t2_tmp * t6) +
+                                    sb_t2_tmp * t7) -
+                                   tb_t2_tmp * t6) -
+                                  tb_t2_tmp * t7) +
+                                 ub_t2_tmp * t6) +
+                                ub_t2_tmp * t7) -
+                               vb_t2_tmp * t6) -
+                              vb_t2_tmp * t7) +
+                             cb_t2_tmp * in3[3]) +
+                            wb_t2_tmp * in3[4]) +
+                           xb_t2_tmp * in3[4]) -
+                          db_t2_tmp * in3[3]) +
+                         eb_t2_tmp * in3[3]) +
+                        yb_t2_tmp * in3[4]) +
+                       ac_t2_tmp * in3[4]) -
+                      fb_t2_tmp * in3[3]) +
+                     lc_t2_tmp * in2[4] * 2.0) +
+                    nc_t2_tmp * in2[3] * 2.0) +
+                   mc_t2_tmp * in2[4] * 2.0) -
+                  oc_t2_tmp * in2[3] * 2.0) +
+                 kc_t2_tmp * in1[0]) +
+                e_t2_tmp * in1[0]) +
+               (((((((((((f_t2_tmp * in1[0] + g_t2_tmp * in1[0]) - p_t2_tmp * in1[1]) -
+                        q_t2_tmp * in1[1]) +
+                       r_t2_tmp * in1[1]) -
+                      s_t2_tmp * in1[1]) -
+                     bc_t2_tmp * in2[3] * in2[4] * 2.0) -
+                    cc_t2_tmp * in2[3] * in2[4] * 2.0) -
+                   dc_t2_tmp * in2[3] * in2[4] * 2.0) -
+                  ec_t2_tmp * in2[3] * in2[4] * 2.0) -
+                 h_t2_tmp * in1[0] * 2.0) -
+                t_t2_tmp * in1[1] * 2.0);
+    b_t2[18] = 0.0;
+    b_t2[19] = 0.0;
+    b_t2[20] =
+        ((((((((((((((((((((((((((((((((((i_t2_tmp * in3[1] - d_t2_tmp * in3[0]) + wb_t2_tmp * t6) +
+                                        xb_t2_tmp * t6) +
+                                       wb_t2_tmp * t7) +
+                                      xb_t2_tmp * t7) +
+                                     yb_t2_tmp * t6) +
+                                    ac_t2_tmp * t6) +
+                                   yb_t2_tmp * t7) +
+                                  ac_t2_tmp * t7) -
+                                 sb_t2_tmp * in3[4]) +
+                                bc_t2_tmp * in3[3]) +
+                               cc_t2_tmp * in3[3]) +
+                              tb_t2_tmp * in3[4]) -
+                             ub_t2_tmp * in3[4]) +
+                            dc_t2_tmp * in3[3]) +
+                           ec_t2_tmp * in3[3]) +
+                          vb_t2_tmp * in3[4]) -
+                         fc_t2_tmp * in2[4] * 2.0) +
+                        gc_t2_tmp * in2[3] * 2.0) +
+                       hc_t2_tmp * in2[4] * 2.0) +
+                      ic_t2_tmp * in2[3] * 2.0) +
+                     p_t2_tmp * in1[0]) +
+                    q_t2_tmp * in1[0]) -
+                   r_t2_tmp * in1[0]) +
+                  s_t2_tmp * in1[0]) +
+                 kc_t2_tmp * in1[1]) +
+                e_t2_tmp * in1[1]) +
+               f_t2_tmp * in1[1]) +
+              g_t2_tmp * in1[1]) +
+             cb_t2_tmp * in2[3] * in2[4] * 2.0) -
+            db_t2_tmp * in2[3] * in2[4] * 2.0) +
+           eb_t2_tmp * in2[3] * in2[4] * 2.0) -
+          fb_t2_tmp * in2[3] * in2[4] * 2.0) +
+         t_t2_tmp * in1[0] * 2.0) +
+        h_t2_tmp * in1[1] * -2.0;
+    b_t2[21] =
+        ((((((((((((((t3 * in3[0] - t5 * in3[1]) - t2_tmp_tmp * t7) + (&in4[0][0])[13] * t5 * t7) -
+                   b_t2_tmp_tmp * t7) +
+                  (&in4[0][0])[7] * t5 * t7) -
+                 c_t2_tmp_tmp * in3[4]) -
+                (&in4[0][0])[12] * t5 * in3[4]) -
+               d_t2_tmp_tmp * in3[4]) -
+              (&in4[0][0])[6] * t5 * in3[4]) -
+             t3 * in2[1] * in2[4] * 2.0) -
+            t5 * in2[0] * in2[4] * 2.0) -
+           t3 * t7 * in1[0]) -
+          u_t2_tmp * in1[0]) +
+         t5 * t7 * in1[1]) -
+        j_t2_tmp * in1[1];
+    b_t2[22] =
+        (((((((((((((((((((((((((((((((t2_tmp * in3[1] + c_t2_tmp * in3[0]) - bc_t2_tmp * t6) -
+                                     cc_t2_tmp * t6) -
+                                    bc_t2_tmp * t7) -
+                                   cc_t2_tmp * t7) -
+                                  dc_t2_tmp * t6) -
+                                 ec_t2_tmp * t6) -
+                                dc_t2_tmp * t7) -
+                               ec_t2_tmp * t7) +
+                              wb_t2_tmp * in3[3]) +
+                             xb_t2_tmp * in3[3]) +
+                            cb_t2_tmp * in3[4]) -
+                           db_t2_tmp * in3[4]) +
+                          yb_t2_tmp * in3[3]) +
+                         ac_t2_tmp * in3[3]) +
+                        eb_t2_tmp * in3[4]) -
+                       fb_t2_tmp * in3[4]) +
+                      lc_t2_tmp * in2[3] * 2.0) +
+                     mc_t2_tmp * in2[3] * 2.0) +
+                    nc_t2_tmp * in2[4] * 2.0) -
+                   oc_t2_tmp * in2[4] * 2.0) -
+                  jc_t2_tmp * in1[0]) -
+                 v_t2_tmp * in1[0]) +
+                w_t2_tmp * in1[0]) +
+               x_t2_tmp * in1[0]) -
+              k_t2_tmp * in1[1]) -
+             l_t2_tmp * in1[1]) +
+            m_t2_tmp * in1[1]) -
+           n_t2_tmp * in1[1]) +
+          sb_t2_tmp * in2[3] * in2[4] * 2.0) -
+         tb_t2_tmp * in2[3] * in2[4] * 2.0) +
+        (((ub_t2_tmp * in2[3] * in2[4] * 2.0 - vb_t2_tmp * in2[3] * in2[4] * 2.0) +
+          y_t2_tmp * in1[0] * 2.0) -
+         o_t2_tmp * in1[1] * 2.0);
+    b_t2[23] = 0.0;
+    b_t2[24] = 0.0;
     for (i = 0; i < 5; i++) {
         for (i1 = 0; i1 < 5; i1++) {
-            J2P_ar[i][i1] = b_in3[i1 + 5 * i];
+            J2P_jt[i][i1] = b_t2[i1 + 5 * i];
         }
     }
 }
 
 /*
- * function J2P_ra = kin_J2P_ra_xyzbc(in1,in2,in3,in4)
+ * function J2P_tj = kin_xyzbc_tt_J2P_tj(in1,in2,in3,in4)
  *
- * kin_J2P_ra_xyzbc
- *     J2P_ra = kin_J2P_ra_xyzbc(IN1,IN2,IN3,IN4)
+ * kin_xyzbc_tt_J2P_tj
+ *     J2P_tj = kin_xyzbc_tt_J2P_tj(IN1,IN2,IN3,IN4)
  *
  * Arguments    : const double in1[5]
  *                const double in2[5]
  *                const double in3[5]
- *                double in4[4][3]
- *                double J2P_ra[5][5]
+ *                double in4[5][3]
+ *                double J2P_tj[5][5]
  * Return Type  : void
  */
-void kin_J2P_ra_xyzbc(const double in1[5], const double in2[5], const double in3[5],
-                      double in4[4][3], double J2P_ra[5][5])
-{
-    double b_in3[25];
-    double ab_in3_tmp;
-    double ac_in3_tmp;
-    double ad_in3_tmp;
-    double b_in3_tmp;
-    double b_in3_tmp_tmp;
-    double bb_in3_tmp;
-    double bc_in3_tmp;
-    double bd_in3_tmp;
-    double c_in3_tmp;
-    double c_in3_tmp_tmp;
-    double cb_in3_tmp;
-    double cc_in3_tmp;
-    double cd_in3_tmp;
-    double d_in3_tmp;
-    double d_in3_tmp_tmp;
-    double db_in3_tmp;
-    double dc_in3_tmp;
-    double dd_in3_tmp;
-    double e_in3_tmp;
-    double e_in3_tmp_tmp;
-    double eb_in3_tmp;
-    double ec_in3_tmp;
-    double f_in3_tmp;
-    double f_in3_tmp_tmp;
-    double fb_in3_tmp;
-    double fc_in3_tmp;
-    double g_in3_tmp;
-    double g_in3_tmp_tmp;
-    double gb_in3_tmp;
-    double gc_in3_tmp;
-    double h_in3_tmp;
-    double h_in3_tmp_tmp;
-    double hb_in3_tmp;
-    double hc_in3_tmp;
-    double i_in3_tmp;
-    double i_in3_tmp_tmp;
-    double ib_in3_tmp;
-    double ic_in3_tmp;
-    double in3_tmp;
-    double in3_tmp_tmp;
-    double j_in3_tmp;
-    double j_in3_tmp_tmp;
-    double jb_in3_tmp;
-    double jc_in3_tmp;
-    double k_in3_tmp;
-    double k_in3_tmp_tmp;
-    double kb_in3_tmp;
-    double kc_in3_tmp;
-    double l_in3_tmp;
-    double l_in3_tmp_tmp;
-    double lb_in3_tmp;
-    double lc_in3_tmp;
-    double m_in3_tmp;
-    double m_in3_tmp_tmp;
-    double mb_in3_tmp;
-    double mc_in3_tmp;
-    double n_in3_tmp;
-    double n_in3_tmp_tmp;
-    double nb_in3_tmp;
-    double nc_in3_tmp;
-    double o_in3_tmp;
-    double ob_in3_tmp;
-    double oc_in3_tmp;
-    double p_in3_tmp;
-    double pb_in3_tmp;
-    double pc_in3_tmp;
-    double q_in3_tmp;
-    double qb_in3_tmp;
-    double qc_in3_tmp;
-    double r_in3_tmp;
-    double rb_in3_tmp;
-    double rc_in3_tmp;
-    double s_in3_tmp;
-    double sb_in3_tmp;
-    double sc_in3_tmp;
-    double t2;
-    double t3;
-    double t4;
-    double t5;
-    double t6;
-    double t7;
-    double t_in3_tmp;
-    double tb_in3_tmp;
-    double tc_in3_tmp;
-    double u_in3_tmp;
-    double ub_in3_tmp;
-    double uc_in3_tmp;
-    double v_in3_tmp;
-    double vb_in3_tmp;
-    double vc_in3_tmp;
-    double w_in3_tmp;
-    double wb_in3_tmp;
-    double wc_in3_tmp;
-    double x_in3_tmp;
-    double xb_in3_tmp;
-    double xc_in3_tmp;
-    double y_in3_tmp;
-    double yb_in3_tmp;
-    double yc_in3_tmp;
-    int i;
-    int i1;
-    /*     This function was generated by the Symbolic Math Toolbox version 9.1. */
-    /*     01-Sep-2023 14:01:22 */
-    /* Jacobian second derivative ( forward ) :  */
-    /* INPUTS :  */
-    /* 	r_a : 5 x 1 : pose vector( joint ) */
-    /* 	v_a : 5 x 1 : speed vector( joint ) */
-    /* 	a_a : 5 x 1 : acceleration vector( joint ) */
-    /* 	j_a : 5 x 1 : jerk vector( joint ) */
-    /* 	p   : 5 x 1 : parameters */
-    /* OUTPUTS :  */
-    /* 	M   : 5 x 5 : resulting matrix */
-    /* 'kin_J2P_ra_xyzbc:18' A1 = in1(1,:); */
-    /* 'kin_J2P_ra_xyzbc:19' A2 = in1(2,:); */
-    /* 'kin_J2P_ra_xyzbc:20' A3 = in1(3,:); */
-    /* 'kin_J2P_ra_xyzbc:21' A4 = in1(4,:); */
-    /* 'kin_J2P_ra_xyzbc:22' A5 = in1(5,:); */
-    /* 'kin_J2P_ra_xyzbc:23' Ap1 = in2(1,:); */
-    /* 'kin_J2P_ra_xyzbc:24' Ap2 = in2(2,:); */
-    /* 'kin_J2P_ra_xyzbc:25' Ap3 = in2(3,:); */
-    /* 'kin_J2P_ra_xyzbc:26' Ap4 = in2(4,:); */
-    /* 'kin_J2P_ra_xyzbc:27' Ap5 = in2(5,:); */
-    /* 'kin_J2P_ra_xyzbc:28' App1 = in3(1,:); */
-    /* 'kin_J2P_ra_xyzbc:29' App2 = in3(2,:); */
-    /* 'kin_J2P_ra_xyzbc:30' App3 = in3(3,:); */
-    /* 'kin_J2P_ra_xyzbc:31' App4 = in3(4,:); */
-    /* 'kin_J2P_ra_xyzbc:32' App5 = in3(5,:); */
-    /* 'kin_J2P_ra_xyzbc:33' P1_1 = in4(1); */
-    /* 'kin_J2P_ra_xyzbc:34' P1_4 = in4(10); */
-    /* 'kin_J2P_ra_xyzbc:35' P2_1 = in4(2); */
-    /* 'kin_J2P_ra_xyzbc:36' P3_1 = in4(3); */
-    /* 'kin_J2P_ra_xyzbc:37' P3_4 = in4(12); */
-    /* 'kin_J2P_ra_xyzbc:38' t2 = cos(A4); */
-    t2 = cos(in1[3]);
-    /* 'kin_J2P_ra_xyzbc:39' t3 = cos(A5); */
-    t3 = cos(in1[4]);
-    /* 'kin_J2P_ra_xyzbc:40' t4 = sin(A4); */
-    t4 = sin(in1[3]);
-    /* 'kin_J2P_ra_xyzbc:41' t5 = sin(A5); */
-    t5 = sin(in1[4]);
-    /* 'kin_J2P_ra_xyzbc:42' t6 = Ap4.^2; */
-    t6 = in2[3] * in2[3];
-    /* 'kin_J2P_ra_xyzbc:43' t7 = Ap5.^2; */
-    t7 = in2[4] * in2[4];
-    /* 'kin_J2P_ra_xyzbc:44' et1 =
-     * -App1.*t3.*t4-App3.*t2.*t3-P1_1.*t3.*t4.*t6-P1_1.*t3.*t4.*t7-P1_4.*t2.*t3.*t6-P1_4.*t2.*t3.*t7-P3_1.*t2.*t3.*t6-P3_1.*t2.*t3.*t7-P3_4.*t2.*t3.*t6-P3_4.*t2.*t3.*t7-A1.*App4.*t2.*t3+A3.*App4.*t3.*t4+A1.*App5.*t4.*t5+A3.*App5.*t2.*t5-Ap1.*Ap4.*t2.*t3.*2.0+Ap3.*Ap4.*t3.*t4.*2.0+Ap1.*Ap5.*t4.*t5.*2.0+Ap3.*Ap5.*t2.*t5.*2.0+App4.*P1_1.*t2.*t3-App4.*P1_4.*t3.*t4-App5.*P1_1.*t4.*t5-App5.*P1_4.*t2.*t5-App4.*P3_1.*t3.*t4-App5.*P3_1.*t2.*t5-App4.*P3_4.*t3.*t4-App5.*P3_4.*t2.*t5+A1.*t3.*t4.*t6+A3.*t2.*t3.*t6+A1.*t3.*t4.*t7+A3.*t2.*t3.*t7+A1.*Ap4.*Ap5.*t2.*t5.*2.0;
-     */
-    /* 'kin_J2P_ra_xyzbc:45' et2 =
-     * A3.*Ap4.*Ap5.*t4.*t5.*-2.0-Ap4.*Ap5.*P1_1.*t2.*t5.*2.0+Ap4.*Ap5.*P1_4.*t4.*t5.*2.0+Ap4.*Ap5.*P3_1.*t4.*t5.*2.0+Ap4.*Ap5.*P3_4.*t4.*t5.*2.0;
-     */
-    /* 'kin_J2P_ra_xyzbc:46' et3 =
-     * -App2.*t3+A2.*App5.*t5+Ap2.*Ap5.*t5.*2.0+App5.*P2_1.*t5+A2.*t3.*t7-App1.*t2.*t5+App3.*t4.*t5+P2_1.*t3.*t7-P1_1.*t2.*t5.*t6-P1_1.*t2.*t5.*t7+P1_4.*t4.*t5.*t6+P1_4.*t4.*t5.*t7+P3_1.*t4.*t5.*t6+P3_1.*t4.*t5.*t7+P3_4.*t4.*t5.*t6+P3_4.*t4.*t5.*t7-A1.*App5.*t2.*t3+A1.*App4.*t4.*t5+A3.*App4.*t2.*t5+A3.*App5.*t3.*t4-Ap1.*Ap5.*t2.*t3.*2.0+Ap1.*Ap4.*t4.*t5.*2.0+Ap3.*Ap4.*t2.*t5.*2.0+Ap3.*Ap5.*t3.*t4.*2.0+App5.*P1_1.*t2.*t3-App4.*P1_1.*t4.*t5-App4.*P1_4.*t2.*t5-App5.*P1_4.*t3.*t4-App4.*P3_1.*t2.*t5-App5.*P3_1.*t3.*t4-App4.*P3_4.*t2.*t5-App5.*P3_4.*t3.*t4+A1.*t2.*t5.*t6+A1.*t2.*t5.*t7-A3.*t4.*t5.*t6;
-     */
-    /* 'kin_J2P_ra_xyzbc:47' et4 =
-     * -A3.*t4.*t5.*t7+A1.*Ap4.*Ap5.*t3.*t4.*2.0+A3.*Ap4.*Ap5.*t2.*t3.*2.0-Ap4.*Ap5.*P1_1.*t3.*t4.*2.0-Ap4.*Ap5.*P1_4.*t2.*t3.*2.0-Ap4.*Ap5.*P3_1.*t2.*t3.*2.0-Ap4.*Ap5.*P3_4.*t2.*t3.*2.0;
-     */
-    /* 'kin_J2P_ra_xyzbc:48' et5 =
-     * -App1.*t4.*t5-App3.*t2.*t5-P1_1.*t4.*t5.*t6-P1_1.*t4.*t5.*t7-P1_4.*t2.*t5.*t6-P1_4.*t2.*t5.*t7-P3_1.*t2.*t5.*t6-P3_1.*t2.*t5.*t7-P3_4.*t2.*t5.*t6-P3_4.*t2.*t5.*t7-A1.*App4.*t2.*t5-A1.*App5.*t3.*t4-A3.*App5.*t2.*t3+A3.*App4.*t4.*t5-Ap1.*Ap4.*t2.*t5.*2.0-Ap1.*Ap5.*t3.*t4.*2.0-Ap3.*Ap5.*t2.*t3.*2.0+Ap3.*Ap4.*t4.*t5.*2.0+App4.*P1_1.*t2.*t5+App5.*P1_1.*t3.*t4+App5.*P1_4.*t2.*t3-App4.*P1_4.*t4.*t5+App5.*P3_1.*t2.*t3-App4.*P3_1.*t4.*t5+App5.*P3_4.*t2.*t3-App4.*P3_4.*t4.*t5+A1.*t4.*t5.*t6+A3.*t2.*t5.*t6+A1.*t4.*t5.*t7+A3.*t2.*t5.*t7-A1.*Ap4.*Ap5.*t2.*t3.*2.0;
-     */
-    /* 'kin_J2P_ra_xyzbc:49' et6 =
-     * A3.*Ap4.*Ap5.*t3.*t4.*2.0+Ap4.*Ap5.*P1_1.*t2.*t3.*2.0-Ap4.*Ap5.*P1_4.*t3.*t4.*2.0-Ap4.*Ap5.*P3_1.*t3.*t4.*2.0-Ap4.*Ap5.*P3_4.*t3.*t4.*2.0;
-     */
-    /* 'kin_J2P_ra_xyzbc:50' et7 =
-     * -App2.*t5-A2.*App5.*t3-Ap2.*Ap5.*t3.*2.0-App5.*P2_1.*t3+A2.*t5.*t7+App1.*t2.*t3-App3.*t3.*t4+P2_1.*t5.*t7+P1_1.*t2.*t3.*t6+P1_1.*t2.*t3.*t7-P1_4.*t3.*t4.*t6-P1_4.*t3.*t4.*t7-P3_1.*t3.*t4.*t6-P3_1.*t3.*t4.*t7-P3_4.*t3.*t4.*t6-P3_4.*t3.*t4.*t7-A1.*App4.*t3.*t4-A3.*App4.*t2.*t3-A1.*App5.*t2.*t5+A3.*App5.*t4.*t5-Ap1.*Ap4.*t3.*t4.*2.0-Ap3.*Ap4.*t2.*t3.*2.0-Ap1.*Ap5.*t2.*t5.*2.0+Ap3.*Ap5.*t4.*t5.*2.0+App4.*P1_1.*t3.*t4+App4.*P1_4.*t2.*t3+App5.*P1_1.*t2.*t5-App5.*P1_4.*t4.*t5+App4.*P3_1.*t2.*t3+App4.*P3_4.*t2.*t3-App5.*P3_1.*t4.*t5-App5.*P3_4.*t4.*t5-A1.*t2.*t3.*t6;
-     */
-    /* 'kin_J2P_ra_xyzbc:51' et8 =
-     * -A1.*t2.*t3.*t7+A3.*t3.*t4.*t6+A3.*t3.*t4.*t7+A1.*Ap4.*Ap5.*t4.*t5.*2.0+A3.*Ap4.*Ap5.*t2.*t5.*2.0-Ap4.*Ap5.*P1_1.*t4.*t5.*2.0-Ap4.*Ap5.*P1_4.*t2.*t5.*2.0-Ap4.*Ap5.*P3_1.*t2.*t5.*2.0-Ap4.*Ap5.*P3_4.*t2.*t5.*2.0;
-     */
-    /* 'kin_J2P_ra_xyzbc:52' mt1 =
-     * [-App4.*t3.*t4-App5.*t2.*t5-t2.*t3.*t6-t2.*t3.*t7+Ap4.*Ap5.*t4.*t5.*2.0,App5.*t2.*t3-App4.*t4.*t5-t2.*t5.*t6-t2.*t5.*t7-Ap4.*Ap5.*t3.*t4.*2.0,App4.*t2-t4.*t6,0.0,0.0,-App5.*t3+t5.*t7,-App5.*t5-t3.*t7,0.0,0.0,0.0,-App4.*t2.*t3+App5.*t4.*t5+t3.*t4.*t6+t3.*t4.*t7+Ap4.*Ap5.*t2.*t5.*2.0,-App4.*t2.*t5-App5.*t3.*t4+t4.*t5.*t6+t4.*t5.*t7-Ap4.*Ap5.*t2.*t3.*2.0,-App4.*t4-t2.*t6,0.0,0.0,et1+et2,et5+et6];
-     */
-    /* 'kin_J2P_ra_xyzbc:53' mt2 =
-     * [App1.*t2-App3.*t4-A1.*App4.*t4-A3.*App4.*t2-Ap1.*Ap4.*t4.*2.0-Ap3.*Ap4.*t2.*2.0+App4.*P1_1.*t4+App4.*P1_4.*t2+App4.*P3_1.*t2+App4.*P3_4.*t2-A1.*t2.*t6+A3.*t4.*t6+P1_1.*t2.*t6-P1_4.*t4.*t6-P3_1.*t4.*t6-P3_4.*t4.*t6,0.0,0.0,et3+et4,et7+et8,0.0,0.0,0.0];
-     */
-    /* 'kin_J2P_ra_xyzbc:54' J2P_ra = reshape([mt1,mt2],5,5); */
-    in3_tmp = t2 * t3;
-    b_in3_tmp = in3[4] * t2;
-    c_in3_tmp = in2[3] * in2[4];
-    b_in3[0] = (((-in3[3] * t3 * t4 - b_in3_tmp * t5) - in3_tmp * t6) - in3_tmp * t7) +
-               c_in3_tmp * t4 * t5 * 2.0;
-    d_in3_tmp = t2 * t5;
-    b_in3[1] = (((b_in3_tmp * t3 - in3[3] * t4 * t5) - d_in3_tmp * t6) - d_in3_tmp * t7) -
-               c_in3_tmp * t3 * t4 * 2.0;
-    b_in3[2] = in3[3] * t2 - t4 * t6;
-    b_in3[3] = 0.0;
-    b_in3[4] = 0.0;
-    b_in3[5] = -in3[4] * t3 + t5 * t7;
-    b_in3[6] = -in3[4] * t5 - t3 * t7;
-    b_in3[7] = 0.0;
-    b_in3[8] = 0.0;
-    b_in3[9] = 0.0;
-    e_in3_tmp = t3 * t4;
-    f_in3_tmp = -in3[3] * t2;
-    g_in3_tmp = c_in3_tmp * t2;
-    b_in3[10] = (((f_in3_tmp * t3 + in3[4] * t4 * t5) + e_in3_tmp * t6) + e_in3_tmp * t7) +
-                g_in3_tmp * t5 * 2.0;
-    h_in3_tmp = t4 * t5;
-    b_in3[11] = (((f_in3_tmp * t5 - in3[4] * t3 * t4) + h_in3_tmp * t6) + h_in3_tmp * t7) -
-                g_in3_tmp * t3 * 2.0;
-    b_in3[12] = -in3[3] * t4 - t2 * t6;
-    b_in3[13] = 0.0;
-    b_in3[14] = 0.0;
-    i_in3_tmp = (&in4[0][0])[0] * t3 * t4;
-    in3_tmp_tmp = (&in4[0][0])[9] * t2;
-    j_in3_tmp = in3_tmp_tmp * t3;
-    b_in3_tmp_tmp = (&in4[0][0])[2] * t2;
-    k_in3_tmp = b_in3_tmp_tmp * t3;
-    c_in3_tmp_tmp = (&in4[0][0])[11] * t2;
-    l_in3_tmp = c_in3_tmp_tmp * t3;
-    m_in3_tmp = in1[0] * t3 * t4;
-    d_in3_tmp_tmp = in1[2] * t2;
-    n_in3_tmp = d_in3_tmp_tmp * t3;
-    o_in3_tmp = in3[2] * t2;
-    e_in3_tmp_tmp = in1[0] * in3[3];
-    p_in3_tmp = e_in3_tmp_tmp * t2;
-    q_in3_tmp = in1[0] * in3[4];
-    f_in3_tmp_tmp = in1[2] * in3[4];
-    r_in3_tmp = f_in3_tmp_tmp * t2;
-    s_in3_tmp = in1[2] * in3[3];
-    g_in3_tmp_tmp = in2[0] * in2[3];
-    t_in3_tmp = g_in3_tmp_tmp * t2;
-    u_in3_tmp = in2[0] * in2[4];
-    h_in3_tmp_tmp = in2[2] * in2[4];
-    v_in3_tmp = h_in3_tmp_tmp * t2;
-    w_in3_tmp = in2[2] * in2[3];
-    i_in3_tmp_tmp = (&in4[0][0])[0] * in3[3];
-    x_in3_tmp = i_in3_tmp_tmp * t2;
-    y_in3_tmp = (&in4[0][0])[0] * in3[4];
-    j_in3_tmp_tmp = in3[4] * (&in4[0][0])[9];
-    ab_in3_tmp = j_in3_tmp_tmp * t2;
-    bb_in3_tmp = in3[3] * (&in4[0][0])[9];
-    k_in3_tmp_tmp = (&in4[0][0])[2] * in3[4];
-    cb_in3_tmp = k_in3_tmp_tmp * t2;
-    db_in3_tmp = (&in4[0][0])[2] * in3[3];
-    l_in3_tmp_tmp = in3[4] * (&in4[0][0])[11];
-    eb_in3_tmp = l_in3_tmp_tmp * t2;
-    fb_in3_tmp = in3[3] * (&in4[0][0])[11];
-    m_in3_tmp_tmp = in1[0] * in2[3] * in2[4];
-    gb_in3_tmp = m_in3_tmp_tmp * t2;
-    hb_in3_tmp = in1[2] * in2[3] * in2[4];
-    n_in3_tmp_tmp = c_in3_tmp * (&in4[0][0])[0];
-    ib_in3_tmp = n_in3_tmp_tmp * t2;
-    jb_in3_tmp = c_in3_tmp * (&in4[0][0])[9];
-    kb_in3_tmp = c_in3_tmp * (&in4[0][0])[2];
-    lb_in3_tmp = c_in3_tmp * (&in4[0][0])[11];
-    b_in3[15] =
-        ((((((((((((((((((((((((((((((-in3[0] * t3 * t4 - o_in3_tmp * t3) - i_in3_tmp * t6) -
-                                    i_in3_tmp * t7) -
-                                   j_in3_tmp * t6) -
-                                  j_in3_tmp * t7) -
-                                 k_in3_tmp * t6) -
-                                k_in3_tmp * t7) -
-                               l_in3_tmp * t6) -
-                              l_in3_tmp * t7) -
-                             p_in3_tmp * t3) +
-                            s_in3_tmp * t3 * t4) +
-                           q_in3_tmp * t4 * t5) +
-                          r_in3_tmp * t5) -
-                         t_in3_tmp * t3 * 2.0) +
-                        w_in3_tmp * t3 * t4 * 2.0) +
-                       u_in3_tmp * t4 * t5 * 2.0) +
-                      v_in3_tmp * t5 * 2.0) +
-                     x_in3_tmp * t3) -
-                    bb_in3_tmp * t3 * t4) -
-                   y_in3_tmp * t4 * t5) -
-                  ab_in3_tmp * t5) -
-                 db_in3_tmp * t3 * t4) -
-                cb_in3_tmp * t5) -
-               fb_in3_tmp * t3 * t4) -
-              eb_in3_tmp * t5) +
-             m_in3_tmp * t6) +
-            n_in3_tmp * t6) +
-           m_in3_tmp * t7) +
-          n_in3_tmp * t7) +
-         gb_in3_tmp * t5 * 2.0) +
-        ((((hb_in3_tmp * t4 * t5 * -2.0 - ib_in3_tmp * t5 * 2.0) + jb_in3_tmp * t4 * t5 * 2.0) +
-          kb_in3_tmp * t4 * t5 * 2.0) +
-         lb_in3_tmp * t4 * t5 * 2.0);
-    mb_in3_tmp = (&in4[0][0])[0] * t4 * t5;
-    nb_in3_tmp = in3_tmp_tmp * t5;
-    ob_in3_tmp = b_in3_tmp_tmp * t5;
-    pb_in3_tmp = c_in3_tmp_tmp * t5;
-    qb_in3_tmp = in1[0] * t4 * t5;
-    rb_in3_tmp = d_in3_tmp_tmp * t5;
-    b_in3[16] =
-        ((((((((((((((((((((((((((((((-in3[0] * t4 * t5 - o_in3_tmp * t5) - mb_in3_tmp * t6) -
-                                    mb_in3_tmp * t7) -
-                                   nb_in3_tmp * t6) -
-                                  nb_in3_tmp * t7) -
-                                 ob_in3_tmp * t6) -
-                                ob_in3_tmp * t7) -
-                               pb_in3_tmp * t6) -
-                              pb_in3_tmp * t7) -
-                             p_in3_tmp * t5) -
-                            q_in3_tmp * t3 * t4) -
-                           r_in3_tmp * t3) +
-                          s_in3_tmp * t4 * t5) -
-                         t_in3_tmp * t5 * 2.0) -
-                        u_in3_tmp * t3 * t4 * 2.0) -
-                       v_in3_tmp * t3 * 2.0) +
-                      w_in3_tmp * t4 * t5 * 2.0) +
-                     x_in3_tmp * t5) +
-                    y_in3_tmp * t3 * t4) +
-                   ab_in3_tmp * t3) -
-                  bb_in3_tmp * t4 * t5) +
-                 cb_in3_tmp * t3) -
-                db_in3_tmp * t4 * t5) +
-               eb_in3_tmp * t3) -
-              fb_in3_tmp * t4 * t5) +
-             qb_in3_tmp * t6) +
-            rb_in3_tmp * t6) +
-           qb_in3_tmp * t7) +
-          rb_in3_tmp * t7) -
-         gb_in3_tmp * t3 * 2.0) +
-        ((((hb_in3_tmp * t3 * t4 * 2.0 + ib_in3_tmp * t3 * 2.0) - jb_in3_tmp * t3 * t4 * 2.0) -
-          kb_in3_tmp * t3 * t4 * 2.0) -
-         lb_in3_tmp * t3 * t4 * 2.0);
-    sb_in3_tmp = in3[0] * t2;
-    tb_in3_tmp = in3[2] * t4;
-    ub_in3_tmp = (&in4[0][0])[0] * t2;
-    vb_in3_tmp = (&in4[0][0])[9] * t4;
-    wb_in3_tmp = (&in4[0][0])[2] * t4;
-    xb_in3_tmp = (&in4[0][0])[11] * t4;
-    yb_in3_tmp = e_in3_tmp_tmp * t4;
-    ac_in3_tmp = s_in3_tmp * t2;
-    bc_in3_tmp = g_in3_tmp_tmp * t4;
-    cc_in3_tmp = w_in3_tmp * t2;
-    dc_in3_tmp = i_in3_tmp_tmp * t4;
-    ec_in3_tmp = bb_in3_tmp * t2;
-    fc_in3_tmp = db_in3_tmp * t2;
-    gc_in3_tmp = fb_in3_tmp * t2;
-    hc_in3_tmp = in1[0] * t2;
-    ic_in3_tmp = in1[2] * t4;
-    b_in3[17] =
-        ((((((((((((((sb_in3_tmp - tb_in3_tmp) - yb_in3_tmp) - ac_in3_tmp) - bc_in3_tmp * 2.0) -
-                  cc_in3_tmp * 2.0) +
-                 dc_in3_tmp) +
-                ec_in3_tmp) +
-               fc_in3_tmp) +
-              gc_in3_tmp) -
-             hc_in3_tmp * t6) +
-            ic_in3_tmp * t6) +
-           ub_in3_tmp * t6) -
-          vb_in3_tmp * t6) -
-         wb_in3_tmp * t6) -
-        xb_in3_tmp * t6;
-    b_in3[18] = 0.0;
-    b_in3[19] = 0.0;
-    jc_in3_tmp = ub_in3_tmp * t5;
-    kc_in3_tmp = vb_in3_tmp * t5;
-    lc_in3_tmp = wb_in3_tmp * t5;
-    mc_in3_tmp = xb_in3_tmp * t5;
-    nc_in3_tmp = hc_in3_tmp * t5;
-    oc_in3_tmp = in1[1] * in3[4];
-    pc_in3_tmp = in2[1] * in2[4];
-    qc_in3_tmp = (&in4[0][0])[1] * in3[4];
-    rc_in3_tmp = q_in3_tmp * t2;
-    sc_in3_tmp = u_in3_tmp * t2;
-    tc_in3_tmp = y_in3_tmp * t2;
-    uc_in3_tmp = hb_in3_tmp * t2;
-    vc_in3_tmp = jb_in3_tmp * t2;
-    wc_in3_tmp = kb_in3_tmp * t2;
-    xc_in3_tmp = lb_in3_tmp * t2;
-    b_in3[20] =
-        ((((((((((((((((((((((((((((((((((-in3[1] * t3 + oc_in3_tmp * t5) + pc_in3_tmp * t5 * 2.0) +
-                                        qc_in3_tmp * t5) +
-                                       in1[1] * t3 * t7) -
-                                      sb_in3_tmp * t5) +
-                                     tb_in3_tmp * t5) +
-                                    (&in4[0][0])[1] * t3 * t7) -
-                                   jc_in3_tmp * t6) -
-                                  jc_in3_tmp * t7) +
-                                 kc_in3_tmp * t6) +
-                                kc_in3_tmp * t7) +
-                               lc_in3_tmp * t6) +
-                              lc_in3_tmp * t7) +
-                             mc_in3_tmp * t6) +
-                            mc_in3_tmp * t7) -
-                           rc_in3_tmp * t3) +
-                          yb_in3_tmp * t5) +
-                         ac_in3_tmp * t5) +
-                        f_in3_tmp_tmp * t3 * t4) -
-                       sc_in3_tmp * t3 * 2.0) +
-                      bc_in3_tmp * t5 * 2.0) +
-                     cc_in3_tmp * t5 * 2.0) +
-                    h_in3_tmp_tmp * t3 * t4 * 2.0) +
-                   tc_in3_tmp * t3) -
-                  dc_in3_tmp * t5) -
-                 ec_in3_tmp * t5) -
-                j_in3_tmp_tmp * t3 * t4) -
-               fc_in3_tmp * t5) -
-              k_in3_tmp_tmp * t3 * t4) -
-             gc_in3_tmp * t5) -
-            l_in3_tmp_tmp * t3 * t4) +
-           nc_in3_tmp * t6) +
-          nc_in3_tmp * t7) -
-         ic_in3_tmp * t5 * t6) +
-        ((((((-in1[2] * t4 * t5 * t7 + m_in3_tmp_tmp * t3 * t4 * 2.0) + uc_in3_tmp * t3 * 2.0) -
-            n_in3_tmp_tmp * t3 * t4 * 2.0) -
-           vc_in3_tmp * t3 * 2.0) -
-          wc_in3_tmp * t3 * 2.0) -
-         xc_in3_tmp * t3 * 2.0);
-    yc_in3_tmp = ub_in3_tmp * t3;
-    ad_in3_tmp = (&in4[0][0])[9] * t3 * t4;
-    bd_in3_tmp = (&in4[0][0])[2] * t3 * t4;
-    cd_in3_tmp = (&in4[0][0])[11] * t3 * t4;
-    dd_in3_tmp = in1[2] * t3 * t4;
-    b_in3[21] =
-        ((((((((((((((((((((((((((((((((-in3[1] * t5 - oc_in3_tmp * t3) - pc_in3_tmp * t3 * 2.0) -
-                                      qc_in3_tmp * t3) +
-                                     in1[1] * t5 * t7) +
-                                    sb_in3_tmp * t3) -
-                                   in3[2] * t3 * t4) +
-                                  (&in4[0][0])[1] * t5 * t7) +
-                                 yc_in3_tmp * t6) +
-                                yc_in3_tmp * t7) -
-                               ad_in3_tmp * t6) -
-                              ad_in3_tmp * t7) -
-                             bd_in3_tmp * t6) -
-                            bd_in3_tmp * t7) -
-                           cd_in3_tmp * t6) -
-                          cd_in3_tmp * t7) -
-                         e_in3_tmp_tmp * t3 * t4) -
-                        ac_in3_tmp * t3) -
-                       rc_in3_tmp * t5) +
-                      f_in3_tmp_tmp * t4 * t5) -
-                     g_in3_tmp_tmp * t3 * t4 * 2.0) -
-                    cc_in3_tmp * t3 * 2.0) -
-                   sc_in3_tmp * t5 * 2.0) +
-                  h_in3_tmp_tmp * t4 * t5 * 2.0) +
-                 i_in3_tmp_tmp * t3 * t4) +
-                ec_in3_tmp * t3) +
-               tc_in3_tmp * t5) -
-              j_in3_tmp_tmp * t4 * t5) +
-             fc_in3_tmp * t3) +
-            gc_in3_tmp * t3) -
-           k_in3_tmp_tmp * t4 * t5) -
-          l_in3_tmp_tmp * t4 * t5) -
-         hc_in3_tmp * t3 * t6) +
-        ((((((((-in1[0] * t2 * t3 * t7 + dd_in3_tmp * t6) + dd_in3_tmp * t7) +
-              m_in3_tmp_tmp * t4 * t5 * 2.0) +
-             uc_in3_tmp * t5 * 2.0) -
-            n_in3_tmp_tmp * t4 * t5 * 2.0) -
-           vc_in3_tmp * t5 * 2.0) -
-          wc_in3_tmp * t5 * 2.0) -
-         xc_in3_tmp * t5 * 2.0);
-    b_in3[22] = 0.0;
-    b_in3[23] = 0.0;
-    b_in3[24] = 0.0;
-    for (i = 0; i < 5; i++) {
-        for (i1 = 0; i1 < 5; i1++) {
-            J2P_ra[i][i1] = b_in3[i1 + 5 * i];
-        }
-    }
-}
-
-/*
- * function JP_ar = kin_JP_ar_xyzbc(in1,in2,in3)
- *
- * kin_JP_ar_xyzbc
- *     JP_ar = kin_JP_ar_xyzbc(IN1,IN2,IN3)
- *
- * Arguments    : const double in1[5]
- *                const double in2[5]
- *                double in3[4][3]
- *                double JP_ar[5][5]
- * Return Type  : void
- */
-void kin_JP_ar_xyzbc(const double in1[5], const double in2[5], double in3[4][3], double JP_ar[5][5])
+void kin_xyzbc_tt_J2P_tj(const double in1[5], const double in2[5], const double in3[5],
+                         double in4[5][3], double J2P_tj[5][5])
 {
     double b_in2[25];
     double b_in2_tmp;
+    double b_t58_tmp;
     double c_in2_tmp;
     double d_in2_tmp;
     double e_in2_tmp;
     double f_in2_tmp;
     double g_in2_tmp;
     double in2_tmp;
-    double t10;
-    double t11;
-    double t12;
-    double t13;
-    double t14;
     double t15;
-    double t16;
+    double t15_tmp;
     double t17;
-    double t18;
-    double t2;
-    double t20;
-    double t24;
-    double t25;
-    double t3;
-    double t4;
-    double t5;
-    double t6;
-    double t7;
-    double t8;
-    double t9;
-    int i;
-    int i1;
-    /*     This function was generated by the Symbolic Math Toolbox version 9.1. */
-    /*     01-Sep-2023 14:01:22 */
-    /* Jacobian first derivative ( backward ) :  */
-    /* INPUTS :  */
-    /* 	r_r : 5 x 1 : pose vector ( relative ) */
-    /* 	v_r : 5 x 1 : speed vector ( relative ) */
-    /* 	a_a : 5 x 1 : acceleration vector( relative ) */
-    /* 	p   : 5 x 1 : parameters */
-    /* OUTPUTS :  */
-    /* 	M   : 5 x 5 : resulting matrix */
-    /* 'kin_JP_ar_xyzbc:17' P1_2 = in3(4); */
-    /* 'kin_JP_ar_xyzbc:18' P1_3 = in3(7); */
-    /* 'kin_JP_ar_xyzbc:19' P2_2 = in3(5); */
-    /* 'kin_JP_ar_xyzbc:20' P2_3 = in3(8); */
-    /* 'kin_JP_ar_xyzbc:21' P2_4 = in3(11); */
-    /* 'kin_JP_ar_xyzbc:22' P3_2 = in3(6); */
-    /* 'kin_JP_ar_xyzbc:23' P3_3 = in3(9); */
-    /* 'kin_JP_ar_xyzbc:24' P3_4 = in3(12); */
-    /* 'kin_JP_ar_xyzbc:25' R1 = in1(1,:); */
-    /* 'kin_JP_ar_xyzbc:26' R2 = in1(2,:); */
-    /* 'kin_JP_ar_xyzbc:27' R3 = in1(3,:); */
-    /* 'kin_JP_ar_xyzbc:28' R4 = in1(4,:); */
-    /* 'kin_JP_ar_xyzbc:29' R5 = in1(5,:); */
-    /* 'kin_JP_ar_xyzbc:30' Rp1 = in2(1,:); */
-    /* 'kin_JP_ar_xyzbc:31' Rp2 = in2(2,:); */
-    /* 'kin_JP_ar_xyzbc:32' Rp3 = in2(3,:); */
-    /* 'kin_JP_ar_xyzbc:33' Rp4 = in2(4,:); */
-    /* 'kin_JP_ar_xyzbc:34' Rp5 = in2(5,:); */
-    /* 'kin_JP_ar_xyzbc:35' t2 = cos(R4); */
-    t2 = cos(in1[3]);
-    /* 'kin_JP_ar_xyzbc:36' t3 = cos(R5); */
-    t3 = cos(in1[4]);
-    /* 'kin_JP_ar_xyzbc:37' t4 = sin(R4); */
-    t4 = sin(in1[3]);
-    /* 'kin_JP_ar_xyzbc:38' t5 = sin(R5); */
-    t5 = sin(in1[4]);
-    /* 'kin_JP_ar_xyzbc:39' t6 = P2_4+R3; */
-    t6 = in1[2] + (&in3[0][0])[10];
-    /* 'kin_JP_ar_xyzbc:40' t19 = -P3_4; */
-    /* 'kin_JP_ar_xyzbc:41' t7 = P1_2.*t3; */
-    t7 = (&in3[0][0])[3] * t3;
-    /* 'kin_JP_ar_xyzbc:42' t8 = P1_3.*t3; */
-    t8 = (&in3[0][0])[6] * t3;
-    /* 'kin_JP_ar_xyzbc:43' t9 = P2_2.*t3; */
-    t9 = (&in3[0][0])[4] * t3;
-    /* 'kin_JP_ar_xyzbc:44' t10 = P2_3.*t3; */
-    t10 = (&in3[0][0])[7] * t3;
-    /* 'kin_JP_ar_xyzbc:45' t11 = R1.*t3; */
-    t11 = in1[0] * t3;
-    /* 'kin_JP_ar_xyzbc:46' t12 = R2.*t3; */
-    t12 = in1[1] * t3;
-    /* 'kin_JP_ar_xyzbc:47' t13 = P1_2.*t5; */
-    t13 = (&in3[0][0])[3] * t5;
-    /* 'kin_JP_ar_xyzbc:48' t14 = P1_3.*t5; */
-    t14 = (&in3[0][0])[6] * t5;
-    /* 'kin_JP_ar_xyzbc:49' t15 = P2_2.*t5; */
-    t15 = (&in3[0][0])[4] * t5;
-    /* 'kin_JP_ar_xyzbc:50' t16 = P2_3.*t5; */
-    t16 = (&in3[0][0])[7] * t5;
-    /* 'kin_JP_ar_xyzbc:51' t17 = R1.*t5; */
-    t17 = in1[0] * t5;
-    /* 'kin_JP_ar_xyzbc:52' t18 = R2.*t5; */
-    t18 = in1[1] * t5;
-    /* 'kin_JP_ar_xyzbc:53' t20 = P3_2+t19; */
-    t20 = (&in3[0][0])[5] + -(&in3[0][0])[11];
-    /* 'kin_JP_ar_xyzbc:54' t21 = -t10; */
-    /* 'kin_JP_ar_xyzbc:55' t22 = -t12; */
-    /* 'kin_JP_ar_xyzbc:56' t23 = -t15; */
-    /* 'kin_JP_ar_xyzbc:57' t24 = t7+t8+t11+t16+t18+t23; */
-    t24 = ((((t7 + t8) + t11) + t16) + t18) + -t15;
-    /* 'kin_JP_ar_xyzbc:58' t25 = t9+t13+t14+t17+t21+t22; */
-    t25 = ((((t9 + t13) + t14) + t17) + -t10) + -t12;
-    /* 'kin_JP_ar_xyzbc:59' mt1 =
-     * [-Rp4.*t3.*t4-Rp5.*t2.*t5,-Rp5.*t3,-Rp4.*t2.*t3+Rp5.*t4.*t5,0.0,0.0,Rp5.*t2.*t3-Rp4.*t4.*t5,-Rp5.*t5,-Rp4.*t2.*t5-Rp5.*t3.*t4,0.0,0.0,Rp4.*t2,0.0,-Rp4.*t4,0.0,0.0,Rp3.*t2-Rp4.*(P3_3.*t4+t2.*t7+t2.*t8+t4.*t6+t2.*t11+t2.*t16+t2.*t18+t4.*t20+t2.*t23)-Rp1.*t3.*t4-Rp2.*t4.*t5+Rp5.*t4.*t25,0.0,-Rp3.*t4+Rp4.*(-P3_3.*t2-t2.*t6+t4.*t7+t4.*t8+t4.*t11+t4.*t16-t2.*t20+t4.*t18+t4.*t23)-Rp1.*t2.*t3-Rp2.*t2.*t5+Rp5.*t2.*t25,0.0,0.0];
-     */
-    /* 'kin_JP_ar_xyzbc:60' mt2 =
-     * [Rp2.*t2.*t3-Rp1.*t2.*t5-Rp5.*t2.*t24+Rp4.*t4.*t25,-Rp1.*t3-Rp2.*t5+Rp5.*t9+Rp5.*t13+Rp5.*t14+Rp5.*t17+Rp5.*t21+Rp5.*t22,-Rp2.*t3.*t4+Rp1.*t4.*t5+Rp4.*t2.*t25+Rp5.*t4.*t24,0.0,0.0];
-     */
-    /* 'kin_JP_ar_xyzbc:61' JP_ar = reshape([mt1,mt2],5,5); */
-    in2_tmp = in2[4] * t2;
-    b_in2[0] = -in2[3] * t3 * t4 - in2_tmp * t5;
-    b_in2[1] = -in2[4] * t3;
-    b_in2_tmp = -in2[3] * t2;
-    c_in2_tmp = in2[4] * t4;
-    b_in2[2] = b_in2_tmp * t3 + c_in2_tmp * t5;
-    b_in2[3] = 0.0;
-    b_in2[4] = 0.0;
-    d_in2_tmp = in2[3] * t4;
-    b_in2[5] = in2_tmp * t3 - d_in2_tmp * t5;
-    b_in2[6] = -in2[4] * t5;
-    b_in2[7] = b_in2_tmp * t5 - in2[4] * t3 * t4;
-    b_in2[8] = 0.0;
-    b_in2[9] = 0.0;
-    e_in2_tmp = in2[3] * t2;
-    b_in2[10] = e_in2_tmp;
-    b_in2[11] = 0.0;
-    b_in2[12] = -in2[3] * t4;
-    b_in2[13] = 0.0;
-    b_in2[14] = 0.0;
-    b_in2[15] =
-        (((in2[2] * t2 -
-           in2[3] * (((((((((&in3[0][0])[8] * t4 + t2 * t7) + t2 * t8) + t4 * t6) + t2 * t11) +
-                        t2 * t16) +
-                       t2 * t18) +
-                      t4 * t20) +
-                     t2 * -t15)) -
-          in2[0] * t3 * t4) -
-         in2[1] * t4 * t5) +
-        c_in2_tmp * t25;
-    b_in2[16] = 0.0;
-    f_in2_tmp = in2[1] * t2;
-    g_in2_tmp = in2[0] * t2;
-    b_in2[17] =
-        (((-in2[2] * t4 +
-           in2[3] * ((((((((-(&in3[0][0])[8] * t2 - t2 * t6) + t4 * t7) + t4 * t8) + t4 * t11) +
-                        t4 * t16) -
-                       t2 * t20) +
-                      t4 * t18) +
-                     t4 * -t15)) -
-          g_in2_tmp * t3) -
-         f_in2_tmp * t5) +
-        in2_tmp * t25;
-    b_in2[18] = 0.0;
-    b_in2[19] = 0.0;
-    b_in2[20] = ((f_in2_tmp * t3 - g_in2_tmp * t5) - in2_tmp * t24) + d_in2_tmp * t25;
-    b_in2[21] = ((((((-in2[0] * t3 - in2[1] * t5) + in2[4] * t9) + in2[4] * t13) + in2[4] * t14) +
-                  in2[4] * t17) +
-                 in2[4] * -t10) +
-                in2[4] * -t12;
-    b_in2[22] = ((-in2[1] * t3 * t4 + in2[0] * t4 * t5) + e_in2_tmp * t25) + c_in2_tmp * t24;
-    b_in2[23] = 0.0;
-    b_in2[24] = 0.0;
-    for (i = 0; i < 5; i++) {
-        for (i1 = 0; i1 < 5; i1++) {
-            JP_ar[i][i1] = b_in2[i1 + 5 * i];
-        }
-    }
-}
-
-/*
- * function JP_ra = kin_JP_ra_xyzbc(in1,in2,in3)
- *
- * kin_JP_ra_xyzbc
- *     JP_ra = kin_JP_ra_xyzbc(IN1,IN2,IN3)
- *
- * Arguments    : const double in1[5]
- *                const double in2[5]
- *                double in3[4][3]
- *                double JP_ra[5][5]
- * Return Type  : void
- */
-void kin_JP_ra_xyzbc(const double in1[5], const double in2[5], double in3[4][3], double JP_ra[5][5])
-{
-    double b_in2[25];
-    double b_in2_tmp;
-    double c_in2_tmp;
-    double d_in2_tmp;
-    double e_in2_tmp;
-    double f_in2_tmp;
-    double g_in2_tmp;
-    double h_in2_tmp;
-    double in2_tmp;
-    double t10;
-    double t11;
-    double t12;
-    double t13;
-    double t14;
-    double t15;
-    double t16;
-    double t17;
+    double t17_tmp;
+    double t19;
     double t2;
     double t22;
     double t23;
+    double t24;
+    double t28;
+    double t29;
     double t3;
+    double t36;
+    double t37;
+    double t38;
     double t4;
+    double t41;
+    double t42;
+    double t42_tmp;
+    double t45;
+    double t45_tmp;
     double t5;
+    double t50;
+    double t50_tmp;
+    double t52;
+    double t53;
+    double t57;
+    double t58;
+    double t58_tmp;
+    double t59;
     double t6;
+    double t61;
+    double t62;
+    double t63;
     double t7;
-    double t8;
-    double t9;
+    double t70;
+    double t71;
+    double t72;
+    double t72_tmp;
+    double t73;
+    double t73_tmp;
     int i;
     int i1;
     /*     This function was generated by the Symbolic Math Toolbox version 9.1. */
-    /*     01-Sep-2023 14:01:22 */
-    /* Jacobian first derivative ( forward ) :  */
+    /*     09-Oct-2023 10:15:24 */
+    /* Jacobian second derivative ( Forward Kinematics ) :  */
     /* INPUTS :  */
-    /* 	r_a : 5 x 1 : pose vector( joint ) */
-    /* 	v_a : 5 x 1 : speed vector( joint ) */
-    /* 	a_a : 5 x 1 : acceleration vector( joint ) */
-    /* 	p   : 5 x 1 : parameters */
+    /* 	r_j    (5x1) : pose vector( joint space ) */
+    /* 	v_j    (5x1) : speed vector( joint space ) */
+    /* 	a_j    (5x1) : acceleration vector( joint space ) */
+    /* 	j_j    (5x1) : jerk vector( joint space ) */
+    /* 	p      (3x5) : parameters */
     /* OUTPUTS :  */
-    /* 	M   : 5 x 5 : resulting matrix */
-    /* 'kin_JP_ra_xyzbc:17' A1 = in1(1,:); */
-    /* 'kin_JP_ra_xyzbc:18' A2 = in1(2,:); */
-    /* 'kin_JP_ra_xyzbc:19' A3 = in1(3,:); */
-    /* 'kin_JP_ra_xyzbc:20' A4 = in1(4,:); */
-    /* 'kin_JP_ra_xyzbc:21' A5 = in1(5,:); */
-    /* 'kin_JP_ra_xyzbc:22' Ap1 = in2(1,:); */
-    /* 'kin_JP_ra_xyzbc:23' Ap2 = in2(2,:); */
-    /* 'kin_JP_ra_xyzbc:24' Ap3 = in2(3,:); */
-    /* 'kin_JP_ra_xyzbc:25' Ap4 = in2(4,:); */
-    /* 'kin_JP_ra_xyzbc:26' Ap5 = in2(5,:); */
-    /* 'kin_JP_ra_xyzbc:27' P1_1 = in3(1); */
-    /* 'kin_JP_ra_xyzbc:28' P1_4 = in3(10); */
-    /* 'kin_JP_ra_xyzbc:29' P2_1 = in3(2); */
-    /* 'kin_JP_ra_xyzbc:30' P3_1 = in3(3); */
-    /* 'kin_JP_ra_xyzbc:31' P3_4 = in3(12); */
-    /* 'kin_JP_ra_xyzbc:32' t2 = cos(A4); */
+    /* 	M      (5x5) : resulting matrix */
+    /* 'kin_xyzbc_tt_J2P_tj:18' b = in1(4,:); */
+    /* 'kin_xyzbc_tt_J2P_tj:19' c = in1(5,:); */
+    /* 'kin_xyzbc_tt_J2P_tj:20' jp1 = in2(1,:); */
+    /* 'kin_xyzbc_tt_J2P_tj:21' jp2 = in2(2,:); */
+    /* 'kin_xyzbc_tt_J2P_tj:22' jp3 = in2(3,:); */
+    /* 'kin_xyzbc_tt_J2P_tj:23' jp4 = in2(4,:); */
+    /* 'kin_xyzbc_tt_J2P_tj:24' jp5 = in2(5,:); */
+    /* 'kin_xyzbc_tt_J2P_tj:25' jpp1 = in3(1,:); */
+    /* 'kin_xyzbc_tt_J2P_tj:26' jpp2 = in3(2,:); */
+    /* 'kin_xyzbc_tt_J2P_tj:27' jpp3 = in3(3,:); */
+    /* 'kin_xyzbc_tt_J2P_tj:28' jpp4 = in3(4,:); */
+    /* 'kin_xyzbc_tt_J2P_tj:29' jpp5 = in3(5,:); */
+    /* 'kin_xyzbc_tt_J2P_tj:30' offB1 = in4(10); */
+    /* 'kin_xyzbc_tt_J2P_tj:31' offB2 = in4(11); */
+    /* 'kin_xyzbc_tt_J2P_tj:32' offC1 = in4(13); */
+    /* 'kin_xyzbc_tt_J2P_tj:33' offB3 = in4(12); */
+    /* 'kin_xyzbc_tt_J2P_tj:34' offC2 = in4(14); */
+    /* 'kin_xyzbc_tt_J2P_tj:35' offC3 = in4(15); */
+    /* 'kin_xyzbc_tt_J2P_tj:36' offM1 = in4(1); */
+    /* 'kin_xyzbc_tt_J2P_tj:37' offM2 = in4(2); */
+    /* 'kin_xyzbc_tt_J2P_tj:38' offM3 = in4(3); */
+    /* 'kin_xyzbc_tt_J2P_tj:39' offT1 = in4(4); */
+    /* 'kin_xyzbc_tt_J2P_tj:40' offT2 = in4(5); */
+    /* 'kin_xyzbc_tt_J2P_tj:41' offT3 = in4(6); */
+    /* 'kin_xyzbc_tt_J2P_tj:42' x = in1(1,:); */
+    /* 'kin_xyzbc_tt_J2P_tj:43' y = in1(2,:); */
+    /* 'kin_xyzbc_tt_J2P_tj:44' z = in1(3,:); */
+    /* 'kin_xyzbc_tt_J2P_tj:45' t2 = cos(b); */
     t2 = cos(in1[3]);
-    /* 'kin_JP_ra_xyzbc:33' t3 = cos(A5); */
+    /* 'kin_xyzbc_tt_J2P_tj:46' t3 = cos(c); */
     t3 = cos(in1[4]);
-    /* 'kin_JP_ra_xyzbc:34' t4 = sin(A4); */
+    /* 'kin_xyzbc_tt_J2P_tj:47' t4 = sin(b); */
     t4 = sin(in1[3]);
-    /* 'kin_JP_ra_xyzbc:35' t5 = sin(A5); */
+    /* 'kin_xyzbc_tt_J2P_tj:48' t5 = sin(c); */
     t5 = sin(in1[4]);
-    /* 'kin_JP_ra_xyzbc:36' t6 = A1.*t2; */
-    t6 = in1[0] * t2;
-    /* 'kin_JP_ra_xyzbc:37' t7 = A3.*t2; */
-    t7 = in1[2] * t2;
-    /* 'kin_JP_ra_xyzbc:38' t8 = P1_1.*t2; */
-    t8 = (&in3[0][0])[0] * t2;
-    /* 'kin_JP_ra_xyzbc:39' t9 = P1_4.*t2; */
-    t9 = (&in3[0][0])[9] * t2;
-    /* 'kin_JP_ra_xyzbc:40' t10 = P3_1.*t2; */
-    t10 = (&in3[0][0])[2] * t2;
-    /* 'kin_JP_ra_xyzbc:41' t11 = P3_4.*t2; */
-    t11 = (&in3[0][0])[11] * t2;
-    /* 'kin_JP_ra_xyzbc:42' t12 = A1.*t4; */
-    t12 = in1[0] * t4;
-    /* 'kin_JP_ra_xyzbc:43' t13 = A3.*t4; */
-    t13 = in1[2] * t4;
-    /* 'kin_JP_ra_xyzbc:44' t14 = P1_1.*t4; */
-    t14 = (&in3[0][0])[0] * t4;
-    /* 'kin_JP_ra_xyzbc:45' t15 = P1_4.*t4; */
-    t15 = (&in3[0][0])[9] * t4;
-    /* 'kin_JP_ra_xyzbc:46' t16 = P3_1.*t4; */
-    t16 = (&in3[0][0])[2] * t4;
-    /* 'kin_JP_ra_xyzbc:47' t17 = P3_4.*t4; */
-    t17 = (&in3[0][0])[11] * t4;
-    /* 'kin_JP_ra_xyzbc:48' t18 = -t7; */
-    /* 'kin_JP_ra_xyzbc:49' t19 = -t8; */
-    /* 'kin_JP_ra_xyzbc:50' t20 = -t12; */
-    /* 'kin_JP_ra_xyzbc:51' t21 = -t13; */
-    /* 'kin_JP_ra_xyzbc:52' t22 = t9+t10+t11+t14+t18+t20; */
-    t22 = ((((t9 + t10) + t11) + t14) + -t7) + -t12;
-    /* 'kin_JP_ra_xyzbc:53' t23 = t6+t15+t16+t17+t19+t21; */
-    t23 = ((((t6 + t15) + t16) + t17) + -t8) + -t13;
-    /* 'kin_JP_ra_xyzbc:54' mt1 =
-     * [-Ap4.*t3.*t4-Ap5.*t2.*t5,Ap5.*t2.*t3-Ap4.*t4.*t5,Ap4.*t2,0.0,0.0,-Ap5.*t3,-Ap5.*t5,0.0,0.0,0.0,-Ap4.*t2.*t3+Ap5.*t4.*t5,-Ap4.*t2.*t5-Ap5.*t3.*t4,-Ap4.*t4,0.0,0.0,-Ap1.*t3.*t4-Ap3.*t2.*t3-Ap4.*t3.*t23-Ap5.*t5.*t22,-Ap1.*t4.*t5-Ap3.*t2.*t5+Ap5.*t3.*t22-Ap4.*t5.*t23,Ap1.*t2-Ap3.*t4+Ap4.*t9+Ap4.*t10+Ap4.*t11+Ap4.*t14+Ap4.*t18+Ap4.*t20,0.0,0.0];
+    /* 'kin_xyzbc_tt_J2P_tj:49' t6 = jp4.^2; */
+    t6 = in2[3] * in2[3];
+    /* 'kin_xyzbc_tt_J2P_tj:50' t7 = jp5.^2; */
+    t7 = in2[4] * in2[4];
+    /* 'kin_xyzbc_tt_J2P_tj:51' t12 = -offT1; */
+    /* 'kin_xyzbc_tt_J2P_tj:52' t13 = -offT2; */
+    /* 'kin_xyzbc_tt_J2P_tj:53' t14 = -offT3; */
+    /* 'kin_xyzbc_tt_J2P_tj:54' t8 = offB1.*t3; */
+    /* 'kin_xyzbc_tt_J2P_tj:55' t9 = offB2.*t3; */
+    /* 'kin_xyzbc_tt_J2P_tj:56' t10 = offB1.*t5; */
+    /* 'kin_xyzbc_tt_J2P_tj:57' t11 = offB2.*t5; */
+    /* 'kin_xyzbc_tt_J2P_tj:58' t15 = jp1.*t2.*t3; */
+    t15_tmp = in2[0] * t2;
+    t15 = t15_tmp * t3;
+    /* 'kin_xyzbc_tt_J2P_tj:59' t16 = jp3.*t2.*t3; */
+    /* 'kin_xyzbc_tt_J2P_tj:60' t17 = jp4.*t2.*t3; */
+    t17_tmp = in2[3] * t2;
+    t17 = t17_tmp * t3;
+    /* 'kin_xyzbc_tt_J2P_tj:61' t18 = jp5.*t2.*t3; */
+    /* 'kin_xyzbc_tt_J2P_tj:62' t19 = jp1.*t2.*t5; */
+    t19 = t15_tmp * t5;
+    /* 'kin_xyzbc_tt_J2P_tj:63' t20 = jp1.*t3.*t4; */
+    /* 'kin_xyzbc_tt_J2P_tj:64' t21 = jp3.*t2.*t5; */
+    /* 'kin_xyzbc_tt_J2P_tj:65' t22 = jp3.*t3.*t4; */
+    t22 = in2[2] * t3 * t4;
+    /* 'kin_xyzbc_tt_J2P_tj:66' t23 = jp4.*t2.*t5; */
+    t23 = t17_tmp * t5;
+    /* 'kin_xyzbc_tt_J2P_tj:67' t24 = jp4.*t3.*t4; */
+    t24 = in2[3] * t3 * t4;
+    /* 'kin_xyzbc_tt_J2P_tj:68' t25 = jp5.*t2.*t5; */
+    /* 'kin_xyzbc_tt_J2P_tj:69' t26 = jp5.*t3.*t4; */
+    /* 'kin_xyzbc_tt_J2P_tj:70' t27 = jp1.*t4.*t5; */
+    /* 'kin_xyzbc_tt_J2P_tj:71' t28 = jp3.*t4.*t5; */
+    t28 = in2[2] * t4 * t5;
+    /* 'kin_xyzbc_tt_J2P_tj:72' t29 = jp4.*t4.*t5; */
+    t29 = in2[3] * t4 * t5;
+    /* 'kin_xyzbc_tt_J2P_tj:73' t30 = jp5.*t4.*t5; */
+    /* 'kin_xyzbc_tt_J2P_tj:74' t36 = offB1+offC1+offM1+t12+x; */
+    t36 = ((((&in4[0][0])[9] + (&in4[0][0])[12]) + (&in4[0][0])[0]) + -(&in4[0][0])[3]) + in1[0];
+    /* 'kin_xyzbc_tt_J2P_tj:75' t37 = offB2+offC2+offM2+t13+y; */
+    t37 = ((((&in4[0][0])[10] + (&in4[0][0])[13]) + (&in4[0][0])[1]) + -(&in4[0][0])[4]) + in1[1];
+    /* 'kin_xyzbc_tt_J2P_tj:76' t38 = offB3+offC3+offM3+t14+z; */
+    t38 = ((((&in4[0][0])[11] + (&in4[0][0])[14]) + (&in4[0][0])[2]) + -(&in4[0][0])[5]) + in1[2];
+    /* 'kin_xyzbc_tt_J2P_tj:77' t31 = -t9; */
+    /* 'kin_xyzbc_tt_J2P_tj:78' t32 = -t19; */
+    /* 'kin_xyzbc_tt_J2P_tj:79' t33 = -t22; */
+    /* 'kin_xyzbc_tt_J2P_tj:80' t34 = -t29; */
+    /* 'kin_xyzbc_tt_J2P_tj:81' t35 = -t30; */
+    /* 'kin_xyzbc_tt_J2P_tj:82' t39 = t3.*t37; */
+    /* 'kin_xyzbc_tt_J2P_tj:83' t40 = t5.*t37; */
+    /* 'kin_xyzbc_tt_J2P_tj:84' t41 = t23+t26; */
+    t41 = t23 + in2[4] * t3 * t4;
+    /* 'kin_xyzbc_tt_J2P_tj:85' t42 = t24+t25; */
+    t42_tmp = in2[4] * t2;
+    t42 = t24 + t42_tmp * t5;
+    /* 'kin_xyzbc_tt_J2P_tj:86' t43 = t4.*t5.*t38; */
+    /* 'kin_xyzbc_tt_J2P_tj:87' t45 = t2.*t3.*t36; */
+    t45_tmp = t2 * t3;
+    t45 = t45_tmp * t36;
+    /* 'kin_xyzbc_tt_J2P_tj:88' t46 = t2.*t3.*t38; */
+    /* 'kin_xyzbc_tt_J2P_tj:89' t47 = t2.*t5.*t36; */
+    /* 'kin_xyzbc_tt_J2P_tj:90' t48 = t3.*t4.*t36; */
+    /* 'kin_xyzbc_tt_J2P_tj:91' t49 = t2.*t5.*t38; */
+    /* 'kin_xyzbc_tt_J2P_tj:92' t50 = t3.*t4.*t38; */
+    t50_tmp = t3 * t4;
+    t50 = t50_tmp * t38;
+    /* 'kin_xyzbc_tt_J2P_tj:93' t51 = t4.*t5.*t36; */
+    /* 'kin_xyzbc_tt_J2P_tj:94' t44 = -t40; */
+    /* 'kin_xyzbc_tt_J2P_tj:95' t52 = t17+t35; */
+    t52 = t17 + -(in2[4] * t4 * t5);
+    /* 'kin_xyzbc_tt_J2P_tj:96' t53 = t18+t34; */
+    t53 = t42_tmp * t3 + -t29;
+    /* 'kin_xyzbc_tt_J2P_tj:97' t54 = -t45; */
+    /* 'kin_xyzbc_tt_J2P_tj:98' t55 = -t47; */
+    /* 'kin_xyzbc_tt_J2P_tj:99' t56 = -t50; */
+    /* 'kin_xyzbc_tt_J2P_tj:100' t57 = t46+t48; */
+    t57 = t45_tmp * t38 + t50_tmp * t36;
+    /* 'kin_xyzbc_tt_J2P_tj:101' t58 = t49+t51; */
+    t58_tmp = t4 * t5;
+    b_t58_tmp = t2 * t5;
+    t58 = b_t58_tmp * t38 + t58_tmp * t36;
+    /* 'kin_xyzbc_tt_J2P_tj:102' t59 = jp4.*t58; */
+    t59 = in2[3] * t58;
+    /* 'kin_xyzbc_tt_J2P_tj:103' t60 = jp5.*t58; */
+    /* 'kin_xyzbc_tt_J2P_tj:104' t61 = t45+t56; */
+    t61 = t45 + -t50;
+    /* 'kin_xyzbc_tt_J2P_tj:105' t62 = t43+t55; */
+    t62 = t58_tmp * t38 + -(b_t58_tmp * t36);
+    /* 'kin_xyzbc_tt_J2P_tj:106' t63 = jp4.*t57; */
+    t63 = in2[3] * t57;
+    /* 'kin_xyzbc_tt_J2P_tj:107' t64 = jp5.*t57; */
+    /* 'kin_xyzbc_tt_J2P_tj:108' t70 = t8+t11+t44+t50+t54; */
+    t70 = ((((&in4[0][0])[9] * t3 + (&in4[0][0])[10] * t5) + -(t5 * t37)) + t50) + -t45;
+    /* 'kin_xyzbc_tt_J2P_tj:109' t65 = jp4.*t62; */
+    /* 'kin_xyzbc_tt_J2P_tj:110' t66 = -t60; */
+    /* 'kin_xyzbc_tt_J2P_tj:111' t67 = jp4.*t61; */
+    /* 'kin_xyzbc_tt_J2P_tj:112' t68 = -t63; */
+    /* 'kin_xyzbc_tt_J2P_tj:113' t71 = t10+t31+t39+t62; */
+    t71 = (((&in4[0][0])[9] * t5 + -((&in4[0][0])[10] * t3)) + t3 * t37) + t62;
+    /* 'kin_xyzbc_tt_J2P_tj:114' t69 = -t65; */
+    /* 'kin_xyzbc_tt_J2P_tj:115' t72 = t16+t20+t66+t67; */
+    t72_tmp = in2[2] * t2;
+    t72 = ((t72_tmp * t3 + in2[0] * t3 * t4) + -(in2[4] * t58)) + in2[3] * t61;
+    /* 'kin_xyzbc_tt_J2P_tj:116' t73 = t21+t27+t64+t69; */
+    t73_tmp = in2[0] * t4;
+    t73 = ((t72_tmp * t5 + t73_tmp * t5) + in2[4] * t57) + -(in2[3] * t62);
+    /* 'kin_xyzbc_tt_J2P_tj:117' mt1 =
+     * [jp5.*t29.*2.0-jpp4.*t3.*t4-jpp5.*t2.*t5-t2.*t3.*t6-t2.*t3.*t7,jp5.*t24.*2.0-jpp5.*t2.*t3+jpp4.*t4.*t5+t2.*t5.*t6+t2.*t5.*t7,jpp4.*t2-t4.*t6,0.0,0.0,jpp5.*t3-t5.*t7,-jpp5.*t5-t3.*t7,0.0,0.0,0.0,jp5.*t23.*2.0-jpp4.*t2.*t3+jpp5.*t4.*t5+t3.*t4.*t6+t3.*t4.*t7,jp5.*t17.*2.0+jpp4.*t2.*t5+jpp5.*t3.*t4-t4.*t5.*t6-t4.*t5.*t7,-jpp4.*t4-t2.*t6,0.0,0.0,-jp4.*(t15-t22+t68+jp5.*t62)+jp3.*t42-jp1.*t52+jp5.*t73+jpp5.*t58-jpp4.*t61-jpp1.*t3.*t4-jpp3.*t2.*t3];
      */
-    /* 'kin_JP_ra_xyzbc:55' mt2 =
-     * [-Ap2.*t3+Ap5.*(A2.*t5+P2_1.*t5-t3.*t6+t3.*t8+t3.*t13-t3.*t15-t3.*t16-t3.*t17)-Ap1.*t2.*t5+Ap3.*t4.*t5-Ap4.*t5.*t22,-Ap2.*t5-Ap5.*(A2.*t3+P2_1.*t3+t5.*t6+t5.*t15+t5.*t16+t5.*t17+t5.*t19+t5.*t21)+Ap1.*t2.*t3-Ap3.*t3.*t4+Ap4.*t3.*t22,0.0,0.0,0.0];
+    /* 'kin_xyzbc_tt_J2P_tj:118' mt2 =
+     * [jp1.*t41+jp3.*t53+jp5.*t72+jpp5.*t57-jpp4.*t62+jp4.*(t19-t28-t59+jp5.*t61)+jpp1.*t4.*t5+jpp3.*t2.*t5,jpp1.*t2-jpp3.*t4-jp4.*(jp1.*t4+jp3.*t2+jp4.*(t2.*t36-t4.*t38))-jpp4.*(t2.*t38+t4.*t36)-jp1.*jp4.*t4-jp3.*jp4.*t2,0.0,0.0,-jp5.*(t15+t33+t68+jp2.*t5+jp5.*t71)+jp3.*t41-jp1.*t53+jp4.*t73+jpp2.*t3+jpp4.*t58+jpp5.*t70-jp2.*jp5.*t5-jpp1.*t2.*t5+jpp3.*t4.*t5];
      */
-    /* 'kin_JP_ra_xyzbc:56' JP_ra = reshape([mt1,mt2],5,5); */
-    in2_tmp = in2[4] * t2;
-    b_in2[0] = -in2[3] * t3 * t4 - in2_tmp * t5;
-    b_in2[1] = in2_tmp * t3 - in2[3] * t4 * t5;
-    b_in2[2] = in2[3] * t2;
+    /* 'kin_xyzbc_tt_J2P_tj:119' mt3 =
+     * [-jp5.*(t28+t32+t59+jp2.*t3+jp5.*t70)+jp1.*t42+jp3.*t52+jp4.*t72-jpp2.*t5+jpp4.*t57-jpp5.*t71-jp2.*jp5.*t3-jpp1.*t2.*t3+jpp3.*t3.*t4,0.0,0.0,0.0];
+     */
+    /* 'kin_xyzbc_tt_J2P_tj:120' J2P_tj = reshape([mt1,mt2,mt3],5,5); */
+    in2_tmp = in3[4] * t2;
+    b_in2[0] =
+        (((in2[4] * t29 * 2.0 - in3[3] * t3 * t4) - in2_tmp * t5) - t45_tmp * t6) - t45_tmp * t7;
+    b_in2[1] = (((in2[4] * t24 * 2.0 - in2_tmp * t3) + in3[3] * t4 * t5) + b_t58_tmp * t6) +
+               b_t58_tmp * t7;
+    b_in2_tmp = in3[3] * t2;
+    b_in2[2] = b_in2_tmp - t4 * t6;
     b_in2[3] = 0.0;
     b_in2[4] = 0.0;
-    b_in2[5] = -in2[4] * t3;
-    b_in2[6] = -in2[4] * t5;
+    c_in2_tmp = in3[4] * t3;
+    b_in2[5] = c_in2_tmp - t5 * t7;
+    b_in2[6] = -in3[4] * t5 - t3 * t7;
     b_in2[7] = 0.0;
     b_in2[8] = 0.0;
     b_in2[9] = 0.0;
-    b_in2_tmp = -in2[3] * t2;
-    b_in2[10] = b_in2_tmp * t3 + in2[4] * t4 * t5;
-    c_in2_tmp = in2[4] * t3;
-    b_in2[11] = b_in2_tmp * t5 - c_in2_tmp * t4;
-    b_in2[12] = -in2[3] * t4;
+    b_in2[10] =
+        (((in2[4] * t23 * 2.0 - b_in2_tmp * t3) + in3[4] * t4 * t5) + t50_tmp * t6) + t50_tmp * t7;
+    b_in2[11] =
+        (((in2[4] * t17 * 2.0 + b_in2_tmp * t5) + c_in2_tmp * t4) - t58_tmp * t6) - t58_tmp * t7;
+    b_in2[12] = -in3[3] * t4 - t2 * t6;
     b_in2[13] = 0.0;
     b_in2[14] = 0.0;
-    d_in2_tmp = in2[2] * t2;
-    e_in2_tmp = in2[3] * t3;
-    b_in2[15] = ((-in2[0] * t3 * t4 - d_in2_tmp * t3) - e_in2_tmp * t23) - in2[4] * t5 * t22;
-    f_in2_tmp = in2[3] * t5;
-    b_in2[16] = ((-in2[0] * t4 * t5 - d_in2_tmp * t5) + c_in2_tmp * t22) - f_in2_tmp * t23;
-    g_in2_tmp = in2[0] * t2;
-    h_in2_tmp = in2[2] * t4;
-    b_in2[17] = ((((((g_in2_tmp - h_in2_tmp) + in2[3] * t9) + in2[3] * t10) + in2[3] * t11) +
-                  in2[3] * t14) +
-                 in2[3] * -t7) +
-                in2[3] * -t12;
+    d_in2_tmp = in3[2] * t2;
+    b_in2[15] =
+        ((((((-in2[3] * (((t15 - t22) + -t63) + in2[4] * t62) + in2[2] * t42) - in2[0] * t52) +
+            in2[4] * t73) +
+           in3[4] * t58) -
+          in3[3] * t61) -
+         in3[0] * t3 * t4) -
+        d_in2_tmp * t3;
+    b_in2[16] = ((((((in2[0] * t41 + in2[2] * t53) + in2[4] * t72) + in3[4] * t57) - in3[3] * t62) +
+                  in2[3] * (((t19 - t28) - t59) + in2[4] * t61)) +
+                 in3[0] * t4 * t5) +
+                d_in2_tmp * t5;
+    e_in2_tmp = in3[0] * t2;
+    f_in2_tmp = in3[2] * t4;
+    b_in2[17] = ((((e_in2_tmp - f_in2_tmp) -
+                   in2[3] * ((t73_tmp + t72_tmp) + in2[3] * (t2 * t36 - t4 * t38))) -
+                  in3[3] * (t2 * t38 + t4 * t36)) -
+                 in2[0] * in2[3] * t4) -
+                in2[2] * in2[3] * t2;
     b_in2[18] = 0.0;
     b_in2[19] = 0.0;
+    g_in2_tmp = in2[1] * in2[4];
     b_in2[20] =
-        (((-in2[1] * t3 +
-           in2[4] * (((((((in1[1] * t5 + (&in3[0][0])[1] * t5) - t3 * t6) + t3 * t8) + t3 * t13) -
-                       t3 * t15) -
-                      t3 * t16) -
-                     t3 * t17)) -
-          g_in2_tmp * t5) +
-         h_in2_tmp * t5) -
-        f_in2_tmp * t22;
+        ((((((((-in2[4] * ((((t15 + -t22) + -t63) + in2[1] * t5) + in2[4] * t71) + in2[2] * t41) -
+               in2[0] * t53) +
+              in2[3] * t73) +
+             in3[1] * t3) +
+            in3[3] * t58) +
+           in3[4] * t70) -
+          g_in2_tmp * t5) -
+         e_in2_tmp * t5) +
+        f_in2_tmp * t5;
     b_in2[21] =
-        (((-in2[1] * t5 -
-           in2[4] * (((((((in1[1] * t3 + (&in3[0][0])[1] * t3) + t5 * t6) + t5 * t15) + t5 * t16) +
-                       t5 * t17) +
-                      t5 * -t8) +
-                     t5 * -t13)) +
+        ((((((((-in2[4] * ((((t28 + -t19) + t59) + in2[1] * t3) + in2[4] * t70) + in2[0] * t42) +
+               in2[2] * t52) +
+              in2[3] * t72) -
+             in3[1] * t5) +
+            in3[3] * t57) -
+           in3[4] * t71) -
           g_in2_tmp * t3) -
-         in2[2] * t3 * t4) +
-        e_in2_tmp * t22;
+         e_in2_tmp * t3) +
+        in3[2] * t3 * t4;
     b_in2[22] = 0.0;
     b_in2[23] = 0.0;
     b_in2[24] = 0.0;
     for (i = 0; i < 5; i++) {
         for (i1 = 0; i1 < 5; i1++) {
-            JP_ra[i][i1] = b_in2[i1 + 5 * i];
+            J2P_tj[i][i1] = b_in2[i1 + 5 * i];
         }
     }
 }
 
 /*
- * function J_ar = kin_J_ar_xyzbc(in1,in2)
+ * function JP_jt = kin_xyzbc_tt_JP_jt(in1,in2,in3)
  *
- * kin_J_ar_xyzbc
- *     J_ar = kin_J_ar_xyzbc(IN1,IN2)
+ * kin_xyzbc_tt_JP_jt
+ *     JP_jt = kin_xyzbc_tt_JP_jt(IN1,IN2,IN3)
  *
  * Arguments    : const double in1[5]
- *                double in2[4][3]
- *                double J_ar[5][5]
+ *                const double in2[5]
+ *                double in3[5][3]
+ *                double JP_jt[5][5]
  * Return Type  : void
  */
-void kin_J_ar_xyzbc(const double in1[5], double in2[4][3], double J_ar[5][5])
+void kin_xyzbc_tt_JP_jt(const double in1[5], const double in2[5], double in3[5][3],
+                        double JP_jt[5][5])
 {
-    double J_ar_tmp;
-    double b_J_ar_tmp;
+    double b_t3[25];
+    double b_t3_tmp;
+    double c_t3_tmp;
+    double d_t3_tmp;
+    double e_t3_tmp;
+    double t10;
+    double t11;
+    double t12;
+    double t13;
     double t14;
+    double t15;
+    double t16;
     double t17;
     double t2;
+    double t21;
+    double t22;
     double t3;
+    double t3_tmp;
     double t4;
     double t5;
     double t6;
+    double t7;
+    double t8;
+    double t9;
+    int i;
+    int i1;
     /*     This function was generated by the Symbolic Math Toolbox version 9.1. */
-    /*     01-Sep-2023 14:01:21 */
-    /* Jacobian Kinematics ( backward ) :  */
+    /*     09-Oct-2023 10:15:21 */
+    /* Jacobian first derivative ( Inverse Kinematics ) :  */
     /* INPUTS :  */
-    /* 	r_r : 5 x 1 : pose vector ( relative ) */
-    /* 	v_r : 5 x 1 : speed vector ( relative ) */
-    /* 	p   : 5 x 1 : parameters */
+    /* 	r_t    (5x1) : pose vector ( piece frame ) */
+    /* 	v_t    (5x1) : speed vector ( piece frame ) */
+    /* 	a_t    (5x1) : acceleration vector( piece frame ) */
+    /* 	p      (3x5) : parameters */
     /* OUTPUTS :  */
-    /* 	M   : 5 x 5 : resulting matrix */
-    /* 'kin_J_ar_xyzbc:16' P1_2 = in2(4); */
-    /* 'kin_J_ar_xyzbc:17' P1_3 = in2(7); */
-    /* 'kin_J_ar_xyzbc:18' P2_2 = in2(5); */
-    /* 'kin_J_ar_xyzbc:19' P2_3 = in2(8); */
-    /* 'kin_J_ar_xyzbc:20' P2_4 = in2(11); */
-    /* 'kin_J_ar_xyzbc:21' P3_2 = in2(6); */
-    /* 'kin_J_ar_xyzbc:22' P3_3 = in2(9); */
-    /* 'kin_J_ar_xyzbc:23' P3_4 = in2(12); */
-    /* 'kin_J_ar_xyzbc:24' R1 = in1(1,:); */
-    /* 'kin_J_ar_xyzbc:25' R2 = in1(2,:); */
-    /* 'kin_J_ar_xyzbc:26' R3 = in1(3,:); */
-    /* 'kin_J_ar_xyzbc:27' R4 = in1(4,:); */
-    /* 'kin_J_ar_xyzbc:28' R5 = in1(5,:); */
-    /* 'kin_J_ar_xyzbc:29' t2 = cos(R4); */
+    /* 	M      (5x5) : resulting matrix */
+    /* 'kin_xyzbc_tt_JP_jt:17' b = in1(4,:); */
+    /* 'kin_xyzbc_tt_JP_jt:18' c = in1(5,:); */
+    /* 'kin_xyzbc_tt_JP_jt:19' offB1 = in3(10); */
+    /* 'kin_xyzbc_tt_JP_jt:20' offC1 = in3(13); */
+    /* 'kin_xyzbc_tt_JP_jt:21' offB3 = in3(12); */
+    /* 'kin_xyzbc_tt_JP_jt:22' offC2 = in3(14); */
+    /* 'kin_xyzbc_tt_JP_jt:23' offC3 = in3(15); */
+    /* 'kin_xyzbc_tt_JP_jt:24' offP1 = in3(7); */
+    /* 'kin_xyzbc_tt_JP_jt:25' offP2 = in3(8); */
+    /* 'kin_xyzbc_tt_JP_jt:26' offP3 = in3(9); */
+    /* 'kin_xyzbc_tt_JP_jt:27' tp1 = in2(1,:); */
+    /* 'kin_xyzbc_tt_JP_jt:28' tp2 = in2(2,:); */
+    /* 'kin_xyzbc_tt_JP_jt:29' tp3 = in2(3,:); */
+    /* 'kin_xyzbc_tt_JP_jt:30' tp4 = in2(4,:); */
+    /* 'kin_xyzbc_tt_JP_jt:31' tp5 = in2(5,:); */
+    /* 'kin_xyzbc_tt_JP_jt:32' x = in1(1,:); */
+    /* 'kin_xyzbc_tt_JP_jt:33' y = in1(2,:); */
+    /* 'kin_xyzbc_tt_JP_jt:34' z = in1(3,:); */
+    /* 'kin_xyzbc_tt_JP_jt:35' t2 = cos(b); */
     t2 = cos(in1[3]);
-    /* 'kin_J_ar_xyzbc:30' t3 = cos(R5); */
+    /* 'kin_xyzbc_tt_JP_jt:36' t3 = cos(c); */
     t3 = cos(in1[4]);
-    /* 'kin_J_ar_xyzbc:31' t4 = sin(R4); */
+    /* 'kin_xyzbc_tt_JP_jt:37' t4 = sin(b); */
     t4 = sin(in1[3]);
-    /* 'kin_J_ar_xyzbc:32' t5 = sin(R5); */
+    /* 'kin_xyzbc_tt_JP_jt:38' t5 = sin(c); */
     t5 = sin(in1[4]);
-    /* 'kin_J_ar_xyzbc:33' t6 = P2_4+R3; */
-    t6 = in1[2] + (&in2[0][0])[10];
-    /* 'kin_J_ar_xyzbc:34' t13 = -P3_4; */
-    /* 'kin_J_ar_xyzbc:35' t7 = P2_2.*t3; */
-    /* 'kin_J_ar_xyzbc:36' t8 = P2_3.*t3; */
-    /* 'kin_J_ar_xyzbc:37' t9 = R2.*t3; */
-    /* 'kin_J_ar_xyzbc:38' t10 = P1_2.*t5; */
-    /* 'kin_J_ar_xyzbc:39' t11 = P1_3.*t5; */
-    /* 'kin_J_ar_xyzbc:40' t12 = R1.*t5; */
-    /* 'kin_J_ar_xyzbc:41' t14 = P3_2+t13; */
-    t14 = (&in2[0][0])[5] + -(&in2[0][0])[11];
-    /* 'kin_J_ar_xyzbc:42' t15 = -t8; */
-    /* 'kin_J_ar_xyzbc:43' t16 = -t9; */
-    /* 'kin_J_ar_xyzbc:44' t17 = t7+t10+t11+t12+t15+t16; */
-    t17 = (((((&in2[0][0])[4] * t3 + (&in2[0][0])[3] * t5) + (&in2[0][0])[6] * t5) + in1[0] * t5) +
-           -((&in2[0][0])[7] * t3)) +
-          -(in1[1] * t3);
-    /* 'kin_J_ar_xyzbc:45' J_ar =
-     * reshape([t2.*t3,-t5,-t3.*t4,0.0,0.0,t2.*t5,t3,-t4.*t5,0.0,0.0,t4,0.0,t2,0.0,0.0,P3_3.*t2+t2.*t6+t2.*t14-P1_2.*t3.*t4-P1_3.*t3.*t4+P2_2.*t4.*t5-P2_3.*t4.*t5-R1.*t3.*t4-R2.*t4.*t5,0.0,-P3_3.*t4-t4.*t6-t4.*t14-P1_2.*t2.*t3-P1_3.*t2.*t3+P2_2.*t2.*t5-P2_3.*t2.*t5-R1.*t2.*t3-R2.*t2.*t5,1.0,0.0,-t2.*t17,-P1_2.*t3-P1_3.*t3+P2_2.*t5-P2_3.*t5-R1.*t3-R2.*t5,t4.*t17,0.0,1.0],[5,5]);
+    /* 'kin_xyzbc_tt_JP_jt:39' t6 = offC1.*t3; */
+    t6 = (&in3[0][0])[12] * t3;
+    /* 'kin_xyzbc_tt_JP_jt:40' t7 = offC2.*t3; */
+    t7 = (&in3[0][0])[13] * t3;
+    /* 'kin_xyzbc_tt_JP_jt:41' t8 = offP1.*t3; */
+    t8 = (&in3[0][0])[6] * t3;
+    /* 'kin_xyzbc_tt_JP_jt:42' t9 = offP2.*t3; */
+    t9 = (&in3[0][0])[7] * t3;
+    /* 'kin_xyzbc_tt_JP_jt:43' t10 = t3.*x; */
+    t10 = t3 * in1[0];
+    /* 'kin_xyzbc_tt_JP_jt:44' t11 = t3.*y; */
+    t11 = t3 * in1[1];
+    /* 'kin_xyzbc_tt_JP_jt:45' t12 = offC1.*t5; */
+    t12 = (&in3[0][0])[12] * t5;
+    /* 'kin_xyzbc_tt_JP_jt:46' t13 = offC2.*t5; */
+    t13 = (&in3[0][0])[13] * t5;
+    /* 'kin_xyzbc_tt_JP_jt:47' t14 = offP1.*t5; */
+    t14 = (&in3[0][0])[6] * t5;
+    /* 'kin_xyzbc_tt_JP_jt:48' t15 = offP2.*t5; */
+    t15 = (&in3[0][0])[7] * t5;
+    /* 'kin_xyzbc_tt_JP_jt:49' t16 = t5.*x; */
+    t16 = t5 * in1[0];
+    /* 'kin_xyzbc_tt_JP_jt:50' t17 = t5.*y; */
+    t17 = t5 * in1[1];
+    /* 'kin_xyzbc_tt_JP_jt:51' t18 = -t13; */
+    /* 'kin_xyzbc_tt_JP_jt:52' t19 = -t15; */
+    /* 'kin_xyzbc_tt_JP_jt:53' t20 = -t17; */
+    /* 'kin_xyzbc_tt_JP_jt:54' t21 = t7+t9+t11+t12+t14+t16; */
+    t21 = ((((t7 + t9) + t11) + t12) + t14) + t16;
+    /* 'kin_xyzbc_tt_JP_jt:55' t22 = t6+t8+t10+t18+t19+t20; */
+    t22 = ((((t6 + t8) + t10) + -t13) + -t15) + -t17;
+    /* 'kin_xyzbc_tt_JP_jt:56' mt1 =
+     * [-t3.*t4.*tp4-t2.*t5.*tp5,t3.*tp5,-t2.*t3.*tp4+t4.*t5.*tp5,0.0,0.0,-t2.*t3.*tp5+t4.*t5.*tp4,-t5.*tp5,t2.*t5.*tp4+t3.*t4.*tp5,0.0,0.0,t2.*tp4,0.0,-t4.*tp4,0.0,0.0,t2.*tp3-offB1.*t2.*tp4-offB3.*t4.*tp4-offC3.*t4.*tp4-offP3.*t4.*tp4-t3.*t4.*tp1+t4.*t5.*tp2-t2.*t6.*tp4-t2.*t8.*tp4-t2.*t10.*tp4+t4.*t7.*tp5+t4.*t9.*tp5+t2.*t13.*tp4+t4.*t11.*tp5+t2.*t15.*tp4+t4.*t12.*tp5+t2.*t17.*tp4+t4.*t14.*tp5+t4.*t16.*tp5-t4.*tp4.*z,0.0];
      */
-    J_ar[0][0] = t2 * t3;
-    J_ar[0][1] = -t5;
-    J_ar[0][2] = -t3 * t4;
-    J_ar[0][3] = 0.0;
-    J_ar[0][4] = 0.0;
-    J_ar[1][0] = t2 * t5;
-    J_ar[1][1] = t3;
-    J_ar[1][2] = -t4 * t5;
-    J_ar[1][3] = 0.0;
-    J_ar[1][4] = 0.0;
-    J_ar[2][0] = t4;
-    J_ar[2][1] = 0.0;
-    J_ar[2][2] = t2;
-    J_ar[2][3] = 0.0;
-    J_ar[2][4] = 0.0;
-    J_ar_tmp = (&in2[0][0])[6] * t3;
-    b_J_ar_tmp = in1[0] * t3;
-    J_ar[3][0] = ((((((((&in2[0][0])[8] * t2 + t2 * t6) + t2 * t14) - (&in2[0][0])[3] * t3 * t4) -
-                     J_ar_tmp * t4) +
-                    (&in2[0][0])[4] * t4 * t5) -
+    /* 'kin_xyzbc_tt_JP_jt:57' mt2 =
+     * [-t4.*tp3+offB1.*t4.*tp4-offB3.*t2.*tp4-offC3.*t2.*tp4-offP3.*t2.*tp4-t2.*t3.*tp1+t2.*t5.*tp2+t2.*t7.*tp5+t4.*t6.*tp4+t2.*t9.*tp5+t4.*t8.*tp4+t2.*t11.*tp5+t4.*t10.*tp4+t2.*t12.*tp5+t2.*t14.*tp5+t2.*t16.*tp5+t4.*t18.*tp4+t4.*t19.*tp4+t4.*t20.*tp4-t2.*tp4.*z,0.0,0.0,-t2.*t3.*tp2-t2.*t5.*tp1-t2.*t22.*tp5+t4.*t21.*tp4,t3.*tp1-t5.*tp2-t7.*tp5-t9.*tp5-t11.*tp5-t12.*tp5-t14.*tp5-t16.*tp5,t3.*t4.*tp2+t4.*t5.*tp1+t2.*t21.*tp4+t4.*t22.*tp5,0.0,0.0];
+     */
+    /* 'kin_xyzbc_tt_JP_jt:58' JP_jt = reshape([mt1,mt2],5,5); */
+    t3_tmp = t2 * t5;
+    b_t3[0] = -t3 * t4 * in2[3] - t3_tmp * in2[4];
+    b_t3[1] = t3 * in2[4];
+    b_t3_tmp = -t2 * t3;
+    c_t3_tmp = t4 * t5;
+    b_t3[2] = b_t3_tmp * in2[3] + c_t3_tmp * in2[4];
+    b_t3[3] = 0.0;
+    b_t3[4] = 0.0;
+    b_t3[5] = b_t3_tmp * in2[4] + c_t3_tmp * in2[3];
+    b_t3[6] = -t5 * in2[4];
+    d_t3_tmp = t3 * t4;
+    b_t3[7] = t3_tmp * in2[3] + d_t3_tmp * in2[4];
+    b_t3[8] = 0.0;
+    b_t3[9] = 0.0;
+    e_t3_tmp = t2 * in2[3];
+    b_t3[10] = e_t3_tmp;
+    b_t3[11] = 0.0;
+    b_t3[12] = -t4 * in2[3];
+    b_t3[13] = 0.0;
+    b_t3[14] = 0.0;
+    b_t3[15] = ((((((((((((((((((t2 * in2[2] - (&in3[0][0])[9] * t2 * in2[3]) -
+                                (&in3[0][0])[11] * t4 * in2[3]) -
+                               (&in3[0][0])[14] * t4 * in2[3]) -
+                              (&in3[0][0])[8] * t4 * in2[3]) -
+                             d_t3_tmp * in2[0]) +
+                            c_t3_tmp * in2[1]) -
+                           t2 * t6 * in2[3]) -
+                          t2 * t8 * in2[3]) -
+                         t2 * t10 * in2[3]) +
+                        t4 * t7 * in2[4]) +
+                       t4 * t9 * in2[4]) +
+                      t2 * t13 * in2[3]) +
+                     t4 * t11 * in2[4]) +
+                    t2 * t15 * in2[3]) +
+                   t4 * t12 * in2[4]) +
+                  t2 * t17 * in2[3]) +
+                 t4 * t14 * in2[4]) +
+                t4 * t16 * in2[4]) -
+               t4 * in2[3] * in1[2];
+    b_t3[16] = 0.0;
+    b_t3[17] = ((((((((((((((((((-t4 * in2[2] + (&in3[0][0])[9] * t4 * in2[3]) -
+                                (&in3[0][0])[11] * t2 * in2[3]) -
+                               (&in3[0][0])[14] * t2 * in2[3]) -
+                              (&in3[0][0])[8] * t2 * in2[3]) -
+                             t2 * t3 * in2[0]) +
+                            t3_tmp * in2[1]) +
+                           t2 * t7 * in2[4]) +
+                          t4 * t6 * in2[3]) +
+                         t2 * t9 * in2[4]) +
+                        t4 * t8 * in2[3]) +
+                       t2 * t11 * in2[4]) +
+                      t4 * t10 * in2[3]) +
+                     t2 * t12 * in2[4]) +
+                    t2 * t14 * in2[4]) +
+                   t2 * t16 * in2[4]) +
+                  t4 * -t13 * in2[3]) +
+                 t4 * -t15 * in2[3]) +
+                t4 * -t17 * in2[3]) -
+               e_t3_tmp * in1[2];
+    b_t3[18] = 0.0;
+    b_t3[19] = 0.0;
+    b_t3[20] = ((b_t3_tmp * in2[1] - t3_tmp * in2[0]) - t2 * t22 * in2[4]) + t4 * t21 * in2[3];
+    b_t3[21] = ((((((t3 * in2[0] - t5 * in2[1]) - t7 * in2[4]) - t9 * in2[4]) - t11 * in2[4]) -
+                 t12 * in2[4]) -
+                t14 * in2[4]) -
+               t16 * in2[4];
+    b_t3[22] = ((d_t3_tmp * in2[1] + c_t3_tmp * in2[0]) + t2 * t21 * in2[3]) + t4 * t22 * in2[4];
+    b_t3[23] = 0.0;
+    b_t3[24] = 0.0;
+    for (i = 0; i < 5; i++) {
+        for (i1 = 0; i1 < 5; i1++) {
+            JP_jt[i][i1] = b_t3[i1 + 5 * i];
+        }
+    }
+}
+
+/*
+ * function JP_tj = kin_xyzbc_tt_JP_tj(in1,in2,in3)
+ *
+ * kin_xyzbc_tt_JP_tj
+ *     JP_tj = kin_xyzbc_tt_JP_tj(IN1,IN2,IN3)
+ *
+ * Arguments    : const double in1[5]
+ *                const double in2[5]
+ *                double in3[5][3]
+ *                double JP_tj[5][5]
+ * Return Type  : void
+ */
+void kin_xyzbc_tt_JP_tj(const double in1[5], const double in2[5], double in3[5][3],
+                        double JP_tj[5][5])
+{
+    double b_in2[25];
+    double b_in2_tmp;
+    double c_in2_tmp;
+    double d_in2_tmp;
+    double e_in2_tmp;
+    double f_in2_tmp;
+    double in2_tmp;
+    double t10;
+    double t11;
+    double t12_tmp;
+    double t13;
+    double t13_tmp;
+    double t15_tmp;
+    double t18;
+    double t18_tmp;
+    double t2;
+    double t21;
+    double t22;
+    double t3;
+    double t4;
+    double t5;
+    double t9;
+    int i;
+    int i1;
+    /*     This function was generated by the Symbolic Math Toolbox version 9.1. */
+    /*     09-Oct-2023 10:15:22 */
+    /* Jacobian first derivative ( Forward Kinematics ) :  */
+    /* INPUTS :  */
+    /* 	r_j    (5x1) : pose vector( joint space ) */
+    /* 	v_j    (5x1) : speed vector( joint space ) */
+    /* 	a_j    (5x1) : acceleration vector( joint space ) */
+    /* 	p      (3x5) : parameters */
+    /* OUTPUTS :  */
+    /* 	M      (5x5) : resulting matrix */
+    /* 'kin_xyzbc_tt_JP_tj:17' b = in1(4,:); */
+    /* 'kin_xyzbc_tt_JP_tj:18' c = in1(5,:); */
+    /* 'kin_xyzbc_tt_JP_tj:19' jp1 = in2(1,:); */
+    /* 'kin_xyzbc_tt_JP_tj:20' jp2 = in2(2,:); */
+    /* 'kin_xyzbc_tt_JP_tj:21' jp3 = in2(3,:); */
+    /* 'kin_xyzbc_tt_JP_tj:22' jp4 = in2(4,:); */
+    /* 'kin_xyzbc_tt_JP_tj:23' jp5 = in2(5,:); */
+    /* 'kin_xyzbc_tt_JP_tj:24' offB1 = in3(10); */
+    /* 'kin_xyzbc_tt_JP_tj:25' offB2 = in3(11); */
+    /* 'kin_xyzbc_tt_JP_tj:26' offC1 = in3(13); */
+    /* 'kin_xyzbc_tt_JP_tj:27' offB3 = in3(12); */
+    /* 'kin_xyzbc_tt_JP_tj:28' offC2 = in3(14); */
+    /* 'kin_xyzbc_tt_JP_tj:29' offC3 = in3(15); */
+    /* 'kin_xyzbc_tt_JP_tj:30' offM1 = in3(1); */
+    /* 'kin_xyzbc_tt_JP_tj:31' offM2 = in3(2); */
+    /* 'kin_xyzbc_tt_JP_tj:32' offM3 = in3(3); */
+    /* 'kin_xyzbc_tt_JP_tj:33' offT1 = in3(4); */
+    /* 'kin_xyzbc_tt_JP_tj:34' offT2 = in3(5); */
+    /* 'kin_xyzbc_tt_JP_tj:35' offT3 = in3(6); */
+    /* 'kin_xyzbc_tt_JP_tj:36' x = in1(1,:); */
+    /* 'kin_xyzbc_tt_JP_tj:37' y = in1(2,:); */
+    /* 'kin_xyzbc_tt_JP_tj:38' z = in1(3,:); */
+    /* 'kin_xyzbc_tt_JP_tj:39' t2 = cos(b); */
+    t2 = cos(in1[3]);
+    /* 'kin_xyzbc_tt_JP_tj:40' t3 = cos(c); */
+    t3 = cos(in1[4]);
+    /* 'kin_xyzbc_tt_JP_tj:41' t4 = sin(b); */
+    t4 = sin(in1[3]);
+    /* 'kin_xyzbc_tt_JP_tj:42' t5 = sin(c); */
+    t5 = sin(in1[4]);
+    /* 'kin_xyzbc_tt_JP_tj:43' t6 = -offT1; */
+    /* 'kin_xyzbc_tt_JP_tj:44' t7 = -offT2; */
+    /* 'kin_xyzbc_tt_JP_tj:45' t8 = -offT3; */
+    /* 'kin_xyzbc_tt_JP_tj:46' t9 = offB1+offC1+offM1+t6+x; */
+    t9 = ((((&in3[0][0])[9] + (&in3[0][0])[12]) + (&in3[0][0])[0]) + -(&in3[0][0])[3]) + in1[0];
+    /* 'kin_xyzbc_tt_JP_tj:47' t10 = offB2+offC2+offM2+t7+y; */
+    t10 = ((((&in3[0][0])[10] + (&in3[0][0])[13]) + (&in3[0][0])[1]) + -(&in3[0][0])[4]) + in1[1];
+    /* 'kin_xyzbc_tt_JP_tj:48' t11 = offB3+offC3+offM3+t8+z; */
+    t11 = ((((&in3[0][0])[11] + (&in3[0][0])[14]) + (&in3[0][0])[2]) + -(&in3[0][0])[5]) + in1[2];
+    /* 'kin_xyzbc_tt_JP_tj:49' t12 = t4.*t5.*t11; */
+    t12_tmp = t4 * t5;
+    /* 'kin_xyzbc_tt_JP_tj:50' t13 = t2.*t3.*t9; */
+    t13_tmp = t2 * t3;
+    t13 = t13_tmp * t9;
+    /* 'kin_xyzbc_tt_JP_tj:51' t14 = t2.*t3.*t11; */
+    /* 'kin_xyzbc_tt_JP_tj:52' t15 = t2.*t5.*t9; */
+    t15_tmp = t2 * t5;
+    /* 'kin_xyzbc_tt_JP_tj:53' t16 = t3.*t4.*t9; */
+    /* 'kin_xyzbc_tt_JP_tj:54' t17 = t2.*t5.*t11; */
+    /* 'kin_xyzbc_tt_JP_tj:55' t18 = t3.*t4.*t11; */
+    t18_tmp = t3 * t4;
+    t18 = t18_tmp * t11;
+    /* 'kin_xyzbc_tt_JP_tj:56' t19 = t4.*t5.*t9; */
+    /* 'kin_xyzbc_tt_JP_tj:57' t20 = -t15; */
+    /* 'kin_xyzbc_tt_JP_tj:58' t21 = t14+t16; */
+    t21 = t13_tmp * t11 + t18_tmp * t9;
+    /* 'kin_xyzbc_tt_JP_tj:59' t22 = t17+t19; */
+    t22 = t15_tmp * t11 + t12_tmp * t9;
+    /* 'kin_xyzbc_tt_JP_tj:60' mt1 =
+     * [-jp4.*t3.*t4-jp5.*t2.*t5,-jp5.*t2.*t3+jp4.*t4.*t5,jp4.*t2,0.0,0.0,jp5.*t3,-jp5.*t5,0.0,0.0,0.0,-jp4.*t2.*t3+jp5.*t4.*t5,jp4.*t2.*t5+jp5.*t3.*t4,-jp4.*t4,0.0,0.0,jp5.*t22-jp4.*(t13-t18)-jp1.*t3.*t4-jp3.*t2.*t3,-jp4.*(t12+t20)+jp5.*t21+jp1.*t4.*t5+jp3.*t2.*t5,jp1.*t2-jp3.*t4-jp4.*(t2.*t11+t4.*t9),0.0,0.0,jp5.*(-t13+t18+offB1.*t3+offB2.*t5-t5.*t10)+jp2.*t3+jp4.*t22-jp1.*t2.*t5+jp3.*t4.*t5];
+     */
+    /* 'kin_xyzbc_tt_JP_tj:61' mt2 =
+     * [-jp2.*t5+jp4.*t21-jp5.*(t12+t20-offB2.*t3+offB1.*t5+t3.*t10)-jp1.*t2.*t3+jp3.*t3.*t4,0.0,0.0,0.0];
+     */
+    /* 'kin_xyzbc_tt_JP_tj:62' JP_tj = reshape([mt1,mt2],5,5); */
+    b_in2[0] = -in2[3] * t3 * t4 - in2[4] * t2 * t5;
+    b_in2[1] = -in2[4] * t2 * t3 + in2[3] * t4 * t5;
+    in2_tmp = in2[3] * t2;
+    b_in2[2] = in2_tmp;
+    b_in2[3] = 0.0;
+    b_in2[4] = 0.0;
+    b_in2_tmp = in2[4] * t3;
+    b_in2[5] = b_in2_tmp;
+    b_in2[6] = -in2[4] * t5;
+    b_in2[7] = 0.0;
+    b_in2[8] = 0.0;
+    b_in2[9] = 0.0;
+    b_in2[10] = -in2[3] * t2 * t3 + in2[4] * t4 * t5;
+    b_in2[11] = in2_tmp * t5 + b_in2_tmp * t4;
+    b_in2[12] = -in2[3] * t4;
+    b_in2[13] = 0.0;
+    b_in2[14] = 0.0;
+    c_in2_tmp = in2[2] * t2;
+    b_in2[15] = ((in2[4] * t22 - in2[3] * (t13 - t18)) - in2[0] * t3 * t4) - c_in2_tmp * t3;
+    d_in2_tmp = t12_tmp * t11 + -(t15_tmp * t9);
+    b_in2[16] = ((-in2[3] * d_in2_tmp + in2[4] * t21) + in2[0] * t4 * t5) + c_in2_tmp * t5;
+    e_in2_tmp = in2[0] * t2;
+    f_in2_tmp = in2[2] * t4;
+    b_in2[17] = (e_in2_tmp - f_in2_tmp) - in2[3] * (t2 * t11 + t4 * t9);
+    b_in2[18] = 0.0;
+    b_in2[19] = 0.0;
+    b_in2[20] =
+        (((in2[4] * ((((-t13 + t18) + (&in3[0][0])[9] * t3) + (&in3[0][0])[10] * t5) - t5 * t10) +
+           in2[1] * t3) +
+          in2[3] * t22) -
+         e_in2_tmp * t5) +
+        f_in2_tmp * t5;
+    b_in2[21] =
+        (((-in2[1] * t5 + in2[3] * t21) -
+          in2[4] * (((d_in2_tmp - (&in3[0][0])[10] * t3) + (&in3[0][0])[9] * t5) + t3 * t10)) -
+         e_in2_tmp * t3) +
+        in2[2] * t3 * t4;
+    b_in2[22] = 0.0;
+    b_in2[23] = 0.0;
+    b_in2[24] = 0.0;
+    for (i = 0; i < 5; i++) {
+        for (i1 = 0; i1 < 5; i1++) {
+            JP_tj[i][i1] = b_in2[i1 + 5 * i];
+        }
+    }
+}
+
+/*
+ * function J_jt = kin_xyzbc_tt_J_jt(in1,in2)
+ *
+ * kin_xyzbc_tt_J_jt
+ *     J_jt = kin_xyzbc_tt_J_jt(IN1,IN2)
+ *
+ * Arguments    : const double in1[5]
+ *                double in2[5][3]
+ *                double J_jt[5][5]
+ * Return Type  : void
+ */
+void kin_xyzbc_tt_J_jt(const double in1[5], double in2[5][3], double J_jt[5][5])
+{
+    double J_jt_tmp;
+    double b_J_jt_tmp;
+    double c_J_jt_tmp;
+    double d_J_jt_tmp;
+    double t12;
+    double t2;
+    double t3;
+    double t4;
+    double t5;
+    /*     This function was generated by the Symbolic Math Toolbox version 9.1. */
+    /*     09-Oct-2023 10:15:20 */
+    /* Jacobian Kinematics ( Inverse Kinematics ) :  */
+    /* INPUTS :  */
+    /* 	r_j    (5x1) : pose vector( joint space ) */
+    /* 	v_j    (5x1) : speed vector( joint space ) */
+    /* 	p      (3x5) : parameters */
+    /* OUTPUTS :  */
+    /* 	M      (5x5) : resulting matrix */
+    /* 'kin_xyzbc_tt_J_jt:16' b = in1(4,:); */
+    /* 'kin_xyzbc_tt_J_jt:17' c = in1(5,:); */
+    /* 'kin_xyzbc_tt_J_jt:18' offB1 = in2(10); */
+    /* 'kin_xyzbc_tt_J_jt:19' offC1 = in2(13); */
+    /* 'kin_xyzbc_tt_J_jt:20' offB3 = in2(12); */
+    /* 'kin_xyzbc_tt_J_jt:21' offC2 = in2(14); */
+    /* 'kin_xyzbc_tt_J_jt:22' offC3 = in2(15); */
+    /* 'kin_xyzbc_tt_J_jt:23' offP1 = in2(7); */
+    /* 'kin_xyzbc_tt_J_jt:24' offP2 = in2(8); */
+    /* 'kin_xyzbc_tt_J_jt:25' offP3 = in2(9); */
+    /* 'kin_xyzbc_tt_J_jt:26' x = in1(1,:); */
+    /* 'kin_xyzbc_tt_J_jt:27' y = in1(2,:); */
+    /* 'kin_xyzbc_tt_J_jt:28' z = in1(3,:); */
+    /* 'kin_xyzbc_tt_J_jt:29' t2 = cos(b); */
+    t2 = cos(in1[3]);
+    /* 'kin_xyzbc_tt_J_jt:30' t3 = cos(c); */
+    t3 = cos(in1[4]);
+    /* 'kin_xyzbc_tt_J_jt:31' t4 = sin(b); */
+    t4 = sin(in1[3]);
+    /* 'kin_xyzbc_tt_J_jt:32' t5 = sin(c); */
+    t5 = sin(in1[4]);
+    /* 'kin_xyzbc_tt_J_jt:33' t6 = offC2.*t3; */
+    /* 'kin_xyzbc_tt_J_jt:34' t7 = offP2.*t3; */
+    /* 'kin_xyzbc_tt_J_jt:35' t8 = t3.*y; */
+    /* 'kin_xyzbc_tt_J_jt:36' t9 = offC1.*t5; */
+    /* 'kin_xyzbc_tt_J_jt:37' t10 = offP1.*t5; */
+    /* 'kin_xyzbc_tt_J_jt:38' t11 = t5.*x; */
+    /* 'kin_xyzbc_tt_J_jt:39' t12 = t6+t7+t8+t9+t10+t11; */
+    t12 =
+        (((((&in2[0][0])[13] * t3 + (&in2[0][0])[7] * t3) + t3 * in1[1]) + (&in2[0][0])[12] * t5) +
+         (&in2[0][0])[6] * t5) +
+        t5 * in1[0];
+    /* 'kin_xyzbc_tt_J_jt:40' J_jt =
+     * reshape([t2.*t3,t5,-t3.*t4,0.0,0.0,-t2.*t5,t3,t4.*t5,0.0,0.0,t4,0.0,t2,0.0,0.0,-offB1.*t4+offB3.*t2+offC3.*t2+offP3.*t2+t2.*z-offC1.*t3.*t4+offC2.*t4.*t5-offP1.*t3.*t4+offP2.*t4.*t5-t3.*t4.*x+t4.*t5.*y,0.0,-offB1.*t2-offB3.*t4-offC3.*t4-offP3.*t4-t4.*z-offC1.*t2.*t3+offC2.*t2.*t5-offP1.*t2.*t3+offP2.*t2.*t5-t2.*t3.*x+t2.*t5.*y,1.0,0.0,-t2.*t12,offC1.*t3-offC2.*t5+offP1.*t3-offP2.*t5+t3.*x-t5.*y,t4.*t12,0.0,1.0],[5,5]);
+     */
+    J_jt_tmp = t2 * t3;
+    J_jt[0][0] = J_jt_tmp;
+    J_jt[0][1] = t5;
+    J_jt[0][2] = -t3 * t4;
+    J_jt[0][3] = 0.0;
+    J_jt[0][4] = 0.0;
+    J_jt[1][0] = -t2 * t5;
+    J_jt[1][1] = t3;
+    b_J_jt_tmp = t4 * t5;
+    J_jt[1][2] = b_J_jt_tmp;
+    J_jt[1][3] = 0.0;
+    J_jt[1][4] = 0.0;
+    J_jt[2][0] = t4;
+    J_jt[2][1] = 0.0;
+    J_jt[2][2] = t2;
+    J_jt[2][3] = 0.0;
+    J_jt[2][4] = 0.0;
+    c_J_jt_tmp = (&in2[0][0])[12] * t3;
+    d_J_jt_tmp = (&in2[0][0])[6] * t3;
+    J_jt[3][0] = (((((((((-(&in2[0][0])[9] * t4 + (&in2[0][0])[11] * t2) + (&in2[0][0])[14] * t2) +
+                        (&in2[0][0])[8] * t2) +
+                       t2 * in1[2]) -
+                      c_J_jt_tmp * t4) +
+                     (&in2[0][0])[13] * t4 * t5) -
+                    d_J_jt_tmp * t4) +
                    (&in2[0][0])[7] * t4 * t5) -
-                  b_J_ar_tmp * t4) -
-                 in1[1] * t4 * t5;
-    J_ar[3][1] = 0.0;
-    J_ar[3][2] = (((((((-(&in2[0][0])[8] * t4 - t4 * t6) - t4 * t14) - (&in2[0][0])[3] * t2 * t3) -
-                     (&in2[0][0])[6] * t2 * t3) +
-                    (&in2[0][0])[4] * t2 * t5) -
+                  t3 * t4 * in1[0]) +
+                 b_J_jt_tmp * in1[1];
+    J_jt[3][1] = 0.0;
+    J_jt[3][2] = (((((((((-(&in2[0][0])[9] * t2 - (&in2[0][0])[11] * t4) - (&in2[0][0])[14] * t4) -
+                        (&in2[0][0])[8] * t4) -
+                       t4 * in1[2]) -
+                      (&in2[0][0])[12] * t2 * t3) +
+                     (&in2[0][0])[13] * t2 * t5) -
+                    (&in2[0][0])[6] * t2 * t3) +
                    (&in2[0][0])[7] * t2 * t5) -
-                  in1[0] * t2 * t3) -
-                 in1[1] * t2 * t5;
-    J_ar[3][3] = 1.0;
-    J_ar[3][4] = 0.0;
-    J_ar[4][0] = -t2 * t17;
-    J_ar[4][1] =
-        ((((-(&in2[0][0])[3] * t3 - J_ar_tmp) + (&in2[0][0])[4] * t5) - (&in2[0][0])[7] * t5) -
-         b_J_ar_tmp) -
-        in1[1] * t5;
-    J_ar[4][2] = t4 * t17;
-    J_ar[4][3] = 0.0;
-    J_ar[4][4] = 1.0;
+                  J_jt_tmp * in1[0]) +
+                 t2 * t5 * in1[1];
+    J_jt[3][3] = 1.0;
+    J_jt[3][4] = 0.0;
+    J_jt[4][0] = -t2 * t12;
+    J_jt[4][1] = ((((c_J_jt_tmp - (&in2[0][0])[13] * t5) + d_J_jt_tmp) - (&in2[0][0])[7] * t5) +
+                  t3 * in1[0]) -
+                 t5 * in1[1];
+    J_jt[4][2] = t4 * t12;
+    J_jt[4][3] = 0.0;
+    J_jt[4][4] = 1.0;
 }
 
 /*
- * function J_ra = kin_J_ra_xyzbc(in1,in2)
+ * function J_tj = kin_xyzbc_tt_J_tj(in1,in2)
  *
- * kin_J_ra_xyzbc
- *     J_ra = kin_J_ra_xyzbc(IN1,IN2)
+ * kin_xyzbc_tt_J_tj
+ *     J_tj = kin_xyzbc_tt_J_tj(IN1,IN2)
  *
  * Arguments    : const double in1[5]
- *                double in2[4][3]
- *                double J_ra[5][5]
+ *                double in2[5][3]
+ *                double J_tj[5][5]
  * Return Type  : void
  */
-void kin_J_ra_xyzbc(const double in1[5], double in2[4][3], double J_ra[5][5])
+void kin_xyzbc_tt_J_tj(const double in1[5], double in2[5][3], double J_tj[5][5])
 {
-    double J_ra_tmp;
-    double b_J_ra_tmp;
-    double c_J_ra_tmp;
-    double d_J_ra_tmp;
-    double e_J_ra_tmp;
-    double f_J_ra_tmp;
-    double t14;
+    double J_tj_tmp;
+    double b_J_tj_tmp;
+    double c_J_tj_tmp;
+    double d_J_tj_tmp;
+    double t10;
+    double t11;
     double t2;
     double t3;
     double t4;
     double t5;
+    double t9;
     /*     This function was generated by the Symbolic Math Toolbox version 9.1. */
-    /*     01-Sep-2023 14:01:21 */
-    /* Jacobian Kinematics ( forward ) :  */
+    /*     09-Oct-2023 10:15:21 */
+    /* Jacobian Kinematics ( Forward Kinematics ) :  */
     /* INPUTS :  */
-    /* 	r_a : 5 x 1 : pose vector( joint ) */
-    /* 	v_a : 5 x 1 : speed vector( joint ) */
-    /* 	p   : 5 x 1 : parameters */
+    /* 	r_j    (5x1) : pose vector( joint space ) */
+    /* 	v_j    (5x1) : speed vector( joint space ) */
+    /* 	p      (3x5) : parameters */
     /* OUTPUTS :  */
-    /* 	M   : 5 x 5 : resulting matrix */
-    /* 'kin_J_ra_xyzbc:16' A1 = in1(1,:); */
-    /* 'kin_J_ra_xyzbc:17' A2 = in1(2,:); */
-    /* 'kin_J_ra_xyzbc:18' A3 = in1(3,:); */
-    /* 'kin_J_ra_xyzbc:19' A4 = in1(4,:); */
-    /* 'kin_J_ra_xyzbc:20' A5 = in1(5,:); */
-    /* 'kin_J_ra_xyzbc:21' P1_1 = in2(1); */
-    /* 'kin_J_ra_xyzbc:22' P1_4 = in2(10); */
-    /* 'kin_J_ra_xyzbc:23' P2_1 = in2(2); */
-    /* 'kin_J_ra_xyzbc:24' P3_1 = in2(3); */
-    /* 'kin_J_ra_xyzbc:25' P3_4 = in2(12); */
-    /* 'kin_J_ra_xyzbc:26' t2 = cos(A4); */
+    /* 	M      (5x5) : resulting matrix */
+    /* 'kin_xyzbc_tt_J_tj:16' b = in1(4,:); */
+    /* 'kin_xyzbc_tt_J_tj:17' c = in1(5,:); */
+    /* 'kin_xyzbc_tt_J_tj:18' offB1 = in2(10); */
+    /* 'kin_xyzbc_tt_J_tj:19' offB2 = in2(11); */
+    /* 'kin_xyzbc_tt_J_tj:20' offC1 = in2(13); */
+    /* 'kin_xyzbc_tt_J_tj:21' offB3 = in2(12); */
+    /* 'kin_xyzbc_tt_J_tj:22' offC2 = in2(14); */
+    /* 'kin_xyzbc_tt_J_tj:23' offC3 = in2(15); */
+    /* 'kin_xyzbc_tt_J_tj:24' offM1 = in2(1); */
+    /* 'kin_xyzbc_tt_J_tj:25' offM2 = in2(2); */
+    /* 'kin_xyzbc_tt_J_tj:26' offM3 = in2(3); */
+    /* 'kin_xyzbc_tt_J_tj:27' offT1 = in2(4); */
+    /* 'kin_xyzbc_tt_J_tj:28' offT2 = in2(5); */
+    /* 'kin_xyzbc_tt_J_tj:29' offT3 = in2(6); */
+    /* 'kin_xyzbc_tt_J_tj:30' x = in1(1,:); */
+    /* 'kin_xyzbc_tt_J_tj:31' y = in1(2,:); */
+    /* 'kin_xyzbc_tt_J_tj:32' z = in1(3,:); */
+    /* 'kin_xyzbc_tt_J_tj:33' t2 = cos(b); */
     t2 = cos(in1[3]);
-    /* 'kin_J_ra_xyzbc:27' t3 = cos(A5); */
+    /* 'kin_xyzbc_tt_J_tj:34' t3 = cos(c); */
     t3 = cos(in1[4]);
-    /* 'kin_J_ra_xyzbc:28' t4 = sin(A4); */
+    /* 'kin_xyzbc_tt_J_tj:35' t4 = sin(b); */
     t4 = sin(in1[3]);
-    /* 'kin_J_ra_xyzbc:29' t5 = sin(A5); */
+    /* 'kin_xyzbc_tt_J_tj:36' t5 = sin(c); */
     t5 = sin(in1[4]);
-    /* 'kin_J_ra_xyzbc:30' t6 = A3.*t2; */
-    /* 'kin_J_ra_xyzbc:31' t7 = P1_4.*t2; */
-    /* 'kin_J_ra_xyzbc:32' t8 = P3_1.*t2; */
-    /* 'kin_J_ra_xyzbc:33' t9 = P3_4.*t2; */
-    /* 'kin_J_ra_xyzbc:34' t10 = A1.*t4; */
-    /* 'kin_J_ra_xyzbc:35' t11 = P1_1.*t4; */
-    /* 'kin_J_ra_xyzbc:36' t12 = -t6; */
-    /* 'kin_J_ra_xyzbc:37' t13 = -t10; */
-    /* 'kin_J_ra_xyzbc:38' t14 = t7+t8+t9+t11+t12+t13; */
-    t14 = (((((&in2[0][0])[9] * t2 + (&in2[0][0])[2] * t2) + (&in2[0][0])[11] * t2) +
-            (&in2[0][0])[0] * t4) +
-           -(in1[2] * t2)) +
-          -(in1[0] * t4);
-    /* 'kin_J_ra_xyzbc:39' J_ra =
-     * reshape([t2.*t3,t2.*t5,t4,0.0,0.0,-t5,t3,0.0,0.0,0.0,-t3.*t4,-t4.*t5,t2,0.0,0.0,t3.*t14,t5.*t14,A1.*t2-A3.*t4-P1_1.*t2+P1_4.*t4+P3_1.*t4+P3_4.*t4,1.0,0.0,-A2.*t3-P2_1.*t3-A1.*t2.*t5+A3.*t4.*t5+P1_1.*t2.*t5-P1_4.*t4.*t5-P3_1.*t4.*t5-P3_4.*t4.*t5,-A2.*t5-P2_1.*t5+A1.*t2.*t3-A3.*t3.*t4-P1_1.*t2.*t3+P1_4.*t3.*t4+P3_1.*t3.*t4+P3_4.*t3.*t4,0.0,0.0,1.0],[5,5]);
+    /* 'kin_xyzbc_tt_J_tj:37' t6 = -offT1; */
+    /* 'kin_xyzbc_tt_J_tj:38' t7 = -offT2; */
+    /* 'kin_xyzbc_tt_J_tj:39' t8 = -offT3; */
+    /* 'kin_xyzbc_tt_J_tj:40' t9 = offB1+offC1+offM1+t6+x; */
+    t9 = ((((&in2[0][0])[9] + (&in2[0][0])[12]) + (&in2[0][0])[0]) + -(&in2[0][0])[3]) + in1[0];
+    /* 'kin_xyzbc_tt_J_tj:41' t10 = offB2+offC2+offM2+t7+y; */
+    t10 = ((((&in2[0][0])[10] + (&in2[0][0])[13]) + (&in2[0][0])[1]) + -(&in2[0][0])[4]) + in1[1];
+    /* 'kin_xyzbc_tt_J_tj:42' t11 = offB3+offC3+offM3+t8+z; */
+    t11 = ((((&in2[0][0])[11] + (&in2[0][0])[14]) + (&in2[0][0])[2]) + -(&in2[0][0])[5]) + in1[2];
+    /* 'kin_xyzbc_tt_J_tj:43' J_tj =
+     * reshape([t2.*t3,-t2.*t5,t4,0.0,0.0,t5,t3,0.0,0.0,0.0,-t3.*t4,t4.*t5,t2,0.0,0.0,-t2.*t3.*t11-t3.*t4.*t9,t2.*t5.*t11+t4.*t5.*t9,t2.*t9-t4.*t11,1.0,0.0,-offB2.*t3+offB1.*t5+t3.*t10-t2.*t5.*t9+t4.*t5.*t11,offB1.*t3+offB2.*t5-t5.*t10-t2.*t3.*t9+t3.*t4.*t11,0.0,0.0,1.0],[5,5]);
      */
-    J_ra[0][0] = t2 * t3;
-    J_ra[0][1] = t2 * t5;
-    J_ra[0][2] = t4;
-    J_ra[0][3] = 0.0;
-    J_ra[0][4] = 0.0;
-    J_ra[1][0] = -t5;
-    J_ra[1][1] = t3;
-    J_ra[1][2] = 0.0;
-    J_ra[1][3] = 0.0;
-    J_ra[1][4] = 0.0;
-    J_ra[2][0] = -t3 * t4;
-    J_ra[2][1] = -t4 * t5;
-    J_ra[2][2] = t2;
-    J_ra[2][3] = 0.0;
-    J_ra[2][4] = 0.0;
-    J_ra[3][0] = t3 * t14;
-    J_ra[3][1] = t5 * t14;
-    J_ra_tmp = in1[0] * t2;
-    b_J_ra_tmp = in1[2] * t4;
-    c_J_ra_tmp = (&in2[0][0])[0] * t2;
-    d_J_ra_tmp = (&in2[0][0])[9] * t4;
-    e_J_ra_tmp = (&in2[0][0])[2] * t4;
-    f_J_ra_tmp = (&in2[0][0])[11] * t4;
-    J_ra[3][2] = ((((J_ra_tmp - b_J_ra_tmp) - c_J_ra_tmp) + d_J_ra_tmp) + e_J_ra_tmp) + f_J_ra_tmp;
-    J_ra[3][3] = 1.0;
-    J_ra[3][4] = 0.0;
-    J_ra[4][0] = ((((((-in1[1] * t3 - (&in2[0][0])[1] * t3) - J_ra_tmp * t5) + b_J_ra_tmp * t5) +
-                    c_J_ra_tmp * t5) -
-                   d_J_ra_tmp * t5) -
-                  e_J_ra_tmp * t5) -
-                 f_J_ra_tmp * t5;
-    J_ra[4][1] = ((((((-in1[1] * t5 - (&in2[0][0])[1] * t5) + J_ra_tmp * t3) - in1[2] * t3 * t4) -
-                    c_J_ra_tmp * t3) +
-                   (&in2[0][0])[9] * t3 * t4) +
-                  (&in2[0][0])[2] * t3 * t4) +
-                 (&in2[0][0])[11] * t3 * t4;
-    J_ra[4][2] = 0.0;
-    J_ra[4][3] = 0.0;
-    J_ra[4][4] = 1.0;
+    J_tj_tmp = t2 * t3;
+    J_tj[0][0] = J_tj_tmp;
+    J_tj[0][1] = -t2 * t5;
+    J_tj[0][2] = t4;
+    J_tj[0][3] = 0.0;
+    J_tj[0][4] = 0.0;
+    J_tj[1][0] = t5;
+    J_tj[1][1] = t3;
+    J_tj[1][2] = 0.0;
+    J_tj[1][3] = 0.0;
+    J_tj[1][4] = 0.0;
+    J_tj[2][0] = -t3 * t4;
+    b_J_tj_tmp = t4 * t5;
+    J_tj[2][1] = b_J_tj_tmp;
+    J_tj[2][2] = t2;
+    J_tj[2][3] = 0.0;
+    J_tj[2][4] = 0.0;
+    c_J_tj_tmp = t3 * t4;
+    J_tj[3][0] = -t2 * t3 * t11 - c_J_tj_tmp * t9;
+    d_J_tj_tmp = t2 * t5;
+    J_tj[3][1] = d_J_tj_tmp * t11 + b_J_tj_tmp * t9;
+    J_tj[3][2] = t2 * t9 - t4 * t11;
+    J_tj[3][3] = 1.0;
+    J_tj[3][4] = 0.0;
+    J_tj[4][0] = (((-(&in2[0][0])[10] * t3 + (&in2[0][0])[9] * t5) + t3 * t10) - d_J_tj_tmp * t9) +
+                 b_J_tj_tmp * t11;
+    J_tj[4][1] = ((((&in2[0][0])[9] * t3 + (&in2[0][0])[10] * t5) - t5 * t10) - J_tj_tmp * t9) +
+                 c_J_tj_tmp * t11;
+    J_tj[4][2] = 0.0;
+    J_tj[4][3] = 0.0;
+    J_tj[4][4] = 1.0;
 }
 
 /*
- * function world = kin_forward_xyzbc(in1,in2)
+ * function piece = kin_xyzbc_tt_forward(in1,in2)
  *
- * KIN_FORWARD_XYZBC
- *     WORLD = KIN_FORWARD_XYZBC(IN1,IN2)
+ * KIN_XYZBC_TT_FORWARD
+ *     PIECE = KIN_XYZBC_TT_FORWARD(IN1,IN2)
  *
  * Arguments    : const double in1[5]
- *                double in2[4][3]
- *                double world[5]
+ *                double in2[5][3]
+ *                double piece[5]
  * Return Type  : void
  */
-void kin_forward_xyzbc(const double in1[5], double in2[4][3], double world[5])
+void kin_xyzbc_tt_forward(const double in1[5], double in2[5][3], double piece[5])
 {
-    double b_world_tmp;
+    double t10;
+    double t11;
     double t2;
     double t3;
     double t4;
     double t5;
-    double world_tmp;
+    double t9;
     /*     This function was generated by the Symbolic Math Toolbox version 9.1. */
-    /*     01-Sep-2023 14:01:21 */
-    /* Forward Kinematics ( Direct Geometrique Model )  :  */
+    /*     09-Oct-2023 10:15:19 */
+    /* Forward Kinematics :  */
     /* INPUTS :  */
-    /* 	r_a : 5 x 1 : pose vector( joint ) */
-    /* 	p   : 5 x 1 : parameters */
+    /* 	r_j    (5x1) : pose vector( joint space ) */
+    /* 	p      (3x5) : parameters */
     /* OUTPUTS :  */
-    /* 	r_r : 5 x 1 : pose vector ( relative ) */
-    /* 'kin_forward_xyzbc:15' A1 = in1(1,:); */
-    /* 'kin_forward_xyzbc:16' A2 = in1(2,:); */
-    /* 'kin_forward_xyzbc:17' A3 = in1(3,:); */
-    /* 'kin_forward_xyzbc:18' A4 = in1(4,:); */
-    /* 'kin_forward_xyzbc:19' A5 = in1(5,:); */
-    /* 'kin_forward_xyzbc:20' P1_1 = in2(1); */
-    /* 'kin_forward_xyzbc:21' P1_2 = in2(4); */
-    /* 'kin_forward_xyzbc:22' P1_3 = in2(7); */
-    /* 'kin_forward_xyzbc:23' P1_4 = in2(10); */
-    /* 'kin_forward_xyzbc:24' P2_1 = in2(2); */
-    /* 'kin_forward_xyzbc:25' P2_2 = in2(5); */
-    /* 'kin_forward_xyzbc:26' P2_3 = in2(8); */
-    /* 'kin_forward_xyzbc:27' P2_4 = in2(11); */
-    /* 'kin_forward_xyzbc:28' P3_1 = in2(3); */
-    /* 'kin_forward_xyzbc:29' P3_2 = in2(6); */
-    /* 'kin_forward_xyzbc:30' P3_3 = in2(9); */
-    /* 'kin_forward_xyzbc:31' P3_4 = in2(12); */
-    /* 'kin_forward_xyzbc:32' t2 = cos(A4); */
+    /* 	r_t    (5x1) : pose vector ( piece frame ) */
+    /* 'kin_xyzbc_tt_forward:15' b = in1(4,:); */
+    /* 'kin_xyzbc_tt_forward:16' c = in1(5,:); */
+    /* 'kin_xyzbc_tt_forward:17' offB1 = in2(10); */
+    /* 'kin_xyzbc_tt_forward:18' offB2 = in2(11); */
+    /* 'kin_xyzbc_tt_forward:19' offC1 = in2(13); */
+    /* 'kin_xyzbc_tt_forward:20' offB3 = in2(12); */
+    /* 'kin_xyzbc_tt_forward:21' offC2 = in2(14); */
+    /* 'kin_xyzbc_tt_forward:22' offC3 = in2(15); */
+    /* 'kin_xyzbc_tt_forward:23' offM1 = in2(1); */
+    /* 'kin_xyzbc_tt_forward:24' offM2 = in2(2); */
+    /* 'kin_xyzbc_tt_forward:25' offM3 = in2(3); */
+    /* 'kin_xyzbc_tt_forward:26' offP1 = in2(7); */
+    /* 'kin_xyzbc_tt_forward:27' offP2 = in2(8); */
+    /* 'kin_xyzbc_tt_forward:28' offP3 = in2(9); */
+    /* 'kin_xyzbc_tt_forward:29' offT1 = in2(4); */
+    /* 'kin_xyzbc_tt_forward:30' offT2 = in2(5); */
+    /* 'kin_xyzbc_tt_forward:31' offT3 = in2(6); */
+    /* 'kin_xyzbc_tt_forward:32' x = in1(1,:); */
+    /* 'kin_xyzbc_tt_forward:33' y = in1(2,:); */
+    /* 'kin_xyzbc_tt_forward:34' z = in1(3,:); */
+    /* 'kin_xyzbc_tt_forward:35' t2 = cos(b); */
     t2 = cos(in1[3]);
-    /* 'kin_forward_xyzbc:33' t3 = cos(A5); */
+    /* 'kin_xyzbc_tt_forward:36' t3 = cos(c); */
     t3 = cos(in1[4]);
-    /* 'kin_forward_xyzbc:34' t4 = sin(A4); */
+    /* 'kin_xyzbc_tt_forward:37' t4 = sin(b); */
     t4 = sin(in1[3]);
-    /* 'kin_forward_xyzbc:35' t5 = sin(A5); */
+    /* 'kin_xyzbc_tt_forward:38' t5 = sin(c); */
     t5 = sin(in1[4]);
-    /* 'kin_forward_xyzbc:36' world =
-     * [-P1_2-P1_3-A2.*t5-P2_1.*t5+A1.*t2.*t3-A3.*t3.*t4-P1_1.*t2.*t3+P1_4.*t3.*t4+P3_1.*t3.*t4+P3_4.*t3.*t4,P2_2-P2_3+A2.*t3+P2_1.*t3+A1.*t2.*t5-A3.*t4.*t5-P1_1.*t2.*t5+P1_4.*t4.*t5+P3_1.*t4.*t5+P3_4.*t4.*t5,-P2_4-P3_2-P3_3+P3_4+A1.*t4+A3.*t2-P1_1.*t4-P1_4.*t2-P3_1.*t2-P3_4.*t2,A4,A5];
+    /* 'kin_xyzbc_tt_forward:39' t6 = -offT1; */
+    /* 'kin_xyzbc_tt_forward:40' t7 = -offT2; */
+    /* 'kin_xyzbc_tt_forward:41' t8 = -offT3; */
+    /* 'kin_xyzbc_tt_forward:42' t9 = offB1+offC1+offM1+t6+x; */
+    t9 = ((((&in2[0][0])[9] + (&in2[0][0])[12]) + (&in2[0][0])[0]) + -(&in2[0][0])[3]) + in1[0];
+    /* 'kin_xyzbc_tt_forward:43' t10 = offB2+offC2+offM2+t7+y; */
+    t10 = ((((&in2[0][0])[10] + (&in2[0][0])[13]) + (&in2[0][0])[1]) + -(&in2[0][0])[4]) + in1[1];
+    /* 'kin_xyzbc_tt_forward:44' t11 = offB3+offC3+offM3+t8+z; */
+    t11 = ((((&in2[0][0])[11] + (&in2[0][0])[14]) + (&in2[0][0])[2]) + -(&in2[0][0])[5]) + in1[2];
+    /* 'kin_xyzbc_tt_forward:45' piece =
+     * [-offC1-offP1-offB1.*t3-offB2.*t5+t5.*t10+t2.*t3.*t9-t3.*t4.*t11;-offC2-offP2-offB2.*t3+offB1.*t5+t3.*t10-t2.*t5.*t9+t4.*t5.*t11;-offB3-offC3-offP3+t2.*t11+t4.*t9;b;c];
      */
-    world_tmp = in1[0] * t2;
-    b_world_tmp = (&in2[0][0])[0] * t2;
-    world[0] = ((((((((-(&in2[0][0])[3] - (&in2[0][0])[6]) - in1[1] * t5) - (&in2[0][0])[1] * t5) +
-                    world_tmp * t3) -
-                   in1[2] * t3 * t4) -
-                  b_world_tmp * t3) +
-                 (&in2[0][0])[9] * t3 * t4) +
-                (&in2[0][0])[2] * t3 * t4) +
-               (&in2[0][0])[11] * t3 * t4;
-    world[1] = (((((((((&in2[0][0])[4] - (&in2[0][0])[7]) + in1[1] * t3) + (&in2[0][0])[1] * t3) +
-                    world_tmp * t5) -
-                   in1[2] * t4 * t5) -
-                  b_world_tmp * t5) +
-                 (&in2[0][0])[9] * t4 * t5) +
-                (&in2[0][0])[2] * t4 * t5) +
-               (&in2[0][0])[11] * t4 * t5;
-    world[2] = ((((((((-(&in2[0][0])[10] - (&in2[0][0])[5]) - (&in2[0][0])[8]) + (&in2[0][0])[11]) +
-                    in1[0] * t4) +
-                   in1[2] * t2) -
-                  (&in2[0][0])[0] * t4) -
-                 (&in2[0][0])[9] * t2) -
-                (&in2[0][0])[2] * t2) -
-               (&in2[0][0])[11] * t2;
-    world[3] = in1[3];
-    world[4] = in1[4];
+    piece[0] =
+        (((((-(&in2[0][0])[12] - (&in2[0][0])[6]) - (&in2[0][0])[9] * t3) - (&in2[0][0])[10] * t5) +
+          t5 * t10) +
+         t2 * t3 * t9) -
+        t3 * t4 * t11;
+    piece[1] =
+        (((((-(&in2[0][0])[13] - (&in2[0][0])[7]) - (&in2[0][0])[10] * t3) + (&in2[0][0])[9] * t5) +
+          t3 * t10) -
+         t2 * t5 * t9) +
+        t4 * t5 * t11;
+    piece[2] = (((-(&in2[0][0])[11] - (&in2[0][0])[14]) - (&in2[0][0])[8]) + t2 * t11) + t4 * t9;
+    piece[3] = in1[3];
+    piece[4] = in1[4];
 }
 
 /*
- * function joint = kin_inverse_xyzbc(in1,in2)
+ * function joint = kin_xyzbc_tt_inverse(in1,in2)
  *
- * KIN_INVERSE_XYZBC
- *     JOINT = KIN_INVERSE_XYZBC(IN1,IN2)
+ * KIN_XYZBC_TT_INVERSE
+ *     JOINT = KIN_XYZBC_TT_INVERSE(IN1,IN2)
  *
  * Arguments    : const double in1[5]
- *                double in2[4][3]
+ *                double in2[5][3]
  *                double joint[5]
  * Return Type  : void
  */
-void kin_inverse_xyzbc(const double in1[5], double in2[4][3], double joint[5])
+void kin_xyzbc_tt_inverse(const double in1[5], double in2[5][3], double joint[5])
 {
     double t2;
     double t3;
     double t4;
     double t5;
-    double t6;
-    double t8;
     /*     This function was generated by the Symbolic Math Toolbox version 9.1. */
-    /*     01-Sep-2023 14:01:21 */
-    /* Backward Kinematics ( Inverse Geometrique Model ) :  */
+    /*     09-Oct-2023 10:15:19 */
+    /* Inverse Kinematics :  */
     /* INPUTS :  */
-    /* 	r_r : 5 x 1 : pose vector ( relative ) */
-    /* 	p   : 5 x 1 : parameters */
+    /* 	r_t    (5x1) : pose vector ( piece frame ) */
+    /* 	p      (3x5) : parameters */
     /* OUTPUTS :  */
-    /* 	r_a : 5 x 1 : pose vector( joint ) */
-    /* 'kin_inverse_xyzbc:15' P1_1 = in2(1); */
-    /* 'kin_inverse_xyzbc:16' P1_2 = in2(4); */
-    /* 'kin_inverse_xyzbc:17' P1_3 = in2(7); */
-    /* 'kin_inverse_xyzbc:18' P1_4 = in2(10); */
-    /* 'kin_inverse_xyzbc:19' P2_1 = in2(2); */
-    /* 'kin_inverse_xyzbc:20' P2_2 = in2(5); */
-    /* 'kin_inverse_xyzbc:21' P2_3 = in2(8); */
-    /* 'kin_inverse_xyzbc:22' P2_4 = in2(11); */
-    /* 'kin_inverse_xyzbc:23' P3_1 = in2(3); */
-    /* 'kin_inverse_xyzbc:24' P3_2 = in2(6); */
-    /* 'kin_inverse_xyzbc:25' P3_3 = in2(9); */
-    /* 'kin_inverse_xyzbc:26' P3_4 = in2(12); */
-    /* 'kin_inverse_xyzbc:27' R1 = in1(1,:); */
-    /* 'kin_inverse_xyzbc:28' R2 = in1(2,:); */
-    /* 'kin_inverse_xyzbc:29' R3 = in1(3,:); */
-    /* 'kin_inverse_xyzbc:30' R4 = in1(4,:); */
-    /* 'kin_inverse_xyzbc:31' R5 = in1(5,:); */
-    /* 'kin_inverse_xyzbc:32' t2 = cos(R4); */
+    /* 	r_j    (5x1) : pose vector( joint space ) */
+    /* 'kin_xyzbc_tt_inverse:15' b = in1(4,:); */
+    /* 'kin_xyzbc_tt_inverse:16' c = in1(5,:); */
+    /* 'kin_xyzbc_tt_inverse:17' offB1 = in2(10); */
+    /* 'kin_xyzbc_tt_inverse:18' offC1 = in2(13); */
+    /* 'kin_xyzbc_tt_inverse:19' offB3 = in2(12); */
+    /* 'kin_xyzbc_tt_inverse:20' offC2 = in2(14); */
+    /* 'kin_xyzbc_tt_inverse:21' offC3 = in2(15); */
+    /* 'kin_xyzbc_tt_inverse:22' offM1 = in2(1); */
+    /* 'kin_xyzbc_tt_inverse:23' offM2 = in2(2); */
+    /* 'kin_xyzbc_tt_inverse:24' offM3 = in2(3); */
+    /* 'kin_xyzbc_tt_inverse:25' offP1 = in2(7); */
+    /* 'kin_xyzbc_tt_inverse:26' offP2 = in2(8); */
+    /* 'kin_xyzbc_tt_inverse:27' offP3 = in2(9); */
+    /* 'kin_xyzbc_tt_inverse:28' offT1 = in2(4); */
+    /* 'kin_xyzbc_tt_inverse:29' offT2 = in2(5); */
+    /* 'kin_xyzbc_tt_inverse:30' offT3 = in2(6); */
+    /* 'kin_xyzbc_tt_inverse:31' x = in1(1,:); */
+    /* 'kin_xyzbc_tt_inverse:32' y = in1(2,:); */
+    /* 'kin_xyzbc_tt_inverse:33' z = in1(3,:); */
+    /* 'kin_xyzbc_tt_inverse:34' t2 = cos(b); */
     t2 = cos(in1[3]);
-    /* 'kin_inverse_xyzbc:33' t3 = cos(R5); */
+    /* 'kin_xyzbc_tt_inverse:35' t3 = cos(c); */
     t3 = cos(in1[4]);
-    /* 'kin_inverse_xyzbc:34' t4 = sin(R4); */
+    /* 'kin_xyzbc_tt_inverse:36' t4 = sin(b); */
     t4 = sin(in1[3]);
-    /* 'kin_inverse_xyzbc:35' t5 = sin(R5); */
+    /* 'kin_xyzbc_tt_inverse:37' t5 = sin(c); */
     t5 = sin(in1[4]);
-    /* 'kin_inverse_xyzbc:36' t6 = P2_4+R3; */
-    t6 = in1[2] + (&in2[0][0])[10];
-    /* 'kin_inverse_xyzbc:37' t7 = -P3_4; */
-    /* 'kin_inverse_xyzbc:38' t8 = P3_2+t7; */
-    t8 = (&in2[0][0])[5] + -(&in2[0][0])[11];
-    /* 'kin_inverse_xyzbc:39' joint =
-     * [P1_1+P3_3.*t4+t4.*t6+t4.*t8+P1_2.*t2.*t3+P1_3.*t2.*t3-P2_2.*t2.*t5+P2_3.*t2.*t5+R1.*t2.*t3+R2.*t2.*t5,-P2_1-P1_2.*t5-P1_3.*t5-P2_2.*t3+P2_3.*t3+R2.*t3-R1.*t5,P1_4+P3_1+P3_4+P3_3.*t2+t2.*t6+t2.*t8-P1_2.*t3.*t4-P1_3.*t3.*t4+P2_2.*t4.*t5-P2_3.*t4.*t5-R1.*t3.*t4-R2.*t4.*t5,R4,R5];
+    /* 'kin_xyzbc_tt_inverse:38' joint =
+     * [-offB1-offC1-offM1+offT1+offB1.*t2+offB3.*t4+offC3.*t4+offP3.*t4+t4.*z+offC1.*t2.*t3-offC2.*t2.*t5+offP1.*t2.*t3-offP2.*t2.*t5+t2.*t3.*x-t2.*t5.*y;-offC2-offM2+offT2+offC2.*t3+offC1.*t5+offP2.*t3+offP1.*t5+t5.*x+t3.*y;-offB3-offC3-offM3+offT3-offB1.*t4+offB3.*t2+offC3.*t2+offP3.*t2+t2.*z-offC1.*t3.*t4+offC2.*t4.*t5-offP1.*t3.*t4+offP2.*t4.*t5-t3.*t4.*x+t4.*t5.*y;b;c];
      */
-    joint[0] = (((((((((&in2[0][0])[0] + (&in2[0][0])[8] * t4) + t4 * t6) + t4 * t8) +
-                    (&in2[0][0])[3] * t2 * t3) +
-                   (&in2[0][0])[6] * t2 * t3) -
-                  (&in2[0][0])[4] * t2 * t5) +
-                 (&in2[0][0])[7] * t2 * t5) +
-                in1[0] * t2 * t3) +
-               in1[1] * t2 * t5;
-    joint[1] = (((((-(&in2[0][0])[1] - (&in2[0][0])[3] * t5) - (&in2[0][0])[6] * t5) -
-                  (&in2[0][0])[4] * t3) +
-                 (&in2[0][0])[7] * t3) +
-                in1[1] * t3) -
-               in1[0] * t5;
+    joint[0] =
+        (((((((((((((-(&in2[0][0])[9] - (&in2[0][0])[12]) - (&in2[0][0])[0]) + (&in2[0][0])[3]) +
+                  (&in2[0][0])[9] * t2) +
+                 (&in2[0][0])[11] * t4) +
+                (&in2[0][0])[14] * t4) +
+               (&in2[0][0])[8] * t4) +
+              t4 * in1[2]) +
+             (&in2[0][0])[12] * t2 * t3) -
+            (&in2[0][0])[13] * t2 * t5) +
+           (&in2[0][0])[6] * t2 * t3) -
+          (&in2[0][0])[7] * t2 * t5) +
+         t2 * t3 * in1[0]) -
+        t2 * t5 * in1[1];
+    joint[1] =
+        (((((((-(&in2[0][0])[13] - (&in2[0][0])[1]) + (&in2[0][0])[4]) + (&in2[0][0])[13] * t3) +
+            (&in2[0][0])[12] * t5) +
+           (&in2[0][0])[7] * t3) +
+          (&in2[0][0])[6] * t5) +
+         t5 * in1[0]) +
+        t3 * in1[1];
     joint[2] =
-        (((((((((((&in2[0][0])[2] + (&in2[0][0])[9]) + (&in2[0][0])[11]) + (&in2[0][0])[8] * t2) +
-               t2 * t6) +
-              t2 * t8) -
-             (&in2[0][0])[3] * t3 * t4) -
-            (&in2[0][0])[6] * t3 * t4) +
-           (&in2[0][0])[4] * t4 * t5) -
+        (((((((((((((-(&in2[0][0])[11] - (&in2[0][0])[14]) - (&in2[0][0])[2]) + (&in2[0][0])[5]) -
+                  (&in2[0][0])[9] * t4) +
+                 (&in2[0][0])[11] * t2) +
+                (&in2[0][0])[14] * t2) +
+               (&in2[0][0])[8] * t2) +
+              t2 * in1[2]) -
+             (&in2[0][0])[12] * t3 * t4) +
+            (&in2[0][0])[13] * t4 * t5) -
+           (&in2[0][0])[6] * t3 * t4) +
           (&in2[0][0])[7] * t4 * t5) -
-         in1[0] * t3 * t4) -
-        in1[1] * t4 * t5;
+         t3 * t4 * in1[0]) +
+        t4 * t5 * in1[1];
     joint[3] = in1[3];
     joint[4] = in1[4];
 }

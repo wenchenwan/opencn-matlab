@@ -15,8 +15,9 @@
 #include "calcRVAJfromUWithoutCurv.h"
 #include "minOrMax.h"
 #include "norm.h"
-#include "opencn_matlab_types1.h"
-#include "opencn_matlab_types21.h"
+#include "opencn_matlab_types11.h"
+#include "opencn_matlab_types111.h"
+#include "opencn_matlab_types2.h"
 #include "opencn_matlab_types3.h"
 #include "queue_coder.h"
 #include "coder_array.h"
@@ -24,7 +25,7 @@
 
 // Function Declarations
 namespace ocn {
-static void e_binary_expand_op(::coder::array<bool, 2U> &in1, const ::coder::array<double, 2U> &in2,
+static void f_binary_expand_op(::coder::array<bool, 2U> &in1, const ::coder::array<double, 2U> &in2,
                                const double in3_data[], const int *in3_size);
 
 static void times(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
@@ -41,7 +42,7 @@ static void times(::coder::array<double, 2U> &in1, const ::coder::array<double, 
 // Return Type  : void
 //
 namespace ocn {
-static void e_binary_expand_op(::coder::array<bool, 2U> &in1, const ::coder::array<double, 2U> &in2,
+static void f_binary_expand_op(::coder::array<bool, 2U> &in1, const ::coder::array<double, 2U> &in2,
                                const double in3_data[], const int *in3_size)
 {
     int b_in3_idx_0;
@@ -226,7 +227,7 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
     // 'zeroSpeedCurv:15' if( isEnd )
     // 'zeroSpeedCurv:15' uk = 1 - uk ;
     // 'zeroSpeedCurv:17' [ r0D, r1D ] = EvalCurvStruct( ctx, curv, uk );
-    e_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+    d_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                      ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                      ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                      ctx_cfg_NCart, ctx_cfg_NRot, curv, r0D, r1D);
@@ -852,7 +853,7 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
                     }
                 }
             } else {
-                e_binary_expand_op(b_x, r1, vmax_data, &b_trueCount);
+                f_binary_expand_op(b_x, r1, vmax_data, &b_trueCount);
             }
             varargout_1 = false;
             k_k = 0;
@@ -925,7 +926,7 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
                         }
                     }
                 } else {
-                    e_binary_expand_op(b_x, r1, amax_data, &c_trueCount);
+                    f_binary_expand_op(b_x, r1, amax_data, &c_trueCount);
                 }
                 b_varargout_1 = false;
                 n_k = 0;
@@ -998,7 +999,7 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
                             }
                         }
                     } else {
-                        e_binary_expand_op(b_x, r1, jmax_data, &d_trueCount);
+                        f_binary_expand_op(b_x, r1, jmax_data, &d_trueCount);
                     }
                     c_varargout_1 = false;
                     q_k = 0;
@@ -1289,7 +1290,7 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
     // 'zeroSpeedCurv:13' uk = 1;
     // 'zeroSpeedCurv:15' if( isEnd )
     // 'zeroSpeedCurv:17' [ r0D, r1D ] = EvalCurvStruct( ctx, curv, uk );
-    d_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+    e_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                      ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                      ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                      ctx_cfg_NCart, ctx_cfg_NRot, curv, r0D, r1D);
@@ -1900,7 +1901,7 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
                     }
                 }
             } else {
-                e_binary_expand_op(b_x, r1, vmax_data, &b_trueCount);
+                f_binary_expand_op(b_x, r1, vmax_data, &b_trueCount);
             }
             varargout_1 = false;
             k_k = 0;
@@ -1973,7 +1974,7 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
                         }
                     }
                 } else {
-                    e_binary_expand_op(b_x, r1, amax_data, &c_trueCount);
+                    f_binary_expand_op(b_x, r1, amax_data, &c_trueCount);
                 }
                 b_varargout_1 = false;
                 n_k = 0;
@@ -2046,7 +2047,7 @@ void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
                             }
                         }
                     } else {
-                        e_binary_expand_op(b_x, r1, jmax_data, &d_trueCount);
+                        f_binary_expand_op(b_x, r1, jmax_data, &d_trueCount);
                     }
                     c_varargout_1 = false;
                     q_k = 0;

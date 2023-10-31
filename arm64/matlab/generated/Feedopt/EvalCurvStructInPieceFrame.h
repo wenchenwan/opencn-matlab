@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: EvalCurvStructInPieceFrame.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Sep-2023 09:56:15
 //
 
 #ifndef EVALCURVSTRUCTINPIECEFRAME_H
@@ -23,9 +23,9 @@
 namespace ocn {
 class queue_coder;
 
-struct GcodeInfoStruct;
+class Kinematics;
 
-struct CurvStruct;
+struct GcodeInfoStruct;
 
 } // namespace ocn
 
@@ -37,7 +37,8 @@ void EvalCurvStructInPieceFrame(
     const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
     const int ctx_cfg_maskRot_size[2], const ::coder::array<int, 1U> &ctx_cfg_indCart,
     const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis, int ctx_cfg_NCart,
-    int ctx_cfg_NRot, GcodeInfoStruct curv_Info, const double curv_R0[6], const double curv_R1[6],
+    int ctx_cfg_NRot, const Kinematics *ctx_kin, const GcodeInfoStruct curv_Info,
+    const ::coder::array<double, 1U> &curv_R0, const ::coder::array<double, 1U> &curv_R1,
     const double curv_CorrectedHelixCenter[3], const double curv_evec[3], double curv_theta,
     double curv_pitch, const ::coder::array<double, 2U> &curv_CoeffP5, unsigned int curv_sp_index,
     double curv_a_param, double curv_b_param, ::coder::array<double, 1U> &r0D,
@@ -49,7 +50,11 @@ void b_EvalCurvStructInPieceFrame(
     const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
     const int ctx_cfg_maskRot_size[2], const ::coder::array<int, 1U> &ctx_cfg_indCart,
     const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis, int ctx_cfg_NCart,
-    int ctx_cfg_NRot, CurvStruct *curv, ::coder::array<double, 1U> &r0D,
+    int ctx_cfg_NRot, const Kinematics *ctx_kin, const GcodeInfoStruct curv_Info,
+    const ::coder::array<double, 1U> &curv_R0, const ::coder::array<double, 1U> &curv_R1,
+    const double curv_CorrectedHelixCenter[3], const double curv_evec[3], double curv_theta,
+    double curv_pitch, const ::coder::array<double, 2U> &curv_CoeffP5, unsigned int curv_sp_index,
+    double curv_a_param, double curv_b_param, ::coder::array<double, 1U> &r0D,
     ::coder::array<double, 1U> &r1D);
 
 } // namespace ocn

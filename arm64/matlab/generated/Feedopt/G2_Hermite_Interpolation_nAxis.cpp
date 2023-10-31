@@ -27,13 +27,13 @@
 
 // Function Declarations
 namespace ocn {
-static void b_binary_expand_op(double in1_data[], int *in1_size, const double in2[16],
-                               const ::coder::array<double, 1U> &in3, const double in4_data[],
-                               const int *in4_size);
-
 static void binary_expand_op(double in1_data[], int *in1_size, const double in2[16],
                              const ::coder::array<double, 1U> &in3, const double in4_data[],
                              const int *in4_size);
+
+static void e_binary_expand_op(double in1_data[], int *in1_size, const double in2[16],
+                               const ::coder::array<double, 1U> &in3, const double in4_data[],
+                               const int *in4_size);
 
 } // namespace ocn
 
@@ -48,9 +48,9 @@ static void binary_expand_op(double in1_data[], int *in1_size, const double in2[
 // Return Type  : void
 //
 namespace ocn {
-static void b_binary_expand_op(double in1_data[], int *in1_size, const double in2[16],
-                               const ::coder::array<double, 1U> &in3, const double in4_data[],
-                               const int *in4_size)
+static void binary_expand_op(double in1_data[], int *in1_size, const double in2[16],
+                             const ::coder::array<double, 1U> &in3, const double in4_data[],
+                             const int *in4_size)
 {
     double b_in2;
     double c_in2;
@@ -59,10 +59,10 @@ static void b_binary_expand_op(double in1_data[], int *in1_size, const double in
     int loop_ub;
     int stride_0_0;
     int stride_1_0;
-    b_in2 = in2[1];
-    c_in2 = in2[3];
-    d_in2 = in2[7];
-    e_in2 = in2[6];
+    b_in2 = in2[9];
+    c_in2 = in2[11];
+    d_in2 = in2[15];
+    e_in2 = in2[14];
     if (*in4_size == 1) {
         *in1_size = in3.size(0);
     } else {
@@ -90,9 +90,9 @@ static void b_binary_expand_op(double in1_data[], int *in1_size, const double in
 //                const int *in4_size
 // Return Type  : void
 //
-static void binary_expand_op(double in1_data[], int *in1_size, const double in2[16],
-                             const ::coder::array<double, 1U> &in3, const double in4_data[],
-                             const int *in4_size)
+static void e_binary_expand_op(double in1_data[], int *in1_size, const double in2[16],
+                               const ::coder::array<double, 1U> &in3, const double in4_data[],
+                               const int *in4_size)
 {
     double b_in2;
     double c_in2;
@@ -101,10 +101,10 @@ static void binary_expand_op(double in1_data[], int *in1_size, const double in2[
     int loop_ub;
     int stride_0_0;
     int stride_1_0;
-    b_in2 = in2[9];
-    c_in2 = in2[11];
-    d_in2 = in2[15];
-    e_in2 = in2[14];
+    b_in2 = in2[1];
+    c_in2 = in2[3];
+    d_in2 = in2[7];
+    e_in2 = in2[6];
     if (*in4_size == 1) {
         *in1_size = in3.size(0);
     } else {
@@ -724,7 +724,7 @@ void G2_Hermite_Interpolation_nAxis(
                         CoefPS[6];
                 }
             } else {
-                b_binary_expand_op(alpha1_t_data, &alpha1_t_size, CoefPS, r, alpha0_t_data,
+                e_binary_expand_op(alpha1_t_data, &alpha1_t_size, CoefPS, r, alpha0_t_data,
                                    &d_trueCount);
             }
         } else {
@@ -772,7 +772,7 @@ void G2_Hermite_Interpolation_nAxis(
                         (CoefPS[10] * d2 + CoefPS[11]);
                 }
             } else {
-                b_binary_expand_op(alpha1_t_data, &alpha1_t_size, CoefPS, r, r1, alpha0_t_data,
+                e_binary_expand_op(alpha1_t_data, &alpha1_t_size, CoefPS, r, r1, alpha0_t_data,
                                    &d_trueCount);
             }
         }

@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: TransP5LengthApprox.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Sep-2023 09:32:18
 //
 
 #ifndef TRANSP5LENGTHAPPROX_H
@@ -13,20 +13,16 @@
 
 // Include Files
 #include "rtwtypes.h"
+#include "coder_array.h"
 #include <cstddef>
 #include <cstdlib>
 
 // Custom Header Code
 #include "functions.h"
-// Type Declarations
-namespace ocn {
-struct CurvStruct;
-
-}
-
 // Function Declarations
 namespace ocn {
-double TransP5LengthApprox(const CurvStruct *b_CurvStruct);
+double TransP5LengthApprox(const ::coder::array<double, 2U> &CurvStruct_CoeffP5, double u0,
+                           double u1);
 
 }
 

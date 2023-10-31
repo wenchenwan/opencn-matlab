@@ -11,8 +11,9 @@
 // Include Files
 #include "checkGeometry.h"
 #include "isSameGeometry.h"
-#include "opencn_matlab_types1.h"
-#include "opencn_matlab_types21.h"
+#include "opencn_matlab_types11.h"
+#include "opencn_matlab_types111.h"
+#include "opencn_matlab_types2.h"
 #include "opencn_matlab_types3.h"
 #include "queue_coder.h"
 #include "toolIsEqual.h"
@@ -30,7 +31,9 @@
 namespace ocn {
 bool checkGeometry(const queue_coder *queue)
 {
+    ::coder::array<bool, 2U> b_y;
     ::coder::array<bool, 2U> c_x;
+    ::coder::array<bool, 1U> x;
     CurvStruct b_expl_temp;
     CurvStruct expl_temp;
     unsigned int N;
@@ -108,48 +111,61 @@ bool checkGeometry(const queue_coder *queue)
                 if ((curv_Info_Type == b_expl_temp.Info.Type) &&
                     (curv_Info_TRAFO == b_expl_temp.Info.TRAFO)) {
                     int b_k;
-                    bool x[6];
                     bool exitg2;
-                    bool y;
+                    bool varargout_1;
                     // 'isSameGeometry:5' if( curv1.Info.TRAFO ~= curv2.Info.TRAFO )
                     // 'isSameGeometry:6' if( any(curv1.R0 ~= curv2.R0) )
-                    for (int i{0}; i < 6; i++) {
-                        x[i] = (expl_temp.R0[i] != b_expl_temp.R0[i]);
+                    if (expl_temp.R0.size(0) == b_expl_temp.R0.size(0)) {
+                        int loop_ub;
+                        x.set_size(expl_temp.R0.size(0));
+                        loop_ub = expl_temp.R0.size(0);
+                        for (int i{0}; i < loop_ub; i++) {
+                            x[i] = (expl_temp.R0[i] != b_expl_temp.R0[i]);
+                        }
+                    } else {
+                        d_binary_expand_op(x, &expl_temp, &b_expl_temp);
                     }
-                    y = false;
+                    varargout_1 = false;
                     b_k = 0;
                     exitg2 = false;
-                    while ((!exitg2) && (b_k < 6)) {
+                    while ((!exitg2) && (b_k <= x.size(0) - 1)) {
                         if (x[b_k]) {
-                            y = true;
+                            varargout_1 = true;
                             exitg2 = true;
                         } else {
                             b_k++;
                         }
                     }
-                    if (!y) {
+                    if (!varargout_1) {
                         int c_k;
-                        bool b_y;
+                        bool b_varargout_1;
                         // 'isSameGeometry:7' if( any(curv1.R1 ~= curv2.R1) )
-                        for (int b_i{0}; b_i < 6; b_i++) {
-                            x[b_i] = (expl_temp.R1[b_i] != b_expl_temp.R1[b_i]);
+                        if (expl_temp.R1.size(0) == b_expl_temp.R1.size(0)) {
+                            int b_loop_ub;
+                            x.set_size(expl_temp.R1.size(0));
+                            b_loop_ub = expl_temp.R1.size(0);
+                            for (int i1{0}; i1 < b_loop_ub; i1++) {
+                                x[i1] = (expl_temp.R1[i1] != b_expl_temp.R1[i1]);
+                            }
+                        } else {
+                            c_binary_expand_op(x, &expl_temp, &b_expl_temp);
                         }
-                        b_y = false;
+                        b_varargout_1 = false;
                         c_k = 0;
                         exitg2 = false;
-                        while ((!exitg2) && (c_k < 6)) {
+                        while ((!exitg2) && (c_k <= x.size(0) - 1)) {
                             if (x[c_k]) {
-                                b_y = true;
+                                b_varargout_1 = true;
                                 exitg2 = true;
                             } else {
                                 c_k++;
                             }
                         }
-                        if ((!b_y) && (curv_a_param == b_expl_temp.a_param) &&
+                        if ((!b_varargout_1) && (curv_a_param == b_expl_temp.a_param) &&
                             (curv_b_param == b_expl_temp.b_param)) {
                             int d_k;
                             bool b_x[3];
-                            bool c_y;
+                            bool y;
                             // 'isSameGeometry:8' if( curv1.a_param ~= curv2.a_param )
                             // 'isSameGeometry:9' if( curv1.b_param ~= curv2.b_param )
                             // 'isSameGeometry:10' if( any(curv1.CorrectedHelixCenter ~=
@@ -160,84 +176,97 @@ bool checkGeometry(const queue_coder *queue)
                                       b_expl_temp.CorrectedHelixCenter[1]);
                             b_x[2] = (expl_temp.CorrectedHelixCenter[2] !=
                                       b_expl_temp.CorrectedHelixCenter[2]);
-                            c_y = false;
+                            y = false;
                             d_k = 0;
                             exitg2 = false;
                             while ((!exitg2) && (d_k < 3)) {
                                 if (b_x[d_k]) {
-                                    c_y = true;
+                                    y = true;
                                     exitg2 = true;
                                 } else {
                                     d_k++;
                                 }
                             }
-                            if ((!c_y) && (curv_delta == b_expl_temp.delta)) {
-                                int f_k;
-                                bool d_y[6];
-                                bool e_y;
+                            if ((!y) && (curv_delta == b_expl_temp.delta)) {
+                                int h_loop_ub;
+                                int hi;
+                                bool c_y;
                                 // 'isSameGeometry:12' if( curv1.delta ~= curv2.delta )
                                 // 'isSameGeometry:13' if( any(curv1.CoeffP5 ~= curv2.CoeffP5) )
-                                if (expl_temp.CoeffP5.size(0) == b_expl_temp.CoeffP5.size(0)) {
-                                    int b_loop_ub;
-                                    c_x.set_size(expl_temp.CoeffP5.size(0), 6);
-                                    b_loop_ub = expl_temp.CoeffP5.size(0);
-                                    for (int i1{0}; i1 < 6; i1++) {
-                                        for (int i2{0}; i2 < b_loop_ub; i2++) {
-                                            c_x[i2 + c_x.size(0) * i1] =
-                                                (expl_temp.CoeffP5[i2 + expl_temp.CoeffP5.size(0) *
-                                                                            i1] !=
+                                if ((expl_temp.CoeffP5.size(0) == b_expl_temp.CoeffP5.size(0)) &&
+                                    (expl_temp.CoeffP5.size(1) == b_expl_temp.CoeffP5.size(1))) {
+                                    int f_loop_ub;
+                                    c_x.set_size(expl_temp.CoeffP5.size(0),
+                                                 expl_temp.CoeffP5.size(1));
+                                    f_loop_ub = expl_temp.CoeffP5.size(1);
+                                    for (int i5{0}; i5 < f_loop_ub; i5++) {
+                                        int i_loop_ub;
+                                        i_loop_ub = expl_temp.CoeffP5.size(0);
+                                        for (int i8{0}; i8 < i_loop_ub; i8++) {
+                                            c_x[i8 + c_x.size(0) * i5] =
+                                                (expl_temp.CoeffP5[i8 + expl_temp.CoeffP5.size(0) *
+                                                                            i5] !=
                                                  b_expl_temp
-                                                     .CoeffP5[i2 +
-                                                              b_expl_temp.CoeffP5.size(0) * i1]);
+                                                     .CoeffP5[i8 +
+                                                              b_expl_temp.CoeffP5.size(0) * i5]);
                                         }
                                     }
                                 } else {
-                                    d_binary_expand_op(c_x, &expl_temp, &b_expl_temp);
+                                    b_binary_expand_op(c_x, &expl_temp, &b_expl_temp);
                                 }
-                                for (int e_k{0}; e_k < 6; e_k++) {
+                                b_y.set_size(1, c_x.size(1));
+                                h_loop_ub = c_x.size(1);
+                                for (int i7{0}; i7 < h_loop_ub; i7++) {
+                                    b_y[i7] = false;
+                                }
+                                hi = c_x.size(1);
+                                for (int e_k{0}; e_k < hi; e_k++) {
+                                    int f_k;
+                                    b_y[e_k] = false;
+                                    f_k = 0;
+                                    exitg2 = false;
+                                    while ((!exitg2) && (f_k <= c_x.size(0) - 1)) {
+                                        if (c_x[f_k + c_x.size(0) * e_k]) {
+                                            b_y[e_k] = true;
+                                            exitg2 = true;
+                                        } else {
+                                            f_k++;
+                                        }
+                                    }
+                                }
+                                c_y = (b_y.size(1) != 0);
+                                if (c_y) {
                                     int g_k;
-                                    d_y[e_k] = false;
                                     g_k = 0;
                                     exitg2 = false;
-                                    while ((!exitg2) && (g_k <= c_x.size(0) - 1)) {
-                                        if (c_x[g_k + c_x.size(0) * e_k]) {
-                                            d_y[e_k] = true;
+                                    while ((!exitg2) && (g_k <= b_y.size(1) - 1)) {
+                                        if (!b_y[g_k]) {
+                                            c_y = false;
                                             exitg2 = true;
                                         } else {
                                             g_k++;
                                         }
                                     }
                                 }
-                                e_y = true;
-                                f_k = 0;
-                                exitg2 = false;
-                                while ((!exitg2) && (f_k < 6)) {
-                                    if (!d_y[f_k]) {
-                                        e_y = false;
-                                        exitg2 = true;
-                                    } else {
-                                        f_k++;
-                                    }
-                                }
-                                if (!e_y) {
+                                if (!c_y) {
                                     int h_k;
-                                    bool f_y;
+                                    bool d_y;
                                     // 'isSameGeometry:14' if( any(curv1.evec ~= curv2.evec) )
                                     b_x[0] = (expl_temp.evec[0] != b_expl_temp.evec[0]);
                                     b_x[1] = (expl_temp.evec[1] != b_expl_temp.evec[1]);
                                     b_x[2] = (expl_temp.evec[2] != b_expl_temp.evec[2]);
-                                    f_y = false;
+                                    d_y = false;
                                     h_k = 0;
                                     exitg2 = false;
                                     while ((!exitg2) && (h_k < 3)) {
                                         if (b_x[h_k]) {
-                                            f_y = true;
+                                            d_y = true;
                                             exitg2 = true;
                                         } else {
                                             h_k++;
                                         }
                                     }
-                                    if ((!f_y) &&
+                                    if ((!d_y) &&
                                         toolIsEqual(
                                             curv_tool_toolno, curv_tool_pocketno,
                                             curv_tool_offset_x, curv_tool_offset_y,
@@ -270,7 +299,9 @@ bool checkGeometry(const queue_coder *queue)
                 if (isSame) {
                     exitg1 = 1;
                 } else {
-                    int loop_ub;
+                    int c_loop_ub;
+                    int d_loop_ub;
+                    int e_loop_ub;
                     // 'checkGeometry:22' curv = curvNext;
                     curv_Info_Type = b_expl_temp.Info.Type;
                     curv_Info_TRAFO = b_expl_temp.Info.TRAFO;
@@ -290,6 +321,16 @@ bool checkGeometry(const queue_coder *queue)
                     curv_tool_frontangle = b_expl_temp.tool.frontangle;
                     curv_tool_backangle = b_expl_temp.tool.backangle;
                     curv_tool_orientation = b_expl_temp.tool.orientation;
+                    expl_temp.R0.set_size(b_expl_temp.R0.size(0));
+                    c_loop_ub = b_expl_temp.R0.size(0);
+                    for (int i2{0}; i2 < c_loop_ub; i2++) {
+                        expl_temp.R0[i2] = b_expl_temp.R0[i2];
+                    }
+                    expl_temp.R1.set_size(b_expl_temp.R1.size(0));
+                    d_loop_ub = b_expl_temp.R1.size(0);
+                    for (int i3{0}; i3 < d_loop_ub; i3++) {
+                        expl_temp.R1[i3] = b_expl_temp.R1[i3];
+                    }
                     curv_delta = b_expl_temp.delta;
                     expl_temp.CorrectedHelixCenter[0] = b_expl_temp.CorrectedHelixCenter[0];
                     expl_temp.evec[0] = b_expl_temp.evec[0];
@@ -297,14 +338,15 @@ bool checkGeometry(const queue_coder *queue)
                     expl_temp.evec[1] = b_expl_temp.evec[1];
                     expl_temp.CorrectedHelixCenter[2] = b_expl_temp.CorrectedHelixCenter[2];
                     expl_temp.evec[2] = b_expl_temp.evec[2];
-                    expl_temp.CoeffP5.set_size(b_expl_temp.CoeffP5.size(0), 6);
-                    loop_ub = b_expl_temp.CoeffP5.size(0);
-                    for (int c_i{0}; c_i < 6; c_i++) {
-                        expl_temp.R0[c_i] = b_expl_temp.R0[c_i];
-                        expl_temp.R1[c_i] = b_expl_temp.R1[c_i];
-                        for (int d_i{0}; d_i < loop_ub; d_i++) {
-                            expl_temp.CoeffP5[d_i + expl_temp.CoeffP5.size(0) * c_i] =
-                                b_expl_temp.CoeffP5[d_i + b_expl_temp.CoeffP5.size(0) * c_i];
+                    expl_temp.CoeffP5.set_size(b_expl_temp.CoeffP5.size(0),
+                                               b_expl_temp.CoeffP5.size(1));
+                    e_loop_ub = b_expl_temp.CoeffP5.size(1);
+                    for (int i4{0}; i4 < e_loop_ub; i4++) {
+                        int g_loop_ub;
+                        g_loop_ub = b_expl_temp.CoeffP5.size(0);
+                        for (int i6{0}; i6 < g_loop_ub; i6++) {
+                            expl_temp.CoeffP5[i6 + expl_temp.CoeffP5.size(0) * i4] =
+                                b_expl_temp.CoeffP5[i6 + b_expl_temp.CoeffP5.size(0) * i4];
                         }
                     }
                     curv_sp_index = b_expl_temp.sp_index;

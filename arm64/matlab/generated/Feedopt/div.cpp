@@ -17,69 +17,6 @@
 // Arguments    : double in1_data[]
 //                int *in1_size
 //                const double in2[16]
-//                const ::coder::array<double, 1U> &in3
-//                const ::coder::array<double, 1U> &in4
-//                const double in5_data[]
-//                const int *in5_size
-// Return Type  : void
-//
-namespace ocn {
-void b_binary_expand_op(double in1_data[], int *in1_size, const double in2[16],
-                        const ::coder::array<double, 1U> &in3,
-                        const ::coder::array<double, 1U> &in4, const double in5_data[],
-                        const int *in5_size)
-{
-    double b_in2;
-    double c_in2;
-    double d_in2;
-    double e_in2;
-    double f_in2;
-    double g_in2;
-    int loop_ub;
-    int stride_0_0;
-    int stride_1_0;
-    int stride_2_0;
-    int stride_3_0;
-    b_in2 = in2[12];
-    c_in2 = in2[13];
-    d_in2 = in2[14];
-    e_in2 = in2[15];
-    f_in2 = in2[10];
-    g_in2 = in2[11];
-    if (*in5_size == 1) {
-        if (in4.size(0) == 1) {
-            *in1_size = in3.size(0);
-        } else {
-            *in1_size = in4.size(0);
-        }
-    } else {
-        *in1_size = *in5_size;
-    }
-    stride_0_0 = (in3.size(0) != 1);
-    stride_1_0 = (in4.size(0) != 1);
-    stride_2_0 = (*in5_size != 1);
-    stride_3_0 = (*in5_size != 1);
-    if (*in5_size == 1) {
-        if (in4.size(0) == 1) {
-            loop_ub = in3.size(0);
-        } else {
-            loop_ub = in4.size(0);
-        }
-    } else {
-        loop_ub = *in5_size;
-    }
-    for (int i{0}; i < loop_ub; i++) {
-        in1_data[i] = -(((b_in2 * in3[i * stride_0_0] + c_in2 * in4[i * stride_1_0]) +
-                         d_in2 * in5_data[i * stride_2_0]) +
-                        e_in2) /
-                      (f_in2 * in5_data[i * stride_3_0] + g_in2);
-    }
-}
-
-//
-// Arguments    : double in1_data[]
-//                int *in1_size
-//                const double in2[16]
 //                const double in3_data[]
 //                const int *in3_size
 //                const double in4_data[]
@@ -95,6 +32,7 @@ void b_binary_expand_op(double in1_data[], int *in1_size, const double in2[16],
 //                const ::coder::array<double, 1U> &in10
 // Return Type  : void
 //
+namespace ocn {
 void binary_expand_op(double in1_data[], int *in1_size, const double in2[16],
                       const double in3_data[], const int *in3_size, const double in4_data[],
                       const int *in4_size, const double in5_data[], const int *in5_size,
@@ -596,6 +534,68 @@ void binary_expand_op(double in1_data[], int *in1_size, const double in2[16],
     e_in2 = in2[7];
     f_in2 = in2[2];
     g_in2 = in2[3];
+    if (*in5_size == 1) {
+        if (in4.size(0) == 1) {
+            *in1_size = in3.size(0);
+        } else {
+            *in1_size = in4.size(0);
+        }
+    } else {
+        *in1_size = *in5_size;
+    }
+    stride_0_0 = (in3.size(0) != 1);
+    stride_1_0 = (in4.size(0) != 1);
+    stride_2_0 = (*in5_size != 1);
+    stride_3_0 = (*in5_size != 1);
+    if (*in5_size == 1) {
+        if (in4.size(0) == 1) {
+            loop_ub = in3.size(0);
+        } else {
+            loop_ub = in4.size(0);
+        }
+    } else {
+        loop_ub = *in5_size;
+    }
+    for (int i{0}; i < loop_ub; i++) {
+        in1_data[i] = -(((b_in2 * in3[i * stride_0_0] + c_in2 * in4[i * stride_1_0]) +
+                         d_in2 * in5_data[i * stride_2_0]) +
+                        e_in2) /
+                      (f_in2 * in5_data[i * stride_3_0] + g_in2);
+    }
+}
+
+//
+// Arguments    : double in1_data[]
+//                int *in1_size
+//                const double in2[16]
+//                const ::coder::array<double, 1U> &in3
+//                const ::coder::array<double, 1U> &in4
+//                const double in5_data[]
+//                const int *in5_size
+// Return Type  : void
+//
+void e_binary_expand_op(double in1_data[], int *in1_size, const double in2[16],
+                        const ::coder::array<double, 1U> &in3,
+                        const ::coder::array<double, 1U> &in4, const double in5_data[],
+                        const int *in5_size)
+{
+    double b_in2;
+    double c_in2;
+    double d_in2;
+    double e_in2;
+    double f_in2;
+    double g_in2;
+    int loop_ub;
+    int stride_0_0;
+    int stride_1_0;
+    int stride_2_0;
+    int stride_3_0;
+    b_in2 = in2[12];
+    c_in2 = in2[13];
+    d_in2 = in2[14];
+    e_in2 = in2[15];
+    f_in2 = in2[10];
+    g_in2 = in2[11];
     if (*in5_size == 1) {
         if (in4.size(0) == 1) {
             *in1_size = in3.size(0);

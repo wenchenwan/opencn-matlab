@@ -11,7 +11,8 @@
 // Include Files
 #include "add_tool_offset.h"
 #include "opencn_matlab_types.h"
-#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types111.h"
+#include "coder_array.h"
 #include "coder_bounded_array.h"
 
 // Function Definitions

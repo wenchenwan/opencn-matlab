@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: div.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Sep-2023 09:32:18
 //
 
 #ifndef DIV_H
@@ -21,11 +21,6 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-void b_binary_expand_op(double in1_data[], int *in1_size, const double in2[16],
-                        const ::coder::array<double, 1U> &in3,
-                        const ::coder::array<double, 1U> &in4, const double in5_data[],
-                        const int *in5_size);
-
 void binary_expand_op(double in1_data[], int *in1_size, const double in2[16],
                       const double in3_data[], const int *in3_size, const double in4_data[],
                       const int *in4_size, const double in5_data[], const int *in5_size,
@@ -37,6 +32,11 @@ void binary_expand_op(double in1_data[], int *in1_size, const double in2[16],
 void binary_expand_op(double in1_data[], int *in1_size, const double in2[16],
                       const ::coder::array<double, 1U> &in3, const ::coder::array<double, 1U> &in4,
                       const double in5_data[], const int *in5_size);
+
+void e_binary_expand_op(double in1_data[], int *in1_size, const double in2[16],
+                        const ::coder::array<double, 1U> &in3,
+                        const ::coder::array<double, 1U> &in4, const double in5_data[],
+                        const int *in5_size);
 
 } // namespace ocn
 

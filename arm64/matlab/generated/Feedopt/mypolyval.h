@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: mypolyval.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Sep-2023 09:56:15
 //
 
 #ifndef MYPOLYVAL_H
@@ -21,17 +21,19 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-void b_binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
-                        const ::coder::array<double, 2U> &in3);
-
-void binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 1U> &in2,
-                      const ::coder::array<double, 2U> &in3);
-
 void binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
                       const ::coder::array<double, 2U> &in3);
 
-void binary_expand_op(::coder::array<double, 1U> &in1, double in2, const int in3[2],
-                      const ::coder::array<double, 1U> &in4);
+void e_binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
+                        const ::coder::array<double, 2U> &in3);
+
+void mypolyval(const ::coder::array<double, 2U> &p, const ::coder::array<double, 1U> &x,
+               ::coder::array<double, 2U> &y);
+
+void mypolyval(const ::coder::array<double, 2U> &p, const double x[2],
+               ::coder::array<double, 2U> &y);
+
+void mypolyval(const ::coder::array<double, 2U> &p, double x, ::coder::array<double, 1U> &y);
 
 } // namespace ocn
 

@@ -266,7 +266,7 @@ void setMachineAxisInConfig(FeedoptConfig *cfg, const bool maskTot[6])
         std::copy(&cfg->kin_params.data[0], &cfg->kin_params.data[f_loop_ub],
                   &r.kin_params.data[0]);
     }
-    for (int i4{0}; i4 < 5; i4++) {
+    for (int i4{0}; i4 < 8; i4++) {
         r.kin_type[i4] = cfg->kin_type[i4];
     }
     r.NDiscr = cfg->NDiscr;
@@ -355,7 +355,7 @@ void setMachineAxisInConfig(FeedoptConfig *cfg, const bool maskTot[6])
     if (m_loop_ub - 1 >= 0) {
         std::copy(&r.kin_params.data[0], &r.kin_params.data[m_loop_ub], &cfg->kin_params.data[0]);
     }
-    for (int i10{0}; i10 < 5; i10++) {
+    for (int i10{0}; i10 < 8; i10++) {
         cfg->kin_type[i10] = r.kin_type[i10];
     }
     cfg->NDiscr = r.NDiscr;

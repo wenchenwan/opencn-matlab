@@ -12,8 +12,8 @@
 #include "constrGcodeInfoStruct.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_initialize.h"
-#include "opencn_matlab_types21.h"
-#include "opencn_matlab_types3.h"
+#include "opencn_matlab_types11.h"
+#include "opencn_matlab_types2.h"
 
 // Function Definitions
 //

@@ -11,7 +11,7 @@
 // Include Files
 #include "SplineLengthApproxGL_tot.h"
 #include "opencn_matlab_types1.h"
-#include "opencn_matlab_types2.h"
+#include "opencn_matlab_types111.h"
 #include "coder_array.h"
 #include <emmintrin.h>
 
@@ -78,7 +78,7 @@ void binary_expand_op(CurvStruct *in1, const ::coder::array<double, 2U> &in2, in
 //                const ::coder::array<double, 2U> &in3
 // Return Type  : void
 //
-void c_binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
+void i_binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
                         const ::coder::array<double, 2U> &in3)
 {
     int aux_0_1;

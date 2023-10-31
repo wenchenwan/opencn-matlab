@@ -11,8 +11,8 @@
 // Include Files
 #include "compressCurvStructs.h"
 #include "EvalCurvStruct.h"
+#include "LengthCurv.h"
 #include "SplineLengthApproxGL_tot.h"
-#include "TransP5LengthApprox.h"
 #include "bspline_eval.h"
 #include "bsxfun.h"
 #include "constrBaseSpline.h"
@@ -21,21 +21,23 @@
 #include "diag.h"
 #include "diff.h"
 #include "norm.h"
+#include "ocn_assert.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_internal_types.h"
 #include "opencn_matlab_types.h"
 #include "opencn_matlab_types1.h"
+#include "opencn_matlab_types11.h"
+#include "opencn_matlab_types111.h"
 #include "opencn_matlab_types2.h"
-#include "opencn_matlab_types21.h"
 #include "opencn_matlab_types3.h"
 #include "paramsDefaultCurv.h"
 #include "queue_coder.h"
-#include "splineLength.h"
 #include "sum.h"
 #include "tridiag.h"
 #include "c_spline.h"
 #include "coder_array.h"
 #include "coder_bounded_array.h"
+#include <algorithm>
 #include <cmath>
 #include <stdio.h>
 
@@ -107,6 +109,7 @@ create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_maskTot_size[
     ::coder::array<double, 2U> d_B;
     ::coder::array<double, 2U> d_c;
     ::coder::array<double, 2U> du_tmp;
+    ::coder::array<double, 2U> points;
     ::coder::array<double, 2U> r;
     ::coder::array<double, 2U> r1;
     ::coder::array<double, 2U> r1D;
@@ -118,16 +121,17 @@ create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_maskTot_size[
     ::coder::array<double, 2U> r7;
     ::coder::array<double, 2U> r8;
     ::coder::array<double, 2U> u;
+    ::coder::array<double, 1U> b_batch_pvec;
+    ::coder::array<double, 1U> c_batch_pvec;
     ::coder::array<double, 1U> d;
     ::coder::array<double, 1U> r3;
     ::coder::array<double, 1U> v;
     ::coder::array<double, 1U> v_l;
     ::coder::array<double, 1U> v_m;
     ::coder::array<double, 1U> v_u;
-    double dv[6];
-    double dv1[6];
+    ::coder::array<bool, 2U> x;
     double b_ctx_cfg_GaussLegendreX[5];
-    double dv2[5];
+    double dv[5];
     double b_u;
     double d1;
     double d2;
@@ -139,79 +143,93 @@ create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_maskTot_size[
     int b_dlen;
     int b_input_sizes_idx_0;
     int b_input_sizes_idx_0_tmp;
+    int b_k;
     int b_loop_ub;
     int b_result;
     int b_u0;
     int b_u1;
     int b_unnamed_idx_2;
     int b_unnamed_idx_3;
+    int c_k;
+    int c_loop_ub;
     int cb_loop_ub;
     int d_loop_ub;
-    int db_loop_ub;
     int dlen;
     int e_input_sizes_idx_0;
     int end;
     int f_loop_ub;
-    int g_loop_ub;
     int gb_loop_ub;
     int h_loop_ub;
-    int hb_loop_ub;
-    int i35;
-    int i37;
-    int i43;
-    int i44;
-    int i51;
-    int i52;
-    int i53;
-    int i54;
+    int i39;
+    int i41;
+    int i47;
+    int i48;
     int i55;
-    int i64;
-    int i65;
-    int i66;
+    int i56;
+    int i57;
+    int i58;
+    int i59;
+    int i68;
+    int i69;
     int i70;
-    int i75;
-    int i_loop_ub;
+    int i74;
+    int i79;
+    int ib_loop_ub;
     int input_sizes_idx_0_tmp;
     int j_loop_ub;
+    int jb_loop_ub;
     int k_loop_ub;
+    int l_loop_ub;
     int loop_ub;
     int loop_ub_tmp;
+    int m_loop_ub;
+    int mb_loop_ub;
     int nCoeff;
+    int n_loop_ub;
+    int nb_loop_ub;
     int o_loop_ub;
     int p_loop_ub;
     int partialTrueCount;
     int q_loop_ub;
-    int r_loop_ub;
     int result;
-    int s_loop_ub;
-    int t_loop_ub;
     int trueCount;
     int u0;
     int u1;
+    int u_loop_ub;
     unsigned int unnamed_idx_0;
     int unnamed_idx_1;
     int unnamed_idx_2;
     int unnamed_idx_3;
     int v_loop_ub;
+    int w_loop_ub;
+    int x_loop_ub;
+    int y_loop_ub;
     signed char tmp_data[6];
     signed char c_input_sizes_idx_0;
     signed char d_input_sizes_idx_0;
     signed char f_input_sizes_idx_0;
     signed char input_sizes_idx_0;
     bool b_empty_non_axis_sizes;
+    bool b_varargout_1;
     bool empty_non_axis_sizes;
-    // 'compressCurvStructs:186' batch.lastCurv.Info.zspdmode = batch.zspdmode;
-    // 'compressCurvStructs:188' curv    = constrSplineStruct( ...
-    // 'compressCurvStructs:189'                               batch.lastCurv.Info, ...
-    // 'compressCurvStructs:190'                               batch.lastCurv.tool, ...
-    // 'compressCurvStructs:191'                               batch.pvec( :, 1 ), ...
-    // 'compressCurvStructs:192'                               batch.pvec( :,end ), ...
-    // 'compressCurvStructs:193'                               uint32( spline_index ) );
-    for (int i{0}; i < 6; i++) {
-        dv[i] = (*(double(*)[6]) & batch_pvec[0])[i];
+    bool exitg1;
+    bool varargout_1;
+    // 'compressCurvStructs:190' batch.lastCurv.Info.zspdmode = batch.zspdmode;
+    // 'compressCurvStructs:192' curv    = constrSplineStruct( ...
+    // 'compressCurvStructs:193'                               batch.lastCurv.Info, ...
+    // 'compressCurvStructs:194'                               batch.lastCurv.tool, ...
+    // 'compressCurvStructs:195'                               batch.pvec( :, 1 ), ...
+    // 'compressCurvStructs:196'                               batch.pvec( :,end ), ...
+    // 'compressCurvStructs:197'                               uint32( spline_index ) );
+    loop_ub = batch_pvec.size(0);
+    b_batch_pvec.set_size(batch_pvec.size(0));
+    for (int i{0}; i < loop_ub; i++) {
+        b_batch_pvec[i] = batch_pvec[i];
     }
-    for (int i1{0}; i1 < 6; i1++) {
-        dv1[i1] = (*(double(*)[6]) & batch_pvec[6 * (batch_pvec.size(1) - 1)])[i1];
+    b_loop_ub = batch_pvec.size(0);
+    c_batch_pvec.set_size(batch_pvec.size(0));
+    for (int i1{0}; i1 < b_loop_ub; i1++) {
+        c_batch_pvec[i1] = batch_pvec[i1 + batch_pvec.size(0) * (batch_pvec.size(1) - 1)];
     }
     constrSplineStruct(batch_zspdmode, batch_lastCurv_Info_TRAFO, batch_lastCurv_Info_HSC,
                        batch_lastCurv_Info_FeedRate, batch_lastCurv_Info_SpindleSpeed,
@@ -219,11 +237,11 @@ create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_maskTot_size[
                        batch_lastCurv_Info_G91_1, batch_lastCurv_tool->toolno,
                        batch_lastCurv_tool->pocketno, &batch_lastCurv_tool->offset,
                        batch_lastCurv_tool->diameter, batch_lastCurv_tool->frontangle,
-                       batch_lastCurv_tool->backangle, batch_lastCurv_tool->orientation, dv, dv1,
-                       *spline_index, curv);
-    // 'compressCurvStructs:195' spline            = curv;
+                       batch_lastCurv_tool->backangle, batch_lastCurv_tool->orientation,
+                       b_batch_pvec, c_batch_pvec, *spline_index, curv);
+    // 'compressCurvStructs:199' spline            = curv;
     *spline = *curv;
-    // 'compressCurvStructs:196' spline.sp         = CalcBspline_Lee( ctx.cfg, batch.pvec(
+    // 'compressCurvStructs:200' spline.sp         = CalcBspline_Lee( ctx.cfg, batch.pvec(
     // ctx.cfg.maskTot, : ) );
     end = ctx_cfg_maskTot_size[1] - 1;
     trueCount = 0;
@@ -233,6 +251,14 @@ create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_maskTot_size[
             trueCount++;
             tmp_data[partialTrueCount] = static_cast<signed char>(b_i + 1);
             partialTrueCount++;
+        }
+    }
+    c_loop_ub = batch_pvec.size(1);
+    points.set_size(trueCount, batch_pvec.size(1));
+    for (int i2{0}; i2 < c_loop_ub; i2++) {
+        for (int i3{0}; i3 < trueCount; i3++) {
+            points[i3 + points.size(0) * i2] =
+                batch_pvec[(tmp_data[i3] + batch_pvec.size(0) * i2) - 1];
         }
     }
     //  CalcBspline_Lee :
@@ -250,76 +276,78 @@ create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_maskTot_size[
     //  Number of multiplicity at start and end ( clamped BSpline )
     // 'CalcBspline_Lee:14' nCoeff   = N + 2;
     // 'CalcBspline_Lee:16' du     = sum( ( diff( points.' ).^2 ).' );
-    loop_ub = batch_pvec.size(1);
-    du_tmp.set_size(batch_pvec.size(1), trueCount);
-    for (int i2{0}; i2 < trueCount; i2++) {
-        for (int i3{0}; i3 < loop_ub; i3++) {
-            du_tmp[i3 + du_tmp.size(0) * i2] = batch_pvec[(tmp_data[i2] + 6 * i3) - 1];
+    du_tmp.set_size(points.size(1), points.size(0));
+    d_loop_ub = points.size(0);
+    for (int i4{0}; i4 < d_loop_ub; i4++) {
+        int e_loop_ub;
+        e_loop_ub = points.size(1);
+        for (int i5{0}; i5 < e_loop_ub; i5++) {
+            du_tmp[i5 + du_tmp.size(0) * i4] = points[i4 + points.size(0) * i5];
         }
     }
     // 'CalcBspline_Lee:17' u      = cumsum( [ 0, du.^( 1 / 4 ) ] );
     coder::diff(du_tmp, r);
-    b_loop_ub = r.size(1);
-    for (int i4{0}; i4 < b_loop_ub; i4++) {
-        int c_loop_ub;
-        c_loop_ub = r.size(0);
-        for (int i5{0}; i5 < c_loop_ub; i5++) {
+    f_loop_ub = r.size(1);
+    for (int i6{0}; i6 < f_loop_ub; i6++) {
+        int g_loop_ub;
+        g_loop_ub = r.size(0);
+        for (int i7{0}; i7 < g_loop_ub; i7++) {
             double varargin_1;
-            varargin_1 = r[i5 + r.size(0) * i4];
-            r[i5 + r.size(0) * i4] = std::pow(varargin_1, 2.0);
+            varargin_1 = r[i7 + r.size(0) * i6];
+            r[i7 + r.size(0) * i6] = std::pow(varargin_1, 2.0);
         }
     }
     r1.set_size(r.size(1), r.size(0));
-    d_loop_ub = r.size(0);
-    for (int i6{0}; i6 < d_loop_ub; i6++) {
-        int e_loop_ub;
-        e_loop_ub = r.size(1);
-        for (int i7{0}; i7 < e_loop_ub; i7++) {
-            r1[i7 + r1.size(0) * i6] = r[i6 + r.size(0) * i7];
+    h_loop_ub = r.size(0);
+    for (int i8{0}; i8 < h_loop_ub; i8++) {
+        int i_loop_ub;
+        i_loop_ub = r.size(1);
+        for (int i9{0}; i9 < i_loop_ub; i9++) {
+            r1[i9 + r1.size(0) * i8] = r[i8 + r.size(0) * i9];
         }
     }
     coder::sum(r1, r2);
     r2.set_size(1, r2.size(1));
-    f_loop_ub = r2.size(1);
-    for (int i8{0}; i8 < f_loop_ub; i8++) {
+    j_loop_ub = r2.size(1);
+    for (int i10{0}; i10 < j_loop_ub; i10++) {
         double b_varargin_1;
-        b_varargin_1 = r2[i8];
-        r2[i8] = std::pow(b_varargin_1, 0.25);
+        b_varargin_1 = r2[i10];
+        r2[i10] = std::pow(b_varargin_1, 0.25);
     }
     u.set_size(1, r2.size(1) + 1);
     u[0] = 0.0;
-    g_loop_ub = r2.size(1);
-    for (int i9{0}; i9 < g_loop_ub; i9++) {
-        u[i9 + 1] = r2[i9];
+    k_loop_ub = r2.size(1);
+    for (int i11{0}; i11 < k_loop_ub; i11++) {
+        u[i11 + 1] = r2[i11];
     }
     if (u.size(1) != 1) {
-        int i10;
-        i10 = u.size(1);
-        for (int k{0}; k <= i10 - 2; k++) {
+        int i12;
+        i12 = u.size(1);
+        for (int k{0}; k <= i12 - 2; k++) {
             u[k + 1] = u[k] + u[k + 1];
         }
     }
     // 'CalcBspline_Lee:18' u      = u / u( end );
     b_u = u[u.size(1) - 1];
     u.set_size(1, u.size(1));
-    h_loop_ub = u.size(1);
-    for (int i11{0}; i11 < h_loop_ub; i11++) {
-        u[i11] = u[i11] / b_u;
+    l_loop_ub = u.size(1);
+    for (int i13{0}; i13 < l_loop_ub; i13++) {
+        u[i13] = u[i13] / b_u;
     }
     //  normalize knots to interval [0...1]
     // 'CalcBspline_Lee:19' knots  = [ zeros( 1, nMult ), u, ones( 1, nMult ) ];
     spline->sp.knots.set_size(1, ((ctx_cfg_LeeSplineDegree + u.size(1)) + ctx_cfg_LeeSplineDegree) -
                                      2);
     loop_ub_tmp = ctx_cfg_LeeSplineDegree - 1;
-    for (int i12{0}; i12 < loop_ub_tmp; i12++) {
-        spline->sp.knots[i12] = 0.0;
-    }
-    i_loop_ub = u.size(1);
-    for (int i13{0}; i13 < i_loop_ub; i13++) {
-        spline->sp.knots[(i13 + ctx_cfg_LeeSplineDegree) - 1] = u[i13];
-    }
     for (int i14{0}; i14 < loop_ub_tmp; i14++) {
-        spline->sp.knots[((i14 + ctx_cfg_LeeSplineDegree) + u.size(1)) - 1] = 1.0;
+        spline->sp.knots[i14] = 0.0;
+    }
+    m_loop_ub = u.size(1);
+    for (int i15{0}; i15 < m_loop_ub; i15++) {
+        spline->sp.knots[(i15 + ctx_cfg_LeeSplineDegree) - 1] = u[i15];
+    }
+    for (int i16{0}; i16 < loop_ub_tmp; i16++) {
+        spline->sp.knots[((i16 + ctx_cfg_LeeSplineDegree) + u.size(1)) - 1] = 1.0;
     }
     // 'CalcBspline_Lee:21' Bl = bspline_create( cfg.LeeSplineDegree, u );
     // 'bspline_create:2' if  coder.target('rtw') || coder.target('mex')
@@ -334,39 +362,77 @@ create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_maskTot_size[
     // 'bspline_create:11' coder.ceval('c_bspline_create_with_breakpoints', coder.wref(h), degree,
     // breakpoints, int32(nbreak) );
     breakpoints.set_size(1, u.size(1));
-    j_loop_ub = u.size(1);
-    for (int i15{0}; i15 < j_loop_ub; i15++) {
-        breakpoints[i15] = u[i15];
+    n_loop_ub = u.size(1);
+    for (int i17{0}; i17 < n_loop_ub; i17++) {
+        breakpoints[i17] = u[i17];
     }
     unsigned long h;
     c_bspline_create_with_breakpoints(&h, ctx_cfg_LeeSplineDegree, &breakpoints[0], u.size(1));
     // 'bspline_create:12' Bl = constrBaseSpline( ncoeff, breakpoints, h, int32(degree) );
     constrBaseSpline((u.size(1) + ctx_cfg_LeeSplineDegree) - 2, u, h, ctx_cfg_LeeSplineDegree,
                      &spline->sp.Bl);
-    // 'CalcBspline_Lee:23' [ BasisVal, BasisValDD0, BasisValDD1 ] = bspline_eval_lee( Bl, int32(
+    //
+    // 'CalcBspline_Lee:24' if( 1 )
+    // 'CalcBspline_Lee:25' [ BasisVal, BasisValDD0, BasisValDD1 ] = bspline_eval_lee( Bl, int32(
     // nCoeff ), u );
     nCoeff = batch_pvec.size(1) + 2;
     // 'bspline_eval_lee:3' ocn_assert( all( u_vec >= 0, 'all' ), "u_vec should be greater or equal
-    // to 0", mfilename ); 'bspline_eval_lee:4' ocn_assert( all( u_vec <= 1, 'all' ), "u_vec should
-    // be greater or equal to 1", mfilename ); 'bspline_eval_lee:5' if ( coder.target('rtw') ||
-    // coder.target('mex') ) 'bspline_eval_lee:6' N = numel( u_vec ); 'bspline_eval_lee:8' BasisVal
-    // = zeros( N, nCoeff );
+    // to 0", mfilename );
+    x.set_size(1, u.size(1));
+    o_loop_ub = u.size(1);
+    for (int i18{0}; i18 < o_loop_ub; i18++) {
+        x[i18] = (u[i18] >= 0.0);
+    }
+    varargout_1 = true;
+    b_k = 0;
+    exitg1 = false;
+    while ((!exitg1) && (b_k <= x.size(1) - 1)) {
+        if (!x[b_k]) {
+            varargout_1 = false;
+            exitg1 = true;
+        } else {
+            b_k++;
+        }
+    }
+    j_ocn_assert(varargout_1);
+    // 'bspline_eval_lee:4' ocn_assert( all( u_vec <= 1, 'all' ), "u_vec should be greater or equal
+    // to 1", mfilename );
+    x.set_size(1, u.size(1));
+    p_loop_ub = u.size(1);
+    for (int i19{0}; i19 < p_loop_ub; i19++) {
+        x[i19] = (u[i19] <= 1.0);
+    }
+    b_varargout_1 = true;
+    c_k = 0;
+    exitg1 = false;
+    while ((!exitg1) && (c_k <= x.size(1) - 1)) {
+        if (!x[c_k]) {
+            b_varargout_1 = false;
+            exitg1 = true;
+        } else {
+            c_k++;
+        }
+    }
+    k_ocn_assert(b_varargout_1);
+    // 'bspline_eval_lee:5' if ( coder.target('rtw') || coder.target('mex') )
+    // 'bspline_eval_lee:6' N = numel( u_vec );
+    // 'bspline_eval_lee:8' BasisVal    = zeros( N, nCoeff );
     BasisVal.set_size(u.size(1), batch_pvec.size(1) + 2);
-    k_loop_ub = batch_pvec.size(1) + 2;
-    for (int i16{0}; i16 < k_loop_ub; i16++) {
-        int l_loop_ub;
-        l_loop_ub = u.size(1);
-        for (int i17{0}; i17 < l_loop_ub; i17++) {
-            BasisVal[i17 + BasisVal.size(0) * i16] = 0.0;
+    q_loop_ub = batch_pvec.size(1) + 2;
+    for (int i20{0}; i20 < q_loop_ub; i20++) {
+        int r_loop_ub;
+        r_loop_ub = u.size(1);
+        for (int i21{0}; i21 < r_loop_ub; i21++) {
+            BasisVal[i21 + BasisVal.size(0) * i20] = 0.0;
         }
     }
     // 'bspline_eval_lee:9' BasisValDD0 = BasisVal( 1, : );
     BasisValDD0.set_size(1, batch_pvec.size(1) + 2);
     // 'bspline_eval_lee:10' BasisValDD1 = BasisValDD0;
     BasisValDD1.set_size(1, batch_pvec.size(1) + 2);
-    for (int i18{0}; i18 < nCoeff; i18++) {
-        BasisValDD0[i18] = 0.0;
-        BasisValDD1[i18] = 0.0;
+    for (int i22{0}; i22 < nCoeff; i22++) {
+        BasisValDD0[i22] = 0.0;
+        BasisValDD1[i22] = 0.0;
     }
     // 'bspline_eval_lee:12' my_path = StructTypeName.WDIR + "/src";
     // 'bspline_eval_lee:13' coder.updateBuildInfo('addIncludePaths',my_path);
@@ -380,7 +446,7 @@ create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_maskTot_size[
     c_bspline_base_eval_lee(&spline->sp.Bl.handle, batch_pvec.size(1) + 2, u.size(1), &u[0],
                             &BasisVal[0], &BasisValDD0[0], &BasisValDD1[0]);
     //
-    // 'CalcBspline_Lee:26' A = [ BasisValDD0; BasisVal; BasisValDD1 ];
+    // 'CalcBspline_Lee:27' A = [ BasisValDD0; BasisVal; BasisValDD1 ];
     if (BasisValDD0.size(1) != 0) {
         result = BasisValDD0.size(1);
     } else if (BasisVal.size(1) != 0) {
@@ -409,27 +475,27 @@ create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_maskTot_size[
     input_sizes_idx_0_tmp = input_sizes_idx_0;
     b_input_sizes_idx_0_tmp = c_input_sizes_idx_0;
     A.set_size((input_sizes_idx_0 + b_input_sizes_idx_0) + c_input_sizes_idx_0, result);
-    for (int i19{0}; i19 < result; i19++) {
-        for (int i21{0}; i21 < input_sizes_idx_0_tmp; i21++) {
-            A[A.size(0) * i19] = BasisValDD0[input_sizes_idx_0 * i19];
+    for (int i23{0}; i23 < result; i23++) {
+        for (int i25{0}; i25 < input_sizes_idx_0_tmp; i25++) {
+            A[A.size(0) * i23] = BasisValDD0[input_sizes_idx_0 * i23];
         }
     }
-    for (int i20{0}; i20 < result; i20++) {
-        for (int i23{0}; i23 < b_input_sizes_idx_0; i23++) {
-            A[(i23 + input_sizes_idx_0) + A.size(0) * i20] =
-                BasisVal[i23 + b_input_sizes_idx_0 * i20];
+    for (int i24{0}; i24 < result; i24++) {
+        for (int i27{0}; i27 < b_input_sizes_idx_0; i27++) {
+            A[(i27 + input_sizes_idx_0) + A.size(0) * i24] =
+                BasisVal[i27 + b_input_sizes_idx_0 * i24];
         }
     }
-    for (int i22{0}; i22 < result; i22++) {
-        for (int i24{0}; i24 < b_input_sizes_idx_0_tmp; i24++) {
-            A[(input_sizes_idx_0 + b_input_sizes_idx_0) + A.size(0) * i22] =
-                BasisValDD1[c_input_sizes_idx_0 * i22];
+    for (int i26{0}; i26 < result; i26++) {
+        for (int i28{0}; i28 < b_input_sizes_idx_0_tmp; i28++) {
+            A[(input_sizes_idx_0 + b_input_sizes_idx_0) + A.size(0) * i26] =
+                BasisValDD1[c_input_sizes_idx_0 * i26];
         }
     }
     //
-    // 'CalcBspline_Lee:28' B = [zeros(1, nAxis);
-    // 'CalcBspline_Lee:29'             points.';
-    // 'CalcBspline_Lee:30'      zeros(1, nAxis)];
+    // 'CalcBspline_Lee:29' B = [zeros(1, nAxis);
+    // 'CalcBspline_Lee:30'         points.';
+    // 'CalcBspline_Lee:31'         zeros(1, nAxis)];
     if (ctx_cfg_NumberAxis != 0) {
         b_result = ctx_cfg_NumberAxis;
     } else if ((du_tmp.size(0) != 0) && (du_tmp.size(1) != 0)) {
@@ -457,80 +523,80 @@ create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_maskTot_size[
         f_input_sizes_idx_0 = 0;
     }
     B.set_size((d_input_sizes_idx_0 + e_input_sizes_idx_0) + f_input_sizes_idx_0, b_result);
-    for (int i25{0}; i25 < b_result; i25++) {
-        int m_loop_ub;
-        m_loop_ub = d_input_sizes_idx_0;
-        for (int i27{0}; i27 < m_loop_ub; i27++) {
-            B[B.size(0) * i25] = 0.0;
+    for (int i29{0}; i29 < b_result; i29++) {
+        int s_loop_ub;
+        s_loop_ub = d_input_sizes_idx_0;
+        for (int i31{0}; i31 < s_loop_ub; i31++) {
+            B[B.size(0) * i29] = 0.0;
         }
     }
-    for (int i26{0}; i26 < b_result; i26++) {
-        for (int i29{0}; i29 < e_input_sizes_idx_0; i29++) {
-            B[(i29 + d_input_sizes_idx_0) + B.size(0) * i26] =
-                du_tmp[i29 + e_input_sizes_idx_0 * i26];
+    for (int i30{0}; i30 < b_result; i30++) {
+        for (int i33{0}; i33 < e_input_sizes_idx_0; i33++) {
+            B[(i33 + d_input_sizes_idx_0) + B.size(0) * i30] =
+                du_tmp[i33 + e_input_sizes_idx_0 * i30];
         }
     }
-    for (int i28{0}; i28 < b_result; i28++) {
-        int n_loop_ub;
-        n_loop_ub = f_input_sizes_idx_0;
-        for (int i30{0}; i30 < n_loop_ub; i30++) {
-            B[(d_input_sizes_idx_0 + e_input_sizes_idx_0) + B.size(0) * i28] = 0.0;
+    for (int i32{0}; i32 < b_result; i32++) {
+        int t_loop_ub;
+        t_loop_ub = f_input_sizes_idx_0;
+        for (int i34{0}; i34 < t_loop_ub; i34++) {
+            B[(d_input_sizes_idx_0 + e_input_sizes_idx_0) + B.size(0) * i32] = 0.0;
         }
     }
     //
-    // 'CalcBspline_Lee:32' [ A ] = swap_lines( A );
+    // 'CalcBspline_Lee:45' [ A ] = swap_lines( A );
     //  Swap the lines of the matrice M. The goal is to obtain a tridiagonal
     //  matrice.
-    // 'CalcBspline_Lee:45' M( [ 1, 2, end-1, end ], : ) = M( [ 2, 1, end, end-1 ], :);
+    // 'CalcBspline_Lee:58' M( [ 1, 2, end-1, end ], : ) = M( [ 2, 1, end, end-1 ], :);
     unnamed_idx_2 = A.size(0) - 2;
     unnamed_idx_3 = A.size(0) - 1;
     b_A = A.size(1) - 1;
     b_unnamed_idx_2 = A.size(0) - 1;
     b_unnamed_idx_3 = A.size(0) - 2;
     c_A.set_size(4, A.size(1));
-    for (int i31{0}; i31 <= b_A; i31++) {
-        c_A[4 * i31] = A[A.size(0) * i31 + 1];
-        c_A[4 * i31 + 1] = A[A.size(0) * i31];
-        c_A[4 * i31 + 2] = A[b_unnamed_idx_2 + A.size(0) * i31];
-        c_A[4 * i31 + 3] = A[b_unnamed_idx_3 + A.size(0) * i31];
+    for (int i35{0}; i35 <= b_A; i35++) {
+        c_A[4 * i35] = A[A.size(0) * i35 + 1];
+        c_A[4 * i35 + 1] = A[A.size(0) * i35];
+        c_A[4 * i35 + 2] = A[b_unnamed_idx_2 + A.size(0) * i35];
+        c_A[4 * i35 + 3] = A[b_unnamed_idx_3 + A.size(0) * i35];
     }
-    o_loop_ub = c_A.size(1);
-    for (int i32{0}; i32 < o_loop_ub; i32++) {
-        A[A.size(0) * i32] = c_A[4 * i32];
-        A[A.size(0) * i32 + 1] = c_A[4 * i32 + 1];
-        A[unnamed_idx_2 + A.size(0) * i32] = c_A[4 * i32 + 2];
-        A[unnamed_idx_3 + A.size(0) * i32] = c_A[4 * i32 + 3];
+    u_loop_ub = c_A.size(1);
+    for (int i36{0}; i36 < u_loop_ub; i36++) {
+        A[A.size(0) * i36] = c_A[4 * i36];
+        A[A.size(0) * i36 + 1] = c_A[4 * i36 + 1];
+        A[unnamed_idx_2 + A.size(0) * i36] = c_A[4 * i36 + 2];
+        A[unnamed_idx_3 + A.size(0) * i36] = c_A[4 * i36 + 3];
     }
-    // 'CalcBspline_Lee:33' [ B ] = swap_lines( B );
+    // 'CalcBspline_Lee:46' [ B ] = swap_lines( B );
     //  Swap the lines of the matrice M. The goal is to obtain a tridiagonal
     //  matrice.
-    // 'CalcBspline_Lee:45' M( [ 1, 2, end-1, end ], : ) = M( [ 2, 1, end, end-1 ], :);
+    // 'CalcBspline_Lee:58' M( [ 1, 2, end-1, end ], : ) = M( [ 2, 1, end, end-1 ], :);
     unnamed_idx_2 = B.size(0) - 2;
     unnamed_idx_3 = B.size(0) - 1;
     b_B = B.size(1) - 1;
     b_unnamed_idx_2 = B.size(0) - 1;
     b_unnamed_idx_3 = B.size(0) - 2;
     c_B.set_size(4, B.size(1));
-    for (int i33{0}; i33 <= b_B; i33++) {
-        c_B[4 * i33] = B[B.size(0) * i33 + 1];
-        c_B[4 * i33 + 1] = B[B.size(0) * i33];
-        c_B[4 * i33 + 2] = B[b_unnamed_idx_2 + B.size(0) * i33];
-        c_B[4 * i33 + 3] = B[b_unnamed_idx_3 + B.size(0) * i33];
+    for (int i37{0}; i37 <= b_B; i37++) {
+        c_B[4 * i37] = B[B.size(0) * i37 + 1];
+        c_B[4 * i37 + 1] = B[B.size(0) * i37];
+        c_B[4 * i37 + 2] = B[b_unnamed_idx_2 + B.size(0) * i37];
+        c_B[4 * i37 + 3] = B[b_unnamed_idx_3 + B.size(0) * i37];
     }
-    p_loop_ub = c_B.size(1);
-    for (int i34{0}; i34 < p_loop_ub; i34++) {
-        B[B.size(0) * i34] = c_B[4 * i34];
-        B[B.size(0) * i34 + 1] = c_B[4 * i34 + 1];
-        B[unnamed_idx_2 + B.size(0) * i34] = c_B[4 * i34 + 2];
-        B[unnamed_idx_3 + B.size(0) * i34] = c_B[4 * i34 + 3];
+    v_loop_ub = c_B.size(1);
+    for (int i38{0}; i38 < v_loop_ub; i38++) {
+        B[B.size(0) * i38] = c_B[4 * i38];
+        B[B.size(0) * i38 + 1] = c_B[4 * i38 + 1];
+        B[unnamed_idx_2 + B.size(0) * i38] = c_B[4 * i38 + 2];
+        B[unnamed_idx_3 + B.size(0) * i38] = c_B[4 * i38 + 3];
     }
-    // 'CalcBspline_Lee:34' [ v_m, v_l, v_u ] = extract_vectors( A );
+    // 'CalcBspline_Lee:47' [ v_m, v_l, v_u ] = extract_vectors( A );
     //  Extract the three vectors of the triagonal matrix A.
     //  Output :
     //  v_m   :   The vector of the middle of the matrix
     //  v_l   :   The vector of the lower diagonal of the matrix
     //  v_u   :   The vector of the upper diagonal of the matrix
-    // 'CalcBspline_Lee:55' v_m = diag( A );
+    // 'CalcBspline_Lee:68' v_m = diag( A );
     u0 = A.size(0);
     u1 = A.size(1);
     if (u0 <= u1) {
@@ -539,19 +605,19 @@ create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_maskTot_size[
         dlen = u1;
     }
     v_m.set_size(dlen);
-    i35 = dlen - 1;
-    for (int b_k{0}; b_k <= i35; b_k++) {
-        v_m[b_k] = A[b_k + A.size(0) * b_k];
+    i39 = dlen - 1;
+    for (int d_k{0}; d_k <= i39; d_k++) {
+        v_m[d_k] = A[d_k + A.size(0) * d_k];
     }
-    // 'CalcBspline_Lee:56' v_l = [ 0; diag( A, -1 ) ];
+    // 'CalcBspline_Lee:69' v_l = [ 0; diag( A, -1 ) ];
     coder::diag(A, r3);
     v_l.set_size(r3.size(0) + 1);
     v_l[0] = 0.0;
-    q_loop_ub = r3.size(0);
-    for (int i36{0}; i36 < q_loop_ub; i36++) {
-        v_l[i36 + 1] = r3[i36];
+    w_loop_ub = r3.size(0);
+    for (int i40{0}; i40 < w_loop_ub; i40++) {
+        v_l[i40 + 1] = r3[i40];
     }
-    // 'CalcBspline_Lee:57' v_u = [ diag( A, 1 ); 0 ];
+    // 'CalcBspline_Lee:70' v_u = [ diag( A, 1 ); 0 ];
     b_u0 = A.size(0);
     b_u1 = A.size(1) - 1;
     if (b_u0 <= b_u1) {
@@ -560,17 +626,17 @@ create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_maskTot_size[
         b_dlen = b_u1;
     }
     d.set_size(b_dlen);
-    i37 = b_dlen - 1;
-    for (int c_k{0}; c_k <= i37; c_k++) {
-        d[c_k] = A[c_k + A.size(0) * (c_k + 1)];
+    i41 = b_dlen - 1;
+    for (int e_k{0}; e_k <= i41; e_k++) {
+        d[e_k] = A[e_k + A.size(0) * (e_k + 1)];
     }
     v_u.set_size(d.size(0) + 1);
-    r_loop_ub = d.size(0);
-    for (int i38{0}; i38 < r_loop_ub; i38++) {
-        v_u[i38] = d[i38];
+    x_loop_ub = d.size(0);
+    for (int i42{0}; i42 < x_loop_ub; i42++) {
+        v_u[i42] = d[i42];
     }
     v_u[d.size(0)] = 0.0;
-    // 'CalcBspline_Lee:36' c = tridiag( v_m, v_l, v_u, B );
+    // 'CalcBspline_Lee:49' c = tridiag( v_m, v_l, v_u, B );
     // 'tridiag:2' if( ~coder.target( "MATLAB" ) )
     //   Solve the  n x n  tridiagonal system for y:
     //
@@ -588,34 +654,34 @@ create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_maskTot_size[
     // 'tridiag:18' [ n, ~ ]  = size( f );
     // 'tridiag:19' v         = zeros( n, 1 );
     v.set_size(B.size(0));
-    s_loop_ub = B.size(0);
-    for (int i39{0}; i39 < s_loop_ub; i39++) {
-        v[i39] = 0.0;
+    y_loop_ub = B.size(0);
+    for (int i43{0}; i43 < y_loop_ub; i43++) {
+        v[i43] = 0.0;
     }
     // 'tridiag:20' y         = zeros( size( f ) );
     unnamed_idx_0 = static_cast<unsigned int>(B.size(0));
     c.set_size(B.size(0), B.size(1));
-    t_loop_ub = B.size(1);
-    for (int i40{0}; i40 < t_loop_ub; i40++) {
-        int u_loop_ub;
-        u_loop_ub = static_cast<int>(unnamed_idx_0);
-        for (int i41{0}; i41 < u_loop_ub; i41++) {
-            c[i41 + c.size(0) * i40] = 0.0;
+    ab_loop_ub = B.size(1);
+    for (int i44{0}; i44 < ab_loop_ub; i44++) {
+        int bb_loop_ub;
+        bb_loop_ub = static_cast<int>(unnamed_idx_0);
+        for (int i45{0}; i45 < bb_loop_ub; i45++) {
+            c[i45 + c.size(0) * i44] = 0.0;
         }
     }
     // 'tridiag:21' w         = a( 1 );
     w = v_m[0];
     // 'tridiag:22' y( 1, : ) = f( 1, : ) / w;
-    v_loop_ub = B.size(1);
-    for (int i42{0}; i42 < v_loop_ub; i42++) {
-        c[c.size(0) * i42] = B[B.size(0) * i42] / v_m[0];
+    cb_loop_ub = B.size(1);
+    for (int i46{0}; i46 < cb_loop_ub; i46++) {
+        c[c.size(0) * i46] = B[B.size(0) * i46] / v_m[0];
     }
     // 'tridiag:24' for i = 2 : n
-    i43 = B.size(0);
-    for (int c_i{0}; c_i <= i43 - 2; c_i++) {
+    i47 = B.size(0);
+    for (int c_i{0}; c_i <= i47 - 2; c_i++) {
         double b_d;
         double w_tmp;
-        int w_loop_ub;
+        int db_loop_ub;
         // 'tridiag:25' v( i -1 ) = c( i -1 ) / w;
         b_d = v_u[c_i] / w;
         v[c_i] = b_d;
@@ -623,37 +689,37 @@ create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_maskTot_size[
         w_tmp = v_l[c_i + 1];
         w = v_m[c_i + 1] - w_tmp * b_d;
         // 'tridiag:27' y( i, : ) = ( f( i, : ) - b( i ) * y( i -1, : ) ) / w;
-        w_loop_ub = B.size(1);
+        db_loop_ub = B.size(1);
         if (B.size(1) == c.size(1)) {
-            int y_loop_ub;
+            int fb_loop_ub;
             d_B.set_size(1, B.size(1));
-            for (int i46{0}; i46 < w_loop_ub; i46++) {
-                d_B[i46] = (B[(c_i + B.size(0) * i46) + 1] - w_tmp * c[c_i + c.size(0) * i46]) / w;
+            for (int i50{0}; i50 < db_loop_ub; i50++) {
+                d_B[i50] = (B[(c_i + B.size(0) * i50) + 1] - w_tmp * c[c_i + c.size(0) * i50]) / w;
             }
-            y_loop_ub = d_B.size(1);
-            for (int i48{0}; i48 < y_loop_ub; i48++) {
-                c[(c_i + c.size(0) * i48) + 1] = d_B[i48];
+            fb_loop_ub = d_B.size(1);
+            for (int i52{0}; i52 < fb_loop_ub; i52++) {
+                c[(c_i + c.size(0) * i52) + 1] = d_B[i52];
             }
         } else {
             binary_expand_op(c, c_i, B, v_l, w);
         }
     }
     // 'tridiag:30' for j = n-1 : -1 : 1
-    i44 = B.size(0);
-    for (int j{0}; j <= i44 - 2; j++) {
+    i48 = B.size(0);
+    for (int j{0}; j <= i48 - 2; j++) {
         int b_c;
         int b_j;
-        int x_loop_ub;
+        int eb_loop_ub;
         b_j = (B.size(0) - j) - 2;
         // 'tridiag:31' y( j, : ) = y( j, : ) - v( j ) * y( j + 1, : );
         b_c = c.size(1) - 1;
         c_c.set_size(1, c.size(1));
-        for (int i45{0}; i45 <= b_c; i45++) {
-            c_c[i45] = c[b_j + c.size(0) * i45] - v[b_j] * c[(b_j + c.size(0) * i45) + 1];
+        for (int i49{0}; i49 <= b_c; i49++) {
+            c_c[i49] = c[b_j + c.size(0) * i49] - v[b_j] * c[(b_j + c.size(0) * i49) + 1];
         }
-        x_loop_ub = c_c.size(1);
-        for (int i47{0}; i47 < x_loop_ub; i47++) {
-            c[b_j + c.size(0) * i47] = c_c[i47];
+        eb_loop_ub = c_c.size(1);
+        for (int i51{0}; i51 < eb_loop_ub; i51++) {
+            c[b_j + c.size(0) * i51] = c_c[i51];
         }
     }
     //   This is an implementation of the Thomas algorithm.  It does not overwrite a, b, c, f but
@@ -671,14 +737,14 @@ create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_maskTot_size[
     //   It has been tested on MATLAB, version R2010b and version R2012a
     //   version: 1.0
     //   March 9, 2013
-    // 'CalcBspline_Lee:38' spnD = constrSpline( c.', knots, Bl );
+    // 'CalcBspline_Lee:51' spnD = constrSpline( c.', knots, Bl );
     spline->sp.coeff.set_size(c.size(1), c.size(0));
-    ab_loop_ub = c.size(0);
-    for (int i49{0}; i49 < ab_loop_ub; i49++) {
-        int bb_loop_ub;
-        bb_loop_ub = c.size(1);
-        for (int i50{0}; i50 < bb_loop_ub; i50++) {
-            spline->sp.coeff[i50 + spline->sp.coeff.size(0) * i49] = c[i49 + c.size(0) * i50];
+    gb_loop_ub = c.size(0);
+    for (int i53{0}; i53 < gb_loop_ub; i53++) {
+        int hb_loop_ub;
+        hb_loop_ub = c.size(1);
+        for (int i54{0}; i54 < hb_loop_ub; i54++) {
+            spline->sp.coeff[i54 + spline->sp.coeff.size(0) * i53] = c[i53 + c.size(0) * i54];
         }
     }
     //  Construct a struct for the spline.
@@ -706,7 +772,7 @@ create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_maskTot_size[
     // 'constrSpline:26' coder.varsize( 'SplineStrct.knots', StructTypeName.dimKnots{ : } );
     // 'constrSpline:27' coder.cstructname( SplineStrct.Bl, StructTypeName.BaseSpline );
     // 'constrSpline:28' coder.cstructname( SplineStrct, StructTypeName.Spline );
-    // 'compressCurvStructs:197' [ Ltot, Lk ]      = SplineLengthApproxGL_tot( ctx.cfg, spline );
+    // 'compressCurvStructs:201' [ Ltot, Lk ]      = SplineLengthApproxGL_tot( ctx.cfg, spline );
     //  Precomputes approximately the total arc length L as well as the individual
     //  arc lengths between knot points of a parametric spline.
     //  The computation is based on numerical Gauss Legendre integration.
@@ -718,28 +784,28 @@ create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_maskTot_size[
     // 'SplineLengthApproxGL_tot:11' sp     = Curv.sp;
     // 'SplineLengthApproxGL_tot:12' Knots  = sp.knots(4:end-3);
     if (spline->sp.knots.size(1) - 3 < 4) {
-        i51 = 0;
-        i52 = -1;
+        i55 = 0;
+        i56 = -1;
     } else {
-        i51 = 3;
-        i52 = spline->sp.knots.size(1) - 4;
+        i55 = 3;
+        i56 = spline->sp.knots.size(1) - 4;
     }
     //  eliminate multiplicities at the end points
     // 'SplineLengthApproxGL_tot:13' a      = Knots(1:end-1);
-    i53 = i52 - i51;
-    if (i53 < 1) {
-        cb_loop_ub = 0;
+    i57 = i56 - i55;
+    if (i57 < 1) {
+        ib_loop_ub = 0;
     } else {
-        cb_loop_ub = i52 - i51;
+        ib_loop_ub = i56 - i55;
     }
     //  lower integration limits
     // 'SplineLengthApproxGL_tot:14' b      = Knots(2:end);
-    if (i53 + 1 < 2) {
-        i54 = -1;
-        i55 = -1;
+    if (i57 + 1 < 2) {
+        i58 = -1;
+        i59 = -1;
     } else {
-        i54 = 0;
-        i55 = i53;
+        i58 = 0;
+        i59 = i57;
     }
     //  upper integration limits
     //  get Gauss-Legendre knots and weights
@@ -749,34 +815,34 @@ create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_maskTot_size[
     //  apply linear map from[-1, 1] to [a, b]
     // 'SplineLengthApproxGL_tot:20' Umat   = (bsxfun(@times, a, (1-GL_X)) + bsxfun(@times, b,
     // (1+GL_X)))/2;
-    b_spline.set_size(1, cb_loop_ub);
-    for (int i56{0}; i56 < cb_loop_ub; i56++) {
-        b_spline[i56] = spline->sp.knots[i51 + i56];
+    b_spline.set_size(1, ib_loop_ub);
+    for (int i60{0}; i60 < ib_loop_ub; i60++) {
+        b_spline[i60] = spline->sp.knots[i55 + i60];
     }
-    for (int i57{0}; i57 < 5; i57++) {
-        dv2[i57] = 1.0 - ctx_cfg_GaussLegendreX[i57];
+    for (int i61{0}; i61 < 5; i61++) {
+        dv[i61] = 1.0 - ctx_cfg_GaussLegendreX[i61];
     }
-    coder::bsxfun(b_spline, dv2, r4);
-    db_loop_ub = i55 - i54;
-    b_spline.set_size(1, db_loop_ub);
-    for (int i58{0}; i58 < db_loop_ub; i58++) {
-        b_spline[i58] = spline->sp.knots[((i51 + i54) + i58) + 1];
+    coder::bsxfun(b_spline, dv, r4);
+    jb_loop_ub = i59 - i58;
+    b_spline.set_size(1, jb_loop_ub);
+    for (int i62{0}; i62 < jb_loop_ub; i62++) {
+        b_spline[i62] = spline->sp.knots[((i55 + i58) + i62) + 1];
     }
-    for (int i59{0}; i59 < 5; i59++) {
-        b_ctx_cfg_GaussLegendreX[i59] = ctx_cfg_GaussLegendreX[i59] + 1.0;
+    for (int i63{0}; i63 < 5; i63++) {
+        b_ctx_cfg_GaussLegendreX[i63] = ctx_cfg_GaussLegendreX[i63] + 1.0;
     }
     coder::bsxfun(b_spline, b_ctx_cfg_GaussLegendreX, r5);
     if (r4.size(1) == r5.size(1)) {
-        int eb_loop_ub;
+        int kb_loop_ub;
         Umat.set_size(5, r4.size(1));
-        eb_loop_ub = r4.size(1);
-        for (int i60{0}; i60 < eb_loop_ub; i60++) {
-            for (int i61{0}; i61 < 5; i61++) {
-                Umat[i61 + 5 * i60] = (r4[i61 + 5 * i60] + r5[i61 + 5 * i60]) / 2.0;
+        kb_loop_ub = r4.size(1);
+        for (int i64{0}; i64 < kb_loop_ub; i64++) {
+            for (int i65{0}; i65 < 5; i65++) {
+                Umat[i65 + 5 * i64] = (r4[i65 + 5 * i64] + r5[i65 + 5 * i64]) / 2.0;
             }
         }
     } else {
-        c_binary_expand_op(Umat, r4, r5);
+        i_binary_expand_op(Umat, r4, r5);
     }
     // 'SplineLengthApproxGL_tot:21' Uvec   = Umat(:)';
     //  all evaluation points as row vector
@@ -799,162 +865,162 @@ create_spline(const bool ctx_cfg_maskTot_data[], const int ctx_cfg_maskTot_size[
     unnamed_idx_1 = 5 * Umat.size(1);
     // 'EvalBSpline:18' r1D = r0D;
     r1D.set_size(spline->sp.coeff.size(0), unnamed_idx_1);
-    for (int i62{0}; i62 < unnamed_idx_1; i62++) {
-        int fb_loop_ub;
-        fb_loop_ub = spline->sp.coeff.size(0);
-        for (int i63{0}; i63 < fb_loop_ub; i63++) {
-            r1D[i63 + r1D.size(0) * i62] = 0.0;
+    for (int i66{0}; i66 < unnamed_idx_1; i66++) {
+        int lb_loop_ub;
+        lb_loop_ub = spline->sp.coeff.size(0);
+        for (int i67{0}; i67 < lb_loop_ub; i67++) {
+            r1D[i67 + r1D.size(0) * i66] = 0.0;
         }
     }
     // 'EvalBSpline:18' r2D = r1D;
     // 'EvalBSpline:18' r3D = r2D;
     // 'EvalBSpline:20' for j = 1 : M
-    i64 = spline->sp.coeff.size(0);
+    i68 = spline->sp.coeff.size(0);
     if (spline->sp.coeff.size(0) - 1 >= 0) {
-        i65 = 5 * Umat.size(1);
-        if (i65 - 1 >= 0) {
-            i66 = spline->sp.coeff.size(1);
-            gb_loop_ub = spline->sp.coeff.size(1);
+        i69 = 5 * Umat.size(1);
+        if (i69 - 1 >= 0) {
+            i70 = spline->sp.coeff.size(1);
+            mb_loop_ub = spline->sp.coeff.size(1);
         }
     }
-    for (int c_j{0}; c_j < i64; c_j++) {
+    for (int c_j{0}; c_j < i68; c_j++) {
         unsigned int b_unnamed_idx_1;
-        int ib_loop_ub;
-        int kb_loop_ub;
-        int lb_loop_ub;
-        int mb_loop_ub;
         int ob_loop_ub;
+        int qb_loop_ub;
+        int rb_loop_ub;
+        int sb_loop_ub;
+        int ub_loop_ub;
         // 'EvalBSpline:21' [r0D( j , : ), r1D( j , : ), r2D( j , : ), r3D( j , : ) ] = ...
         // 'EvalBSpline:22'                             bspline_eval_vec( sp.Bl, sp.coeff( j, : ),
         // u_vec ); 'bspline_eval_vec:3' x       = zeros(size(u));
         b_unnamed_idx_1 = static_cast<unsigned int>(5 * Umat.size(1));
         r2.set_size(1, static_cast<int>(b_unnamed_idx_1));
-        ib_loop_ub = static_cast<int>(b_unnamed_idx_1);
-        for (int i68{0}; i68 < ib_loop_ub; i68++) {
-            r2[i68] = 0.0;
+        ob_loop_ub = static_cast<int>(b_unnamed_idx_1);
+        for (int i72{0}; i72 < ob_loop_ub; i72++) {
+            r2[i72] = 0.0;
         }
         // 'bspline_eval_vec:4' xd      = zeros(size(u));
         b_unnamed_idx_1 = static_cast<unsigned int>(5 * Umat.size(1));
         r6.set_size(1, static_cast<int>(b_unnamed_idx_1));
-        kb_loop_ub = static_cast<int>(b_unnamed_idx_1);
-        for (int i71{0}; i71 < kb_loop_ub; i71++) {
-            r6[i71] = 0.0;
+        qb_loop_ub = static_cast<int>(b_unnamed_idx_1);
+        for (int i75{0}; i75 < qb_loop_ub; i75++) {
+            r6[i75] = 0.0;
         }
         // 'bspline_eval_vec:5' xdd     = zeros(size(u));
         b_unnamed_idx_1 = static_cast<unsigned int>(5 * Umat.size(1));
         r7.set_size(1, static_cast<int>(b_unnamed_idx_1));
-        lb_loop_ub = static_cast<int>(b_unnamed_idx_1);
-        for (int i72{0}; i72 < lb_loop_ub; i72++) {
-            r7[i72] = 0.0;
+        rb_loop_ub = static_cast<int>(b_unnamed_idx_1);
+        for (int i76{0}; i76 < rb_loop_ub; i76++) {
+            r7[i76] = 0.0;
         }
         // 'bspline_eval_vec:6' xddd    = zeros(size(u));
         b_unnamed_idx_1 = static_cast<unsigned int>(5 * Umat.size(1));
         r8.set_size(1, static_cast<int>(b_unnamed_idx_1));
-        mb_loop_ub = static_cast<int>(b_unnamed_idx_1);
-        for (int i76{0}; i76 < mb_loop_ub; i76++) {
-            r8[i76] = 0.0;
+        sb_loop_ub = static_cast<int>(b_unnamed_idx_1);
+        for (int i80{0}; i80 < sb_loop_ub; i80++) {
+            r8[i80] = 0.0;
         }
         // 'bspline_eval_vec:8' for k = 1:length(u)
-        for (int h_k{0}; h_k < i65; h_k++) {
+        for (int j_k{0}; j_k < i69; j_k++) {
             // 'bspline_eval_vec:9' [xk, xdk, xddk, xdddk] = bspline_eval(Bl, coeffs, u(k));
-            r2[h_k] = Umat[h_k];
-            b_spline.set_size(1, i66);
-            for (int i79{0}; i79 < gb_loop_ub; i79++) {
-                b_spline[i79] = spline->sp.coeff[c_j + spline->sp.coeff.size(0) * i79];
+            r2[j_k] = Umat[j_k];
+            b_spline.set_size(1, i70);
+            for (int i83{0}; i83 < mb_loop_ub; i83++) {
+                b_spline[i83] = spline->sp.coeff[c_j + spline->sp.coeff.size(0) * i83];
             }
-            bspline_eval(spline->sp.Bl.handle, b_spline, &r2[h_k], &d1, &d2, &d3);
-            r8[h_k] = d3;
-            r7[h_k] = d2;
-            r6[h_k] = d1;
+            bspline_eval(spline->sp.Bl.handle, b_spline, &r2[j_k], &d1, &d2, &d3);
+            r8[j_k] = d3;
+            r7[j_k] = d2;
+            r6[j_k] = d1;
             // 'bspline_eval_vec:10' x(k)    = xk;
             // 'bspline_eval_vec:11' xd(k)   = xdk;
             // 'bspline_eval_vec:12' xdd(k)  = xddk;
             // 'bspline_eval_vec:13' xddd(k) = xdddk;
         }
-        ob_loop_ub = r6.size(1);
-        for (int i78{0}; i78 < ob_loop_ub; i78++) {
-            r1D[c_j + r1D.size(0) * i78] = r6[i78];
+        ub_loop_ub = r6.size(1);
+        for (int i82{0}; i82 < ub_loop_ub; i82++) {
+            r1D[c_j + r1D.size(0) * i82] = r6[i82];
         }
     }
     // 'SplineLengthApproxGL_tot:24' r1Dnorm   = MyNorm(r1D);
     // 'MyNorm:2' coder.inline('always');
     // 'MyNorm:3' n = mysqrt(sum(x.^2));
     r.set_size(r1D.size(0), r1D.size(1));
-    hb_loop_ub = r1D.size(1);
-    for (int i67{0}; i67 < hb_loop_ub; i67++) {
-        int jb_loop_ub;
-        jb_loop_ub = r1D.size(0);
-        for (int i69{0}; i69 < jb_loop_ub; i69++) {
+    nb_loop_ub = r1D.size(1);
+    for (int i71{0}; i71 < nb_loop_ub; i71++) {
+        int pb_loop_ub;
+        pb_loop_ub = r1D.size(0);
+        for (int i73{0}; i73 < pb_loop_ub; i73++) {
             double c_varargin_1;
-            c_varargin_1 = r1D[i69 + r1D.size(0) * i67];
-            r[i69 + r.size(0) * i67] = std::pow(c_varargin_1, 2.0);
+            c_varargin_1 = r1D[i73 + r1D.size(0) * i71];
+            r[i73 + r.size(0) * i71] = std::pow(c_varargin_1, 2.0);
         }
     }
     coder::sum(r, r1Dnorm);
     // 'mysqrt:3' y = sqrt(x);
-    i70 = r1Dnorm.size(1);
-    for (int d_k{0}; d_k < i70; d_k++) {
-        r1Dnorm[d_k] = std::sqrt(r1Dnorm[d_k]);
+    i74 = r1Dnorm.size(1);
+    for (int f_k{0}; f_k < i74; f_k++) {
+        r1Dnorm[f_k] = std::sqrt(r1Dnorm[f_k]);
     }
     // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
     sqrt_calls++;
     // 'SplineLengthApproxGL_tot:25' r1DnormM  = reshape(r1Dnorm, GL_N, length(Knots)-1);
     // 'SplineLengthApproxGL_tot:26' Lk        = sum(bsxfun(@times, GL_W, r1DnormM)) .* (b-a)/2;
-    d_c.set_size(5, i53);
-    if (i53 != 0) {
+    d_c.set_size(5, i57);
+    if (i57 != 0) {
         int b_bcoef;
         int bcoef;
-        int i73;
-        bcoef = (i53 != 1);
-        i73 = i53 - 1;
+        int i77;
+        bcoef = (i57 != 1);
+        i77 = i57 - 1;
         b_bcoef = (static_cast<int>(ctx_cfg_GaussLegendreN) != 1);
-        for (int e_k{0}; e_k <= i73; e_k++) {
+        for (int g_k{0}; g_k <= i77; g_k++) {
             int varargin_3;
-            varargin_3 = bcoef * e_k;
-            for (int g_k{0}; g_k < 5; g_k++) {
-                d_c[g_k + 5 * e_k] =
-                    ctx_cfg_GaussLegendreW[g_k] *
-                    r1Dnorm[b_bcoef * g_k + static_cast<int>(ctx_cfg_GaussLegendreN) * varargin_3];
+            varargin_3 = bcoef * g_k;
+            for (int i_k{0}; i_k < 5; i_k++) {
+                d_c[i_k + 5 * g_k] =
+                    ctx_cfg_GaussLegendreW[i_k] *
+                    r1Dnorm[b_bcoef * i_k + static_cast<int>(ctx_cfg_GaussLegendreN) * varargin_3];
             }
         }
     }
     if (d_c.size(1) == 0) {
         r2.set_size(1, 0);
     } else {
-        int i74;
+        int i78;
         r2.set_size(1, d_c.size(1));
-        i74 = d_c.size(1);
-        for (int f_k{0}; f_k < i74; f_k++) {
-            r2[f_k] = d_c[5 * f_k];
-            r2[f_k] = r2[f_k] + d_c[5 * f_k + 1];
-            r2[f_k] = r2[f_k] + d_c[5 * f_k + 2];
-            r2[f_k] = r2[f_k] + d_c[5 * f_k + 3];
-            r2[f_k] = r2[f_k] + d_c[5 * f_k + 4];
+        i78 = d_c.size(1);
+        for (int h_k{0}; h_k < i78; h_k++) {
+            r2[h_k] = d_c[5 * h_k];
+            r2[h_k] = r2[h_k] + d_c[5 * h_k + 1];
+            r2[h_k] = r2[h_k] + d_c[5 * h_k + 2];
+            r2[h_k] = r2[h_k] + d_c[5 * h_k + 3];
+            r2[h_k] = r2[h_k] + d_c[5 * h_k + 4];
         }
     }
-    if (i55 - i54 == 1) {
-        i75 = cb_loop_ub;
+    if (i59 - i58 == 1) {
+        i79 = ib_loop_ub;
     } else {
-        i75 = i55 - i54;
+        i79 = i59 - i58;
     }
-    if ((db_loop_ub == cb_loop_ub) && (r2.size(1) == i75)) {
-        int nb_loop_ub;
+    if ((jb_loop_ub == ib_loop_ub) && (r2.size(1) == i79)) {
+        int tb_loop_ub;
         spline->sp.Lk.set_size(1, r2.size(1));
-        nb_loop_ub = r2.size(1);
-        for (int i77{0}; i77 < nb_loop_ub; i77++) {
-            spline->sp.Lk[i77] =
-                r2[i77] *
-                (spline->sp.knots[((i51 + i54) + i77) + 1] - spline->sp.knots[i51 + i77]) / 2.0;
+        tb_loop_ub = r2.size(1);
+        for (int i81{0}; i81 < tb_loop_ub; i81++) {
+            spline->sp.Lk[i81] =
+                r2[i81] *
+                (spline->sp.knots[((i55 + i58) + i81) + 1] - spline->sp.knots[i55 + i81]) / 2.0;
         }
     } else {
-        binary_expand_op(spline, r2, i51, i54 + 1, i55, cb_loop_ub - 1);
+        binary_expand_op(spline, r2, i55, i58 + 1, i59, ib_loop_ub - 1);
     }
     //  Gauss Legendre integration
     // 'SplineLengthApproxGL_tot:27' L         = sum(Lk);
     spline->sp.Ltot = coder::sum(spline->sp.Lk);
-    // 'compressCurvStructs:198' spline.sp.Ltot    = Ltot;
-    // 'compressCurvStructs:199' spline.sp.Lk      = Lk;
-    // 'compressCurvStructs:200' spline_index      = spline_index + 1;
+    // 'compressCurvStructs:202' spline.sp.Ltot    = Ltot;
+    // 'compressCurvStructs:203' spline.sp.Lk      = Lk;
+    // 'compressCurvStructs:204' spline_index      = spline_index + 1;
     (*spline_index)++;
 }
 
@@ -983,25 +1049,23 @@ void compressCurvStructs(b_FeedoptContext *ctx)
     ::coder::array<double, 1U> V1;
     ::coder::array<double, 1U> a__1;
     ::coder::array<double, 1U> a__2;
-    ::coder::array<double, 1U> a__3;
     ::coder::array<double, 1U> r;
     ::coder::array<double, 1U> r1;
-    ::coder::array<double, 1U> r1D;
     ::coder::array<double, 1U> u;
     ::coder::array<double, 1U> v;
     Axes params_tmp_tool_offset;
     CurvStruct batch_lastCurv;
-    CurvStruct batch_lastCurv_tmp;
     CurvStruct curv;
     CurvStruct curvCompressed;
     CurvStruct spline;
     SplineStruct params_tmp_spline;
+    b_CurvStruct e_expl_temp;
+    b_CurvStruct expl_temp_tmp;
     double params_tmp_CoeffP5[6];
     double params_tmp_R0[6];
     double params_tmp_R1[6];
     double params_tmp_Cprim[3];
     double params_tmp_evec[3];
-    double L;
     double b_expl_temp;
     double c_expl_temp;
     double d_expl_temp;
@@ -1027,7 +1091,15 @@ void compressCurvStructs(b_FeedoptContext *ctx)
     if (!ctx->q_gcode.isempty()) {
         double batch_size;
         unsigned int Ncrv;
-        int i1;
+        int b_loop_ub;
+        int c_loop_ub;
+        int e_loop_ub;
+        int f_loop_ub;
+        int h_loop_ub;
+        int i11;
+        int i_loop_ub;
+        int j_loop_ub;
+        int loop_ub;
         ZSpdMode batch_zspdmode;
         // 'compressCurvStructs:16' spline_index        = ctx.q_spline.size() + 1;
         spline_index = ctx->q_spline.size() + 1U;
@@ -1036,12 +1108,12 @@ void compressCurvStructs(b_FeedoptContext *ctx)
         Ncrv = ctx->q_gcode.size();
         //  Number of curve in queue
         // 'compressCurvStructs:18' [ batch ]           = batch_init();
-        // 'compressCurvStructs:126' batch = struct( ...
-        // 'compressCurvStructs:127'     'pvec',          zeros( StructTypeName.NumberAxisMax, 1
-        // ),... 'compressCurvStructs:128'     'lastCurv',      constrCurvStructType,...
-        // 'compressCurvStructs:129'     'size',          0, ...
-        // 'compressCurvStructs:130'     'zspdmode',      ZSpdMode.NN ...
-        // 'compressCurvStructs:131'     );
+        // 'compressCurvStructs:122' batch = struct( ...
+        // 'compressCurvStructs:123'     'pvec',          zeros( StructTypeName.NumberAxisMax, 1
+        // ),... 'compressCurvStructs:124'     'lastCurv',      constrCurvStructType,...
+        // 'compressCurvStructs:125'     'size',          0, ...
+        // 'compressCurvStructs:126'     'zspdmode',      ZSpdMode.NN ...
+        // 'compressCurvStructs:127'     );
         //  constrCurvStructType : Constructs a constrCurvStruct with default values.
         // 'constrCurvStructType:4' if( nargin > 0 )
         // 'constrCurvStructType:6' else
@@ -1062,10 +1134,6 @@ void compressCurvStructs(b_FeedoptContext *ctx)
         // 'constrCurvStructType:14'         params.spline, params.R0, params.R1, params.Cprim, ...
         // 'constrCurvStructType:15'         params.delta, params.evec, params.theta, params.pitch,
         // ... 'constrCurvStructType:16'         params.CoeffP5, params.Coeff );
-        batch_pvec.set_size(6, 1);
-        for (int i{0}; i < 6; i++) {
-            batch_pvec[i] = 0.0;
-        }
         b_constrCurvStruct(
             params_tmp_gcodeInfoStruct_Type, params_tmp_gcodeInfoStruct_zspdmode,
             params_tmp_gcodeInfoStruct_TRAFO, params_tmp_gcodeInfoStruct_HSC,
@@ -1075,12 +1143,90 @@ void compressCurvStructs(b_FeedoptContext *ctx)
             &params_tmp_tool_offset, params_tmp_tool_diameter, params_tmp_tool_frontangle,
             params_tmp_tool_backangle, params_tmp_tool_orientation, &params_tmp_spline,
             params_tmp_R0, params_tmp_R1, params_tmp_Cprim, params_tmp_evec, params_tmp_CoeffP5,
-            &batch_lastCurv_tmp);
-        batch_lastCurv = batch_lastCurv_tmp;
+            &expl_temp_tmp);
+        e_expl_temp = expl_temp_tmp;
+        batch_lastCurv.R0.set_size(e_expl_temp.R0.size[0]);
+        loop_ub = e_expl_temp.R0.size[0];
+        for (int i{0}; i < loop_ub; i++) {
+            batch_lastCurv.R0[i] = e_expl_temp.R0.data[i];
+        }
+        batch_lastCurv.R1.set_size(e_expl_temp.R1.size[0]);
+        b_loop_ub = e_expl_temp.R1.size[0];
+        for (int i1{0}; i1 < b_loop_ub; i1++) {
+            batch_lastCurv.R1[i1] = e_expl_temp.R1.data[i1];
+        }
+        batch_lastCurv.CoeffP5.set_size(e_expl_temp.CoeffP5.size(0), e_expl_temp.CoeffP5.size(1));
+        c_loop_ub = e_expl_temp.CoeffP5.size(1);
+        for (int i2{0}; i2 < c_loop_ub; i2++) {
+            int d_loop_ub;
+            d_loop_ub = e_expl_temp.CoeffP5.size(0);
+            for (int i3{0}; i3 < d_loop_ub; i3++) {
+                batch_lastCurv.CoeffP5[i3 + batch_lastCurv.CoeffP5.size(0) * i2] =
+                    e_expl_temp.CoeffP5[i3 + e_expl_temp.CoeffP5.size(0) * i2];
+            }
+        }
+        // 'compressCurvStructs:129' if( ~coder.target( "MATLAB" ) )
+        // 'compressCurvStructs:130' coder.varsize( 'batch.pvec', StructTypeName.dimPvec{ : } );
+        batch_pvec.set_size(6, 1);
+        for (int i4{0}; i4 < 6; i4++) {
+            batch_pvec[i4] = 0.0;
+        }
+        batch_lastCurv.Info = e_expl_temp.Info;
+        batch_lastCurv.tool = e_expl_temp.tool;
+        batch_lastCurv.sp.Bl.ncoeff = e_expl_temp.sp.Bl.ncoeff;
+        batch_lastCurv.sp.Bl.breakpoints.set_size(1, e_expl_temp.sp.Bl.breakpoints.size(1));
+        e_loop_ub = e_expl_temp.sp.Bl.breakpoints.size(1);
+        for (int i5{0}; i5 < e_loop_ub; i5++) {
+            batch_lastCurv.sp.Bl.breakpoints[i5] = e_expl_temp.sp.Bl.breakpoints[i5];
+        }
+        batch_lastCurv.sp.Bl.handle = e_expl_temp.sp.Bl.handle;
+        batch_lastCurv.sp.Bl.order = e_expl_temp.sp.Bl.order;
+        batch_lastCurv.sp.coeff.set_size(e_expl_temp.sp.coeff.size(0),
+                                         e_expl_temp.sp.coeff.size(1));
+        f_loop_ub = e_expl_temp.sp.coeff.size(1);
+        for (int i6{0}; i6 < f_loop_ub; i6++) {
+            int g_loop_ub;
+            g_loop_ub = e_expl_temp.sp.coeff.size(0);
+            for (int i7{0}; i7 < g_loop_ub; i7++) {
+                batch_lastCurv.sp.coeff[i7 + batch_lastCurv.sp.coeff.size(0) * i6] =
+                    e_expl_temp.sp.coeff[i7 + e_expl_temp.sp.coeff.size(0) * i6];
+            }
+        }
+        batch_lastCurv.sp.knots.set_size(1, e_expl_temp.sp.knots.size(1));
+        h_loop_ub = e_expl_temp.sp.knots.size(1);
+        for (int i8{0}; i8 < h_loop_ub; i8++) {
+            batch_lastCurv.sp.knots[i8] = e_expl_temp.sp.knots[i8];
+        }
+        batch_lastCurv.sp.Ltot = e_expl_temp.sp.Ltot;
+        batch_lastCurv.sp.Lk.set_size(1, e_expl_temp.sp.Lk.size(1));
+        i_loop_ub = e_expl_temp.sp.Lk.size(1);
+        for (int i9{0}; i9 < i_loop_ub; i9++) {
+            batch_lastCurv.sp.Lk[i9] = e_expl_temp.sp.Lk[i9];
+        }
+        batch_lastCurv.delta = e_expl_temp.delta;
+        batch_lastCurv.CorrectedHelixCenter[0] = e_expl_temp.CorrectedHelixCenter[0];
+        batch_lastCurv.evec[0] = e_expl_temp.evec[0];
+        batch_lastCurv.CorrectedHelixCenter[1] = e_expl_temp.CorrectedHelixCenter[1];
+        batch_lastCurv.evec[1] = e_expl_temp.evec[1];
+        batch_lastCurv.CorrectedHelixCenter[2] = e_expl_temp.CorrectedHelixCenter[2];
+        batch_lastCurv.evec[2] = e_expl_temp.evec[2];
+        batch_lastCurv.theta = e_expl_temp.theta;
+        batch_lastCurv.pitch = e_expl_temp.pitch;
+        batch_lastCurv.sp_index = e_expl_temp.sp_index;
+        batch_lastCurv.i_begin_sp = e_expl_temp.i_begin_sp;
+        batch_lastCurv.i_end_sp = e_expl_temp.i_end_sp;
+        batch_lastCurv.index_smooth = e_expl_temp.index_smooth;
+        batch_lastCurv.UseConstJerk = e_expl_temp.UseConstJerk;
+        batch_lastCurv.ConstJerk = e_expl_temp.ConstJerk;
+        batch_lastCurv.Coeff.set_size(e_expl_temp.Coeff.size(0));
+        j_loop_ub = e_expl_temp.Coeff.size(0);
+        for (int i10{0}; i10 < j_loop_ub; i10++) {
+            batch_lastCurv.Coeff[i10] = e_expl_temp.Coeff[i10];
+        }
+        batch_lastCurv.a_param = e_expl_temp.a_param;
+        batch_lastCurv.b_param = e_expl_temp.b_param;
         batch_size = 0.0;
         batch_zspdmode = ZSpdMode_NN;
-        // 'compressCurvStructs:133' if( ~coder.target( "MATLAB" ) )
-        // 'compressCurvStructs:134' coder.varsize( 'batch.pvec', StructTypeName.dimPvec{ : } );
         // 'compressCurvStructs:20' DebugLog(DebugCfg.Validate, 'Compressing...\n');
         //  1 -> stdout
         //  2 -> stderr
@@ -1093,78 +1239,60 @@ void compressCurvStructs(b_FeedoptContext *ctx)
             printf("Compressing...\n");
             fflush(stdout);
         }
-        // 'compressCurvStructs:22' if( coder.target( "MATLAB" ) )
-        // 'compressCurvStructs:26' ctx.k0 = int32( 1 );
+        // 'compressCurvStructs:22' ctx.k0 = int32( 1 );
         ctx->k0 = 1;
-        // 'compressCurvStructs:28' for k = 1 : Ncrv
-        i1 = static_cast<int>(Ncrv);
-        for (int k{0}; k < i1; k++) {
+        // 'compressCurvStructs:24' for k = 1 : Ncrv
+        i11 = static_cast<int>(Ncrv);
+        for (int k{0}; k < i11; k++) {
             bool addBatch;
             bool closeBatch;
-            // 'compressCurvStructs:29' ctx.k0 = ctx.k0 + 1;
+            // 'compressCurvStructs:25' ctx.k0 = ctx.k0 + 1;
             ctx->k0++;
-            // 'compressCurvStructs:30' if(coder.target("MATLAB"))
-            // 'compressCurvStructs:31' curv = ctx.q_gcode.get( k );
+            // 'compressCurvStructs:26' if(coder.target("MATLAB"))
+            // 'compressCurvStructs:27' curv = ctx.q_gcode.get( k );
             ctx->q_gcode.get(k + 1U, &curv);
             //  Get next Curve in the queue
-            // 'compressCurvStructs:33' [ addBatch ]    = check_add_batch( ctx, curv );
+            // 'compressCurvStructs:29' [ addBatch ]    = check_add_batch( ctx, curv );
             // -------------------------------------------------------------------------%
-            // 'compressCurvStructs:55' if( coder.target( "MATLAB" ) )
-            // 'compressCurvStructs:57' addBatch    = true;
+            // 'compressCurvStructs:51' if( coder.target( "MATLAB" ) )
+            // 'compressCurvStructs:53' addBatch    = true;
             addBatch = true;
             //  Cond 1. Keep only line segments
-            // 'compressCurvStructs:60' if( curv.Info.Type ~= CurveType.Line )
+            // 'compressCurvStructs:56' if( curv.Info.Type ~= CurveType.Line )
             if (curv.Info.Type != CurveType_Line) {
-                // 'compressCurvStructs:61' if( coder.target( "MATLAB" ) )
-                // 'compressCurvStructs:64' addBatch = false;
+                // 'compressCurvStructs:57' if( coder.target( "MATLAB" ) )
+                // 'compressCurvStructs:60' addBatch = false;
                 addBatch = false;
-            } else {
-                int loop_ub;
+
                 //  Cond 2. Remove to large segment
-                // 'compressCurvStructs:67' if( LengthCurv( ctx, curv, 0, 1 ) >
-                // ctx.cfg.LThresholdMax ) 'LengthCurv:3' if ( curv.Info.Type == CurveType.Helix )
-                // || ( curv.Info.Type == CurveType.Line ) 'LengthCurv:4' [~, r1D, ~, ~] =
-                // EvalCurvStruct( ctx, curv, u0 );
-                c_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
-                                 ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
-                                 ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
-                                 ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart,
-                                 ctx->cfg.NRot, &curv, a__1, r1D, a__2, a__3);
-                // 'LengthCurv:5' L = MyNorm( r1D ) * ( u1 - u0 );
-                // 'MyNorm:2' coder.inline('always');
-                // 'MyNorm:3' n = mysqrt(sum(x.^2));
-                // 'mysqrt:3' y = sqrt(x);
-                loop_ub = r1D.size(0);
-                r.set_size(r1D.size(0));
-                for (int i2{0}; i2 < loop_ub; i2++) {
-                    double varargin_1;
-                    varargin_1 = r1D[i2];
-                    r[i2] = std::pow(varargin_1, 2.0);
-                }
-                // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-                sqrt_calls++;
-                if (std::sqrt(coder::sum(r)) > ctx->cfg.LThresholdMax) {
-                    // 'compressCurvStructs:68' if( coder.target( "MATLAB" ) )
-                    // 'compressCurvStructs:71' addBatch = false;
-                    addBatch = false;
-                }
+                // 'compressCurvStructs:63' if( LengthCurv( ctx, curv, 0, 1 ) >
+                // ctx.cfg.LThresholdMax )
+            } else if (LengthCurv(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
+                                  ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
+                                  ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
+                                  ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart,
+                                  ctx->cfg.NRot, ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW,
+                                  &curv) > ctx->cfg.LThresholdMax) {
+                // 'compressCurvStructs:64' if( coder.target( "MATLAB" ) )
+                // 'compressCurvStructs:67' addBatch = false;
+                addBatch = false;
             }
-            // 'compressCurvStructs:34' [ closeBatch ]  = check_close_batch( ctx, batch, curv,
-            // addBatch); 'compressCurvStructs:77' if( coder.target( "MATLAB" ) )
-            // 'compressCurvStructs:79' closeBatch = false;
+            // 'compressCurvStructs:30' [ closeBatch ]  = check_close_batch( ctx, batch, curv,
+            // addBatch); 'compressCurvStructs:73' if( coder.target( "MATLAB" ) )
+            // 'compressCurvStructs:75' closeBatch = false;
             closeBatch = false;
-            // 'compressCurvStructs:81' if( batch.size == 0 )
+            // 'compressCurvStructs:77' if( batch.size == 0 )
             if (batch_size != 0.0) {
                 bool isSame;
                 bool zeroFlag;
                 //  Cond 1. Curv not in the batch
-                // 'compressCurvStructs:84' if( ~addBatch )
+                // 'compressCurvStructs:80' if( ~addBatch )
                 if (!addBatch) {
-                    // 'compressCurvStructs:85' closeBatch = true;
+                    // 'compressCurvStructs:81' closeBatch = true;
                     closeBatch = true;
                 }
                 //  Cond 2. Curv require a stop
-                // 'compressCurvStructs:89' if( isAZeroStart( curv ) )
+                // 'compressCurvStructs:85' if( isAZeroStart( curv ) )
                 //  isAZeroStart : Return true if the curv starts with zero speed
                 //  Input :
                 //  curv / Info / ZSpdMode : A structure containning the information of the
@@ -1185,12 +1313,12 @@ void compressCurvStructs(b_FeedoptContext *ctx)
                     zeroFlag = true;
                 }
                 if (zeroFlag) {
-                    // 'compressCurvStructs:90' if( coder.target( "MATLAB" ) )
-                    // 'compressCurvStructs:93' closeBatch = true;
+                    // 'compressCurvStructs:86' if( coder.target( "MATLAB" ) )
+                    // 'compressCurvStructs:89' closeBatch = true;
                     closeBatch = true;
                 }
                 //  Cond 3. Machine parameters are not the same
-                // 'compressCurvStructs:97' if( ~isSameMachiningParameters( batch.lastCurv, curv ) )
+                // 'compressCurvStructs:93' if( ~isSameMachiningParameters( batch.lastCurv, curv ) )
                 //  Check if the machine parameters are equals
                 // 'isSameMachiningParameters:3' isSame = false;
                 isSame = false;
@@ -1204,74 +1332,33 @@ void compressCurvStructs(b_FeedoptContext *ctx)
                     isSame = true;
                 }
                 if (!isSame) {
-                    // 'compressCurvStructs:98' if( coder.target( "MATLAB" ) )
-                    // 'compressCurvStructs:102' closeBatch = true;
+                    // 'compressCurvStructs:94' if( coder.target( "MATLAB" ) )
+                    // 'compressCurvStructs:98' closeBatch = true;
                     closeBatch = true;
                 }
                 //  Cond 4. If to small don't test the collinearity
-                // 'compressCurvStructs:106' if( LengthCurv( ctx, curv, 0, 1 ) <=
-                // ctx.cfg.LThresholdMin ) 'LengthCurv:3' if ( curv.Info.Type == CurveType.Helix )
-                // || ( curv.Info.Type == CurveType.Line )
-                if ((curv.Info.Type == CurveType_Helix) || (curv.Info.Type == CurveType_Line)) {
-                    int b_loop_ub;
-                    // 'LengthCurv:4' [~, r1D, ~, ~] = EvalCurvStruct( ctx, curv, u0 );
-                    c_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
-                                     ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
-                                     ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
-                                     ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart,
-                                     ctx->cfg.NRot, &curv, a__1, r1D, a__2, a__3);
-                    // 'LengthCurv:5' L = MyNorm( r1D ) * ( u1 - u0 );
-                    // 'MyNorm:2' coder.inline('always');
-                    // 'MyNorm:3' n = mysqrt(sum(x.^2));
-                    // 'mysqrt:3' y = sqrt(x);
-                    b_loop_ub = r1D.size(0);
-                    r.set_size(r1D.size(0));
-                    for (int i9{0}; i9 < b_loop_ub; i9++) {
-                        double b_varargin_1;
-                        b_varargin_1 = r1D[i9];
-                        r[i9] = std::pow(b_varargin_1, 2.0);
-                    }
-                    L = std::sqrt(coder::sum(r));
-                    // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-                    sqrt_calls++;
-                } else if (curv.Info.Type == CurveType_Spline) {
-                    // 'LengthCurv:6' elseif ( curv.Info.Type == CurveType.Spline )
-                    // 'LengthCurv:7' a        = curv.a_param;
-                    // 'LengthCurv:8' b        = curv.b_param;
-                    // 'LengthCurv:9' u0_tilda = a * u0 + b;
-                    // 'LengthCurv:10' u1_tilda = a * u1 + b;
-                    // 'LengthCurv:11' spline   = ctx.q_spline.get( curv.sp_index );
-                    ctx->q_spline.get(curv.sp_index, &spline);
-                    // 'LengthCurv:12' [ L ]    = splineLength( ctx.cfg, spline, u0_tilda, u1_tilda
-                    // );
-                    L = splineLength(ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW,
-                                     spline.sp.Bl.handle, spline.sp.Bl.order, spline.sp.coeff,
-                                     spline.sp.knots, spline.sp.Lk, curv.b_param,
-                                     curv.a_param + curv.b_param);
-                } else if (curv.Info.Type == CurveType_TransP5) {
-                    // 'LengthCurv:13' elseif ( curv.Info.Type == CurveType.TransP5 )
-                    // 'LengthCurv:14' L = TransP5LengthApprox( curv );
-                    L = TransP5LengthApprox(&curv);
-                } else {
-                    // 'LengthCurv:15' else
-                    // 'LengthCurv:16' ocn_assert( false, "BAD CURVE TYPE IN LENGTH CURV", mfilename
-                    // );
-                }
-                if (L > ctx->cfg.LThresholdMin) {
-                    int c_loop_ub;
-                    int d_loop_ub;
+                // 'compressCurvStructs:102' if( LengthCurv( ctx, curv, 0, 1 ) <=
+                // ctx.cfg.LThresholdMin )
+                if (LengthCurv(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
+                               ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
+                               ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
+                               ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart, ctx->cfg.NRot,
+                               ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW,
+                               &curv) > ctx->cfg.LThresholdMin) {
+                    int cb_loop_ub;
+                    int eb_loop_ub;
                     bool collinear;
                     //  Cond 5. If not collinear lines, create a new batch
-                    // 'compressCurvStructs:114' collinear = curvCollinear( ctx, batch.lastCurv,
-                    // curv, ... 'compressCurvStructs:115'     ctx.cfg.Compressing.ColTolCosLee );
+                    // 'compressCurvStructs:110' collinear = curvCollinear( ctx, batch.lastCurv,
+                    // curv, ... 'compressCurvStructs:111'     ctx.cfg.Compressing.ColTolCosLee );
                     // 'curvCollinear:2' [~, V0] = EvalCurvStruct(ctx, Curv1, 1);
-                    d_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
+                    e_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                                      ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
                                      ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
                                      ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart,
                                      ctx->cfg.NRot, &batch_lastCurv, a__1, V0);
                     // 'curvCollinear:3' [~, V1] = EvalCurvStruct(ctx, Curv2, 0);
-                    e_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
+                    d_EvalCurvStruct(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                                      ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
                                      ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
                                      ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart,
@@ -1279,14 +1366,14 @@ void compressCurvStructs(b_FeedoptContext *ctx)
                     // 'curvCollinear:5' result = collinear(V0(ctx.cfg.indCart),
                     // V1(ctx.cfg.indCart), ToleranceCos);
                     u.set_size(ctx->cfg.indCart.size(0));
-                    c_loop_ub = ctx->cfg.indCart.size(0);
-                    for (int i10{0}; i10 < c_loop_ub; i10++) {
-                        u[i10] = V0[ctx->cfg.indCart[i10] - 1];
+                    cb_loop_ub = ctx->cfg.indCart.size(0);
+                    for (int i29{0}; i29 < cb_loop_ub; i29++) {
+                        u[i29] = V0[ctx->cfg.indCart[i29] - 1];
                     }
                     v.set_size(ctx->cfg.indCart.size(0));
-                    d_loop_ub = ctx->cfg.indCart.size(0);
-                    for (int i11{0}; i11 < d_loop_ub; i11++) {
-                        v[i11] = V1[ctx->cfg.indCart[i11] - 1];
+                    eb_loop_ub = ctx->cfg.indCart.size(0);
+                    for (int i30{0}; i30 < eb_loop_ub; i30++) {
+                        v[i30] = V1[ctx->cfg.indCart[i30] - 1];
                     }
                     // 'collinear:2' if (norm(u) < eps || norm(v) < eps)
                     if ((coder::b_norm(u) < 2.2204460492503131E-16) ||
@@ -1295,8 +1382,8 @@ void compressCurvStructs(b_FeedoptContext *ctx)
                         collinear = true;
                     } else {
                         double c;
-                        int e_loop_ub;
-                        int f_loop_ub;
+                        int rb_loop_ub;
+                        int tb_loop_ub;
                         // 'collinear:6' cos_angle = dot(u,v)/(MyNorm(u)*MyNorm(v));
                         // 'MyNorm:2' coder.inline('always');
                         // 'MyNorm:3' n = mysqrt(sum(x.^2));
@@ -1318,44 +1405,99 @@ void compressCurvStructs(b_FeedoptContext *ctx)
                             }
                         }
                         r.set_size(u.size(0));
-                        e_loop_ub = u.size(0);
-                        for (int i12{0}; i12 < e_loop_ub; i12++) {
-                            double c_varargin_1;
-                            c_varargin_1 = u[i12];
-                            r[i12] = std::pow(c_varargin_1, 2.0);
+                        rb_loop_ub = u.size(0);
+                        for (int i43{0}; i43 < rb_loop_ub; i43++) {
+                            double varargin_1;
+                            varargin_1 = u[i43];
+                            r[i43] = std::pow(varargin_1, 2.0);
                         }
                         r1.set_size(v.size(0));
-                        f_loop_ub = v.size(0);
-                        for (int i13{0}; i13 < f_loop_ub; i13++) {
-                            double d_varargin_1;
-                            d_varargin_1 = v[i13];
-                            r1[i13] = std::pow(d_varargin_1, 2.0);
+                        tb_loop_ub = v.size(0);
+                        for (int i45{0}; i45 < tb_loop_ub; i45++) {
+                            double b_varargin_1;
+                            b_varargin_1 = v[i45];
+                            r1[i45] = std::pow(b_varargin_1, 2.0);
                         }
                         collinear = (c / (std::sqrt(coder::sum(r)) * std::sqrt(coder::sum(r1))) >=
                                      ctx->cfg.Compressing.ColTolCosLee);
                     }
-                    // 'compressCurvStructs:116' if( ~collinear )
+                    // 'compressCurvStructs:112' if( ~collinear )
                     if (!collinear) {
-                        // 'compressCurvStructs:117' if( coder.target( "MATLAB" ) )
-                        // 'compressCurvStructs:120' closeBatch = true;
+                        // 'compressCurvStructs:113' if( coder.target( "MATLAB" ) )
+                        // 'compressCurvStructs:116' closeBatch = true;
                         closeBatch = true;
                     }
                 } else {
-                    // 'compressCurvStructs:107' if( coder.target( "MATLAB" ) )
+                    // 'compressCurvStructs:103' if( coder.target( "MATLAB" ) )
                 }
             }
-            // 'compressCurvStructs:36' if( closeBatch )
+            // 'compressCurvStructs:32' if( closeBatch )
             if (closeBatch) {
-                // 'compressCurvStructs:37' [ ctx, batch, spline_index ] = batch_close( ctx, batch,
-                // spline_index ); 'compressCurvStructs:140' if( batch.size == 0 )
+                double batch_lastCurv_ConstJerk;
+                double batch_lastCurv_Info_FeedRate;
+                double batch_lastCurv_Info_SpindleSpeed;
+                double batch_lastCurv_a_param;
+                double batch_lastCurv_b_param;
+                double batch_lastCurv_delta;
+                double batch_lastCurv_pitch;
+                double batch_lastCurv_sp_Ltot;
+                double batch_lastCurv_theta;
+                double batch_lastCurv_tool_backangle;
+                double batch_lastCurv_tool_diameter;
+                double batch_lastCurv_tool_frontangle;
+                double batch_lastCurv_tool_offset_a;
+                double batch_lastCurv_tool_offset_b;
+                double batch_lastCurv_tool_offset_c;
+                double batch_lastCurv_tool_offset_u;
+                double batch_lastCurv_tool_offset_v;
+                double batch_lastCurv_tool_offset_w;
+                double batch_lastCurv_tool_offset_x;
+                double batch_lastCurv_tool_offset_y;
+                double batch_lastCurv_tool_offset_z;
+                unsigned long batch_lastCurv_sp_Bl_handle;
+                int ac_loop_ub;
+                int batch_lastCurv_Info_gcode_source_line;
+                int batch_lastCurv_i_begin_sp;
+                int batch_lastCurv_i_end_sp;
+                int batch_lastCurv_index_smooth;
+                int batch_lastCurv_sp_Bl_ncoeff;
+                int batch_lastCurv_sp_Bl_order;
+                unsigned int batch_lastCurv_sp_index;
+                int batch_lastCurv_tool_orientation;
+                int batch_lastCurv_tool_pocketno;
+                int batch_lastCurv_tool_toolno;
+                int bc_loop_ub;
+                int vb_loop_ub;
+                int wb_loop_ub;
+                int xb_loop_ub;
+                bool batch_lastCurv_Info_G91;
+                bool batch_lastCurv_Info_G91_1;
+                bool batch_lastCurv_Info_HSC;
+                bool batch_lastCurv_Info_TRAFO;
+                bool batch_lastCurv_UseConstJerk;
+                CurveType batch_lastCurv_Info_Type;
+                ZSpdMode batch_lastCurv_Info_zspdmode;
+                // 'compressCurvStructs:33' [ ctx, batch, spline_index ] = batch_close( ctx, batch,
+                // spline_index ); 'compressCurvStructs:136' if( batch.size == 0 )
                 if (batch_size == 0.0) {
-                    // 'compressCurvStructs:141' batch = batch_init();
-                    // 'compressCurvStructs:126' batch = struct( ...
-                    // 'compressCurvStructs:127'     'pvec',          zeros(
-                    // StructTypeName.NumberAxisMax, 1 ),... 'compressCurvStructs:128' 'lastCurv',
-                    // constrCurvStructType,... 'compressCurvStructs:129'     'size',          0,
-                    // ... 'compressCurvStructs:130'     'zspdmode',      ZSpdMode.NN ...
-                    // 'compressCurvStructs:131'     );
+                    int ab_loop_ub;
+                    int fb_loop_ub;
+                    int hb_loop_ub;
+                    int jb_loop_ub;
+                    int mb_loop_ub;
+                    int o_loop_ub;
+                    int ob_loop_ub;
+                    int p_loop_ub;
+                    int s_loop_ub;
+                    int u_loop_ub;
+                    int x_loop_ub;
+                    // 'compressCurvStructs:137' batch = batch_init();
+                    // 'compressCurvStructs:122' batch = struct( ...
+                    // 'compressCurvStructs:123'     'pvec',          zeros(
+                    // StructTypeName.NumberAxisMax, 1 ),... 'compressCurvStructs:124' 'lastCurv',
+                    // constrCurvStructType,... 'compressCurvStructs:125'     'size',          0,
+                    // ... 'compressCurvStructs:126'     'zspdmode',      ZSpdMode.NN ...
+                    // 'compressCurvStructs:127'     );
                     //  constrCurvStructType : Constructs a constrCurvStruct with default values.
                     // 'constrCurvStructType:4' if( nargin > 0 )
                     // 'constrCurvStructType:6' else
@@ -1367,15 +1509,146 @@ void compressCurvStructs(b_FeedoptContext *ctx)
                     // params.R1, params.Cprim, ... 'constrCurvStructType:15'         params.delta,
                     // params.evec, params.theta, params.pitch, ... 'constrCurvStructType:16'
                     // params.CoeffP5, params.Coeff );
-                    batch_lastCurv = batch_lastCurv_tmp;
-                    // 'compressCurvStructs:133' if( ~coder.target( "MATLAB" ) )
-                    // 'compressCurvStructs:134' coder.varsize( 'batch.pvec',
+                    e_expl_temp.sp.Bl.breakpoints.set_size(1,
+                                                           expl_temp_tmp.sp.Bl.breakpoints.size(1));
+                    o_loop_ub = expl_temp_tmp.sp.Bl.breakpoints.size(1);
+                    for (int i18{0}; i18 < o_loop_ub; i18++) {
+                        e_expl_temp.sp.Bl.breakpoints[i18] = expl_temp_tmp.sp.Bl.breakpoints[i18];
+                    }
+                    e_expl_temp.sp.coeff.set_size(expl_temp_tmp.sp.coeff.size(0),
+                                                  expl_temp_tmp.sp.coeff.size(1));
+                    p_loop_ub = expl_temp_tmp.sp.coeff.size(1);
+                    for (int i20{0}; i20 < p_loop_ub; i20++) {
+                        int r_loop_ub;
+                        r_loop_ub = expl_temp_tmp.sp.coeff.size(0);
+                        for (int i22{0}; i22 < r_loop_ub; i22++) {
+                            e_expl_temp.sp.coeff[i22 + e_expl_temp.sp.coeff.size(0) * i20] =
+                                expl_temp_tmp.sp.coeff[i22 + expl_temp_tmp.sp.coeff.size(0) * i20];
+                        }
+                    }
+                    e_expl_temp.sp.knots.set_size(1, expl_temp_tmp.sp.knots.size(1));
+                    s_loop_ub = expl_temp_tmp.sp.knots.size(1);
+                    for (int i23{0}; i23 < s_loop_ub; i23++) {
+                        e_expl_temp.sp.knots[i23] = expl_temp_tmp.sp.knots[i23];
+                    }
+                    e_expl_temp.sp.Lk.set_size(1, expl_temp_tmp.sp.Lk.size(1));
+                    u_loop_ub = expl_temp_tmp.sp.Lk.size(1);
+                    for (int i25{0}; i25 < u_loop_ub; i25++) {
+                        e_expl_temp.sp.Lk[i25] = expl_temp_tmp.sp.Lk[i25];
+                    }
+                    x_loop_ub = expl_temp_tmp.R0.size[0];
+                    e_expl_temp.R0.size[0] = expl_temp_tmp.R0.size[0];
+                    if (x_loop_ub - 1 >= 0) {
+                        std::copy(&expl_temp_tmp.R0.data[0], &expl_temp_tmp.R0.data[x_loop_ub],
+                                  &e_expl_temp.R0.data[0]);
+                    }
+                    ab_loop_ub = expl_temp_tmp.R1.size[0];
+                    e_expl_temp.R1.size[0] = expl_temp_tmp.R1.size[0];
+                    if (ab_loop_ub - 1 >= 0) {
+                        std::copy(&expl_temp_tmp.R1.data[0], &expl_temp_tmp.R1.data[ab_loop_ub],
+                                  &e_expl_temp.R1.data[0]);
+                    }
+                    e_expl_temp.CorrectedHelixCenter[0] = expl_temp_tmp.CorrectedHelixCenter[0];
+                    e_expl_temp.evec[0] = expl_temp_tmp.evec[0];
+                    e_expl_temp.CorrectedHelixCenter[1] = expl_temp_tmp.CorrectedHelixCenter[1];
+                    e_expl_temp.evec[1] = expl_temp_tmp.evec[1];
+                    e_expl_temp.CorrectedHelixCenter[2] = expl_temp_tmp.CorrectedHelixCenter[2];
+                    e_expl_temp.evec[2] = expl_temp_tmp.evec[2];
+                    e_expl_temp.CoeffP5.set_size(expl_temp_tmp.CoeffP5.size(0),
+                                                 expl_temp_tmp.CoeffP5.size(1));
+                    fb_loop_ub = expl_temp_tmp.CoeffP5.size(1);
+                    for (int i31{0}; i31 < fb_loop_ub; i31++) {
+                        int gb_loop_ub;
+                        gb_loop_ub = expl_temp_tmp.CoeffP5.size(0);
+                        for (int i32{0}; i32 < gb_loop_ub; i32++) {
+                            e_expl_temp.CoeffP5[i32 + e_expl_temp.CoeffP5.size(0) * i31] =
+                                expl_temp_tmp.CoeffP5[i32 + expl_temp_tmp.CoeffP5.size(0) * i31];
+                        }
+                    }
+                    e_expl_temp.Coeff.set_size(expl_temp_tmp.Coeff.size(0));
+                    hb_loop_ub = expl_temp_tmp.Coeff.size(0);
+                    for (int i33{0}; i33 < hb_loop_ub; i33++) {
+                        e_expl_temp.Coeff[i33] = expl_temp_tmp.Coeff[i33];
+                    }
+                    jb_loop_ub = e_expl_temp.R0.size[0];
+                    batch_lastCurv.R0.set_size(e_expl_temp.R0.size[0]);
+                    for (int i35{0}; i35 < jb_loop_ub; i35++) {
+                        batch_lastCurv.R0[i35] = e_expl_temp.R0.data[i35];
+                    }
+                    mb_loop_ub = e_expl_temp.R1.size[0];
+                    batch_lastCurv.R1.set_size(e_expl_temp.R1.size[0]);
+                    for (int i38{0}; i38 < mb_loop_ub; i38++) {
+                        batch_lastCurv.R1[i38] = e_expl_temp.R1.data[i38];
+                    }
+                    batch_lastCurv.CoeffP5.set_size(e_expl_temp.CoeffP5.size(0),
+                                                    e_expl_temp.CoeffP5.size(1));
+                    ob_loop_ub = e_expl_temp.CoeffP5.size(1);
+                    for (int i40{0}; i40 < ob_loop_ub; i40++) {
+                        int qb_loop_ub;
+                        qb_loop_ub = e_expl_temp.CoeffP5.size(0);
+                        for (int i42{0}; i42 < qb_loop_ub; i42++) {
+                            batch_lastCurv.CoeffP5[i42 + batch_lastCurv.CoeffP5.size(0) * i40] =
+                                e_expl_temp.CoeffP5[i42 + e_expl_temp.CoeffP5.size(0) * i40];
+                        }
+                    }
+                    // 'compressCurvStructs:129' if( ~coder.target( "MATLAB" ) )
+                    // 'compressCurvStructs:130' coder.varsize( 'batch.pvec',
                     // StructTypeName.dimPvec{ : } );
+                    batch_lastCurv_Info_Type = expl_temp_tmp.Info.Type;
+                    batch_lastCurv_Info_zspdmode = expl_temp_tmp.Info.zspdmode;
+                    batch_lastCurv_Info_TRAFO = expl_temp_tmp.Info.TRAFO;
+                    batch_lastCurv_Info_HSC = expl_temp_tmp.Info.HSC;
+                    batch_lastCurv_Info_FeedRate = expl_temp_tmp.Info.FeedRate;
+                    batch_lastCurv_Info_SpindleSpeed = expl_temp_tmp.Info.SpindleSpeed;
+                    batch_lastCurv_Info_gcode_source_line = expl_temp_tmp.Info.gcode_source_line;
+                    batch_lastCurv_Info_G91 = expl_temp_tmp.Info.G91;
+                    batch_lastCurv_Info_G91_1 = expl_temp_tmp.Info.G91_1;
+                    batch_lastCurv_tool_toolno = expl_temp_tmp.tool.toolno;
+                    batch_lastCurv_tool_pocketno = expl_temp_tmp.tool.pocketno;
+                    batch_lastCurv_tool_offset_x = expl_temp_tmp.tool.offset.x;
+                    batch_lastCurv_tool_offset_y = expl_temp_tmp.tool.offset.y;
+                    batch_lastCurv_tool_offset_z = expl_temp_tmp.tool.offset.z;
+                    batch_lastCurv_tool_offset_a = expl_temp_tmp.tool.offset.a;
+                    batch_lastCurv_tool_offset_b = expl_temp_tmp.tool.offset.b;
+                    batch_lastCurv_tool_offset_c = expl_temp_tmp.tool.offset.c;
+                    batch_lastCurv_tool_offset_u = expl_temp_tmp.tool.offset.u;
+                    batch_lastCurv_tool_offset_v = expl_temp_tmp.tool.offset.v;
+                    batch_lastCurv_tool_offset_w = expl_temp_tmp.tool.offset.w;
+                    batch_lastCurv_tool_diameter = expl_temp_tmp.tool.diameter;
+                    batch_lastCurv_tool_frontangle = expl_temp_tmp.tool.frontangle;
+                    batch_lastCurv_tool_backangle = expl_temp_tmp.tool.backangle;
+                    batch_lastCurv_tool_orientation = expl_temp_tmp.tool.orientation;
+                    batch_lastCurv_sp_Bl_ncoeff = expl_temp_tmp.sp.Bl.ncoeff;
+                    batch_lastCurv_sp_Bl_handle = expl_temp_tmp.sp.Bl.handle;
+                    batch_lastCurv_sp_Bl_order = expl_temp_tmp.sp.Bl.order;
+                    batch_lastCurv_sp_Ltot = expl_temp_tmp.sp.Ltot;
+                    batch_lastCurv_delta = expl_temp_tmp.delta;
+                    batch_lastCurv_theta = expl_temp_tmp.theta;
+                    batch_lastCurv_pitch = expl_temp_tmp.pitch;
+                    batch_lastCurv_sp_index = expl_temp_tmp.sp_index;
+                    batch_lastCurv_i_begin_sp = expl_temp_tmp.i_begin_sp;
+                    batch_lastCurv_i_end_sp = expl_temp_tmp.i_end_sp;
+                    batch_lastCurv_index_smooth = expl_temp_tmp.index_smooth;
+                    batch_lastCurv_UseConstJerk = expl_temp_tmp.UseConstJerk;
+                    batch_lastCurv_ConstJerk = expl_temp_tmp.ConstJerk;
+                    batch_lastCurv_a_param = expl_temp_tmp.a_param;
+                    batch_lastCurv_b_param = expl_temp_tmp.b_param;
                 } else {
-                    // 'compressCurvStructs:145' if( batch.size > 1 )
+                    int bb_loop_ub;
+                    int db_loop_ub;
+                    int ib_loop_ub;
+                    int lb_loop_ub;
+                    int nb_loop_ub;
+                    int pb_loop_ub;
+                    int q_loop_ub;
+                    int sb_loop_ub;
+                    int t_loop_ub;
+                    int w_loop_ub;
+                    int y_loop_ub;
+                    // 'compressCurvStructs:141' if( batch.size > 1 )
                     if (batch_size > 1.0) {
-                        // 'compressCurvStructs:146' [ curvCompressed, spline, spline_index ] = ...
-                        // 'compressCurvStructs:147'         create_spline( ctx, batch, spline_index
+                        // 'compressCurvStructs:142' [ curvCompressed, spline, spline_index ] = ...
+                        // 'compressCurvStructs:143'         create_spline( ctx, batch, spline_index
                         // );
                         create_spline(
                             ctx->cfg.maskTot.data, ctx->cfg.maskTot.size, ctx->cfg.NumberAxis,
@@ -1386,23 +1659,25 @@ void compressCurvStructs(b_FeedoptContext *ctx)
                             batch_lastCurv.Info.gcode_source_line, batch_lastCurv.Info.G91,
                             batch_lastCurv.Info.G91_1, &batch_lastCurv.tool, batch_zspdmode,
                             &spline_index, &curvCompressed, &spline);
-                        // 'compressCurvStructs:149' ctx.q_compress.push( curvCompressed );
+                        // 'compressCurvStructs:145' ctx.q_compress.push( curvCompressed );
                         ctx->q_compress.push(&curvCompressed);
-                        // 'compressCurvStructs:150' ctx.q_spline.push( spline );
+                        // 'compressCurvStructs:146' ctx.q_spline.push( spline );
                         ctx->q_spline.push(&spline);
+                        //      [r, rd, rdd, rddd ] = EvalCurvStruct( ctx, curvCompressed, [0, 1]);
+                        // 'compressCurvStructs:150' if( coder.target( "MATLAB" ) )
                     } else {
-                        // 'compressCurvStructs:151' else
-                        // 'compressCurvStructs:152' ctx.q_compress.push( batch.lastCurv );
+                        // 'compressCurvStructs:155' else
+                        // 'compressCurvStructs:156' ctx.q_compress.push( batch.lastCurv );
                         ctx->q_compress.push(&batch_lastCurv);
                     }
-                    // 'compressCurvStructs:155' if( coder.target( "MATLAB" ) )
-                    // 'compressCurvStructs:159' batch = batch_init();
-                    // 'compressCurvStructs:126' batch = struct( ...
-                    // 'compressCurvStructs:127'     'pvec',          zeros(
-                    // StructTypeName.NumberAxisMax, 1 ),... 'compressCurvStructs:128' 'lastCurv',
-                    // constrCurvStructType,... 'compressCurvStructs:129'     'size',          0,
-                    // ... 'compressCurvStructs:130'     'zspdmode',      ZSpdMode.NN ...
-                    // 'compressCurvStructs:131'     );
+                    // 'compressCurvStructs:159' if( coder.target( "MATLAB" ) )
+                    // 'compressCurvStructs:163' batch = batch_init();
+                    // 'compressCurvStructs:122' batch = struct( ...
+                    // 'compressCurvStructs:123'     'pvec',          zeros(
+                    // StructTypeName.NumberAxisMax, 1 ),... 'compressCurvStructs:124' 'lastCurv',
+                    // constrCurvStructType,... 'compressCurvStructs:125'     'size',          0,
+                    // ... 'compressCurvStructs:126'     'zspdmode',      ZSpdMode.NN ...
+                    // 'compressCurvStructs:127'     );
                     //  constrCurvStructType : Constructs a constrCurvStruct with default values.
                     // 'constrCurvStructType:4' if( nargin > 0 )
                     // 'constrCurvStructType:6' else
@@ -1414,56 +1689,286 @@ void compressCurvStructs(b_FeedoptContext *ctx)
                     // params.R1, params.Cprim, ... 'constrCurvStructType:15'         params.delta,
                     // params.evec, params.theta, params.pitch, ... 'constrCurvStructType:16'
                     // params.CoeffP5, params.Coeff );
-                    batch_lastCurv = batch_lastCurv_tmp;
-                    // 'compressCurvStructs:133' if( ~coder.target( "MATLAB" ) )
-                    // 'compressCurvStructs:134' coder.varsize( 'batch.pvec',
+                    e_expl_temp.sp.Bl.breakpoints.set_size(1,
+                                                           expl_temp_tmp.sp.Bl.breakpoints.size(1));
+                    q_loop_ub = expl_temp_tmp.sp.Bl.breakpoints.size(1);
+                    for (int i21{0}; i21 < q_loop_ub; i21++) {
+                        e_expl_temp.sp.Bl.breakpoints[i21] = expl_temp_tmp.sp.Bl.breakpoints[i21];
+                    }
+                    e_expl_temp.sp.coeff.set_size(expl_temp_tmp.sp.coeff.size(0),
+                                                  expl_temp_tmp.sp.coeff.size(1));
+                    t_loop_ub = expl_temp_tmp.sp.coeff.size(1);
+                    for (int i24{0}; i24 < t_loop_ub; i24++) {
+                        int v_loop_ub;
+                        v_loop_ub = expl_temp_tmp.sp.coeff.size(0);
+                        for (int i26{0}; i26 < v_loop_ub; i26++) {
+                            e_expl_temp.sp.coeff[i26 + e_expl_temp.sp.coeff.size(0) * i24] =
+                                expl_temp_tmp.sp.coeff[i26 + expl_temp_tmp.sp.coeff.size(0) * i24];
+                        }
+                    }
+                    e_expl_temp.sp.knots.set_size(1, expl_temp_tmp.sp.knots.size(1));
+                    w_loop_ub = expl_temp_tmp.sp.knots.size(1);
+                    for (int i27{0}; i27 < w_loop_ub; i27++) {
+                        e_expl_temp.sp.knots[i27] = expl_temp_tmp.sp.knots[i27];
+                    }
+                    e_expl_temp.sp.Lk.set_size(1, expl_temp_tmp.sp.Lk.size(1));
+                    y_loop_ub = expl_temp_tmp.sp.Lk.size(1);
+                    for (int i28{0}; i28 < y_loop_ub; i28++) {
+                        e_expl_temp.sp.Lk[i28] = expl_temp_tmp.sp.Lk[i28];
+                    }
+                    bb_loop_ub = expl_temp_tmp.R0.size[0];
+                    e_expl_temp.R0.size[0] = expl_temp_tmp.R0.size[0];
+                    if (bb_loop_ub - 1 >= 0) {
+                        std::copy(&expl_temp_tmp.R0.data[0], &expl_temp_tmp.R0.data[bb_loop_ub],
+                                  &e_expl_temp.R0.data[0]);
+                    }
+                    db_loop_ub = expl_temp_tmp.R1.size[0];
+                    e_expl_temp.R1.size[0] = expl_temp_tmp.R1.size[0];
+                    if (db_loop_ub - 1 >= 0) {
+                        std::copy(&expl_temp_tmp.R1.data[0], &expl_temp_tmp.R1.data[db_loop_ub],
+                                  &e_expl_temp.R1.data[0]);
+                    }
+                    e_expl_temp.CorrectedHelixCenter[0] = expl_temp_tmp.CorrectedHelixCenter[0];
+                    e_expl_temp.evec[0] = expl_temp_tmp.evec[0];
+                    e_expl_temp.CorrectedHelixCenter[1] = expl_temp_tmp.CorrectedHelixCenter[1];
+                    e_expl_temp.evec[1] = expl_temp_tmp.evec[1];
+                    e_expl_temp.CorrectedHelixCenter[2] = expl_temp_tmp.CorrectedHelixCenter[2];
+                    e_expl_temp.evec[2] = expl_temp_tmp.evec[2];
+                    e_expl_temp.CoeffP5.set_size(expl_temp_tmp.CoeffP5.size(0),
+                                                 expl_temp_tmp.CoeffP5.size(1));
+                    ib_loop_ub = expl_temp_tmp.CoeffP5.size(1);
+                    for (int i34{0}; i34 < ib_loop_ub; i34++) {
+                        int kb_loop_ub;
+                        kb_loop_ub = expl_temp_tmp.CoeffP5.size(0);
+                        for (int i36{0}; i36 < kb_loop_ub; i36++) {
+                            e_expl_temp.CoeffP5[i36 + e_expl_temp.CoeffP5.size(0) * i34] =
+                                expl_temp_tmp.CoeffP5[i36 + expl_temp_tmp.CoeffP5.size(0) * i34];
+                        }
+                    }
+                    e_expl_temp.Coeff.set_size(expl_temp_tmp.Coeff.size(0));
+                    lb_loop_ub = expl_temp_tmp.Coeff.size(0);
+                    for (int i37{0}; i37 < lb_loop_ub; i37++) {
+                        e_expl_temp.Coeff[i37] = expl_temp_tmp.Coeff[i37];
+                    }
+                    nb_loop_ub = e_expl_temp.R0.size[0];
+                    batch_lastCurv.R0.set_size(e_expl_temp.R0.size[0]);
+                    for (int i39{0}; i39 < nb_loop_ub; i39++) {
+                        batch_lastCurv.R0[i39] = e_expl_temp.R0.data[i39];
+                    }
+                    pb_loop_ub = e_expl_temp.R1.size[0];
+                    batch_lastCurv.R1.set_size(e_expl_temp.R1.size[0]);
+                    for (int i41{0}; i41 < pb_loop_ub; i41++) {
+                        batch_lastCurv.R1[i41] = e_expl_temp.R1.data[i41];
+                    }
+                    batch_lastCurv.CoeffP5.set_size(e_expl_temp.CoeffP5.size(0),
+                                                    e_expl_temp.CoeffP5.size(1));
+                    sb_loop_ub = e_expl_temp.CoeffP5.size(1);
+                    for (int i44{0}; i44 < sb_loop_ub; i44++) {
+                        int ub_loop_ub;
+                        ub_loop_ub = e_expl_temp.CoeffP5.size(0);
+                        for (int i46{0}; i46 < ub_loop_ub; i46++) {
+                            batch_lastCurv.CoeffP5[i46 + batch_lastCurv.CoeffP5.size(0) * i44] =
+                                e_expl_temp.CoeffP5[i46 + e_expl_temp.CoeffP5.size(0) * i44];
+                        }
+                    }
+                    // 'compressCurvStructs:129' if( ~coder.target( "MATLAB" ) )
+                    // 'compressCurvStructs:130' coder.varsize( 'batch.pvec',
                     // StructTypeName.dimPvec{ : } );
+                    batch_lastCurv_Info_Type = expl_temp_tmp.Info.Type;
+                    batch_lastCurv_Info_zspdmode = expl_temp_tmp.Info.zspdmode;
+                    batch_lastCurv_Info_TRAFO = expl_temp_tmp.Info.TRAFO;
+                    batch_lastCurv_Info_HSC = expl_temp_tmp.Info.HSC;
+                    batch_lastCurv_Info_FeedRate = expl_temp_tmp.Info.FeedRate;
+                    batch_lastCurv_Info_SpindleSpeed = expl_temp_tmp.Info.SpindleSpeed;
+                    batch_lastCurv_Info_gcode_source_line = expl_temp_tmp.Info.gcode_source_line;
+                    batch_lastCurv_Info_G91 = expl_temp_tmp.Info.G91;
+                    batch_lastCurv_Info_G91_1 = expl_temp_tmp.Info.G91_1;
+                    batch_lastCurv_tool_toolno = expl_temp_tmp.tool.toolno;
+                    batch_lastCurv_tool_pocketno = expl_temp_tmp.tool.pocketno;
+                    batch_lastCurv_tool_offset_x = expl_temp_tmp.tool.offset.x;
+                    batch_lastCurv_tool_offset_y = expl_temp_tmp.tool.offset.y;
+                    batch_lastCurv_tool_offset_z = expl_temp_tmp.tool.offset.z;
+                    batch_lastCurv_tool_offset_a = expl_temp_tmp.tool.offset.a;
+                    batch_lastCurv_tool_offset_b = expl_temp_tmp.tool.offset.b;
+                    batch_lastCurv_tool_offset_c = expl_temp_tmp.tool.offset.c;
+                    batch_lastCurv_tool_offset_u = expl_temp_tmp.tool.offset.u;
+                    batch_lastCurv_tool_offset_v = expl_temp_tmp.tool.offset.v;
+                    batch_lastCurv_tool_offset_w = expl_temp_tmp.tool.offset.w;
+                    batch_lastCurv_tool_diameter = expl_temp_tmp.tool.diameter;
+                    batch_lastCurv_tool_frontangle = expl_temp_tmp.tool.frontangle;
+                    batch_lastCurv_tool_backangle = expl_temp_tmp.tool.backangle;
+                    batch_lastCurv_tool_orientation = expl_temp_tmp.tool.orientation;
+                    batch_lastCurv_sp_Bl_ncoeff = expl_temp_tmp.sp.Bl.ncoeff;
+                    batch_lastCurv_sp_Bl_handle = expl_temp_tmp.sp.Bl.handle;
+                    batch_lastCurv_sp_Bl_order = expl_temp_tmp.sp.Bl.order;
+                    batch_lastCurv_sp_Ltot = expl_temp_tmp.sp.Ltot;
+                    batch_lastCurv_delta = expl_temp_tmp.delta;
+                    batch_lastCurv_theta = expl_temp_tmp.theta;
+                    batch_lastCurv_pitch = expl_temp_tmp.pitch;
+                    batch_lastCurv_sp_index = expl_temp_tmp.sp_index;
+                    batch_lastCurv_i_begin_sp = expl_temp_tmp.i_begin_sp;
+                    batch_lastCurv_i_end_sp = expl_temp_tmp.i_end_sp;
+                    batch_lastCurv_index_smooth = expl_temp_tmp.index_smooth;
+                    batch_lastCurv_UseConstJerk = expl_temp_tmp.UseConstJerk;
+                    batch_lastCurv_ConstJerk = expl_temp_tmp.ConstJerk;
+                    batch_lastCurv_a_param = expl_temp_tmp.a_param;
+                    batch_lastCurv_b_param = expl_temp_tmp.b_param;
                 }
                 batch_pvec.set_size(6, 1);
-                for (int i8{0}; i8 < 6; i8++) {
-                    batch_pvec[i8] = 0.0;
+                for (int i47{0}; i47 < 6; i47++) {
+                    batch_pvec[i47] = 0.0;
                 }
+                batch_lastCurv.Info.Type = batch_lastCurv_Info_Type;
+                batch_lastCurv.Info.zspdmode = batch_lastCurv_Info_zspdmode;
+                batch_lastCurv.Info.TRAFO = batch_lastCurv_Info_TRAFO;
+                batch_lastCurv.Info.HSC = batch_lastCurv_Info_HSC;
+                batch_lastCurv.Info.FeedRate = batch_lastCurv_Info_FeedRate;
+                batch_lastCurv.Info.SpindleSpeed = batch_lastCurv_Info_SpindleSpeed;
+                batch_lastCurv.Info.gcode_source_line = batch_lastCurv_Info_gcode_source_line;
+                batch_lastCurv.Info.G91 = batch_lastCurv_Info_G91;
+                batch_lastCurv.Info.G91_1 = batch_lastCurv_Info_G91_1;
+                batch_lastCurv.tool.toolno = batch_lastCurv_tool_toolno;
+                batch_lastCurv.tool.pocketno = batch_lastCurv_tool_pocketno;
+                batch_lastCurv.tool.offset.x = batch_lastCurv_tool_offset_x;
+                batch_lastCurv.tool.offset.y = batch_lastCurv_tool_offset_y;
+                batch_lastCurv.tool.offset.z = batch_lastCurv_tool_offset_z;
+                batch_lastCurv.tool.offset.a = batch_lastCurv_tool_offset_a;
+                batch_lastCurv.tool.offset.b = batch_lastCurv_tool_offset_b;
+                batch_lastCurv.tool.offset.c = batch_lastCurv_tool_offset_c;
+                batch_lastCurv.tool.offset.u = batch_lastCurv_tool_offset_u;
+                batch_lastCurv.tool.offset.v = batch_lastCurv_tool_offset_v;
+                batch_lastCurv.tool.offset.w = batch_lastCurv_tool_offset_w;
+                batch_lastCurv.tool.diameter = batch_lastCurv_tool_diameter;
+                batch_lastCurv.tool.frontangle = batch_lastCurv_tool_frontangle;
+                batch_lastCurv.tool.backangle = batch_lastCurv_tool_backangle;
+                batch_lastCurv.tool.orientation = batch_lastCurv_tool_orientation;
+                batch_lastCurv.sp.Bl.ncoeff = batch_lastCurv_sp_Bl_ncoeff;
+                vb_loop_ub = e_expl_temp.sp.Bl.breakpoints.size(1);
+                batch_lastCurv.sp.Bl.breakpoints.set_size(1, e_expl_temp.sp.Bl.breakpoints.size(1));
+                for (int i48{0}; i48 < vb_loop_ub; i48++) {
+                    batch_lastCurv.sp.Bl.breakpoints[i48] = e_expl_temp.sp.Bl.breakpoints[i48];
+                }
+                batch_lastCurv.sp.Bl.handle = batch_lastCurv_sp_Bl_handle;
+                batch_lastCurv.sp.Bl.order = batch_lastCurv_sp_Bl_order;
+                wb_loop_ub = e_expl_temp.sp.coeff.size(1);
+                batch_lastCurv.sp.coeff.set_size(e_expl_temp.sp.coeff.size(0),
+                                                 e_expl_temp.sp.coeff.size(1));
+                for (int i49{0}; i49 < wb_loop_ub; i49++) {
+                    int yb_loop_ub;
+                    yb_loop_ub = e_expl_temp.sp.coeff.size(0);
+                    for (int i50{0}; i50 < yb_loop_ub; i50++) {
+                        batch_lastCurv.sp.coeff[i50 + batch_lastCurv.sp.coeff.size(0) * i49] =
+                            e_expl_temp.sp.coeff[i50 + e_expl_temp.sp.coeff.size(0) * i49];
+                    }
+                }
+                xb_loop_ub = e_expl_temp.sp.knots.size(1);
+                batch_lastCurv.sp.knots.set_size(1, e_expl_temp.sp.knots.size(1));
+                for (int i51{0}; i51 < xb_loop_ub; i51++) {
+                    batch_lastCurv.sp.knots[i51] = e_expl_temp.sp.knots[i51];
+                }
+                batch_lastCurv.sp.Ltot = batch_lastCurv_sp_Ltot;
+                ac_loop_ub = e_expl_temp.sp.Lk.size(1);
+                batch_lastCurv.sp.Lk.set_size(1, e_expl_temp.sp.Lk.size(1));
+                for (int i52{0}; i52 < ac_loop_ub; i52++) {
+                    batch_lastCurv.sp.Lk[i52] = e_expl_temp.sp.Lk[i52];
+                }
+                batch_lastCurv.delta = batch_lastCurv_delta;
+                batch_lastCurv.CorrectedHelixCenter[0] = e_expl_temp.CorrectedHelixCenter[0];
+                batch_lastCurv.evec[0] = e_expl_temp.evec[0];
+                batch_lastCurv.CorrectedHelixCenter[1] = e_expl_temp.CorrectedHelixCenter[1];
+                batch_lastCurv.evec[1] = e_expl_temp.evec[1];
+                batch_lastCurv.CorrectedHelixCenter[2] = e_expl_temp.CorrectedHelixCenter[2];
+                batch_lastCurv.evec[2] = e_expl_temp.evec[2];
+                batch_lastCurv.theta = batch_lastCurv_theta;
+                batch_lastCurv.pitch = batch_lastCurv_pitch;
+                batch_lastCurv.sp_index = batch_lastCurv_sp_index;
+                batch_lastCurv.i_begin_sp = batch_lastCurv_i_begin_sp;
+                batch_lastCurv.i_end_sp = batch_lastCurv_i_end_sp;
+                batch_lastCurv.index_smooth = batch_lastCurv_index_smooth;
+                batch_lastCurv.UseConstJerk = batch_lastCurv_UseConstJerk;
+                batch_lastCurv.ConstJerk = batch_lastCurv_ConstJerk;
+                bc_loop_ub = e_expl_temp.Coeff.size(0);
+                batch_lastCurv.Coeff.set_size(e_expl_temp.Coeff.size(0));
+                for (int i53{0}; i53 < bc_loop_ub; i53++) {
+                    batch_lastCurv.Coeff[i53] = e_expl_temp.Coeff[i53];
+                }
+                batch_lastCurv.a_param = batch_lastCurv_a_param;
+                batch_lastCurv.b_param = batch_lastCurv_b_param;
                 batch_size = 0.0;
                 batch_zspdmode = ZSpdMode_NN;
             }
-            // 'compressCurvStructs:40' if( addBatch )
+            // 'compressCurvStructs:36' if( addBatch )
             if (addBatch) {
-                // 'compressCurvStructs:41' [ batch ] = batch_add_curv( batch, curv );
-                // 'compressCurvStructs:164' if( batch.size == 0 )
+                // 'compressCurvStructs:37' [ batch ] = batch_add_curv( batch, curv );
+                // 'compressCurvStructs:168' if( batch.size == 0 )
                 if (batch_size == 0.0) {
-                    double b_curv[2][6];
-                    // 'compressCurvStructs:165' batch.pvec      = [ curv.R0, curv.R1 ];
-                    for (int i4{0}; i4 < 6; i4++) {
-                        b_curv[0][i4] = curv.R0[i4];
-                        b_curv[1][i4] = curv.R1[i4];
+                    int k_loop_ub;
+                    int l_loop_ub;
+                    // 'compressCurvStructs:169' batch.pvec      = [ curv.R0, curv.R1 ];
+                    batch_pvec.set_size(curv.R0.size(0), 2);
+                    k_loop_ub = curv.R0.size(0);
+                    for (int i12{0}; i12 < k_loop_ub; i12++) {
+                        batch_pvec[i12] = curv.R0[i12];
                     }
-                    batch_pvec.set_size(6, 2);
-                    for (int i6{0}; i6 < 2; i6++) {
-                        for (int i7{0}; i7 < 6; i7++) {
-                            batch_pvec[i7 + 6 * i6] = b_curv[i6][i7];
-                        }
+                    l_loop_ub = curv.R1.size(0);
+                    for (int i13{0}; i13 < l_loop_ub; i13++) {
+                        batch_pvec[i13 + batch_pvec.size(0)] = curv.R1[i13];
                     }
-                    // 'compressCurvStructs:166' batch.lastCurv  = curv;
+                    // 'compressCurvStructs:170' batch.lastCurv  = curv;
                     batch_lastCurv = curv;
-                    // 'compressCurvStructs:167' batch.size      = 1;
+                    // 'compressCurvStructs:171' batch.size      = 1;
                     batch_size = 1.0;
-                    // 'compressCurvStructs:168' batch.zspdmode  = curv.Info.zspdmode;
+                    // 'compressCurvStructs:172' batch.zspdmode  = curv.Info.zspdmode;
                     batch_zspdmode = curv.Info.zspdmode;
                 } else {
-                    int i3;
+                    int m_loop_ub;
+                    int n_loop_ub;
+                    int result;
+                    signed char i14;
                     bool b_zeroFlag;
-                    // 'compressCurvStructs:169' else
-                    // 'compressCurvStructs:170' batch.pvec      = [ batch.pvec, curv.R1 ];
-                    i3 = batch_pvec.size(1);
-                    batch_pvec.set_size(6, batch_pvec.size(1) + 1);
-                    for (int i5{0}; i5 < 6; i5++) {
-                        batch_pvec[i5 + 6 * i3] = curv.R1[i5];
+                    bool empty_non_axis_sizes;
+                    // 'compressCurvStructs:173' else
+                    // 'compressCurvStructs:174' batch.pvec      = [ batch.pvec, curv.R1 ];
+                    if ((batch_pvec.size(0) != 0) && (batch_pvec.size(1) != 0)) {
+                        result = batch_pvec.size(0);
+                    } else if (curv.R1.size(0) != 0) {
+                        result = curv.R1.size(0);
+                    } else {
+                        result = batch_pvec.size(0);
+                        if (curv.R1.size(0) > batch_pvec.size(0)) {
+                            result = curv.R1.size(0);
+                        }
                     }
-                    // 'compressCurvStructs:171' batch.lastCurv  = curv;
+                    empty_non_axis_sizes = (result == 0);
+                    if (empty_non_axis_sizes ||
+                        ((batch_pvec.size(0) != 0) && (batch_pvec.size(1) != 0))) {
+                        m_loop_ub = batch_pvec.size(1);
+                    } else {
+                        m_loop_ub = 0;
+                    }
+                    if (empty_non_axis_sizes || (curv.R1.size(0) != 0)) {
+                        i14 = 1;
+                    } else {
+                        i14 = 0;
+                    }
+                    for (int i15{0}; i15 < m_loop_ub; i15++) {
+                        for (int i16{0}; i16 < result; i16++) {
+                            batch_pvec[i16 + batch_pvec.size(0) * i15] =
+                                batch_pvec[i16 + result * i15];
+                        }
+                    }
+                    batch_pvec.set_size(result, m_loop_ub + i14);
+                    n_loop_ub = i14;
+                    for (int i17{0}; i17 < n_loop_ub; i17++) {
+                        for (int i19{0}; i19 < result; i19++) {
+                            batch_pvec[i19 + batch_pvec.size(0) * m_loop_ub] = curv.R1[i19];
+                        }
+                    }
+                    // 'compressCurvStructs:175' batch.lastCurv  = curv;
                     batch_lastCurv = curv;
-                    // 'compressCurvStructs:172' batch.size      = batch.size + 1;
+                    // 'compressCurvStructs:176' batch.size      = batch.size + 1;
                     batch_size++;
-                    // 'compressCurvStructs:173' if( isAZeroEnd( curv ) )
+                    // 'compressCurvStructs:177' if( isAZeroEnd( curv ) )
                     //  isAZeroEnd : Return true if the curv ends with zero speed
                     //  Input :
                     //  curv / Info / ZSpdMode : A structure containning the information of the
@@ -1486,7 +1991,7 @@ void compressCurvStructs(b_FeedoptContext *ctx)
                     }
                     if (b_zeroFlag) {
                         bool c_zeroFlag;
-                        // 'compressCurvStructs:174' if( isAZeroStart( batch.zspdmode ) )
+                        // 'compressCurvStructs:178' if( isAZeroStart( batch.zspdmode ) )
                         //  isAZeroStart : Return true if the curv starts with zero speed
                         //  Input :
                         //  curv / Info / ZSpdMode : A structure containning the information of the
@@ -1506,28 +2011,28 @@ void compressCurvStructs(b_FeedoptContext *ctx)
                             c_zeroFlag = true;
                         }
                         if (c_zeroFlag) {
-                            // 'compressCurvStructs:175' batch.zspdmode = ZSpdMode.ZZ;
+                            // 'compressCurvStructs:179' batch.zspdmode = ZSpdMode.ZZ;
                             batch_zspdmode = ZSpdMode_ZZ;
                         } else {
-                            // 'compressCurvStructs:176' else
-                            // 'compressCurvStructs:177' batch.zspdmode = ZSpdMode.NZ;
+                            // 'compressCurvStructs:180' else
+                            // 'compressCurvStructs:181' batch.zspdmode = ZSpdMode.NZ;
                             batch_zspdmode = ZSpdMode_NZ;
                         }
                     }
                 }
             } else {
-                // 'compressCurvStructs:42' else
-                // 'compressCurvStructs:43' ctx.q_compress.push( curv );
+                // 'compressCurvStructs:38' else
+                // 'compressCurvStructs:39' ctx.q_compress.push( curv );
                 ctx->q_compress.push(&curv);
             }
         }
-        // 'compressCurvStructs:48' [ ctx ] = batch_close( ctx, batch, spline_index );
-        // 'compressCurvStructs:140' if( batch.size == 0 )
+        // 'compressCurvStructs:44' [ ctx ] = batch_close( ctx, batch, spline_index );
+        // 'compressCurvStructs:136' if( batch.size == 0 )
         if (batch_size != 0.0) {
-            // 'compressCurvStructs:145' if( batch.size > 1 )
+            // 'compressCurvStructs:141' if( batch.size > 1 )
             if (batch_size > 1.0) {
-                // 'compressCurvStructs:146' [ curvCompressed, spline, spline_index ] = ...
-                // 'compressCurvStructs:147'         create_spline( ctx, batch, spline_index );
+                // 'compressCurvStructs:142' [ curvCompressed, spline, spline_index ] = ...
+                // 'compressCurvStructs:143'         create_spline( ctx, batch, spline_index );
                 b_spline_index = spline_index;
                 create_spline(ctx->cfg.maskTot.data, ctx->cfg.maskTot.size, ctx->cfg.NumberAxis,
                               ctx->cfg.LeeSplineDegree, ctx->cfg.GaussLegendreN,
@@ -1537,19 +2042,21 @@ void compressCurvStructs(b_FeedoptContext *ctx)
                               batch_lastCurv.Info.gcode_source_line, batch_lastCurv.Info.G91,
                               batch_lastCurv.Info.G91_1, &batch_lastCurv.tool, batch_zspdmode,
                               &b_spline_index, &curvCompressed, &spline);
-                // 'compressCurvStructs:149' ctx.q_compress.push( curvCompressed );
+                // 'compressCurvStructs:145' ctx.q_compress.push( curvCompressed );
                 ctx->q_compress.push(&curvCompressed);
-                // 'compressCurvStructs:150' ctx.q_spline.push( spline );
+                // 'compressCurvStructs:146' ctx.q_spline.push( spline );
                 ctx->q_spline.push(&spline);
+                //      [r, rd, rdd, rddd ] = EvalCurvStruct( ctx, curvCompressed, [0, 1]);
+                // 'compressCurvStructs:150' if( coder.target( "MATLAB" ) )
             } else {
-                // 'compressCurvStructs:151' else
-                // 'compressCurvStructs:152' ctx.q_compress.push( batch.lastCurv );
+                // 'compressCurvStructs:155' else
+                // 'compressCurvStructs:156' ctx.q_compress.push( batch.lastCurv );
                 ctx->q_compress.push(&batch_lastCurv);
             }
-            // 'compressCurvStructs:155' if( coder.target( "MATLAB" ) )
-            // 'compressCurvStructs:159' batch = batch_init();
+            // 'compressCurvStructs:159' if( coder.target( "MATLAB" ) )
+            // 'compressCurvStructs:163' batch = batch_init();
         } else {
-            // 'compressCurvStructs:141' batch = batch_init();
+            // 'compressCurvStructs:137' batch = batch_init();
         }
     }
 }

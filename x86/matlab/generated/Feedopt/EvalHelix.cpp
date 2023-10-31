@@ -30,8 +30,7 @@ static void binary_expand_op(::coder::array<double, 2U> &in1, double in2,
                              const ::coder::array<double, 2U> &in3, double in4,
                              const ::coder::array<double, 2U> &in5);
 
-static void binary_expand_op(double in1[3], const double in2[6], const signed char in3_data[],
-                             const int in3_size[2], const double in4[3]);
+static void minus(double in1[3], const double in2_data[], const int *in2_size, const double in3[3]);
 
 } // namespace ocn
 
@@ -202,20 +201,18 @@ static void binary_expand_op(::coder::array<double, 2U> &in1, double in2,
 
 //
 // Arguments    : double in1[3]
-//                const double in2[6]
-//                const signed char in3_data[]
-//                const int in3_size[2]
-//                const double in4[3]
+//                const double in2_data[]
+//                const int *in2_size
+//                const double in3[3]
 // Return Type  : void
 //
-static void binary_expand_op(double in1[3], const double in2[6], const signed char in3_data[],
-                             const int in3_size[2], const double in4[3])
+static void minus(double in1[3], const double in2_data[], const int *in2_size, const double in3[3])
 {
     int stride_0_0;
-    stride_0_0 = (in3_size[1] != 1);
-    in1[0] = in2[in3_data[0] - 1] - in4[0];
-    in1[1] = in2[in3_data[stride_0_0] - 1] - in4[1];
-    in1[2] = in2[in3_data[stride_0_0 << 1] - 1] - in4[2];
+    stride_0_0 = (*in2_size != 1);
+    in1[0] = in2_data[0] - in3[0];
+    in1[1] = in2_data[stride_0_0] - in3[1];
+    in1[2] = in2_data[stride_0_0 << 1] - in3[2];
 }
 
 //
@@ -237,7 +234,7 @@ static void binary_expand_op(double in1[3], const double in2[6], const signed ch
 //  r3D           : The 3rd order parametric derivative of the curve at the
 //                  specified points
 //
-// Arguments    : const double CurvStruct_R0[6]
+// Arguments    : const ::coder::array<double, 1U> &CurvStruct_R0
 //                const double CurvStruct_CorrectedHelixCenter[3]
 //                const double CurvStruct_evec[3]
 //                double CurvStruct_theta
@@ -251,8 +248,9 @@ static void binary_expand_op(double in1[3], const double in2[6], const signed ch
 //                double r3D[3]
 // Return Type  : void
 //
-void EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedHelixCenter[3],
-               const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+void EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
+               const double CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3],
+               double CurvStruct_theta, double CurvStruct_pitch,
                const ::coder::array<double, 1U> &u_vec, const bool maskCart_data[],
                const int maskCart_size[2], double r0D[3], double r1D[3], double r2D[3],
                double r3D[3])
@@ -260,9 +258,9 @@ void EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedH
     ::coder::array<double, 1U> cphi;
     ::coder::array<double, 1U> phi_vec;
     ::coder::array<double, 1U> sphi;
+    double P0_data[6];
     double CP0[3];
     double EcrCP0[3];
-    int tmp_size[2];
     int b_loop_ub;
     int c_loop_ub;
     int end;
@@ -283,7 +281,6 @@ void EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedH
     // 'EvalHelix:24' P0      = CurvStruct.R0( maskCart );
     end = maskCart_size[1] - 1;
     trueCount = 0;
-    tmp_size[0] = 1;
     partialTrueCount = 0;
     for (int i{0}; i <= end; i++) {
         if (maskCart_data[i]) {
@@ -292,7 +289,9 @@ void EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedH
             partialTrueCount++;
         }
     }
-    tmp_size[1] = trueCount;
+    for (int b_i{0}; b_i < trueCount; b_i++) {
+        P0_data[b_i] = CurvStruct_R0[tmp_data[b_i] - 1];
+    }
     // 'EvalHelix:25' P1      = CurvStruct.R1( maskCart );
     // 'EvalHelix:26' evec    = CurvStruct.evec;
     // 'EvalHelix:27' theta   = CurvStruct.theta;
@@ -302,11 +301,14 @@ void EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedH
     // 'EvalHelix:33' C           = CurvStruct.CorrectedHelixCenter;
     // 'EvalHelix:34' CP0         = P0 - C;
     if (trueCount == 3) {
-        for (int b_i{0}; b_i < 3; b_i++) {
-            CP0[b_i] = CurvStruct_R0[tmp_data[b_i] - 1] - CurvStruct_CorrectedHelixCenter[b_i];
-        }
+        __m128d r;
+        r = _mm_loadu_pd(&P0_data[0]);
+        _mm_storeu_pd(
+            &CP0[0],
+            _mm_sub_pd(r, _mm_loadu_pd((const double *)&CurvStruct_CorrectedHelixCenter[0])));
+        CP0[2] = P0_data[2] - CurvStruct_CorrectedHelixCenter[2];
     } else {
-        binary_expand_op(CP0, CurvStruct_R0, tmp_data, tmp_size, CurvStruct_CorrectedHelixCenter);
+        minus(CP0, P0_data, &trueCount, CurvStruct_CorrectedHelixCenter);
     }
     // 'EvalHelix:35' phi_vec     = theta * u_vec;
     phi_vec.set_size(u_vec.size(0));
@@ -349,8 +351,8 @@ void EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedH
     for (int b_k{0}; b_k < i5; b_k++) {
         sphi[b_k] = std::sin(sphi[b_k]);
     }
-    __m128d r;
     __m128d r1;
+    __m128d r10;
     __m128d r2;
     __m128d r3;
     __m128d r4;
@@ -386,27 +388,27 @@ void EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedH
     a_tmp = CurvStruct_theta * CurvStruct_theta;
     // 'EvalHelix:52' r3D       =  theta^3*sphiTCP0  - theta^3*cphiTEcrCP0;
     b_a_tmp = std::pow(CurvStruct_theta, 3.0);
-    r = _mm_loadu_pd(&CP0[0]);
-    r2 = _mm_set1_pd(cphi[0]);
-    r1 = _mm_mul_pd(r, r2);
-    r4 = _mm_set1_pd(sphi[0]);
-    r3 = _mm_mul_pd(r, r4);
-    r5 = _mm_loadu_pd(&EcrCP0[0]);
-    r6 = _mm_mul_pd(r5, r2);
-    r7 = _mm_mul_pd(r5, r4);
-    r8 = _mm_loadu_pd((const double *)&CurvStruct_evec[0]);
+    r1 = _mm_loadu_pd(&CP0[0]);
+    r3 = _mm_set1_pd(cphi[0]);
+    r2 = _mm_mul_pd(r1, r3);
+    r5 = _mm_set1_pd(sphi[0]);
+    r4 = _mm_mul_pd(r1, r5);
+    r6 = _mm_loadu_pd(&EcrCP0[0]);
+    r7 = _mm_mul_pd(r6, r3);
+    r8 = _mm_mul_pd(r6, r5);
+    r9 = _mm_loadu_pd((const double *)&CurvStruct_evec[0]);
     _mm_storeu_pd(
         &r0D[0],
         _mm_add_pd(_mm_loadu_pd((const double *)&CurvStruct_CorrectedHelixCenter[0]),
-                   _mm_add_pd(_mm_add_pd(r1, r7), _mm_mul_pd(_mm_mul_pd(_mm_set1_pd(a), r8),
+                   _mm_add_pd(_mm_add_pd(r2, r8), _mm_mul_pd(_mm_mul_pd(_mm_set1_pd(a), r9),
                                                              _mm_set1_pd(phi_vec[0])))));
-    _mm_storeu_pd(&r1D[0], _mm_add_pd(_mm_add_pd(_mm_mul_pd(_mm_set1_pd(-CurvStruct_theta), r3),
-                                                 _mm_mul_pd(_mm_set1_pd(CurvStruct_theta), r6)),
-                                      _mm_mul_pd(_mm_set1_pd(b_a), r8)));
-    _mm_storeu_pd(&r2D[0], _mm_sub_pd(_mm_mul_pd(_mm_set1_pd(-a_tmp), r1),
-                                      _mm_mul_pd(_mm_set1_pd(a_tmp), r7)));
-    r9 = _mm_set1_pd(b_a_tmp);
-    _mm_storeu_pd(&r3D[0], _mm_sub_pd(_mm_mul_pd(r9, r3), _mm_mul_pd(r9, r6)));
+    _mm_storeu_pd(&r1D[0], _mm_add_pd(_mm_add_pd(_mm_mul_pd(_mm_set1_pd(-CurvStruct_theta), r4),
+                                                 _mm_mul_pd(_mm_set1_pd(CurvStruct_theta), r7)),
+                                      _mm_mul_pd(_mm_set1_pd(b_a), r9)));
+    _mm_storeu_pd(&r2D[0], _mm_sub_pd(_mm_mul_pd(_mm_set1_pd(-a_tmp), r2),
+                                      _mm_mul_pd(_mm_set1_pd(a_tmp), r8)));
+    r10 = _mm_set1_pd(b_a_tmp);
+    _mm_storeu_pd(&r3D[0], _mm_sub_pd(_mm_mul_pd(r10, r4), _mm_mul_pd(r10, r7)));
     d = cphi[0] * CP0[2];
     d1 = sphi[0] * CP0[2];
     d2 = cphi[0] * EcrCP0[2];
@@ -436,7 +438,7 @@ void EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedH
 //  r3D           : The 3rd order parametric derivative of the curve at the
 //                  specified points
 //
-// Arguments    : const double CurvStruct_R0[6]
+// Arguments    : const ::coder::array<double, 1U> &CurvStruct_R0
 //                const double CurvStruct_CorrectedHelixCenter[3]
 //                const double CurvStruct_evec[3]
 //                double CurvStruct_theta
@@ -450,13 +452,14 @@ void EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedH
 //                double r3D[3]
 // Return Type  : void
 //
-void b_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedHelixCenter[3],
-                 const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
-                 double u_vec, const bool maskCart_data[], const int maskCart_size[2],
-                 double r0D[3], double r1D[3], double r2D[3], double r3D[3])
+void b_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
+                 const double CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3],
+                 double CurvStruct_theta, double CurvStruct_pitch, double u_vec,
+                 const bool maskCart_data[], const int maskCart_size[2], double r0D[3],
+                 double r1D[3], double r2D[3], double r3D[3])
 {
-    __m128d r;
     __m128d r1;
+    __m128d r10;
     __m128d r2;
     __m128d r3;
     __m128d r4;
@@ -465,6 +468,7 @@ void b_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
     __m128d r7;
     __m128d r8;
     __m128d r9;
+    double P0_data[6];
     double CP0[3];
     double EcrCP0[3];
     double a;
@@ -478,7 +482,6 @@ void b_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
     double d3;
     double phi_vec;
     double sphi;
-    int tmp_size[2];
     int end;
     int partialTrueCount;
     int trueCount;
@@ -492,7 +495,6 @@ void b_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
     // 'EvalHelix:24' P0      = CurvStruct.R0( maskCart );
     end = maskCart_size[1] - 1;
     trueCount = 0;
-    tmp_size[0] = 1;
     partialTrueCount = 0;
     for (int i{0}; i <= end; i++) {
         if (maskCart_data[i]) {
@@ -501,7 +503,9 @@ void b_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
             partialTrueCount++;
         }
     }
-    tmp_size[1] = trueCount;
+    for (int b_i{0}; b_i < trueCount; b_i++) {
+        P0_data[b_i] = CurvStruct_R0[tmp_data[b_i] - 1];
+    }
     // 'EvalHelix:25' P1      = CurvStruct.R1( maskCart );
     // 'EvalHelix:26' evec    = CurvStruct.evec;
     // 'EvalHelix:27' theta   = CurvStruct.theta;
@@ -511,11 +515,14 @@ void b_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
     // 'EvalHelix:33' C           = CurvStruct.CorrectedHelixCenter;
     // 'EvalHelix:34' CP0         = P0 - C;
     if (trueCount == 3) {
-        for (int b_i{0}; b_i < 3; b_i++) {
-            CP0[b_i] = CurvStruct_R0[tmp_data[b_i] - 1] - CurvStruct_CorrectedHelixCenter[b_i];
-        }
+        __m128d r;
+        r = _mm_loadu_pd(&P0_data[0]);
+        _mm_storeu_pd(
+            &CP0[0],
+            _mm_sub_pd(r, _mm_loadu_pd((const double *)&CurvStruct_CorrectedHelixCenter[0])));
+        CP0[2] = P0_data[2] - CurvStruct_CorrectedHelixCenter[2];
     } else {
-        binary_expand_op(CP0, CurvStruct_R0, tmp_data, tmp_size, CurvStruct_CorrectedHelixCenter);
+        minus(CP0, P0_data, &trueCount, CurvStruct_CorrectedHelixCenter);
     }
     // 'EvalHelix:35' phi_vec     = theta * u_vec;
     phi_vec = CurvStruct_theta * u_vec;
@@ -551,27 +558,27 @@ void b_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
     a_tmp = CurvStruct_theta * CurvStruct_theta;
     // 'EvalHelix:52' r3D       =  theta^3*sphiTCP0  - theta^3*cphiTEcrCP0;
     b_a_tmp = std::pow(CurvStruct_theta, 3.0);
-    r = _mm_loadu_pd(&CP0[0]);
-    r2 = _mm_set1_pd(cphi);
-    r1 = _mm_mul_pd(r, r2);
-    r4 = _mm_set1_pd(sphi);
-    r3 = _mm_mul_pd(r, r4);
-    r5 = _mm_loadu_pd(&EcrCP0[0]);
-    r6 = _mm_mul_pd(r5, r2);
-    r7 = _mm_mul_pd(r5, r4);
-    r8 = _mm_loadu_pd((const double *)&CurvStruct_evec[0]);
+    r1 = _mm_loadu_pd(&CP0[0]);
+    r3 = _mm_set1_pd(cphi);
+    r2 = _mm_mul_pd(r1, r3);
+    r5 = _mm_set1_pd(sphi);
+    r4 = _mm_mul_pd(r1, r5);
+    r6 = _mm_loadu_pd(&EcrCP0[0]);
+    r7 = _mm_mul_pd(r6, r3);
+    r8 = _mm_mul_pd(r6, r5);
+    r9 = _mm_loadu_pd((const double *)&CurvStruct_evec[0]);
     _mm_storeu_pd(
         &r0D[0],
         _mm_add_pd(_mm_loadu_pd((const double *)&CurvStruct_CorrectedHelixCenter[0]),
-                   _mm_add_pd(_mm_add_pd(r1, r7),
-                              _mm_mul_pd(_mm_mul_pd(_mm_set1_pd(a), r8), _mm_set1_pd(phi_vec)))));
-    _mm_storeu_pd(&r1D[0], _mm_add_pd(_mm_add_pd(_mm_mul_pd(_mm_set1_pd(-CurvStruct_theta), r3),
-                                                 _mm_mul_pd(_mm_set1_pd(CurvStruct_theta), r6)),
-                                      _mm_mul_pd(_mm_set1_pd(b_a), r8)));
-    _mm_storeu_pd(&r2D[0], _mm_sub_pd(_mm_mul_pd(_mm_set1_pd(-a_tmp), r1),
-                                      _mm_mul_pd(_mm_set1_pd(a_tmp), r7)));
-    r9 = _mm_set1_pd(b_a_tmp);
-    _mm_storeu_pd(&r3D[0], _mm_sub_pd(_mm_mul_pd(r9, r3), _mm_mul_pd(r9, r6)));
+                   _mm_add_pd(_mm_add_pd(r2, r8),
+                              _mm_mul_pd(_mm_mul_pd(_mm_set1_pd(a), r9), _mm_set1_pd(phi_vec)))));
+    _mm_storeu_pd(&r1D[0], _mm_add_pd(_mm_add_pd(_mm_mul_pd(_mm_set1_pd(-CurvStruct_theta), r4),
+                                                 _mm_mul_pd(_mm_set1_pd(CurvStruct_theta), r7)),
+                                      _mm_mul_pd(_mm_set1_pd(b_a), r9)));
+    _mm_storeu_pd(&r2D[0], _mm_sub_pd(_mm_mul_pd(_mm_set1_pd(-a_tmp), r2),
+                                      _mm_mul_pd(_mm_set1_pd(a_tmp), r8)));
+    r10 = _mm_set1_pd(b_a_tmp);
+    _mm_storeu_pd(&r3D[0], _mm_sub_pd(_mm_mul_pd(r10, r4), _mm_mul_pd(r10, r7)));
     d = CP0[2] * cphi;
     d1 = CP0[2] * sphi;
     d2 = EcrCP0[2] * cphi;
@@ -601,7 +608,7 @@ void b_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
 //  r3D           : The 3rd order parametric derivative of the curve at the
 //                  specified points
 //
-// Arguments    : const double CurvStruct_R0[6]
+// Arguments    : const ::coder::array<double, 1U> &CurvStruct_R0
 //                const double CurvStruct_CorrectedHelixCenter[3]
 //                const double CurvStruct_evec[3]
 //                double CurvStruct_theta
@@ -615,8 +622,9 @@ void b_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
 //                ::coder::array<double, 2U> &r3D
 // Return Type  : void
 //
-void c_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedHelixCenter[3],
-                 const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+void c_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
+                 const double CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3],
+                 double CurvStruct_theta, double CurvStruct_pitch,
                  const ::coder::array<double, 2U> &u_vec, const bool maskCart_data[],
                  const int maskCart_size[2], ::coder::array<double, 2U> &r0D,
                  ::coder::array<double, 2U> &r1D, ::coder::array<double, 2U> &r2D,
@@ -628,10 +636,11 @@ void c_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
     ::coder::array<double, 2U> cphiTCP0;
     ::coder::array<double, 2U> cphiTEcrCP0;
     ::coder::array<double, 2U> phi_vec;
-    ::coder::array<double, 2U> r4;
+    ::coder::array<double, 2U> r5;
     ::coder::array<double, 2U> sphi;
     ::coder::array<double, 2U> sphiTCP0;
     ::coder::array<double, 2U> sphiTEcrCP0;
+    double P0_data[6];
     double CP0[3];
     double EcrCP0[3];
     double y[3];
@@ -639,7 +648,6 @@ void c_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
     double a_tmp;
     double b_a;
     double b_a_tmp;
-    int tmp_size[2];
     int b_loop_ub;
     int c_loop_ub;
     int d_loop_ub;
@@ -666,7 +674,6 @@ void c_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
     // 'EvalHelix:24' P0      = CurvStruct.R0( maskCart );
     end = maskCart_size[1] - 1;
     trueCount = 0;
-    tmp_size[0] = 1;
     partialTrueCount = 0;
     for (int i{0}; i <= end; i++) {
         if (maskCart_data[i]) {
@@ -675,7 +682,9 @@ void c_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
             partialTrueCount++;
         }
     }
-    tmp_size[1] = trueCount;
+    for (int b_i{0}; b_i < trueCount; b_i++) {
+        P0_data[b_i] = CurvStruct_R0[tmp_data[b_i] - 1];
+    }
     // 'EvalHelix:25' P1      = CurvStruct.R1( maskCart );
     // 'EvalHelix:26' evec    = CurvStruct.evec;
     // 'EvalHelix:27' theta   = CurvStruct.theta;
@@ -685,11 +694,14 @@ void c_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
     // 'EvalHelix:33' C           = CurvStruct.CorrectedHelixCenter;
     // 'EvalHelix:34' CP0         = P0 - C;
     if (trueCount == 3) {
-        for (int b_i{0}; b_i < 3; b_i++) {
-            CP0[b_i] = CurvStruct_R0[tmp_data[b_i] - 1] - CurvStruct_CorrectedHelixCenter[b_i];
-        }
+        __m128d r;
+        r = _mm_loadu_pd(&P0_data[0]);
+        _mm_storeu_pd(
+            &CP0[0],
+            _mm_sub_pd(r, _mm_loadu_pd((const double *)&CurvStruct_CorrectedHelixCenter[0])));
+        CP0[2] = P0_data[2] - CurvStruct_CorrectedHelixCenter[2];
     } else {
-        binary_expand_op(CP0, CurvStruct_R0, tmp_data, tmp_size, CurvStruct_CorrectedHelixCenter);
+        minus(CP0, P0_data, &trueCount, CurvStruct_CorrectedHelixCenter);
     }
     // 'EvalHelix:35' phi_vec     = theta * u_vec;
     phi_vec.set_size(1, u_vec.size(1));
@@ -739,36 +751,36 @@ void c_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
     cphiTCP0.set_size(3, cphi.size(1));
     d_loop_ub = cphi.size(1);
     for (int i6{0}; i6 < d_loop_ub; i6++) {
-        __m128d r;
-        r = _mm_loadu_pd(&CP0[0]);
-        _mm_storeu_pd(&cphiTCP0[3 * i6], _mm_mul_pd(r, _mm_set1_pd(cphi[i6])));
+        __m128d r1;
+        r1 = _mm_loadu_pd(&CP0[0]);
+        _mm_storeu_pd(&cphiTCP0[3 * i6], _mm_mul_pd(r1, _mm_set1_pd(cphi[i6])));
         cphiTCP0[3 * i6 + 2] = CP0[2] * cphi[i6];
     }
     // 'EvalHelix:42' sphiTCP0    = CP0 * sphi;
     sphiTCP0.set_size(3, sphi.size(1));
     e_loop_ub = sphi.size(1);
     for (int i7{0}; i7 < e_loop_ub; i7++) {
-        __m128d r1;
-        r1 = _mm_loadu_pd(&CP0[0]);
-        _mm_storeu_pd(&sphiTCP0[3 * i7], _mm_mul_pd(r1, _mm_set1_pd(sphi[i7])));
+        __m128d r2;
+        r2 = _mm_loadu_pd(&CP0[0]);
+        _mm_storeu_pd(&sphiTCP0[3 * i7], _mm_mul_pd(r2, _mm_set1_pd(sphi[i7])));
         sphiTCP0[3 * i7 + 2] = CP0[2] * sphi[i7];
     }
     // 'EvalHelix:43' cphiTEcrCP0 = EcrCP0 * cphi;
     cphiTEcrCP0.set_size(3, cphi.size(1));
     f_loop_ub = cphi.size(1);
     for (int i8{0}; i8 < f_loop_ub; i8++) {
-        __m128d r2;
-        r2 = _mm_loadu_pd(&EcrCP0[0]);
-        _mm_storeu_pd(&cphiTEcrCP0[3 * i8], _mm_mul_pd(r2, _mm_set1_pd(cphi[i8])));
+        __m128d r3;
+        r3 = _mm_loadu_pd(&EcrCP0[0]);
+        _mm_storeu_pd(&cphiTEcrCP0[3 * i8], _mm_mul_pd(r3, _mm_set1_pd(cphi[i8])));
         cphiTEcrCP0[3 * i8 + 2] = EcrCP0[2] * cphi[i8];
     }
     // 'EvalHelix:44' sphiTEcrCP0 = EcrCP0 * sphi;
     sphiTEcrCP0.set_size(3, sphi.size(1));
     g_loop_ub = sphi.size(1);
     for (int i9{0}; i9 < g_loop_ub; i9++) {
-        __m128d r3;
-        r3 = _mm_loadu_pd(&EcrCP0[0]);
-        _mm_storeu_pd(&sphiTEcrCP0[3 * i9], _mm_mul_pd(r3, _mm_set1_pd(sphi[i9])));
+        __m128d r4;
+        r4 = _mm_loadu_pd(&EcrCP0[0]);
+        _mm_storeu_pd(&sphiTEcrCP0[3 * i9], _mm_mul_pd(r4, _mm_set1_pd(sphi[i9])));
         sphiTEcrCP0[3 * i9 + 2] = EcrCP0[2] * sphi[i9];
     }
     // 'EvalHelix:45' Sign        = sign( P0P1'*evec );
@@ -776,33 +788,33 @@ void c_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
     // 'EvalHelix:47' r0D       = bsxfun(@plus, C, cphiTCP0  + sphiTEcrCP0  + ...
     // 'EvalHelix:48'                    pitch/(2*pi)*evec*phi_vec);
     a = CurvStruct_pitch / 6.2831853071795862;
-    r4.set_size(3, phi_vec.size(1));
+    r5.set_size(3, phi_vec.size(1));
     h_loop_ub = phi_vec.size(1);
     for (int i10{0}; i10 < h_loop_ub; i10++) {
-        _mm_storeu_pd(&r4[3 * i10],
+        _mm_storeu_pd(&r5[3 * i10],
                       _mm_mul_pd(_mm_mul_pd(_mm_set1_pd(a),
                                             _mm_loadu_pd((const double *)&CurvStruct_evec[0])),
                                  _mm_set1_pd(phi_vec[i10])));
-        r4[3 * i10 + 2] = a * CurvStruct_evec[2] * phi_vec[i10];
+        r5[3 * i10 + 2] = a * CurvStruct_evec[2] * phi_vec[i10];
     }
     if (cphiTCP0.size(1) == 1) {
         i11 = sphiTEcrCP0.size(1);
     } else {
         i11 = cphiTCP0.size(1);
     }
-    if ((cphiTCP0.size(1) == sphiTEcrCP0.size(1)) && (i11 == r4.size(1))) {
+    if ((cphiTCP0.size(1) == sphiTEcrCP0.size(1)) && (i11 == r5.size(1))) {
         int i_loop_ub;
         b.set_size(3, phi_vec.size(1));
         i_loop_ub = phi_vec.size(1);
         for (int i12{0}; i12 < i_loop_ub; i12++) {
-            __m128d r5;
             __m128d r6;
-            r5 = _mm_loadu_pd(&cphiTCP0[3 * i12]);
-            r6 = _mm_loadu_pd(&sphiTEcrCP0[3 * i12]);
+            __m128d r7;
+            r6 = _mm_loadu_pd(&cphiTCP0[3 * i12]);
+            r7 = _mm_loadu_pd(&sphiTEcrCP0[3 * i12]);
             _mm_storeu_pd(
                 &b[3 * i12],
                 _mm_add_pd(
-                    _mm_add_pd(r5, r6),
+                    _mm_add_pd(r6, r7),
                     _mm_add_pd(
                         _mm_set1_pd(0.0),
                         _mm_mul_pd(_mm_mul_pd(_mm_set1_pd(a),
@@ -821,13 +833,13 @@ void c_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
         bcoef = (b.size(1) != 1);
         i13 = b.size(1) - 1;
         for (int c_k{0}; c_k <= i13; c_k++) {
-            __m128d r7;
+            __m128d r8;
             int varargin_3;
             varargin_3 = bcoef * c_k;
-            r7 = _mm_loadu_pd(&b[3 * varargin_3]);
+            r8 = _mm_loadu_pd(&b[3 * varargin_3]);
             _mm_storeu_pd(
                 &r0D[3 * c_k],
-                _mm_add_pd(_mm_loadu_pd((const double *)&CurvStruct_CorrectedHelixCenter[0]), r7));
+                _mm_add_pd(_mm_loadu_pd((const double *)&CurvStruct_CorrectedHelixCenter[0]), r8));
             r0D[3 * c_k + 2] = CurvStruct_CorrectedHelixCenter[2] + b[3 * varargin_3 + 2];
         }
     }
@@ -842,13 +854,13 @@ void c_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
         c_a.set_size(3, sphiTCP0.size(1));
         j_loop_ub = sphiTCP0.size(1);
         for (int i14{0}; i14 < j_loop_ub; i14++) {
-            __m128d r10;
-            __m128d r8;
-            r8 = _mm_loadu_pd(&sphiTCP0[3 * i14]);
-            r10 = _mm_loadu_pd(&cphiTEcrCP0[3 * i14]);
+            __m128d r11;
+            __m128d r9;
+            r9 = _mm_loadu_pd(&sphiTCP0[3 * i14]);
+            r11 = _mm_loadu_pd(&cphiTEcrCP0[3 * i14]);
             _mm_storeu_pd(&c_a[3 * i14],
-                          _mm_add_pd(_mm_mul_pd(_mm_set1_pd(-CurvStruct_theta), r8),
-                                     _mm_mul_pd(_mm_set1_pd(CurvStruct_theta), r10)));
+                          _mm_add_pd(_mm_mul_pd(_mm_set1_pd(-CurvStruct_theta), r9),
+                                     _mm_mul_pd(_mm_set1_pd(CurvStruct_theta), r11)));
             c_a[3 * i14 + 2] = -CurvStruct_theta * sphiTCP0[3 * i14 + 2] +
                                CurvStruct_theta * cphiTEcrCP0[3 * i14 + 2];
         }
@@ -857,18 +869,18 @@ void c_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
     }
     r1D.set_size(3, c_a.size(1));
     if (c_a.size(1) != 0) {
-        __m128d r9;
+        __m128d r10;
         int acoef;
         int i15;
         acoef = (c_a.size(1) != 1);
         i15 = c_a.size(1) - 1;
-        r9 = _mm_loadu_pd(&y[0]);
+        r10 = _mm_loadu_pd(&y[0]);
         for (int d_k{0}; d_k <= i15; d_k++) {
-            __m128d r11;
+            __m128d r12;
             int varargin_2;
             varargin_2 = acoef * d_k;
-            r11 = _mm_loadu_pd(&c_a[3 * varargin_2]);
-            _mm_storeu_pd(&r1D[3 * d_k], _mm_add_pd(r11, r9));
+            r12 = _mm_loadu_pd(&c_a[3 * varargin_2]);
+            _mm_storeu_pd(&r1D[3 * d_k], _mm_add_pd(r12, r10));
             r1D[3 * d_k + 2] = c_a[3 * varargin_2 + 2] + y[2];
         }
     }
@@ -879,12 +891,12 @@ void c_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
         r2D.set_size(3, cphiTCP0.size(1));
         k_loop_ub = cphiTCP0.size(1);
         for (int i16{0}; i16 < k_loop_ub; i16++) {
-            __m128d r12;
             __m128d r13;
-            r12 = _mm_loadu_pd(&cphiTCP0[3 * i16]);
-            r13 = _mm_loadu_pd(&sphiTEcrCP0[3 * i16]);
-            _mm_storeu_pd(&r2D[3 * i16], _mm_sub_pd(_mm_mul_pd(_mm_set1_pd(-a_tmp), r12),
-                                                    _mm_mul_pd(_mm_set1_pd(a_tmp), r13)));
+            __m128d r14;
+            r13 = _mm_loadu_pd(&cphiTCP0[3 * i16]);
+            r14 = _mm_loadu_pd(&sphiTEcrCP0[3 * i16]);
+            _mm_storeu_pd(&r2D[3 * i16], _mm_sub_pd(_mm_mul_pd(_mm_set1_pd(-a_tmp), r13),
+                                                    _mm_mul_pd(_mm_set1_pd(a_tmp), r14)));
             r2D[3 * i16 + 2] = -a_tmp * cphiTCP0[3 * i16 + 2] - a_tmp * sphiTEcrCP0[3 * i16 + 2];
         }
     } else {
@@ -897,13 +909,13 @@ void c_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
         r3D.set_size(3, sphiTCP0.size(1));
         l_loop_ub = sphiTCP0.size(1);
         for (int i17{0}; i17 < l_loop_ub; i17++) {
-            __m128d r14;
             __m128d r15;
             __m128d r16;
-            r14 = _mm_loadu_pd(&sphiTCP0[3 * i17]);
-            r15 = _mm_loadu_pd(&cphiTEcrCP0[3 * i17]);
-            r16 = _mm_set1_pd(b_a_tmp);
-            _mm_storeu_pd(&r3D[3 * i17], _mm_sub_pd(_mm_mul_pd(r16, r14), _mm_mul_pd(r16, r15)));
+            __m128d r17;
+            r15 = _mm_loadu_pd(&sphiTCP0[3 * i17]);
+            r16 = _mm_loadu_pd(&cphiTEcrCP0[3 * i17]);
+            r17 = _mm_set1_pd(b_a_tmp);
+            _mm_storeu_pd(&r3D[3 * i17], _mm_sub_pd(_mm_mul_pd(r17, r15), _mm_mul_pd(r17, r16)));
             r3D[3 * i17 + 2] = b_a_tmp * sphiTCP0[3 * i17 + 2] - b_a_tmp * cphiTEcrCP0[3 * i17 + 2];
         }
     } else {
@@ -930,7 +942,7 @@ void c_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
 //  r3D           : The 3rd order parametric derivative of the curve at the
 //                  specified points
 //
-// Arguments    : const double CurvStruct_R0[6]
+// Arguments    : const ::coder::array<double, 1U> &CurvStruct_R0
 //                const double CurvStruct_CorrectedHelixCenter[3]
 //                const double CurvStruct_evec[3]
 //                double CurvStruct_theta
@@ -944,12 +956,12 @@ void c_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
 //                double r3D[2][3]
 // Return Type  : void
 //
-void d_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedHelixCenter[3],
-                 const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
-                 const double u_vec[2], const bool maskCart_data[], const int maskCart_size[2],
-                 double r0D[2][3], double r1D[2][3], double r2D[2][3], double r3D[2][3])
+void d_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
+                 const double CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3],
+                 double CurvStruct_theta, double CurvStruct_pitch, const double u_vec[2],
+                 const bool maskCart_data[], const int maskCart_size[2], double r0D[2][3],
+                 double r1D[2][3], double r2D[2][3], double r3D[2][3])
 {
-    __m128d r;
     __m128d r1;
     __m128d r10;
     __m128d r11;
@@ -963,6 +975,7 @@ void d_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
     __m128d r19;
     __m128d r2;
     __m128d r20;
+    __m128d r21;
     __m128d r3;
     __m128d r4;
     __m128d r5;
@@ -970,6 +983,7 @@ void d_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
     __m128d r7;
     __m128d r8;
     __m128d r9;
+    double P0_data[6];
     double cphiTCP0[2][3];
     double cphiTEcrCP0[2][3];
     double sphiTCP0[2][3];
@@ -987,7 +1001,6 @@ void d_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
     double d3;
     double d4;
     double r0D_tmp;
-    int tmp_size[2];
     int end;
     int partialTrueCount;
     int trueCount;
@@ -1001,7 +1014,6 @@ void d_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
     // 'EvalHelix:24' P0      = CurvStruct.R0( maskCart );
     end = maskCart_size[1] - 1;
     trueCount = 0;
-    tmp_size[0] = 1;
     partialTrueCount = 0;
     for (int i{0}; i <= end; i++) {
         if (maskCart_data[i]) {
@@ -1010,7 +1022,9 @@ void d_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
             partialTrueCount++;
         }
     }
-    tmp_size[1] = trueCount;
+    for (int b_i{0}; b_i < trueCount; b_i++) {
+        P0_data[b_i] = CurvStruct_R0[tmp_data[b_i] - 1];
+    }
     // 'EvalHelix:25' P1      = CurvStruct.R1( maskCart );
     // 'EvalHelix:26' evec    = CurvStruct.evec;
     // 'EvalHelix:27' theta   = CurvStruct.theta;
@@ -1020,11 +1034,14 @@ void d_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
     // 'EvalHelix:33' C           = CurvStruct.CorrectedHelixCenter;
     // 'EvalHelix:34' CP0         = P0 - C;
     if (trueCount == 3) {
-        for (int b_i{0}; b_i < 3; b_i++) {
-            CP0[b_i] = CurvStruct_R0[tmp_data[b_i] - 1] - CurvStruct_CorrectedHelixCenter[b_i];
-        }
+        __m128d r;
+        r = _mm_loadu_pd(&P0_data[0]);
+        _mm_storeu_pd(
+            &CP0[0],
+            _mm_sub_pd(r, _mm_loadu_pd((const double *)&CurvStruct_CorrectedHelixCenter[0])));
+        CP0[2] = P0_data[2] - CurvStruct_CorrectedHelixCenter[2];
     } else {
-        binary_expand_op(CP0, CurvStruct_R0, tmp_data, tmp_size, CurvStruct_CorrectedHelixCenter);
+        minus(CP0, P0_data, &trueCount, CurvStruct_CorrectedHelixCenter);
     }
     // 'EvalHelix:35' phi_vec     = theta * u_vec;
     // 'EvalHelix:36' EcrCP0      = cross( evec, CP0 );
@@ -1053,22 +1070,22 @@ void d_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
     d = CurvStruct_theta * u_vec[0];
     d1 = std::cos(d);
     d2 = std::sin(d);
-    r = _mm_loadu_pd(&CP0[0]);
-    r2 = _mm_set1_pd(d1);
-    r1 = _mm_mul_pd(r, r2);
-    _mm_storeu_pd(&cphiTCP0[0][0], r1);
-    r3 = _mm_set1_pd(d2);
-    _mm_storeu_pd(&sphiTCP0[0][0], _mm_mul_pd(r, r3));
-    r4 = _mm_loadu_pd(&EcrCP0[0]);
-    _mm_storeu_pd(&cphiTEcrCP0[0][0], _mm_mul_pd(r4, r2));
-    r5 = _mm_mul_pd(r4, r3);
-    _mm_storeu_pd(&sphiTEcrCP0[0][0], r5);
-    r6 = _mm_mul_pd(_mm_set1_pd(a), _mm_loadu_pd((const double *)&CurvStruct_evec[0]));
-    r7 = _mm_set1_pd(0.0);
-    r8 = _mm_loadu_pd((const double *)&CurvStruct_CorrectedHelixCenter[0]);
+    r1 = _mm_loadu_pd(&CP0[0]);
+    r3 = _mm_set1_pd(d1);
+    r2 = _mm_mul_pd(r1, r3);
+    _mm_storeu_pd(&cphiTCP0[0][0], r2);
+    r4 = _mm_set1_pd(d2);
+    _mm_storeu_pd(&sphiTCP0[0][0], _mm_mul_pd(r1, r4));
+    r5 = _mm_loadu_pd(&EcrCP0[0]);
+    _mm_storeu_pd(&cphiTEcrCP0[0][0], _mm_mul_pd(r5, r3));
+    r6 = _mm_mul_pd(r5, r4);
+    _mm_storeu_pd(&sphiTEcrCP0[0][0], r6);
+    r7 = _mm_mul_pd(_mm_set1_pd(a), _mm_loadu_pd((const double *)&CurvStruct_evec[0]));
+    r8 = _mm_set1_pd(0.0);
+    r9 = _mm_loadu_pd((const double *)&CurvStruct_CorrectedHelixCenter[0]);
     _mm_storeu_pd(&r0D[0][0],
-                  _mm_add_pd(r8, _mm_add_pd(_mm_add_pd(r1, r5),
-                                            _mm_add_pd(r7, _mm_mul_pd(r6, _mm_set1_pd(d))))));
+                  _mm_add_pd(r9, _mm_add_pd(_mm_add_pd(r2, r6),
+                                            _mm_add_pd(r8, _mm_mul_pd(r7, _mm_set1_pd(d))))));
     d3 = CP0[2] * d1;
     cphiTCP0[0][2] = d3;
     sphiTCP0[0][2] = CP0[2] * d2;
@@ -1080,19 +1097,19 @@ void d_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
     d = CurvStruct_theta * u_vec[1];
     d1 = std::cos(d);
     d2 = std::sin(d);
-    r = _mm_loadu_pd(&CP0[0]);
-    r9 = _mm_set1_pd(d1);
-    r1 = _mm_mul_pd(r, r9);
-    _mm_storeu_pd(&cphiTCP0[1][0], r1);
-    r10 = _mm_set1_pd(d2);
-    _mm_storeu_pd(&sphiTCP0[1][0], _mm_mul_pd(r, r10));
-    r4 = _mm_loadu_pd(&EcrCP0[0]);
-    _mm_storeu_pd(&cphiTEcrCP0[1][0], _mm_mul_pd(r4, r9));
-    r5 = _mm_mul_pd(r4, r10);
-    _mm_storeu_pd(&sphiTEcrCP0[1][0], r5);
+    r1 = _mm_loadu_pd(&CP0[0]);
+    r10 = _mm_set1_pd(d1);
+    r2 = _mm_mul_pd(r1, r10);
+    _mm_storeu_pd(&cphiTCP0[1][0], r2);
+    r11 = _mm_set1_pd(d2);
+    _mm_storeu_pd(&sphiTCP0[1][0], _mm_mul_pd(r1, r11));
+    r5 = _mm_loadu_pd(&EcrCP0[0]);
+    _mm_storeu_pd(&cphiTEcrCP0[1][0], _mm_mul_pd(r5, r10));
+    r6 = _mm_mul_pd(r5, r11);
+    _mm_storeu_pd(&sphiTEcrCP0[1][0], r6);
     _mm_storeu_pd(&r0D[1][0],
-                  _mm_add_pd(r8, _mm_add_pd(_mm_add_pd(r1, r5),
-                                            _mm_add_pd(r7, _mm_mul_pd(r6, _mm_set1_pd(d))))));
+                  _mm_add_pd(r9, _mm_add_pd(_mm_add_pd(r2, r6),
+                                            _mm_add_pd(r8, _mm_mul_pd(r7, _mm_set1_pd(d))))));
     d3 = CP0[2] * d1;
     cphiTCP0[1][2] = d3;
     sphiTCP0[1][2] = CP0[2] * d2;
@@ -1110,32 +1127,32 @@ void d_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_Correcte
     a_tmp = CurvStruct_theta * CurvStruct_theta;
     // 'EvalHelix:52' r3D       =  theta^3*sphiTCP0  - theta^3*cphiTEcrCP0;
     b_a_tmp = std::pow(CurvStruct_theta, 3.0);
-    r11 = _mm_loadu_pd(&sphiTCP0[0][0]);
-    r12 = _mm_loadu_pd(&cphiTEcrCP0[0][0]);
-    r13 = _mm_loadu_pd(&y[0]);
-    r14 = _mm_set1_pd(-CurvStruct_theta);
-    r15 = _mm_set1_pd(CurvStruct_theta);
+    r12 = _mm_loadu_pd(&sphiTCP0[0][0]);
+    r13 = _mm_loadu_pd(&cphiTEcrCP0[0][0]);
+    r14 = _mm_loadu_pd(&y[0]);
+    r15 = _mm_set1_pd(-CurvStruct_theta);
+    r16 = _mm_set1_pd(CurvStruct_theta);
     _mm_storeu_pd(&r1D[0][0],
-                  _mm_add_pd(_mm_add_pd(_mm_mul_pd(r14, r11), _mm_mul_pd(r15, r12)), r13));
-    r16 = _mm_loadu_pd(&cphiTCP0[0][0]);
-    r17 = _mm_loadu_pd(&sphiTEcrCP0[0][0]);
-    r18 = _mm_set1_pd(-a_tmp);
-    r19 = _mm_set1_pd(a_tmp);
-    _mm_storeu_pd(&r2D[0][0], _mm_sub_pd(_mm_mul_pd(r18, r16), _mm_mul_pd(r19, r17)));
-    r20 = _mm_set1_pd(b_a_tmp);
-    _mm_storeu_pd(&r3D[0][0], _mm_sub_pd(_mm_mul_pd(r20, r11), _mm_mul_pd(r20, r12)));
+                  _mm_add_pd(_mm_add_pd(_mm_mul_pd(r15, r12), _mm_mul_pd(r16, r13)), r14));
+    r17 = _mm_loadu_pd(&cphiTCP0[0][0]);
+    r18 = _mm_loadu_pd(&sphiTEcrCP0[0][0]);
+    r19 = _mm_set1_pd(-a_tmp);
+    r20 = _mm_set1_pd(a_tmp);
+    _mm_storeu_pd(&r2D[0][0], _mm_sub_pd(_mm_mul_pd(r19, r17), _mm_mul_pd(r20, r18)));
+    r21 = _mm_set1_pd(b_a_tmp);
+    _mm_storeu_pd(&r3D[0][0], _mm_sub_pd(_mm_mul_pd(r21, r12), _mm_mul_pd(r21, r13)));
     r1D[0][2] = (-CurvStruct_theta * sphiTCP0[0][2] + CurvStruct_theta * cphiTEcrCP0[0][2]) + y[2];
     r2D[0][2] = -a_tmp * cphiTCP0[0][2] - a_tmp * sphiTEcrCP0[0][2];
     r3D[0][2] = b_a_tmp * sphiTCP0[0][2] - b_a_tmp * cphiTEcrCP0[0][2];
-    r11 = _mm_loadu_pd(&sphiTCP0[1][0]);
-    r12 = _mm_loadu_pd(&cphiTEcrCP0[1][0]);
-    r13 = _mm_loadu_pd(&y[0]);
+    r12 = _mm_loadu_pd(&sphiTCP0[1][0]);
+    r13 = _mm_loadu_pd(&cphiTEcrCP0[1][0]);
+    r14 = _mm_loadu_pd(&y[0]);
     _mm_storeu_pd(&r1D[1][0],
-                  _mm_add_pd(_mm_add_pd(_mm_mul_pd(r14, r11), _mm_mul_pd(r15, r12)), r13));
-    r16 = _mm_loadu_pd(&cphiTCP0[1][0]);
-    r17 = _mm_loadu_pd(&sphiTEcrCP0[1][0]);
-    _mm_storeu_pd(&r2D[1][0], _mm_sub_pd(_mm_mul_pd(r18, r16), _mm_mul_pd(r19, r17)));
-    _mm_storeu_pd(&r3D[1][0], _mm_sub_pd(_mm_mul_pd(r20, r11), _mm_mul_pd(r20, r12)));
+                  _mm_add_pd(_mm_add_pd(_mm_mul_pd(r15, r12), _mm_mul_pd(r16, r13)), r14));
+    r17 = _mm_loadu_pd(&cphiTCP0[1][0]);
+    r18 = _mm_loadu_pd(&sphiTEcrCP0[1][0]);
+    _mm_storeu_pd(&r2D[1][0], _mm_sub_pd(_mm_mul_pd(r19, r17), _mm_mul_pd(r20, r18)));
+    _mm_storeu_pd(&r3D[1][0], _mm_sub_pd(_mm_mul_pd(r21, r12), _mm_mul_pd(r21, r13)));
     r1D[1][2] = (-CurvStruct_theta * sphiTCP0[1][2] + CurvStruct_theta * cphiTEcrCP0[1][2]) + y[2];
     r2D[1][2] = -a_tmp * d3 - a_tmp * d4;
     r3D[1][2] = b_a_tmp * sphiTCP0[1][2] - b_a_tmp * cphiTEcrCP0[1][2];

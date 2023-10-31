@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,13 +6,13 @@
 // File: string1.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Sep-2023 09:32:18
 //
 
 #ifndef STRING1_H
 #define STRING1_H
 
 // Include Files
+#include "opencn_matlab_types.h"
 #include "rtwtypes.h"
 #include "coder_bounded_array.h"
 #include <cstddef>
@@ -24,7 +25,10 @@ namespace ocn {
 namespace coder {
 class rtString {
   public:
-    ::coder::bounded_array<char, 109U, 2U> Value;
+    void init(Fopt val);
+    void init();
+    void b_init();
+    ::coder::bounded_array<char, 2156U, 2U> Value;
 };
 
 } // namespace coder

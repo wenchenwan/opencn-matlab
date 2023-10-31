@@ -11,13 +11,14 @@
 // Include Files
 #include "CheckCurvStructs.h"
 #include "EvalCurvStructInPieceFrame.h"
+#include "Kinematics.h"
 #include "norm.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_internal_types.h"
 #include "opencn_matlab_types.h"
-#include "opencn_matlab_types1.h"
-#include "opencn_matlab_types21.h"
-#include "opencn_matlab_types3.h"
+#include "opencn_matlab_types11.h"
+#include "opencn_matlab_types111.h"
+#include "opencn_matlab_types2.h"
 #include "queue_coder.h"
 #include "coder_array.h"
 #include "coder_bounded_array.h"
@@ -69,7 +70,6 @@ void CheckCurvStructs(b_FeedoptContext *ctx)
     ::coder::array<double, 1U> b_v_data;
     ::coder::array<double, 1U> r0D1;
     ::coder::array<double, 1U> r1D1;
-    CurvStruct b_curv2;
     CurvStruct curv1;
     CurvStruct curv2;
     double u_data[3];
@@ -118,16 +118,16 @@ void CheckCurvStructs(b_FeedoptContext *ctx)
         EvalCurvStructInPieceFrame(
             &ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size, ctx->cfg.maskCart.data,
             ctx->cfg.maskCart.size, ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
-            ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart, ctx->cfg.NRot, curv1.Info,
-            curv1.R0, curv1.R1, curv1.CorrectedHelixCenter, curv1.evec, curv1.theta, curv1.pitch,
-            curv1.CoeffP5, curv1.sp_index, curv1.a_param, curv1.b_param, a__1, r0D1);
+            ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart, ctx->cfg.NRot, &ctx->kin,
+            curv1.Info, curv1.R0, curv1.R1, curv1.CorrectedHelixCenter, curv1.evec, curv1.theta,
+            curv1.pitch, curv1.CoeffP5, curv1.sp_index, curv1.a_param, curv1.b_param, a__1, r0D1);
         // 'CheckCurvStructs:16' [~, r1D1] = EvalCurvStructInPieceFrame( ctx, curv2, 0 );
-        b_curv2 = curv2;
-        b_EvalCurvStructInPieceFrame(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
-                                     ctx->cfg.maskCart.data, ctx->cfg.maskCart.size,
-                                     ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
-                                     ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart,
-                                     ctx->cfg.NRot, &b_curv2, a__2, r1D1);
+        b_EvalCurvStructInPieceFrame(
+            &ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size, ctx->cfg.maskCart.data,
+            ctx->cfg.maskCart.size, ctx->cfg.maskRot.data, ctx->cfg.maskRot.size, ctx->cfg.indCart,
+            ctx->cfg.indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart, ctx->cfg.NRot, &ctx->kin,
+            curv2.Info, curv2.R0, curv2.R1, curv2.CorrectedHelixCenter, curv2.evec, curv2.theta,
+            curv2.pitch, curv2.CoeffP5, curv2.sp_index, curv2.a_param, curv2.b_param, a__2, r1D1);
         // 'CheckCurvStructs:18' if ( ~isAZeroEnd( curv1 ) ) && ...
         // 'CheckCurvStructs:19'         iscusp( r0D1( ctx.cfg.indCart ), r1D1( ctx.cfg.indCart ),
         // ... 'CheckCurvStructs:20'                 ctx.cfg.Cusp.CuspThreshold )
@@ -249,9 +249,10 @@ void CheckCurvStructs(b_FeedoptContext *ctx)
                 ctx->q_gcode.set(k - 1U, &curv1);
                 // 'CheckCurvStructs:37' ctx.q_gcode.set( k, curv2 );
                 ctx->q_gcode.set(k, &curv2);
+                // 'CheckCurvStructs:39' if( coder.target( "MATLAB" ) )
             }
         }
-        // 'CheckCurvStructs:40' curv1 = curv2;
+        // 'CheckCurvStructs:44' curv1 = curv2;
         curv1 = curv2;
     }
 }

@@ -10,8 +10,7 @@
 
 // Include Files
 #include "calc_t_nk_kappa.h"
-#include "opencn_matlab_data.h"
-#include "sum.h"
+#include "norm.h"
 #include "coder_array.h"
 #include <cmath>
 #include <emmintrin.h>
@@ -19,7 +18,7 @@
 // Function Declarations
 namespace ocn {
 static void binary_expand_op(::coder::array<double, 1U> &in1, const ::coder::array<double, 1U> &in2,
-                             double in3, const ::coder::array<double, 1U> &in4, double in5);
+                             const ::coder::array<double, 1U> &in3, double in4, double in5);
 
 }
 
@@ -27,41 +26,39 @@ static void binary_expand_op(::coder::array<double, 1U> &in1, const ::coder::arr
 //
 // Arguments    : ::coder::array<double, 1U> &in1
 //                const ::coder::array<double, 1U> &in2
-//                double in3
-//                const ::coder::array<double, 1U> &in4
+//                const ::coder::array<double, 1U> &in3
+//                double in4
 //                double in5
 // Return Type  : void
 //
 namespace ocn {
 static void binary_expand_op(::coder::array<double, 1U> &in1, const ::coder::array<double, 1U> &in2,
-                             double in3, const ::coder::array<double, 1U> &in4, double in5)
+                             const ::coder::array<double, 1U> &in3, double in4, double in5)
 {
-    double b_in5;
     int i;
     int loop_ub;
     int stride_0_0;
     int stride_1_0;
-    b_in5 = in5 * in5;
-    if (in4.size(0) == 1) {
+    if (in3.size(0) == 1) {
         i = in2.size(0);
     } else {
-        i = in4.size(0);
+        i = in3.size(0);
     }
     in1.set_size(i);
     stride_0_0 = (in2.size(0) != 1);
-    stride_1_0 = (in4.size(0) != 1);
-    if (in4.size(0) == 1) {
+    stride_1_0 = (in3.size(0) != 1);
+    if (in3.size(0) == 1) {
         loop_ub = in2.size(0);
     } else {
-        loop_ub = in4.size(0);
+        loop_ub = in3.size(0);
     }
     for (int i1{0}; i1 < loop_ub; i1++) {
-        in1[i1] = (in2[i1 * stride_0_0] - in3 * in4[i1 * stride_1_0]) / b_in5;
+        in1[i1] = (in2[i1 * stride_0_0] - in3[i1 * stride_1_0] * in4 / in5) / in5;
     }
 }
 
 //
-// function [t, nk, kappa] = calc_t_nk_kappa(rD1, rD2)
+// function [ t, nk, kappa ] = calc_t_nk_kappa( rD1, rD2 )
 //
 // Arguments    : const double rD1[6]
 //                const double rD2[6]
@@ -73,90 +70,102 @@ static void binary_expand_op(::coder::array<double, 1U> &in1, const ::coder::arr
 void calc_t_nk_kappa(const double rD1[6], const double rD2[6], double t[6], double nk[6],
                      double *kappa)
 {
-    double z1[6];
-    double a_tmp;
-    double b_rD2;
-    double b_y;
+    double a;
+    double b_scale;
+    double dot_rD1_rD2;
     double norm_rD1;
-    double norm_rD2;
+    double norm_rD1_2;
     double num;
-    double y;
+    double scale;
+    double unnamed_idx_0;
     //  computes the local Frenet frame (t, n, b) of a curve in R^n
     //  [t, nk, kappa] = calc_t_nk_kappa(rD1, rD2)
     //  where rD1 is the first derivative and rD2 the second one
-    // 'calc_t_nk_kappa:5' norm_rD1 = MyNorm(rD1);
-    // 'MyNorm:2' coder.inline('always');
-    // 'MyNorm:3' n = mysqrt(sum(x.^2));
+    // 'calc_t_nk_kappa:5' norm_rD1    = vecnorm( rD1 );
+    norm_rD1 = 0.0;
+    scale = 3.3121686421112381E-170;
+    // 'calc_t_nk_kappa:6' norm_rD1_2  = norm_rD1.^2;
+    // 'calc_t_nk_kappa:7' norm_rD1_3  = norm_rD1_2 .* norm_rD1;
+    // 'calc_t_nk_kappa:8' norm_rD2    = vecnorm( rD2 );
+    a = 0.0;
+    b_scale = 3.3121686421112381E-170;
+    // 'calc_t_nk_kappa:9' norm_rD2_2  = norm_rD2.^2;
+    // 'calc_t_nk_kappa:10' dot_rD1_rD2 = dot( rD2, rD1 );
+    dot_rD1_rD2 = 0.0;
     for (int k{0}; k < 6; k++) {
-        z1[k] = std::pow(rD1[k], 2.0);
-    }
-    y = z1[0];
-    for (int b_k{0}; b_k < 5; b_k++) {
-        y += z1[b_k + 1];
-    }
-    // 'mysqrt:3' y = sqrt(x);
-    norm_rD1 = std::sqrt(y);
-    // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-    sqrt_calls++;
-    // 'calc_t_nk_kappa:6' norm_rD2 = MyNorm(rD2);
-    // 'MyNorm:2' coder.inline('always');
-    // 'MyNorm:3' n = mysqrt(sum(x.^2));
-    for (int c_k{0}; c_k < 6; c_k++) {
-        z1[c_k] = std::pow(rD2[c_k], 2.0);
-    }
-    b_y = z1[0];
-    for (int d_k{0}; d_k < 5; d_k++) {
-        b_y += z1[d_k + 1];
-    }
-    // 'mysqrt:3' y = sqrt(x);
-    norm_rD2 = std::sqrt(b_y);
-    // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-    sqrt_calls++;
-    // 'calc_t_nk_kappa:8' t = rD1 / norm_rD1;
-    //  tangential unit vector
-    //
-    // 'calc_t_nk_kappa:10' nk     = (rD2 - rD2'*rD1/(norm_rD1*norm_rD1)*rD1)/(norm_rD1*norm_rD1);
-    b_rD2 = 0.0;
-    for (int i{0}; i < 6; i++) {
+        double absxk;
+        double b_absxk;
         double d;
-        d = rD1[i];
-        t[i] = d / norm_rD1;
-        b_rD2 += rD2[i] * d;
+        double d1;
+        d = rD1[k];
+        absxk = std::abs(d);
+        if (absxk > scale) {
+            double b_t;
+            b_t = scale / absxk;
+            norm_rD1 = norm_rD1 * b_t * b_t + 1.0;
+            scale = absxk;
+        } else {
+            double b_t;
+            b_t = absxk / scale;
+            norm_rD1 += b_t * b_t;
+        }
+        d1 = rD2[k];
+        b_absxk = std::abs(d1);
+        if (b_absxk > b_scale) {
+            double c_t;
+            c_t = b_scale / b_absxk;
+            a = a * c_t * c_t + 1.0;
+            b_scale = b_absxk;
+        } else {
+            double c_t;
+            c_t = b_absxk / b_scale;
+            a += c_t * c_t;
+        }
+        dot_rD1_rD2 += d1 * d;
     }
     __m128d r;
     __m128d r1;
-    a_tmp = norm_rD1 * norm_rD1;
-    r = _mm_set1_pd(b_rD2 / a_tmp);
-    r1 = _mm_set1_pd(a_tmp);
-    _mm_storeu_pd(&nk[0],
-                  _mm_div_pd(_mm_sub_pd(_mm_loadu_pd((const double *)&rD2[0]),
-                                        _mm_mul_pd(r, _mm_loadu_pd((const double *)&rD1[0]))),
-                             r1));
-    _mm_storeu_pd(&nk[2],
-                  _mm_div_pd(_mm_sub_pd(_mm_loadu_pd((const double *)&rD2[2]),
-                                        _mm_mul_pd(r, _mm_loadu_pd((const double *)&rD1[2]))),
-                             r1));
-    _mm_storeu_pd(&nk[4],
-                  _mm_div_pd(_mm_sub_pd(_mm_loadu_pd((const double *)&rD2[4]),
-                                        _mm_mul_pd(r, _mm_loadu_pd((const double *)&rD1[4]))),
-                             r1));
-    //  normal unit vector
-    //
-    // 'calc_t_nk_kappa:12' num = norm_rD2*norm_rD2*norm_rD1*norm_rD1 - (rD2'*rD1)*(rD2'*rD1);
-    num = norm_rD2 * norm_rD2 * norm_rD1 * norm_rD1 - b_rD2 * b_rD2;
-    // 'calc_t_nk_kappa:13' if num < 0
+    __m128d r2;
+    __m128d r3;
+    norm_rD1 = scale * std::sqrt(norm_rD1);
+    norm_rD1_2 = norm_rD1 * norm_rD1;
+    a = b_scale * std::sqrt(a);
+    //  tangential unit vector
+    // 'calc_t_nk_kappa:13' t = rD1 / norm_rD1;
+    //  Normal unit vector
+    // 'calc_t_nk_kappa:15' nk          = ( rD2 - rD1 .* dot_rD1_rD2 ./ norm_rD1_2 ) ./ norm_rD1_2;
+    r = _mm_loadu_pd((const double *)&rD1[0]);
+    r1 = _mm_set1_pd(norm_rD1);
+    _mm_storeu_pd(&t[0], _mm_div_pd(r, r1));
+    r2 = _mm_set1_pd(norm_rD1_2);
+    r3 = _mm_set1_pd(dot_rD1_rD2);
+    _mm_storeu_pd(&nk[0], _mm_div_pd(_mm_sub_pd(_mm_loadu_pd((const double *)&rD2[0]),
+                                                _mm_div_pd(_mm_mul_pd(r, r3), r2)),
+                                     r2));
+    r = _mm_loadu_pd((const double *)&rD1[2]);
+    _mm_storeu_pd(&t[2], _mm_div_pd(r, r1));
+    _mm_storeu_pd(&nk[2], _mm_div_pd(_mm_sub_pd(_mm_loadu_pd((const double *)&rD2[2]),
+                                                _mm_div_pd(_mm_mul_pd(r, r3), r2)),
+                                     r2));
+    r = _mm_loadu_pd((const double *)&rD1[4]);
+    _mm_storeu_pd(&t[4], _mm_div_pd(r, r1));
+    _mm_storeu_pd(&nk[4], _mm_div_pd(_mm_sub_pd(_mm_loadu_pd((const double *)&rD2[4]),
+                                                _mm_div_pd(_mm_mul_pd(r, r3), r2)),
+                                     r2));
+    //  Curvature
+    // 'calc_t_nk_kappa:17' num         = norm_rD2_2 .* norm_rD1_2 - dot_rD1_rD2.^2;
+    num = a * a * norm_rD1_2 - dot_rD1_rD2 * dot_rD1_rD2;
+    // 'calc_t_nk_kappa:19' num( num < 0 ) = 0;
+    unnamed_idx_0 = num;
     if (num < 0.0) {
-        // 'calc_t_nk_kappa:14' num = 0;
-        num = 0.0;
+        unnamed_idx_0 = 0.0;
     }
-    // 'calc_t_nk_kappa:17' kappa = sqrt(num)...
-    // 'calc_t_nk_kappa:18'         /(norm_rD1*norm_rD1*norm_rD1);
-    *kappa = std::sqrt(num) / (a_tmp * norm_rD1);
-    //  curvature
+    // 'calc_t_nk_kappa:20' kappa       = sqrt( num ) ./ norm_rD1_3;
+    *kappa = std::sqrt(unnamed_idx_0) / (norm_rD1_2 * norm_rD1);
 }
 
 //
-// function [t, nk, kappa] = calc_t_nk_kappa(rD1, rD2)
+// function [ t, nk, kappa ] = calc_t_nk_kappa( rD1, rD2 )
 //
 // Arguments    : const ::coder::array<double, 1U> &rD1
 //                const ::coder::array<double, 1U> &rD2
@@ -168,120 +177,85 @@ void calc_t_nk_kappa(const double rD1[6], const double rD2[6], double t[6], doub
 void calc_t_nk_kappa(const ::coder::array<double, 1U> &rD1, const ::coder::array<double, 1U> &rD2,
                      ::coder::array<double, 1U> &t, ::coder::array<double, 1U> &nk, double *kappa)
 {
-    ::coder::array<double, 1U> r;
     double a;
-    double a_tmp;
-    double b_rD2;
-    double c_rD2;
-    double d_rD2;
+    double dot_rD1_rD2;
     double norm_rD1;
-    double norm_rD2;
+    double norm_rD1_2;
     double num;
-    int b_loop_ub;
-    int c_loop_ub;
-    int d_loop_ub;
-    int f_loop_ub;
-    int g_loop_ub;
+    double unnamed_idx_0;
     int loop_ub;
     int scalarLB;
     int vectorUB;
     //  computes the local Frenet frame (t, n, b) of a curve in R^n
     //  [t, nk, kappa] = calc_t_nk_kappa(rD1, rD2)
     //  where rD1 is the first derivative and rD2 the second one
-    // 'calc_t_nk_kappa:5' norm_rD1 = MyNorm(rD1);
-    // 'MyNorm:2' coder.inline('always');
-    // 'MyNorm:3' n = mysqrt(sum(x.^2));
-    // 'mysqrt:3' y = sqrt(x);
-    r.set_size(rD1.size(0));
-    loop_ub = rD1.size(0);
-    for (int i{0}; i < loop_ub; i++) {
-        double varargin_1;
-        varargin_1 = rD1[i];
-        r[i] = std::pow(varargin_1, 2.0);
-    }
-    norm_rD1 = std::sqrt(coder::sum(r));
-    // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-    sqrt_calls++;
-    // 'calc_t_nk_kappa:6' norm_rD2 = MyNorm(rD2);
-    // 'MyNorm:2' coder.inline('always');
-    // 'MyNorm:3' n = mysqrt(sum(x.^2));
-    // 'mysqrt:3' y = sqrt(x);
-    r.set_size(rD2.size(0));
-    b_loop_ub = rD2.size(0);
-    for (int i1{0}; i1 < b_loop_ub; i1++) {
-        double b_varargin_1;
-        b_varargin_1 = rD2[i1];
-        r[i1] = std::pow(b_varargin_1, 2.0);
-    }
-    norm_rD2 = std::sqrt(coder::sum(r));
-    // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-    sqrt_calls++;
-    // 'calc_t_nk_kappa:8' t = rD1 / norm_rD1;
-    t.set_size(rD1.size(0));
-    c_loop_ub = rD1.size(0);
-    scalarLB = (rD1.size(0) / 2) << 1;
-    vectorUB = scalarLB - 2;
-    for (int i2{0}; i2 <= vectorUB; i2 += 2) {
-        _mm_storeu_pd(&t[i2],
-                      _mm_div_pd(_mm_loadu_pd((const double *)&rD1[i2]), _mm_set1_pd(norm_rD1)));
-    }
-    for (int i2{scalarLB}; i2 < c_loop_ub; i2++) {
-        t[i2] = rD1[i2] / norm_rD1;
+    // 'calc_t_nk_kappa:5' norm_rD1    = vecnorm( rD1 );
+    norm_rD1 = coder::b_norm(rD1);
+    // 'calc_t_nk_kappa:6' norm_rD1_2  = norm_rD1.^2;
+    norm_rD1_2 = norm_rD1 * norm_rD1;
+    // 'calc_t_nk_kappa:7' norm_rD1_3  = norm_rD1_2 .* norm_rD1;
+    // 'calc_t_nk_kappa:8' norm_rD2    = vecnorm( rD2 );
+    a = coder::b_norm(rD2);
+    // 'calc_t_nk_kappa:9' norm_rD2_2  = norm_rD2.^2;
+    // 'calc_t_nk_kappa:10' dot_rD1_rD2 = dot( rD2, rD1 );
+    dot_rD1_rD2 = 0.0;
+    if (rD2.size(0) >= 1) {
+        int ixlast;
+        ixlast = rD2.size(0);
+        for (int k{0}; k < ixlast; k++) {
+            dot_rD1_rD2 += rD2[k] * rD1[k];
+        }
     }
     //  tangential unit vector
-    //
-    // 'calc_t_nk_kappa:10' nk     = (rD2 - rD2'*rD1/(norm_rD1*norm_rD1)*rD1)/(norm_rD1*norm_rD1);
-    b_rD2 = 0.0;
-    d_loop_ub = rD2.size(0);
-    for (int i3{0}; i3 < d_loop_ub; i3++) {
-        b_rD2 += rD2[i3] * rD1[i3];
+    // 'calc_t_nk_kappa:13' t = rD1 / norm_rD1;
+    t.set_size(rD1.size(0));
+    loop_ub = rD1.size(0);
+    scalarLB = (rD1.size(0) / 2) << 1;
+    vectorUB = scalarLB - 2;
+    for (int i{0}; i <= vectorUB; i += 2) {
+        _mm_storeu_pd(&t[i],
+                      _mm_div_pd(_mm_loadu_pd((const double *)&rD1[i]), _mm_set1_pd(norm_rD1)));
     }
-    a_tmp = norm_rD1 * norm_rD1;
-    a = b_rD2 / a_tmp;
+    for (int i{scalarLB}; i < loop_ub; i++) {
+        t[i] = rD1[i] / norm_rD1;
+    }
+    //  Normal unit vector
+    // 'calc_t_nk_kappa:15' nk          = ( rD2 - rD1 .* dot_rD1_rD2 ./ norm_rD1_2 ) ./ norm_rD1_2;
     if (rD2.size(0) == rD1.size(0)) {
+        int b_loop_ub;
         int b_scalarLB;
         int b_vectorUB;
-        int e_loop_ub;
         nk.set_size(rD2.size(0));
-        e_loop_ub = rD2.size(0);
+        b_loop_ub = rD2.size(0);
         b_scalarLB = (rD2.size(0) / 2) << 1;
         b_vectorUB = b_scalarLB - 2;
-        for (int i4{0}; i4 <= b_vectorUB; i4 += 2) {
-            _mm_storeu_pd(&nk[i4],
-                          _mm_div_pd(_mm_sub_pd(_mm_loadu_pd((const double *)&rD2[i4]),
-                                                _mm_mul_pd(_mm_set1_pd(a),
-                                                           _mm_loadu_pd((const double *)&rD1[i4]))),
-                                     _mm_set1_pd(a_tmp)));
+        for (int i1{0}; i1 <= b_vectorUB; i1 += 2) {
+            __m128d r;
+            r = _mm_set1_pd(norm_rD1_2);
+            _mm_storeu_pd(
+                &nk[i1],
+                _mm_div_pd(_mm_sub_pd(_mm_loadu_pd((const double *)&rD2[i1]),
+                                      _mm_div_pd(_mm_mul_pd(_mm_loadu_pd((const double *)&rD1[i1]),
+                                                            _mm_set1_pd(dot_rD1_rD2)),
+                                                 r)),
+                           r));
         }
-        for (int i4{b_scalarLB}; i4 < e_loop_ub; i4++) {
-            nk[i4] = (rD2[i4] - a * rD1[i4]) / a_tmp;
+        for (int i1{b_scalarLB}; i1 < b_loop_ub; i1++) {
+            nk[i1] = (rD2[i1] - rD1[i1] * dot_rD1_rD2 / norm_rD1_2) / norm_rD1_2;
         }
     } else {
-        binary_expand_op(nk, rD2, a, rD1, norm_rD1);
+        binary_expand_op(nk, rD2, rD1, dot_rD1_rD2, norm_rD1_2);
     }
-    //  normal unit vector
-    //
-    // 'calc_t_nk_kappa:12' num = norm_rD2*norm_rD2*norm_rD1*norm_rD1 - (rD2'*rD1)*(rD2'*rD1);
-    c_rD2 = 0.0;
-    f_loop_ub = rD2.size(0);
-    for (int i5{0}; i5 < f_loop_ub; i5++) {
-        c_rD2 += rD2[i5] * rD1[i5];
-    }
-    d_rD2 = 0.0;
-    g_loop_ub = rD2.size(0);
-    for (int i6{0}; i6 < g_loop_ub; i6++) {
-        d_rD2 += rD2[i6] * rD1[i6];
-    }
-    num = norm_rD2 * norm_rD2 * norm_rD1 * norm_rD1 - c_rD2 * d_rD2;
-    // 'calc_t_nk_kappa:13' if num < 0
+    //  Curvature
+    // 'calc_t_nk_kappa:17' num         = norm_rD2_2 .* norm_rD1_2 - dot_rD1_rD2.^2;
+    num = a * a * norm_rD1_2 - dot_rD1_rD2 * dot_rD1_rD2;
+    // 'calc_t_nk_kappa:19' num( num < 0 ) = 0;
+    unnamed_idx_0 = num;
     if (num < 0.0) {
-        // 'calc_t_nk_kappa:14' num = 0;
-        num = 0.0;
+        unnamed_idx_0 = 0.0;
     }
-    // 'calc_t_nk_kappa:17' kappa = sqrt(num)...
-    // 'calc_t_nk_kappa:18'         /(norm_rD1*norm_rD1*norm_rD1);
-    //  curvature
-    *kappa = std::sqrt(num) / (a_tmp * norm_rD1);
+    // 'calc_t_nk_kappa:20' kappa       = sqrt( num ) ./ norm_rD1_3;
+    *kappa = std::sqrt(unnamed_idx_0) / (norm_rD1_2 * norm_rD1);
 }
 
 } // namespace ocn

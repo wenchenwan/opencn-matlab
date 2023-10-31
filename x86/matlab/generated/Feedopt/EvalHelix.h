@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: EvalHelix.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Sep-2023 09:32:18
 //
 
 #ifndef EVALHELIX_H
@@ -21,28 +21,32 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-void EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedHelixCenter[3],
-               const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+void EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
+               const double CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3],
+               double CurvStruct_theta, double CurvStruct_pitch,
                const ::coder::array<double, 1U> &u_vec, const bool maskCart_data[],
                const int maskCart_size[2], double r0D[3], double r1D[3], double r2D[3],
                double r3D[3]);
 
-void b_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedHelixCenter[3],
-                 const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
-                 double u_vec, const bool maskCart_data[], const int maskCart_size[2],
-                 double r0D[3], double r1D[3], double r2D[3], double r3D[3]);
+void b_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
+                 const double CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3],
+                 double CurvStruct_theta, double CurvStruct_pitch, double u_vec,
+                 const bool maskCart_data[], const int maskCart_size[2], double r0D[3],
+                 double r1D[3], double r2D[3], double r3D[3]);
 
-void c_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedHelixCenter[3],
-                 const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
+void c_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
+                 const double CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3],
+                 double CurvStruct_theta, double CurvStruct_pitch,
                  const ::coder::array<double, 2U> &u_vec, const bool maskCart_data[],
                  const int maskCart_size[2], ::coder::array<double, 2U> &r0D,
                  ::coder::array<double, 2U> &r1D, ::coder::array<double, 2U> &r2D,
                  ::coder::array<double, 2U> &r3D);
 
-void d_EvalHelix(const double CurvStruct_R0[6], const double CurvStruct_CorrectedHelixCenter[3],
-                 const double CurvStruct_evec[3], double CurvStruct_theta, double CurvStruct_pitch,
-                 const double u_vec[2], const bool maskCart_data[], const int maskCart_size[2],
-                 double r0D[2][3], double r1D[2][3], double r2D[2][3], double r3D[2][3]);
+void d_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
+                 const double CurvStruct_CorrectedHelixCenter[3], const double CurvStruct_evec[3],
+                 double CurvStruct_theta, double CurvStruct_pitch, const double u_vec[2],
+                 const bool maskCart_data[], const int maskCart_size[2], double r0D[2][3],
+                 double r1D[2][3], double r2D[2][3], double r3D[2][3]);
 
 } // namespace ocn
 

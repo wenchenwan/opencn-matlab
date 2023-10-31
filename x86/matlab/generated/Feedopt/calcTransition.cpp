@@ -12,22 +12,23 @@
 #include "calcTransition.h"
 #include "EvalCurvStruct.h"
 #include "G2_Hermite_Interpolation_nAxis.h"
-#include "TransP5LengthApprox.h"
+#include "LengthCurv.h"
 #include "calc_t_nk_kappa.h"
 #include "constrTransP5Struct.h"
 #include "cutCurvStruct.h"
 #include "norm.h"
+#include "ocn_assert.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_internal_types.h"
-#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types11.h"
+#include "opencn_matlab_types111.h"
 #include "opencn_matlab_types2.h"
-#include "opencn_matlab_types21.h"
 #include "opencn_matlab_types3.h"
 #include "queue_coder.h"
-#include "splineLength.h"
 #include "sum.h"
 #include "coder_array.h"
 #include <cmath>
+#include <cstring>
 #include <emmintrin.h>
 
 // Function Declarations
@@ -101,25 +102,25 @@ static bool check_continuity(const queue_coder *ctx_q_spline, const bool ctx_cfg
     bool exitg1;
     bool isG1;
     bool isValid;
-    bool y;
-    // 'calcTransition:78' tol         = ctx.cfg.Smoothing.ColTolSmooth;
-    // 'calcTransition:79' tol_cos     = ctx.cfg.Smoothing.ColTolCosSmooth;
-    // 'calcTransition:80' tol_kappa   = 1E-3;
-    // 'calcTransition:82' [ r11, r1d1, r1dd1 ] = EvalCurvStruct( ctx, curv1, 1 );
+    bool varargout_1;
+    // 'calcTransition:89' tol         = ctx.cfg.Smoothing.ColTolSmooth;
+    // 'calcTransition:90' tol_cos     = ctx.cfg.Smoothing.ColTolCosSmooth;
+    // 'calcTransition:91' tol_kappa   = 1E-3;
+    // 'calcTransition:93' [ r11, r1d1, r1dd1 ] = EvalCurvStruct( ctx, curv1, 1 );
     f_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                      ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                      ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                      ctx_cfg_NCart, ctx_cfg_NRot, curv1, r11, r1d1, r1dd1);
-    // 'calcTransition:83' [ r21, r2d1, r2dd1 ] = EvalCurvStruct( ctx, curv2, 0 );
+    // 'calcTransition:94' [ r21, r2d1, r2dd1 ] = EvalCurvStruct( ctx, curv2, 0 );
     g_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                      ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                      ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                      ctx_cfg_NCart, ctx_cfg_NRot, curv2, r21, r2d1, r2dd1);
-    // 'calcTransition:85' [t1, ~,  kappa1] = calc_t_nk_kappa( r1d1, r1dd1 );
+    // 'calcTransition:96' [t1, ~,  kappa1] = calc_t_nk_kappa( r1d1, r1dd1 );
     calc_t_nk_kappa(r1d1, r1dd1, t1, a__5, &kappa1);
-    // 'calcTransition:86' [t2, ~,  kappa2] = calc_t_nk_kappa( r2d1, r2dd1 );
+    // 'calcTransition:97' [t2, ~,  kappa2] = calc_t_nk_kappa( r2d1, r2dd1 );
     calc_t_nk_kappa(r2d1, r2dd1, t2, a__6, &kappa2);
-    // 'calcTransition:88' isC0    = all( abs( r11    -r21 ) < tol, 'all' );
+    // 'calcTransition:99' isC0    = all( abs( r11    -r21 ) < tol, 'all' );
     if (r11.size(0) == r21.size(0)) {
         int loop_ub;
         int scalarLB;
@@ -149,7 +150,7 @@ static bool check_continuity(const queue_coder *ctx_q_spline, const bool ctx_cfg
             z1[k] = std::abs(x[k]);
         }
     }
-    // 'calcTransition:89' isG1    = collinear( t1, t2, tol_cos );
+    // 'calcTransition:100' isG1    = collinear( t1, t2, tol_cos );
     // 'collinear:2' if (norm(u) < eps || norm(v) < eps)
     if ((coder::b_norm(t1) < 2.2204460492503131E-16) ||
         (coder::b_norm(t2) < 2.2204460492503131E-16)) {
@@ -196,25 +197,25 @@ static bool check_continuity(const queue_coder *ctx_q_spline, const bool ctx_cfg
         isG1 = (c / (std::sqrt(coder::sum(r2)) * std::sqrt(coder::sum(r3))) >=
                 ctx_cfg_Smoothing_ColTolCosSmooth);
     }
-    // 'calcTransition:90' isG2    = abs( kappa1 -kappa2 )   < tol_kappa;
-    // 'calcTransition:92' isValid = isC0 && isG1 && isG2;
+    // 'calcTransition:101' isG2    = abs( kappa1 -kappa2 )   < tol_kappa;
+    // 'calcTransition:103' isValid = isC0 && isG1 && isG2;
     b_x.set_size(z1.size(0));
     b_loop_ub = z1.size(0);
     for (int i2{0}; i2 < b_loop_ub; i2++) {
         b_x[i2] = (z1[i2] < ctx_cfg_Smoothing_ColTolSmooth);
     }
-    y = true;
+    varargout_1 = true;
     b_k = 0;
     exitg1 = false;
     while ((!exitg1) && (b_k <= b_x.size(0) - 1)) {
         if (!b_x[b_k]) {
-            y = false;
+            varargout_1 = false;
             exitg1 = true;
         } else {
             b_k++;
         }
     }
-    if (y && isG1 && (std::abs(kappa1 - kappa2) < 0.001)) {
+    if (varargout_1 && isG1 && (std::abs(kappa1 - kappa2) < 0.001)) {
         isValid = true;
     } else {
         isValid = false;
@@ -223,7 +224,8 @@ static bool check_continuity(const queue_coder *ctx_q_spline, const bool ctx_cfg
 }
 
 //
-// function [ status, curv1C, curv2C, curvT ] = calcTransition( ctx, curv1, curv2 )
+// function [ status, curv1C, curv2C, curvT, ret ] = ...
+// calcTransition( ctx, curv1, curv2 )
 //
 // calcTransition_new : Compute a transition curve using on a polynome of
 //  degree 5.
@@ -261,6 +263,7 @@ static bool check_continuity(const queue_coder *ctx_q_spline, const bool ctx_cfg
 //                CurvStruct *curv1C
 //                CurvStruct *curv2C
 //                CurvStruct *curvT
+//                int *ret
 // Return Type  : void
 //
 void calcTransition(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
@@ -274,355 +277,191 @@ void calcTransition(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_
                     double ctx_cfg_Smoothing_ColTolCosSmooth, double ctx_cfg_Smoothing_ColTolSmooth,
                     const double ctx_cfg_GaussLegendreX[5], const double ctx_cfg_GaussLegendreW[5],
                     const CurvStruct *curv1, const CurvStruct *curv2, TransitionResult *status,
-                    CurvStruct *curv1C, CurvStruct *curv2C, CurvStruct *curvT)
+                    CurvStruct *curv1C, CurvStruct *curv2C, CurvStruct *curvT, int *ret)
 {
-    ::coder::array<double, 1U> a__1;
-    ::coder::array<double, 1U> a__2;
-    ::coder::array<double, 1U> a__3;
-    ::coder::array<double, 1U> r;
     ::coder::array<double, 1U> r0D0;
     ::coder::array<double, 1U> r0D1;
     ::coder::array<double, 1U> r0D2;
-    ::coder::array<double, 1U> r1D;
     ::coder::array<double, 1U> r1D0;
     ::coder::array<double, 1U> r1D1;
     ::coder::array<double, 1U> r1D2;
+    CurvStruct a__2;
     CurvStruct a__4;
-    CurvStruct b_a__2;
-    CurvStruct b_expl_temp;
-    CurvStruct expl_temp;
+    double R0T_data[6];
+    double R1T_data[6];
     double L1;
     double L2;
-    double b_a__1;
-    double b_a__3;
-    int ret;
+    double a__1;
+    double a__3;
+    int b_ret;
+    int c_ret;
     TransitionResult b_status;
-    // 'calcTransition:15' coder.inline( "never" );
-    // 'calcTransition:17' CutOff = ctx.cfg.CutOff;
-    // 'calcTransition:18' Lcut1 = CutOff;
-    // 'calcTransition:18' Lcut2 = CutOff;
-    // 'calcTransition:20' L1 = LengthCurv( ctx, curv1, 0, 1 );
-    // 'LengthCurv:3' if ( curv.Info.Type == CurveType.Helix ) || ( curv.Info.Type == CurveType.Line
-    // )
-    if ((curv1->Info.Type == CurveType_Helix) || (curv1->Info.Type == CurveType_Line)) {
-        int loop_ub;
-        // 'LengthCurv:4' [~, r1D, ~, ~] = EvalCurvStruct( ctx, curv, u0 );
-        c_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
-                         ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
-                         ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
-                         ctx_cfg_NCart, ctx_cfg_NRot, curv1, a__1, r1D, a__2, a__3);
-        // 'LengthCurv:5' L = MyNorm( r1D ) * ( u1 - u0 );
-        // 'MyNorm:2' coder.inline('always');
-        // 'MyNorm:3' n = mysqrt(sum(x.^2));
-        // 'mysqrt:3' y = sqrt(x);
-        r.set_size(r1D.size(0));
-        loop_ub = r1D.size(0);
-        for (int i{0}; i < loop_ub; i++) {
-            double varargin_1;
-            varargin_1 = r1D[i];
-            r[i] = std::pow(varargin_1, 2.0);
-        }
-        L1 = std::sqrt(coder::sum(r));
-        // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-        sqrt_calls++;
-    } else if (curv1->Info.Type == CurveType_Spline) {
-        // 'LengthCurv:6' elseif ( curv.Info.Type == CurveType.Spline )
-        // 'LengthCurv:7' a        = curv.a_param;
-        // 'LengthCurv:8' b        = curv.b_param;
-        // 'LengthCurv:9' u0_tilda = a * u0 + b;
-        // 'LengthCurv:10' u1_tilda = a * u1 + b;
-        // 'LengthCurv:11' spline   = ctx.q_spline.get( curv.sp_index );
-        ctx_q_spline->get(curv1->sp_index, &expl_temp);
-        // 'LengthCurv:12' [ L ]    = splineLength( ctx.cfg, spline, u0_tilda, u1_tilda );
-        L1 = splineLength(ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, expl_temp.sp.Bl.handle,
-                          expl_temp.sp.Bl.order, expl_temp.sp.coeff, expl_temp.sp.knots,
-                          expl_temp.sp.Lk, curv1->b_param, curv1->a_param + curv1->b_param);
-    } else if (curv1->Info.Type == CurveType_TransP5) {
-        // 'LengthCurv:13' elseif ( curv.Info.Type == CurveType.TransP5 )
-        // 'LengthCurv:14' L = TransP5LengthApprox( curv );
-        L1 = TransP5LengthApprox(curv1);
-    } else {
-        // 'LengthCurv:15' else
-        // 'LengthCurv:16' ocn_assert( false, "BAD CURVE TYPE IN LENGTH CURV", mfilename );
-    }
-    // 'calcTransition:21' L2 = LengthCurv( ctx, curv2, 0, 1 );
-    // 'LengthCurv:3' if ( curv.Info.Type == CurveType.Helix ) || ( curv.Info.Type == CurveType.Line
-    // )
-    if ((curv2->Info.Type == CurveType_Helix) || (curv2->Info.Type == CurveType_Line)) {
-        int b_loop_ub;
-        // 'LengthCurv:4' [~, r1D, ~, ~] = EvalCurvStruct( ctx, curv, u0 );
-        c_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
-                         ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
-                         ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
-                         ctx_cfg_NCart, ctx_cfg_NRot, curv2, a__1, r1D, a__2, a__3);
-        // 'LengthCurv:5' L = MyNorm( r1D ) * ( u1 - u0 );
-        // 'MyNorm:2' coder.inline('always');
-        // 'MyNorm:3' n = mysqrt(sum(x.^2));
-        // 'mysqrt:3' y = sqrt(x);
-        r.set_size(r1D.size(0));
-        b_loop_ub = r1D.size(0);
-        for (int i1{0}; i1 < b_loop_ub; i1++) {
-            double b_varargin_1;
-            b_varargin_1 = r1D[i1];
-            r[i1] = std::pow(b_varargin_1, 2.0);
-        }
-        L2 = std::sqrt(coder::sum(r));
-        // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-        sqrt_calls++;
-    } else if (curv2->Info.Type == CurveType_Spline) {
-        int c_loop_ub;
-        int e_loop_ub;
-        int f_loop_ub;
-        // 'LengthCurv:6' elseif ( curv.Info.Type == CurveType.Spline )
-        // 'LengthCurv:7' a        = curv.a_param;
-        // 'LengthCurv:8' b        = curv.b_param;
-        // 'LengthCurv:9' u0_tilda = a * u0 + b;
-        // 'LengthCurv:10' u1_tilda = a * u1 + b;
-        // 'LengthCurv:11' spline   = ctx.q_spline.get( curv.sp_index );
-        ctx_q_spline->get(curv2->sp_index, &b_expl_temp);
-        expl_temp.sp.coeff.set_size(b_expl_temp.sp.coeff.size(0), b_expl_temp.sp.coeff.size(1));
-        c_loop_ub = b_expl_temp.sp.coeff.size(1);
-        for (int i2{0}; i2 < c_loop_ub; i2++) {
-            int d_loop_ub;
-            d_loop_ub = b_expl_temp.sp.coeff.size(0);
-            for (int i3{0}; i3 < d_loop_ub; i3++) {
-                expl_temp.sp.coeff[i3 + expl_temp.sp.coeff.size(0) * i2] =
-                    b_expl_temp.sp.coeff[i3 + b_expl_temp.sp.coeff.size(0) * i2];
-            }
-        }
-        expl_temp.sp.knots.set_size(1, b_expl_temp.sp.knots.size(1));
-        e_loop_ub = b_expl_temp.sp.knots.size(1);
-        for (int i4{0}; i4 < e_loop_ub; i4++) {
-            expl_temp.sp.knots[i4] = b_expl_temp.sp.knots[i4];
-        }
-        expl_temp.sp.Lk.set_size(1, b_expl_temp.sp.Lk.size(1));
-        f_loop_ub = b_expl_temp.sp.Lk.size(1);
-        for (int i5{0}; i5 < f_loop_ub; i5++) {
-            expl_temp.sp.Lk[i5] = b_expl_temp.sp.Lk[i5];
-        }
-        // 'LengthCurv:12' [ L ]    = splineLength( ctx.cfg, spline, u0_tilda, u1_tilda );
-        L2 = splineLength(ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, b_expl_temp.sp.Bl.handle,
-                          b_expl_temp.sp.Bl.order, expl_temp.sp.coeff, expl_temp.sp.knots,
-                          expl_temp.sp.Lk, curv2->b_param, curv2->a_param + curv2->b_param);
-    } else if (curv2->Info.Type == CurveType_TransP5) {
-        // 'LengthCurv:13' elseif ( curv.Info.Type == CurveType.TransP5 )
-        // 'LengthCurv:14' L = TransP5LengthApprox( curv );
-        L2 = TransP5LengthApprox(curv2);
-    } else {
-        // 'LengthCurv:15' else
-        // 'LengthCurv:16' ocn_assert( false, "BAD CURVE TYPE IN LENGTH CURV", mfilename );
-    }
+    // 'calcTransition:16' coder.inline( "never" );
+    // 'calcTransition:18' ret     = int32( 9 );
+    b_ret = 9;
+    // 'calcTransition:19' CutOff  = ctx.cfg.CutOff;
+    // 'calcTransition:20' Lcut1   = CutOff;
+    // 'calcTransition:20' Lcut2 = CutOff;
+    // 'calcTransition:22' L1 = LengthCurv( ctx, curv1, 0, 1 );
+    L1 = LengthCurv(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
+                    ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
+                    ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart,
+                    ctx_cfg_NRot, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, curv1);
+    // 'calcTransition:23' L2 = LengthCurv( ctx, curv2, 0, 1 );
+    L2 = LengthCurv(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
+                    ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
+                    ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart,
+                    ctx_cfg_NRot, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, curv2);
     //  If curv length is lower that cutting length return
-    // 'calcTransition:24' if( ( L1 < 3 * Lcut1 ) || ( L2 < 3 * Lcut2 ) )
+    // 'calcTransition:26' if( ( L1 < 3 * Lcut1 ) || ( L2 < 3 * Lcut2 ) )
     if ((L1 < 3.0 * ctx_cfg_CutOff) || (L2 < 3.0 * ctx_cfg_CutOff)) {
-        // 'calcTransition:25' curv1C  = curv1;
+        // 'calcTransition:27' curv1C  = curv1;
         *curv1C = *curv1;
-        // 'calcTransition:25' curv2C  = curv2;
+        // 'calcTransition:27' curv2C  = curv2;
         *curv2C = *curv2;
-        // 'calcTransition:25' curvT   = curv1;
+        // 'calcTransition:27' curvT   = curv1;
         *curvT = *curv1;
-        // 'calcTransition:26' status  = TransitionResult.NoSolution;
+        // 'calcTransition:28' status  = TransitionResult.NoSolution;
         b_status = TransitionResult_NoSolution;
     } else {
         double p5[6][6];
-        // 'calcTransition:30' [ ~, curv1C, ~ ] = cutCurvStruct( ctx, curv1, 0, L1-Lcut1, false );
+        double b_x;
+        double x;
+        int b_end;
+        int b_loop_ub;
+        int b_partialTrueCount;
+        int end;
+        int loop_ub;
+        int partialTrueCount;
+        // 'calcTransition:32' [ ~, curv1C, ~ ] = cutCurvStruct( ctx, curv1, 0, L1-Lcut1, false );
         cutCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                       ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                       ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                       ctx_cfg_NCart, ctx_cfg_NRot, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
-                      curv1, L1 - ctx_cfg_CutOff, &b_a__1, curv1C, &b_a__2);
-        // 'calcTransition:31' ocn_assert( check_curv_length( ctx, curv1C, L1-Lcut1 ), "Curve Length
-        // not valide", mfilename ); 'calcTransition:96' tol = 1E-3; 'calcTransition:98' isValid = (
-        // abs( LengthCurv( ctx, curv, 0, 1 ) - L ) <= tol ); 'LengthCurv:3' if ( curv.Info.Type ==
-        // CurveType.Helix ) || ( curv.Info.Type == CurveType.Line )
-        if ((curv1C->Info.Type == CurveType_Helix) || (curv1C->Info.Type == CurveType_Line)) {
-            // 'LengthCurv:4' [~, r1D, ~, ~] = EvalCurvStruct( ctx, curv, u0 );
-            c_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
-                             ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
-                             ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot,
-                             ctx_cfg_NumberAxis, ctx_cfg_NCart, ctx_cfg_NRot, curv1C, a__1, r1D,
-                             a__2, a__3);
-            // 'LengthCurv:5' L = MyNorm( r1D ) * ( u1 - u0 );
-            // 'MyNorm:2' coder.inline('always');
-            // 'MyNorm:3' n = mysqrt(sum(x.^2));
-            // 'mysqrt:3' y = sqrt(x);
-            // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-            sqrt_calls++;
-        } else if (curv1C->Info.Type == CurveType_Spline) {
-            int g_loop_ub;
-            int i_loop_ub;
-            int j_loop_ub;
-            // 'LengthCurv:6' elseif ( curv.Info.Type == CurveType.Spline )
-            // 'LengthCurv:7' a        = curv.a_param;
-            // 'LengthCurv:8' b        = curv.b_param;
-            // 'LengthCurv:9' u0_tilda = a * u0 + b;
-            // 'LengthCurv:10' u1_tilda = a * u1 + b;
-            // 'LengthCurv:11' spline   = ctx.q_spline.get( curv.sp_index );
-            ctx_q_spline->get(curv1C->sp_index, &b_expl_temp);
-            expl_temp.sp.coeff.set_size(b_expl_temp.sp.coeff.size(0), b_expl_temp.sp.coeff.size(1));
-            g_loop_ub = b_expl_temp.sp.coeff.size(1);
-            for (int i6{0}; i6 < g_loop_ub; i6++) {
-                int h_loop_ub;
-                h_loop_ub = b_expl_temp.sp.coeff.size(0);
-                for (int i7{0}; i7 < h_loop_ub; i7++) {
-                    expl_temp.sp.coeff[i7 + expl_temp.sp.coeff.size(0) * i6] =
-                        b_expl_temp.sp.coeff[i7 + b_expl_temp.sp.coeff.size(0) * i6];
-                }
-            }
-            expl_temp.sp.knots.set_size(1, b_expl_temp.sp.knots.size(1));
-            i_loop_ub = b_expl_temp.sp.knots.size(1);
-            for (int i8{0}; i8 < i_loop_ub; i8++) {
-                expl_temp.sp.knots[i8] = b_expl_temp.sp.knots[i8];
-            }
-            expl_temp.sp.Lk.set_size(1, b_expl_temp.sp.Lk.size(1));
-            j_loop_ub = b_expl_temp.sp.Lk.size(1);
-            for (int i9{0}; i9 < j_loop_ub; i9++) {
-                expl_temp.sp.Lk[i9] = b_expl_temp.sp.Lk[i9];
-            }
-            // 'LengthCurv:12' [ L ]    = splineLength( ctx.cfg, spline, u0_tilda, u1_tilda );
-            splineLength(ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, b_expl_temp.sp.Bl.handle,
-                         b_expl_temp.sp.Bl.order, expl_temp.sp.coeff, expl_temp.sp.knots,
-                         expl_temp.sp.Lk, curv1C->b_param, curv1C->a_param + curv1C->b_param);
-        } else if (curv1C->Info.Type == CurveType_TransP5) {
-            // 'LengthCurv:13' elseif ( curv.Info.Type == CurveType.TransP5 )
-            // 'LengthCurv:14' L = TransP5LengthApprox( curv );
-            TransP5LengthApprox(curv1C);
-        } else {
-            // 'LengthCurv:15' else
-            // 'LengthCurv:16' ocn_assert( false, "BAD CURVE TYPE IN LENGTH CURV", mfilename );
-        }
-        // 'calcTransition:32' [ ~, ~, curv2C ] = cutCurvStruct( ctx, curv2, 1, L2-Lcut2, true );
+                      curv1, L1 - ctx_cfg_CutOff, &a__1, curv1C, &a__2);
+        // 'calcTransition:33' ocn_assert( check_curv_length( ctx, curv1C, L1-Lcut1 ), "Curve Length
+        // not valide", mfilename ); 'calcTransition:107' tol = 1E-3; 'calcTransition:109' isValid =
+        // ( abs( LengthCurv( ctx, curv, 0, 1 ) - L ) <= tol );
+        x = LengthCurv(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+                       ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
+                       ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
+                       ctx_cfg_NCart, ctx_cfg_NRot, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
+                       curv1C) -
+            (L1 - ctx_cfg_CutOff);
+        o_ocn_assert(std::abs(x) <= 0.001);
+        // 'calcTransition:34' [ ~, ~, curv2C ] = cutCurvStruct( ctx, curv2, 1, L2-Lcut2, true );
         b_cutCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                         ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                         ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                         ctx_cfg_NCart, ctx_cfg_NRot, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
-                        curv2, L2 - ctx_cfg_CutOff, &b_a__3, &a__4, curv2C);
-        // 'calcTransition:33' ocn_assert( check_curv_length( ctx, curv2C, L2-Lcut2 ), "Curve Length
-        // not valide", mfilename ); 'calcTransition:96' tol = 1E-3; 'calcTransition:98' isValid = (
-        // abs( LengthCurv( ctx, curv, 0, 1 ) - L ) <= tol ); 'LengthCurv:3' if ( curv.Info.Type ==
-        // CurveType.Helix ) || ( curv.Info.Type == CurveType.Line )
-        if ((curv2C->Info.Type == CurveType_Helix) || (curv2C->Info.Type == CurveType_Line)) {
-            // 'LengthCurv:4' [~, r1D, ~, ~] = EvalCurvStruct( ctx, curv, u0 );
-            c_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
-                             ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
-                             ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot,
-                             ctx_cfg_NumberAxis, ctx_cfg_NCart, ctx_cfg_NRot, curv2C, a__1, r1D,
-                             a__2, a__3);
-            // 'LengthCurv:5' L = MyNorm( r1D ) * ( u1 - u0 );
-            // 'MyNorm:2' coder.inline('always');
-            // 'MyNorm:3' n = mysqrt(sum(x.^2));
-            // 'mysqrt:3' y = sqrt(x);
-            // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-            sqrt_calls++;
-        } else if (curv2C->Info.Type == CurveType_Spline) {
-            int k_loop_ub;
-            int m_loop_ub;
-            int n_loop_ub;
-            // 'LengthCurv:6' elseif ( curv.Info.Type == CurveType.Spline )
-            // 'LengthCurv:7' a        = curv.a_param;
-            // 'LengthCurv:8' b        = curv.b_param;
-            // 'LengthCurv:9' u0_tilda = a * u0 + b;
-            // 'LengthCurv:10' u1_tilda = a * u1 + b;
-            // 'LengthCurv:11' spline   = ctx.q_spline.get( curv.sp_index );
-            ctx_q_spline->get(curv2C->sp_index, &b_expl_temp);
-            expl_temp.sp.coeff.set_size(b_expl_temp.sp.coeff.size(0), b_expl_temp.sp.coeff.size(1));
-            k_loop_ub = b_expl_temp.sp.coeff.size(1);
-            for (int i10{0}; i10 < k_loop_ub; i10++) {
-                int l_loop_ub;
-                l_loop_ub = b_expl_temp.sp.coeff.size(0);
-                for (int i11{0}; i11 < l_loop_ub; i11++) {
-                    expl_temp.sp.coeff[i11 + expl_temp.sp.coeff.size(0) * i10] =
-                        b_expl_temp.sp.coeff[i11 + b_expl_temp.sp.coeff.size(0) * i10];
-                }
-            }
-            expl_temp.sp.knots.set_size(1, b_expl_temp.sp.knots.size(1));
-            m_loop_ub = b_expl_temp.sp.knots.size(1);
-            for (int i12{0}; i12 < m_loop_ub; i12++) {
-                expl_temp.sp.knots[i12] = b_expl_temp.sp.knots[i12];
-            }
-            expl_temp.sp.Lk.set_size(1, b_expl_temp.sp.Lk.size(1));
-            n_loop_ub = b_expl_temp.sp.Lk.size(1);
-            for (int i13{0}; i13 < n_loop_ub; i13++) {
-                expl_temp.sp.Lk[i13] = b_expl_temp.sp.Lk[i13];
-            }
-            // 'LengthCurv:12' [ L ]    = splineLength( ctx.cfg, spline, u0_tilda, u1_tilda );
-            splineLength(ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, b_expl_temp.sp.Bl.handle,
-                         b_expl_temp.sp.Bl.order, expl_temp.sp.coeff, expl_temp.sp.knots,
-                         expl_temp.sp.Lk, curv2C->b_param, curv2C->a_param + curv2C->b_param);
-        } else if (curv2C->Info.Type == CurveType_TransP5) {
-            // 'LengthCurv:13' elseif ( curv.Info.Type == CurveType.TransP5 )
-            // 'LengthCurv:14' L = TransP5LengthApprox( curv );
-            TransP5LengthApprox(curv2C);
-        } else {
-            // 'LengthCurv:15' else
-            // 'LengthCurv:16' ocn_assert( false, "BAD CURVE TYPE IN LENGTH CURV", mfilename );
-        }
-        // 'calcTransition:35' [r0D0, r0D1, r0D2] = EvalCurvStruct( ctx, curv1C, 1 );
+                        curv2, L2 - ctx_cfg_CutOff, &a__3, &a__4, curv2C);
+        // 'calcTransition:35' ocn_assert( check_curv_length( ctx, curv2C, L2-Lcut2 ), "Curve Length
+        // not valide", mfilename ); 'calcTransition:107' tol = 1E-3; 'calcTransition:109' isValid =
+        // ( abs( LengthCurv( ctx, curv, 0, 1 ) - L ) <= tol );
+        b_x = LengthCurv(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+                         ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
+                         ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
+                         ctx_cfg_NCart, ctx_cfg_NRot, ctx_cfg_GaussLegendreX,
+                         ctx_cfg_GaussLegendreW, curv2C) -
+              (L2 - ctx_cfg_CutOff);
+        o_ocn_assert(std::abs(b_x) <= 0.001);
+        // 'calcTransition:37' [r0D0, r0D1, r0D2] = EvalCurvStruct( ctx, curv1C, 1 );
         f_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                          ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                          ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                          ctx_cfg_NCart, ctx_cfg_NRot, curv1C, r0D0, r0D1, r0D2);
-        // 'calcTransition:36' [r1D0, r1D1, r1D2] = EvalCurvStruct( ctx, curv2C, 0 );
+        // 'calcTransition:38' [r1D0, r1D1, r1D2] = EvalCurvStruct( ctx, curv2C, 0 );
         g_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                          ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                          ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                          ctx_cfg_NCart, ctx_cfg_NRot, curv2C, r1D0, r1D1, r1D2);
-        // 'calcTransition:39' [p5, ret] = G2_Hermite_Interpolation_nAxis(ctx, r0D0, r0D1, r0D2, ...
-        // 'calcTransition:40'                                                 r1D0, r1D1, r1D2);
+        // 'calcTransition:41' [p5, ret] = G2_Hermite_Interpolation_nAxis(ctx, r0D0, r0D1, r0D2, ...
+        // 'calcTransition:42'                                                 r1D0, r1D1, r1D2);
         G2_Hermite_Interpolation_nAxis(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_D, r0D0,
-                                       r0D1, r0D2, r1D0, r1D1, r1D2, p5, &ret);
-        // 'calcTransition:42' curvT = constrTransP5Struct( curv1.Info, curv1.tool, curv1.R1, ...
-        // 'calcTransition:43'                              curv2.R0, p5 );
+                                       r0D1, r0D2, r1D0, r1D1, r1D2, p5, &c_ret);
+        b_ret = c_ret;
+        // 'calcTransition:44' R0T = zeros( length(ctx.cfg.maskTot), 1 );
+        loop_ub = ctx_cfg_maskTot_size[1];
+        if (loop_ub - 1 >= 0) {
+            std::memset(&R0T_data[0], 0, loop_ub * sizeof(double));
+        }
+        // 'calcTransition:44' R1T = R0T;
+        b_loop_ub = ctx_cfg_maskTot_size[1];
+        if (b_loop_ub - 1 >= 0) {
+            std::memset(&R1T_data[0], 0, b_loop_ub * sizeof(double));
+        }
+        // 'calcTransition:45' R0T( ctx.cfg.maskTot ) = r0D0;
+        end = ctx_cfg_maskTot_size[1];
+        partialTrueCount = 0;
+        for (int i{0}; i < end; i++) {
+            if (ctx_cfg_maskTot_data[i]) {
+                R0T_data[i] = r0D0[partialTrueCount];
+                partialTrueCount++;
+            }
+        }
+        // 'calcTransition:46' R1T( ctx.cfg.maskTot ) = r1D0;
+        b_end = ctx_cfg_maskTot_size[1];
+        b_partialTrueCount = 0;
+        for (int b_i{0}; b_i < b_end; b_i++) {
+            if (ctx_cfg_maskTot_data[b_i]) {
+                R1T_data[b_i] = r1D0[b_partialTrueCount];
+                b_partialTrueCount++;
+            }
+        }
+        // 'calcTransition:48' curvT = constrTransP5Struct( curv1.Info, curv1.tool, R0T, ...
+        // 'calcTransition:49'                              R1T, p5 );
         b_constrTransP5Struct(
             curv1->Info.TRAFO, curv1->Info.HSC, curv1->Info.FeedRate, curv1->Info.SpindleSpeed,
             curv1->Info.gcode_source_line, curv1->Info.G91, curv1->Info.G91_1, curv1->tool.toolno,
             curv1->tool.pocketno, &curv1->tool.offset, curv1->tool.diameter, curv1->tool.frontangle,
-            curv1->tool.backangle, curv1->tool.orientation, curv1->R1, curv2->R0, p5, curvT);
-        // 'calcTransition:44' curvT.Info.SpindleSpeed = min( curv1.Info.SpindleSpeed, ...
-        // 'calcTransition:45'                                curv2.Info.SpindleSpeed );
+            curv1->tool.backangle, curv1->tool.orientation, R0T_data, ctx_cfg_maskTot_size[1],
+            R1T_data, ctx_cfg_maskTot_size[1], p5, curvT);
+        // 'calcTransition:50' curvT.Info.SpindleSpeed = min( curv1.Info.SpindleSpeed, ...
+        // 'calcTransition:51'                                curv2.Info.SpindleSpeed );
         curvT->Info.SpindleSpeed = std::fmin(curv1->Info.SpindleSpeed, curv2->Info.SpindleSpeed);
-        // 'calcTransition:46' curvT.Info.FeedRate     = min( curv1.Info.FeedRate, ...
-        // 'calcTransition:47'                                curv2.Info.FeedRate );
+        // 'calcTransition:52' curvT.Info.FeedRate     = min( curv1.Info.FeedRate, ...
+        // 'calcTransition:53'                                curv2.Info.FeedRate );
         curvT->Info.FeedRate = std::fmin(curv1->Info.FeedRate, curv2->Info.FeedRate);
-        // 'calcTransition:49' if( ret== 1 )
-        if (ret == 1) {
+        // 'calcTransition:55' if( ret== 1 )
+        if (c_ret == 1) {
             //  standard case
             //  transition CurvStruct calculation
-            // 'calcTransition:52' status = TransitionResult.Ok;
+            // 'calcTransition:58' status = TransitionResult.Ok;
             b_status = TransitionResult_Ok;
-        } else if (ret == 2) {
-            // 'calcTransition:53' elseif( ret == 2 )
+        } else if (c_ret == 2) {
+            // 'calcTransition:59' elseif( ret == 2 )
+            //  Is never set in the function !
             //  badly conditioned matrix in G2_Hermite()
-            // 'calcTransition:55' status = TransitionResult.NoSolution;
+            // 'calcTransition:62' status = TransitionResult.NoSolution;
             b_status = TransitionResult_NoSolution;
-        } else if (ret == 6) {
-            // 'calcTransition:56' elseif( ret == 6 )
+        } else if (c_ret == 6) {
+            // 'calcTransition:63' elseif( ret == 6 )
             //  TODO: decide in the future...
             //  Now we ignore and construct the transition curve anyway
-            // 'calcTransition:59' status = TransitionResult.Ok;
+            // 'calcTransition:66' status = TransitionResult.Ok;
             b_status = TransitionResult_Ok;
         } else {
-            // 'calcTransition:60' else
-            // 'calcTransition:61' status = TransitionResult.NoSolution;
+            // 'calcTransition:67' else
+            // 'calcTransition:68' status = TransitionResult.NoSolution;
             b_status = TransitionResult_NoSolution;
         }
-        // 'calcTransition:64' if( ( status ~= TransitionResult.NoSolution ) && ...
-        // 'calcTransition:65'     ( all( p5 <= 0, 'all' ) ) )
+        // 'calcTransition:71' if( ( status ~= TransitionResult.NoSolution ) && ...
+        // 'calcTransition:72'     ( all( p5 <= 0, 'all' ) ) )
         if (b_status != TransitionResult_NoSolution) {
             int k;
-            bool x[6][6];
+            bool c_x[6][6];
             bool exitg1;
             bool y;
-            for (int i14{0}; i14 < 6; i14++) {
-                for (int i15{0}; i15 < 6; i15++) {
-                    x[i14][i15] = (p5[i14][i15] <= 0.0);
+            for (int c_i{0}; c_i < 6; c_i++) {
+                for (int i1{0}; i1 < 6; i1++) {
+                    c_x[c_i][i1] = (p5[c_i][i1] <= 0.0);
                 }
             }
             y = true;
             k = 0;
             exitg1 = false;
             while ((!exitg1) && (k < 36)) {
-                if (!(&x[0][0])[k]) {
+                if (!(&c_x[0][0])[k]) {
                     y = false;
                     exitg1 = true;
                 } else {
@@ -630,21 +469,23 @@ void calcTransition(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_
                 }
             }
             if (y) {
-                // 'calcTransition:66' status = TransitionResult.NoSolution;
+                // 'calcTransition:73' status = TransitionResult.NoSolution;
                 b_status = TransitionResult_NoSolution;
+                // 'calcTransition:74' ret = int32( 7 );
+                b_ret = 7;
             }
         }
-        // 'calcTransition:69' if( status == TransitionResult.Ok )
+        // 'calcTransition:77' if( status == TransitionResult.Ok )
         if (b_status == TransitionResult_Ok) {
             bool b_isValid;
             bool isValid;
-            // 'calcTransition:70' isValid = check_continuity( ctx, curv1C, curvT );
+            // 'calcTransition:78' isValid = check_continuity( ctx, curv1C, curvT );
             isValid = check_continuity(
                 ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
                 ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size, ctx_cfg_indCart,
                 ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart, ctx_cfg_NRot,
                 ctx_cfg_Smoothing_ColTolCosSmooth, ctx_cfg_Smoothing_ColTolSmooth, curv1C, curvT);
-            // 'calcTransition:71' isValid = isValid && check_continuity( ctx, curvT, curv2C );
+            // 'calcTransition:79' isValid = isValid && check_continuity( ctx, curvT, curv2C );
             if (isValid &&
                 check_continuity(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                                  ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
@@ -656,14 +497,17 @@ void calcTransition(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_
             } else {
                 b_isValid = false;
             }
-            // 'calcTransition:72' if( ~isValid )
+            // 'calcTransition:80' if( ~isValid )
             if (!b_isValid) {
-                // 'calcTransition:72' status = TransitionResult.NoSolution;
+                // 'calcTransition:81' status = TransitionResult.NoSolution;
                 b_status = TransitionResult_NoSolution;
+                // 'calcTransition:82' ret = int32( 8 );
+                b_ret = 8;
             }
         }
     }
     *status = b_status;
+    *ret = b_ret;
 }
 
 //

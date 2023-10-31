@@ -10,7 +10,7 @@
 
 // Include Files
 #include "queue_coder.h"
-#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types111.h"
 
 // Function Definitions
 //

@@ -12,8 +12,9 @@
 #include "buildConstrJerk.h"
 #include "EvalCurvStruct.h"
 #include "Kinematics.h"
-#include "opencn_matlab_types1.h"
-#include "opencn_matlab_types21.h"
+#include "opencn_matlab_types11.h"
+#include "opencn_matlab_types111.h"
+#include "opencn_matlab_types2.h"
 #include "opencn_matlab_types3.h"
 #include "queue_coder.h"
 #include "coder_array.h"
@@ -642,6 +643,8 @@ void buildConstrJerk(
         }
     }
     // 'buildConstrJerk:55' checkValidity( Aj, bj );
+    // 'buildConstrJerk:63' ocn_assert( ~any( isnan( A ) , 'all' ), "A has NaN", mfilename );
+    // 'buildConstrJerk:64' ocn_assert( ~any( isnan( b ) , 'all' ), "b has NaN", mfilename );
     // 'buildConstrJerk:57' c_prof_out(mfilename);
 }
 

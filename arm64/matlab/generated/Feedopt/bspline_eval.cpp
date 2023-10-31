@@ -34,38 +34,38 @@ void bspline_eval(unsigned long Bl_handle, const ::coder::array<double, 2U> &coe
 {
     double X[4];
     // 'bspline_eval:3' X = zeros(1, 4);
-    // 'bspline_eval:6' ocn_assert( isreal(x), "x should be real", mfilename );
-    // 'bspline_eval:8' if coder.target('rtw') || coder.target('mex')
-    // 'bspline_eval:9' if x < 0
+    // 'bspline_eval:5' ocn_assert( isreal(x), "x should be real", mfilename );
+    // 'bspline_eval:7' if coder.target('rtw') || coder.target('mex')
+    // 'bspline_eval:8' if x < 0
     if (*x < 0.0) {
-        // 'bspline_eval:10' fprintf('ERROR: C_BSPLINE_EVAL: X < 0 (%f)\n', x);
+        // 'bspline_eval:9' fprintf('ERROR: C_BSPLINE_EVAL: X < 0 (%f)\n', x);
         printf("ERROR: C_BSPLINE_EVAL: X < 0 (%f)\n", *x);
         fflush(stdout);
-        // 'bspline_eval:11' x = 0;
+        // 'bspline_eval:10' x = 0;
         *x = 0.0;
     } else if (*x > 1.0) {
-        // 'bspline_eval:12' elseif x > 1
-        // 'bspline_eval:13' fprintf('ERROR: C_BSPLINE_EVAL: X > 1 (%f)\n', x);
+        // 'bspline_eval:11' elseif x > 1
+        // 'bspline_eval:12' fprintf('ERROR: C_BSPLINE_EVAL: X > 1 (%f)\n', x);
         printf("ERROR: C_BSPLINE_EVAL: X > 1 (%f)\n", *x);
         fflush(stdout);
-        // 'bspline_eval:14' x = 1;
+        // 'bspline_eval:13' x = 1;
         *x = 1.0;
     }
-    // 'bspline_eval:16' my_path = StructTypeName.WDIR + "/src";
-    // 'bspline_eval:17' coder.updateBuildInfo('addIncludePaths',my_path);
-    // 'bspline_eval:18' coder.updateBuildInfo('addSourceFiles','c_spline.c', my_path);
-    // 'bspline_eval:19' coder.updateBuildInfo('addLinkFlags', LibInfo.gsl.lflags);
-    // 'bspline_eval:20' coder.cinclude('c_spline.h');
-    // 'bspline_eval:22' coder.ceval('c_bspline_eval', coder.rref(Bl.handle), coder.rref(coeffs),...
-    // 'bspline_eval:23'                     x, coder.wref(X));
+    // 'bspline_eval:15' my_path = StructTypeName.WDIR + "/src";
+    // 'bspline_eval:16' coder.updateBuildInfo('addIncludePaths',my_path);
+    // 'bspline_eval:17' coder.updateBuildInfo('addSourceFiles','c_spline.c', my_path);
+    // 'bspline_eval:18' coder.updateBuildInfo('addLinkFlags', LibInfo.gsl.lflags);
+    // 'bspline_eval:19' coder.cinclude('c_spline.h');
+    // 'bspline_eval:21' coder.ceval('c_bspline_eval', coder.rref(Bl.handle), coder.rref(coeffs),...
+    // 'bspline_eval:22'                     x, coder.wref(X));
     c_bspline_eval(&Bl_handle, &coeffs[0], *x, &X[0]);
-    // 'bspline_eval:24' x       = X(1);
+    // 'bspline_eval:23' x       = X(1);
     *x = X[0];
-    // 'bspline_eval:25' xd      = X(2);
+    // 'bspline_eval:24' xd      = X(2);
     *xd = X[1];
-    // 'bspline_eval:26' xdd     = X(3);
+    // 'bspline_eval:25' xdd     = X(3);
     *xdd = X[2];
-    // 'bspline_eval:27' xddd    = X(4);
+    // 'bspline_eval:26' xddd    = X(4);
     *xddd = X[3];
 }
 

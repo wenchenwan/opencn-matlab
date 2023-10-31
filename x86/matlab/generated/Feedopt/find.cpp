@@ -23,32 +23,42 @@ namespace ocn {
 namespace coder {
 void b_eml_find(const ::coder::array<bool, 2U> &x, int i_data[], int i_size[2])
 {
+    ::coder::array<int, 2U> i;
     int idx;
     int ii;
     int k;
+    int loop_ub;
     bool exitg1;
     k = (x.size(1) >= 1);
     idx = 0;
-    i_size[0] = 1;
-    i_size[1] = k;
+    i.set_size(1, k);
     ii = 0;
     exitg1 = false;
     while ((!exitg1) && (ii <= x.size(1) - 1)) {
         if (x[ii]) {
-            idx = 1;
-            i_data[0] = ii + 1;
-            exitg1 = true;
+            idx++;
+            i[idx - 1] = ii + 1;
+            if (idx >= k) {
+                exitg1 = true;
+            } else {
+                ii++;
+            }
         } else {
             ii++;
         }
     }
     if (k == 1) {
         if (idx == 0) {
-            i_size[0] = 1;
-            i_size[1] = 0;
+            i.set_size(1, 0);
         }
     } else {
-        i_size[1] = (idx >= 1);
+        i.set_size(i.size(0), static_cast<int>(idx >= 1));
+    }
+    i_size[0] = 1;
+    i_size[1] = i.size(1);
+    loop_ub = i.size(1);
+    if (loop_ub - 1 >= 0) {
+        i_data[0] = i[0];
     }
 }
 

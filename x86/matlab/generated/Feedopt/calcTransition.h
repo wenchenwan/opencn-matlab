@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: calcTransition.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Sep-2023 09:32:18
 //
 
 #ifndef CALCTRANSITION_H
@@ -41,7 +41,7 @@ void calcTransition(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_
                     double ctx_cfg_Smoothing_ColTolCosSmooth, double ctx_cfg_Smoothing_ColTolSmooth,
                     const double ctx_cfg_GaussLegendreX[5], const double ctx_cfg_GaussLegendreW[5],
                     const CurvStruct *curv1, const CurvStruct *curv2, TransitionResult *status,
-                    CurvStruct *curv1C, CurvStruct *curv2C, CurvStruct *curvT);
+                    CurvStruct *curv1C, CurvStruct *curv2C, CurvStruct *curvT, int *ret);
 
 void minus(::coder::array<double, 1U> &in1, const ::coder::array<double, 1U> &in2,
            const ::coder::array<double, 1U> &in3);

@@ -10,156 +10,128 @@
 
 // Include Files
 #include "mypolyder.h"
-#include "opencn_matlab_types1.h"
 #include "coder_array.h"
 
 // Function Definitions
 //
 // Arguments    : ::coder::array<double, 2U> &in1
 //                const ::coder::array<double, 2U> &in2
-//                const ::coder::array<signed char, 2U> &in3
+//                const ::coder::array<int, 2U> &in3
 // Return Type  : void
 //
 namespace ocn {
-void b_binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
-                        const ::coder::array<signed char, 2U> &in3)
-{
-    int i;
-    int i1;
-    int loop_ub;
-    int stride_0_0;
-    int stride_1_0;
-    i = in2.size(0);
-    if (in3.size(0) == 1) {
-        i1 = i;
-    } else {
-        i1 = in3.size(0);
-    }
-    in1.set_size(i1, 4);
-    stride_0_0 = (i != 1);
-    stride_1_0 = (in3.size(0) != 1);
-    if (in3.size(0) == 1) {
-        loop_ub = i;
-    } else {
-        loop_ub = in3.size(0);
-    }
-    for (int i2{0}; i2 < 4; i2++) {
-        for (int i3{0}; i3 < loop_ub; i3++) {
-            in1[i3 + in1.size(0) * i2] =
-                in2[i3 * stride_0_0 + in2.size(0) * i2] *
-                static_cast<double>(in3[i3 * stride_1_0 + in3.size(0) * i2]);
-        }
-    }
-}
-
-//
-// Arguments    : ::coder::array<double, 2U> &in1
-//                const CurvStruct *in2
-//                const ::coder::array<signed char, 2U> &in3
-// Return Type  : void
-//
-void binary_expand_op(::coder::array<double, 2U> &in1, const CurvStruct *in2,
-                      const ::coder::array<signed char, 2U> &in3)
-{
-    int i;
-    int i1;
-    int loop_ub;
-    int stride_0_0;
-    int stride_1_0;
-    i = in2->CoeffP5.size(0);
-    if (in3.size(0) == 1) {
-        i1 = i;
-    } else {
-        i1 = in3.size(0);
-    }
-    in1.set_size(i1, 5);
-    stride_0_0 = (i != 1);
-    stride_1_0 = (in3.size(0) != 1);
-    if (in3.size(0) == 1) {
-        loop_ub = i;
-    } else {
-        loop_ub = in3.size(0);
-    }
-    for (int i2{0}; i2 < 5; i2++) {
-        for (int i3{0}; i3 < loop_ub; i3++) {
-            in1[i3 + in1.size(0) * i2] =
-                in2->CoeffP5[i3 * stride_0_0 + in2->CoeffP5.size(0) * i2] *
-                static_cast<double>(in3[i3 * stride_1_0 + in3.size(0) * i2]);
-        }
-    }
-}
-
-//
-// Arguments    : ::coder::array<double, 2U> &in1
-//                const ::coder::array<double, 2U> &in2
-//                const ::coder::array<signed char, 2U> &in3
-// Return Type  : void
-//
 void binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
-                      const ::coder::array<signed char, 2U> &in3)
+                      const ::coder::array<int, 2U> &in3)
 {
+    int aux_0_1;
+    int aux_1_1;
     int i;
     int i1;
+    int i2;
+    int i3;
     int loop_ub;
     int stride_0_0;
+    int stride_0_1;
     int stride_1_0;
+    int stride_1_1;
     i = in2.size(0);
+    i1 = in2.size(1) - 1;
     if (in3.size(0) == 1) {
-        i1 = i;
+        i2 = i;
     } else {
-        i1 = in3.size(0);
+        i2 = in3.size(0);
     }
-    in1.set_size(i1, 3);
+    if (in3.size(1) == 1) {
+        i3 = i1;
+    } else {
+        i3 = in3.size(1);
+    }
+    in1.set_size(i2, i3);
     stride_0_0 = (i != 1);
+    stride_0_1 = (i1 != 1);
     stride_1_0 = (in3.size(0) != 1);
-    if (in3.size(0) == 1) {
-        loop_ub = i;
+    stride_1_1 = (in3.size(1) != 1);
+    aux_0_1 = 0;
+    aux_1_1 = 0;
+    if (in3.size(1) == 1) {
+        loop_ub = i1;
     } else {
-        loop_ub = in3.size(0);
+        loop_ub = in3.size(1);
     }
-    for (int i2{0}; i2 < 3; i2++) {
-        for (int i3{0}; i3 < loop_ub; i3++) {
-            in1[i3 + in1.size(0) * i2] =
-                in2[i3 * stride_0_0 + in2.size(0) * i2] *
-                static_cast<double>(in3[i3 * stride_1_0 + in3.size(0) * i2]);
+    for (int i4{0}; i4 < loop_ub; i4++) {
+        int b_loop_ub;
+        if (in3.size(0) == 1) {
+            b_loop_ub = i;
+        } else {
+            b_loop_ub = in3.size(0);
         }
+        for (int i5{0}; i5 < b_loop_ub; i5++) {
+            in1[i5 + in1.size(0) * i4] =
+                in2[i5 * stride_0_0 + in2.size(0) * aux_0_1] *
+                static_cast<double>(in3[i5 * stride_1_0 + in3.size(0) * aux_1_1]);
+        }
+        aux_1_1 += stride_1_1;
+        aux_0_1 += stride_0_1;
     }
 }
 
 //
 // Arguments    : ::coder::array<double, 2U> &in1
 //                const ::coder::array<double, 2U> &in2
-//                const ::coder::array<signed char, 2U> &in3
+//                const ::coder::array<double, 2U> &in3
 // Return Type  : void
 //
-void c_binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
-                        const ::coder::array<signed char, 2U> &in3)
+void g_binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
+                        const ::coder::array<double, 2U> &in3)
 {
+    int aux_0_1;
+    int aux_1_1;
     int i;
     int i1;
+    int i2;
+    int i3;
     int loop_ub;
     int stride_0_0;
+    int stride_0_1;
     int stride_1_0;
+    int stride_1_1;
     i = in2.size(0);
+    i1 = in2.size(1) - 1;
     if (in3.size(0) == 1) {
-        i1 = i;
+        i2 = i;
     } else {
-        i1 = in3.size(0);
+        i2 = in3.size(0);
     }
-    in1.set_size(i1, 5);
+    if (in3.size(1) == 1) {
+        i3 = i1;
+    } else {
+        i3 = in3.size(1);
+    }
+    in1.set_size(i2, i3);
     stride_0_0 = (i != 1);
+    stride_0_1 = (i1 != 1);
     stride_1_0 = (in3.size(0) != 1);
-    if (in3.size(0) == 1) {
-        loop_ub = i;
+    stride_1_1 = (in3.size(1) != 1);
+    aux_0_1 = 0;
+    aux_1_1 = 0;
+    if (in3.size(1) == 1) {
+        loop_ub = i1;
     } else {
-        loop_ub = in3.size(0);
+        loop_ub = in3.size(1);
     }
-    for (int i2{0}; i2 < 5; i2++) {
-        for (int i3{0}; i3 < loop_ub; i3++) {
-            in1[i3 + in1.size(0) * i2] =
-                in2[i3 * stride_0_0 + in2.size(0) * i2] *
-                static_cast<double>(in3[i3 * stride_1_0 + in3.size(0) * i2]);
+    for (int i4{0}; i4 < loop_ub; i4++) {
+        int b_loop_ub;
+        if (in3.size(0) == 1) {
+            b_loop_ub = i;
+        } else {
+            b_loop_ub = in3.size(0);
         }
+        for (int i5{0}; i5 < b_loop_ub; i5++) {
+            in1[i5 + in1.size(0) * i4] = in2[i5 * stride_0_0 + in2.size(0) * aux_0_1] *
+                                         in3[i5 * stride_1_0 + in3.size(0) * aux_1_1];
+        }
+        aux_1_1 += stride_1_1;
+        aux_0_1 += stride_0_1;
     }
 }
 

@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,14 +6,13 @@
 // File: FeedratePlanning_LP.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Sep-2023 09:32:18
 //
 
 #ifndef FEEDRATEPLANNING_LP_H
 #define FEEDRATEPLANNING_LP_H
 
 // Include Files
-#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types111.h"
 #include "rtwtypes.h"
 #include "coder_array.h"
 #include <cstddef>
@@ -24,7 +24,11 @@
 namespace ocn {
 struct b_FeedoptContext;
 
+namespace coder {
+class rtString;
+
 }
+} // namespace ocn
 
 // Function Declarations
 namespace ocn {
@@ -35,7 +39,8 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
                          const ::coder::array<double, 2U> &BasisValDD,
                          const ::coder::array<double, 1U> &BasisIntegr,
                          const ::coder::array<double, 2U> &u_vec, double NWindow,
-                         ::coder::array<double, 2U> &Coeff, bool *success, int *status);
+                         ::coder::array<double, 2U> &Coeff, bool *success, int *status,
+                         coder::rtString *msg);
 
 }
 

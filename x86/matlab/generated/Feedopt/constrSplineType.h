@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,14 +6,13 @@
 // File: constrSplineType.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Sep-2023 09:32:18
 //
 
 #ifndef CONSTRSPLINETYPE_H
 #define CONSTRSPLINETYPE_H
 
 // Include Files
-#include "opencn_matlab_types2.h"
+#include "opencn_matlab_types1.h"
 #include "rtwtypes.h"
 #include <cstddef>
 #include <cstdlib>

@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: isSameGeometry.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Sep-2023 09:32:18
 //
 
 #ifndef ISSAMEGEOMETRY_H
@@ -27,10 +27,16 @@ struct CurvStruct;
 
 // Function Declarations
 namespace ocn {
-void d_binary_expand_op(::coder::array<bool, 2U> &in1, const CurvStruct *in2,
+void b_binary_expand_op(::coder::array<bool, 2U> &in1, const CurvStruct *in2,
                         const CurvStruct *in3);
 
-}
+void c_binary_expand_op(::coder::array<bool, 1U> &in1, const CurvStruct *in2,
+                        const CurvStruct *in3);
+
+void d_binary_expand_op(::coder::array<bool, 1U> &in1, const CurvStruct *in2,
+                        const CurvStruct *in3);
+
+} // namespace ocn
 
 #endif
 //

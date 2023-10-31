@@ -11,6 +11,8 @@
 // Include Files
 #include "paramsDefaultCurv.h"
 #include "opencn_matlab_data.h"
+#include "opencn_matlab_types1.h"
+#include "opencn_matlab_types11.h"
 #include "opencn_matlab_types2.h"
 #include "opencn_matlab_types3.h"
 #include "coder_array.h"
@@ -190,7 +192,7 @@ void paramsDefaultCurv(
     // 'paramsDefaultCurv:40' params.pitch            = pitch;
     // 'paramsDefaultCurv:41' params.CoeffP5          = CoeffP5;
     // 'paramsDefaultCurv:42' params.Coeff            = Coeff;
-    *params_gcodeInfoStruct_Type = CurveType_Line;
+    *params_gcodeInfoStruct_Type = CurveType_None;
     *params_gcodeInfoStruct_zspdmode = ZSpdMode_NN;
     *params_gcodeInfoStruct_TRAFO = false;
     *params_gcodeInfoStruct_HSC = false;

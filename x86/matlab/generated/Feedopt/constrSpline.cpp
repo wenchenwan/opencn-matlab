@@ -12,8 +12,8 @@
 #include "constrSpline.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_initialize.h"
+#include "opencn_matlab_types1.h"
 #include "opencn_matlab_types2.h"
-#include "opencn_matlab_types3.h"
 #include "coder_array.h"
 
 // Function Definitions

@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: ResampleState.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Sep-2023 09:32:18
 //
 
 #ifndef RESAMPLESTATE_H
@@ -21,7 +21,7 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-extern void ResampleState(double dt, double zeroStopTime, ResampleStateClass *state);
+extern void ResampleState(double dt, double zeroStopTime, ResampleStateClass *b_state);
 
 }
 

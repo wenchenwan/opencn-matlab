@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,14 +6,13 @@
 // File: paramsDefaultCurv.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Sep-2023 09:32:18
 //
 
 #ifndef PARAMSDEFAULTCURV_H
 #define PARAMSDEFAULTCURV_H
 
 // Include Files
-#include "opencn_matlab_types3.h"
+#include "opencn_matlab_types11.h"
 #include "rtwtypes.h"
 #include <cstddef>
 #include <cstdlib>
@@ -21,9 +21,11 @@
 #include "functions.h"
 // Type Declarations
 namespace ocn {
+struct Axes;
+
 struct SplineStruct;
 
-}
+} // namespace ocn
 
 // Function Declarations
 namespace ocn {

@@ -1,3 +1,4 @@
+
 //
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
@@ -5,7 +6,6 @@
 // File: opencn_matlab_internal_types.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 29-Sep-2023 09:56:15
 //
 
 #ifndef OPENCN_MATLAB_INTERNAL_TYPES_H
@@ -14,7 +14,8 @@
 // Include Files
 #include "Kinematics.h"
 #include "opencn_matlab_types.h"
-#include "opencn_matlab_types3.h"
+#include "opencn_matlab_types111.h"
+#include "opencn_matlab_types2.h"
 #include "queue_coder.h"
 #include "rtwtypes.h"
 #include "coder_array.h"
@@ -55,16 +56,19 @@ struct b_FeedoptContext {
     double at_0;
     double at_1;
     b_FeedoptConfig cfg;
-    FeedoptPlanError errcode;
     int jmax_increase_count;
     bool zero_start;
     bool zero_end;
+    bool zero_forced;
+    CurvStruct zero_forced_buffer[2];
     int simplex_calls;
     int forced_stop;
     int programmed_stop;
     ::coder::array<double, 2U> Coeff;
     int Skipped;
     Kinematics kin;
+    MsgStruct errmsg;
+    FeedoptPlanError errcode;
 };
 
 } // namespace ocn

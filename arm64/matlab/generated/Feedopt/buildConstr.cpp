@@ -13,10 +13,13 @@
 #include "EvalCurvStruct.h"
 #include "Kinematics.h"
 #include "colon.h"
+#include "find.h"
 #include "linspace.h"
 #include "minOrMax.h"
-#include "opencn_matlab_types1.h"
-#include "opencn_matlab_types21.h"
+#include "ocn_assert.h"
+#include "opencn_matlab_types11.h"
+#include "opencn_matlab_types111.h"
+#include "opencn_matlab_types2.h"
 #include "opencn_matlab_types3.h"
 #include "queue_coder.h"
 #include "repmat.h"
@@ -26,12 +29,6 @@
 
 // Function Declarations
 namespace ocn {
-static void b_binary_expand_op(::coder::array<double, 3U> &in1, const ::coder::array<int, 1U> &in2,
-                               const ::coder::array<double, 2U> &in3, int in4, int in5,
-                               const ::coder::array<double, 2U> &in6,
-                               const ::coder::array<double, 1U> &in7,
-                               const ::coder::array<double, 2U> &in8);
-
 static void binary_expand_op(::coder::array<double, 2U> &in1, const double in4[6],
                              const signed char in5_data[], const int in5_size[2],
                              const ::coder::array<double, 2U> &in6);
@@ -50,93 +47,17 @@ static void binary_expand_op(::coder::array<double, 2U> &in1, const int in2[4],
 static void binary_expand_op(::coder::array<double, 1U> &in1,
                              const ::coder::array<double, 2U> &in2);
 
-} // namespace ocn
+static void checkValidity(const ::coder::array<double, 1U> &b);
 
-// Function Definitions
-//
-// Arguments    : ::coder::array<double, 3U> &in1
-//                const ::coder::array<int, 1U> &in2
-//                const ::coder::array<double, 2U> &in3
-//                int in4
-//                int in5
-//                const ::coder::array<double, 2U> &in6
-//                const ::coder::array<double, 1U> &in7
-//                const ::coder::array<double, 2U> &in8
-// Return Type  : void
-//
-namespace ocn {
-static void b_binary_expand_op(::coder::array<double, 3U> &in1, const ::coder::array<int, 1U> &in2,
+static void e_binary_expand_op(::coder::array<double, 3U> &in1, const ::coder::array<int, 1U> &in2,
                                const ::coder::array<double, 2U> &in3, int in4, int in5,
                                const ::coder::array<double, 2U> &in6,
                                const ::coder::array<double, 1U> &in7,
-                               const ::coder::array<double, 2U> &in8)
-{
-    int aux_1_1;
-    int aux_3_1;
-    int i;
-    int in7_idx_0;
-    int loop_ub;
-    int stride_0_0;
-    int stride_1_0;
-    int stride_1_1;
-    int stride_2_0;
-    int stride_3_0;
-    int stride_3_1;
-    in7_idx_0 = in7.size(0);
-    stride_0_0 = (in5 != 1);
-    stride_1_0 = (in6.size(0) != 1);
-    stride_1_1 = (in6.size(1) != 1);
-    stride_2_0 = (in7_idx_0 != 1);
-    stride_3_0 = (in8.size(0) != 1);
-    stride_3_1 = (in8.size(1) != 1);
-    aux_1_1 = 0;
-    aux_3_1 = 0;
-    if (in8.size(1) == 1) {
-        i = 1;
-    } else {
-        i = in8.size(1);
-    }
-    if (i == 1) {
-        if (in6.size(1) == 1) {
-            loop_ub = 1;
-        } else {
-            loop_ub = in6.size(1);
-        }
-    } else if (in8.size(1) == 1) {
-        loop_ub = 1;
-    } else {
-        loop_ub = in8.size(1);
-    }
-    for (int i1{0}; i1 < loop_ub; i1++) {
-        int b_loop_ub;
-        int i2;
-        if (in8.size(0) == 1) {
-            i2 = in7_idx_0;
-        } else {
-            i2 = in8.size(0);
-        }
-        if (i2 == 1) {
-            if (in6.size(0) == 1) {
-                b_loop_ub = in5;
-            } else {
-                b_loop_ub = in6.size(0);
-            }
-        } else if (in8.size(0) == 1) {
-            b_loop_ub = in7_idx_0;
-        } else {
-            b_loop_ub = in8.size(0);
-        }
-        for (int i3{0}; i3 < b_loop_ub; i3++) {
-            in1[(in2[i3] + in1.size(0) * i1) - 1] =
-                in3[in4 + in3.size(0) * (i3 * stride_0_0)] *
-                    in6[i3 * stride_1_0 + in6.size(0) * aux_1_1] +
-                in7[i3 * stride_2_0] * in8[i3 * stride_3_0 + in8.size(0) * aux_3_1];
-        }
-        aux_3_1 += stride_3_1;
-        aux_1_1 += stride_1_1;
-    }
-}
+                               const ::coder::array<double, 2U> &in8);
 
+} // namespace ocn
+
+// Function Definitions
 //
 // Arguments    : ::coder::array<double, 2U> &in1
 //                const double in4[6]
@@ -145,6 +66,7 @@ static void b_binary_expand_op(::coder::array<double, 3U> &in1, const ::coder::a
 //                const ::coder::array<double, 2U> &in6
 // Return Type  : void
 //
+namespace ocn {
 static void binary_expand_op(::coder::array<double, 2U> &in1, const double in4[6],
                              const signed char in5_data[], const int in5_size[2],
                              const ::coder::array<double, 2U> &in6)
@@ -389,6 +311,117 @@ static void binary_expand_op(::coder::array<double, 1U> &in1, const ::coder::arr
     b_loop_ub = b_in1.size(0);
     for (int i1{0}; i1 < b_loop_ub; i1++) {
         in1[i1] = b_in1[i1];
+    }
+}
+
+//
+// function checkValidity( A, b, Aeq, beq, continuity )
+//
+// Arguments    : const ::coder::array<double, 1U> &b
+// Return Type  : void
+//
+static void checkValidity(const ::coder::array<double, 1U> &b)
+{
+    ::coder::array<int, 1U> r;
+    ::coder::array<bool, 1U> b_b;
+    int loop_ub;
+    // 'buildConstr:123' ocn_assert( ~any( isnan( A ) , 'all' ),             "A has NaN", mfilename
+    // ); 'buildConstr:124' ocn_assert( ~any( isnan( b ) , 'all' ),             "b has NaN",
+    // mfilename ); 'buildConstr:125' ocn_assert( ~any( find( b < 0 ) , 'all' ),          "b should
+    // be positive", mfilename );
+    b_b.set_size(b.size(0));
+    loop_ub = b.size(0);
+    for (int i{0}; i < loop_ub; i++) {
+        b_b[i] = (b[i] < 0.0);
+    }
+    coder::c_eml_find(b_b, r);
+    fb_ocn_assert(r.size(0) - 1 < 0);
+    // 'buildConstr:126' ocn_assert( ~any( isnan( Aeq ) , 'all' ),           "Aeq has NaN",
+    // mfilename ); 'buildConstr:127' ocn_assert( ~any( isnan( beq ) , 'all' ),           "beq has
+    // NaN", mfilename ); 'buildConstr:128' ocn_assert( ~any( isnan( continuity ) , 'all' ),
+    // "continuity has NaN", mfilename );
+}
+
+//
+// Arguments    : ::coder::array<double, 3U> &in1
+//                const ::coder::array<int, 1U> &in2
+//                const ::coder::array<double, 2U> &in3
+//                int in4
+//                int in5
+//                const ::coder::array<double, 2U> &in6
+//                const ::coder::array<double, 1U> &in7
+//                const ::coder::array<double, 2U> &in8
+// Return Type  : void
+//
+static void e_binary_expand_op(::coder::array<double, 3U> &in1, const ::coder::array<int, 1U> &in2,
+                               const ::coder::array<double, 2U> &in3, int in4, int in5,
+                               const ::coder::array<double, 2U> &in6,
+                               const ::coder::array<double, 1U> &in7,
+                               const ::coder::array<double, 2U> &in8)
+{
+    int aux_1_1;
+    int aux_3_1;
+    int i;
+    int in7_idx_0;
+    int loop_ub;
+    int stride_0_0;
+    int stride_1_0;
+    int stride_1_1;
+    int stride_2_0;
+    int stride_3_0;
+    int stride_3_1;
+    in7_idx_0 = in7.size(0);
+    stride_0_0 = (in5 != 1);
+    stride_1_0 = (in6.size(0) != 1);
+    stride_1_1 = (in6.size(1) != 1);
+    stride_2_0 = (in7_idx_0 != 1);
+    stride_3_0 = (in8.size(0) != 1);
+    stride_3_1 = (in8.size(1) != 1);
+    aux_1_1 = 0;
+    aux_3_1 = 0;
+    if (in8.size(1) == 1) {
+        i = 1;
+    } else {
+        i = in8.size(1);
+    }
+    if (i == 1) {
+        if (in6.size(1) == 1) {
+            loop_ub = 1;
+        } else {
+            loop_ub = in6.size(1);
+        }
+    } else if (in8.size(1) == 1) {
+        loop_ub = 1;
+    } else {
+        loop_ub = in8.size(1);
+    }
+    for (int i1{0}; i1 < loop_ub; i1++) {
+        int b_loop_ub;
+        int i2;
+        if (in8.size(0) == 1) {
+            i2 = in7_idx_0;
+        } else {
+            i2 = in8.size(0);
+        }
+        if (i2 == 1) {
+            if (in6.size(0) == 1) {
+                b_loop_ub = in5;
+            } else {
+                b_loop_ub = in6.size(0);
+            }
+        } else if (in8.size(0) == 1) {
+            b_loop_ub = in7_idx_0;
+        } else {
+            b_loop_ub = in8.size(0);
+        }
+        for (int i3{0}; i3 < b_loop_ub; i3++) {
+            in1[(in2[i3] + in1.size(0) * i1) - 1] =
+                in3[in4 + in3.size(0) * (i3 * stride_0_0)] *
+                    in6[i3 * stride_1_0 + in6.size(0) * aux_1_1] +
+                in7[i3 * stride_2_0] * in8[i3 * stride_3_0 + in8.size(0) * aux_3_1];
+        }
+        aux_3_1 += stride_3_1;
+        aux_1_1 += stride_1_1;
     }
 }
 
@@ -959,7 +992,7 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
                     }
                 }
             } else {
-                b_binary_expand_op(Acc, r4, r2D_a, j, r2D_a.size(1), BasisVal, r3, BasisValD);
+                e_binary_expand_op(Acc, r4, r2D_a, j, r2D_a.size(1), BasisVal, r3, BasisValD);
             }
             // 'buildConstr:78' Acc( ind, :, 2 ) = r2D( j, : )'   .* BasisVal + 0.5 * r1D( j, : )'
             // .* BasisValD;
@@ -1400,13 +1433,8 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
         continuity[2 * i36 + 1] = at_norm[2 * i36 + 1];
     }
     // 'buildConstr:115' checkValidity( A, b, Aeq, beq, continuity );
-    // 'buildConstr:123' ocn_assert( ~any( isnan( A ) , 'all' ),             "A has NaN", mfilename
-    // ); 'buildConstr:124' ocn_assert( ~any( isnan( b ) , 'all' ),             "b has NaN",
-    // mfilename ); 'buildConstr:125' ocn_assert( ~any( find( b < 0 ) , 'all' ),          "b should
-    // be positive", mfilename ); 'buildConstr:126' ocn_assert( ~any( isnan( Aeq ) , 'all' ), "Aeq
-    // has NaN", mfilename ); 'buildConstr:127' ocn_assert( ~any( isnan( beq ) , 'all' ), "beq has
-    // NaN", mfilename ); 'buildConstr:128' ocn_assert( ~any( isnan( continuity ) , 'all' ),
-    // "continuity has NaN", mfilename ); 'buildConstr:117' c_prof_out(mfilename);
+    checkValidity(b);
+    // 'buildConstr:117' c_prof_out(mfilename);
 }
 
 } // namespace ocn
