@@ -1,4 +1,5 @@
-function [ status, curv1C, curv2C, curvT ] = calcTransition( ctx, curv1, curv2 )
+function [ status, curv1C, curv2C, curvT, ret ] = ...
+calcTransition( ctx, curv1, curv2 )
 %#codegen
 % calcTransition_new : Compute a transition curve using on a polynome of 
 % degree 5.
@@ -14,8 +15,9 @@ function [ status, curv1C, curv2C, curvT ] = calcTransition( ctx, curv1, curv2 )
 
 coder.inline( "never" );
 
-CutOff = ctx.cfg.CutOff; 
-Lcut1 = CutOff; Lcut2 = CutOff;
+ret     = int32( 9 );
+CutOff  = ctx.cfg.CutOff; 
+Lcut1   = CutOff; Lcut2 = CutOff;
 
 L1 = LengthCurv( ctx, curv1, 0, 1 );
 L2 = LengthCurv( ctx, curv2, 0, 1 );
@@ -39,8 +41,12 @@ ocn_assert( check_curv_length( ctx, curv2C, L2-Lcut2 ), "Curve Length not valide
 [p5, ret] = G2_Hermite_Interpolation_nAxis(ctx, r0D0, r0D1, r0D2, ...
                                                 r1D0, r1D1, r1D2);
 
-curvT = constrTransP5Struct( curv1.Info, curv1.tool, curv1.R1, ...
-                             curv2.R0, p5 );
+R0T = zeros( length(ctx.cfg.maskTot), 1 ); R1T = R0T;
+R0T( ctx.cfg.maskTot ) = r0D0;
+R1T( ctx.cfg.maskTot ) = r1D0;
+
+curvT = constrTransP5Struct( curv1.Info, curv1.tool, R0T, ...
+                             R1T, p5 );
 curvT.Info.SpindleSpeed = min( curv1.Info.SpindleSpeed, ...
                                curv2.Info.SpindleSpeed );
 curvT.Info.FeedRate     = min( curv1.Info.FeedRate, ...
@@ -51,6 +57,7 @@ if( ret== 1 )
     % transition CurvStruct calculation
     status = TransitionResult.Ok;
 elseif( ret == 2 )
+    % Is never set in the function !
     % badly conditioned matrix in G2_Hermite()
     status = TransitionResult.NoSolution;
 elseif( ret == 6 )
@@ -64,12 +71,16 @@ end
 if( ( status ~= TransitionResult.NoSolution ) && ...
     ( all( p5 <= 0, 'all' ) ) )
     status = TransitionResult.NoSolution;
+    ret = int32( 7 );
 end
 
 if( status == TransitionResult.Ok ) 
     isValid = check_continuity( ctx, curv1C, curvT );
     isValid = isValid && check_continuity( ctx, curvT, curv2C );
-    if( ~isValid ), status = TransitionResult.NoSolution; end
+    if( ~isValid ) 
+        status = TransitionResult.NoSolution; 
+        ret = int32( 8 );
+    end
 end
 
 end

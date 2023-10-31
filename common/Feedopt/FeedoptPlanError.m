@@ -1,9 +1,13 @@
 classdef FeedoptPlanError < int32
     enumeration
-        Success(0)
-        SmoothingFailed(1)
-        SplittingFailed(2)
-        OptimizationFailed(3)
+        NoError(0)
+        ReadGCodeFailed(1)
+        CuspFailed(2)
+        CompressingFailed(3)
+        SmoothingFailed(4)
+        SplittingFailed(5)
+        OptimizationFailed(6)
+        Success(7)
     end
     
     methods(Static)

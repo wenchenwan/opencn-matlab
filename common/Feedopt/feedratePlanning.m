@@ -4,6 +4,7 @@ function [ ctx, optimized, opt_struct, quit ] = feedratePlanning( ctx )
 % constraints.
 persistent kopt;
 if( isempty( kopt ) ), kopt = 1; end
+
 opt_struct  = constrCurvStructType;    % Type of returned curvStruct
 quit        = false;                   % Flag used to quit the optimization
 optimized   = false;                   % Does the optimization successed
@@ -24,56 +25,41 @@ if ctx.go_next, ctx.k0 = ctx.k0 + 1; end
 if ( ctx.k0 <= ctx.q_split.size )
     
     if ~ctx.zero_end
+        % Get window of interest in from a given queue
+        [ window, NWindow ] = feedratePlanningGetwindow( ctx.k0, ...
+                                ctx.cfg.NHorz, ctx.q_split );
 
-        [ window, NWindow ] = get_window( ctx.k0, ctx.cfg.NHorz, ctx.q_split );
+        % Prepare the boundaries conditions of the problem
+        [ ctx, window, NWindow ] = feedratePlanningSetupCurves( ...
+                ctx, window, NWindow );
 
-        first = window( 1 );
-        last  = window( NWindow );
-
-        % Handle the zero speed at start
-        if ( isAZeroStart( first ) )
-            ctx.zero_start  = true;
-            window          = window( 2 : end );
-            NWindow         = NWindow -1;
-        else
-            ctx.zero_start  = false;
-        end
-
-        % Handle the zero speed at end
-        if( isAZeroEnd( last ) )
-            ctx.zero_end    = true;
-            NWindow         = NWindow -1;
-            window          = window( 1 : end-1 );
-        else
-            ctx.zero_end    = false;
-        end
-
-        % Compute the boundary conditions (v_norm + at_norm)
-        if( ctx.zero_start )
-            [ v_0, at_0 ]   = calcZeroConstraints( ctx, first, false );
-            ctx.v_0         = v_0;
-            ctx.at_0        = at_0;
-        end
-
-        if( ctx.zero_end )
-            [ v_1, at_1 ]   = calcZeroConstraints( ctx, last, true );
-            ctx.v_1         = -v_1;
-            ctx.at_1        = -at_1;
-        else
-            ctx.v_1         = -ctx.cfg.v_1;
-            ctx.at_1        = -ctx.cfg.at_1;
-        end
-
-        % Start the optimization
-        [ ctx, Coeff, success, status, msg ] = ...
-            FeedratePlanning_LP( ctx, window, ctx.cfg.amax, ctx.cfg.jmax, ...
-            ctx.BasisVal, ctx.BasisValD, ctx.BasisValDD, ctx.BasisIntegr, ...
-            ctx.u_vec, NWindow );
-
+        
+            % Start the optimization
+            [ ctx, Coeff, success, status, msg ] = ...
+                FeedratePlanning_LP( ctx, window, ctx.cfg.amax, ctx.cfg.jmax, ...
+                ctx.BasisVal, ctx.BasisValD, ctx.BasisValDD, ctx.BasisIntegr, ...
+                ctx.u_vec, NWindow );
+            
+            if( ~( success || ctx.zero_start || ctx.zero_end ) )
+                [ ctx, window, NWindow ] = feedratePlanningForceZeroStop( ...
+                    ctx, window, NWindow );
+                [ ctx, Coeff, success, status, msg ] = ...
+                    FeedratePlanning_LP( ctx, window, ctx.cfg.amax, ctx.cfg.jmax, ...
+                    ctx.BasisVal, ctx.BasisValD, ctx.BasisValDD, ctx.BasisIntegr, ...
+                    ctx.u_vec, NWindow );
+            end
+        
         % Extract the solution
-        if( success == 1 )      % Optimization succed
+        if( success )      
+            % Optimization succed
+            if( coder.target( 'MATLAB' ) )
+                curvArray = window( 1 : NWindow );
+                DebugOptimization.getInstance().add_result( ctx, ctx.Bl, ...
+                    ctx.BasisVal, curvArray, Coeff );
+            end
+
             kopt = 1;
-            % HGS : Probably a mistake here
+            
             optimized   = true;
             opt_struct  = ctx.q_split.get( ctx.k0 );
             
@@ -90,19 +76,35 @@ if ( ctx.k0 <= ctx.q_split.size )
             end
 
         else
-            [ quit, ctx ] = opt_error( ctx, msg ); return;
+            ocn_assert( true, "OPTIMIZATION FAILED", mfilename );
         end
     else
         optimized   = true;
-        opt_struct = ctx.q_split.get( ctx.k0 );
+
+        if( ctx.zero_forced && ( kopt > size( ctx.Coeff, 2 ) ) )
+            opt_struct  = ctx.zero_forced_buffer( 1 );
+            ctx.q_split.set( ctx.k0, ctx.zero_forced_buffer( 2 ) );
+            ctx.k0      = ctx.k0 - 1;
+            ctx.zero_forced = false;
+        else
+            opt_struct = ctx.q_split.get( ctx.k0 );
+        end
 
         if( ~isAZeroEnd( opt_struct ) )
             opt_struct.Coeff = ctx.Coeff( :, kopt );
         else
             ctx.zero_end  = false;
         end
+        
         kopt = kopt + 1;
     end
+    
+    if( coder.target( "MATLAB" ) )
+        if( length( opt_struct.Coeff ) > 1 )
+            [ profileList ] = computeProfileU( ctx.Bl, opt_struct.Coeff );
+        end
+    end
+    
 else
     ctx.op = Fopt.Finished;
 end
@@ -118,35 +120,3 @@ op      = Fopt.Finished;
 quit    = true;
 end
 
-function [ window, NWindow ] = get_window( k0, NHorz, q_curves )
-
-window = repmat( constrCurvStructType, 1, NHorz );
-
-kend = min( double( k0 + NHorz -1 ), q_curves.size );
-
-ind = 0;
-
-for curv_ind = k0 : int32( kend )
-    ind = ind + 1;
-
-    % store the value in the queue
-    curv            = q_curves.get( curv_ind );
-    window( ind )   = curv;
-    % Check if zero speed at the end
-    if( isAZeroEnd( curv ) ), break; end
-end
-
-NWindow = ind;
-end
-
-function [ quit, ctx ] = opt_error( ctx, msg )
-if coder.target('MATLAB')
-    ocn_assert( true, "OPTIMIZATION FAILED", mfilename );
-else
-    DebugLog( DebugCfg.Global, 'OPTIMIZATION FAILED!\n' );
-    ctx.errcode = FeedoptPlanError.OptimizationFailed;
-end
-ctx.op = Fopt.Finished;
-quit = true;
-return;
-end

@@ -1,19 +1,53 @@
-function [ status, CurvStruct ] = ReadGCode( cmd, filename )
+function [ status, CurvStruct, err_msg ] = ReadGCode( cmd, filename )
 %#codegen
 % coder.extrinsic('ReadGCode_mex');
 % Wrapper for pulling the next gcode line from the interpreter
 persistent n data using_mat
-status      = int32(0);
-CurvStruct  = constrCurvStructType;
+status          = ReadGCodeError.InterpError;
+CurvStruct      = constrCurvStructType;
+err_msg         = constrMsgStructType;
 
-if ( coder.target('mex') || coder.target('rtw') )
+if coder.target('matlab')
+    if cmd == ReadGCodeCmd.Load
+        setenv( "INI_FILE_NAME", pwd + "/config.ini" );
+        disp( "The configuration file is located : " + ...
+            getenv("INI_FILE_NAME") );
+        ext = filename( end-3 : end );
+        disp("Filename : " + filename );
+        if ext == ".mat"
+            fprintf( 'Loading CurvStructs ... ' )
+            data = load( filename, 'CurvStructs' );
+            data = table2struct( data.CurvStructs );
+            fprintf( 'Done\n' )
+            using_mat = true;
+            n = 1;
+            status = ~isempty( data );
+        else
+            using_mat = false;
+            [status, CurvStruct, err_msg] = ReadGCode_mex( 'ReadGCode', cmd, filename);
+        end
+    elseif cmd == ReadGCodeCmd.Read
+        if using_mat
+            if n < length( data )
+                CurvStruct = data( n );
+                n = n + 1;
+                status = 1;
+            else
+                status = 0;
+                CurvStruct = data( 1 );
+            end
+        else
+            [ status, CurvStruct, err_msg ] = ReadGCode_mex( 'ReadGCode', cmd, filename );
+        end
+    end
+else
     coder.updateBuildInfo('addDefines', '_POSIX_C_SOURCE=199309L')
-    
+
     my_path = StructTypeName.WDIR + "/src";
     coder.updateBuildInfo('addIncludePaths',my_path);
 
     pathRs274Src = StructTypeName.WDIR + "/../../rs274ngc/src";
-%     coder.updateBuildInfo('addDefines', '-DMEX_READGCODE')
+    %     coder.updateBuildInfo('addDefines', '-DMEX_READGCODE')
     coder.updateBuildInfo('addCompileFlags', '-fdiagnostics-color=always')
     coder.updateBuildInfo('addSourceFiles','cpp_interp.cpp', my_path);
     coder.updateBuildInfo('addSourceFiles','directives.cc', pathRs274Src);
@@ -39,70 +73,30 @@ if ( coder.target('mex') || coder.target('rtw') )
     coder.updateBuildInfo('addSourceFiles','rs274ngc_pre.cc', pathRs274Src);
     coder.updateBuildInfo('addSourceFiles','inifile.cc', pathRs274Src);
     coder.updateBuildInfo('addLinkFlags', '-ldl');
-%    coder.updateBuildInfo('addIncludePaths', '$(START_DIR)/gen_mex/readgcode');
+    %    coder.updateBuildInfo('addIncludePaths', '$(START_DIR)/gen_mex/readgcode');
     coder.cinclude('cpp_interp.hpp');
-    
+
     switch cmd
         case ReadGCodeCmd.Load
-            status = coder.ceval( 'cpp_interp_init', [filename 0] );
+            status = coder.ceval( 'cpp_interp_init', [filename 0], coder.ref(err_msg) );
         case ReadGCodeCmd.Read
-            is_loaded = int32(0);
-            is_loaded = coder.ceval( 'cpp_interp_loaded' );
+            is_loaded = false;
+            is_loaded = coder.ceval( 'cpp_interp_loaded', coder.ref(err_msg) );
             if is_loaded
-                status = coder.ceval( 'cpp_interp_read', coder.ref( CurvStruct ) );                
+                status  = coder.ceval( 'cpp_interp_read', coder.ref( CurvStruct ), coder.ref(err_msg) );
             else
-                status = int32(0);
+                status  = ReadGCodeError.InterpError;
             end
     end
-elseif coder.target('matlab') 
-    if cmd == ReadGCodeCmd.Load
-        setenv( "INI_FILE_NAME", pwd + "/config.ini" );
-        disp( "The configuration file is located : " + ...
-              getenv("INI_FILE_NAME") );
-        ext = filename( end-3 : end );
-        disp("Filename : " + filename );
-        if ext == ".mat"
-            fprintf( 'Loading CurvStructs ... ' )
-            data = load( filename, 'CurvStructs' );
-            data = table2struct( data.CurvStructs );
-            fprintf( 'Done\n' )
-            using_mat = true;
-            n = 1;
-            status = ~isempty( data );
-        else
-            using_mat = false;
-            [status, CurvStruct] = ReadGCode_mex( 'ReadGCode', cmd, filename);
-        end
-    elseif cmd == ReadGCodeCmd.Read
-        if using_mat
-            if n < length( data )
-                CurvStruct = data( n );
-                n = n + 1;
-                status = 1;
-            else
-                status = 0;
-                CurvStruct = data( 1 );
-            end
-        else
-            [ status, CurvStruct ] = ReadGCode_mex( 'ReadGCode', cmd, filename );
-        end
-    end
-% elseif coder.target('rtw')
-% 
-%     if cmd == ReadGCodeCmd.Load
-% 
-%         CurvStruct = constrCurvStructType;
-%         status = int32( 0 );
-%         status = coder.ceval( 'c_open_gcode', [filename, 0], coder.ref( CurvStruct ) );
-%     elseif cmd == ReadGCodeCmd.Read
-%         CurvStruct = constrCurvStructType;
-%         status = int32( 0 );
-%         status = coder.ceval( 'c_read_and_exec_gcode', '', coder.ref( CurvStruct ) );
-%         CurvStruct.R0( 4 : end ) = deg2rad( CurvStruct.R0( 4 : end ) );
-%         CurvStruct.R1( 4 : end ) = deg2rad( CurvStruct.R1( 4 : end ) );
-%     end
-else
-    error('Unknown target');
 end
+
+if(0)
+    fprintf(1, "[%d]%s\n", int32(status),"[Line " + CurvStruct.Info.gcode_source_line + "] " + ...
+    err_msg.msg);
+end
+
+ocn_assert( status < ReadGCodeError.InterpNotOpen, ...
+    "[Line " + CurvStruct.Info.gcode_source_line + "] " + ...
+    err_msg.msg, mfilename );
 
 end

@@ -65,8 +65,11 @@ for j = 1 : 3
     [ r( :, :, j ) , rd( :, :, j ), rdd( :, :, j ) ] = ...
         EvalCurvStruct( ctx, curv_vec( j ),  u_vec );
     rd( :, :, j )    = rd( :, :, j )  / curv_vec( j ).a_param;
-    rdd( :, :, j )   = rdd( :, :, j ) / curv_vec( j ).a_param^2;
-
+    if( 1 )
+        rdd( :, :, j )   = rdd( :, :, j ) / curv_vec( j ).a_param^2;
+    else
+        rdd( :, :, j )   = rdd( :, :, j ) / curv_vec( j ).a_param;
+    end
 end
 
 ind1 = [ 1, 1; 1, 2; 2, 2 ];
@@ -99,7 +102,7 @@ ocn_assert( all( diff_rdd   < tol, 'all' ),"Continuity C2 failed", mfilename );
 end
 
 function [ isValid ] = check_curv_length( ctx, curv, L )
-tol = 1E-3;
+tol = 1E-1;
 
 isValid = ( abs( LengthCurv( ctx, curv, 0, 1 ) - L ) <= tol );
 

@@ -71,9 +71,9 @@ else
 
 
     disp( "Debug Feedopt" );
+    msg = repmat( '0', StructTypeName.dimMsg{ 1 } );
     codegen('-config', cfg,'-d', output_root, '-o', 'opencn_matlab', ...
-        'FeedoptDefaultConfig',...
-        'export_kinematic_class', '-args', {configType,R11, R11, R11, R11});
+        'ocn_assert', '-args', { true, msg, msg });
 end
 
 end

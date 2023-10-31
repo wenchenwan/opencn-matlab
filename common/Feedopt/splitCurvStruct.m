@@ -31,27 +31,42 @@ if( isAZeroEnd( curv ) )
     hasEndSpeed     = true;
 end
 
-L       = LengthCurv( ctx, curv, 0, 1 );
-L_split = ctx.cfg.LSplit;
-
-% Number of sub segments
-N = ceil( L / L_split );
-
-% Length of the sub segments
-L_split = L / N;
-
-for k = 1 : N - 1
-    [ ret, curvSplited, curv ] = cutCurvStruct( ctx, curv, 0, L_split, false );
-    if( ret < 0 ), break; end
-
-    ocn_assert( check_curv_length( ctx, curvSplited, L_split ), ...
-        "Curve Length not valide", mfilename );
-
-    ctx.q_split.push( curvSplited );
+if( true && curv.Info.Type == CurveType.Spline )
+    bspline     = ctx.q_spline.get( curv.sp_index );
+    breakPoints = bspline.sp.Bl.breakpoints;
+    uMin        = curv.b_param;
+    uMax        = curv.b_param + curv.a_param;
+    ind         = find( breakPoints > uMin & breakPoints < uMax );
+    breakPoints = [ uMin, breakPoints( ind ), uMax ] ;
+    deltaU      = diff( breakPoints );
     
+    for j = 1 : length( deltaU )
+        curvSplited         = curv;
+        curvSplited.b_param = breakPoints( j );
+        curvSplited.a_param = deltaU( j );
+        ctx.q_split.push( curvSplited );
+    end
+else
+    L       = LengthCurv( ctx, curv, 0, 1 );
+    L_split = ctx.cfg.LSplit;
+    
+    % Number of sub segments
+    N = ceil( L / L_split );
+    
+    % Length of the sub segments
+    L_split = L / N;
+    
+    for k = 1 : N - 1
+        [ ret, curvSplited, curv ] = cutCurvStruct( ctx, curv, 0, L_split, false );
+        if( ret < 0 ), break; end
+    
+        ocn_assert( check_curv_length( ctx, curvSplited, L_split ), ...
+            "Curve Length not valide", mfilename );
+    
+        ctx.q_split.push( curvSplited );
+    end
+    ctx.q_split.push( curv );
 end
-
-ctx.q_split.push( curv );
 
 if( hasEndSpeed )
     % cut zero End

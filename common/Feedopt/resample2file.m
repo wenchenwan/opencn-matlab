@@ -14,7 +14,7 @@ state           = ResampleState( dt, ctx.cfg.DefaultZeroStopCount );
 countInPercent  = double( 0 );
 
 ind = 0; sizeBuffer = 1E7; t = 0;
-buffer = zeros( sizeBuffer, 5 + 3 * ctx.cfg.NumberAxis );
+buffer = zeros( sizeBuffer, 5 + 4 * ctx.cfg.NumberAxis );
 firstTime = true;
 
 counter = 0;
@@ -26,8 +26,11 @@ for k = 1 : N
     Curv.MaxConstantFeedRate    = 0;%GetCurvMaxFeedrate( ctx, Curv );
     state.go_next               = false;
 
-    while ~state.go_next
+    if( coder.target( "MATLAB" ) )
+        DebugResampling.getInstance().increaseNbCurvCounter();
+    end
 
+    while ~state.go_next
         [ state ] = resampleCurv( state, ctx.Bl, ...
             Curv.Info.zspdmode, Curv.Coeff, ...
             Curv.ConstJerk, dt, ctx.cfg.GaussLegendreX, ...
@@ -43,17 +46,19 @@ for k = 1 : N
 
             u       = state.u + double(k) - 1 ;
             cf      = Curv.Info.FeedRate;
+            
+            [ ud, udd, uddd ] = computeUDerivative( ctx.Bl, Curv.Info.zspdmode, ...
+            Curv.Coeff, Curv.ConstJerk, state.u );
+            
+            state = state.setU( state.u, ud, udd, uddd );
+    
             [ r, ~, a, j ]  = calcRVAJfromU( ctx, Curv, state.u, state.ud, ...
                                              state.udd, state.uddd );
-            [ r0D, r1D ]    = EvalCurvStruct( ctx, Curv, state.u );
-            
-            ctx.kin = ctx.kin.set_tool_length( Curv.tool.offset.z );
-%             r = ctx.kin.r_relative(r);
 
-            if( ~Curv.Info.TRAFO )
-                r1D = ctx.kin.v_relative( r0D, r1D );
-            end
-            v       = r1D .* state.ud;
+            [ r0D, r1D ]    = EvalCurvStruct( ctx, Curv, state.u );
+            [ Pr0D, Pr1D]   = EvalCurvStructInPieceFrame( ctx, Curv, state.u );
+          
+            v       = Pr1D .* state.ud;
             feed    = vecnorm( v( ctx.cfg.indCart ) );
 
             f_norm  = feed / Curv.Info.FeedRate;
@@ -61,14 +66,16 @@ for k = 1 : N
             j       = abs( j ./ ctx.cfg.jmax( ctx.cfg.maskTot )' );
             
             % Control numerical derivatives
+            if(0)         
+                [v_norm, a_norm, j_norm] = assert_numerical_derivative( r, ctx.cfg );
+
+                assert( all(v_norm <= 1), "Counter " + counter + " : Velocity is above the limits");
+                assert( all(a_norm <= 1), "Counter " + counter + " : Acceleration is above the limits");
+                assert( all(j_norm <= 1), "Counter " + counter + " : Jerk is above the limits");
+            end
             
-            [v_norm, a_norm, j_norm] = assert_numerical_derivative( r, ctx.cfg );
-
-%             assert( all(v_norm <= 1), "Counter " + counter + " : Velocity is above the limits");
-%             assert( all(a_norm <= 1), "Counter " + counter + " : Acceleration is above the limits");
-%             assert( all(j_norm <= 1), "Counter " + counter + " : Jerk is above the limits");
-
-            buffer( ind, : ) = [ t, u, f_norm, feed, cf, r', a', j' ];
+            assert_numerical_derivative( r, ctx.cfg );
+            buffer( ind, : ) = [ t, u, f_norm, feed, cf, r', a', j', Pr0D' ];
             counter = counter + 1;
         end
     end
@@ -103,6 +110,25 @@ else
 end
 
 writematrix( A, fileName, param{:} );
+
+end
+
+function [ ud, udd, uddd ] = computeUDerivative( Bl, zspdmode, Coeff, ...
+    constJerk, u )
+
+% Compute new u state depending of zspdmode
+if( zspdmode == ZSpdMode.ZN )
+    isEnd = false; forcelimit = false;
+    [ time ] = constJerkTime(constJerk, u, isEnd);
+    [ ~, ud, udd, uddd ] = constJerkU( constJerk, time, isEnd, forcelimit );
+elseif( zspdmode == ZSpdMode.NZ )
+    isEnd = true; forcelimit = false;
+    [ time ] = constJerkTime(constJerk, u, isEnd);
+    [ ~, ud, udd, uddd ] = constJerkU( constJerk, time, isEnd, forcelimit );
+else
+    [ q, qd, qdd ]      = bspline_eval( Bl, Coeff', u );
+    [ ud, udd, uddd ]   = calcUfromQ( q, qd, qdd );
+end
 
 end
 

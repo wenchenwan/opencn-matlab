@@ -25,26 +25,26 @@ type = kin.get_type();
 %----------------------------------------------------------------%
 
 % Position
-vec = kin.r_joint( vec );
-vec = kin.r_relative( vec);
+res = kin.r_joint( vec ) + rand;
+res = kin.r_relative( res) + rand;
 
 %----------------------------------------------------------------%
 % Advanced kinematics
 %----------------------------------------------------------------%
 
 % Speed
-vec = kin.v_joint( vec, vecd );
-vec = kin.v_relative( vec, vecd );
+resd = kin.v_joint( res, vecd ) + rand;
+resd = kin.v_relative( res, resd ) + rand;
 
 % Acceleration
-vec = kin.a_joint( vec, vecd, vecdd );
-vec = kin.a_relative( vec, vecd, vecdd );
+resdd = kin.a_joint( res, resd, vecdd ) + rand;
+resdd = kin.a_relative( res, resd, resdd ) + rand;
 
 % Jerk
-vec = kin.j_joint( vec, vecd, vecdd, vecddd );
-vec = kin.j_relative( vec, vecd, vecdd, vecddd );
+resddd = kin.j_joint( res, resd, resdd, vecddd ) + rand;
+resddd = kin.j_relative( res, resd, resdd, resddd ) + rand;
 
 % All
-[ vec, vecd, vecdd, vecddd] = kin.relative( vec, vecd, vecdd, vecddd );
-[ res, resd, resdd, resddd ] = kin.joint( vec, vecd, vecdd, vecddd );
+[ res, resd, resdd, resddd] = kin.relative( res, resd,resdd, resddd );
+[ res, resd, resdd, resddd ] = kin.joint( res + rand, resd + rand, resdd + rand, resddd + rand );
 end

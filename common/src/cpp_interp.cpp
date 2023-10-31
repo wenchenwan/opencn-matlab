@@ -9,62 +9,99 @@
 #endif
 
 #include <unistd.h>
-
+#include <string.h>
 
 namespace {
 Interp interp;
-bool was_init{false};
+bool was_init;
 ocn::CurvStruct curv;
 char buffer[1024];
 }
 
-int cpp_interp_loaded() {
+bool cpp_check_status_error( ocn::ReadGCodeError status )
+{
+    return (status > ocn::ReadGCodeError_InterpEndFile);
+}
+
+void cpp_write_error_msg( ocn::MsgStruct* msg_struct, const char* msg_ptr ){   
+    auto msg_size = strlen(msg_ptr);
+    msg_size = (msg_size <  msg_struct->size ? msg_size : msg_struct->size );
+
+    for( auto j=0 ; j < msg_size; j++ )
+        msg_struct->msg[j] = msg_ptr[j];
+    msg_struct->msg[msg_size] = '\0';
+}
+
+bool cpp_interp_loaded( ocn::MsgStruct* msg_struct ) {
+    static const char ERROR_MSG_FILE_NOT_OPEN[] = "cpp_interp_loaded: File is not open...\n";
+
+    if( !was_init )
+        cpp_write_error_msg( msg_struct, ERROR_MSG_FILE_NOT_OPEN );
+
     return was_init;
 }
 
-int cpp_interp_init(const char* filename) {
+ocn::ReadGCodeError cpp_interp_init(const char* filename, ocn::MsgStruct* msg_struct) {
+    static const char ERROR_MSG_PATH[] = "cpp_interp_init: Failed to get current path\n";
+    static const char ERROR_MSG_FILE_NOT_OPEN[] = "cpp_interp_init: Failed to open gcode file\n";
+    static const char ERROR_MSG_FAILED[] = "cpp_interp_init: Something went wrong\n";
+    
+    was_init = false;
+
     char* path = getcwd(buffer, sizeof(buffer));
     if (!path) {
-        fprintf(stderr, "cpp_interp_init: Failed to get current path\n");
-        return 0;
+        cpp_write_error_msg( msg_struct, ERROR_MSG_PATH );
+        return ocn::ReadGCodeError_InterpNotOpen;
     }
 
-    fprintf(stderr, "cpp_interp_init, pwd: '%s', trying to open '%s'\n", buffer, filename);
-    if (interp.init() != INTERP_OK) {
-        fprintf(stderr, "cpp_interp_init: Failed to open\n");
-        return 0;
+    auto status = (ocn::ReadGCodeError)interp.init();
+
+    if ( cpp_check_status_error( status ) ) {
+        cpp_write_error_msg( msg_struct, ERROR_MSG_FILE_NOT_OPEN );
+        return status;
     }
-	was_init = (interp.open(filename) == INTERP_OK);
+
+    status = (ocn::ReadGCodeError)interp.open( filename );
+
+	was_init = !cpp_check_status_error( status );
     
-    return was_init;
+    if( !was_init )
+        cpp_write_error_msg( msg_struct, ERROR_MSG_FAILED );
+
+    return status;
 }
 
-int cpp_interp_read(ocn::CurvStruct* curv_struct) {
-    curv.Info.Type = ocn::CurveType_None;
-    int status = 0;
-    status = interp.read();
 
-    if (status == INTERP_ENDFILE || status == INTERP_EXIT) {
-        return 0;
-    }
-    else if (status > INTERP_MIN_ERROR) {
-        fprintf(stderr, "ERROR(read): %s\n", interp.getSavedError());
-        return 0;
-    }
 
-	status = interp.execute();
-    if (status > INTERP_MIN_ERROR) {
-        fprintf(stderr, "ERROR(execute): %s\n", interp.getSavedError());
-        return 0;
-    }
-//     ocn::CopyCurvStruct(&curv, curv_struct);
-    *curv_struct = curv;
-   //printf("cpp_interp_read: type = %d\n", curv_struct->Type);
-    return 1;
+ocn::ReadGCodeError cpp_interp_read(ocn::CurvStruct* curv_struct, ocn::MsgStruct* msg_struct ) {
+    curv.Info.Type  = ocn::CurveType_None;
+    auto status     = (ocn::ReadGCodeError)interp.read();
+    
+    *curv_struct    = curv;
+    curv_struct->Info.gcode_source_line = interp.line();
+
+    cpp_write_error_msg( msg_struct, interp.getSavedError() );
+    interp.setSavedError("");
+            
+    if ( cpp_check_status_error( status ) )
+        return status;
+    
+	status          = (ocn::ReadGCodeError)interp.execute();
+    *curv_struct    = curv;
+    curv_struct->Info.gcode_source_line = interp.line();
+
+    
+    cpp_write_error_msg( msg_struct, interp.getSavedError() );
+    interp.setSavedError("");
+
+    if ( cpp_check_status_error( status ) )
+        return status;
+    
+   return status;
 }
 
 void push_curv_struct(const ocn::CurvStruct* curv_struct) {
     // printf("push_curv_struct: type = %d\n", curv_struct->Type);
-    curv = *curv_struct;
+    curv                        = *curv_struct;
 // 	ocn::CopyCurvStruct(curv_struct, &curv);
 }

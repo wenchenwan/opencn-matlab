@@ -18,7 +18,7 @@ for k = 2 : N
     if ( ~isAZeroEnd( curv1 ) ) && ... 
         iscusp( r0D1( ctx.cfg.indCart ), r1D1( ctx.cfg.indCart ), ...
                 ctx.cfg.Cusp.CuspThreshold )
-       
+
         switch curv1.Info.zspdmode
             case ZSpdMode.NN
                 curv1.Info.zspdmode = ZSpdMode.NZ;
@@ -35,6 +35,10 @@ for k = 2 : N
         
         ctx.q_gcode.set( k - 1,   curv1 );
         ctx.q_gcode.set( k, curv2 );
+        
+        if( coder.target( "MATLAB" ) )
+            DebugCusp.getInstance.add( curv1, curv2 );
+        end
     end
 
     curv1 = curv2;

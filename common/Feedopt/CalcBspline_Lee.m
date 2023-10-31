@@ -20,14 +20,27 @@ knots  = [ zeros( 1, nMult ), u, ones( 1, nMult ) ];
 
 Bl = bspline_create( cfg.LeeSplineDegree, u );
 
-[ BasisVal, BasisValDD0, BasisValDD1 ] = bspline_eval_lee( Bl, int32( nCoeff ), u );
+%
+if( 1 )
+    [ BasisVal, BasisValDD0, BasisValDD1 ] = bspline_eval_lee( Bl, int32( nCoeff ), u );
+%
+    A = [ BasisValDD0; BasisVal; BasisValDD1 ];
+%
+    B = [zeros(1, nAxis);
+        points.';
+        zeros(1, nAxis)];
+else
+   [ TBasisVal, TBasisValD, TBasisValDD, TBasisValDDD ] = bspline_base_eval( Bl, u );
+%
+    A = [ TBasisValD(1, : ); BasisVal; TBasisValD(end, : ) ];
+%
+    dP = diff( points, [], 2 );
+    dP = ( dP ./ vecnorm( dP ) ).';
 
-%
-A = [ BasisValDD0; BasisVal; BasisValDD1 ];
-%
-B = [zeros(1, nAxis);
-            points.';
-     zeros(1, nAxis)];
+    B = [dP( 1, :  );
+        points.';
+        dP( end, :  )];
+end
 %
 [ A ] = swap_lines( A );
 [ B ] = swap_lines( B );

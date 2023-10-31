@@ -4,8 +4,8 @@ clear; clc;
 check_wkdir();
 
 % please choose the target first ( only 1 target is generated at the time )
-generate_for_x86_64 = true;
-generate_for_arm_64 = false;
+generate_for_x86_64 = false;
+generate_for_arm_64 = true;
 
 [cfg, output_root] = generate_c_config( generate_for_arm_64, ...
                                         generate_for_x86_64 );
@@ -31,7 +31,7 @@ if( GenerateAll || GenerateFeedopt )
     disp(name + "start" );
     try
         generate_feedopt_c( cfg, dirName, DEBUG );
-        remove_date_from_headers( dirName, "*.cpp" );
+        remove_date_from_headers( dirName, "*.*" );
     catch ME
         fprintf( ERROR_COLOR, name + "failed : " + ME.message + "\n" );
     end
@@ -44,7 +44,7 @@ if( GenerateAll || GenerateKinematics )
     disp(name + "start" );
     try
         generate_kinematics_c( cfg, dirName, DEBUG );
-        remove_date_from_headers( dirName, "*.cpp" );
+        remove_date_from_headers( dirName, "*.*" );
     catch ME
         fprintf( ERROR_COLOR, name + "failed : " + ME.message + "\n" );
     end
@@ -60,7 +60,8 @@ end
 
 
 function [] = remove_date_from_headers( output_dir, fileType )
-% remove_date_from_headers : Remove the date from generated files. It is a must have to simplify the git history of the generated files.
+% remove_date_from_headers : Remove the date from generated files. 
+% It is a must have to simplify the git history of the generated files.
 % Inputs :
 %   output_dir  : The folder which contains the files to parse
 %   fileType    : The file extenssion to consider
@@ -78,6 +79,7 @@ files = {dir(fullfile(output_dir, fileType)).name};
         fileName = fullfile(output_dir, f_{:});
 
         fid = fopen(fileName,'r');          % Open File to read
+        if( fid < 0 ), continue; end
         tline = 's';
         A = {[]};
         while ischar(tline)

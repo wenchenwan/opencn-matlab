@@ -2,7 +2,6 @@ function [ x, xd, xdd, xddd ] = bspline_eval( Bl, coeffs, x ) %#codegen
 % void c_bspline_eval(uint64_t *handle, const double *c, double x, double X[3]);
     X = zeros(1, 4);
 
-
     ocn_assert( isreal(x), "x should be real", mfilename );
     
     if coder.target('rtw') || coder.target('mex')

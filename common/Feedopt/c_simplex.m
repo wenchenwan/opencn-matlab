@@ -146,11 +146,11 @@ function [msg] = findReasonInfeasibility(f, A, b, Aeq, beq)
         indAcc = 2:2:length(beq);
 
         for j = 1 : length(beq)
-            [~, successVec(j)] = c_simplex_mex(fTest, A, b, AeqTest(j,:), beqTest(j));
+            [~, successVec(j)] = c_simplex_mex(fTest, A, b, Aeq(j,:), beq(j));
 %             [~, ~, successVec(j)] = linprog(fTest, A, b, AeqTest(j,:), beqTest(j));
 
         end
-        msg4 = "\t\t" + "4. Inequality constraints with the continuity " + ...
+        msg4 = "\t\t" + "4. All Inequality constraints with the continuity " + ...
             "constraints are infeasible for : \n";
         if(any(successVec(indVel) == 0)), msg = msg + msg4 + ...
                 "\t\t\t - velocity(ies) : " + ...
@@ -163,6 +163,22 @@ function [msg] = findReasonInfeasibility(f, A, b, Aeq, beq)
                 num2str( indAcc( successVec(indAcc) == 0 ) / 2) + ...
                 " (last : " + length(beq) / 2+ ")\n"; 
         end
-    end
 
+        if( all(successVec == 1) )
+            msg = msg + "\t\t" + "4. All Inequality constraints with each continuity " + ...
+            "constraints individually are feasible.\n";
+        end
+
+        successVec = zeros(1, length(b));
+ 
+        for j = 1 : length(b)
+            [~, successVec(j)] = c_simplex_mex(fTest, A(j,:), b(j,:), Aeq, beq);
+%             [~, ~, successVec(j)] = linprog(fTest, A, b, AeqTest(j,:), beqTest(j));
+
+        end
+        ind = find( successVec == 0 );
+        msg = msg + "\t\t" + "5. All the continuity constraints with each " + ...
+            "inequality constraints individually are infeasible for : \n" + ...
+            "\t\t\t - " + mat2str( ind ) + "\n";
+    end
 end

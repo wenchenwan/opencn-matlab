@@ -8,6 +8,7 @@ classdef ( Sealed ) StructTypeName < handle
         FeedoptCfg = 'FeedoptConfig';
         GCodeInfo  = 'GcodeInfoStruct';
         MEX        = 'MEX';
+        Msg        = 'MsgStruct';
         LPCfg      = 'LPCfg';
         Spline     = 'SplineStruct';
         Tool       = 'Tool';
@@ -16,8 +17,6 @@ classdef ( Sealed ) StructTypeName < handle
     properties ( Constant )
         % Maximum number of axis
         NumberAxisMax = 6;
-        % Disable Assert
-        AssertDisable = false;
     end
 
     properties ( Constant )
@@ -32,9 +31,9 @@ classdef ( Sealed ) StructTypeName < handle
         % Default size for the Length vector for spline
         dimLk       = { [ 1, Inf ],  [ 0, 1 ] };
         % Default size for the Pose ( cart + rot )
-        dimR        = { [ StructTypeName.NumberAxisMax, 1 ], [ 0, 0 ] };
+        dimR        = { [ StructTypeName.NumberAxisMax, 1 ], [ 1, 0 ] };
         % Default size for the polynom used for the transition
-        dimCoeffP5  = { [ Inf, StructTypeName.NumberAxisMax ], [ 1, 0 ] };
+        dimCoeffP5  = { [ Inf, StructTypeName.NumberAxisMax ], [ 1, 1 ] };
         % Default size for the coefficient of the optimization
         dimCoeffOpt = { [ Inf, 1 ], [ 1, 0 ] };
         % Default size for the vector of angles
@@ -50,6 +49,8 @@ classdef ( Sealed ) StructTypeName < handle
         dimCtxBlBreaks = { [ 1, Inf ], [ 0, 1 ] };
         % Default size for index vector ( cart and rot )
         dimMask     = { [ 1, StructTypeName.NumberAxisMax ], [ 0, 1 ] };
+        % Default size for msg Structure
+        dimMsg     = { [ 1, 2048 ], [ 0, 1 ] };
         % Default size for index vector ( cart or rot )
         dimInd      = { [ 3, 1 ], [ 1, 0 ] };
         % Default size for diagonale matrix
@@ -57,7 +58,7 @@ classdef ( Sealed ) StructTypeName < handle
         % Default size for the kinematics parameters
         dimKinParams = { [ 32, 1 ], [ 1, 0 ] };
         % Default size for the Pvec used in compressing
-        dimPvec = { [ StructTypeName.NumberAxisMax, Inf ], [0, 1] };
+        dimPvec = { [ StructTypeName.NumberAxisMax, Inf ], [1, 1] };
         % Get the working directory 
         WDIR = fileparts(mfilename('fullpath'));
     end

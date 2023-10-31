@@ -1,6 +1,6 @@
 function [ params ] = paramsDefaultGCodeInfo( ~ ) %#codegen
 % paramsDefaultGCodeInfo : Get default params for GCode information.
-Type         = CurveType.Line;
+Type         = CurveType.None;
 zspdmode     = ZSpdMode.NN;
 TRAFO        = false;
 HSC          = false;

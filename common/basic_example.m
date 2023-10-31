@@ -6,47 +6,87 @@ clc; clear all; close all;
 
 check_wkdir(); % If current directory is the working directory
 
-% Load default configuration parameters
-cfg = FeedoptDefaultConfig;
-% Set the path to the gcode file
-cfg.source = 'ngc_test/unit/011_anchor.ngc';
+sourceFileName = 'ngc_test/unit/011_anchor.ngc';
+
+% Flag for reusing previous context
+LoadContextFromFile  = false; % Load ctx from previous run
+SaveContextInFile    = false; % Save ctx in file for further analysis   
+PlotGeometry         = false; % Print the geometry curves
+CreateFileForSampler = false; % Create file for the sampler
+
+
+if( coder.target( "MATLAB" ) )
+    % Enable debuging objects
+    DebugCusp.getInstance.reset;
+    DebugCompressing.getInstance.reset;
+    DebugTransition.getInstance.reset;
+    DebugOptimization.getInstance.reset;
+    DebugResampling.getInstance.reset;
+end
+
+if( LoadContextFromFile )
+    [ ret, ctx ] = loadCtx( "dev/test.mat" );
+end
+
+if( ~exist( 'ctx', 'var' ) )
+    % Load default configuration parameters
+    cfg = FeedoptDefaultConfig;
+      
+    % Set the path to the gcode file
+    cfg.source = sourceFileName;
+    
+    % Initialization of the feed operator
+    ctx = initFeedoptPlan( cfg );
+end
 
 % Logging
 setupLogs( cfg.LogFileName ); diary on;
 
-% Initialization of the feed operator
-ctx = initFeedoptPlan( cfg );
-
-% if(0)
-
-% DestroyContext( ctx );
-% [ ret, ctx ] = loadCtx( "dev/test.mat" );
 try
-
     % Run the geometrics operations, then solve the LP problem
-    ctx = FeedoptPlanRun( ctx );                                     
-%     [ ret ] = saveCtx( ctx, "dev/test.mat" );
-    DebugCompressing.getInstance.print();
-    % Plot geometry
-    plotGeometry(ctx, ctx.cfg, ctx.q_opt, ctx.q_spline, false);
-    plotGeometry(ctx, ctx.cfg, ctx.q_opt, ctx.q_spline, true);
-    pause( 0.5 );
-% 
-%     % Resampling of the parameter
-%     fileName = "PR2/sampler/dome.csv";
-%     resample4sampler( ctx, fileName );
+    ctx = FeedoptPlanRun( ctx );
+    if( ctx.errcode ~= FeedoptPlanError.NoError )
+        error( '%s\n', ctx.errmsg.msg );
+    end
+
+    if( SaveContextInFile )
+        [ ret ] = saveCtx( ctx, "dev/test.mat" );
+    end
+
+    if( coder.target( 'MATLAB' ) )
+        DebugOptimization.getInstance().print();
+    end
+    
+    if( PlotGeometry )
+        plotGeometry(ctx, ctx.cfg, ctx.q_opt, ctx.q_spline, false);
+        plotGeometry(ctx, ctx.cfg, ctx.q_opt, ctx.q_spline, true);
+        messagePrompt();
+        pause( 0.5 );
+    end
+
+
+    % Resampling of the parameter
+    if( CreateFileForSampler )
+        fileName = "PR2/sampler/dome.csv";
+        resample4sampler( ctx, fileName );
+    end
 
     %Resampling of the parameter
     if( ctx.q_opt.isempty ), error("Queue empty before resampling"); end
     fileName = '.tmp.csv' ;
     resample2file( ctx, fileName ); ctx.q_opt.delete();
 
+    if( coder.target( "MATLAB" ) )
+        DebugResampling.getInstance.print();
+    end
+
     % Load resampled data points
     res = readmatrix( fileName );    
     delete( fileName );
  
     % Transforms structure into vector for analysis
-    [res_struct, indFeed, indAcc, indJerk] = get_res_struct( res, ctx.cfg.maskTot );
+    [res_struct, indFeed, indAcc, indJerk, indRPiece] = get_res_struct( ...
+        res, ctx.cfg.maskTot );
 
     % Analyse time optimality and constraints satisfaction
     analyse_optimality( res, indFeed, indAcc, indJerk, ctx.cfg.dt );
@@ -62,9 +102,6 @@ catch ME
     error( '%s\n%s\n%s\n', ME.message, "File name : " + ME.stack(1).name, ...
                            "Line : " + ME.stack(1).line );
 end
-% end
-% % Plot the resulting axis commands
-% plotAxisCommands( ctx, res_struct );
 
 % Free external memory (see queue function)
 DestroyContext(ctx);
@@ -137,12 +174,14 @@ disp("Optimality jerk : "           + sum( t_opt_res(:, 3) ) / ...
     res(end, 1) * 100 + "[%]" );
 end
 
-function [res_struct, indFeed, indAcc, indJerk] = get_res_struct( res, mask )
-ind     = 1 : sum( mask );
-indFeed = 3;
-indR    = 5  + ind;
-indAcc  = indR( end )    + ind;
-indJerk = indAcc( end )  + ind;
+function [res_struct, indFeed, indAcc, indJerk, indRPiece] = ...
+    get_res_struct( res, mask )
+ind         = 1 : sum( mask );
+indFeed     = 3;
+indR        = 5                 + ind;
+indAcc      = indR( end )       + ind;
+indJerk     = indAcc( end )     + ind;
+indRPiece   = indJerk( end )    + ind;
 
 res_struct.tvec       = res( :, 1 );
 res_struct.uvec       = res( :, 2 );
@@ -152,6 +191,8 @@ res_struct.cfvec      = res( :, 5 ) * 60;
 res_struct.pvec       = res( :, indR );
 res_struct.avec       = res( :, indAcc );
 res_struct.jvec       = res( :, indJerk );
+res_struct.rpiece     = res( :, indRPiece );
+
 end
 
 function [msg] = optSolStatus2String(status)
@@ -229,10 +270,10 @@ function plotAxisCommands( ctx, res_struct )
     
     plot_name = "Axis Commands : Normalized Velocity"; figure("Name",plot_name);
 
-for j = 1 : N
+    for j = 1 : N
         subplot(N, 1, j);
         plot(time(2:end), v_norm(:,j)); grid on;
-        ylabel( "v_" + axisName{ j } + " in " + axisUnit{ j } + "/s"); 
+        ylabel( "v_" + axisName{ j } + " in " + axisUnit{ j } + "/s");
         if( j == 1 ), title( plot_name ), end
     end
 
@@ -244,7 +285,7 @@ for j = 1 : N
     for j = 1 : N
         subplot(N, 1, j);
         plot(time(3:end), a_norm(:,j)); grid on;
-        ylabel( "a_" + axisName{ j } + " in " + axisUnit{ j } + "/s^2"); 
+        ylabel( "a_" + axisName{ j } + " in " + axisUnit{ j } + "/s^2");
         if( j == 1 ), title( plot_name ), end
     end
     xlabel("Time in [s]");
@@ -256,7 +297,7 @@ for j = 1 : N
     for j = 1 : N
         subplot(N, 1, j);
         plot(time(4:end), j_norm(:,j)); grid on;
-        ylabel( "j_" + axisName{ j } + " in " + axisUnit{ j } + "/s^3"); 
+        ylabel( "j_" + axisName{ j } + " in " + axisUnit{ j } + "/s^3");
         if( j == 1 ), title( plot_name ), end
     end
     xlabel("Time in [s]");

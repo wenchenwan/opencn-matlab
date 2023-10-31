@@ -70,7 +70,7 @@ end
 function [countInPercent] = printAvancement(countInPercent, k, N)
 % printAvancement : Print the avancement of the sampling in percent
     if( floor( k * 100 / N ) > countInPercent )
-        if( coder.target('matlab') )
+        if( ~coder.target('matlab') )
             DebugLog(DebugCfg.OptimProgress, '%3d [%%]\n', countInPercent);
         else
             disp( '%3d [%%]\n', countInPercent );

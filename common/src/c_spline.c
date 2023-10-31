@@ -116,6 +116,7 @@ void c_bspline_base_eval(const void *handle_, int32_t N, const double *xvec,
             BasisVal[i * N + k] = gsl_matrix_get(bs->dB, i, 0);
             BasisValD[i * N + k] = gsl_matrix_get(bs->dB, i, 1);
             BasisValDD[i * N + k] = gsl_matrix_get(bs->dB, i, 2);
+            BasisValDDD[i * N + k] = gsl_matrix_get(bs->dB, i, 3);
         }
     }
     

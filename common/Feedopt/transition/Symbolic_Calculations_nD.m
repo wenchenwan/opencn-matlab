@@ -75,7 +75,7 @@ h01 = simplify( u^3*(6*u^2-15*u+10) );
 h11 = simplify( u^3*(-3*u^2+7*u-4) );
 h21 = simplify( (1/2)*u^3*(u-1)^2 );
 
-%% parametric polynomial curve in R^3 with unknown parameters
+%% parametric polynomial curve in R^n with unknown parameters
 
 r_0D_vec(u) = simplify( p0_vec*h00 + alpha0*t0_vec*h10 + (beta0*t0_vec + alpha0^2*nk0_vec)*h20 + ...
               p1_vec*h01 + alpha1*t1_vec*h11 + (beta1*t1_vec + alpha1^2*nk1_vec)*h21 );
@@ -111,15 +111,21 @@ eq4_vec = simplify( 2*alpha1*r_3D_vec(1)'*(D_vec.*nk1_vec) - r_4D_vec(1)'*(D_vec
 S     = solve(LinSys, [beta0, beta1]);
 % S_vec = solve(LinSys_vec, [beta0, beta1])
 %
+
+%
+% eq3_vec_new = simplify(subs(eq3_vec, S));
+eq3_vec_new = subs(eq3_vec, [beta0, beta1], [S.beta0, S.beta1] );
+eq3_vec_new = simplify( eq3_vec_new );
+% eq4_vec_new = simplify(subs(eq4_vec, S));
+eq4_vec_new = simplify(subs(eq4_vec, [beta0, beta1], [S.beta0, S.beta1]));
+%
+
 beta0 = S.beta0;
 beta1 = S.beta1;
 %
 matlabFunction(beta0, beta1, 'Vars', {alpha0, alpha1, p0_vec, t0_vec, nk0_vec, p1_vec, t1_vec, nk1_vec, D_vec}, ...
                'file', path + "Calc_beta0_beta1.m");  
-%
-eq3_vec_new = simplify(subs(eq3_vec, S));
-eq4_vec_new = simplify(subs(eq4_vec, S));
-%
+
 L3  = fliplr(coeffs(eq4_vec_new, alpha0));
 %
 L31 = simplify(fliplr(coeffs(L3(1), alpha1)));

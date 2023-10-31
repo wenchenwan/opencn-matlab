@@ -17,35 +17,53 @@ for k = 2 : Ncrv
     nextCurv = ctx.q_compress.get( k );
 
     [ needStop, needTransition ] = check_stop_and_transition( ctx, ...
-            curv, nextCurv, ctx.cfg.Smoothing.ColTolSmooth, ...
-            ctx.cfg.Smoothing.ColTolCosSmooth );
+        curv, nextCurv, ctx.cfg.Smoothing.ColTolSmooth, ...
+        ctx.cfg.Smoothing.ColTolCosSmooth );
 
     if( needStop )
-    % Add a zero stop
-    [ ctx, curv ] = add_zero_stop( ctx, curv, nextCurv );
+        % Add a zero stop
+        [ ctx, curv ] = add_zero_stop( ctx, curv, nextCurv );
+        if( coder.target( "MATLAB" ) )
+            DebugTransition.getInstance.incZeroCurv;
+        end
     elseif( needTransition  )
         if( ctx.cfg.Smoothing.Skip  )
             % Force a zero stop
-            [ curv, nextCurv ] = create_zero_end( curv, nextCurv );
-            [ ctx, curv ] = add_zero_stop( ctx, curv, nextCurv );
+            [ curv, nextCurv ]  = create_zero_end( curv, nextCurv );
+            [ ctx, curv ]       = add_zero_stop( ctx, curv, nextCurv );
+            if( coder.target( "MATLAB" ) )
+                DebugTransition.getInstance.incZeroCurv;
+            end
         else
             % Do the transition
-            [ status, curv1C, curv2C, curvT ] = ...
+            [ status, curv1C, curv2C, curvT, ret ] = ...
                 calcTransition( ctx, curv, nextCurv );
             if( status == TransitionResult.Ok )
                 ctx.q_smooth.push( curv1C );
                 ctx.q_smooth.push( curvT );
                 curv = curv2C;
+
+                if( coder.target( "MATLAB" ) )
+                    DebugTransition.getInstance.addTransition( curv1C, curvT, curv2C );
+                end
             else
                 % Force a zero stop
-                [ curv, nextCurv ] = create_zero_end( curv, nextCurv );
-                [ ctx, curv ] = add_zero_stop( ctx, curv, nextCurv );
+                [ curv, nextCurv ]  = create_zero_end( curv, nextCurv );
+
+                if( coder.target( "MATLAB" ) )
+                    DebugTransition.getInstance.addTransitionFail( curv, nextCurv, ret );
+                end
+                [ ctx, curv ]       = add_zero_stop( ctx, curv, nextCurv );
+
             end
         end
     else
         % Nothing to do with the curve
         ctx.q_smooth.push( curv );
         curv = nextCurv;
+        if( coder.target( "MATLAB" ) )
+            DebugTransition.getInstance.incNoNeedForTransition;
+        end
     end
 end
 
@@ -57,7 +75,7 @@ end
 % Functions
 %-------------------------------------------------------------------------%
 function [ needStop, needTransition ] = check_stop_and_transition( ctx, ...
-                                            curv, nextCurv, tol, tol_cos  )
+    curv, nextCurv, tol, tol_cos  )
 needStop        = false;
 needTransition  = false;
 
@@ -88,21 +106,21 @@ end
 end
 %-------------------------------------------------------------------------%
 function [ isSmooth ] = check_smoothness( ctx, curv0, curv1, tol, tol_cos )
-    [ r11, r1d1, r1dd1 ] = EvalCurvStruct( ctx, curv0, 1 );
-    [ r21, r2d1, r2dd1 ] = EvalCurvStruct( ctx, curv1, 0 );
-    
-    [t1, ~,  kappa1] = calc_t_nk_kappa( r1d1, r1dd1 );
-    [t2, ~,  kappa2] = calc_t_nk_kappa( r2d1, r2dd1 );
+[ r11, r1d1, r1dd1 ] = EvalCurvStruct( ctx, curv0, 1 );
+[ r21, r2d1, r2dd1 ] = EvalCurvStruct( ctx, curv1, 0 );
 
-    isC0   = all( abs( r11 - r21 ) < tol, 'all' );
-    isG1   = collinear( t1, t2, tol_cos );
-    isG2   = all( abs( kappa1 -kappa2 ) < tol, 'all' );
+[t1, ~,  kappa1] = calc_t_nk_kappa( r1d1, r1dd1 );
+[t2, ~,  kappa2] = calc_t_nk_kappa( r2d1, r2dd1 );
 
-    isSmooth = ( isC0 && isG1 && isG2 );
+isC0   = all( abs( r11 - r21 ) < tol, 'all' );
+isG1   = collinear( t1, t2, tol_cos );
+isG2   = all( abs( kappa1 -kappa2 ) < tol, 'all' );
+
+isSmooth = ( isC0 && isG1 && isG2 );
 
 end
 %-------------------------------------------------------------------------%
-%                               
+%
 function [ ctx, curv ] = add_zero_stop( ctx, curv, nextCurv )
 ctx.programmed_stop = ctx.programmed_stop + 1;
 ctx.q_smooth.push( curv );

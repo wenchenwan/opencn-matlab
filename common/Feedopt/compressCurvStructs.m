@@ -19,10 +19,6 @@ Ncrv                = ctx.q_gcode.size;         % Number of curve in queue
 
 DebugLog(DebugCfg.Validate, 'Compressing...\n');
 
-if( coder.target( "MATLAB" ) )
-    DebugCompressing.getInstance.reset;
-end
-
 ctx.k0 = int32( 1 );
 
 for k = 1 : Ncrv
@@ -148,6 +144,14 @@ if( batch.size > 1 )
     
     ctx.q_compress.push( curvCompressed );
     ctx.q_spline.push( spline );
+
+%     [r, rd, rdd, rddd ] = EvalCurvStruct( ctx, curvCompressed, [0, 1]);
+    
+    if( coder.target( "MATLAB" ) )
+        DebugCompressing.getInstance.addSplineBatch( curvCompressed, batch );
+        DebugCompressing.getInstance.printSplineBatch( ctx, curvCompressed, batch );
+    end
+
 else
     ctx.q_compress.push( batch.lastCurv );
 end

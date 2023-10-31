@@ -40,13 +40,19 @@ switch Type
                 EvalLine( curv, u_vec_tilda, maskRot );
         end
     case CurveType.TransP5  % Polynomial transition
-        [r0D, r1D, r2D, r3D]    = EvalTransP5( curv, u_vec_tilda, cfg.NumberAxis );
+        [r0D, r1D, r2D, r3D]    = EvalTransP5( curv, u_vec_tilda, maskTot );
     case CurveType.Spline   % Spline
         [ r0D, r1D, r2D, r3D ]  = EvalBSpline( spline, u_vec_tilda );
     otherwise
         ocn_assert( false, "Unknown Curve Type for Eval...", mfilename ); 
 end
 
-r1D = a   .* r1D;
-r2D = a^2 .* r2D;
-r3D = a^3 .* r3D;
+if( 1 )
+    r1D = a     .* r1D;
+    r2D = a^2   .* r2D;
+    r3D = a^3   .* r3D;
+else
+    r1D = a     .* r1D;
+    r2D = a     .* r2D;
+    r3D = a     .* r3D;
+end
