@@ -1,0 +1,76 @@
+%
+(Demo for milling pocket with Diameter1 tool 111-1D1.0)
+(Tool 4)
+
+S60000
+
+#100=9000 (Feed miling)
+#101=9000 (Feed moving)
+
+
+
+G90 (absolute)
+G01 X-13.5 Y14 Z0 F#100
+
+T4 M6
+G43 Z0 H4
+
+G90 (absolute)
+G01 X-13.5 Y14 Z0 
+
+#1=1 (loop X counter)
+#2=1 (loop Y counter)
+#3=4 (Number pocket along X)
+#4=4 (Number pocket along Y)
+#5=8.4 (base distance between pocket along X)
+#6=7 (base distance between pocket along Y)
+#7=0.415 (distance between pocket)
+
+
+#10=12.6 (offset along X)
+
+o100 do (Y loop)
+    o100 do (X loop)
+        G91 (relative)
+        G01 Z-1.1 F#100
+        G01 X0.7    Y0
+        G01 X0.0    Y0.7
+        G01 X-1.4   Y0.0
+        G01 X0.0    Y-1.4
+        G01 X2.1    Y0
+        G01 X0    Y2.1
+        G01 X-2.8    Y0
+        G01 X0    Y-2.8
+        G01 X3.5    Y0
+        G01 X0    Y3.5
+        G01 X-4.2    Y0
+        G01 X0    Y-4.2
+        G01 X4.9    Y0
+        G01 X0    Y4.9
+        G01 X-5.6    Y0
+        G01 X0    Y-5.6
+        G01 X6.3    Y0
+        G01 X0    Y6.3
+        G01 X-7    Y0
+        G01 X0    Y-7
+        G01 X7.7    Y0       
+        
+        (Repositionning)
+        F#101
+        G01 Z1.1
+        o102 if [#1 LE #3-1]
+            G1 X[#5/2 + #7] Y[#6/2]
+        o102 elseif [#2 NE #4]
+            #20 = [#3-1] (temp val)
+            G1 X-[#5*#20 + #5/2 + #7*#20] Y-[#6/2 + 1.4 + #7]
+        o102 endif
+
+        #1=[#1+1]
+    o100 while [#1 LE #3]
+    
+    #1 = 1 (loop X)
+    #2=[#2+1]
+o100 while [#2 LE #4]
+
+M30
+%

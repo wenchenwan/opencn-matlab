@@ -1,3 +1,4 @@
+%
 (ISO 6983 code of anchor)
 G10 L2 P1 X0 Y-18
 G17 G21 G40 G49 		(Plan XY, mode mm, annulation de la compensation de rayon, et de longueur)
@@ -45,3 +46,7 @@ G17 G21 G40 G49
 G00 X0 Y0 Z0
 
 M2
+
+M30
+%
+%

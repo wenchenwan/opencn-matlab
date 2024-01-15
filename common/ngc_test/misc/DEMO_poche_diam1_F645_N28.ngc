@@ -1,0 +1,60 @@
+(Demo for milling pocket with Diameter1 tool 111-1D1.0)
+(Tool 4)
+
+
+S28000
+F645
+
+G90 (absolute)
+G01 X-13.5 Y14 Z0
+
+G43 Z0 H4
+T4 M6
+#1 = 1 (loop X)
+#2 = 1 (loop Y)
+
+o100 do (Y loop)
+    o101 do (X loop)
+        G91 (relative)
+        G01 Z-1.1
+        G01 X0.7    Y0
+        G01 X0.0    Y0.7
+        G01 X-1.4   Y0.0
+        G01 X0.0    Y-1.4
+        G01 X2.1    Y0
+        G01 X0    Y2.1
+        G01 X-2.8    Y0
+        G01 X0    Y-2.8
+        G01 X3.5    Y0
+        G01 X0    Y3.5
+        G01 X-4.2    Y0
+        G01 X0    Y-4.2
+        G01 X4.9    Y0
+        G01 X0    Y4.9
+        G01 X-5.6    Y0
+        G01 X0    Y-5.6
+        G01 X6.3    Y0
+        G01 X0    Y6.3
+        G01 X-7    Y0
+        G01 X0    Y-7
+        G01 X7.7    Y0       
+        
+        (Repositionning)
+        G01 Z1.1
+        o102 if [#1 LE 3]
+            G01 X4.2 Y-3.5
+        o102 else
+            G01 X-12.6 Y-4.9
+        o102 endif
+
+        #1=[#1+1]
+      (PRINT,>> X Loop:  #1)
+    o101 while [#1 LE 3]
+
+    #2=[#2+1]
+  (PRINT,>> Y Loop:  #2)
+o100 while [#2 LE 3]
+
+M30
+%
+%
