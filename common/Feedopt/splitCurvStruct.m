@@ -1,11 +1,15 @@
 function [ ctx ] = splitCurvStruct( ctx, curv )
-% SplitCurvStruct : Split the curv structs with a zero speed.
+%#codegen
+% SplitCurvStruct : Split the curv structs based on the cutting lengeht 
+% the zero speed curve are also cutted during this step.
+%
 % Inputs  : 
 % ctx   : The context
 % curv  : The curv struct
-% Output  : 
+%
+% Outputs  : 
 % ctx   : The modified context
-%#codegen
+%
 
 if( ~coder.target( 'MATLAB' ) ), curvE = constrCurvStructType; end
 
@@ -31,7 +35,7 @@ if( isAZeroEnd( curv ) )
     hasEndSpeed     = true;
 end
 
-if( true && curv.Info.Type == CurveType.Spline )
+if( ctx.cfg.SplitSpecialSpline && curv.Info.Type == CurveType.Spline )
     bspline     = ctx.q_spline.get( curv.sp_index );
     breakPoints = bspline.sp.Bl.breakpoints;
     uMin        = curv.b_param;
@@ -39,11 +43,14 @@ if( true && curv.Info.Type == CurveType.Spline )
     ind         = find( breakPoints > uMin & breakPoints < uMax );
     breakPoints = [ uMin, breakPoints( ind ), uMax ] ;
     deltaU      = diff( breakPoints );
-    
+    uPrevious   = uMin;
     for j = 1 : length( deltaU )
         curvSplited         = curv;
-        curvSplited.b_param = breakPoints( j );
-        curvSplited.a_param = deltaU( j );
+        
+    	curvSplited.a_param = deltaU( j );
+        
+        curvSplited.b_param = uPrevious;
+        uPrevious           = curvSplited.a_param + curvSplited.b_param;
         ctx.q_split.push( curvSplited );
     end
 else

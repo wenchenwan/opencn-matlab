@@ -1,5 +1,15 @@
 function [ L ] = splineLength( cfg, spline, u1, u2 )
-
+% splineLength : Compute the spline length between u1 and u2.
+%
+% Inputs : 
+% cfg       : The configuration structure 
+% spline    : The spline
+% u1        : The starting u
+% u2        : The endind u
+%
+% Outputs :
+% L         : The resulting length of the spline
+%
 sp = spline.sp;
 IND_KNOTS_MULT  = sp.Bl.order;  % Index used to remove multiple knots
 % Eliminate multiplicities at the end points

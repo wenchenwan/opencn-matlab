@@ -1,5 +1,16 @@
+function [ ctx ] = smoothCurvStructs( ctx )
+% smoothCurvStructs : Check if the curves in the q_compress queue are G2.
+% If not, a transition is required. 
+%
+% Note : If the computation of a transition fails. A zero stop is forced.
+%
+% Inputs :
+%   ctx : Context of the computational chain.
+%
+% Outputs :
+%   ctx : Context of the computational chain.
+%
 
-function ctx = smoothCurvStructs(ctx)
 % Optimal transitions calculation between segments whith G2 continuity
 
 if ctx.q_compress.isempty(), return; end
@@ -12,7 +23,7 @@ DebugLog( DebugCfg.OptimProgress,    'Smoothing...\n' );
 curv = ctx.q_compress.get( 1 );
 for k = 2 : Ncrv
     ctx.k0 = ctx.k0 + 1;
-    if(coder.target("MATLAB")), disp( "" + ctx.k0 + "/" + Ncrv ); end
+    ocn_print( ctx.cfg.ENABLE_PRINT_MSG, "" + ctx.k0 + "/" + Ncrv, mfilename );
 
     nextCurv = ctx.q_compress.get( k );
 
@@ -122,7 +133,6 @@ end
 %-------------------------------------------------------------------------%
 %
 function [ ctx, curv ] = add_zero_stop( ctx, curv, nextCurv )
-ctx.programmed_stop = ctx.programmed_stop + 1;
 ctx.q_smooth.push( curv );
 curv = nextCurv;
 end

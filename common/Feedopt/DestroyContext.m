@@ -1,4 +1,11 @@
 function DestroyContext( ctx )
+    % DestroyContext : Destroy context of the computational chain. The
+    % memory stored in the queue are relased.
+    %
+    % Inputs :
+    % Ctx   : Context of the computational chain
+    %
+
     ctx.q_gcode.delete();
     ctx.q_compress.delete();
     ctx.q_smooth.delete();

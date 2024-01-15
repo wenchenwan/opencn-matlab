@@ -1,14 +1,19 @@
 function [ u1_tilda ] = cutCurvStructU( ctx, curv, u0, L, isEnd )
-% cutCurvStructU: Cut a piece of the structure with a size of L
-% starting at point u0
+%#codegen
+% cutCurvStructU : Cut a piece of the structure with a size of L
+% starting at point u0.
+% 
 % Inputs :
-% ctx   : Context
-% curv  : Curvature
-% u0    : Starting point of the spline
-% L     : Length of the segment of curv
-% isEnd : Is a cut from the end
+% ctx       : Context
+% curv      : Curvature
+% u0        : Starting point of the spline
+% L         : Length of the segment of curv
+% isEnd     : Is a cut from the end
+%
 % Outputs :
-% u1    : The last point of the splitted curv
+% u1_tilda  : The last point of the splitted curve. A value of -1 means a
+%             faillure of the operation. 
+%
 
 if( LengthCurv( ctx, curv, 0, 1 ) <= L ), u1_tilda = -1; return; end
 

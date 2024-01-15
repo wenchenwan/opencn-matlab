@@ -1,6 +1,28 @@
-function [ctx, Coeff, success, status, msg] = ...
+function [ ctx, Coeff, success, status, msg ] = ...
     FeedratePlanning_LP( ctx, window, amax, jmax, BasisVal, ...
     BasisValD, BasisValDD, BasisIntegr, u_vec, NWindow )
+%#codegen
+% FeedratePlanning_LP : Implement and solve the LP optimization scheme
+%
+% Inputs :
+%   ctx         : The context of the computational chain
+%   window      : Window of curves
+%   amax        : Acceleration maximum
+%   jmax        : Jerk maximum
+%   BasisVal    : BSpline evalueted on a set given points
+%   BasisValD   : BSpline derivative evaluated on a set given points
+%   BasisValDD  : BSpline second derivative evaluated on a set given points
+%   BasisIntegr : BSpline integral evaluated on a set given points
+%   u_vec       : Vector of u values
+%   NWindow     : Number of curves in the window
+%
+% Outputs :
+%   ctx         : The context of the computational chain
+%   Coeff       : Vector of coefficients
+%   success     : Boolean value, TRUE means the optimization succeeded
+%   status      : Status code return from the optimization
+%   msg         : Msg returned from the optimization
+%
 
 % 0) Initialization of the problem
 
@@ -30,7 +52,7 @@ continuity  = continuity * DCon;
 
 indSlack =  []; %1 : numel( b );
 
-[ fSlack, ASlack, bSlack, AeqSlack, beqSlack ] = add_slack( f, ...
+[ fSlack, ASlack, bSlack, AeqSlack, beqSlack ] = add_slack( ctx.cfg.opt, f, ...
     A, b, Aeq, beq, indSlack, LP );
 
 
@@ -42,7 +64,7 @@ if( ~success ), return; end
 
 % 2) Optimization : second LP with jerk constraints and slack
 
-if( ctx.cfg.opt.UseConstraintsOnJerk )
+if( ctx.cfg.opt.USE_JERK_CONSTRAINTS )
     Coeff       = reshape( D * Coeff( : ), N, [] );
     % B. Constraints : Inequality and Equality
     % Feedrate, acceleration and jerk
@@ -54,8 +76,8 @@ if( ctx.cfg.opt.UseConstraintsOnJerk )
 
     indSlack = [ indSlack, numel( b ) + [ 1 : numel( bj ) ] ];
 
-    [ fSlack, ASlack, bSlack, AeqSlack, beqSlack ] = add_slack( f, ...
-        Atot, btot, Aeq, beq, indSlack, LP );
+    [ fSlack, ASlack, bSlack, AeqSlack, beqSlack ] = add_slack( ctx.cfg.opt, ...
+        f, Atot, btot, Aeq, beq, indSlack, LP );
 
     [ ctx, Coeff, success, status, msg ] = solve_LP( fSlack, ASlack, bSlack, ...
         AeqSlack, beqSlack, ctx, N, NWindow, "Second LP" );
@@ -66,7 +88,7 @@ if( ~success ), return; end
 if( ~ctx.zero_start )
     % Compute the continuity equations
     X           = continuity * Coeff( : , 1 );
-    ctx.v_0     = sqrt( X( 1 ) );
+    ctx.v_0     = mysqrt( X( 1 ) );
     ctx.at_0    = X( 2 );
 end
 
@@ -121,14 +143,13 @@ end
 
 end
 
-function [ fSlack, ASlack, bSlack, AeqSlack, beqSlack ] = add_slack( f, ...
-    A, b, Aeq, beq, indSlack, LP )
+function [ fSlack, ASlack, bSlack, AeqSlack, beqSlack ] = add_slack( opt, ...
+    f, A, b, Aeq, beq, indSlack, LP )
 [ nAL, nAc ] = size( A );
 
-if( 0 ) 
-    % HGS : Not working as expected... Removed for now
-    % Add condition of positivity on coeffs the 2 first and the two last are
-    % not
+if( opt.FORCE_POSITIV_COEFFS ) 
+    % Add condition of positivity on coeffs expected for the 2 first ones and the 2 lasts ones
+
     Apos = zeros( nAc-4 , nAc + 1 ); bpos = -1e-4 * ones( nAc-4 , 1);
     Apos( : , 3 : end -3   ) = -eye( nAc-4  );
 else

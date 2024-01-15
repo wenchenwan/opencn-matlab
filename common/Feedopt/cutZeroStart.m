@@ -1,13 +1,20 @@
 function [ ret, curv1, curv2 ] = cutZeroStart( ctx, curv )
+%#codegen
 % cutZeroStart : Cut the start of the given to handle the zero speed.
-% u  = cutCurvStructU( ctx, curv, 0, ctx.cfg.LSplitZero, false );
-
+% 
+% Inputs :
+% ctx       : The context used in the computational chain.
+% curv      : The curve to cut the end.
+%
+% Outputs : 
+% ret       : The returned value of the operation : 1 means  
+% curvLeft  : Resulting ZN Curve struct with constant jerk speed profile
+% curvRight : Resulting NN Curve struct 
+%
 L       = LengthCurv( ctx, curv, 0, 1 );
 Lcut    = ctx.cfg.LSplitZero;
 
-if( Lcut > L / 3 )
-    Lcut = L / 3;
-end
+if( Lcut > L / 3 ), Lcut = L / 3; end
 
 [ ret, curv1, curv2 ] = cutCurvStruct( ctx, curv, 0, Lcut, false );
 

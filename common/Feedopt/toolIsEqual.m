@@ -1,4 +1,15 @@
-function [isEqual] = toolIsEqual(tool1, tool2) %#codegen
+function [ isEqual ] = toolIsEqual( tool1, tool2 ) 
+%#codegen
+% toolIsEqual : Check if the tools are equal or not.
+% 
+% Inputs :
+%   tool1       : First tool.
+%   tool2       : Second tool.
+%
+% Outputs : 
+%   isEqual     : Boolean value. TRUE means tools are equals.
+%
+
 % Check the tools are equals
 isEqual = false;
 

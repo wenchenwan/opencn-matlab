@@ -2,21 +2,25 @@ function [ u, ud, udd, jps ] = zeroSpeedCurv( ctx, curv, isEnd )
 % zeroSpeedCurv : Compute the profile paramater u in case of zero start /
 % stop. This approach assumes a constant pseudo jerk. The resulting profile
 % will respect the velocity, acceleration and jerk constraints.
+%
 % Inputs  :
 %   ctx     : The context
 %   curv    : The Curve Struct
 %   isEnd   : ( Boolean ) is the end of a curve
+%
 % Outputs :
 %   u       : Resulting U for constant jerk
+%   ud      : First derivative of u
+%   udd     : Second derivative of u
 %   jps     : Resulting Pseudo jerk
-
+%
 uk = 1;
 
 if( isEnd ), uk = 1 - uk ;  end
 
 [ r0D, r1D ] = EvalCurvStruct( ctx, curv, uk );
 
-ctx.kin = ctx.kin.set_tool_length( curv.tool.offset.z );
+ctx.kin = ctx.kin.set_tool_length( -curv.tool.offset.z );
 
 if( curv.Info.TRAFO )
     r1D = ctx.kin.v_joint( r0D, r1D );
@@ -80,7 +84,7 @@ if( isempty( ratio ) ), ratio = 0.9; end
 
 [ r0D, r1D ]          = EvalCurvStruct( ctx, curv, u );
 
-ctx.kin = ctx.kin.set_tool_length( curv.tool.offset.z );
+ctx.kin = ctx.kin.set_tool_length( -curv.tool.offset.z );
 
 if( curv.Info.TRAFO )
     r1D_r     = r1D;

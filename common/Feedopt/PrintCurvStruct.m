@@ -1,4 +1,10 @@
-function PrintCurvStruct(ctx, S)
+function PrintCurvStruct( ctx, S )
+% PrintCurvStruct : Print the input structure.
+%
+% Inputs :
+%   ctx :   The contexte of the compuational chain
+%   S :     The Curvs structure to print
+%
 
 fprintf( '--------- CURVE STRUCT ---------\n' );
 fprintf( '%10s: %s\n', 'Type', CurveTypeToStr( S.Info.Type ) );

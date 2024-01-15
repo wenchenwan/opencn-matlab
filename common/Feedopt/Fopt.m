@@ -1,4 +1,7 @@
 classdef Fopt < int32
+%#codegen
+% Fopt : Feedopt optimization state number 
+%
     enumeration
         Init(0)
         GCode(1)

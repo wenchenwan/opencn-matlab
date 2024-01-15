@@ -1,6 +1,11 @@
-function bspline_destroy(Bl) %#codegen
-    if coder.target('rtw') || coder.target('mex')
-        
+function bspline_destroy( Bl ) %#codegen
+% bspline_destroy : Destroy the BSpline basis functions
+%
+% Inputs :
+% Bl    : BSpline basis functions
+    if coder.target( "MATLAB" )
+        bspline_destroy_mex('bspline_destroy', Bl);
+    else
         my_path = StructTypeName.WDIR + "/src";
         coder.updateBuildInfo('addIncludePaths',my_path);
         coder.updateBuildInfo('addSourceFiles','c_spline.c', my_path);
@@ -9,7 +14,5 @@ function bspline_destroy(Bl) %#codegen
         if Bl.handle > 0
             coder.ceval('c_bspline_destroy', coder.rref(Bl.handle));
         end
-    else
-        bspline_destroy_mex('bspline_destroy', Bl);
     end
 end

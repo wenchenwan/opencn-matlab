@@ -1,6 +1,14 @@
 function [ ctx ] = CheckCurvStructs( ctx )
-ctx.k0 = int32( 1 );
-N = ctx.q_gcode.size;
+% CheckCurvStruct : Check if the curve contains some CUSP. If so force a
+% zero stop.
+%
+% Inputs    :
+%   ctx :   The context of the computational chain
+% Outputs   :
+%   ctx :   The context of the computational chain
+%
+ctx.k0  = int32( 1 );
+N       = ctx.q_gcode.size;
 
 DebugLog( DebugCfg.Validate, 'Checking for cusps...\n' );
 DebugLog( DebugCfg.OptimProgress, 'Checking for cusps...\n' );
@@ -8,9 +16,9 @@ DebugLog( DebugCfg.OptimProgress, 'Checking for cusps...\n' );
 curv1 = ctx.q_gcode.get( 1 );
 for k = 2 : N
     ctx.k0  = ctx.k0 + 1;
-    if(coder.target("MATLAB")), disp( "" + ctx.k0 + "/" + N ); end
     curv2   = ctx.q_gcode.get( k );
-
+    ocn_print( ctx.cfg.ENABLE_PRINT_MSG, "" + ctx.k0 + "/" + N, mfilename );
+    
     % Detect cusp in piece frame
     [~, r0D1] = EvalCurvStructInPieceFrame( ctx, curv1, 1 );
     [~, r1D1] = EvalCurvStructInPieceFrame( ctx, curv2, 0 );
@@ -24,6 +32,7 @@ for k = 2 : N
                 curv1.Info.zspdmode = ZSpdMode.NZ;
             case ZSpdMode.ZN
                 curv1.Info.zspdmode = ZSpdMode.ZZ;
+            otherwise
         end
         
         switch curv2.Info.zspdmode
@@ -31,6 +40,7 @@ for k = 2 : N
                 curv2.Info.zspdmode = ZSpdMode.ZN;
             case ZSpdMode.NZ
                 curv2.Info.zspdmode = ZSpdMode.ZZ;
+            otherwise
         end
         
         ctx.q_gcode.set( k - 1,   curv1 );

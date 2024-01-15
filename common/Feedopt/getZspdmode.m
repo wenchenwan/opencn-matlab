@@ -1,5 +1,15 @@
-function [zspdmode, error] = getZspdmode( speed ) %#codegen
-% Get the zspdmode enum from either a curvStruct, infoStruct or zspdMode.
+function [ zspdmode, error ] = getZspdmode( speed ) 
+%#codegen
+% getZspdmode: Get the current zero speed mode
+% 
+% Inputs : 
+%   speed    : structure with zspdmode for the speed
+%
+% Outputs :
+%   zspdmode : Zero speed mode
+%   error    : Error bolean value. TRUE if no zspdmode has been found.
+%
+
 error = false;
 
 if( isenum( speed ) )

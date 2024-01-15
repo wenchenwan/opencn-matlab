@@ -1,4 +1,7 @@
 classdef FeedoptPlanError < int32
+%#codegen
+% FeedoptPlanError : FeedoptPlan error code 
+%
     enumeration
         NoError(0)
         ReadGCodeFailed(1)

@@ -1,8 +1,23 @@
-function L = splineLengthApprox_Interval( cfg, spline, u0, u1, isEnd )
-% computes approximately the arc length L with integration bounds u1 and u2.
+function [ L ] = splineLengthApprox_Interval( cfg, spline, u0, u1, isEnd )
+%#codegen
+% splineLengthApprox_Interval : Computes approximately the arc length L 
+% with integration bounds u1 and u2.
+% 
 % IMPORTANT : u0 and u1 should lie in the same knot interval.
 % The computation is based on numerical Gauss Legendre integration 
 %
+% Inputs :
+%   cfg     : The configuration structure
+%   spline  : The spline
+%   u0      : The starting u
+%   u1      : The ending u
+%   isEnd   : Boolean value. TRUE means the length is computed from the
+%             curve's end.
+%
+% Outputs :
+%   L       : The resulting length
+%
+
 % get Gauss-Legendre knots and weights
 GL_X   = cfg.GaussLegendreX;
 GL_W   = cfg.GaussLegendreW;

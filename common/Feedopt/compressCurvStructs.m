@@ -6,10 +6,17 @@ function [ ctx ] = compressCurvStructs( ctx )
 % segment.
 % - Check speed boundaries conditions (ZZ,ZN,NZ,NN) and split the curves
 % accordingly.
-% - Create a Bspline based on Lee89.
+% - Create a Bspline based on ( Lee Algorithm : Lee89 ).
 % - Fill the queue : q_compress
 %
 % Note : If compression is not required call ExpandZeroStructs
+%
+% Inputs :
+%   ctx     : The context of the computational chain
+%
+% Outputs :
+%   ctx     : The context of the computatinal chain
+%
 
 if ctx.q_gcode.isempty(), return; end
 
@@ -17,13 +24,13 @@ spline_index        = ctx.q_spline.size() + 1;  % New index in q_spline
 Ncrv                = ctx.q_gcode.size;         % Number of curve in queue
 [ batch ]           = batch_init();
 
-DebugLog(DebugCfg.Validate, 'Compressing...\n');
+DebugLog( DebugCfg.Validate, 'Compressing...\n' );
 
 ctx.k0 = int32( 1 );
 
 for k = 1 : Ncrv
-    ctx.k0 = ctx.k0 + 1;
-    if(coder.target("MATLAB")), disp( "" + ctx.k0 + "/" + Ncrv ); end
+
+    ocn_print( ctx.cfg.ENABLE_PRINT_MSG, "" + ctx.k0 + "/" + Ncrv, mfilename );
     curv = ctx.q_gcode.get( k ); % Get next Curve in the queue
 
     [ addBatch ]    = check_add_batch( ctx, curv );
@@ -38,7 +45,7 @@ for k = 1 : Ncrv
     else
         ctx.q_compress.push( curv );
     end
-
+    ctx.k0 = ctx.k0 + 1;
 end
 
 [ ctx ] = batch_close( ctx, batch, spline_index );

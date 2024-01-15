@@ -1,4 +1,12 @@
-function Y = c_roots_(coeffs)
+function Y = c_roots_( coeffs )
+%#codegen
+% c_roots_ : Compute the square root
+% 
+% Inputs : 
+% coeffs        : Coefficient of the optimization
+%
+% Outputs :
+% Y             : Result for the square root
 if coder.target('rtw')
     Y = complex(zeros(numel(coeffs)-1, 1));
     coder.cinclude('functions.h');

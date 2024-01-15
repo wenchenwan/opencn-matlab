@@ -1,19 +1,27 @@
-function [ valid ] = checkGeometry( queue )
-% checkZSpdmode : Check if the queue has a valid geometry
-
+function [ valid ] = checkGeometry( queueCurv )
+% checkZSpdmode : Check if the queue have two folowing curvs with the same 
+% geometry.
+%
+% Inputs :
+%   queueCurv   : A queue a curvStructs
+%
+% Outputs :
+%   valid       : Boolean value, TRUE means they are no same curv geometry
+%                 in the whole queue.
+%
 valid = false;
 
-N = queue.size;
+N = queueCurv.size;
 
 if( N == 0 ) 
     valid = true; 
     return; 
 end
 
-curv = queue.get( 1 );
+curv = queueCurv.get( 1 );
 
 for k = 2 : N
-    curvNext = queue.get( k );
+    curvNext = queueCurv.get( k );
 
     if( isSameGeometry(curv, curvNext) )
         return;

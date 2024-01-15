@@ -1,12 +1,16 @@
-function [r0D, r1D, r2D, r3D] = EvalHelix( CurvStruct, u_vec, maskCart )
+function [ r0D, r1D, r2D, r3D ] = EvalHelix( CurvStruct, u_vec, maskCart )
 % EvalHelix : Evalue the helix curv and its corresponding parametric
 % derivatives. The evaluation occurs on the specified points in the u
 % vector.
 %
+% Inputs :
 % CurvStruct    : A struct filled the parameters correspondin to a Helix
 % u_vec         : A vector of specifided points for the evaluation of the
 %                 curve
+% maskCart      : Carthesian mask. It indicates which index should be
+%               considerate as carthesian one.
 %
+% Outputs :
 % r0D           : The evaluated helix at the specified points
 % r1D           : The 1rst order parametric derivative of the curve at the
 %                 specified points
@@ -36,14 +40,14 @@ phi_vec     = theta * u_vec;
 EcrCP0      = cross( evec, CP0 ); % clockwise tangent vector
 cphi        = mycos( phi_vec );
 sphi        = mysin( phi_vec );
-%
 
+%
 cphiTCP0    = CP0 * cphi;
 sphiTCP0    = CP0 * sphi;
 cphiTEcrCP0 = EcrCP0 * cphi;
 sphiTEcrCP0 = EcrCP0 * sphi;
-Sign        = sign( P0P1'*evec );
 %
+
 r0D       = bsxfun(@plus, C, cphiTCP0  + sphiTEcrCP0  + ...
                    pitch/(2*pi)*evec*phi_vec);
 r1D       = bsxfun(@plus, -theta  *sphiTCP0  + theta  *cphiTEcrCP0, ...

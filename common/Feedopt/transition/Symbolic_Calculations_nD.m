@@ -6,7 +6,8 @@
 %                             University of Applied Sciences Western Switzerland
 %                             CH-1401 Yverdon-les-Bains
 %                             All rights reserved.
-%     Updated : summer 2022 by Quentin PERROT
+%     Updated : summer 2022 by Quentin  PERROT      v.2.0.0 (support 6 axes)
+%     Updated : summer 2023 by Hugo     GRALL LUCAS v.2.0.1 (remove old files)
 %
 %     This is free software; you can redistribute it and/or
 %     modify it under the terms of the GNU Lesser General Public
@@ -23,8 +24,9 @@
 %     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 %
 %   README
-%   AUTOR   :   Quentin PERROT, Hugo GRALL LUCAS 
-%   DATE    :   Summer 2022
+%   AUTOR       :   Quentin PERROT, Hugo GRALL LUCAS 
+%   DATE        :   Summer 2023
+%   VERSION     :   2.0.1
 %
 %   1. The number of axes can be changed with the variable nAxis
 %   2. The generated code are stored in dev/gen_transition and their are not
@@ -35,6 +37,7 @@
 clc; clear; close all
 
 check_wkdir();
+PATH_TRANSITION_FOLDER = "Feedopt/transition/gen_transition/";
 %
 %% define symbolic parameters (later these parameters will have numerical values)
 
@@ -60,7 +63,7 @@ syms u real
 
 %% Path for function saving
 disp(" Generation :  part1");
-path = "dev/gen_transition/";
+path = PATH_TRANSITION_FOLDER;
 
 if( isfolder( path ) ), rmdir( path, 's' ); end
 
@@ -164,7 +167,7 @@ clear all;
 syms a1 a0 b1 b0 c3 c2 c1 c0 d1 d0 e1 e0 f3 f2 f1 f0 alpha0 alpha1 real
 %
 disp(" Generation :  part2");
-path = "dev/gen_transition/";
+path = PATH_TRANSITION_FOLDER;
 %
 CoefPS = [a1, a0, b1, b0, c3, c2, c1, c0, d1, d0, e1, e0, f3, f2, f1, f0];
 %
@@ -185,7 +188,7 @@ clear all;
 syms a1 a0 b1 b0 c3 c2 c1 c0 d1 d0 e1 e0 f3 f2 f1 f0 alpha0 alpha1 real
 %
 disp(" Generation :  part3");
-path = "dev/gen_transition/";
+path = PATH_TRANSITION_FOLDER;
 %
 CoefPS = [a1, a0, b1, b0, c3, c2, c1, c0, d1, d0, e1, e0, f3, f2, f1, f0];
 %
@@ -206,7 +209,7 @@ clear all;
 syms a1 a0 b1 b0 c3 c2 c1 c0 d1 d0 e1 e0 f3 f2 f1 f0 alpha1 alpha0 real
 %
 disp(" Generation :  part4");
-path = "dev/gen_transition/";
+path = PATH_TRANSITION_FOLDER;
 %
 CoefPS = sym('CoefPS', 16, 'real');
 a1 = CoefPS(1);
@@ -245,7 +248,7 @@ clear;
 syms a1 a0 b1 b0 c3 c2 c1 c0 d1 d0 e1 e0 f3 f2 f1 f0 alpha1 alpha0 real
 CoefPS = [a1, a0, b1, b0, c3, c2, c1, c0, d1, d0, e1, e0, f3, f2, f1, f0];
 %
-path = "dev/gen_transition/";
+path = PATH_TRANSITION_FOLDER;
 
 %% out of the 2nd equation
 

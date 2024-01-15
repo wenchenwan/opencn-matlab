@@ -3,11 +3,14 @@ function [ status_res, t_opt_res, maxJerk ] = checkTimeOptimality( ctx , tol )
 % Compute the overall time optimality. The resampled data are not stored.
 % 
 % Inputs : 
-%       ctx : The current context
-%       tol : Tolerance structure
+%       ctx         : The current context
+%       tol         : Tolerance structure
+%
 % Output :
-%       
-
+%       status_res  : Status of the optimisation
+%       t_opt_res   : Optimal time computed
+%       maxJerk     : Maximum jerk values
+%
 status_res      = 0;
 t_opt_res       = zeros(1, 5);
 
@@ -33,7 +36,7 @@ for k = 1 : N
                                     Curv.Info.zspdmode, Curv.Coeff, ...
                                     Curv.ConstJerk, dt, ...
                                     ctx.cfg.GaussLegendreX, ...
-                                    ctx.cfg.GaussLegendreW );
+                                    ctx.cfg.GaussLegendreW, ctx.cfg.ENABLE_PRINT_MSG );
         
         if( ~state.isOutsideRange )
             state.dt = dt;

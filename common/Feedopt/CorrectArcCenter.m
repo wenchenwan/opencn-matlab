@@ -1,15 +1,18 @@
-
-function [R, Cprim, delta] = CorrectArcCenter(P0, P1, C)
+function [ R, Cprim, delta ] = CorrectArcCenter( P0, P1, C )
+%#codegen
 % CorrectArcCenter : Recompute the correct center of a given arc. This is a
 % required step to minimize rounding errors.
 %
+% Inputs :
 % P0    : 2D vector from the origin to the starting point
 % P1    : 2D vector from the origin to the ending point
 % C     : 2D vector from the origin to the center of the arc
 %
+% Outputs :
 % R     : Radius of arc
 % Cprim : Corrected Center of the arc
 % delta : Numerical difference between the two centers
+%
 
 P10 = P1 - P0;
 L10 = MyNorm( P10 );

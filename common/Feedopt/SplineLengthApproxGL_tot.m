@@ -1,9 +1,18 @@
-function [L, Lk]  = SplineLengthApproxGL_tot(cfg, Curv)
-% Precomputes approximately the total arc length L as well as the individual
-% arc lengths between knot points of a parametric spline.
-% The computation is based on numerical Gauss Legendre integration.
-% SplineLengthApproxGL_tot should only be called once since the result
-% of the computation is stored and reused later.
+function [ L, Lk ]  = SplineLengthApproxGL_tot( cfg, Curv )
+% SplineLengthApproxGL_tot : Precomputes approximately the total arc length
+% L as well as the individual arc lengths between knot points of a 
+% parametric spline. The computation is based on numerical Gauss Legendre 
+% integration. SplineLengthApproxGL_tot should only be called once since 
+% the result of the computation is stored and reused later.
+%
+% Inputs :
+%   cfg     : The configuration structure
+%   Curv    : The spline
+%
+% Outputs :
+%   L       : The resulting length
+%   Lk      : The resulting length of each nodes intervals
+%
 
 % get the sp structure
 % Spline = ctx.q_spline.get(Curv.sp_index);

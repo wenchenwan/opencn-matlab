@@ -1,8 +1,15 @@
 function [ zeroFlag ] = isAZeroSpeed( speed )
 % isAZeroSpeed : Return true if the curv is has a zero speed
-% Input :
+% 
+% Inputs :
 % curv / Info / ZSpdMode : A structure containning the information of the
-% curv zero speed.zeroFlag = false;
+% curv zero 
+% 
+% Outputs :
+% zeroFlag : Boolean value. TRUE means zero speed structure.
+%
+
+zeroFlag = false;
 
 [zspdmode, error] = getZspdmode( speed );
 

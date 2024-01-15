@@ -1,5 +1,14 @@
-function [isSame] = isSameGeometry( curv1, curv2 ) %#codegen
-% Check if the machine parameters are equals
+function [ isSame ] = isSameGeometry( curv1, curv2 ) 
+%#codegen
+% isSameGeometry : Check if the curves geometry is equal
+%
+% Inputs :
+%   curv1 : First curve
+%   curv2 : Second curve
+%
+% Outputs :
+%   value : Boolean value. TRUE means the two curves are equals.
+%
 isSame = false;
 if( curv1.Info.Type ~= curv2.Info.Type ),                       return; end
 if( curv1.Info.TRAFO ~= curv2.Info.TRAFO ),                     return; end

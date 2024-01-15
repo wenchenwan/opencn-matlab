@@ -1,5 +1,5 @@
 function y = tridiag( a, b, c, f )
-if( ~coder.target( "MATLAB" ) )
+%#codegen
 %  Solve the  n x n  tridiagonal system for y:
 %
 %  [ a(1)  c(1)                                  ] [  y(1)  ]   [  f(1)  ]
@@ -12,30 +12,31 @@ if( ~coder.target( "MATLAB" ) )
 %
 %  The right hand side f may be a matrix composed of column vectors of length n
 %  a, b, c must be vectors of length n (note that b(1) and c(n) are not used)
-%#codegen
-% some additional information is at the end of the file
 
-[ n, ~ ]  = size( f );
-v         = zeros( n, 1 );   
-y         = zeros( size( f ) );
-w         = a( 1 );
-y( 1, : ) = f( 1, : ) / w;
-
-for i = 2 : n
-    v( i -1 ) = c( i -1 ) / w;
-    w         = a( i ) - b( i ) * v( i -1 );
-    y( i, : ) = ( f( i, : ) - b( i ) * y( i -1, : ) ) / w;
-end
-
-for j = n-1 : -1 : 1
-   y( j, : ) = y( j, : ) - v( j ) * y( j + 1, : );
-end
-
-else
+if( coder.target( "MATLAB" ) )
     y = tridiag_mex( a, b, c, f );
+else
+    % some additional information is at the end of the file
+
+    [ n, ~ ]  = size( f );
+    v         = zeros( n, 1 );
+    y         = zeros( size( f ) );
+    w         = a( 1 );
+    y( 1, : ) = f( 1, : ) / w;
+
+    for i = 2 : n
+        v( i -1 ) = c( i -1 ) / w;
+        w         = a( i ) - b( i ) * v( i -1 );
+        y( i, : ) = ( f( i, : ) - b( i ) * y( i -1, : ) ) / w;
+    end
+
+    for j = n-1 : -1 : 1
+        y( j, : ) = y( j, : ) - v( j ) * y( j + 1, : );
+    end
+
 end
 
-%  This is an implementation of the Thomas algorithm.  It does not overwrite a, b, c, f but 
+%  This is an implementation of the Thomas algorithm.  It does not overwrite a, b, c, f but
 %  it does introduce a working n-vector (v).
 
 %%%%%  Example
@@ -46,7 +47,7 @@ end
 % A = diag(a,0) + diag(ones(n-1,1),-1) + diag(3*ones(n-1,1),1)
 % A*y - f
 
-%%%%% Conditions that will guarantee the matrix equation can be solved using this algorithm: 
+%%%%% Conditions that will guarantee the matrix equation can be solved using this algorithm:
 %%%%%  1. matrix strictly diagonally dominant
 %%%%%  2. matrix diagonally dominant, c_i not zero for all i, and abs(b_n) < abs(a_n)
 

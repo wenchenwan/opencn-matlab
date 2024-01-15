@@ -20,7 +20,8 @@ firstTime = true;
 counter = 0;
 
 for k = 1 : N
-    countInPercent = printAvancement(countInPercent, k, N);
+    countInPercent = printAvancement( countInPercent, k, N, ...
+        ctx.cfg.ENABLE_PRINT_MSG );
 
     Curv                        = ctx.q_opt.get( k );
     Curv.MaxConstantFeedRate    = 0;%GetCurvMaxFeedrate( ctx, Curv );
@@ -34,7 +35,7 @@ for k = 1 : N
         [ state ] = resampleCurv( state, ctx.Bl, ...
             Curv.Info.zspdmode, Curv.Coeff, ...
             Curv.ConstJerk, dt, ctx.cfg.GaussLegendreX, ...
-            ctx.cfg.GaussLegendreW );
+            ctx.cfg.GaussLegendreW, ctx.cfg.ENABLE_PRINT_MSG );
 
         if( ~state.isOutsideRange )
             t = t + 1;
@@ -43,7 +44,7 @@ for k = 1 : N
                 ind = 1;
                 firstTime = write2files( firstTime, buffer, fileName );
             end
-
+            
             u       = state.u + double(k) - 1 ;
             cf      = Curv.Info.FeedRate;
             
@@ -56,8 +57,9 @@ for k = 1 : N
                                              state.udd, state.uddd );
 
             [ r0D, r1D ]    = EvalCurvStruct( ctx, Curv, state.u );
+            
             [ Pr0D, Pr1D]   = EvalCurvStructInPieceFrame( ctx, Curv, state.u );
-          
+                        
             v       = Pr1D .* state.ud;
             feed    = vecnorm( v( ctx.cfg.indCart ) );
 
@@ -84,16 +86,16 @@ end
 
 write2files( firstTime, buffer( 1 : ind , : ) , fileName );
 
-printAvancement( 100 , N, N);
+printAvancement( 100 , N, N, ctx.cfg.ENABLE_PRINT_MSG );
 end
 
-function [countInPercent] = printAvancement(countInPercent, k, N)
+function [countInPercent] = printAvancement(countInPercent, k, N, enablePrint)
 % printAvancement : Print the avancement of the sampling in percent
 if( floor( k * 100 / N ) > countInPercent )
-    if( coder.target('matlab') )
+    if( coder.target( 'MATLAB' ) )
         DebugLog(DebugCfg.OptimProgress, '%3d [%%]\n', countInPercent);
     else
-        disp( '%3d [%%]\n', countInPercent );
+        ocn_print( enablePrint, '%3d [%%]\n', countInPercent, mfilename );
     end
     countInPercent = double( countInPercent + max( 1, floor( 100 / N ) ) );
 end
@@ -143,14 +145,14 @@ function [v_norm, a_norm, j_norm] = assert_numerical_derivative( pos, cfg )
     j_norm = abs( j ./ cfg.jmax( cfg.maskTot )' );
     
     if(any(v_norm > 1))
-        disp("Velocity is not in the limits");
+        ocn_print( cfg.ENABLE_PRINT_MSG, "Velocity is not in the limits", mfilename );
     end
 
     if(any(a_norm > 1))
-        disp("Acceleration is not in the limits");
+        ocn_print( cfg.ENABLE_PRINT_MSG,"Acceleration is not in the limits", mfilename );
     end
 
     if(any(j_norm > 1))
-        disp("Jerk is not in the limits");
+        ocn_print( cfg.ENABLE_PRINT_MSG,"Jerk is not in the limits", mfilename );
     end
 end

@@ -1,4 +1,7 @@
 classdef DebugCfg < int32
+%#codegen
+% DebugCfg : Debug config types
+%
     enumeration
         Transitions(1),
         OptimProgress(2),

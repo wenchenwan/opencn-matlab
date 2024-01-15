@@ -1,16 +1,19 @@
-function [ u, ud, udd, uddd ] = constJerkU( pseudoJerk, k_vec, isEnd, forceLimits)
+function [ u, ud, udd, uddd ] = constJerkU( pseudoJerk, k_vec, isEnd, forceLimits )
 % constJerkU : Compute u and its derivative based on the pseudo jerk 
 % approximation.
+%
 % Inputs : 
-%   pseudoJerk      :  [ N x 1 ] The pseudo constant Jerk
+%   pseudoJerk      :  [ N x 1 ] The constant Jerk value
 %   k_vec           :  [ 1 x M ] The time vector
 %   isEnd           :  ( Boolean ) Is the end of the Curve.
-%   forceLimits     :  ( Boolean ) Force u to stay in bewteen 0 and 1 
+%   forceLimits     :  ( Boolean ) Force u to stay in bewteen 0 and 1
+%
 % Outputs : 
 %   u               :  [ N x M ]
 %   ud              :  [ N x M ]
 %   udd             :  [ N x M ]
 %   uddd            :  [ N x M ]
+%
 
 if( coder.target( "MATLAB" ) )
     % Check inputs shape

@@ -1,6 +1,27 @@
 function [ A, b, Aeq, beq, continuity ] = buildConstr( ctx, windowCurv, amax, ...
-    v_0, at_0, v_1, at_1, BasisVal, BasisValD, u_vec )
+    v_0, at_0, v_1, at_1, BasisVal, BasisValD, u_vec ) 
 %#codegen
+% buildConstr   : Build constraints.
+% 
+% Inputs :
+% ctx           : Matlab context
+% windowCurv    : Curvs window
+% amax          : Maximum acceleration
+% v_0           : speed at start
+% at_0          : tangential acceleration at start
+% v_1           : speed at end
+% at_1          : tangential acceleration at end
+% BasisVal      : BSpline evaluated at u_vec values
+% BasisValD     : BSpline derivative evaluated at u_vec values
+% u_vec         : Vecteur of u values
+%
+% Outputs:
+% A             : Inequality Matrix
+% b             : Inequality vector
+% Aeq           : Equality Matrix
+% beq           : Equality vector
+% continuity    : Continuity equation
+%
 
 c_prof_in(mfilename);
 % Ndim     : number of dimention
@@ -49,7 +70,7 @@ v_max       = zeros( Ndim + 1, M );
 for k = 1 : Nwindow
     % Compute the partial derivatives    
     [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, windowCurv( k ), u_vec );
-    ctx.kin = ctx.kin.set_tool_length(windowCurv( k ).tool.offset.z);
+    ctx.kin = ctx.kin.set_tool_length( -windowCurv( k ).tool.offset.z );
 
     if( windowCurv( k ).Info.TRAFO )
         [ ~, r1D_a, r2D_a ]  = ctx.kin.joint( r0D, r1D, r2D, r3D );

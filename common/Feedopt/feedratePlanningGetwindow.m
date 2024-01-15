@@ -1,4 +1,16 @@
 function [ window, NWindow ] = feedratePlanningGetwindow( k0, NHorz, q_curves )
+%#codegen
+% feedratePlanningGetwindow : 
+%
+% Inputs :
+%   k0          : Index in the optimization 
+%   NHorz       : Number of curves in the optimization window
+%   q_curves    : Queue of curve structures
+%
+% Outputs :
+%   window      : Window of curves structure
+%   NWindow     : Number of curves in the structures
+%
 
 window = repmat( constrCurvStructType, 1, NHorz );
 

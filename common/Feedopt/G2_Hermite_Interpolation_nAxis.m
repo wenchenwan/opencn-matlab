@@ -27,7 +27,25 @@
 % Compute an optimal trajectory in R^3, connecting the point r0 to r1 with
 % C^2 smoothness while minimizing the integral of the norm of the third
 % derivative. 
-function [p5, status, alpha0, alpha1] = G2_Hermite_Interpolation_nAxis(ctx, r0D0_in, r0D1_in, r0D2_in, r1D0_in, r1D1_in, r1D2_in)
+function [ p5, status, alpha0, alpha1 ] = G2_Hermite_Interpolation_nAxis( ...
+    ctx, r0D0_in, r0D1_in, r0D2_in, r1D0_in, r1D1_in, r1D2_in )
+% G2_Hermite_Interpolation_nAxis : 
+%
+% Inputs :
+%   ctx     : Context used in the computational chain
+%   r0D0_in : Left curve end position vector
+%   r0D1_in : Left curve end velocity vector
+%   r0D2_in : Left curve end acceleration vector
+%   r1D0_in : Right curve start position vector
+%   r1D1_in : Right curve start velocity vector
+%   r1D2_in : Right curve start acceleration vector
+%
+% Outputs :
+%   p5      : Resulting polynom (5th order) coefficients for the transition
+%   status  : Computation status index
+%   alpha0  : Alpha0 vector (see publication)
+%   alpha1  : Alpha1 vector (see publication)
+%
 
 N_AXES_MAX = 6;
 
@@ -36,12 +54,12 @@ r0D0 = zeros(N_AXES_MAX, 1); r0D1 = r0D0; r0D2 = r0D0; r1D0 = r0D0;
 r1D1 = r0D0; r1D2 = r0D0;
 
 % Place input vector in : Set padding on vector
-r0D0(ctx.cfg.maskTot) = r0D0_in;
-r0D1(ctx.cfg.maskTot) = r0D1_in;
-r0D2(ctx.cfg.maskTot) = r0D2_in;
-r1D0(ctx.cfg.maskTot) = r1D0_in;
-r1D1(ctx.cfg.maskTot) = r1D1_in;
-r1D2(ctx.cfg.maskTot) = r1D2_in;
+r0D0( ctx.cfg.maskTot ) = r0D0_in;
+r0D1( ctx.cfg.maskTot ) = r0D1_in;
+r0D2( ctx.cfg.maskTot ) = r0D2_in;
+r1D0( ctx.cfg.maskTot ) = r1D0_in;
+r1D1( ctx.cfg.maskTot ) = r1D1_in;
+r1D2( ctx.cfg.maskTot ) = r1D2_in;
 
 D = zeros( N_AXES_MAX,1);
 D(ctx.cfg.maskTot) = ctx.cfg.D;

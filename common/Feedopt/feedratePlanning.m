@@ -2,6 +2,16 @@ function [ ctx, optimized, opt_struct, quit ] = feedratePlanning( ctx )
 %#codegen
 % FeedratePlanning : Compute the optimal feedrate w.r.t to a set of
 % constraints.
+%
+% Inputs :
+%   ctx : The context of the computational chain
+%
+% Outputs :
+%   ctx         : The context of the computational chain
+%   optimized   : Is optimized
+%   opt_struct  : optimized structure
+%   quit        : Quit flag
+%
 persistent kopt;
 if( isempty( kopt ) ), kopt = 1; end
 
@@ -11,13 +21,13 @@ optimized   = false;                   % Does the optimization successed
 ctx.op      = Fopt.Opt;                % Current state of the FSM
 
 % Check if empty queue after splitting. If yes, stop optimization
-if ctx.q_split.isempty, [ ctx.op, quit ] = empty_queue_split(); return; end
-
-if coder.target( 'MATLAB' )
-    if IsEnabledDebugLog( DebugCfg.OptimProgress )
-        fprintf( '%4d/%u\n', ctx.k0, ctx.q_split.size );
-    end
+if ctx.q_split.isempty
+    [ ctx.op, quit ] = empty_queue_split( ctx.cfg.ENABLE_PRINT_MSG ); 
+    return; 
 end
+
+ocn_print( ctx.cfg.ENABLE_PRINT_MSG, "" + ctx.k0 + "/" + ...
+    ctx.q_split.size, mfilename );
 
 % Increment index on q_split
 if ctx.go_next, ctx.k0 = ctx.k0 + 1; end
@@ -76,7 +86,7 @@ if ( ctx.k0 <= ctx.q_split.size )
             end
 
         else
-            ocn_assert( true, "OPTIMIZATION FAILED", mfilename );
+            ocn_assert( true, "OPTIMIZATION FAILED...", mfilename );
         end
     else
         optimized   = true;
@@ -99,23 +109,18 @@ if ( ctx.k0 <= ctx.q_split.size )
         kopt = kopt + 1;
     end
     
-    if( coder.target( "MATLAB" ) )
-        if( length( opt_struct.Coeff ) > 1 )
-            [ profileList ] = computeProfileU( ctx.Bl, opt_struct.Coeff );
-        end
-    end
-    
 else
     ctx.op = Fopt.Finished;
 end
 end
 
-function [ op, quit ] = empty_queue_split()
+function [ op, quit ] = empty_queue_split( enablePrint )
 % Treat the case of an empty queue after splitting operation
 if coder.target( 'MATLAB' )
     diary on;
 end
-DebugLog( DebugCfg.Validate, 'Queue empty...\n' );
+
+ocn_print( enablePrint, "Queue empty...", mfilename );
 op      = Fopt.Finished;
 quit    = true;
 end

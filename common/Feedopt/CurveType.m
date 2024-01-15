@@ -1,4 +1,7 @@
 classdef CurveType < int32
+%#codegen
+% CurveType : Enumeration of the different types of curves 
+%
         enumeration 
             None(0),
             Line(1), 

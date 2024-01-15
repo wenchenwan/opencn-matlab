@@ -1,12 +1,13 @@
 function [ cfg ] = setMachineAxisInConfig( cfg, maskTot )
+%#codegen
 % setMachineAxisInConfig: Use maskTot to specify the axis used by the
 % machine
 % Inputs :
-% cfg : The configuration structure
-% maskTot : [ 1 x 6 ] logical vector [x,y,z,a,b,c]
+% cfg       : The configuration structure
+% maskTot   : [ 1 x 6 ] logical vector [x,y,z,a,b,c]
+% 
 % Outputs :
-% cfg : The configuration structure
-%#codegen
+% cfg       : The configuration structure
 
 coder.inline("never");
 ocn_assert( numel( maskTot ) == 6, "MaskTot should have 6 elements...", mfilename);

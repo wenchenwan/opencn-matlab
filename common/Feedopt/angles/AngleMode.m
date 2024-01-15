@@ -1,4 +1,5 @@
-classdef AngleMode < int32 %#codegen
+classdef AngleMode < int32 
+    %#codegen
     % AngleMode : Enumeration used to describe the direction of the
     % rotation when the Din norm is enable and the Mode G90 is activated.
     enumeration

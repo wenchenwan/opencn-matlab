@@ -1,46 +1,35 @@
 function [ spnD ] = CalcBspline_Lee( cfg, points )
 % CalcBspline_Lee :
 %
-% INPUT
+% Inputs :
 % cfg       : struct : Configuration variables
 % points    :   nDxN : Set of points in n dimension for the spline
 %
-% OUTPUT
+% Outputs
 % spnD      : struct : Output spline structure
 
-[ ~, N ] = size( points ); % number of points in nD space
+% number of points in nD space
+[ ~, N ] = size( points ); 
 nAxis    = cfg.NumberAxis;
-nMult    = cfg.LeeSplineDegree - 1; % Number of multiplicity at start and end ( clamped BSpline )
+% Number of multiplicity at start and end ( clamped BSpline )
+nMult    = cfg.LeeSplineDegree - 1; 
 nCoeff   = N + 2;
 
 du     = sum( ( diff( points.' ).^2 ).' );
 u      = cumsum( [ 0, du.^( 1 / 4 ) ] );
-u      = u / u( end );  % normalize knots to interval [0...1]
+% normalize knots to interval [0...1]
+u      = u / u( end );  
 knots  = [ zeros( 1, nMult ), u, ones( 1, nMult ) ];
 
 Bl = bspline_create( cfg.LeeSplineDegree, u );
-
 %
-if( 1 )
-    [ BasisVal, BasisValDD0, BasisValDD1 ] = bspline_eval_lee( Bl, int32( nCoeff ), u );
+[ BasisVal, BasisValDD0, BasisValDD1 ] = bspline_eval_lee( Bl, int32( nCoeff ), u );
 %
-    A = [ BasisValDD0; BasisVal; BasisValDD1 ];
+A = [ BasisValDD0; BasisVal; BasisValDD1 ];
 %
-    B = [zeros(1, nAxis);
-        points.';
-        zeros(1, nAxis)];
-else
-   [ TBasisVal, TBasisValD, TBasisValDD, TBasisValDDD ] = bspline_base_eval( Bl, u );
-%
-    A = [ TBasisValD(1, : ); BasisVal; TBasisValD(end, : ) ];
-%
-    dP = diff( points, [], 2 );
-    dP = ( dP ./ vecnorm( dP ) ).';
-
-    B = [dP( 1, :  );
-        points.';
-        dP( end, :  )];
-end
+B = [zeros(1, nAxis);
+    points.';
+    zeros(1, nAxis)];
 %
 [ A ] = swap_lines( A );
 [ B ] = swap_lines( B );

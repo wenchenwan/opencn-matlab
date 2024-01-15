@@ -1,5 +1,8 @@
 function [ u, ud, udd, uddd ] = u2tilda( u, ud, udd, uddd, a, b ) 
-% Input : 
+%#codegen
+% u2tilda : Compute the transformation of u based on its parametrisation.
+%
+% Inputs : 
 %   u          :  [ N x M ]
 %   ud         :  [ N x M ]
 %   udd        :  [ N x M ]

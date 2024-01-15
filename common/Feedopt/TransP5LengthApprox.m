@@ -1,4 +1,17 @@
-function L = TransP5LengthApprox( CurvStruct, u0, u1 )
+function [ L ] = TransP5LengthApprox( CurvStruct, u0, u1 )
+%#codegen
+% TransP5LengthApprox : Compute the length of the transition (5th degree
+% polynomial) between u0 and u1.
+%
+% Inputs :
+%   CurvStruct  : Curve structure (5th degree polynomial)
+%   u0          : Starting u
+%   u1          : Ending u
+%
+% Outputs :
+%   L           : Approximative length
+%
+
 % Computes approximately the arc length of a parametric spline
 p5          = CurvStruct.CoeffP5;
 p5_1D       = mypolyder( p5 ); % Derivative

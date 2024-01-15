@@ -1,13 +1,15 @@
 function [ ctx, window, NWindow ] = feedratePlanningSetupCurves( ...
-    ctx, window, NWindow ) %#codegen
+    ctx, window, NWindow ) 
+%#codegen
 %feedratePlanningSetupCurves : Setup the windows of curves used in the
 % optimization problem.
 %
 % Inputs / Outputs : 
 %
-%   ctx :       The context structure
-%   window :    The window of curves
+%   ctx     :   The context structure
+%   window  :   The window of curves
 %   NWindow :   The number of curves in the window
+%
 
 % Get first and last curves
 first = window( 1 );

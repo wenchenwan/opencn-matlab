@@ -2,13 +2,16 @@ function [ vNorm, atNorm ] = calcZeroConstraints( ctx, curv, isEnd )
 %#codegen
 % calcZeroConstraints : Compute the velocity and acceleration
 % required for the continuity at zero start.
+%
 % Inputs :
-% ctx   : The context
-% Curv  : The curve
-% isEnd : (boolean) Is the end of the curve
+% ctx       : The context
+% Curv      : The curve
+% isEnd     : (boolean) Is the end of the curve
+%
 % Outputs :
-% v_0   : Norm of the velocity
-% at_0  : Norm of the tangential acceleration
+% vNorm     : Norm of the velocity
+% atNorm    : Norm of the tangential acceleration
+%
 jps = curv.ConstJerk;
 
 if( isEnd )

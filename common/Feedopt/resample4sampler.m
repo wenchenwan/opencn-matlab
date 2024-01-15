@@ -19,7 +19,7 @@ firstTime = true;
 
 for k = 1 : N
 
-    countInPercent = printAvancement(countInPercent, k, N);
+    countInPercent = printAvancement( countInPercent, k, N, ctx.cfg.ENABLE_PRINT_MSG );
 
     Curv                        = ctx.q_opt.get( k );
     SplineCurv                  = ctx.q_spline.get( Curv.sp_index );
@@ -30,7 +30,7 @@ for k = 1 : N
          [ state ] = resampleCurv(state, ctx.Bl, ...
                                     Curv.Info.zspdmode, Curv.Coeff, ...
                                     Curv.ConstJerk, dt, ctx.cfg.GaussLegendreX, ...
-                                    ctx.cfg.GaussLegendreW );
+                                    ctx.cfg.GaussLegendreW, ctx.cfg.ENABLE_PRINT_MSG );
         
         if( ~state.isOutsideRange )
             t = t + 1;
@@ -58,16 +58,16 @@ end
 
 write2files( firstTime, buffer( 1 : ind , : ) , fileName );
 
-printAvancement( 100 , N, N);
+printAvancement( 100 , N, N, ctx.cfg.ENABLE_PRINT_MSG );
 end
 
-function [countInPercent] = printAvancement(countInPercent, k, N)
+function [countInPercent] = printAvancement(countInPercent, k, N, enablePrint)
 % printAvancement : Print the avancement of the sampling in percent
     if( floor( k * 100 / N ) > countInPercent )
         if( coder.target('matlab') )
             DebugLog(DebugCfg.OptimProgress, '%3d [%%]\n', countInPercent);
         else
-            disp( '%3d [%%]\n', countInPercent );
+            ocn_print( enablePrint, '%3d [%%]\n', countInPercent, mfilename );
         end
         countInPercent = double( countInPercent + max( 1, floor( 100 / N ) ) );
     end

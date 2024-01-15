@@ -1,6 +1,6 @@
 function [ u ]  = splineLengthFindU( cfg, spline, L, u0, isEnd )
-% Computes approximately the value of curve parameter u such that the arc
-% length starting from u1 equals L.
+% splineLengthFindU : Computes approximately the value of curve parameter 
+% u such that the arc length starting from u1 equals L.
 % This function takes usage of the precalculated arc lengths between knots.
 % The last integration interval is approximated by the trapezoidal rule.
 % u1 must satisfy 0 < u1 < 1.
@@ -9,6 +9,18 @@ function [ u ]  = splineLengthFindU( cfg, spline, L, u0, isEnd )
 % The parameter isEnd is used to start inverse the problem, the length is
 % estimated starting from u quals to 1 to 0. It's used to cut a specific
 % length at the beginning of the curv.
+%
+% Inputs : 
+%   cfg     : The configuration structure
+%   spline  : The spline
+%   L       : The length of the spline
+%   u0      : The starting u
+%   isEnd   : Boolean value. TRUE means the computation should start from
+%             the end.
+%
+% Outputs :
+%   u       : The resulting u value
+%
 
 ITER_MAX    = 1000;
 DEFAULT_TOL = 1E-7;

@@ -1,6 +1,18 @@
-function [ status, CurvStruct, err_msg ] = ReadGCode( cmd, filename )
+function [ status, CurvStruct, err_msg ] = ReadGCode( cfg, cmd, filename )
 %#codegen
-% coder.extrinsic('ReadGCode_mex');
+% ReadGCode : Read the G code contents.
+% 
+% Inputs :
+%   cfg :           The configuration structure.
+%   cmd :           The command operation.
+%   filename :      The G code filename.
+% 
+% Outputs :
+%   status :        The current status of the reading operation
+%   CurvStruct :    The curve structure
+%   err_msg :       The error message
+%
+
 % Wrapper for pulling the next gcode line from the interpreter
 persistent n data using_mat
 status          = ReadGCodeError.InterpError;
@@ -10,21 +22,25 @@ err_msg         = constrMsgStructType;
 if coder.target('matlab')
     if cmd == ReadGCodeCmd.Load
         setenv( "INI_FILE_NAME", pwd + "/config.ini" );
-        disp( "The configuration file is located : " + ...
-            getenv("INI_FILE_NAME") );
+        ocn_print( cfg.ENABLE_PRINT_MSG, ...
+            "The configuration file is located : " + ...
+            getenv("INI_FILE_NAME"), mfilename );
         ext = filename( end-3 : end );
-        disp("Filename : " + filename );
+
+        ocn_print( cfg.ENABLE_PRINT_MSG, "Filename : " + filename, mfilename );
         if ext == ".mat"
-            fprintf( 'Loading CurvStructs ... ' )
+            ocn_print( cfg.ENABLE_PRINT_MSG, 'Loading CurvStructs ...', ...
+                mfilename );
             data = load( filename, 'CurvStructs' );
             data = table2struct( data.CurvStructs );
-            fprintf( 'Done\n' )
+            ocn_print( cfg.ENABLE_PRINT_MSG, 'Done', mfilename );
             using_mat = true;
             n = 1;
             status = ~isempty( data );
         else
             using_mat = false;
-            [status, CurvStruct, err_msg] = ReadGCode_mex( 'ReadGCode', cmd, filename);
+            [status, CurvStruct, err_msg] = ReadGCode_mex( 'ReadGCode', ...
+                cfg, cmd, filename);
         end
     elseif cmd == ReadGCodeCmd.Read
         if using_mat
@@ -37,7 +53,8 @@ if coder.target('matlab')
                 CurvStruct = data( 1 );
             end
         else
-            [ status, CurvStruct, err_msg ] = ReadGCode_mex( 'ReadGCode', cmd, filename );
+            [ status, CurvStruct, err_msg ] = ReadGCode_mex( 'ReadGCode', ...
+                cfg, cmd, filename );
         end
     end
 else
@@ -97,6 +114,6 @@ end
 
 ocn_assert( status < ReadGCodeError.InterpNotOpen, ...
     "[Line " + CurvStruct.Info.gcode_source_line + "] " + ...
-    err_msg.msg, mfilename );
+    err_msg.msg( 1 : err_msg.size ), mfilename );
 
 end

@@ -1,4 +1,21 @@
-function [C, success, status, msg] = c_simplex(f, A, b, Aeq, beq, ctx)
+function [ C, success, status, msg ] = c_simplex( f, A, b, Aeq, beq, ctx )
+%#codegen
+% c_simplex : C wrapper for the solver simplex.
+% 
+% Inputs :
+% f         : Objective cost function
+% A         : Inequality constraints matrix
+% b         : Inequality constraints vector
+% Aeq       : Equility constraints matrix
+% beq       : Equility constraints vector
+% ctx       : Matlab context
+%
+% Outputs :
+% C         : Result of the optimization
+% success   : Success boolean (true : success, false : failure)
+% status    : Status code of the optimization
+% msg       : Msg of the optimization
+%
 msg = "";
 if coder.target('rtw') || coder.target('mex')
     c_prof_in(mfilename);
@@ -58,7 +75,7 @@ else
         [C0, success, status] = c_simplex_mex(f, A, b, Aeq, beq );
         msg = printOptStatus( status );
         
-        if(~success && ctx.cfg.opt.EnableFindReasonInfeasibility)
+        if( ~success && ctx.cfg.opt.FIND_REASON_INFEASIBILITY )
             msg = msg + findReasonInfeasibility(f, A, b, Aeq, beq); 
         end
         

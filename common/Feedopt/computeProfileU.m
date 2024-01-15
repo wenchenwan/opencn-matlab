@@ -1,4 +1,14 @@
 function [ profileList ] = computeProfileU( Bl, Coeff )
+% computeProfileU : Compute u profile ( a.k.a. Analytic solution of the 
+% numerical integration performed in the resampling ).
+%
+% Inputs :
+%   Bl      : Base Spline used during the optimization
+%   Coeff   : Coefficients resulting from the optimization
+%
+% Outputs :
+%   profileList : List of the different types of profiles ()
+%
 [ BasisVal, BasisValD, BasisValDD ] = ...
     bspline_base_eval( Bl , Bl.breakpoints );
 
@@ -30,7 +40,8 @@ for j = 1 : NInterval
     profileList( j ) = compute_profile_type( profileList( j ) );
     profileList( j ) = compute_switching_time( profileList( j ) );
     
-    timeVec( indVec ) = linspace( profileList( j ).t0, profileList( j ).t1, Nt + 1 );
+    timeVec( indVec ) = linspace( profileList( j ).t0, profileList( j ).t1, ...
+                        Nt + 1 );
     indVec = indVec + Nt;
 end
 
@@ -90,14 +101,14 @@ dt = time - profile.t0;
 
 switch type
     case 1  % Linear
-        u = u0 + sqrt( c ) * dt;
+        u = u0 + mysqrt( c ) * dt;
     case 2  % Quadratic
-        A = b / 4; B = sqrt( c ); C = u0;
+        A = b / 4; B = mysqrt( c ); C = u0;
         u = A * dt^2 + B * dt + C;
     case 3  % Exponantial        
         zs      = -b / ( 2 * a );
         kSquare = c - b^2 / ( 4 * a );
-        aSqrt   = sqrt( a );
+        aSqrt   = mysqrt( a );
         xStar2  = aSqrt * ( -zs );
         t0      = eval_exponantial_time( xStar2, kSquare );
         Y       = exp( aSqrt * dt + t0 );
@@ -112,8 +123,8 @@ switch type
         zs      = -b / ( 2 * a );
         kSquare = c - b^2 / ( 4 * a );
         ocn_assert( kSquare >= 0, "Profile : Case 4 : root on not positive value...", mfilename );
-        aSqrt   = sqrt( abs( a ) );
-        k       = sqrt( kSquare );
+        aSqrt   = mysqrt( abs( a ) );
+        k       = mysqrt( kSquare );
         t0      = asin( ( ( -aSqrt * zs ) / k ) );
         u       = k / aSqrt * sin( aSqrt * dt + t0 ) + u0 + zs;
     otherwise
@@ -129,19 +140,19 @@ function [ profile ] = compute_switching_time( profile  )
 switch type
     case 1  % Linear
         ocn_assert( c > 0, "Profile : Case 1 : c should be positive...", mfilename );
-        t1 = ( u1 - u0 ) / sqrt( c );
+        t1 = ( u1 - u0 ) / mysqrt( c );
     
     case 2  % Quadratic
         ocn_assert( c >= 0, "Profile : Case 2 : c should be positive...", mfilename );
         x   = u1 - u0;
         num = b * x + c;
         ocn_assert( num > 0, "Profile : Case 2 : root on not positive value...", mfilename );
-        t1  = 2 * x / ( sqrt( c ) + sqrt( num ) );
+        t1  = 2 * x / ( mysqrt( c ) + mysqrt( num ) );
 
     case 3  % Exponantial
         zs      = -b / ( 2 * a );
         kSquare = c - b^2 / ( 4 * a );
-        aSqrt   = sqrt( a );
+        aSqrt   = mysqrt( a );
         xStar   = aSqrt * ( u1 - u0 -zs );
         num     = eval_exponantial_time( xStar, kSquare );
         xStar2  = aSqrt * ( -zs );
@@ -152,8 +163,8 @@ switch type
         zs      = -b / ( 2 * a );
         kSquare = c - b^2 / ( 4 * a );
         ocn_assert( kSquare >= 0, "Profile : Case 4 : root on not positive value...", mfilename );
-        aSqrt   = sqrt( abs( a ) );
-        k       = sqrt( kSquare );
+        aSqrt   = mysqrt( abs( a ) );
+        k       = mysqrt( kSquare );
         ocn_assert( k > 0, "Profile : Case 4 : den should be g.t. zero...", mfilename );
         x1      = aSqrt * ( u1 - u0 - zs );
         x0      = -aSqrt * zs;
@@ -194,9 +205,9 @@ num = x^2 + kSquare;
 ocn_assert( num >= 0, "Profile : Case 3 : root on not positive value...", mfilename );
 
 if( x < 0 )
-    num = -kSquare / ( x - sqrt( num ) );
+    num = -kSquare / ( x - mysqrt( num ) );
 else
-    num = x + sqrt( num );
+    num = x + mysqrt( num );
 end
 
 res = log( abs( num ) );

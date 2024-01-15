@@ -1,6 +1,15 @@
-function [CurvStruct] = add_tool_offset( CurvStruct, indCart, prev_tool ) 
+function [ CurvStruct ] = add_tool_offset( CurvStruct, indCart, prev_tool ) 
 %#codegen
-% Add the tool offset to the curve structure.
+% add_tool_offset : Add the tool offset to the curve structure.
+% 
+% Inputs :
+% CurvStruct    : Curv structure
+% indCart       : Index carthesien
+% prev_tool     : Previous tool
+% 
+% Outputs:
+% CurvStruct    : Curv structure
+
 if( ~CurvStruct.Info.TRAFO )
     prev_off = [prev_tool.offset.x,prev_tool.offset.y, prev_tool.offset.z]; 
     off = [CurvStruct.tool.offset.x, ...

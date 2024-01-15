@@ -1,4 +1,19 @@
 function [ ctx, window, NWindow ] = feedratePlanningForceZeroStop( ctx, window, NWindow )
+%#codegen
+% feedratePlanningForceZeroStop : This is a work around to handle an
+% infeasibility during the optimization.
+%
+% Inputs :
+%   ctx         : The context of the computational chain
+%   window      : Window of curves
+%   NWindow     : Number of curves in the window
+%
+% Outputs :
+%   ctx         : The context of the computational chain
+%   window      : Window of curves
+%   NWindow     : Number of curves in the window
+%
+
 % NN case :
 % Optimization failed due to small coefficient, so force a stop
 

@@ -17,7 +17,7 @@ nk          = ( rD2 - rD1 .* dot_rD1_rD2 ./ norm_rD1_2 ) ./ norm_rD1_2;
 num         = norm_rD2_2 .* norm_rD1_2 - dot_rD1_rD2.^2;
 
 num( num < 0 ) = 0;
-kappa       = sqrt( num ) ./ norm_rD1_3;
+kappa       = mysqrt( num ) ./ norm_rD1_3;
 
 end
     

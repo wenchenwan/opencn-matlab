@@ -1,6 +1,7 @@
 function [ state ] = resampleCurv(state, Bl, curv_mode, ...
-    coeff, constJerk, dt, GaussLegendreX, GaussLegendreW )
-% resampleCurv :
+    coeff, constJerk, dt, GaussLegendreX, GaussLegendreW, enablePrint )
+%#codegen
+% resampleCurv : Resampling step.
 %
 % Inputs :
 %
@@ -15,7 +16,7 @@ function [ state ] = resampleCurv(state, Bl, curv_mode, ...
 % GaussLegendreW    : Weights used for the gauss-legendre integration
 %
 % Outputs :
-% state         : Updated input state
+% state             : Updated input state.
 
 coder.inline( "never" );
 
@@ -25,7 +26,7 @@ end
 
 if coder.target( "MATLAB" )
     [ state ] = resampling_mex( 'resampleCurv', state, Bl, curv_mode, ...
-    coeff, constJerk, dt, GaussLegendreX, GaussLegendreW );
+    coeff, constJerk, dt, GaussLegendreX, GaussLegendreW, enablePrint );
 else
     % Check for a zero stop 
     if( state.isAStop )
@@ -45,11 +46,11 @@ else
         [ u, ud, udd, uddd ] = constJerkU( constJerk, time + state.dt, isEnd, ...
             forcelimit );
     else
-        [ u,  ud, udd, uddd ] = ResampleNN( coeff, Bl, state.u, state.dt );
+        [ u,  ud, udd, uddd ] = ResampleNN( coeff, Bl, state.u, state.dt, enablePrint );
     end
     state.dt = dt;
 
-    u = check_u_state_validity( u, state );
+    u = check_u_state_validity( u, state, enablePrint );
     
     % Check if u is outside the range
     if( u > 1 )
@@ -62,7 +63,7 @@ else
     
             % Linear mapping from[-1, 1] to [state.u, 1]
             uval  = ( state.u * ( 1 - GL_X ) + ( 1 + GL_X) ) / 2;
-            Ival  = 1 ./ sqrt( bspline_eval_vec( Bl, coeff', uval ) );
+            Ival  = 1 ./ mysqrt( bspline_eval_vec( Bl, coeff', uval ) );
             % Gauss Legendre integration
             Tr    = Ival.' * GL_W * ( 1 - state.u ) / 2;
             
@@ -79,11 +80,11 @@ else
                     TrVec( 2 )  = -c / b;
                     TrVec( 3 )  = -b / a;
                 elseif( b > 0 )
-                    TrVec( 2 )  = 2 *  c / ( -b - sqrt(Delta) );
-                    TrVec( 3 )  = (-b - sqrt(Delta) ) / ( 2 *  a );
+                    TrVec( 2 )  = 2 *  c / ( -b - mysqrt(Delta) );
+                    TrVec( 3 )  = (-b - mysqrt(Delta) ) / ( 2 *  a );
                 else
-                    TrVec( 2 )  = (-b + sqrt(Delta) ) / ( 2 *  a );
-                    TrVec( 3 )  = 2 *  c / ( -b + sqrt(Delta) );          
+                    TrVec( 2 )  = (-b + mysqrt(Delta) ) / ( 2 *  a );
+                    TrVec( 3 )  = 2 *  c / ( -b + mysqrt(Delta) );          
                 end
 
                 TrVec( 4 )  = -c / b;
@@ -107,7 +108,12 @@ else
             return;
         end
         % Ensure Tr <= dt and Tr >= 0 and real
-        state.dt = check_minimum_precision_dt( dt - Tr, dt ); 
+        state.dt = check_minimum_precision_dt( dt - Tr, dt, enablePrint );
+
+        if( coder.target( "MATLAB" ) )
+            DebugResampling.getInstance().addDT( state.dt );
+        end
+
     else
         state.isOutsideRange = false;
         state = state.setU( u, ud, udd, uddd );
@@ -124,14 +130,15 @@ end
 
 end
 
-function [ u,  ud, udd, uddd ] = ResampleNN( coeff, Bl, uk, dt )
+function [ u,  ud, udd, uddd ] = ResampleNN( coeff, Bl, uk, dt, enablePrint )
 [ q, qd, qdd ] = bspline_eval( Bl, coeff', uk );
 
 if( q < 0 )
     % Non-positive function, it is better to go out
     u = uk; ud = 0; udd = 0; uddd = 0;
+    ocn_print( enablePrint, "Q should not be negative", mfilename );
+
     if( coder.target( "MATLAB" ) )
-        disp("Q should not be negative", mfilename);
         DebugResampling.getInstance().increaseQNegativeCounter();
     end
     return;
@@ -158,28 +165,28 @@ end
 
 end
 
-function [ d ] = check_minimum_precision_dt( d, dt )
+function [ d ] = check_minimum_precision_dt( d, dt, enablePrint )
 % check_minimum_precision : Avoid effect numerical problem
 if( isnan( d ) )
     d = 0.0;
+    ocn_print( enablePrint, "Tr should not be nan", mfilename );
     if( coder.target( "MATLAB" ) )
-        disp("Tr should not be nan", mfilename);
         DebugResampling.getInstance().increaseTNanCounter();
     end
 end
 
 if( ~isreal( d ) )
     d = 0.0;
+    ocn_print( enablePrint, "Tr should be real", mfilename );
     if( coder.target( "MATLAB" ) )
-        disp("Tr should be real", mfilename);
         DebugResampling.getInstance().increaseTNotRealCounter();
     end
 end
 
 if( d <= 0.0 ) 
     d = 0.0;
+    ocn_print( enablePrint, "Tr should be positive", mfilename );
     if( coder.target( "MATLAB" ) )
-        disp("Tr should be positive", mfilename);
         DebugResampling.getInstance().increaseTNegativeCounter();
     end
 end
@@ -193,33 +200,39 @@ end
 % end
 end
 
-function [ u ] = check_u_state_validity( u, state )
+function [ u ] = check_u_state_validity( u, state, enablePrint )
 if( isnan( u ) )
     u = state.u;
+    ocn_print( enablePrint, "U should not be nan", mfilename );
+
     if( coder.target( "MATLAB" ) )
-        disp("U should not be nan", mfilename);
         DebugResampling.getInstance().increaseUNanCounter();
     end
 end
 
 if( ~isreal( u ) )
     u = state.u;
+    ocn_print( enablePrint, "U should be real", mfilename );
+
     if( coder.target( "MATLAB" ) )
-        disp("U should be real", mfilename);
         DebugResampling.getInstance().increaseUNotRealCounter();
     end
 end
 
 if( u < 0 )
+    ocn_print( enablePrint, ...
+        "U parameter should not be negative during resampling", mfilename );
     if( coder.target( "MATLAB" ) )
-        disp("U parameter should not be negative during resampling", mfilename);
         DebugResampling.getInstance().increaseUNegativeCounter();
     end
 end
 
 if( ~( u > state.u ) )
+    ocn_print( enablePrint, ...
+        "U parameter is too close from the previous one during resampling", ...
+        mfilename );
+        
     if( coder.target( "MATLAB" ) )
-        disp("U parameter is too close from the previous one during resampling", mfilename);
         DebugResampling.getInstance().increaseUNotIncreasingCounter();
     end
 end
