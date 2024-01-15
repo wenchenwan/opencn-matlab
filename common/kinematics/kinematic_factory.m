@@ -1,0 +1,303 @@
+clc; clear;
+
+[ outputDir ] = setup();
+
+TO_REPLACE  = 'TO_REPLACE';
+
+%% Kinematics factory : create micro5 kinematics
+syms( 'x',              'real' );
+syms( 'y',              'real' );
+syms( 'z',              'real' );
+syms( 'b',              'real' );
+syms( 'c',              'real' );
+syms( 'offM',   [3, 1], 'real' );
+syms( 'offP',   [3, 1], 'real' );
+syms( 'offT',   [3, 1], 'real' );
+syms( 'offB',   [3, 1], 'real' );
+syms( 'offC',   [3, 1], 'real' );
+syms( 'tool',   [3, 1], 'real' );
+
+params = [offM, offT, offP, offB, offC];
+%params = zeros(3, 5);
+
+q     = [x;y;z;b;c];
+j     = q;
+r     = q;
+joint = q;
+piece = q; 
+
+[ wMp, pMw ] = xyzbc_tt_H( joint, params );
+
+offQ        = offT + offB + offC - offM;
+Qrot        = q( 1 : 3 ) + offQ;
+Ppalette    = q( 1 : 3 ) + offP; 
+
+temp  = pMw * [ Qrot; 1 ];
+piece( 1 : 3 ) = temp( 1 : 3 ) - offP;
+temp  = wMp * [ Ppalette; 1 ];
+joint( 1 : 3 ) = temp( 1 : 3 ) - offQ;
+
+%% Forward transform :
+% Tool tip
+tool_vec    = pMw( 1 : 3, 3 );
+
+fileName    = outputDir + ...
+              KinematicsTypeName.get_fun_name( KinFunctionName.Forward ) + ".m";
+matlabFunction( piece, 'vars', {j, params}, 'file', fileName, 'Comments', TO_REPLACE );
+write_comments( fileName, TO_REPLACE, KinFunctionName.Forward );
+
+fileName    = outputDir + ...
+              KinematicsTypeName.get_fun_name( KinFunctionName.Forward_complete ) + ".m";
+matlabFunction( [piece( 1 : 3 ); tool_vec], 'vars', {j, params}, 'file', fileName, 'Comments', TO_REPLACE );
+write_comments( fileName, TO_REPLACE, KinFunctionName.Forward_complete );
+
+%% Inverse transform :
+% Tool tip
+tool_vec    = wMp( 1 : 3, 3 );
+
+fileName    = outputDir + ...
+              KinematicsTypeName.get_fun_name( KinFunctionName.Inverse ) + ".m";
+matlabFunction( joint, 'vars', {r, params}, 'file', fileName, 'Comments', TO_REPLACE );
+write_comments( fileName, TO_REPLACE, KinFunctionName.Inverse );
+
+c_ang           = atan2(-tool(2), tool(1));
+c_ang           = simplify(c_ang);
+b_ang           = atan2(-tool(1), tool(3) * cos(c_ang) );
+b_ang           = simplify(b_ang);
+
+joint2          = [r(1:3); b_ang; c_ang];
+
+[ F_HT_tool, F_TH_tool ] = xyzbc_tt_H( joint2, params );
+
+joint2(1:3)     = F_HT_tool( 1 : 3, 4 );
+
+fileName    = outputDir + ...
+              KinematicsTypeName.get_fun_name( KinFunctionName.Inverse_complete ) + ".m";
+matlabFunction( [joint2], 'vars', {[r(1:3), tool], params}, 'file', fileName, 'Comments', TO_REPLACE );
+write_comments( fileName, TO_REPLACE, KinFunctionName.Inverse_complete );
+
+fileName    = outputDir + ...
+              KinematicsTypeName.get_fun_name( KinFunctionName.Inverse_angle ) + ".m";
+matlabFunction( [joint2(4:5)], 'vars', {[tool], params}, 'file', fileName, 'Comments', TO_REPLACE );
+write_comments( fileName, TO_REPLACE, KinFunctionName.Inverse_angle );
+
+
+% Jacobians
+tp  = sym( 'tp', [5, 1], 'real' );
+tpp = sym( 'tpp',[5, 1], 'real' );
+jp  = sym( 'jp', [5, 1], 'real' );
+jpp = sym( 'jpp',[5, 1], 'real' );
+
+J_jt   = simplify( jacobian( joint, q ) );
+JP_jt  = simplify( jacobian( J_jt  * tp, q ) );
+J2P_jt = simplify( jacobian( JP_jt * tp, q ) + jacobian( JP_jt * tpp, tp ) );
+
+J_tj   = simplify( jacobian( piece,  q) );
+JP_tj  = simplify( jacobian( J_tj  * jp, q ) );
+J2P_tj = simplify( jacobian( JP_tj * jp, q) + jacobian( JP_tj * jpp, jp ) );
+
+%% Matlab code generation
+TO_REPLACE  = 'TO_REPLACE';
+
+% Backward kinematics
+fileName    = outputDir + ...
+              KinematicsTypeName.get_fun_name( KinFunctionName.Inverse ) + ".m";
+matlabFunction( joint, 'vars', {q, params}, 'file', fileName, 'Comments', TO_REPLACE );
+write_comments( fileName, TO_REPLACE, KinFunctionName.Inverse );
+
+% Forward kinematics
+fileName    = outputDir + ...
+              KinematicsTypeName.get_fun_name( KinFunctionName.Forward ) + ".m";
+matlabFunction( piece, 'vars', {q, params}, 'file', fileName, 'Comments', TO_REPLACE );
+write_comments( fileName, TO_REPLACE, KinFunctionName.Forward );
+
+% Jacobian ( inverse )
+fileName    = outputDir + ...
+              KinematicsTypeName.get_fun_name( KinFunctionName.J_jt ) + ".m";
+matlabFunction( J_jt,  'vars',  {q, params}, 'file', fileName, 'Comments', TO_REPLACE );
+write_comments( fileName, TO_REPLACE, KinFunctionName.J_jt );
+
+% Jacobian ( forward )
+fileName    = outputDir + ...
+              KinematicsTypeName.get_fun_name( KinFunctionName.J_tj ) + ".m";
+matlabFunction( J_tj,  'vars',  {q, params}, 'file', fileName, 'Comments', TO_REPLACE );
+write_comments( fileName, TO_REPLACE, KinFunctionName.J_tj );
+
+% Jacobian first derivative ( inverse )
+fileName    = outputDir + ...
+              KinematicsTypeName.get_fun_name( KinFunctionName.JP_jt ) + ".m";
+matlabFunction( JP_jt,  'vars',  {q, tp, params}, 'file', fileName, 'Comments', TO_REPLACE );
+write_comments( fileName, TO_REPLACE, KinFunctionName.JP_jt );
+
+% Jacobian first derivative ( forward )
+fileName    = outputDir + ...
+              KinematicsTypeName.get_fun_name( KinFunctionName.JP_tj ) + ".m";
+matlabFunction( JP_tj,  'vars',  {q, jp, params}, 'file', fileName, 'Comments', TO_REPLACE );
+write_comments( fileName, TO_REPLACE, KinFunctionName.JP_tj );
+
+% Jacobian second derivative ( inverse )
+fileName    = outputDir + ...
+              KinematicsTypeName.get_fun_name( KinFunctionName.J2P_jt ) + ".m";
+matlabFunction( J2P_jt,  'vars',  {q, tp, tpp, params}, 'file', fileName, 'Comments', TO_REPLACE );
+write_comments( fileName, TO_REPLACE, KinFunctionName.J2P_jt );
+
+% Jacobian second derivative ( forward )
+fileName    = outputDir + ...
+              KinematicsTypeName.get_fun_name( KinFunctionName.J2P_tj ) + ".m";
+matlabFunction( J2P_tj,  'vars',  {q, jp, jpp, params}, 'file', fileName, 'Comments', TO_REPLACE );
+write_comments( fileName, TO_REPLACE, KinFunctionName.J2P_tj );
+
+function [ outputDir ] = setup()
+
+% check_wkdir();
+outputDir = "myKinematics/gen_fun/";
+path_mex = genpath( outputDir );
+rmpath( path_mex );
+
+if( isfolder( outputDir ) ), rmdir( outputDir, 's' ); end
+mkdir( outputDir );
+addpath( path_mex );
+
+end
+
+function [] = write_comments( fileName, to_replace, name )
+[ comments ] = get_comments( name );
+comments     = join( comments , "\n%" );
+fid          = fopen( fileName, 'r' );
+f            = fread( fid, '*char' )';
+fclose( fid );
+f            = regexprep( f, to_replace, comments );
+fid          = fopen( fileName, 'w' );
+fprintf( fid, '%s', f );
+fclose( fid );
+end
+
+function [ c ] = get_comments( name )
+
+comments.r_j        =  "\tr_j    (5x1) : pose vector( joint space )";
+comments.v_j        =  "\tv_j    (5x1) : speed vector( joint space )";
+comments.a_j        =  "\ta_j    (5x1) : acceleration vector( joint space )";
+comments.j_j        =  "\tj_j    (5x1) : jerk vector( joint space )";
+comments.r_p        =  "\tr_t    (5x1) : pose vector ( piece frame )";
+comments.v_p        =  "\tv_t    (5x1) : speed vector ( piece frame )";
+comments.a_p        =  "\ta_t    (5x1) : acceleration vector( piece frame )";
+comments.j_p        =  "\tj_t    (5x1) : jerk vector( piece frame )";
+comments.p          =  "\tp      (3x5) : parameters";
+comments.M          =  "\tM      (5x5) : resulting matrix";
+comments.F_comp(1)  =  "\tres    (6x1) : ";
+comments.F_comp(2)  =  "          (3x1) : pose vector ( joint space )";
+comments.F_comp(3)  =  "          (3x1) : unit tool tip vector ( joint space )";
+comments.I_comp(1)  =  "\tin    (6x1) : ";
+comments.I_comp(2)  =  "          (3x1) : pose vector ( piece space )";
+comments.I_comp(3)  =  "          (3x1) : unit tool tip vector ( piece space )";
+comments.t_j        =  "\ttool_p (3x1) : Tool vector( piece frame )";
+comments.I_ang      =  "\tangles (2x1) : Machine angles ( B, C )";
+comments.inputs     = "INPUTS : ";
+comments.outputs    = "OUTPUTS : ";
+comments.codegen    = "#codegen";
+
+switch( name )
+    case KinFunctionName.Inverse
+        c = [ "Inverse Kinematics : ", ...
+            comments.inputs, ...
+            comments.r_p, ...
+            comments.p ,...
+            comments.outputs,...
+            comments.r_j, ...
+            comments.codegen];
+    case KinFunctionName.Forward
+        c = [ "Forward Kinematics : ", ...
+            comments.inputs, ...
+            comments.r_j, ...
+            comments.p ,...
+            comments.outputs,...
+            comments.r_p, ...
+            comments.codegen];
+    case KinFunctionName.J_jt
+        c = [ "Jacobian Kinematics ( Inverse Kinematics ) : ", ...
+            comments.inputs, ...
+            comments.r_j, ...
+            comments.v_j, ...
+            comments.p ,...
+            comments.outputs,...
+            comments.M , ...
+            comments.codegen];
+    case KinFunctionName.J_tj
+        c = [ "Jacobian Kinematics ( Forward Kinematics ) : ", ...
+            comments.inputs, ...
+            comments.r_j, ...
+            comments.v_j, ...
+            comments.p ,...
+            comments.outputs,...
+            comments.M , ...
+            comments.codegen];
+    case KinFunctionName.JP_jt
+        c = [ "Jacobian first derivative ( Inverse Kinematics ) : ", ...
+            comments.inputs, ...
+            comments.r_p, ...
+            comments.v_p, ...
+            comments.a_p, ...
+            comments.p ,...
+            comments.outputs,...
+            comments.M , ...
+            comments.codegen];
+    case KinFunctionName.JP_tj
+        c = [ "Jacobian first derivative ( Forward Kinematics ) : ", ...
+            comments.inputs, ...
+            comments.r_j, ...
+            comments.v_j, ...
+            comments.a_j, ...
+            comments.p ,...
+            comments.outputs,...
+            comments.M , ...
+            comments.codegen];
+    case KinFunctionName.J2P_jt
+        c = [ "Jacobian second derivative ( Inverse Kinematics ) : ", ...
+            comments.inputs, ...
+            comments.r_p, ...
+            comments.v_p, ...
+            comments.a_p, ...
+            comments.j_p, ...
+            comments.p ,...
+            comments.outputs,...
+            comments.M , ...
+            comments.codegen];
+    case KinFunctionName.J2P_tj
+        c = [ "Jacobian second derivative ( Forward Kinematics ) : ", ...
+            comments.inputs, ...
+            comments.r_j, ...
+            comments.v_j, ...
+            comments.a_j, ...
+            comments.j_j, ...
+            comments.p ,...
+            comments.outputs,...
+            comments.M , ...
+            comments.codegen];
+    case KinFunctionName.Forward_complete
+        c = [ "Forward Kinematics ( with unit tool tip vector )  : ", ...
+            comments.inputs, ...
+            comments.r_j, ...
+            comments.p ,...
+            comments.outputs,...
+            comments.F_comp, ...
+            comments.codegen];
+    case KinFunctionName.Inverse_complete
+        c = [ "Inverse Kinematics ( with unit tool tip vector )  : ", ...
+            comments.inputs, ...
+            comments.I_comp, ...
+            comments.p ,...
+            comments.outputs,...
+            comments.r_j, ...
+            comments.codegen];
+    case KinFunctionName.Inverse_angle
+        c = [ "Inverse Kinematics ( compute the machine's angles )  : ", ...
+            comments.inputs, ...
+            comments.t_j, ...
+            comments.p ,...
+            comments.outputs,...
+            comments.I_ang, ...
+            comments.codegen];
+    otherwise
+        error( string( name ) + " : Is not a valide function name" );
+end
+end
