@@ -113,15 +113,43 @@ common/
 | utils            | Functions used for debugging and analyse the result of the algorithms |
 | Validates_OpenCN | Validation of the algorithms against a set of G codes                 |
 
+## Additional tools
 
+```
+utils/
+├── DebugCompressing.asv
+├── DebugCompressing.m
+├── DebugCusp.m
+├── DebugOptimization.m
+├── DebugTransition.asv
+├── DebugTransition.m
+├── gcodeFinder.m
+├── histogramLength.m
+├── loadCtx.m
+├── messagePrompt.m
+└── plot/
+```
+
+| **Element**         | **Description**                                                      |
+|---------------------|----------------------------------------------------------------------|
+| DebugCompressing.m  | Singleton class type used to debug the compressing                   |
+| DebugCusp.m         | Singleton class type used to debug the cusp detection                |
+| DebugOptimization.m | Singleton class type used to debug the feedrate optimization         |
+| DebugTransition.m   | Singleton class type used to debug the transition between two curves |
+| DebugResampling     | Singleton class type used to debug the resampling                    |
+| gcodeFinder.m       | Detect the G code and the M code                                     |
+| histogramLength.m   | Create a Histogram of the length of the curves                       |
+| loadCtx.m           | Load the Matlab context                                              |
+| messagePrompt.m     | Write a message in the prompt and stop the exucussion of the program |
+| saveCtx.m           | Save the matlab context                                              |
 
 
 # 2. Complements
 - C/C++ code generation has been tested and validated using the release 5.3 of Matlab Coder
 - The code has been tested with Matlab 2021b on (ubuntu 20.04) and 2022a, 2022b, 2023a on (ubuntu 22.04).
-- The path planning algorithms are described in details in [chapter 5](https://mecatronyx.gitlab.io/opencnc/opencn/CNC_Path_Planning_Algorithms/CNC_Path_Planning_Algorithms.html) of the documentation.
+- The path planning algorithms are described in details in [chapter 6](https://mecatronyx.gitlab.io/opencnc/opencn/CNC_Path_Planning_Algorithms/CNC_Path_Planning_Algorithms.html) of the documentation. The different parameters are present there.
 
-- A guide for the utilisation of the Matlab coder in *opencn-matlab* is provided in [chapter 4.3](https://mecatronyx.gitlab.io/opencnc/opencn/components/feedopt.html) of the documentation.
+- A guide for the utilisation of the Matlab coder in *opencn-matlab* is provided in [chapter 5.3](https://mecatronyx.gitlab.io/opencnc/opencn/components/feedopt.html) of the documentation.
 
 # 3. Acknowledgements
 | **Matlab function(s)** | **Functionality**                           | **Citation**                                                                                                                                                                                                                             |
