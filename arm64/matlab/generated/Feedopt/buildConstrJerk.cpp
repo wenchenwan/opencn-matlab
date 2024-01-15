@@ -12,6 +12,7 @@
 #include "buildConstrJerk.h"
 #include "EvalCurvStruct.h"
 #include "Kinematics.h"
+#include "ocn_assert.h"
 #include "opencn_matlab_types11.h"
 #include "opencn_matlab_types111.h"
 #include "opencn_matlab_types2.h"
@@ -169,6 +170,23 @@ binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<int, 1U> 
 // function [ Aj, bj ] = buildConstrJerk( ctx, windowCurv, coeff, jmax, ...
 //                     BasisVal, BasisValD, BasisValDD, u_vec )
 //
+// buildConstrJerk : Build jerk constraints
+//
+//  Inputs :
+//  ctx           : Matlab Context
+//  windowCurv    : Curv window
+//  coeff         : Coefficient of the optimization
+//  jmax          : Maximum jerk
+//  BasisVal      : BSpline evaluated at u_vec points
+//  BasisValD     : BSpline derivative evaluated at u_vec points
+//  BasisValDD    : BSpline second derivative evaluated at u_vec points
+//  u_vec         : Vector of u values
+//  Outputs :
+//
+//  Aj            : Matrix of inequality constraints for the jerk
+//  bj            : vector of inequality limits for the jerk
+//
+//
 // Arguments    : const queue_coder *ctx_q_spline
 //                const bool ctx_cfg_maskTot_data[]
 //                const int ctx_cfg_maskTot_size[2]
@@ -224,6 +242,7 @@ void buildConstrJerk(
     ::coder::array<int, 2U> indAL;
     ::coder::array<int, 1U> r3;
     ::coder::array<int, 1U> r4;
+    ::coder::array<bool, 1U> r5;
     int M;
     int N;
     int Nc;
@@ -243,26 +262,26 @@ void buildConstrJerk(
     int trueCount;
     int y;
     signed char tmp_data[6];
-    // 'buildConstrJerk:5' c_prof_in(mfilename);
+    // 'buildConstrJerk:21' c_prof_in(mfilename);
     //  Ndim     : number of dimention
     //  NWindow  : number of axes
-    // 'buildConstrJerk:8' Ndim        = ctx.cfg.NumberAxis;
-    // 'buildConstrJerk:9' Nwindow     = length( windowCurv );
+    // 'buildConstrJerk:24' Ndim        = ctx.cfg.NumberAxis;
+    // 'buildConstrJerk:25' Nwindow     = length( windowCurv );
     //  M     : number of discretization
     //  N     : number of coefficients
     //  Nx    : number of decision variable
     //  Nc    : number of inequality constraints
-    // 'buildConstrJerk:15' [ M, N ]    = size( BasisVal );
+    // 'buildConstrJerk:31' [ M, N ]    = size( BasisVal );
     N = BasisVal.size(1);
     M = BasisVal.size(0);
-    // 'buildConstrJerk:16' Nx          = N * Nwindow;
-    // 'buildConstrJerk:17' Nc          = 2 * Ndim;
+    // 'buildConstrJerk:32' Nx          = N * Nwindow;
+    // 'buildConstrJerk:33' Nc          = 2 * Ndim;
     Nc = ctx_cfg_NumberAxis << 1;
     //  A         : Matrix for equality constraints
     //  b         : Vector for equality constraints
     //  jmaxTot   : Jerk max total ( cart + rot )
     //  b_jmax    : Vector for maximum jerk
-    // 'buildConstrJerk:23' Aj          = zeros( Nc * M * Nwindow,  Nx );
+    // 'buildConstrJerk:39' Aj          = zeros( Nc * M * Nwindow,  Nx );
     y = static_cast<int>(static_cast<double>(static_cast<int>(
                              static_cast<double>(Nc) * static_cast<double>(BasisVal.size(0)))) *
                          static_cast<double>(windowCurv.size(1)));
@@ -275,7 +294,7 @@ void buildConstrJerk(
             Aj[i1 + Aj.size(0) * i] = 0.0;
         }
     }
-    // 'buildConstrJerk:24' bj          = zeros( Nc * M * Nwindow,  1 );
+    // 'buildConstrJerk:40' bj          = zeros( Nc * M * Nwindow,  1 );
     b_y = static_cast<int>(static_cast<double>(static_cast<int>(
                                static_cast<double>(Nc) * static_cast<double>(BasisVal.size(0)))) *
                            static_cast<double>(windowCurv.size(1)));
@@ -283,8 +302,8 @@ void buildConstrJerk(
     for (int i2{0}; i2 < b_y; i2++) {
         bj[i2] = 0.0;
     }
-    // 'buildConstrJerk:25' jmaxTot     = jmax( ctx.cfg.maskTot );
-    // 'buildConstrJerk:26' b_jmax      = repmat( jmaxTot, M, 1 );
+    // 'buildConstrJerk:41' jmaxTot     = jmax( ctx.cfg.maskTot );
+    // 'buildConstrJerk:42' b_jmax      = repmat( jmaxTot, M, 1 );
     end = ctx_cfg_maskTot_size[1] - 1;
     trueCount = 0;
     partialTrueCount = 0;
@@ -306,7 +325,7 @@ void buildConstrJerk(
         }
     }
     //  Jerk       : Matrix of the jerk by axis
-    // 'buildConstrJerk:29' Jerk         = zeros( M * Ndim , N );
+    // 'buildConstrJerk:45' Jerk         = zeros( M * Ndim , N );
     c_y = static_cast<int>(static_cast<double>(BasisVal.size(0)) *
                            static_cast<double>(ctx_cfg_NumberAxis));
     Jerk.set_size(c_y, BasisVal.size(1));
@@ -316,7 +335,7 @@ void buildConstrJerk(
             Jerk[i5 + Jerk.size(0) * i4] = 0.0;
         }
     }
-    // 'buildConstrJerk:32' for k = 1 : Nwindow
+    // 'buildConstrJerk:48' for k = 1 : Nwindow
     i6 = windowCurv.size(1);
     if (windowCurv.size(1) - 1 >= 0) {
         int b_b;
@@ -341,20 +360,20 @@ void buildConstrJerk(
         int unnamed_idx_1;
         bool empty_non_axis_sizes;
         //  Compute the partial derivatives
-        // 'buildConstrJerk:34' [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, windowCurv( k ), u_vec
+        // 'buildConstrJerk:50' [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, windowCurv( k ), u_vec
         // );
-        h_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+        q_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                          ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                          ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                          ctx_cfg_NCart, ctx_cfg_NRot, &windowCurv[b_k], u_vec, r0D, r1D, r2D, r3D);
-        // 'buildConstrJerk:36' ctx.kin = ctx.kin.set_tool_length(windowCurv( k ).tool.offset.z);
-        ctx_kin->set_tool_length(windowCurv[b_k].tool.offset.z);
-        // 'buildConstrJerk:38' if( windowCurv( k ).Info.TRAFO )
+        // 'buildConstrJerk:52' ctx.kin = ctx.kin.set_tool_length( -windowCurv( k ).tool.offset.z );
+        ctx_kin->set_tool_length(-windowCurv[b_k].tool.offset.z);
+        // 'buildConstrJerk:54' if( windowCurv( k ).Info.TRAFO )
         if (windowCurv[b_k].Info.TRAFO) {
             int c_loop_ub;
             int f_loop_ub;
             int k_loop_ub;
-            // 'buildConstrJerk:39' [ ~, r1D, r2D, r3D ]  = ctx.kin.joint( r0D, r1D, r2D, r3D );
+            // 'buildConstrJerk:55' [ ~, r1D, r2D, r3D ]  = ctx.kin.joint( r0D, r1D, r2D, r3D );
             b_r1D.set_size(r1D.size(0), r1D.size(1));
             c_loop_ub = r1D.size(1) - 1;
             for (int i7{0}; i7 <= c_loop_ub; i7++) {
@@ -384,7 +403,7 @@ void buildConstrJerk(
             }
             ctx_kin->joint(r0D, b_r1D, b_r2D, b_r3D, a__1, r1D, r2D, r3D);
         }
-        // 'buildConstrJerk:42' for j = 1 : Ndim
+        // 'buildConstrJerk:58' for j = 1 : Ndim
         if (ctx_cfg_NumberAxis - 1 >= 0) {
             if (M < 1) {
                 d_y.set_size(1, 0);
@@ -404,26 +423,27 @@ void buildConstrJerk(
         }
         for (int j{0}; j < ctx_cfg_NumberAxis; j++) {
             int f_y;
-            int i21;
             int i25;
-            int i27;
-            int i28;
-            int i29;
+            int i31;
             int i33;
             int i35;
+            int i36;
+            int i37;
             int i38;
             int i39;
             int i40;
             int i41;
+            int i42;
             int inner;
             int mc;
-            int r_loop_ub;
+            int s_loop_ub;
+            int v_loop_ub;
             //  Compute the jerk matrix
-            // 'buildConstrJerk:43' ind = int32( 1 : M ) + ( j - 1 ) * M ;
+            // 'buildConstrJerk:59' ind = int32( 1 : M ) + ( j - 1 ) * M ;
             f_y = static_cast<int>(static_cast<double>(j) * static_cast<double>(M)) - 1;
-            // 'buildConstrJerk:44' Jerk( ind, : ) = ( r3D( j, : ).' .* BasisVal + 1.5 * r2D( j, :
-            // ).' ... 'buildConstrJerk:45'                         .* BasisValD + 0.5 * r1D( j, :
-            // ).' .* BasisValDD ) ... 'buildConstrJerk:46'                         .* sqrt(
+            // 'buildConstrJerk:60' Jerk( ind, : ) = ( r3D( j, : ).' .* BasisVal + 1.5 * r2D( j, :
+            // ).' ... 'buildConstrJerk:61'                         .* BasisValD + 0.5 * r1D( j, :
+            // ).' .* BasisValDD ) ... 'buildConstrJerk:62'                         .* mysqrt(
             // BasisVal * coeff( :, k ) );
             r.set_size(i9);
             for (int i15{0}; i15 < g_loop_ub; i15++) {
@@ -445,102 +465,118 @@ void buildConstrJerk(
                                             coeff[d_k + coeff.size(0) * b_k];
                 }
             }
-            i21 = r2.size(0);
-            for (int f_k{0}; f_k < i21; f_k++) {
+            //  mysqrt : Custom implementation of the sqrt method.
+            //
+            //  Inputs :
+            //    x : Value used for the computation
+            //  Outputs :
+            //    y : Resulting value
+            //
+            // 'mysqrt:9' ocn_assert( isreal( x ), "x should be real...", mfilename );
+            // 'mysqrt:10' ocn_assert( x >= 0, "x should not be negative...", mfilename );
+            r5.set_size(r2.size(0));
+            s_loop_ub = r2.size(0);
+            for (int i24{0}; i24 < s_loop_ub; i24++) {
+                r5[i24] = (r2[i24] >= 0.0);
+            }
+            e_ocn_assert(r5);
+            // 'mysqrt:11' y = sqrt(x);
+            i25 = r2.size(0);
+            for (int f_k{0}; f_k < i25; f_k++) {
                 r2[f_k] = std::sqrt(r2[f_k]);
             }
             r3.set_size(d_y.size(1));
-            for (int i23{0}; i23 < j_loop_ub; i23++) {
-                r3[i23] = static_cast<int>(d_y[i23]) + f_y;
+            for (int i27{0}; i27 < j_loop_ub; i27++) {
+                r3[i27] = static_cast<int>(d_y[i27]) + f_y;
             }
-            r_loop_ub = BasisVal.size(1);
+            v_loop_ub = BasisVal.size(1);
             if (r3D.size(1) == 1) {
-                i25 = BasisVal.size(0);
+                i31 = BasisVal.size(0);
             } else {
-                i25 = r3D.size(1);
+                i31 = r3D.size(1);
             }
             if (r.size(0) == 1) {
-                i27 = BasisValD.size(0);
+                i33 = BasisValD.size(0);
             } else {
-                i27 = r.size(0);
+                i33 = r.size(0);
             }
             if (r3D.size(1) == 1) {
-                i28 = BasisVal.size(0);
+                i35 = BasisVal.size(0);
             } else {
-                i28 = r3D.size(1);
+                i35 = r3D.size(1);
             }
-            if (i28 == 1) {
+            if (i35 == 1) {
                 if (r.size(0) == 1) {
-                    i29 = BasisValD.size(0);
+                    i36 = BasisValD.size(0);
                 } else {
-                    i29 = r.size(0);
+                    i36 = r.size(0);
                 }
             } else if (r3D.size(1) == 1) {
-                i29 = BasisVal.size(0);
+                i36 = BasisVal.size(0);
             } else {
-                i29 = r3D.size(1);
+                i36 = r3D.size(1);
             }
             if (r1.size(0) == 1) {
-                i33 = BasisValDD.size(0);
+                i37 = BasisValDD.size(0);
             } else {
-                i33 = r1.size(0);
+                i37 = r1.size(0);
             }
             if (BasisVal.size(1) == 1) {
-                i35 = BasisValD.size(1);
+                i38 = BasisValD.size(1);
             } else {
-                i35 = BasisVal.size(1);
+                i38 = BasisVal.size(1);
             }
             if (r3D.size(1) == 1) {
-                i38 = BasisVal.size(0);
-            } else {
-                i38 = r3D.size(1);
-            }
-            if (i38 == 1) {
-                if (r.size(0) == 1) {
-                    i39 = BasisValD.size(0);
-                } else {
-                    i39 = r.size(0);
-                }
-            } else if (r3D.size(1) == 1) {
                 i39 = BasisVal.size(0);
             } else {
                 i39 = r3D.size(1);
             }
-            if (r3D.size(1) == 1) {
+            if (i39 == 1) {
+                if (r.size(0) == 1) {
+                    i40 = BasisValD.size(0);
+                } else {
+                    i40 = r.size(0);
+                }
+            } else if (r3D.size(1) == 1) {
                 i40 = BasisVal.size(0);
             } else {
                 i40 = r3D.size(1);
             }
-            if (i39 == 1) {
-                if (r1.size(0) == 1) {
-                    i41 = BasisValDD.size(0);
-                } else {
-                    i41 = r1.size(0);
-                }
-            } else if (i40 == 1) {
-                if (r.size(0) == 1) {
-                    i41 = BasisValD.size(0);
-                } else {
-                    i41 = r.size(0);
-                }
-            } else if (r3D.size(1) == 1) {
+            if (r3D.size(1) == 1) {
                 i41 = BasisVal.size(0);
             } else {
                 i41 = r3D.size(1);
             }
+            if (i40 == 1) {
+                if (r1.size(0) == 1) {
+                    i42 = BasisValDD.size(0);
+                } else {
+                    i42 = r1.size(0);
+                }
+            } else if (i41 == 1) {
+                if (r.size(0) == 1) {
+                    i42 = BasisValD.size(0);
+                } else {
+                    i42 = r.size(0);
+                }
+            } else if (r3D.size(1) == 1) {
+                i42 = BasisVal.size(0);
+            } else {
+                i42 = r3D.size(1);
+            }
             if ((BasisVal.size(0) == r3D.size(1)) && (r.size(0) == BasisValD.size(0)) &&
-                (i25 == i27) && (BasisVal.size(1) == BasisValD.size(1)) &&
-                (r1.size(0) == BasisValDD.size(0)) && (i29 == i33) && (i35 == BasisValDD.size(1)) &&
-                (i41 == r2.size(0))) {
-                for (int i42{0}; i42 < r_loop_ub; i42++) {
-                    int v_loop_ub;
-                    v_loop_ub = r3D.size(1);
-                    for (int i43{0}; i43 < v_loop_ub; i43++) {
-                        Jerk[r3[i43] + Jerk.size(0) * i42] =
-                            ((r3D[j + r3D.size(0) * i43] * BasisVal[i43 + BasisVal.size(0) * i42] +
-                              r[i43] * BasisValD[i43 + BasisValD.size(0) * i42]) +
-                             r1[i43] * BasisValDD[i43 + BasisValDD.size(0) * i42]) *
-                            r2[i43];
+                (i31 == i33) && (BasisVal.size(1) == BasisValD.size(1)) &&
+                (r1.size(0) == BasisValDD.size(0)) && (i36 == i37) && (i38 == BasisValDD.size(1)) &&
+                (i42 == r2.size(0))) {
+                for (int i43{0}; i43 < v_loop_ub; i43++) {
+                    int w_loop_ub;
+                    w_loop_ub = r3D.size(1);
+                    for (int i44{0}; i44 < w_loop_ub; i44++) {
+                        Jerk[r3[i44] + Jerk.size(0) * i43] =
+                            ((r3D[j + r3D.size(0) * i44] * BasisVal[i44 + BasisVal.size(0) * i43] +
+                              r[i44] * BasisValD[i44 + BasisValD.size(0) * i43]) +
+                             r1[i44] * BasisValDD[i44 + BasisValDD.size(0) * i43]) *
+                            r2[i44];
                     }
                 }
             } else {
@@ -549,7 +585,7 @@ void buildConstrJerk(
             }
         }
         //  Inequality constraints
-        // 'buildConstrJerk:49' indAL   = int32( 1 : Nc * M )   + ( k - 1 ) * Nc * M;
+        // 'buildConstrJerk:65' indAL   = int32( 1 : Nc * M )   + ( k - 1 ) * Nc * M;
         e_y = static_cast<int>(
             static_cast<double>(static_cast<int>(((static_cast<double>(b_k) + 1.0) - 1.0) *
                                                  static_cast<double>(Nc))) *
@@ -569,7 +605,7 @@ void buildConstrJerk(
         for (int i16{0}; i16 < l_loop_ub; i16++) {
             indAL[i16] = g_y[i16] + e_y;
         }
-        // 'buildConstrJerk:50' indAC   = int32( 1 : N  )       + ( k - 1 ) * N;
+        // 'buildConstrJerk:66' indAC   = int32( 1 : N  )       + ( k - 1 ) * N;
         if (N < 1) {
             d_y.set_size(1, 0);
         } else {
@@ -580,7 +616,7 @@ void buildConstrJerk(
                 d_y[i19] = i19 + 1U;
             }
         }
-        // 'buildConstrJerk:51' Aj( indAL, indAC )   = [ Jerk ; -Jerk ];
+        // 'buildConstrJerk:67' Aj( indAL, indAC )   = [ Jerk ; -Jerk ];
         r3.set_size(indAL.size(1));
         o_loop_ub = indAL.size(1);
         for (int i20{0}; i20 < o_loop_ub; i20++) {
@@ -589,16 +625,16 @@ void buildConstrJerk(
         e_k = ((static_cast<double>(b_k) + 1.0) - 1.0) * static_cast<double>(N);
         r4.set_size(d_y.size(1));
         p_loop_ub = d_y.size(1);
-        for (int i22{0}; i22 < p_loop_ub; i22++) {
-            r4[i22] = static_cast<int>(static_cast<double>(d_y[i22]) + e_k) - 1;
+        for (int i21{0}; i21 < p_loop_ub; i21++) {
+            r4[i21] = static_cast<int>(static_cast<double>(d_y[i21]) + e_k) - 1;
         }
         q_loop_ub = Jerk.size(1);
         varargin_2.set_size(Jerk.size(0), Jerk.size(1));
-        for (int i24{0}; i24 < q_loop_ub; i24++) {
-            int s_loop_ub;
-            s_loop_ub = Jerk.size(0);
-            for (int i26{0}; i26 < s_loop_ub; i26++) {
-                varargin_2[i26 + varargin_2.size(0) * i24] = -Jerk[i26 + Jerk.size(0) * i24];
+        for (int i22{0}; i22 < q_loop_ub; i22++) {
+            int r_loop_ub;
+            r_loop_ub = Jerk.size(0);
+            for (int i23{0}; i23 < r_loop_ub; i23++) {
+                varargin_2[i23 + varargin_2.size(0) * i22] = -Jerk[i23 + Jerk.size(0) * i22];
             }
         }
         if ((Jerk.size(0) != 0) && (Jerk.size(1) != 0)) {
@@ -622,30 +658,30 @@ void buildConstrJerk(
         } else {
             u_loop_ub = 0;
         }
-        for (int i30{0}; i30 < result; i30++) {
-            for (int i32{0}; i32 < t_loop_ub; i32++) {
-                Aj[r3[i32] + Aj.size(0) * r4[i30]] = Jerk[i32 + t_loop_ub * i30];
+        for (int i26{0}; i26 < result; i26++) {
+            for (int i29{0}; i29 < t_loop_ub; i29++) {
+                Aj[r3[i29] + Aj.size(0) * r4[i26]] = Jerk[i29 + t_loop_ub * i26];
             }
         }
-        for (int i31{0}; i31 < result; i31++) {
-            for (int i34{0}; i34 < u_loop_ub; i34++) {
-                Aj[r3[i34 + t_loop_ub] + Aj.size(0) * r4[i31]] = varargin_2[i34 + u_loop_ub * i31];
+        for (int i28{0}; i28 < result; i28++) {
+            for (int i30{0}; i30 < u_loop_ub; i30++) {
+                Aj[r3[i30 + t_loop_ub] + Aj.size(0) * r4[i28]] = varargin_2[i30 + u_loop_ub * i28];
             }
         }
-        // 'buildConstrJerk:52' bj( indAL )          = [ b_jmax( : ); b_jmax( : ) ];
+        // 'buildConstrJerk:68' bj( indAL )          = [ b_jmax( : ); b_jmax( : ) ];
         unnamed_idx_1 = b.size(0) * b.size(1);
         b_unnamed_idx_1 = b.size(0) * b.size(1);
-        for (int i36{0}; i36 < unnamed_idx_1; i36++) {
-            bj[indAL[i36] - 1] = b[i36];
+        for (int i32{0}; i32 < unnamed_idx_1; i32++) {
+            bj[indAL[i32] - 1] = b[i32];
         }
-        for (int i37{0}; i37 < b_unnamed_idx_1; i37++) {
-            bj[indAL[i37 + unnamed_idx_1] - 1] = b[i37];
+        for (int i34{0}; i34 < b_unnamed_idx_1; i34++) {
+            bj[indAL[i34 + unnamed_idx_1] - 1] = b[i34];
         }
     }
-    // 'buildConstrJerk:55' checkValidity( Aj, bj );
-    // 'buildConstrJerk:63' ocn_assert( ~any( isnan( A ) , 'all' ), "A has NaN", mfilename );
-    // 'buildConstrJerk:64' ocn_assert( ~any( isnan( b ) , 'all' ), "b has NaN", mfilename );
-    // 'buildConstrJerk:57' c_prof_out(mfilename);
+    // 'buildConstrJerk:71' checkValidity( Aj, bj );
+    // 'buildConstrJerk:79' ocn_assert( ~any( isnan( A ) , 'all' ), "A has NaN", mfilename );
+    // 'buildConstrJerk:80' ocn_assert( ~any( isnan( b ) , 'all' ), "b has NaN", mfilename );
+    // 'buildConstrJerk:73' c_prof_out(mfilename);
 }
 
 } // namespace ocn

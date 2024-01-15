@@ -29,6 +29,7 @@ class queue_coder {
     bool isempty() const;
     unsigned int size() const;
     void set(unsigned int b_index, const CurvStruct *value) const;
+    void queue_coder_delete() const;
     void get(int b_index, CurvStruct *value) const;
     void set(int b_index, const CurvStruct *value) const;
     void rget(CurvStruct *value) const;

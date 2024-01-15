@@ -13,6 +13,7 @@
 
 // Include Files
 #include "rtwtypes.h"
+#include "coder_array.h"
 #include <cstddef>
 #include <cstdlib>
 
@@ -34,7 +35,7 @@ void b_ocn_assert(bool condition);
 
 void bb_ocn_assert(bool condition);
 
-void c_ocn_assert(bool condition, const coder::rtString *msg);
+void c_ocn_assert(bool condition);
 
 void cb_ocn_assert(bool condition);
 
@@ -42,7 +43,7 @@ void d_ocn_assert(bool condition);
 
 void db_ocn_assert(bool condition);
 
-void e_ocn_assert(bool condition);
+void e_ocn_assert(const ::coder::array<bool, 1U> &condition);
 
 void eb_ocn_assert(bool condition);
 
@@ -60,29 +61,45 @@ void hb_ocn_assert(bool condition);
 
 void i_ocn_assert(bool condition);
 
-void ib_ocn_assert();
+void ib_ocn_assert(bool condition);
 
-void j_ocn_assert(bool condition);
+void j_ocn_assert(bool condition, const coder::rtString *msg);
 
-void jb_ocn_assert();
+void jb_ocn_assert(bool condition);
 
 void k_ocn_assert(bool condition);
 
+void kb_ocn_assert(bool condition);
+
 void l_ocn_assert(bool condition);
+
+void lb_ocn_assert(bool condition);
 
 void m_ocn_assert(bool condition);
 
-void n_ocn_assert(bool condition);
+void mb_ocn_assert(bool condition);
 
-void o_ocn_assert(bool condition);
+void n_ocn_assert(const bool condition[5]);
+
+void nb_ocn_assert(bool condition);
+
+void o_ocn_assert(const bool condition[9]);
+
+void ob_ocn_assert(bool condition);
 
 void ocn_assert(bool condition);
 
 void p_ocn_assert(bool condition);
 
+void pb_ocn_assert(bool condition);
+
 void q_ocn_assert(bool condition);
 
-void r_ocn_assert(bool condition);
+void qb_ocn_assert();
+
+void r_ocn_assert(const ::coder::array<bool, 2U> &condition);
+
+void rb_ocn_assert();
 
 void s_ocn_assert(bool condition);
 

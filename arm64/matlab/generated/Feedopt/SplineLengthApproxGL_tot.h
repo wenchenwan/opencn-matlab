@@ -30,7 +30,7 @@ namespace ocn {
 void binary_expand_op(CurvStruct *in1, const ::coder::array<double, 2U> &in2, int in3, int in7,
                       int in8, int in11);
 
-void i_binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
+void k_binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
                         const ::coder::array<double, 2U> &in3);
 
 } // namespace ocn

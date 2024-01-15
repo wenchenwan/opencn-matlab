@@ -35,7 +35,22 @@ static bool splineDefault_not_empty;
 
 // Function Definitions
 //
-// function [r0D, r1D, r2D, r3D] = EvalCurvStruct( ctx, curv, u_vec )
+// function [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, curv, u_vec )
+//
+// EvalCurvStruct : Eval curve structure and its derivatives on a set of u
+//  points.
+//
+//  Inputs :
+//  ctx   : The context of the computational chain
+//  curv  : The curve used in the evaluation
+//  u_vec : U vectors.
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
+//
 //
 // Arguments    : const FeedoptContext *ctx
 //                const CurvStruct *curv
@@ -52,46 +67,61 @@ void EvalCurvStruct(const FeedoptContext *ctx, const CurvStruct *curv,
                     ::coder::array<double, 2U> &r1D, ::coder::array<double, 2U> &r2D,
                     ::coder::array<double, 2U> &r3D)
 {
-    ::coder::array<int, 1U> t23_indCart;
-    ::coder::array<int, 1U> t23_indRot;
+    ::coder::array<int, 1U> t31_indCart;
+    ::coder::array<int, 1U> t31_indRot;
     CurvStruct spline;
     int b_loop_ub;
     int loop_ub;
     if (!isInitialized_opencn_matlab) {
         opencn_matlab_initialize();
     }
-    // 'EvalCurvStruct:3' coder.inline("never");
-    // 'EvalCurvStruct:7' if( isempty( splineDefault ) )
-    // 'EvalCurvStruct:9' if( curv.Info.Type == CurveType.Spline )
+    // 'EvalCurvStruct:18' coder.inline("never");
+    // 'EvalCurvStruct:22' if( isempty( splineDefault ) )
+    // 'EvalCurvStruct:24' if( curv.Info.Type == CurveType.Spline )
     if (curv->Info.Type == CurveType_Spline) {
-        // 'EvalCurvStruct:10' ptr    = curv.sp_index;
-        // 'EvalCurvStruct:11' spline = ctx.q_spline.get( ptr );
+        // 'EvalCurvStruct:25' ptr    = curv.sp_index;
+        // 'EvalCurvStruct:26' spline = ctx.q_spline.get( ptr );
         ctx->q_spline.get(curv->sp_index, &spline);
     } else {
-        // 'EvalCurvStruct:12' else
-        // 'EvalCurvStruct:13' spline = splineDefault;
+        // 'EvalCurvStruct:27' else
+        // 'EvalCurvStruct:28' spline = splineDefault;
         spline = splineDefault;
     }
-    // 'EvalCurvStruct:16' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
+    // 'EvalCurvStruct:31' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
     // u_vec );
-    t23_indCart.set_size(ctx->cfg.indCart.size[0]);
+    t31_indCart.set_size(ctx->cfg.indCart.size[0]);
     loop_ub = ctx->cfg.indCart.size[0];
     for (int i{0}; i < loop_ub; i++) {
-        t23_indCart[i] = ctx->cfg.indCart.data[i];
+        t31_indCart[i] = ctx->cfg.indCart.data[i];
     }
-    t23_indRot.set_size(ctx->cfg.indRot.size[0]);
+    t31_indRot.set_size(ctx->cfg.indRot.size[0]);
     b_loop_ub = ctx->cfg.indRot.size[0];
     for (int i1{0}; i1 < b_loop_ub; i1++) {
-        t23_indRot[i1] = ctx->cfg.indRot.data[i1];
+        t31_indRot[i1] = ctx->cfg.indRot.data[i1];
     }
     EvalCurvStructNoCtx(ctx->cfg.maskTot.data, ctx->cfg.maskTot.size, ctx->cfg.maskCart.data,
                         ctx->cfg.maskCart.size, ctx->cfg.maskRot.data, ctx->cfg.maskRot.size,
-                        t23_indCart, t23_indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart, ctx->cfg.NRot,
+                        t31_indCart, t31_indRot, ctx->cfg.NumberAxis, ctx->cfg.NCart, ctx->cfg.NRot,
                         curv, &spline, u_vec, r0D, r1D, r2D, r3D);
 }
 
 //
-// function [r0D, r1D, r2D, r3D] = EvalCurvStruct( ctx, curv, u_vec )
+// function [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, curv, u_vec )
+//
+// EvalCurvStruct : Eval curve structure and its derivatives on a set of u
+//  points.
+//
+//  Inputs :
+//  ctx   : The context of the computational chain
+//  curv  : The curve used in the evaluation
+//  u_vec : U vectors.
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
+//
 //
 // Arguments    : void
 // Return Type  : void
@@ -129,7 +159,7 @@ void EvalCurvStruct_init()
     bool params_gcodeInfoStruct_TRAFO;
     CurveType params_gcodeInfoStruct_Type;
     ZSpdMode params_gcodeInfoStruct_zspdmode;
-    // 'EvalCurvStruct:7' splineDefault = constrCurvStructType;
+    // 'EvalCurvStruct:22' splineDefault = constrCurvStructType;
     //  constrCurvStructType : Constructs a constrCurvStruct with default values.
     // 'constrCurvStructType:4' if( nargin > 0 )
     // 'constrCurvStructType:6' else
@@ -206,7 +236,22 @@ void EvalCurvStruct_init()
 }
 
 //
-// function [r0D, r1D, r2D, r3D] = EvalCurvStruct( ctx, curv, u_vec )
+// function [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, curv, u_vec )
+//
+// EvalCurvStruct : Eval curve structure and its derivatives on a set of u
+//  points.
+//
+//  Inputs :
+//  ctx   : The context of the computational chain
+//  curv  : The curve used in the evaluation
+//  u_vec : U vectors.
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
+//
 //
 // Arguments    : const queue_coder *ctx_q_spline
 //                const bool ctx_cfg_maskTot_data[]
@@ -255,19 +300,19 @@ void b_EvalCurvStruct(
     int c_loop_ub;
     int d_loop_ub;
     int loop_ub;
-    // 'EvalCurvStruct:3' coder.inline("never");
-    // 'EvalCurvStruct:7' if( isempty( splineDefault ) )
-    // 'EvalCurvStruct:9' if( curv.Info.Type == CurveType.Spline )
+    // 'EvalCurvStruct:18' coder.inline("never");
+    // 'EvalCurvStruct:22' if( isempty( splineDefault ) )
+    // 'EvalCurvStruct:24' if( curv.Info.Type == CurveType.Spline )
     if (curv_Info.Type == CurveType_Spline) {
-        // 'EvalCurvStruct:10' ptr    = curv.sp_index;
-        // 'EvalCurvStruct:11' spline = ctx.q_spline.get( ptr );
+        // 'EvalCurvStruct:25' ptr    = curv.sp_index;
+        // 'EvalCurvStruct:26' spline = ctx.q_spline.get( ptr );
         ctx_q_spline->get(curv_sp_index, &spline);
     } else {
-        // 'EvalCurvStruct:12' else
-        // 'EvalCurvStruct:13' spline = splineDefault;
+        // 'EvalCurvStruct:27' else
+        // 'EvalCurvStruct:28' spline = splineDefault;
         spline = splineDefault;
     }
-    // 'EvalCurvStruct:16' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
+    // 'EvalCurvStruct:31' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
     // u_vec );
     expl_temp.b_param = curv_b_param;
     expl_temp.a_param = curv_a_param;
@@ -308,7 +353,22 @@ void b_EvalCurvStruct(
 }
 
 //
-// function [r0D, r1D, r2D, r3D] = EvalCurvStruct( ctx, curv, u_vec )
+// function [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, curv, u_vec )
+//
+// EvalCurvStruct : Eval curve structure and its derivatives on a set of u
+//  points.
+//
+//  Inputs :
+//  ctx   : The context of the computational chain
+//  curv  : The curve used in the evaluation
+//  u_vec : U vectors.
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
+//
 //
 // Arguments    : const queue_coder *ctx_q_spline
 //                const bool ctx_cfg_maskTot_data[]
@@ -357,19 +417,19 @@ void c_EvalCurvStruct(
     int c_loop_ub;
     int d_loop_ub;
     int loop_ub;
-    // 'EvalCurvStruct:3' coder.inline("never");
-    // 'EvalCurvStruct:7' if( isempty( splineDefault ) )
-    // 'EvalCurvStruct:9' if( curv.Info.Type == CurveType.Spline )
+    // 'EvalCurvStruct:18' coder.inline("never");
+    // 'EvalCurvStruct:22' if( isempty( splineDefault ) )
+    // 'EvalCurvStruct:24' if( curv.Info.Type == CurveType.Spline )
     if (curv_Info.Type == CurveType_Spline) {
-        // 'EvalCurvStruct:10' ptr    = curv.sp_index;
-        // 'EvalCurvStruct:11' spline = ctx.q_spline.get( ptr );
+        // 'EvalCurvStruct:25' ptr    = curv.sp_index;
+        // 'EvalCurvStruct:26' spline = ctx.q_spline.get( ptr );
         ctx_q_spline->get(curv_sp_index, &spline);
     } else {
-        // 'EvalCurvStruct:12' else
-        // 'EvalCurvStruct:13' spline = splineDefault;
+        // 'EvalCurvStruct:27' else
+        // 'EvalCurvStruct:28' spline = splineDefault;
         spline = splineDefault;
     }
-    // 'EvalCurvStruct:16' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
+    // 'EvalCurvStruct:31' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
     // u_vec );
     expl_temp.b_param = curv_b_param;
     expl_temp.a_param = curv_a_param;
@@ -410,7 +470,22 @@ void c_EvalCurvStruct(
 }
 
 //
-// function [r0D, r1D, r2D, r3D] = EvalCurvStruct( ctx, curv, u_vec )
+// function [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, curv, u_vec )
+//
+// EvalCurvStruct : Eval curve structure and its derivatives on a set of u
+//  points.
+//
+//  Inputs :
+//  ctx   : The context of the computational chain
+//  curv  : The curve used in the evaluation
+//  u_vec : U vectors.
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
+//
 //
 // Arguments    : const queue_coder *ctx_q_spline
 //                const bool ctx_cfg_maskTot_data[]
@@ -441,19 +516,19 @@ void d_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
     ::coder::array<double, 1U> r2D;
     ::coder::array<double, 1U> r3D;
     CurvStruct spline;
-    // 'EvalCurvStruct:3' coder.inline("never");
-    // 'EvalCurvStruct:7' if( isempty( splineDefault ) )
-    // 'EvalCurvStruct:9' if( curv.Info.Type == CurveType.Spline )
+    // 'EvalCurvStruct:18' coder.inline("never");
+    // 'EvalCurvStruct:22' if( isempty( splineDefault ) )
+    // 'EvalCurvStruct:24' if( curv.Info.Type == CurveType.Spline )
     if (curv->Info.Type == CurveType_Spline) {
-        // 'EvalCurvStruct:10' ptr    = curv.sp_index;
-        // 'EvalCurvStruct:11' spline = ctx.q_spline.get( ptr );
+        // 'EvalCurvStruct:25' ptr    = curv.sp_index;
+        // 'EvalCurvStruct:26' spline = ctx.q_spline.get( ptr );
         ctx_q_spline->get(curv->sp_index, &spline);
     } else {
-        // 'EvalCurvStruct:12' else
-        // 'EvalCurvStruct:13' spline = splineDefault;
+        // 'EvalCurvStruct:27' else
+        // 'EvalCurvStruct:28' spline = splineDefault;
         spline = splineDefault;
     }
-    // 'EvalCurvStruct:16' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
+    // 'EvalCurvStruct:31' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
     // u_vec );
     d_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
                           ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
@@ -462,7 +537,22 @@ void d_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
 }
 
 //
-// function [r0D, r1D, r2D, r3D] = EvalCurvStruct( ctx, curv, u_vec )
+// function [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, curv, u_vec )
+//
+// EvalCurvStruct : Eval curve structure and its derivatives on a set of u
+//  points.
+//
+//  Inputs :
+//  ctx   : The context of the computational chain
+//  curv  : The curve used in the evaluation
+//  u_vec : U vectors.
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
+//
 //
 // Arguments    : const queue_coder *ctx_q_spline
 //                const bool ctx_cfg_maskTot_data[]
@@ -493,19 +583,19 @@ void e_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
     ::coder::array<double, 1U> r2D;
     ::coder::array<double, 1U> r3D;
     CurvStruct spline;
-    // 'EvalCurvStruct:3' coder.inline("never");
-    // 'EvalCurvStruct:7' if( isempty( splineDefault ) )
-    // 'EvalCurvStruct:9' if( curv.Info.Type == CurveType.Spline )
+    // 'EvalCurvStruct:18' coder.inline("never");
+    // 'EvalCurvStruct:22' if( isempty( splineDefault ) )
+    // 'EvalCurvStruct:24' if( curv.Info.Type == CurveType.Spline )
     if (curv->Info.Type == CurveType_Spline) {
-        // 'EvalCurvStruct:10' ptr    = curv.sp_index;
-        // 'EvalCurvStruct:11' spline = ctx.q_spline.get( ptr );
+        // 'EvalCurvStruct:25' ptr    = curv.sp_index;
+        // 'EvalCurvStruct:26' spline = ctx.q_spline.get( ptr );
         ctx_q_spline->get(curv->sp_index, &spline);
     } else {
-        // 'EvalCurvStruct:12' else
-        // 'EvalCurvStruct:13' spline = splineDefault;
+        // 'EvalCurvStruct:27' else
+        // 'EvalCurvStruct:28' spline = splineDefault;
         spline = splineDefault;
     }
-    // 'EvalCurvStruct:16' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
+    // 'EvalCurvStruct:31' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
     // u_vec );
     c_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
                           ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
@@ -514,7 +604,22 @@ void e_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
 }
 
 //
-// function [r0D, r1D, r2D, r3D] = EvalCurvStruct( ctx, curv, u_vec )
+// function [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, curv, u_vec )
+//
+// EvalCurvStruct : Eval curve structure and its derivatives on a set of u
+//  points.
+//
+//  Inputs :
+//  ctx   : The context of the computational chain
+//  curv  : The curve used in the evaluation
+//  u_vec : U vectors.
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
+//
 //
 // Arguments    : const queue_coder *ctx_q_spline
 //                const bool ctx_cfg_maskTot_data[]
@@ -546,19 +651,19 @@ void f_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
 {
     ::coder::array<double, 1U> r3D;
     CurvStruct spline;
-    // 'EvalCurvStruct:3' coder.inline("never");
-    // 'EvalCurvStruct:7' if( isempty( splineDefault ) )
-    // 'EvalCurvStruct:9' if( curv.Info.Type == CurveType.Spline )
+    // 'EvalCurvStruct:18' coder.inline("never");
+    // 'EvalCurvStruct:22' if( isempty( splineDefault ) )
+    // 'EvalCurvStruct:24' if( curv.Info.Type == CurveType.Spline )
     if (curv->Info.Type == CurveType_Spline) {
-        // 'EvalCurvStruct:10' ptr    = curv.sp_index;
-        // 'EvalCurvStruct:11' spline = ctx.q_spline.get( ptr );
+        // 'EvalCurvStruct:25' ptr    = curv.sp_index;
+        // 'EvalCurvStruct:26' spline = ctx.q_spline.get( ptr );
         ctx_q_spline->get(curv->sp_index, &spline);
     } else {
-        // 'EvalCurvStruct:12' else
-        // 'EvalCurvStruct:13' spline = splineDefault;
+        // 'EvalCurvStruct:27' else
+        // 'EvalCurvStruct:28' spline = splineDefault;
         spline = splineDefault;
     }
-    // 'EvalCurvStruct:16' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
+    // 'EvalCurvStruct:31' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
     // u_vec );
     c_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
                           ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
@@ -567,7 +672,22 @@ void f_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
 }
 
 //
-// function [r0D, r1D, r2D, r3D] = EvalCurvStruct( ctx, curv, u_vec )
+// function [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, curv, u_vec )
+//
+// EvalCurvStruct : Eval curve structure and its derivatives on a set of u
+//  points.
+//
+//  Inputs :
+//  ctx   : The context of the computational chain
+//  curv  : The curve used in the evaluation
+//  u_vec : U vectors.
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
+//
 //
 // Arguments    : const queue_coder *ctx_q_spline
 //                const bool ctx_cfg_maskTot_data[]
@@ -599,19 +719,19 @@ void g_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
 {
     ::coder::array<double, 1U> r3D;
     CurvStruct spline;
-    // 'EvalCurvStruct:3' coder.inline("never");
-    // 'EvalCurvStruct:7' if( isempty( splineDefault ) )
-    // 'EvalCurvStruct:9' if( curv.Info.Type == CurveType.Spline )
+    // 'EvalCurvStruct:18' coder.inline("never");
+    // 'EvalCurvStruct:22' if( isempty( splineDefault ) )
+    // 'EvalCurvStruct:24' if( curv.Info.Type == CurveType.Spline )
     if (curv->Info.Type == CurveType_Spline) {
-        // 'EvalCurvStruct:10' ptr    = curv.sp_index;
-        // 'EvalCurvStruct:11' spline = ctx.q_spline.get( ptr );
+        // 'EvalCurvStruct:25' ptr    = curv.sp_index;
+        // 'EvalCurvStruct:26' spline = ctx.q_spline.get( ptr );
         ctx_q_spline->get(curv->sp_index, &spline);
     } else {
-        // 'EvalCurvStruct:12' else
-        // 'EvalCurvStruct:13' spline = splineDefault;
+        // 'EvalCurvStruct:27' else
+        // 'EvalCurvStruct:28' spline = splineDefault;
         spline = splineDefault;
     }
-    // 'EvalCurvStruct:16' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
+    // 'EvalCurvStruct:31' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
     // u_vec );
     d_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
                           ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
@@ -620,7 +740,22 @@ void g_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
 }
 
 //
-// function [r0D, r1D, r2D, r3D] = EvalCurvStruct( ctx, curv, u_vec )
+// function [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, curv, u_vec )
+//
+// EvalCurvStruct : Eval curve structure and its derivatives on a set of u
+//  points.
+//
+//  Inputs :
+//  ctx   : The context of the computational chain
+//  curv  : The curve used in the evaluation
+//  u_vec : U vectors.
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
+//
 //
 // Arguments    : const queue_coder *ctx_q_spline
 //                const bool ctx_cfg_maskTot_data[]
@@ -634,7 +769,17 @@ void g_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
 //                int ctx_cfg_NumberAxis
 //                int ctx_cfg_NCart
 //                int ctx_cfg_NRot
-//                const CurvStruct *curv
+//                const GcodeInfoStruct curv_Info
+//                const ::coder::array<double, 1U> &curv_R0
+//                const ::coder::array<double, 1U> &curv_R1
+//                const double curv_CorrectedHelixCenter[3]
+//                const double curv_evec[3]
+//                double curv_theta
+//                double curv_pitch
+//                const ::coder::array<double, 2U> &curv_CoeffP5
+//                unsigned int curv_sp_index
+//                double curv_a_param
+//                double curv_b_param
 //                const ::coder::array<double, 2U> &u_vec
 //                ::coder::array<double, 2U> &r0D
 //                ::coder::array<double, 2U> &r1D
@@ -642,40 +787,94 @@ void g_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
 //                ::coder::array<double, 2U> &r3D
 // Return Type  : void
 //
-void h_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
-                      const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
-                      const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
-                      const int ctx_cfg_maskRot_size[2],
-                      const ::coder::array<int, 1U> &ctx_cfg_indCart,
-                      const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
-                      int ctx_cfg_NCart, int ctx_cfg_NRot, const CurvStruct *curv,
-                      const ::coder::array<double, 2U> &u_vec, ::coder::array<double, 2U> &r0D,
-                      ::coder::array<double, 2U> &r1D, ::coder::array<double, 2U> &r2D,
-                      ::coder::array<double, 2U> &r3D)
+void h_EvalCurvStruct(
+    const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
+    const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
+    const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
+    const int ctx_cfg_maskRot_size[2], const ::coder::array<int, 1U> &ctx_cfg_indCart,
+    const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis, int ctx_cfg_NCart,
+    int ctx_cfg_NRot, const GcodeInfoStruct curv_Info, const ::coder::array<double, 1U> &curv_R0,
+    const ::coder::array<double, 1U> &curv_R1, const double curv_CorrectedHelixCenter[3],
+    const double curv_evec[3], double curv_theta, double curv_pitch,
+    const ::coder::array<double, 2U> &curv_CoeffP5, unsigned int curv_sp_index, double curv_a_param,
+    double curv_b_param, const ::coder::array<double, 2U> &u_vec, ::coder::array<double, 2U> &r0D,
+    ::coder::array<double, 2U> &r1D, ::coder::array<double, 2U> &r2D,
+    ::coder::array<double, 2U> &r3D)
 {
+    CurvStruct expl_temp;
     CurvStruct spline;
-    // 'EvalCurvStruct:3' coder.inline("never");
-    // 'EvalCurvStruct:7' if( isempty( splineDefault ) )
-    // 'EvalCurvStruct:9' if( curv.Info.Type == CurveType.Spline )
-    if (curv->Info.Type == CurveType_Spline) {
-        // 'EvalCurvStruct:10' ptr    = curv.sp_index;
-        // 'EvalCurvStruct:11' spline = ctx.q_spline.get( ptr );
-        ctx_q_spline->get(curv->sp_index, &spline);
+    int c_loop_ub;
+    int d_loop_ub;
+    int loop_ub;
+    // 'EvalCurvStruct:18' coder.inline("never");
+    // 'EvalCurvStruct:22' if( isempty( splineDefault ) )
+    // 'EvalCurvStruct:24' if( curv.Info.Type == CurveType.Spline )
+    if (curv_Info.Type == CurveType_Spline) {
+        // 'EvalCurvStruct:25' ptr    = curv.sp_index;
+        // 'EvalCurvStruct:26' spline = ctx.q_spline.get( ptr );
+        ctx_q_spline->get(curv_sp_index, &spline);
     } else {
-        // 'EvalCurvStruct:12' else
-        // 'EvalCurvStruct:13' spline = splineDefault;
+        // 'EvalCurvStruct:27' else
+        // 'EvalCurvStruct:28' spline = splineDefault;
         spline = splineDefault;
     }
-    // 'EvalCurvStruct:16' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
+    // 'EvalCurvStruct:31' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
     // u_vec );
+    expl_temp.b_param = curv_b_param;
+    expl_temp.a_param = curv_a_param;
+    expl_temp.sp_index = curv_sp_index;
+    expl_temp.CoeffP5.set_size(curv_CoeffP5.size(0), curv_CoeffP5.size(1));
+    loop_ub = curv_CoeffP5.size(1);
+    for (int i{0}; i < loop_ub; i++) {
+        int b_loop_ub;
+        b_loop_ub = curv_CoeffP5.size(0);
+        for (int i1{0}; i1 < b_loop_ub; i1++) {
+            expl_temp.CoeffP5[i1 + expl_temp.CoeffP5.size(0) * i] =
+                curv_CoeffP5[i1 + curv_CoeffP5.size(0) * i];
+        }
+    }
+    expl_temp.pitch = curv_pitch;
+    expl_temp.theta = curv_theta;
+    expl_temp.evec[0] = curv_evec[0];
+    expl_temp.CorrectedHelixCenter[0] = curv_CorrectedHelixCenter[0];
+    expl_temp.evec[1] = curv_evec[1];
+    expl_temp.CorrectedHelixCenter[1] = curv_CorrectedHelixCenter[1];
+    expl_temp.evec[2] = curv_evec[2];
+    expl_temp.CorrectedHelixCenter[2] = curv_CorrectedHelixCenter[2];
+    expl_temp.R1.set_size(curv_R1.size(0));
+    c_loop_ub = curv_R1.size(0);
+    for (int i2{0}; i2 < c_loop_ub; i2++) {
+        expl_temp.R1[i2] = curv_R1[i2];
+    }
+    expl_temp.R0.set_size(curv_R0.size(0));
+    d_loop_ub = curv_R0.size(0);
+    for (int i3{0}; i3 < d_loop_ub; i3++) {
+        expl_temp.R0[i3] = curv_R0[i3];
+    }
+    expl_temp.Info = curv_Info;
     e_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
                           ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
                           ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart,
-                          ctx_cfg_NRot, curv, &spline, u_vec, r0D, r1D, r2D, r3D);
+                          ctx_cfg_NRot, &expl_temp, &spline, u_vec, r0D, r1D, r2D, r3D);
 }
 
 //
-// function [r0D, r1D, r2D, r3D] = EvalCurvStruct( ctx, curv, u_vec )
+// function [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, curv, u_vec )
+//
+// EvalCurvStruct : Eval curve structure and its derivatives on a set of u
+//  points.
+//
+//  Inputs :
+//  ctx   : The context of the computational chain
+//  curv  : The curve used in the evaluation
+//  u_vec : U vectors.
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
+//
 //
 // Arguments    : const queue_coder *ctx_q_spline
 //                const bool ctx_cfg_maskTot_data[]
@@ -708,19 +907,19 @@ void i_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
     ::coder::array<double, 2U> r2D;
     ::coder::array<double, 2U> r3D;
     CurvStruct spline;
-    // 'EvalCurvStruct:3' coder.inline("never");
-    // 'EvalCurvStruct:7' if( isempty( splineDefault ) )
-    // 'EvalCurvStruct:9' if( curv.Info.Type == CurveType.Spline )
+    // 'EvalCurvStruct:18' coder.inline("never");
+    // 'EvalCurvStruct:22' if( isempty( splineDefault ) )
+    // 'EvalCurvStruct:24' if( curv.Info.Type == CurveType.Spline )
     if (curv->Info.Type == CurveType_Spline) {
-        // 'EvalCurvStruct:10' ptr    = curv.sp_index;
-        // 'EvalCurvStruct:11' spline = ctx.q_spline.get( ptr );
+        // 'EvalCurvStruct:25' ptr    = curv.sp_index;
+        // 'EvalCurvStruct:26' spline = ctx.q_spline.get( ptr );
         ctx_q_spline->get(curv->sp_index, &spline);
     } else {
-        // 'EvalCurvStruct:12' else
-        // 'EvalCurvStruct:13' spline = splineDefault;
+        // 'EvalCurvStruct:27' else
+        // 'EvalCurvStruct:28' spline = splineDefault;
         spline = splineDefault;
     }
-    // 'EvalCurvStruct:16' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
+    // 'EvalCurvStruct:31' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
     // u_vec );
     e_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
                           ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
@@ -729,7 +928,22 @@ void i_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
 }
 
 //
-// function [r0D, r1D, r2D, r3D] = EvalCurvStruct( ctx, curv, u_vec )
+// function [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, curv, u_vec )
+//
+// EvalCurvStruct : Eval curve structure and its derivatives on a set of u
+//  points.
+//
+//  Inputs :
+//  ctx   : The context of the computational chain
+//  curv  : The curve used in the evaluation
+//  u_vec : U vectors.
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
+//
 //
 // Arguments    : const queue_coder *ctx_q_spline
 //                const bool ctx_cfg_maskTot_data[]
@@ -761,19 +975,19 @@ void j_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
 {
     ::coder::array<double, 2U> r3D;
     CurvStruct spline;
-    // 'EvalCurvStruct:3' coder.inline("never");
-    // 'EvalCurvStruct:7' if( isempty( splineDefault ) )
-    // 'EvalCurvStruct:9' if( curv.Info.Type == CurveType.Spline )
+    // 'EvalCurvStruct:18' coder.inline("never");
+    // 'EvalCurvStruct:22' if( isempty( splineDefault ) )
+    // 'EvalCurvStruct:24' if( curv.Info.Type == CurveType.Spline )
     if (curv->Info.Type == CurveType_Spline) {
-        // 'EvalCurvStruct:10' ptr    = curv.sp_index;
-        // 'EvalCurvStruct:11' spline = ctx.q_spline.get( ptr );
+        // 'EvalCurvStruct:25' ptr    = curv.sp_index;
+        // 'EvalCurvStruct:26' spline = ctx.q_spline.get( ptr );
         ctx_q_spline->get(curv->sp_index, &spline);
     } else {
-        // 'EvalCurvStruct:12' else
-        // 'EvalCurvStruct:13' spline = splineDefault;
+        // 'EvalCurvStruct:27' else
+        // 'EvalCurvStruct:28' spline = splineDefault;
         spline = splineDefault;
     }
-    // 'EvalCurvStruct:16' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
+    // 'EvalCurvStruct:31' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
     // u_vec );
     f_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
                           ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
@@ -782,7 +996,22 @@ void j_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
 }
 
 //
-// function [r0D, r1D, r2D, r3D] = EvalCurvStruct( ctx, curv, u_vec )
+// function [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, curv, u_vec )
+//
+// EvalCurvStruct : Eval curve structure and its derivatives on a set of u
+//  points.
+//
+//  Inputs :
+//  ctx   : The context of the computational chain
+//  curv  : The curve used in the evaluation
+//  u_vec : U vectors.
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
+//
 //
 // Arguments    : const queue_coder *ctx_q_spline
 //                const bool ctx_cfg_maskTot_data[]
@@ -815,19 +1044,19 @@ void k_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
                       ::coder::array<double, 1U> &r2D, ::coder::array<double, 1U> &r3D)
 {
     CurvStruct spline;
-    // 'EvalCurvStruct:3' coder.inline("never");
-    // 'EvalCurvStruct:7' if( isempty( splineDefault ) )
-    // 'EvalCurvStruct:9' if( curv.Info.Type == CurveType.Spline )
+    // 'EvalCurvStruct:18' coder.inline("never");
+    // 'EvalCurvStruct:22' if( isempty( splineDefault ) )
+    // 'EvalCurvStruct:24' if( curv.Info.Type == CurveType.Spline )
     if (curv->Info.Type == CurveType_Spline) {
-        // 'EvalCurvStruct:10' ptr    = curv.sp_index;
-        // 'EvalCurvStruct:11' spline = ctx.q_spline.get( ptr );
+        // 'EvalCurvStruct:25' ptr    = curv.sp_index;
+        // 'EvalCurvStruct:26' spline = ctx.q_spline.get( ptr );
         ctx_q_spline->get(curv->sp_index, &spline);
     } else {
-        // 'EvalCurvStruct:12' else
-        // 'EvalCurvStruct:13' spline = splineDefault;
+        // 'EvalCurvStruct:27' else
+        // 'EvalCurvStruct:28' spline = splineDefault;
         spline = splineDefault;
     }
-    // 'EvalCurvStruct:16' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
+    // 'EvalCurvStruct:31' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
     // u_vec );
     g_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
                           ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
@@ -836,7 +1065,22 @@ void k_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
 }
 
 //
-// function [r0D, r1D, r2D, r3D] = EvalCurvStruct( ctx, curv, u_vec )
+// function [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, curv, u_vec )
+//
+// EvalCurvStruct : Eval curve structure and its derivatives on a set of u
+//  points.
+//
+//  Inputs :
+//  ctx   : The context of the computational chain
+//  curv  : The curve used in the evaluation
+//  u_vec : U vectors.
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
+//
 //
 // Arguments    : const queue_coder *ctx_q_spline
 //                const bool ctx_cfg_maskTot_data[]
@@ -867,19 +1111,19 @@ void l_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
     ::coder::array<double, 1U> r2D;
     ::coder::array<double, 1U> r3D;
     CurvStruct spline;
-    // 'EvalCurvStruct:3' coder.inline("never");
-    // 'EvalCurvStruct:7' if( isempty( splineDefault ) )
-    // 'EvalCurvStruct:9' if( curv.Info.Type == CurveType.Spline )
+    // 'EvalCurvStruct:18' coder.inline("never");
+    // 'EvalCurvStruct:22' if( isempty( splineDefault ) )
+    // 'EvalCurvStruct:24' if( curv.Info.Type == CurveType.Spline )
     if (curv->Info.Type == CurveType_Spline) {
-        // 'EvalCurvStruct:10' ptr    = curv.sp_index;
-        // 'EvalCurvStruct:11' spline = ctx.q_spline.get( ptr );
+        // 'EvalCurvStruct:25' ptr    = curv.sp_index;
+        // 'EvalCurvStruct:26' spline = ctx.q_spline.get( ptr );
         ctx_q_spline->get(curv->sp_index, &spline);
     } else {
-        // 'EvalCurvStruct:12' else
-        // 'EvalCurvStruct:13' spline = splineDefault;
+        // 'EvalCurvStruct:27' else
+        // 'EvalCurvStruct:28' spline = splineDefault;
         spline = splineDefault;
     }
-    // 'EvalCurvStruct:16' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
+    // 'EvalCurvStruct:31' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
     // u_vec );
     d_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
                           ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
@@ -888,7 +1132,22 @@ void l_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
 }
 
 //
-// function [r0D, r1D, r2D, r3D] = EvalCurvStruct( ctx, curv, u_vec )
+// function [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, curv, u_vec )
+//
+// EvalCurvStruct : Eval curve structure and its derivatives on a set of u
+//  points.
+//
+//  Inputs :
+//  ctx   : The context of the computational chain
+//  curv  : The curve used in the evaluation
+//  u_vec : U vectors.
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
+//
 //
 // Arguments    : const queue_coder *ctx_q_spline
 //                const bool ctx_cfg_maskTot_data[]
@@ -919,19 +1178,19 @@ void m_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
     ::coder::array<double, 1U> r2D;
     ::coder::array<double, 1U> r3D;
     CurvStruct spline;
-    // 'EvalCurvStruct:3' coder.inline("never");
-    // 'EvalCurvStruct:7' if( isempty( splineDefault ) )
-    // 'EvalCurvStruct:9' if( curv.Info.Type == CurveType.Spline )
+    // 'EvalCurvStruct:18' coder.inline("never");
+    // 'EvalCurvStruct:22' if( isempty( splineDefault ) )
+    // 'EvalCurvStruct:24' if( curv.Info.Type == CurveType.Spline )
     if (curv->Info.Type == CurveType_Spline) {
-        // 'EvalCurvStruct:10' ptr    = curv.sp_index;
-        // 'EvalCurvStruct:11' spline = ctx.q_spline.get( ptr );
+        // 'EvalCurvStruct:25' ptr    = curv.sp_index;
+        // 'EvalCurvStruct:26' spline = ctx.q_spline.get( ptr );
         ctx_q_spline->get(curv->sp_index, &spline);
     } else {
-        // 'EvalCurvStruct:12' else
-        // 'EvalCurvStruct:13' spline = splineDefault;
+        // 'EvalCurvStruct:27' else
+        // 'EvalCurvStruct:28' spline = splineDefault;
         spline = splineDefault;
     }
-    // 'EvalCurvStruct:16' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
+    // 'EvalCurvStruct:31' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
     // u_vec );
     c_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
                           ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
@@ -940,7 +1199,903 @@ void m_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
 }
 
 //
-// function [r0D, r1D, r2D, r3D] = EvalCurvStruct( ctx, curv, u_vec )
+// function [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, curv, u_vec )
+//
+// EvalCurvStruct : Eval curve structure and its derivatives on a set of u
+//  points.
+//
+//  Inputs :
+//  ctx   : The context of the computational chain
+//  curv  : The curve used in the evaluation
+//  u_vec : U vectors.
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
+//
+//
+// Arguments    : const queue_coder *ctx_q_spline
+//                const bool ctx_cfg_maskTot_data[]
+//                const int ctx_cfg_maskTot_size[2]
+//                const bool ctx_cfg_maskCart_data[]
+//                const int ctx_cfg_maskCart_size[2]
+//                const bool ctx_cfg_maskRot_data[]
+//                const int ctx_cfg_maskRot_size[2]
+//                const ::coder::array<int, 1U> &ctx_cfg_indCart
+//                const ::coder::array<int, 1U> &ctx_cfg_indRot
+//                int ctx_cfg_NumberAxis
+//                int ctx_cfg_NCart
+//                int ctx_cfg_NRot
+//                const CurvStruct *curv
+//                ::coder::array<double, 1U> &r0D
+//                ::coder::array<double, 1U> &r1D
+// Return Type  : void
+//
+void n_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
+                      const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
+                      const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
+                      const int ctx_cfg_maskRot_size[2],
+                      const ::coder::array<int, 1U> &ctx_cfg_indCart,
+                      const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
+                      int ctx_cfg_NCart, int ctx_cfg_NRot, const CurvStruct *curv,
+                      ::coder::array<double, 1U> &r0D, ::coder::array<double, 1U> &r1D)
+{
+    ::coder::array<double, 1U> r2D;
+    ::coder::array<double, 1U> r3D;
+    Axes params_tool_offset;
+    CurvStruct spline;
+    SplineStruct params_spline;
+    b_CurvStruct e_expl_temp;
+    double params_CoeffP5[6];
+    double params_R0[6];
+    double params_R1[6];
+    double params_Cprim[3];
+    double params_evec[3];
+    double b_expl_temp;
+    double c_expl_temp;
+    double d_expl_temp;
+    double expl_temp;
+    double params_gcodeInfoStruct_FeedRate;
+    double params_gcodeInfoStruct_SpindleSpeed;
+    double params_tool_backangle;
+    double params_tool_diameter;
+    double params_tool_frontangle;
+    int params_gcodeInfoStruct_gcode_source_line;
+    int params_tool_orientation;
+    int params_tool_pocketno;
+    int params_tool_toolno;
+    bool params_gcodeInfoStruct_G91;
+    bool params_gcodeInfoStruct_G91_1;
+    bool params_gcodeInfoStruct_HSC;
+    bool params_gcodeInfoStruct_TRAFO;
+    CurveType params_gcodeInfoStruct_Type;
+    ZSpdMode params_gcodeInfoStruct_zspdmode;
+    // 'EvalCurvStruct:18' coder.inline("never");
+    // 'EvalCurvStruct:22' if( isempty( splineDefault ) )
+    if (!splineDefault_not_empty) {
+        int b_loop_ub;
+        int c_loop_ub;
+        int e_loop_ub;
+        int loop_ub;
+        // 'EvalCurvStruct:22' splineDefault = constrCurvStructType;
+        //  constrCurvStructType : Constructs a constrCurvStruct with default values.
+        // 'constrCurvStructType:4' if( nargin > 0 )
+        // 'constrCurvStructType:6' else
+        // 'constrCurvStructType:7' [ params ] = paramsDefaultCurv;
+        paramsDefaultCurv(&params_gcodeInfoStruct_Type, &params_gcodeInfoStruct_zspdmode,
+                          &params_gcodeInfoStruct_TRAFO, &params_gcodeInfoStruct_HSC,
+                          &params_gcodeInfoStruct_FeedRate, &params_gcodeInfoStruct_SpindleSpeed,
+                          &params_gcodeInfoStruct_gcode_source_line, &params_gcodeInfoStruct_G91,
+                          &params_gcodeInfoStruct_G91_1, &params_tool_toolno, &params_tool_pocketno,
+                          &params_tool_offset, &params_tool_diameter, &params_tool_frontangle,
+                          &params_tool_backangle, &params_tool_orientation, &params_spline,
+                          params_R0, params_R1, params_Cprim, &expl_temp, params_evec, &b_expl_temp,
+                          &c_expl_temp, params_CoeffP5, &d_expl_temp);
+        // 'constrCurvStructType:10' if( coder.target( "MATLAB" ) )
+        // 'constrCurvStructType:12' else
+        // 'constrCurvStructType:13' C = constrCurvStruct( params.gcodeInfoStruct, params.tool, ...
+        // 'constrCurvStructType:14'         params.spline, params.R0, params.R1, params.Cprim, ...
+        // 'constrCurvStructType:15'         params.delta, params.evec, params.theta, params.pitch,
+        // ... 'constrCurvStructType:16'         params.CoeffP5, params.Coeff );
+        b_constrCurvStruct(params_gcodeInfoStruct_Type, params_gcodeInfoStruct_zspdmode,
+                           params_gcodeInfoStruct_TRAFO, params_gcodeInfoStruct_HSC,
+                           params_gcodeInfoStruct_FeedRate, params_gcodeInfoStruct_SpindleSpeed,
+                           params_gcodeInfoStruct_gcode_source_line, params_gcodeInfoStruct_G91,
+                           params_gcodeInfoStruct_G91_1, params_tool_toolno, params_tool_pocketno,
+                           &params_tool_offset, params_tool_diameter, params_tool_frontangle,
+                           params_tool_backangle, params_tool_orientation, &params_spline,
+                           params_R0, params_R1, params_Cprim, params_evec, params_CoeffP5,
+                           &e_expl_temp);
+        splineDefault.Info = e_expl_temp.Info;
+        splineDefault.tool = e_expl_temp.tool;
+        splineDefault.sp = e_expl_temp.sp;
+        splineDefault.R0.set_size(e_expl_temp.R0.size[0]);
+        loop_ub = e_expl_temp.R0.size[0];
+        for (int i{0}; i < loop_ub; i++) {
+            splineDefault.R0[i] = e_expl_temp.R0.data[i];
+        }
+        splineDefault.R1.set_size(e_expl_temp.R1.size[0]);
+        b_loop_ub = e_expl_temp.R1.size[0];
+        for (int i1{0}; i1 < b_loop_ub; i1++) {
+            splineDefault.R1[i1] = e_expl_temp.R1.data[i1];
+        }
+        splineDefault.delta = e_expl_temp.delta;
+        splineDefault.CorrectedHelixCenter[0] = e_expl_temp.CorrectedHelixCenter[0];
+        splineDefault.evec[0] = e_expl_temp.evec[0];
+        splineDefault.CorrectedHelixCenter[1] = e_expl_temp.CorrectedHelixCenter[1];
+        splineDefault.evec[1] = e_expl_temp.evec[1];
+        splineDefault.CorrectedHelixCenter[2] = e_expl_temp.CorrectedHelixCenter[2];
+        splineDefault.evec[2] = e_expl_temp.evec[2];
+        splineDefault.theta = e_expl_temp.theta;
+        splineDefault.pitch = e_expl_temp.pitch;
+        splineDefault.CoeffP5.set_size(e_expl_temp.CoeffP5.size(0), e_expl_temp.CoeffP5.size(1));
+        c_loop_ub = e_expl_temp.CoeffP5.size(1);
+        for (int i2{0}; i2 < c_loop_ub; i2++) {
+            int d_loop_ub;
+            d_loop_ub = e_expl_temp.CoeffP5.size(0);
+            for (int i3{0}; i3 < d_loop_ub; i3++) {
+                splineDefault.CoeffP5[i3 + splineDefault.CoeffP5.size(0) * i2] =
+                    e_expl_temp.CoeffP5[i3 + e_expl_temp.CoeffP5.size(0) * i2];
+            }
+        }
+        splineDefault.sp_index = e_expl_temp.sp_index;
+        splineDefault.i_begin_sp = e_expl_temp.i_begin_sp;
+        splineDefault.i_end_sp = e_expl_temp.i_end_sp;
+        splineDefault.index_smooth = e_expl_temp.index_smooth;
+        splineDefault.UseConstJerk = e_expl_temp.UseConstJerk;
+        splineDefault.ConstJerk = e_expl_temp.ConstJerk;
+        splineDefault.Coeff.set_size(e_expl_temp.Coeff.size(0));
+        e_loop_ub = e_expl_temp.Coeff.size(0);
+        for (int i4{0}; i4 < e_loop_ub; i4++) {
+            splineDefault.Coeff[i4] = e_expl_temp.Coeff[i4];
+        }
+        splineDefault.a_param = e_expl_temp.a_param;
+        splineDefault.b_param = e_expl_temp.b_param;
+        splineDefault_not_empty = true;
+    }
+    // 'EvalCurvStruct:24' if( curv.Info.Type == CurveType.Spline )
+    if (curv->Info.Type == CurveType_Spline) {
+        // 'EvalCurvStruct:25' ptr    = curv.sp_index;
+        // 'EvalCurvStruct:26' spline = ctx.q_spline.get( ptr );
+        ctx_q_spline->get(curv->sp_index, &spline);
+    } else {
+        // 'EvalCurvStruct:27' else
+        // 'EvalCurvStruct:28' spline = splineDefault;
+        spline = splineDefault;
+    }
+    // 'EvalCurvStruct:31' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
+    // u_vec );
+    c_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
+                          ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
+                          ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart,
+                          ctx_cfg_NRot, curv, &spline, r0D, r1D, r2D, r3D);
+}
+
+//
+// function [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, curv, u_vec )
+//
+// EvalCurvStruct : Eval curve structure and its derivatives on a set of u
+//  points.
+//
+//  Inputs :
+//  ctx   : The context of the computational chain
+//  curv  : The curve used in the evaluation
+//  u_vec : U vectors.
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
+//
+//
+// Arguments    : const queue_coder *ctx_q_spline
+//                const bool ctx_cfg_maskTot_data[]
+//                const int ctx_cfg_maskTot_size[2]
+//                const bool ctx_cfg_maskCart_data[]
+//                const int ctx_cfg_maskCart_size[2]
+//                const bool ctx_cfg_maskRot_data[]
+//                const int ctx_cfg_maskRot_size[2]
+//                const ::coder::array<int, 1U> &ctx_cfg_indCart
+//                const ::coder::array<int, 1U> &ctx_cfg_indRot
+//                int ctx_cfg_NumberAxis
+//                int ctx_cfg_NCart
+//                int ctx_cfg_NRot
+//                const CurvStruct *curv
+//                const ::coder::array<double, 2U> &u_vec
+//                ::coder::array<double, 2U> &r0D
+//                ::coder::array<double, 2U> &r1D
+// Return Type  : void
+//
+void o_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
+                      const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
+                      const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
+                      const int ctx_cfg_maskRot_size[2],
+                      const ::coder::array<int, 1U> &ctx_cfg_indCart,
+                      const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
+                      int ctx_cfg_NCart, int ctx_cfg_NRot, const CurvStruct *curv,
+                      const ::coder::array<double, 2U> &u_vec, ::coder::array<double, 2U> &r0D,
+                      ::coder::array<double, 2U> &r1D)
+{
+    ::coder::array<double, 2U> r2D;
+    ::coder::array<double, 2U> r3D;
+    Axes params_tool_offset;
+    CurvStruct spline;
+    SplineStruct params_spline;
+    b_CurvStruct e_expl_temp;
+    double params_CoeffP5[6];
+    double params_R0[6];
+    double params_R1[6];
+    double params_Cprim[3];
+    double params_evec[3];
+    double b_expl_temp;
+    double c_expl_temp;
+    double d_expl_temp;
+    double expl_temp;
+    double params_gcodeInfoStruct_FeedRate;
+    double params_gcodeInfoStruct_SpindleSpeed;
+    double params_tool_backangle;
+    double params_tool_diameter;
+    double params_tool_frontangle;
+    int params_gcodeInfoStruct_gcode_source_line;
+    int params_tool_orientation;
+    int params_tool_pocketno;
+    int params_tool_toolno;
+    bool params_gcodeInfoStruct_G91;
+    bool params_gcodeInfoStruct_G91_1;
+    bool params_gcodeInfoStruct_HSC;
+    bool params_gcodeInfoStruct_TRAFO;
+    CurveType params_gcodeInfoStruct_Type;
+    ZSpdMode params_gcodeInfoStruct_zspdmode;
+    // 'EvalCurvStruct:18' coder.inline("never");
+    // 'EvalCurvStruct:22' if( isempty( splineDefault ) )
+    if (!splineDefault_not_empty) {
+        int b_loop_ub;
+        int c_loop_ub;
+        int e_loop_ub;
+        int loop_ub;
+        // 'EvalCurvStruct:22' splineDefault = constrCurvStructType;
+        //  constrCurvStructType : Constructs a constrCurvStruct with default values.
+        // 'constrCurvStructType:4' if( nargin > 0 )
+        // 'constrCurvStructType:6' else
+        // 'constrCurvStructType:7' [ params ] = paramsDefaultCurv;
+        paramsDefaultCurv(&params_gcodeInfoStruct_Type, &params_gcodeInfoStruct_zspdmode,
+                          &params_gcodeInfoStruct_TRAFO, &params_gcodeInfoStruct_HSC,
+                          &params_gcodeInfoStruct_FeedRate, &params_gcodeInfoStruct_SpindleSpeed,
+                          &params_gcodeInfoStruct_gcode_source_line, &params_gcodeInfoStruct_G91,
+                          &params_gcodeInfoStruct_G91_1, &params_tool_toolno, &params_tool_pocketno,
+                          &params_tool_offset, &params_tool_diameter, &params_tool_frontangle,
+                          &params_tool_backangle, &params_tool_orientation, &params_spline,
+                          params_R0, params_R1, params_Cprim, &expl_temp, params_evec, &b_expl_temp,
+                          &c_expl_temp, params_CoeffP5, &d_expl_temp);
+        // 'constrCurvStructType:10' if( coder.target( "MATLAB" ) )
+        // 'constrCurvStructType:12' else
+        // 'constrCurvStructType:13' C = constrCurvStruct( params.gcodeInfoStruct, params.tool, ...
+        // 'constrCurvStructType:14'         params.spline, params.R0, params.R1, params.Cprim, ...
+        // 'constrCurvStructType:15'         params.delta, params.evec, params.theta, params.pitch,
+        // ... 'constrCurvStructType:16'         params.CoeffP5, params.Coeff );
+        b_constrCurvStruct(params_gcodeInfoStruct_Type, params_gcodeInfoStruct_zspdmode,
+                           params_gcodeInfoStruct_TRAFO, params_gcodeInfoStruct_HSC,
+                           params_gcodeInfoStruct_FeedRate, params_gcodeInfoStruct_SpindleSpeed,
+                           params_gcodeInfoStruct_gcode_source_line, params_gcodeInfoStruct_G91,
+                           params_gcodeInfoStruct_G91_1, params_tool_toolno, params_tool_pocketno,
+                           &params_tool_offset, params_tool_diameter, params_tool_frontangle,
+                           params_tool_backangle, params_tool_orientation, &params_spline,
+                           params_R0, params_R1, params_Cprim, params_evec, params_CoeffP5,
+                           &e_expl_temp);
+        splineDefault.Info = e_expl_temp.Info;
+        splineDefault.tool = e_expl_temp.tool;
+        splineDefault.sp = e_expl_temp.sp;
+        splineDefault.R0.set_size(e_expl_temp.R0.size[0]);
+        loop_ub = e_expl_temp.R0.size[0];
+        for (int i{0}; i < loop_ub; i++) {
+            splineDefault.R0[i] = e_expl_temp.R0.data[i];
+        }
+        splineDefault.R1.set_size(e_expl_temp.R1.size[0]);
+        b_loop_ub = e_expl_temp.R1.size[0];
+        for (int i1{0}; i1 < b_loop_ub; i1++) {
+            splineDefault.R1[i1] = e_expl_temp.R1.data[i1];
+        }
+        splineDefault.delta = e_expl_temp.delta;
+        splineDefault.CorrectedHelixCenter[0] = e_expl_temp.CorrectedHelixCenter[0];
+        splineDefault.evec[0] = e_expl_temp.evec[0];
+        splineDefault.CorrectedHelixCenter[1] = e_expl_temp.CorrectedHelixCenter[1];
+        splineDefault.evec[1] = e_expl_temp.evec[1];
+        splineDefault.CorrectedHelixCenter[2] = e_expl_temp.CorrectedHelixCenter[2];
+        splineDefault.evec[2] = e_expl_temp.evec[2];
+        splineDefault.theta = e_expl_temp.theta;
+        splineDefault.pitch = e_expl_temp.pitch;
+        splineDefault.CoeffP5.set_size(e_expl_temp.CoeffP5.size(0), e_expl_temp.CoeffP5.size(1));
+        c_loop_ub = e_expl_temp.CoeffP5.size(1);
+        for (int i2{0}; i2 < c_loop_ub; i2++) {
+            int d_loop_ub;
+            d_loop_ub = e_expl_temp.CoeffP5.size(0);
+            for (int i3{0}; i3 < d_loop_ub; i3++) {
+                splineDefault.CoeffP5[i3 + splineDefault.CoeffP5.size(0) * i2] =
+                    e_expl_temp.CoeffP5[i3 + e_expl_temp.CoeffP5.size(0) * i2];
+            }
+        }
+        splineDefault.sp_index = e_expl_temp.sp_index;
+        splineDefault.i_begin_sp = e_expl_temp.i_begin_sp;
+        splineDefault.i_end_sp = e_expl_temp.i_end_sp;
+        splineDefault.index_smooth = e_expl_temp.index_smooth;
+        splineDefault.UseConstJerk = e_expl_temp.UseConstJerk;
+        splineDefault.ConstJerk = e_expl_temp.ConstJerk;
+        splineDefault.Coeff.set_size(e_expl_temp.Coeff.size(0));
+        e_loop_ub = e_expl_temp.Coeff.size(0);
+        for (int i4{0}; i4 < e_loop_ub; i4++) {
+            splineDefault.Coeff[i4] = e_expl_temp.Coeff[i4];
+        }
+        splineDefault.a_param = e_expl_temp.a_param;
+        splineDefault.b_param = e_expl_temp.b_param;
+        splineDefault_not_empty = true;
+    }
+    // 'EvalCurvStruct:24' if( curv.Info.Type == CurveType.Spline )
+    if (curv->Info.Type == CurveType_Spline) {
+        // 'EvalCurvStruct:25' ptr    = curv.sp_index;
+        // 'EvalCurvStruct:26' spline = ctx.q_spline.get( ptr );
+        ctx_q_spline->get(curv->sp_index, &spline);
+    } else {
+        // 'EvalCurvStruct:27' else
+        // 'EvalCurvStruct:28' spline = splineDefault;
+        spline = splineDefault;
+    }
+    // 'EvalCurvStruct:31' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
+    // u_vec );
+    e_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
+                          ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
+                          ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart,
+                          ctx_cfg_NRot, curv, &spline, u_vec, r0D, r1D, r2D, r3D);
+}
+
+//
+// function [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, curv, u_vec )
+//
+// EvalCurvStruct : Eval curve structure and its derivatives on a set of u
+//  points.
+//
+//  Inputs :
+//  ctx   : The context of the computational chain
+//  curv  : The curve used in the evaluation
+//  u_vec : U vectors.
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
+//
+//
+// Arguments    : const queue_coder *ctx_q_spline
+//                const bool ctx_cfg_maskTot_data[]
+//                const int ctx_cfg_maskTot_size[2]
+//                const bool ctx_cfg_maskCart_data[]
+//                const int ctx_cfg_maskCart_size[2]
+//                const bool ctx_cfg_maskRot_data[]
+//                const int ctx_cfg_maskRot_size[2]
+//                const ::coder::array<int, 1U> &ctx_cfg_indCart
+//                const ::coder::array<int, 1U> &ctx_cfg_indRot
+//                int ctx_cfg_NumberAxis
+//                int ctx_cfg_NCart
+//                int ctx_cfg_NRot
+//                const CurvStruct *curv
+//                ::coder::array<double, 2U> &r0D
+//                ::coder::array<double, 2U> &r1D
+//                ::coder::array<double, 2U> &r2D
+// Return Type  : void
+//
+void p_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
+                      const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
+                      const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
+                      const int ctx_cfg_maskRot_size[2],
+                      const ::coder::array<int, 1U> &ctx_cfg_indCart,
+                      const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
+                      int ctx_cfg_NCart, int ctx_cfg_NRot, const CurvStruct *curv,
+                      ::coder::array<double, 2U> &r0D, ::coder::array<double, 2U> &r1D,
+                      ::coder::array<double, 2U> &r2D)
+{
+    ::coder::array<double, 2U> r3D;
+    Axes params_tool_offset;
+    CurvStruct spline;
+    SplineStruct params_spline;
+    b_CurvStruct e_expl_temp;
+    double params_CoeffP5[6];
+    double params_R0[6];
+    double params_R1[6];
+    double params_Cprim[3];
+    double params_evec[3];
+    double b_expl_temp;
+    double c_expl_temp;
+    double d_expl_temp;
+    double expl_temp;
+    double params_gcodeInfoStruct_FeedRate;
+    double params_gcodeInfoStruct_SpindleSpeed;
+    double params_tool_backangle;
+    double params_tool_diameter;
+    double params_tool_frontangle;
+    int params_gcodeInfoStruct_gcode_source_line;
+    int params_tool_orientation;
+    int params_tool_pocketno;
+    int params_tool_toolno;
+    bool params_gcodeInfoStruct_G91;
+    bool params_gcodeInfoStruct_G91_1;
+    bool params_gcodeInfoStruct_HSC;
+    bool params_gcodeInfoStruct_TRAFO;
+    CurveType params_gcodeInfoStruct_Type;
+    ZSpdMode params_gcodeInfoStruct_zspdmode;
+    // 'EvalCurvStruct:18' coder.inline("never");
+    // 'EvalCurvStruct:22' if( isempty( splineDefault ) )
+    if (!splineDefault_not_empty) {
+        int b_loop_ub;
+        int c_loop_ub;
+        int e_loop_ub;
+        int loop_ub;
+        // 'EvalCurvStruct:22' splineDefault = constrCurvStructType;
+        //  constrCurvStructType : Constructs a constrCurvStruct with default values.
+        // 'constrCurvStructType:4' if( nargin > 0 )
+        // 'constrCurvStructType:6' else
+        // 'constrCurvStructType:7' [ params ] = paramsDefaultCurv;
+        paramsDefaultCurv(&params_gcodeInfoStruct_Type, &params_gcodeInfoStruct_zspdmode,
+                          &params_gcodeInfoStruct_TRAFO, &params_gcodeInfoStruct_HSC,
+                          &params_gcodeInfoStruct_FeedRate, &params_gcodeInfoStruct_SpindleSpeed,
+                          &params_gcodeInfoStruct_gcode_source_line, &params_gcodeInfoStruct_G91,
+                          &params_gcodeInfoStruct_G91_1, &params_tool_toolno, &params_tool_pocketno,
+                          &params_tool_offset, &params_tool_diameter, &params_tool_frontangle,
+                          &params_tool_backangle, &params_tool_orientation, &params_spline,
+                          params_R0, params_R1, params_Cprim, &expl_temp, params_evec, &b_expl_temp,
+                          &c_expl_temp, params_CoeffP5, &d_expl_temp);
+        // 'constrCurvStructType:10' if( coder.target( "MATLAB" ) )
+        // 'constrCurvStructType:12' else
+        // 'constrCurvStructType:13' C = constrCurvStruct( params.gcodeInfoStruct, params.tool, ...
+        // 'constrCurvStructType:14'         params.spline, params.R0, params.R1, params.Cprim, ...
+        // 'constrCurvStructType:15'         params.delta, params.evec, params.theta, params.pitch,
+        // ... 'constrCurvStructType:16'         params.CoeffP5, params.Coeff );
+        b_constrCurvStruct(params_gcodeInfoStruct_Type, params_gcodeInfoStruct_zspdmode,
+                           params_gcodeInfoStruct_TRAFO, params_gcodeInfoStruct_HSC,
+                           params_gcodeInfoStruct_FeedRate, params_gcodeInfoStruct_SpindleSpeed,
+                           params_gcodeInfoStruct_gcode_source_line, params_gcodeInfoStruct_G91,
+                           params_gcodeInfoStruct_G91_1, params_tool_toolno, params_tool_pocketno,
+                           &params_tool_offset, params_tool_diameter, params_tool_frontangle,
+                           params_tool_backangle, params_tool_orientation, &params_spline,
+                           params_R0, params_R1, params_Cprim, params_evec, params_CoeffP5,
+                           &e_expl_temp);
+        splineDefault.Info = e_expl_temp.Info;
+        splineDefault.tool = e_expl_temp.tool;
+        splineDefault.sp = e_expl_temp.sp;
+        splineDefault.R0.set_size(e_expl_temp.R0.size[0]);
+        loop_ub = e_expl_temp.R0.size[0];
+        for (int i{0}; i < loop_ub; i++) {
+            splineDefault.R0[i] = e_expl_temp.R0.data[i];
+        }
+        splineDefault.R1.set_size(e_expl_temp.R1.size[0]);
+        b_loop_ub = e_expl_temp.R1.size[0];
+        for (int i1{0}; i1 < b_loop_ub; i1++) {
+            splineDefault.R1[i1] = e_expl_temp.R1.data[i1];
+        }
+        splineDefault.delta = e_expl_temp.delta;
+        splineDefault.CorrectedHelixCenter[0] = e_expl_temp.CorrectedHelixCenter[0];
+        splineDefault.evec[0] = e_expl_temp.evec[0];
+        splineDefault.CorrectedHelixCenter[1] = e_expl_temp.CorrectedHelixCenter[1];
+        splineDefault.evec[1] = e_expl_temp.evec[1];
+        splineDefault.CorrectedHelixCenter[2] = e_expl_temp.CorrectedHelixCenter[2];
+        splineDefault.evec[2] = e_expl_temp.evec[2];
+        splineDefault.theta = e_expl_temp.theta;
+        splineDefault.pitch = e_expl_temp.pitch;
+        splineDefault.CoeffP5.set_size(e_expl_temp.CoeffP5.size(0), e_expl_temp.CoeffP5.size(1));
+        c_loop_ub = e_expl_temp.CoeffP5.size(1);
+        for (int i2{0}; i2 < c_loop_ub; i2++) {
+            int d_loop_ub;
+            d_loop_ub = e_expl_temp.CoeffP5.size(0);
+            for (int i3{0}; i3 < d_loop_ub; i3++) {
+                splineDefault.CoeffP5[i3 + splineDefault.CoeffP5.size(0) * i2] =
+                    e_expl_temp.CoeffP5[i3 + e_expl_temp.CoeffP5.size(0) * i2];
+            }
+        }
+        splineDefault.sp_index = e_expl_temp.sp_index;
+        splineDefault.i_begin_sp = e_expl_temp.i_begin_sp;
+        splineDefault.i_end_sp = e_expl_temp.i_end_sp;
+        splineDefault.index_smooth = e_expl_temp.index_smooth;
+        splineDefault.UseConstJerk = e_expl_temp.UseConstJerk;
+        splineDefault.ConstJerk = e_expl_temp.ConstJerk;
+        splineDefault.Coeff.set_size(e_expl_temp.Coeff.size(0));
+        e_loop_ub = e_expl_temp.Coeff.size(0);
+        for (int i4{0}; i4 < e_loop_ub; i4++) {
+            splineDefault.Coeff[i4] = e_expl_temp.Coeff[i4];
+        }
+        splineDefault.a_param = e_expl_temp.a_param;
+        splineDefault.b_param = e_expl_temp.b_param;
+        splineDefault_not_empty = true;
+    }
+    // 'EvalCurvStruct:24' if( curv.Info.Type == CurveType.Spline )
+    if (curv->Info.Type == CurveType_Spline) {
+        // 'EvalCurvStruct:25' ptr    = curv.sp_index;
+        // 'EvalCurvStruct:26' spline = ctx.q_spline.get( ptr );
+        ctx_q_spline->get(curv->sp_index, &spline);
+    } else {
+        // 'EvalCurvStruct:27' else
+        // 'EvalCurvStruct:28' spline = splineDefault;
+        spline = splineDefault;
+    }
+    // 'EvalCurvStruct:31' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
+    // u_vec );
+    f_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
+                          ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
+                          ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart,
+                          ctx_cfg_NRot, curv, &spline, r0D, r1D, r2D, r3D);
+}
+
+//
+// function [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, curv, u_vec )
+//
+// EvalCurvStruct : Eval curve structure and its derivatives on a set of u
+//  points.
+//
+//  Inputs :
+//  ctx   : The context of the computational chain
+//  curv  : The curve used in the evaluation
+//  u_vec : U vectors.
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
+//
+//
+// Arguments    : const queue_coder *ctx_q_spline
+//                const bool ctx_cfg_maskTot_data[]
+//                const int ctx_cfg_maskTot_size[2]
+//                const bool ctx_cfg_maskCart_data[]
+//                const int ctx_cfg_maskCart_size[2]
+//                const bool ctx_cfg_maskRot_data[]
+//                const int ctx_cfg_maskRot_size[2]
+//                const ::coder::array<int, 1U> &ctx_cfg_indCart
+//                const ::coder::array<int, 1U> &ctx_cfg_indRot
+//                int ctx_cfg_NumberAxis
+//                int ctx_cfg_NCart
+//                int ctx_cfg_NRot
+//                const CurvStruct *curv
+//                const ::coder::array<double, 2U> &u_vec
+//                ::coder::array<double, 2U> &r0D
+//                ::coder::array<double, 2U> &r1D
+//                ::coder::array<double, 2U> &r2D
+//                ::coder::array<double, 2U> &r3D
+// Return Type  : void
+//
+void q_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
+                      const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
+                      const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
+                      const int ctx_cfg_maskRot_size[2],
+                      const ::coder::array<int, 1U> &ctx_cfg_indCart,
+                      const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
+                      int ctx_cfg_NCart, int ctx_cfg_NRot, const CurvStruct *curv,
+                      const ::coder::array<double, 2U> &u_vec, ::coder::array<double, 2U> &r0D,
+                      ::coder::array<double, 2U> &r1D, ::coder::array<double, 2U> &r2D,
+                      ::coder::array<double, 2U> &r3D)
+{
+    Axes params_tool_offset;
+    CurvStruct spline;
+    SplineStruct params_spline;
+    b_CurvStruct e_expl_temp;
+    double params_CoeffP5[6];
+    double params_R0[6];
+    double params_R1[6];
+    double params_Cprim[3];
+    double params_evec[3];
+    double b_expl_temp;
+    double c_expl_temp;
+    double d_expl_temp;
+    double expl_temp;
+    double params_gcodeInfoStruct_FeedRate;
+    double params_gcodeInfoStruct_SpindleSpeed;
+    double params_tool_backangle;
+    double params_tool_diameter;
+    double params_tool_frontangle;
+    int params_gcodeInfoStruct_gcode_source_line;
+    int params_tool_orientation;
+    int params_tool_pocketno;
+    int params_tool_toolno;
+    bool params_gcodeInfoStruct_G91;
+    bool params_gcodeInfoStruct_G91_1;
+    bool params_gcodeInfoStruct_HSC;
+    bool params_gcodeInfoStruct_TRAFO;
+    CurveType params_gcodeInfoStruct_Type;
+    ZSpdMode params_gcodeInfoStruct_zspdmode;
+    // 'EvalCurvStruct:18' coder.inline("never");
+    // 'EvalCurvStruct:22' if( isempty( splineDefault ) )
+    if (!splineDefault_not_empty) {
+        int b_loop_ub;
+        int c_loop_ub;
+        int e_loop_ub;
+        int loop_ub;
+        // 'EvalCurvStruct:22' splineDefault = constrCurvStructType;
+        //  constrCurvStructType : Constructs a constrCurvStruct with default values.
+        // 'constrCurvStructType:4' if( nargin > 0 )
+        // 'constrCurvStructType:6' else
+        // 'constrCurvStructType:7' [ params ] = paramsDefaultCurv;
+        paramsDefaultCurv(&params_gcodeInfoStruct_Type, &params_gcodeInfoStruct_zspdmode,
+                          &params_gcodeInfoStruct_TRAFO, &params_gcodeInfoStruct_HSC,
+                          &params_gcodeInfoStruct_FeedRate, &params_gcodeInfoStruct_SpindleSpeed,
+                          &params_gcodeInfoStruct_gcode_source_line, &params_gcodeInfoStruct_G91,
+                          &params_gcodeInfoStruct_G91_1, &params_tool_toolno, &params_tool_pocketno,
+                          &params_tool_offset, &params_tool_diameter, &params_tool_frontangle,
+                          &params_tool_backangle, &params_tool_orientation, &params_spline,
+                          params_R0, params_R1, params_Cprim, &expl_temp, params_evec, &b_expl_temp,
+                          &c_expl_temp, params_CoeffP5, &d_expl_temp);
+        // 'constrCurvStructType:10' if( coder.target( "MATLAB" ) )
+        // 'constrCurvStructType:12' else
+        // 'constrCurvStructType:13' C = constrCurvStruct( params.gcodeInfoStruct, params.tool, ...
+        // 'constrCurvStructType:14'         params.spline, params.R0, params.R1, params.Cprim, ...
+        // 'constrCurvStructType:15'         params.delta, params.evec, params.theta, params.pitch,
+        // ... 'constrCurvStructType:16'         params.CoeffP5, params.Coeff );
+        b_constrCurvStruct(params_gcodeInfoStruct_Type, params_gcodeInfoStruct_zspdmode,
+                           params_gcodeInfoStruct_TRAFO, params_gcodeInfoStruct_HSC,
+                           params_gcodeInfoStruct_FeedRate, params_gcodeInfoStruct_SpindleSpeed,
+                           params_gcodeInfoStruct_gcode_source_line, params_gcodeInfoStruct_G91,
+                           params_gcodeInfoStruct_G91_1, params_tool_toolno, params_tool_pocketno,
+                           &params_tool_offset, params_tool_diameter, params_tool_frontangle,
+                           params_tool_backangle, params_tool_orientation, &params_spline,
+                           params_R0, params_R1, params_Cprim, params_evec, params_CoeffP5,
+                           &e_expl_temp);
+        splineDefault.Info = e_expl_temp.Info;
+        splineDefault.tool = e_expl_temp.tool;
+        splineDefault.sp = e_expl_temp.sp;
+        splineDefault.R0.set_size(e_expl_temp.R0.size[0]);
+        loop_ub = e_expl_temp.R0.size[0];
+        for (int i{0}; i < loop_ub; i++) {
+            splineDefault.R0[i] = e_expl_temp.R0.data[i];
+        }
+        splineDefault.R1.set_size(e_expl_temp.R1.size[0]);
+        b_loop_ub = e_expl_temp.R1.size[0];
+        for (int i1{0}; i1 < b_loop_ub; i1++) {
+            splineDefault.R1[i1] = e_expl_temp.R1.data[i1];
+        }
+        splineDefault.delta = e_expl_temp.delta;
+        splineDefault.CorrectedHelixCenter[0] = e_expl_temp.CorrectedHelixCenter[0];
+        splineDefault.evec[0] = e_expl_temp.evec[0];
+        splineDefault.CorrectedHelixCenter[1] = e_expl_temp.CorrectedHelixCenter[1];
+        splineDefault.evec[1] = e_expl_temp.evec[1];
+        splineDefault.CorrectedHelixCenter[2] = e_expl_temp.CorrectedHelixCenter[2];
+        splineDefault.evec[2] = e_expl_temp.evec[2];
+        splineDefault.theta = e_expl_temp.theta;
+        splineDefault.pitch = e_expl_temp.pitch;
+        splineDefault.CoeffP5.set_size(e_expl_temp.CoeffP5.size(0), e_expl_temp.CoeffP5.size(1));
+        c_loop_ub = e_expl_temp.CoeffP5.size(1);
+        for (int i2{0}; i2 < c_loop_ub; i2++) {
+            int d_loop_ub;
+            d_loop_ub = e_expl_temp.CoeffP5.size(0);
+            for (int i3{0}; i3 < d_loop_ub; i3++) {
+                splineDefault.CoeffP5[i3 + splineDefault.CoeffP5.size(0) * i2] =
+                    e_expl_temp.CoeffP5[i3 + e_expl_temp.CoeffP5.size(0) * i2];
+            }
+        }
+        splineDefault.sp_index = e_expl_temp.sp_index;
+        splineDefault.i_begin_sp = e_expl_temp.i_begin_sp;
+        splineDefault.i_end_sp = e_expl_temp.i_end_sp;
+        splineDefault.index_smooth = e_expl_temp.index_smooth;
+        splineDefault.UseConstJerk = e_expl_temp.UseConstJerk;
+        splineDefault.ConstJerk = e_expl_temp.ConstJerk;
+        splineDefault.Coeff.set_size(e_expl_temp.Coeff.size(0));
+        e_loop_ub = e_expl_temp.Coeff.size(0);
+        for (int i4{0}; i4 < e_loop_ub; i4++) {
+            splineDefault.Coeff[i4] = e_expl_temp.Coeff[i4];
+        }
+        splineDefault.a_param = e_expl_temp.a_param;
+        splineDefault.b_param = e_expl_temp.b_param;
+        splineDefault_not_empty = true;
+    }
+    // 'EvalCurvStruct:24' if( curv.Info.Type == CurveType.Spline )
+    if (curv->Info.Type == CurveType_Spline) {
+        // 'EvalCurvStruct:25' ptr    = curv.sp_index;
+        // 'EvalCurvStruct:26' spline = ctx.q_spline.get( ptr );
+        ctx_q_spline->get(curv->sp_index, &spline);
+    } else {
+        // 'EvalCurvStruct:27' else
+        // 'EvalCurvStruct:28' spline = splineDefault;
+        spline = splineDefault;
+    }
+    // 'EvalCurvStruct:31' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
+    // u_vec );
+    e_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
+                          ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
+                          ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart,
+                          ctx_cfg_NRot, curv, &spline, u_vec, r0D, r1D, r2D, r3D);
+}
+
+//
+// function [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, curv, u_vec )
+//
+// EvalCurvStruct : Eval curve structure and its derivatives on a set of u
+//  points.
+//
+//  Inputs :
+//  ctx   : The context of the computational chain
+//  curv  : The curve used in the evaluation
+//  u_vec : U vectors.
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
+//
+//
+// Arguments    : const queue_coder *ctx_q_spline
+//                const bool ctx_cfg_maskTot_data[]
+//                const int ctx_cfg_maskTot_size[2]
+//                const bool ctx_cfg_maskCart_data[]
+//                const int ctx_cfg_maskCart_size[2]
+//                const bool ctx_cfg_maskRot_data[]
+//                const int ctx_cfg_maskRot_size[2]
+//                const ::coder::array<int, 1U> &ctx_cfg_indCart
+//                const ::coder::array<int, 1U> &ctx_cfg_indRot
+//                int ctx_cfg_NumberAxis
+//                int ctx_cfg_NCart
+//                int ctx_cfg_NRot
+//                const CurvStruct *curv
+//                ::coder::array<double, 1U> &r0D
+//                ::coder::array<double, 1U> &r1D
+// Return Type  : void
+//
+void r_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
+                      const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
+                      const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
+                      const int ctx_cfg_maskRot_size[2],
+                      const ::coder::array<int, 1U> &ctx_cfg_indCart,
+                      const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
+                      int ctx_cfg_NCart, int ctx_cfg_NRot, const CurvStruct *curv,
+                      ::coder::array<double, 1U> &r0D, ::coder::array<double, 1U> &r1D)
+{
+    ::coder::array<double, 1U> r2D;
+    ::coder::array<double, 1U> r3D;
+    Axes params_tool_offset;
+    CurvStruct spline;
+    SplineStruct params_spline;
+    b_CurvStruct e_expl_temp;
+    double params_CoeffP5[6];
+    double params_R0[6];
+    double params_R1[6];
+    double params_Cprim[3];
+    double params_evec[3];
+    double b_expl_temp;
+    double c_expl_temp;
+    double d_expl_temp;
+    double expl_temp;
+    double params_gcodeInfoStruct_FeedRate;
+    double params_gcodeInfoStruct_SpindleSpeed;
+    double params_tool_backangle;
+    double params_tool_diameter;
+    double params_tool_frontangle;
+    int params_gcodeInfoStruct_gcode_source_line;
+    int params_tool_orientation;
+    int params_tool_pocketno;
+    int params_tool_toolno;
+    bool params_gcodeInfoStruct_G91;
+    bool params_gcodeInfoStruct_G91_1;
+    bool params_gcodeInfoStruct_HSC;
+    bool params_gcodeInfoStruct_TRAFO;
+    CurveType params_gcodeInfoStruct_Type;
+    ZSpdMode params_gcodeInfoStruct_zspdmode;
+    // 'EvalCurvStruct:18' coder.inline("never");
+    // 'EvalCurvStruct:22' if( isempty( splineDefault ) )
+    if (!splineDefault_not_empty) {
+        int b_loop_ub;
+        int c_loop_ub;
+        int e_loop_ub;
+        int loop_ub;
+        // 'EvalCurvStruct:22' splineDefault = constrCurvStructType;
+        //  constrCurvStructType : Constructs a constrCurvStruct with default values.
+        // 'constrCurvStructType:4' if( nargin > 0 )
+        // 'constrCurvStructType:6' else
+        // 'constrCurvStructType:7' [ params ] = paramsDefaultCurv;
+        paramsDefaultCurv(&params_gcodeInfoStruct_Type, &params_gcodeInfoStruct_zspdmode,
+                          &params_gcodeInfoStruct_TRAFO, &params_gcodeInfoStruct_HSC,
+                          &params_gcodeInfoStruct_FeedRate, &params_gcodeInfoStruct_SpindleSpeed,
+                          &params_gcodeInfoStruct_gcode_source_line, &params_gcodeInfoStruct_G91,
+                          &params_gcodeInfoStruct_G91_1, &params_tool_toolno, &params_tool_pocketno,
+                          &params_tool_offset, &params_tool_diameter, &params_tool_frontangle,
+                          &params_tool_backangle, &params_tool_orientation, &params_spline,
+                          params_R0, params_R1, params_Cprim, &expl_temp, params_evec, &b_expl_temp,
+                          &c_expl_temp, params_CoeffP5, &d_expl_temp);
+        // 'constrCurvStructType:10' if( coder.target( "MATLAB" ) )
+        // 'constrCurvStructType:12' else
+        // 'constrCurvStructType:13' C = constrCurvStruct( params.gcodeInfoStruct, params.tool, ...
+        // 'constrCurvStructType:14'         params.spline, params.R0, params.R1, params.Cprim, ...
+        // 'constrCurvStructType:15'         params.delta, params.evec, params.theta, params.pitch,
+        // ... 'constrCurvStructType:16'         params.CoeffP5, params.Coeff );
+        b_constrCurvStruct(params_gcodeInfoStruct_Type, params_gcodeInfoStruct_zspdmode,
+                           params_gcodeInfoStruct_TRAFO, params_gcodeInfoStruct_HSC,
+                           params_gcodeInfoStruct_FeedRate, params_gcodeInfoStruct_SpindleSpeed,
+                           params_gcodeInfoStruct_gcode_source_line, params_gcodeInfoStruct_G91,
+                           params_gcodeInfoStruct_G91_1, params_tool_toolno, params_tool_pocketno,
+                           &params_tool_offset, params_tool_diameter, params_tool_frontangle,
+                           params_tool_backangle, params_tool_orientation, &params_spline,
+                           params_R0, params_R1, params_Cprim, params_evec, params_CoeffP5,
+                           &e_expl_temp);
+        splineDefault.Info = e_expl_temp.Info;
+        splineDefault.tool = e_expl_temp.tool;
+        splineDefault.sp = e_expl_temp.sp;
+        splineDefault.R0.set_size(e_expl_temp.R0.size[0]);
+        loop_ub = e_expl_temp.R0.size[0];
+        for (int i{0}; i < loop_ub; i++) {
+            splineDefault.R0[i] = e_expl_temp.R0.data[i];
+        }
+        splineDefault.R1.set_size(e_expl_temp.R1.size[0]);
+        b_loop_ub = e_expl_temp.R1.size[0];
+        for (int i1{0}; i1 < b_loop_ub; i1++) {
+            splineDefault.R1[i1] = e_expl_temp.R1.data[i1];
+        }
+        splineDefault.delta = e_expl_temp.delta;
+        splineDefault.CorrectedHelixCenter[0] = e_expl_temp.CorrectedHelixCenter[0];
+        splineDefault.evec[0] = e_expl_temp.evec[0];
+        splineDefault.CorrectedHelixCenter[1] = e_expl_temp.CorrectedHelixCenter[1];
+        splineDefault.evec[1] = e_expl_temp.evec[1];
+        splineDefault.CorrectedHelixCenter[2] = e_expl_temp.CorrectedHelixCenter[2];
+        splineDefault.evec[2] = e_expl_temp.evec[2];
+        splineDefault.theta = e_expl_temp.theta;
+        splineDefault.pitch = e_expl_temp.pitch;
+        splineDefault.CoeffP5.set_size(e_expl_temp.CoeffP5.size(0), e_expl_temp.CoeffP5.size(1));
+        c_loop_ub = e_expl_temp.CoeffP5.size(1);
+        for (int i2{0}; i2 < c_loop_ub; i2++) {
+            int d_loop_ub;
+            d_loop_ub = e_expl_temp.CoeffP5.size(0);
+            for (int i3{0}; i3 < d_loop_ub; i3++) {
+                splineDefault.CoeffP5[i3 + splineDefault.CoeffP5.size(0) * i2] =
+                    e_expl_temp.CoeffP5[i3 + e_expl_temp.CoeffP5.size(0) * i2];
+            }
+        }
+        splineDefault.sp_index = e_expl_temp.sp_index;
+        splineDefault.i_begin_sp = e_expl_temp.i_begin_sp;
+        splineDefault.i_end_sp = e_expl_temp.i_end_sp;
+        splineDefault.index_smooth = e_expl_temp.index_smooth;
+        splineDefault.UseConstJerk = e_expl_temp.UseConstJerk;
+        splineDefault.ConstJerk = e_expl_temp.ConstJerk;
+        splineDefault.Coeff.set_size(e_expl_temp.Coeff.size(0));
+        e_loop_ub = e_expl_temp.Coeff.size(0);
+        for (int i4{0}; i4 < e_loop_ub; i4++) {
+            splineDefault.Coeff[i4] = e_expl_temp.Coeff[i4];
+        }
+        splineDefault.a_param = e_expl_temp.a_param;
+        splineDefault.b_param = e_expl_temp.b_param;
+        splineDefault_not_empty = true;
+    }
+    // 'EvalCurvStruct:24' if( curv.Info.Type == CurveType.Spline )
+    if (curv->Info.Type == CurveType_Spline) {
+        // 'EvalCurvStruct:25' ptr    = curv.sp_index;
+        // 'EvalCurvStruct:26' spline = ctx.q_spline.get( ptr );
+        ctx_q_spline->get(curv->sp_index, &spline);
+    } else {
+        // 'EvalCurvStruct:27' else
+        // 'EvalCurvStruct:28' spline = splineDefault;
+        spline = splineDefault;
+    }
+    // 'EvalCurvStruct:31' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
+    // u_vec );
+    d_EvalCurvStructNoCtx(ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
+                          ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
+                          ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart,
+                          ctx_cfg_NRot, curv, &spline, r0D, r1D, r2D, r3D);
+}
+
+//
+// function [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, curv, u_vec )
+//
+// EvalCurvStruct : Eval curve structure and its derivatives on a set of u
+//  points.
+//
+//  Inputs :
+//  ctx   : The context of the computational chain
+//  curv  : The curve used in the evaluation
+//  u_vec : U vectors.
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
+//
 //
 // Arguments    : const FeedoptConfig *ctx_cfg
 //                const CurvStruct *curv
@@ -948,13 +2103,13 @@ void m_EvalCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTo
 //                ::coder::array<double, 1U> &r1D
 // Return Type  : void
 //
-void n_EvalCurvStruct(const FeedoptConfig *ctx_cfg, const CurvStruct *curv,
+void s_EvalCurvStruct(const FeedoptConfig *ctx_cfg, const CurvStruct *curv,
                       ::coder::array<double, 1U> &r0D, ::coder::array<double, 1U> &r1D)
 {
     ::coder::array<double, 1U> r2D;
     ::coder::array<double, 1U> r3D;
-    ::coder::array<int, 1U> t14_indCart;
-    ::coder::array<int, 1U> t14_indRot;
+    ::coder::array<int, 1U> t22_indCart;
+    ::coder::array<int, 1U> t22_indRot;
     Axes params_tool_offset;
     SplineStruct params_spline;
     b_CurvStruct e_expl_temp;
@@ -984,14 +2139,14 @@ void n_EvalCurvStruct(const FeedoptConfig *ctx_cfg, const CurvStruct *curv,
     bool params_gcodeInfoStruct_TRAFO;
     CurveType params_gcodeInfoStruct_Type;
     ZSpdMode params_gcodeInfoStruct_zspdmode;
-    // 'EvalCurvStruct:3' coder.inline("never");
-    // 'EvalCurvStruct:7' if( isempty( splineDefault ) )
+    // 'EvalCurvStruct:18' coder.inline("never");
+    // 'EvalCurvStruct:22' if( isempty( splineDefault ) )
     if (!splineDefault_not_empty) {
         int c_loop_ub;
         int d_loop_ub;
         int e_loop_ub;
         int g_loop_ub;
-        // 'EvalCurvStruct:7' splineDefault = constrCurvStructType;
+        // 'EvalCurvStruct:22' splineDefault = constrCurvStructType;
         //  constrCurvStructType : Constructs a constrCurvStruct with default values.
         // 'constrCurvStructType:4' if( nargin > 0 )
         // 'constrCurvStructType:6' else
@@ -1067,24 +2222,24 @@ void n_EvalCurvStruct(const FeedoptConfig *ctx_cfg, const CurvStruct *curv,
         splineDefault.b_param = e_expl_temp.b_param;
         splineDefault_not_empty = true;
     }
-    // 'EvalCurvStruct:9' if( curv.Info.Type == CurveType.Spline )
-    // 'EvalCurvStruct:12' else
-    // 'EvalCurvStruct:13' spline = splineDefault;
-    // 'EvalCurvStruct:16' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
+    // 'EvalCurvStruct:24' if( curv.Info.Type == CurveType.Spline )
+    // 'EvalCurvStruct:27' else
+    // 'EvalCurvStruct:28' spline = splineDefault;
+    // 'EvalCurvStruct:31' [ r0D, r1D, r2D, r3D ] = EvalCurvStructNoCtx( ctx.cfg, curv, spline,
     // u_vec );
-    t14_indCart.set_size(ctx_cfg->indCart.size[0]);
+    t22_indCart.set_size(ctx_cfg->indCart.size[0]);
     loop_ub = ctx_cfg->indCart.size[0];
     for (int i{0}; i < loop_ub; i++) {
-        t14_indCart[i] = ctx_cfg->indCart.data[i];
+        t22_indCart[i] = ctx_cfg->indCart.data[i];
     }
-    t14_indRot.set_size(ctx_cfg->indRot.size[0]);
+    t22_indRot.set_size(ctx_cfg->indRot.size[0]);
     b_loop_ub = ctx_cfg->indRot.size[0];
     for (int i1{0}; i1 < b_loop_ub; i1++) {
-        t14_indRot[i1] = ctx_cfg->indRot.data[i1];
+        t22_indRot[i1] = ctx_cfg->indRot.data[i1];
     }
     d_EvalCurvStructNoCtx(ctx_cfg->maskTot.data, ctx_cfg->maskTot.size, ctx_cfg->maskCart.data,
                           ctx_cfg->maskCart.size, ctx_cfg->maskRot.data, ctx_cfg->maskRot.size,
-                          t14_indCart, t14_indRot, ctx_cfg->NumberAxis, ctx_cfg->NCart,
+                          t22_indCart, t22_indRot, ctx_cfg->NumberAxis, ctx_cfg->NCart,
                           ctx_cfg->NRot, curv, &splineDefault, r0D, r1D, r2D, r3D);
 }
 

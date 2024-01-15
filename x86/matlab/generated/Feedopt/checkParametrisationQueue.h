@@ -3,13 +3,13 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: checkParametrisation.h
+// File: checkParametrisationQueue.h
 //
 // MATLAB Coder version            : 5.4
 //
 
-#ifndef CHECKPARAMETRISATION_H
-#define CHECKPARAMETRISATION_H
+#ifndef CHECKPARAMETRISATIONQUEUE_H
+#define CHECKPARAMETRISATIONQUEUE_H
 
 // Include Files
 #include "rtwtypes.h"
@@ -26,13 +26,13 @@ class queue_coder;
 
 // Function Declarations
 namespace ocn {
-bool checkParametrisation(const queue_coder *queue);
+bool checkParametrisationQueue(const queue_coder *queue);
 
 }
 
 #endif
 //
-// File trailer for checkParametrisation.h
+// File trailer for checkParametrisationQueue.h
 //
 // [EOF]
 //

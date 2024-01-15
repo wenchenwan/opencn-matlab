@@ -21,7 +21,7 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-extern void ResampleState(double dt, double zeroStopTime, ResampleStateClass *b_state);
+extern void ResampleState(double dt, double zeroStopTime, ResampleStateClass *state);
 
 }
 

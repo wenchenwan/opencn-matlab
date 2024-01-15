@@ -19,6 +19,8 @@
 #include "kin_xyzbc_tt_forward.h"
 #include "kin_xyzbc_tt_inverse.h"
 #include "coder_array.h"
+#include <algorithm>
+#include <cstring>
 
 // Function Definitions
 //
@@ -37,6 +39,76 @@ Kinematics::Kinematics() = default;
 //
 // function [ a_j ] = a_joint( this, r_t, v_t, a_t )
 //
+// Arguments    : const double r_t_data[]
+//                int r_t_size
+//                const double v_t_data[]
+//                int v_t_size
+//                const double a_t_data[]
+//                int a_t_size
+//                double a_j_data[]
+//                int *a_j_size
+// Return Type  : void
+//
+void Kinematics::a_joint(const double r_t_data[], int r_t_size, const double v_t_data[],
+                         int v_t_size, const double a_t_data[], int a_t_size, double a_j_data[],
+                         int *a_j_size) const
+{
+    ::coder::array<double, 1U> c_r_t_data;
+    ::coder::array<double, 1U> c_v_t_data;
+    ::coder::array<double, 1U> d_r_t_data;
+    double J[5][5];
+    double JP[5][5];
+    double b_r_t_data[6];
+    double b_v_t_data[6];
+    double b_J[5];
+    double b_JP[5];
+    // 'Kinematics:194' coder.inline( "never" );
+    //              if( coder.target( 'MATLAB' ) )
+    // 'Kinematics:197' N   = size( r_t, 2 );
+    // 'Kinematics:198' a_j = zeros( size( a_t ) );
+    *a_j_size = a_t_size;
+    if (a_t_size - 1 >= 0) {
+        std::memset(&a_j_data[0], 0, a_t_size * sizeof(double));
+    }
+    // 'Kinematics:200' for j = 1 : N
+    // 'Kinematics:201' J   = kin_xyzbc_tt_J_jt( r_t( :, j ), this.parameters );
+    if (r_t_size - 1 >= 0) {
+        std::copy(&r_t_data[0], &r_t_data[r_t_size], &b_r_t_data[0]);
+    }
+    c_r_t_data.set(&b_r_t_data[0], r_t_size);
+    kin_xyzbc_tt_J_jt(c_r_t_data, parameters, J);
+    // 'Kinematics:202' JP  = kin_xyzbc_tt_JP_jt( r_t( :, j ), v_t( :, j ), this.parameters );
+    if (r_t_size - 1 >= 0) {
+        std::copy(&r_t_data[0], &r_t_data[r_t_size], &b_r_t_data[0]);
+    }
+    if (v_t_size - 1 >= 0) {
+        std::copy(&v_t_data[0], &v_t_data[v_t_size], &b_v_t_data[0]);
+    }
+    d_r_t_data.set(&b_r_t_data[0], r_t_size);
+    c_v_t_data.set(&b_v_t_data[0], v_t_size);
+    kin_xyzbc_tt_JP_jt(d_r_t_data, c_v_t_data, parameters, JP);
+    // 'Kinematics:203' a_j( :, j ) = JP * v_t( :, j ) + J * a_t( :, j );
+    for (int i{0}; i < 5; i++) {
+        double d;
+        double d1;
+        d = 0.0;
+        d1 = 0.0;
+        for (int i2{0}; i2 < 5; i2++) {
+            d += JP[i2][i] * v_t_data[i2];
+            d1 += J[i2][i] * a_t_data[i2];
+        }
+        b_J[i] = d1;
+        b_JP[i] = d;
+    }
+    for (int i1{0}; i1 < a_t_size; i1++) {
+        a_j_data[i1] = b_JP[i1] + b_J[i1];
+    }
+    //              end
+}
+
+//
+// function [ a_j ] = a_joint( this, r_t, v_t, a_t )
+//
 // Arguments    : const ::coder::array<double, 2U> &r_t
 //                const ::coder::array<double, 2U> &v_t
 //                const ::coder::array<double, 2U> &a_t
@@ -48,8 +120,11 @@ void Kinematics::a_joint(const ::coder::array<double, 2U> &r_t,
                          const ::coder::array<double, 2U> &a_t,
                          ::coder::array<double, 2U> &a_j) const
 {
-    ::coder::array<double, 1U> b_r_t;
-    ::coder::array<double, 1U> b_v_t;
+    ::coder::array<double, 1U> b_r_t_data;
+    ::coder::array<double, 1U> b_v_t_data;
+    ::coder::array<double, 1U> c_r_t_data;
+    double r_t_data[6];
+    double v_t_data[6];
     int i1;
     int loop_ub;
     unsigned int unnamed_idx_0;
@@ -78,25 +153,30 @@ void Kinematics::a_joint(const ::coder::array<double, 2U> &r_t,
         int d_loop_ub;
         int e_loop_ub;
         int f_loop_ub;
+        int r_t_size;
+        int v_t_size;
         // 'Kinematics:201' J   = kin_xyzbc_tt_J_jt( r_t( :, j ), this.parameters );
         c_loop_ub = r_t.size(0);
-        b_r_t.set_size(r_t.size(0));
+        r_t_size = r_t.size(0);
         for (int i3{0}; i3 < c_loop_ub; i3++) {
-            b_r_t[i3] = r_t[i3 + r_t.size(0) * j];
+            r_t_data[i3] = r_t[i3 + r_t.size(0) * j];
         }
-        kin_xyzbc_tt_J_jt(b_r_t, parameters, J);
+        b_r_t_data.set(&r_t_data[0], r_t_size);
+        kin_xyzbc_tt_J_jt(b_r_t_data, parameters, J);
         // 'Kinematics:202' JP  = kin_xyzbc_tt_JP_jt( r_t( :, j ), v_t( :, j ), this.parameters );
         d_loop_ub = r_t.size(0);
-        b_r_t.set_size(r_t.size(0));
+        r_t_size = r_t.size(0);
         for (int i4{0}; i4 < d_loop_ub; i4++) {
-            b_r_t[i4] = r_t[i4 + r_t.size(0) * j];
+            r_t_data[i4] = r_t[i4 + r_t.size(0) * j];
         }
         e_loop_ub = v_t.size(0);
-        b_v_t.set_size(v_t.size(0));
+        v_t_size = v_t.size(0);
         for (int i5{0}; i5 < e_loop_ub; i5++) {
-            b_v_t[i5] = v_t[i5 + v_t.size(0) * j];
+            v_t_data[i5] = v_t[i5 + v_t.size(0) * j];
         }
-        kin_xyzbc_tt_JP_jt(b_r_t, b_v_t, parameters, JP);
+        c_r_t_data.set(&r_t_data[0], r_t_size);
+        b_v_t_data.set(&v_t_data[0], v_t_size);
+        kin_xyzbc_tt_JP_jt(c_r_t_data, b_v_t_data, parameters, JP);
         // 'Kinematics:203' a_j( :, j ) = JP * v_t( :, j ) + J * a_t( :, j );
         for (int i6{0}; i6 < 5; i6++) {
             double d;
@@ -132,8 +212,11 @@ void Kinematics::a_relative(const ::coder::array<double, 2U> &r_j,
                             const ::coder::array<double, 2U> &a_j,
                             ::coder::array<double, 2U> &a_t) const
 {
-    ::coder::array<double, 1U> b_r_j;
-    ::coder::array<double, 1U> b_v_j;
+    ::coder::array<double, 1U> b_r_j_data;
+    ::coder::array<double, 1U> b_v_j_data;
+    ::coder::array<double, 1U> c_r_j_data;
+    double r_j_data[6];
+    double v_j_data[6];
     int i1;
     int loop_ub;
     unsigned int unnamed_idx_0;
@@ -162,25 +245,30 @@ void Kinematics::a_relative(const ::coder::array<double, 2U> &r_j,
         int d_loop_ub;
         int e_loop_ub;
         int f_loop_ub;
+        int r_j_size;
+        int v_j_size;
         // 'Kinematics:187' J   = kin_xyzbc_tt_J_tj( r_j( :, j ), this.parameters );
         c_loop_ub = r_j.size(0);
-        b_r_j.set_size(r_j.size(0));
+        r_j_size = r_j.size(0);
         for (int i3{0}; i3 < c_loop_ub; i3++) {
-            b_r_j[i3] = r_j[i3 + r_j.size(0) * j];
+            r_j_data[i3] = r_j[i3 + r_j.size(0) * j];
         }
-        kin_xyzbc_tt_J_tj(b_r_j, parameters, J);
+        b_r_j_data.set(&r_j_data[0], r_j_size);
+        kin_xyzbc_tt_J_tj(b_r_j_data, parameters, J);
         // 'Kinematics:188' JP  = kin_xyzbc_tt_JP_tj( r_j( :, j ), v_j( :, j ), this.parameters );
         d_loop_ub = r_j.size(0);
-        b_r_j.set_size(r_j.size(0));
+        r_j_size = r_j.size(0);
         for (int i4{0}; i4 < d_loop_ub; i4++) {
-            b_r_j[i4] = r_j[i4 + r_j.size(0) * j];
+            r_j_data[i4] = r_j[i4 + r_j.size(0) * j];
         }
         e_loop_ub = v_j.size(0);
-        b_v_j.set_size(v_j.size(0));
+        v_j_size = v_j.size(0);
         for (int i5{0}; i5 < e_loop_ub; i5++) {
-            b_v_j[i5] = v_j[i5 + v_j.size(0) * j];
+            v_j_data[i5] = v_j[i5 + v_j.size(0) * j];
         }
-        kin_xyzbc_tt_JP_tj(b_r_j, b_v_j, parameters, JP);
+        c_r_j_data.set(&r_j_data[0], r_j_size);
+        b_v_j_data.set(&v_j_data[0], v_j_size);
+        kin_xyzbc_tt_JP_tj(c_r_j_data, b_v_j_data, parameters, JP);
         // 'Kinematics:189' a_t( :, j ) = JP * v_j( :, j ) + J * a_j( :, j );
         for (int i6{0}; i6 < 5; i6++) {
             double d;
@@ -198,6 +286,109 @@ void Kinematics::a_relative(const ::coder::array<double, 2U> &r_j,
         for (int i7{0}; i7 < f_loop_ub; i7++) {
             a_t[i7 + a_t.size(0) * j] = b_JP[i7] + b_J[i7];
         }
+    }
+}
+
+//
+// function [ a_t ] = a_relative( this, r_j, v_j, a_j )
+//
+// Arguments    : const double r_j_data[]
+//                int r_j_size
+//                const double v_j_data[]
+//                int v_j_size
+//                const double a_j_data[]
+//                int a_j_size
+//                double a_t_data[]
+//                int *a_t_size
+// Return Type  : void
+//
+void Kinematics::a_relative(const double r_j_data[], int r_j_size, const double v_j_data[],
+                            int v_j_size, const double a_j_data[], int a_j_size, double a_t_data[],
+                            int *a_t_size) const
+{
+    ::coder::array<double, 1U> c_r_j_data;
+    ::coder::array<double, 1U> c_v_j_data;
+    ::coder::array<double, 1U> d_r_j_data;
+    double J[5][5];
+    double JP[5][5];
+    double b_r_j_data[6];
+    double b_v_j_data[6];
+    double b_J[5];
+    double b_JP[5];
+    //         %% Jacobian - First derivative
+    // 'Kinematics:181' coder.inline( "never" );
+    // 'Kinematics:183' N   = size( r_j, 2 );
+    // 'Kinematics:184' a_t = zeros( size( a_j ) );
+    *a_t_size = a_j_size;
+    if (a_j_size - 1 >= 0) {
+        std::memset(&a_t_data[0], 0, a_j_size * sizeof(double));
+    }
+    // 'Kinematics:186' for j = 1 : N
+    // 'Kinematics:187' J   = kin_xyzbc_tt_J_tj( r_j( :, j ), this.parameters );
+    if (r_j_size - 1 >= 0) {
+        std::copy(&r_j_data[0], &r_j_data[r_j_size], &b_r_j_data[0]);
+    }
+    c_r_j_data.set(&b_r_j_data[0], r_j_size);
+    kin_xyzbc_tt_J_tj(c_r_j_data, parameters, J);
+    // 'Kinematics:188' JP  = kin_xyzbc_tt_JP_tj( r_j( :, j ), v_j( :, j ), this.parameters );
+    if (r_j_size - 1 >= 0) {
+        std::copy(&r_j_data[0], &r_j_data[r_j_size], &b_r_j_data[0]);
+    }
+    if (v_j_size - 1 >= 0) {
+        std::copy(&v_j_data[0], &v_j_data[v_j_size], &b_v_j_data[0]);
+    }
+    d_r_j_data.set(&b_r_j_data[0], r_j_size);
+    c_v_j_data.set(&b_v_j_data[0], v_j_size);
+    kin_xyzbc_tt_JP_tj(d_r_j_data, c_v_j_data, parameters, JP);
+    // 'Kinematics:189' a_t( :, j ) = JP * v_j( :, j ) + J * a_j( :, j );
+    for (int i{0}; i < 5; i++) {
+        double d;
+        double d1;
+        d = 0.0;
+        d1 = 0.0;
+        for (int i2{0}; i2 < 5; i2++) {
+            d += JP[i2][i] * v_j_data[i2];
+            d1 += J[i2][i] * a_j_data[i2];
+        }
+        b_J[i] = d1;
+        b_JP[i] = d;
+    }
+    for (int i1{0}; i1 < a_j_size; i1++) {
+        a_t_data[i1] = b_JP[i1] + b_J[i1];
+    }
+}
+
+//
+// function [ params ] = get_params( this )
+//
+// Arguments    : double params_data[]
+//                int *params_size
+// Return Type  : void
+//
+void Kinematics::get_params(double params_data[], int *params_size) const
+{
+    int loop_ub;
+    // 'Kinematics:67' coder.inline( "never" );
+    // 'Kinematics:68' params = this.parameters;
+    *params_size = parameters.size(0);
+    loop_ub = parameters.size(0);
+    for (int i{0}; i < loop_ub; i++) {
+        params_data[i] = parameters[i];
+    }
+}
+
+//
+// function [ type ] = get_type( this )
+//
+// Arguments    : char b_type[8]
+// Return Type  : void
+//
+void Kinematics::get_type(char b_type[8]) const
+{
+    // 'Kinematics:72' coder.inline( "never" );
+    // 'Kinematics:73' type = this.type;
+    for (int i{0}; i < 8; i++) {
+        b_type[i] = type[i];
     }
 }
 
@@ -249,6 +440,100 @@ void Kinematics::init(const char b_type[8], const double parameters_data[], int 
 //
 // function [ j_j ] = j_joint( this, r_t, v_t, a_t, j_t )
 //
+// Arguments    : const double r_t_data[]
+//                int r_t_size
+//                const double v_t_data[]
+//                int v_t_size
+//                const double a_t_data[]
+//                int a_t_size
+//                const double j_t_data[]
+//                int j_t_size
+//                double j_j_data[]
+//                int *j_j_size
+// Return Type  : void
+//
+void Kinematics::j_joint(const double r_t_data[], int r_t_size, const double v_t_data[],
+                         int v_t_size, const double a_t_data[], int a_t_size,
+                         const double j_t_data[], int j_t_size, double j_j_data[],
+                         int *j_j_size) const
+{
+    ::coder::array<double, 1U> c_a_t_data;
+    ::coder::array<double, 1U> c_r_t_data;
+    ::coder::array<double, 1U> c_v_t_data;
+    ::coder::array<double, 1U> d_r_t_data;
+    ::coder::array<double, 1U> d_v_t_data;
+    ::coder::array<double, 1U> e_r_t_data;
+    double J[5][5];
+    double J2P[5][5];
+    double JP[5][5];
+    double b_a_t_data[6];
+    double b_r_t_data[6];
+    double b_v_t_data[6];
+    double b_J2P[5];
+    // 'Kinematics:226' coder.inline( "never" );
+    //              if( coder.target( 'MATLAB' ) )
+    // 'Kinematics:229' N   = size( r_t, 2 );
+    // 'Kinematics:230' j_j = zeros( size( j_t ) );
+    *j_j_size = j_t_size;
+    if (j_t_size - 1 >= 0) {
+        std::memset(&j_j_data[0], 0, j_t_size * sizeof(double));
+    }
+    // 'Kinematics:232' for j = 1 : N
+    // 'Kinematics:233' J   = kin_xyzbc_tt_J_jt( r_t( :, j ), this.parameters );
+    if (r_t_size - 1 >= 0) {
+        std::copy(&r_t_data[0], &r_t_data[r_t_size], &b_r_t_data[0]);
+    }
+    c_r_t_data.set(&b_r_t_data[0], r_t_size);
+    kin_xyzbc_tt_J_jt(c_r_t_data, parameters, J);
+    // 'Kinematics:234' JP  = kin_xyzbc_tt_JP_jt( r_t( :, j ), v_t( :, j ), this.parameters );
+    if (r_t_size - 1 >= 0) {
+        std::copy(&r_t_data[0], &r_t_data[r_t_size], &b_r_t_data[0]);
+    }
+    if (v_t_size - 1 >= 0) {
+        std::copy(&v_t_data[0], &v_t_data[v_t_size], &b_v_t_data[0]);
+    }
+    d_r_t_data.set(&b_r_t_data[0], r_t_size);
+    c_v_t_data.set(&b_v_t_data[0], v_t_size);
+    kin_xyzbc_tt_JP_jt(d_r_t_data, c_v_t_data, parameters, JP);
+    // 'Kinematics:235' J2P = kin_xyzbc_tt_J2P_jt( r_t( :, j ), v_t( :, j ), a_t( :, j ),
+    // this.parameters );
+    if (r_t_size - 1 >= 0) {
+        std::copy(&r_t_data[0], &r_t_data[r_t_size], &b_r_t_data[0]);
+    }
+    if (v_t_size - 1 >= 0) {
+        std::copy(&v_t_data[0], &v_t_data[v_t_size], &b_v_t_data[0]);
+    }
+    if (a_t_size - 1 >= 0) {
+        std::copy(&a_t_data[0], &a_t_data[a_t_size], &b_a_t_data[0]);
+    }
+    e_r_t_data.set(&b_r_t_data[0], r_t_size);
+    d_v_t_data.set(&b_v_t_data[0], v_t_size);
+    c_a_t_data.set(&b_a_t_data[0], a_t_size);
+    kin_xyzbc_tt_J2P_jt(e_r_t_data, d_v_t_data, c_a_t_data, parameters, J2P);
+    // 'Kinematics:236' j_j( :, j ) = J2P * v_t( :, j ) + 2 * JP * a_t( :, j ) + J * j_t( :, j );
+    for (int i{0}; i < 5; i++) {
+        double d;
+        double d1;
+        double d2;
+        d = 0.0;
+        d1 = 0.0;
+        d2 = 0.0;
+        for (int i1{0}; i1 < 5; i1++) {
+            d1 += J2P[i1][i] * v_t_data[i1];
+            d2 += 2.0 * JP[i1][i] * a_t_data[i1];
+            d += J[i1][i] * j_t_data[i1];
+        }
+        b_J2P[i] = (d1 + d2) + d;
+    }
+    if (j_t_size - 1 >= 0) {
+        std::copy(&b_J2P[0], &b_J2P[j_t_size], &j_j_data[0]);
+    }
+    //              end
+}
+
+//
+// function [ j_j ] = j_joint( this, r_t, v_t, a_t, j_t )
+//
 // Arguments    : const ::coder::array<double, 2U> &r_t
 //                const ::coder::array<double, 2U> &v_t
 //                const ::coder::array<double, 2U> &a_t
@@ -262,9 +547,15 @@ void Kinematics::j_joint(const ::coder::array<double, 2U> &r_t,
                          const ::coder::array<double, 2U> &j_t,
                          ::coder::array<double, 2U> &j_j) const
 {
-    ::coder::array<double, 1U> b_a_t;
-    ::coder::array<double, 1U> b_r_t;
-    ::coder::array<double, 1U> b_v_t;
+    ::coder::array<double, 1U> b_a_t_data;
+    ::coder::array<double, 1U> b_r_t_data;
+    ::coder::array<double, 1U> b_v_t_data;
+    ::coder::array<double, 1U> c_r_t_data;
+    ::coder::array<double, 1U> c_v_t_data;
+    ::coder::array<double, 1U> d_r_t_data;
+    double a_t_data[6];
+    double r_t_data[6];
+    double v_t_data[6];
     int i1;
     int loop_ub;
     unsigned int unnamed_idx_0;
@@ -289,6 +580,7 @@ void Kinematics::j_joint(const ::coder::array<double, 2U> &r_t,
         double J2P[5][5];
         double JP[5][5];
         double b_J2P[5];
+        int a_t_size;
         int c_loop_ub;
         int d_loop_ub;
         int e_loop_ub;
@@ -296,43 +588,51 @@ void Kinematics::j_joint(const ::coder::array<double, 2U> &r_t,
         int g_loop_ub;
         int h_loop_ub;
         int i_loop_ub;
+        int r_t_size;
+        int v_t_size;
         // 'Kinematics:233' J   = kin_xyzbc_tt_J_jt( r_t( :, j ), this.parameters );
         c_loop_ub = r_t.size(0);
-        b_r_t.set_size(r_t.size(0));
+        r_t_size = r_t.size(0);
         for (int i3{0}; i3 < c_loop_ub; i3++) {
-            b_r_t[i3] = r_t[i3 + r_t.size(0) * j];
+            r_t_data[i3] = r_t[i3 + r_t.size(0) * j];
         }
-        kin_xyzbc_tt_J_jt(b_r_t, parameters, J);
+        b_r_t_data.set(&r_t_data[0], r_t_size);
+        kin_xyzbc_tt_J_jt(b_r_t_data, parameters, J);
         // 'Kinematics:234' JP  = kin_xyzbc_tt_JP_jt( r_t( :, j ), v_t( :, j ), this.parameters );
         d_loop_ub = r_t.size(0);
-        b_r_t.set_size(r_t.size(0));
+        r_t_size = r_t.size(0);
         for (int i4{0}; i4 < d_loop_ub; i4++) {
-            b_r_t[i4] = r_t[i4 + r_t.size(0) * j];
+            r_t_data[i4] = r_t[i4 + r_t.size(0) * j];
         }
         e_loop_ub = v_t.size(0);
-        b_v_t.set_size(v_t.size(0));
+        v_t_size = v_t.size(0);
         for (int i5{0}; i5 < e_loop_ub; i5++) {
-            b_v_t[i5] = v_t[i5 + v_t.size(0) * j];
+            v_t_data[i5] = v_t[i5 + v_t.size(0) * j];
         }
-        kin_xyzbc_tt_JP_jt(b_r_t, b_v_t, parameters, JP);
+        c_r_t_data.set(&r_t_data[0], r_t_size);
+        b_v_t_data.set(&v_t_data[0], v_t_size);
+        kin_xyzbc_tt_JP_jt(c_r_t_data, b_v_t_data, parameters, JP);
         // 'Kinematics:235' J2P = kin_xyzbc_tt_J2P_jt( r_t( :, j ), v_t( :, j ), a_t( :, j ),
         // this.parameters );
         f_loop_ub = r_t.size(0);
-        b_r_t.set_size(r_t.size(0));
+        r_t_size = r_t.size(0);
         for (int i6{0}; i6 < f_loop_ub; i6++) {
-            b_r_t[i6] = r_t[i6 + r_t.size(0) * j];
+            r_t_data[i6] = r_t[i6 + r_t.size(0) * j];
         }
         g_loop_ub = v_t.size(0);
-        b_v_t.set_size(v_t.size(0));
+        v_t_size = v_t.size(0);
         for (int i7{0}; i7 < g_loop_ub; i7++) {
-            b_v_t[i7] = v_t[i7 + v_t.size(0) * j];
+            v_t_data[i7] = v_t[i7 + v_t.size(0) * j];
         }
         h_loop_ub = a_t.size(0);
-        b_a_t.set_size(a_t.size(0));
+        a_t_size = a_t.size(0);
         for (int i8{0}; i8 < h_loop_ub; i8++) {
-            b_a_t[i8] = a_t[i8 + a_t.size(0) * j];
+            a_t_data[i8] = a_t[i8 + a_t.size(0) * j];
         }
-        kin_xyzbc_tt_J2P_jt(b_r_t, b_v_t, b_a_t, parameters, J2P);
+        d_r_t_data.set(&r_t_data[0], r_t_size);
+        c_v_t_data.set(&v_t_data[0], v_t_size);
+        b_a_t_data.set(&a_t_data[0], a_t_size);
+        kin_xyzbc_tt_J2P_jt(d_r_t_data, c_v_t_data, b_a_t_data, parameters, J2P);
         // 'Kinematics:236' j_j( :, j ) = J2P * v_t( :, j ) + 2 * JP * a_t( :, j ) + J * j_t( :, j
         // );
         for (int i9{0}; i9 < 5; i9++) {
@@ -360,6 +660,101 @@ void Kinematics::j_joint(const ::coder::array<double, 2U> &r_t,
 //
 // function [ j_t ] = j_relative( this, r_j, v_j, a_j, j_j )
 //
+// Arguments    : const double r_j_data[]
+//                int r_j_size
+//                const double v_j_data[]
+//                int v_j_size
+//                const double a_j_data[]
+//                int a_j_size
+//                const double j_j_data[]
+//                int j_j_size
+//                double j_t_data[]
+//                int *j_t_size
+// Return Type  : void
+//
+void Kinematics::j_relative(const double r_j_data[], int r_j_size, const double v_j_data[],
+                            int v_j_size, const double a_j_data[], int a_j_size,
+                            const double j_j_data[], int j_j_size, double j_t_data[],
+                            int *j_t_size) const
+{
+    ::coder::array<double, 1U> c_a_j_data;
+    ::coder::array<double, 1U> c_r_j_data;
+    ::coder::array<double, 1U> c_v_j_data;
+    ::coder::array<double, 1U> d_r_j_data;
+    ::coder::array<double, 1U> d_v_j_data;
+    ::coder::array<double, 1U> e_r_j_data;
+    double J[5][5];
+    double J2P[5][5];
+    double JP[5][5];
+    double b_a_j_data[6];
+    double b_r_j_data[6];
+    double b_v_j_data[6];
+    double b_J2P[5];
+    //         %% Jacobian - Second derivative
+    // 'Kinematics:210' coder.inline( "never" );
+    //              if( coder.target( 'MATLAB' ) )
+    // 'Kinematics:213' N   = size( r_j, 2 );
+    // 'Kinematics:214' j_t = zeros( size( j_j ) );
+    *j_t_size = j_j_size;
+    if (j_j_size - 1 >= 0) {
+        std::memset(&j_t_data[0], 0, j_j_size * sizeof(double));
+    }
+    // 'Kinematics:216' for j = 1 : N
+    // 'Kinematics:217' J   = kin_xyzbc_tt_J_tj( r_j( :, j ), this.parameters );
+    if (r_j_size - 1 >= 0) {
+        std::copy(&r_j_data[0], &r_j_data[r_j_size], &b_r_j_data[0]);
+    }
+    c_r_j_data.set(&b_r_j_data[0], r_j_size);
+    kin_xyzbc_tt_J_tj(c_r_j_data, parameters, J);
+    // 'Kinematics:218' JP  = kin_xyzbc_tt_JP_tj( r_j( :, j ), v_j( :, j ), this.parameters );
+    if (r_j_size - 1 >= 0) {
+        std::copy(&r_j_data[0], &r_j_data[r_j_size], &b_r_j_data[0]);
+    }
+    if (v_j_size - 1 >= 0) {
+        std::copy(&v_j_data[0], &v_j_data[v_j_size], &b_v_j_data[0]);
+    }
+    d_r_j_data.set(&b_r_j_data[0], r_j_size);
+    c_v_j_data.set(&b_v_j_data[0], v_j_size);
+    kin_xyzbc_tt_JP_tj(d_r_j_data, c_v_j_data, parameters, JP);
+    // 'Kinematics:219' J2P = kin_xyzbc_tt_J2P_tj( r_j( :, j ), v_j( :, j ), a_j( :, j ),
+    // this.parameters );
+    if (r_j_size - 1 >= 0) {
+        std::copy(&r_j_data[0], &r_j_data[r_j_size], &b_r_j_data[0]);
+    }
+    if (v_j_size - 1 >= 0) {
+        std::copy(&v_j_data[0], &v_j_data[v_j_size], &b_v_j_data[0]);
+    }
+    if (a_j_size - 1 >= 0) {
+        std::copy(&a_j_data[0], &a_j_data[a_j_size], &b_a_j_data[0]);
+    }
+    e_r_j_data.set(&b_r_j_data[0], r_j_size);
+    d_v_j_data.set(&b_v_j_data[0], v_j_size);
+    c_a_j_data.set(&b_a_j_data[0], a_j_size);
+    kin_xyzbc_tt_J2P_tj(e_r_j_data, d_v_j_data, c_a_j_data, parameters, J2P);
+    // 'Kinematics:220' j_t( :, j ) = J2P * v_j( :, j ) + 2 * JP * a_j( :, j ) + J * j_j( :, j );
+    for (int i{0}; i < 5; i++) {
+        double d;
+        double d1;
+        double d2;
+        d = 0.0;
+        d1 = 0.0;
+        d2 = 0.0;
+        for (int i1{0}; i1 < 5; i1++) {
+            d1 += J2P[i1][i] * v_j_data[i1];
+            d2 += 2.0 * JP[i1][i] * a_j_data[i1];
+            d += J[i1][i] * j_j_data[i1];
+        }
+        b_J2P[i] = (d1 + d2) + d;
+    }
+    if (j_j_size - 1 >= 0) {
+        std::copy(&b_J2P[0], &b_J2P[j_j_size], &j_t_data[0]);
+    }
+    //              end
+}
+
+//
+// function [ j_t ] = j_relative( this, r_j, v_j, a_j, j_j )
+//
 // Arguments    : const ::coder::array<double, 2U> &r_j
 //                const ::coder::array<double, 2U> &v_j
 //                const ::coder::array<double, 2U> &a_j
@@ -373,9 +768,15 @@ void Kinematics::j_relative(const ::coder::array<double, 2U> &r_j,
                             const ::coder::array<double, 2U> &j_j,
                             ::coder::array<double, 2U> &j_t) const
 {
-    ::coder::array<double, 1U> b_a_j;
-    ::coder::array<double, 1U> b_r_j;
-    ::coder::array<double, 1U> b_v_j;
+    ::coder::array<double, 1U> b_a_j_data;
+    ::coder::array<double, 1U> b_r_j_data;
+    ::coder::array<double, 1U> b_v_j_data;
+    ::coder::array<double, 1U> c_r_j_data;
+    ::coder::array<double, 1U> c_v_j_data;
+    ::coder::array<double, 1U> d_r_j_data;
+    double a_j_data[6];
+    double r_j_data[6];
+    double v_j_data[6];
     int i1;
     int loop_ub;
     unsigned int unnamed_idx_0;
@@ -401,6 +802,7 @@ void Kinematics::j_relative(const ::coder::array<double, 2U> &r_j,
         double J2P[5][5];
         double JP[5][5];
         double b_J2P[5];
+        int a_j_size;
         int c_loop_ub;
         int d_loop_ub;
         int e_loop_ub;
@@ -408,43 +810,51 @@ void Kinematics::j_relative(const ::coder::array<double, 2U> &r_j,
         int g_loop_ub;
         int h_loop_ub;
         int i_loop_ub;
+        int r_j_size;
+        int v_j_size;
         // 'Kinematics:217' J   = kin_xyzbc_tt_J_tj( r_j( :, j ), this.parameters );
         c_loop_ub = r_j.size(0);
-        b_r_j.set_size(r_j.size(0));
+        r_j_size = r_j.size(0);
         for (int i3{0}; i3 < c_loop_ub; i3++) {
-            b_r_j[i3] = r_j[i3 + r_j.size(0) * j];
+            r_j_data[i3] = r_j[i3 + r_j.size(0) * j];
         }
-        kin_xyzbc_tt_J_tj(b_r_j, parameters, J);
+        b_r_j_data.set(&r_j_data[0], r_j_size);
+        kin_xyzbc_tt_J_tj(b_r_j_data, parameters, J);
         // 'Kinematics:218' JP  = kin_xyzbc_tt_JP_tj( r_j( :, j ), v_j( :, j ), this.parameters );
         d_loop_ub = r_j.size(0);
-        b_r_j.set_size(r_j.size(0));
+        r_j_size = r_j.size(0);
         for (int i4{0}; i4 < d_loop_ub; i4++) {
-            b_r_j[i4] = r_j[i4 + r_j.size(0) * j];
+            r_j_data[i4] = r_j[i4 + r_j.size(0) * j];
         }
         e_loop_ub = v_j.size(0);
-        b_v_j.set_size(v_j.size(0));
+        v_j_size = v_j.size(0);
         for (int i5{0}; i5 < e_loop_ub; i5++) {
-            b_v_j[i5] = v_j[i5 + v_j.size(0) * j];
+            v_j_data[i5] = v_j[i5 + v_j.size(0) * j];
         }
-        kin_xyzbc_tt_JP_tj(b_r_j, b_v_j, parameters, JP);
+        c_r_j_data.set(&r_j_data[0], r_j_size);
+        b_v_j_data.set(&v_j_data[0], v_j_size);
+        kin_xyzbc_tt_JP_tj(c_r_j_data, b_v_j_data, parameters, JP);
         // 'Kinematics:219' J2P = kin_xyzbc_tt_J2P_tj( r_j( :, j ), v_j( :, j ), a_j( :, j ),
         // this.parameters );
         f_loop_ub = r_j.size(0);
-        b_r_j.set_size(r_j.size(0));
+        r_j_size = r_j.size(0);
         for (int i6{0}; i6 < f_loop_ub; i6++) {
-            b_r_j[i6] = r_j[i6 + r_j.size(0) * j];
+            r_j_data[i6] = r_j[i6 + r_j.size(0) * j];
         }
         g_loop_ub = v_j.size(0);
-        b_v_j.set_size(v_j.size(0));
+        v_j_size = v_j.size(0);
         for (int i7{0}; i7 < g_loop_ub; i7++) {
-            b_v_j[i7] = v_j[i7 + v_j.size(0) * j];
+            v_j_data[i7] = v_j[i7 + v_j.size(0) * j];
         }
         h_loop_ub = a_j.size(0);
-        b_a_j.set_size(a_j.size(0));
+        a_j_size = a_j.size(0);
         for (int i8{0}; i8 < h_loop_ub; i8++) {
-            b_a_j[i8] = a_j[i8 + a_j.size(0) * j];
+            a_j_data[i8] = a_j[i8 + a_j.size(0) * j];
         }
-        kin_xyzbc_tt_J2P_tj(b_r_j, b_v_j, b_a_j, parameters, J2P);
+        d_r_j_data.set(&r_j_data[0], r_j_size);
+        c_v_j_data.set(&v_j_data[0], v_j_size);
+        b_a_j_data.set(&a_j_data[0], a_j_size);
+        kin_xyzbc_tt_J2P_tj(d_r_j_data, c_v_j_data, b_a_j_data, parameters, J2P);
         // 'Kinematics:220' j_t( :, j ) = J2P * v_j( :, j ) + 2 * JP * a_j( :, j ) + J * j_j( :, j
         // );
         for (int i9{0}; i9 < 5; i9++) {
@@ -465,148 +875,6 @@ void Kinematics::j_relative(const ::coder::array<double, 2U> &r_j,
         for (int i10{0}; i10 < i_loop_ub; i10++) {
             j_t[i10 + j_t.size(0) * j] = b_J2P[i10];
         }
-    }
-    //              end
-}
-
-//
-// function [ r_j, v_j, a_j, j_j ] = joint( this, r_t, v_t, a_t, j_t )
-//
-// Arguments    : const ::coder::array<double, 2U> &r_t
-//                const ::coder::array<double, 2U> &v_t
-//                const ::coder::array<double, 2U> &a_t
-//                ::coder::array<double, 2U> &r_j
-//                ::coder::array<double, 2U> &v_j
-//                ::coder::array<double, 2U> &a_j
-// Return Type  : void
-//
-void Kinematics::joint(const ::coder::array<double, 2U> &r_t, const ::coder::array<double, 2U> &v_t,
-                       const ::coder::array<double, 2U> &a_t, ::coder::array<double, 2U> &r_j,
-                       ::coder::array<double, 2U> &v_j, ::coder::array<double, 2U> &a_j) const
-{
-    ::coder::array<double, 1U> b_r_t;
-    ::coder::array<double, 1U> b_v_t;
-    int c_loop_ub;
-    int e_loop_ub;
-    int i6;
-    int loop_ub;
-    unsigned int unnamed_idx_0;
-    // 'Kinematics:130' coder.inline( "never" );
-    //              if( coder.target( 'MATLAB' ) )
-    // 'Kinematics:133' N   = size( r_t, 2 );
-    // 'Kinematics:134' r_j = zeros( size( r_t ) );
-    unnamed_idx_0 = static_cast<unsigned int>(r_t.size(0));
-    r_j.set_size(r_t.size(0), r_t.size(1));
-    loop_ub = r_t.size(1);
-    for (int i{0}; i < loop_ub; i++) {
-        int b_loop_ub;
-        b_loop_ub = static_cast<int>(unnamed_idx_0);
-        for (int i1{0}; i1 < b_loop_ub; i1++) {
-            r_j[i1 + r_j.size(0) * i] = 0.0;
-        }
-    }
-    // 'Kinematics:135' v_j = zeros( size( v_t ) );
-    unnamed_idx_0 = static_cast<unsigned int>(v_t.size(0));
-    v_j.set_size(v_t.size(0), v_t.size(1));
-    c_loop_ub = v_t.size(1);
-    for (int i2{0}; i2 < c_loop_ub; i2++) {
-        int d_loop_ub;
-        d_loop_ub = static_cast<int>(unnamed_idx_0);
-        for (int i3{0}; i3 < d_loop_ub; i3++) {
-            v_j[i3 + v_j.size(0) * i2] = 0.0;
-        }
-    }
-    // 'Kinematics:136' a_j = zeros( size( a_t ) );
-    unnamed_idx_0 = static_cast<unsigned int>(a_t.size(0));
-    a_j.set_size(a_t.size(0), a_t.size(1));
-    e_loop_ub = a_t.size(1);
-    for (int i4{0}; i4 < e_loop_ub; i4++) {
-        int f_loop_ub;
-        f_loop_ub = static_cast<int>(unnamed_idx_0);
-        for (int i5{0}; i5 < f_loop_ub; i5++) {
-            a_j[i5 + a_j.size(0) * i4] = 0.0;
-        }
-    }
-    // 'Kinematics:137' j_j = zeros( size( j_t ) );
-    // 'Kinematics:139' for j = 1 : N
-    i6 = r_t.size(1);
-    for (int j{0}; j < i6; j++) {
-        double J[5][5];
-        double JP[5][5];
-        double b_J[5];
-        double b_JP[5];
-        double dv[5];
-        int g_loop_ub;
-        int h_loop_ub;
-        int i_loop_ub;
-        int j_loop_ub;
-        int k_loop_ub;
-        int l_loop_ub;
-        int m_loop_ub;
-        // 'Kinematics:140' J   = kin_xyzbc_tt_J_jt( r_t( :, j ), this.parameters );
-        g_loop_ub = r_t.size(0);
-        b_r_t.set_size(r_t.size(0));
-        for (int i7{0}; i7 < g_loop_ub; i7++) {
-            b_r_t[i7] = r_t[i7 + r_t.size(0) * j];
-        }
-        kin_xyzbc_tt_J_jt(b_r_t, parameters, J);
-        // 'Kinematics:141' JP  = kin_xyzbc_tt_JP_jt( r_t( :, j ), v_t( :, j ), this.parameters );
-        h_loop_ub = r_t.size(0);
-        b_r_t.set_size(r_t.size(0));
-        for (int i8{0}; i8 < h_loop_ub; i8++) {
-            b_r_t[i8] = r_t[i8 + r_t.size(0) * j];
-        }
-        i_loop_ub = v_t.size(0);
-        b_v_t.set_size(v_t.size(0));
-        for (int i9{0}; i9 < i_loop_ub; i9++) {
-            b_v_t[i9] = v_t[i9 + v_t.size(0) * j];
-        }
-        kin_xyzbc_tt_JP_jt(b_r_t, b_v_t, parameters, JP);
-        // 'Kinematics:142' J2P = kin_xyzbc_tt_J2P_jt( r_t( :, j ), v_t( :, j ), a_t( :, j ),
-        // this.parameters ); 'Kinematics:143' r_j( :, j ) = kin_xyzbc_tt_inverse( r_t( :, j ),
-        // this.parameters );
-        j_loop_ub = r_t.size(0);
-        b_r_t.set_size(r_t.size(0));
-        for (int i10{0}; i10 < j_loop_ub; i10++) {
-            b_r_t[i10] = r_t[i10 + r_t.size(0) * j];
-        }
-        kin_xyzbc_tt_inverse(b_r_t, parameters, dv);
-        k_loop_ub = r_j.size(0);
-        for (int i11{0}; i11 < k_loop_ub; i11++) {
-            r_j[i11 + r_j.size(0) * j] = dv[i11];
-        }
-        // 'Kinematics:144' v_j( :, j ) = J * v_t( :, j );
-        for (int i12{0}; i12 < 5; i12++) {
-            double d;
-            d = 0.0;
-            for (int i14{0}; i14 < 5; i14++) {
-                d += J[i14][i12] * v_t[i14 + v_t.size(0) * j];
-            }
-            b_J[i12] = d;
-        }
-        l_loop_ub = v_j.size(0);
-        for (int i13{0}; i13 < l_loop_ub; i13++) {
-            v_j[i13 + v_j.size(0) * j] = b_J[i13];
-        }
-        // 'Kinematics:145' a_j( :, j ) = JP * v_t( :, j ) + J * a_t( :, j );
-        for (int i15{0}; i15 < 5; i15++) {
-            double d1;
-            double d2;
-            d1 = 0.0;
-            d2 = 0.0;
-            for (int i17{0}; i17 < 5; i17++) {
-                d1 += JP[i17][i15] * v_t[i17 + v_t.size(0) * j];
-                d2 += J[i17][i15] * a_t[i17 + a_t.size(0) * j];
-            }
-            b_J[i15] = d2;
-            b_JP[i15] = d1;
-        }
-        m_loop_ub = a_j.size(0);
-        for (int i16{0}; i16 < m_loop_ub; i16++) {
-            a_j[i16 + a_j.size(0) * j] = b_JP[i16] + b_J[i16];
-        }
-        // 'Kinematics:146' j_j( :, j ) = J2P * v_t( :, j ) + 2 * JP * a_t( :, j ) + J * j_t( :, j
-        // );
     }
     //              end
 }
@@ -809,6 +1077,340 @@ void Kinematics::joint(const ::coder::array<double, 2U> &r_t, const ::coder::arr
 }
 
 //
+// function [ r_j, v_j, a_j, j_j ] = joint( this, r_t, v_t, a_t, j_t )
+//
+// Arguments    : const ::coder::array<double, 2U> &r_t
+//                const ::coder::array<double, 2U> &v_t
+//                const ::coder::array<double, 2U> &a_t
+//                ::coder::array<double, 2U> &r_j
+//                ::coder::array<double, 2U> &v_j
+//                ::coder::array<double, 2U> &a_j
+// Return Type  : void
+//
+void Kinematics::joint(const ::coder::array<double, 2U> &r_t, const ::coder::array<double, 2U> &v_t,
+                       const ::coder::array<double, 2U> &a_t, ::coder::array<double, 2U> &r_j,
+                       ::coder::array<double, 2U> &v_j, ::coder::array<double, 2U> &a_j) const
+{
+    ::coder::array<double, 1U> b_r_t;
+    ::coder::array<double, 1U> b_v_t;
+    int c_loop_ub;
+    int e_loop_ub;
+    int i6;
+    int loop_ub;
+    unsigned int unnamed_idx_0;
+    // 'Kinematics:130' coder.inline( "never" );
+    //              if( coder.target( 'MATLAB' ) )
+    // 'Kinematics:133' N   = size( r_t, 2 );
+    // 'Kinematics:134' r_j = zeros( size( r_t ) );
+    unnamed_idx_0 = static_cast<unsigned int>(r_t.size(0));
+    r_j.set_size(r_t.size(0), r_t.size(1));
+    loop_ub = r_t.size(1);
+    for (int i{0}; i < loop_ub; i++) {
+        int b_loop_ub;
+        b_loop_ub = static_cast<int>(unnamed_idx_0);
+        for (int i1{0}; i1 < b_loop_ub; i1++) {
+            r_j[i1 + r_j.size(0) * i] = 0.0;
+        }
+    }
+    // 'Kinematics:135' v_j = zeros( size( v_t ) );
+    unnamed_idx_0 = static_cast<unsigned int>(v_t.size(0));
+    v_j.set_size(v_t.size(0), v_t.size(1));
+    c_loop_ub = v_t.size(1);
+    for (int i2{0}; i2 < c_loop_ub; i2++) {
+        int d_loop_ub;
+        d_loop_ub = static_cast<int>(unnamed_idx_0);
+        for (int i3{0}; i3 < d_loop_ub; i3++) {
+            v_j[i3 + v_j.size(0) * i2] = 0.0;
+        }
+    }
+    // 'Kinematics:136' a_j = zeros( size( a_t ) );
+    unnamed_idx_0 = static_cast<unsigned int>(a_t.size(0));
+    a_j.set_size(a_t.size(0), a_t.size(1));
+    e_loop_ub = a_t.size(1);
+    for (int i4{0}; i4 < e_loop_ub; i4++) {
+        int f_loop_ub;
+        f_loop_ub = static_cast<int>(unnamed_idx_0);
+        for (int i5{0}; i5 < f_loop_ub; i5++) {
+            a_j[i5 + a_j.size(0) * i4] = 0.0;
+        }
+    }
+    // 'Kinematics:137' j_j = zeros( size( j_t ) );
+    // 'Kinematics:139' for j = 1 : N
+    i6 = r_t.size(1);
+    for (int j{0}; j < i6; j++) {
+        double J[5][5];
+        double JP[5][5];
+        double b_J[5];
+        double b_JP[5];
+        double dv[5];
+        int g_loop_ub;
+        int h_loop_ub;
+        int i_loop_ub;
+        int j_loop_ub;
+        int k_loop_ub;
+        int l_loop_ub;
+        int m_loop_ub;
+        // 'Kinematics:140' J   = kin_xyzbc_tt_J_jt( r_t( :, j ), this.parameters );
+        g_loop_ub = r_t.size(0);
+        b_r_t.set_size(r_t.size(0));
+        for (int i7{0}; i7 < g_loop_ub; i7++) {
+            b_r_t[i7] = r_t[i7 + r_t.size(0) * j];
+        }
+        kin_xyzbc_tt_J_jt(b_r_t, parameters, J);
+        // 'Kinematics:141' JP  = kin_xyzbc_tt_JP_jt( r_t( :, j ), v_t( :, j ), this.parameters );
+        h_loop_ub = r_t.size(0);
+        b_r_t.set_size(r_t.size(0));
+        for (int i8{0}; i8 < h_loop_ub; i8++) {
+            b_r_t[i8] = r_t[i8 + r_t.size(0) * j];
+        }
+        i_loop_ub = v_t.size(0);
+        b_v_t.set_size(v_t.size(0));
+        for (int i9{0}; i9 < i_loop_ub; i9++) {
+            b_v_t[i9] = v_t[i9 + v_t.size(0) * j];
+        }
+        kin_xyzbc_tt_JP_jt(b_r_t, b_v_t, parameters, JP);
+        // 'Kinematics:142' J2P = kin_xyzbc_tt_J2P_jt( r_t( :, j ), v_t( :, j ), a_t( :, j ),
+        // this.parameters ); 'Kinematics:143' r_j( :, j ) = kin_xyzbc_tt_inverse( r_t( :, j ),
+        // this.parameters );
+        j_loop_ub = r_t.size(0);
+        b_r_t.set_size(r_t.size(0));
+        for (int i10{0}; i10 < j_loop_ub; i10++) {
+            b_r_t[i10] = r_t[i10 + r_t.size(0) * j];
+        }
+        kin_xyzbc_tt_inverse(b_r_t, parameters, dv);
+        k_loop_ub = r_j.size(0);
+        for (int i11{0}; i11 < k_loop_ub; i11++) {
+            r_j[i11 + r_j.size(0) * j] = dv[i11];
+        }
+        // 'Kinematics:144' v_j( :, j ) = J * v_t( :, j );
+        for (int i12{0}; i12 < 5; i12++) {
+            double d;
+            d = 0.0;
+            for (int i14{0}; i14 < 5; i14++) {
+                d += J[i14][i12] * v_t[i14 + v_t.size(0) * j];
+            }
+            b_J[i12] = d;
+        }
+        l_loop_ub = v_j.size(0);
+        for (int i13{0}; i13 < l_loop_ub; i13++) {
+            v_j[i13 + v_j.size(0) * j] = b_J[i13];
+        }
+        // 'Kinematics:145' a_j( :, j ) = JP * v_t( :, j ) + J * a_t( :, j );
+        for (int i15{0}; i15 < 5; i15++) {
+            double d1;
+            double d2;
+            d1 = 0.0;
+            d2 = 0.0;
+            for (int i17{0}; i17 < 5; i17++) {
+                d1 += JP[i17][i15] * v_t[i17 + v_t.size(0) * j];
+                d2 += J[i17][i15] * a_t[i17 + a_t.size(0) * j];
+            }
+            b_J[i15] = d2;
+            b_JP[i15] = d1;
+        }
+        m_loop_ub = a_j.size(0);
+        for (int i16{0}; i16 < m_loop_ub; i16++) {
+            a_j[i16 + a_j.size(0) * j] = b_JP[i16] + b_J[i16];
+        }
+        // 'Kinematics:146' j_j( :, j ) = J2P * v_t( :, j ) + 2 * JP * a_t( :, j ) + J * j_t( :, j
+        // );
+    }
+    //              end
+}
+
+//
+// function [ r_j, v_j, a_j, j_j ] = joint( this, r_t, v_t, a_t, j_t )
+//
+// Arguments    : const double r_t_data[]
+//                int r_t_size
+//                const double v_t_data[]
+//                int v_t_size
+//                const double a_t_data[]
+//                int a_t_size
+//                const double j_t_data[]
+//                int j_t_size
+//                double r_j_data[]
+//                int *r_j_size
+//                double v_j_data[]
+//                int *v_j_size
+//                double a_j_data[]
+//                int *a_j_size
+//                double j_j_data[]
+//                int *j_j_size
+// Return Type  : void
+//
+void Kinematics::joint(const double r_t_data[], int r_t_size, const double v_t_data[], int v_t_size,
+                       const double a_t_data[], int a_t_size, const double j_t_data[], int j_t_size,
+                       double r_j_data[], int *r_j_size, double v_j_data[], int *v_j_size,
+                       double a_j_data[], int *a_j_size, double j_j_data[], int *j_j_size) const
+{
+    ::coder::array<double, 1U> c_a_t_data;
+    ::coder::array<double, 1U> c_r_t_data;
+    ::coder::array<double, 1U> c_v_t_data;
+    ::coder::array<double, 1U> d_r_t_data;
+    ::coder::array<double, 1U> d_v_t_data;
+    ::coder::array<double, 1U> e_r_t_data;
+    ::coder::array<double, 1U> f_r_t_data;
+    double J[5][5];
+    double J2P[5][5];
+    double JP[5][5];
+    double b_a_t_data[6];
+    double b_r_t_data[6];
+    double b_v_t_data[6];
+    double b_J[5];
+    double b_J2P[5];
+    double b_JP[5];
+    double dv[5];
+    // 'Kinematics:130' coder.inline( "never" );
+    //              if( coder.target( 'MATLAB' ) )
+    // 'Kinematics:133' N   = size( r_t, 2 );
+    // 'Kinematics:134' r_j = zeros( size( r_t ) );
+    *r_j_size = r_t_size;
+    if (r_t_size - 1 >= 0) {
+        std::memset(&r_j_data[0], 0, r_t_size * sizeof(double));
+    }
+    // 'Kinematics:135' v_j = zeros( size( v_t ) );
+    *v_j_size = v_t_size;
+    if (v_t_size - 1 >= 0) {
+        std::memset(&v_j_data[0], 0, v_t_size * sizeof(double));
+    }
+    // 'Kinematics:136' a_j = zeros( size( a_t ) );
+    *a_j_size = a_t_size;
+    if (a_t_size - 1 >= 0) {
+        std::memset(&a_j_data[0], 0, a_t_size * sizeof(double));
+    }
+    // 'Kinematics:137' j_j = zeros( size( j_t ) );
+    *j_j_size = j_t_size;
+    if (j_t_size - 1 >= 0) {
+        std::memset(&j_j_data[0], 0, j_t_size * sizeof(double));
+    }
+    // 'Kinematics:139' for j = 1 : N
+    // 'Kinematics:140' J   = kin_xyzbc_tt_J_jt( r_t( :, j ), this.parameters );
+    if (r_t_size - 1 >= 0) {
+        std::copy(&r_t_data[0], &r_t_data[r_t_size], &b_r_t_data[0]);
+    }
+    c_r_t_data.set(&b_r_t_data[0], r_t_size);
+    kin_xyzbc_tt_J_jt(c_r_t_data, parameters, J);
+    // 'Kinematics:141' JP  = kin_xyzbc_tt_JP_jt( r_t( :, j ), v_t( :, j ), this.parameters );
+    if (r_t_size - 1 >= 0) {
+        std::copy(&r_t_data[0], &r_t_data[r_t_size], &b_r_t_data[0]);
+    }
+    if (v_t_size - 1 >= 0) {
+        std::copy(&v_t_data[0], &v_t_data[v_t_size], &b_v_t_data[0]);
+    }
+    d_r_t_data.set(&b_r_t_data[0], r_t_size);
+    c_v_t_data.set(&b_v_t_data[0], v_t_size);
+    kin_xyzbc_tt_JP_jt(d_r_t_data, c_v_t_data, parameters, JP);
+    // 'Kinematics:142' J2P = kin_xyzbc_tt_J2P_jt( r_t( :, j ), v_t( :, j ), a_t( :, j ),
+    // this.parameters );
+    if (r_t_size - 1 >= 0) {
+        std::copy(&r_t_data[0], &r_t_data[r_t_size], &b_r_t_data[0]);
+    }
+    if (v_t_size - 1 >= 0) {
+        std::copy(&v_t_data[0], &v_t_data[v_t_size], &b_v_t_data[0]);
+    }
+    if (a_t_size - 1 >= 0) {
+        std::copy(&a_t_data[0], &a_t_data[a_t_size], &b_a_t_data[0]);
+    }
+    e_r_t_data.set(&b_r_t_data[0], r_t_size);
+    d_v_t_data.set(&b_v_t_data[0], v_t_size);
+    c_a_t_data.set(&b_a_t_data[0], a_t_size);
+    kin_xyzbc_tt_J2P_jt(e_r_t_data, d_v_t_data, c_a_t_data, parameters, J2P);
+    // 'Kinematics:143' r_j( :, j ) = kin_xyzbc_tt_inverse( r_t( :, j ), this.parameters );
+    if (r_t_size - 1 >= 0) {
+        std::copy(&r_t_data[0], &r_t_data[r_t_size], &b_r_t_data[0]);
+    }
+    f_r_t_data.set(&b_r_t_data[0], r_t_size);
+    kin_xyzbc_tt_inverse(f_r_t_data, parameters, dv);
+    if (r_t_size - 1 >= 0) {
+        std::copy(&dv[0], &dv[r_t_size], &r_j_data[0]);
+    }
+    // 'Kinematics:144' v_j( :, j ) = J * v_t( :, j );
+    for (int i{0}; i < 5; i++) {
+        double d;
+        d = 0.0;
+        for (int i1{0}; i1 < 5; i1++) {
+            d += J[i1][i] * v_t_data[i1];
+        }
+        b_J[i] = d;
+    }
+    if (v_t_size - 1 >= 0) {
+        std::copy(&b_J[0], &b_J[v_t_size], &v_j_data[0]);
+    }
+    // 'Kinematics:145' a_j( :, j ) = JP * v_t( :, j ) + J * a_t( :, j );
+    for (int i2{0}; i2 < 5; i2++) {
+        double d1;
+        double d2;
+        d1 = 0.0;
+        d2 = 0.0;
+        for (int i4{0}; i4 < 5; i4++) {
+            d1 += JP[i4][i2] * v_t_data[i4];
+            d2 += J[i4][i2] * a_t_data[i4];
+        }
+        b_J[i2] = d2;
+        b_JP[i2] = d1;
+    }
+    for (int i3{0}; i3 < a_t_size; i3++) {
+        a_j_data[i3] = b_JP[i3] + b_J[i3];
+    }
+    // 'Kinematics:146' j_j( :, j ) = J2P * v_t( :, j ) + 2 * JP * a_t( :, j ) + J * j_t( :, j );
+    for (int i5{0}; i5 < 5; i5++) {
+        double d3;
+        double d4;
+        double d5;
+        d3 = 0.0;
+        d4 = 0.0;
+        d5 = 0.0;
+        for (int i6{0}; i6 < 5; i6++) {
+            d4 += J2P[i6][i5] * v_t_data[i6];
+            d5 += 2.0 * JP[i6][i5] * a_t_data[i6];
+            d3 += J[i6][i5] * j_t_data[i6];
+        }
+        b_J2P[i5] = (d4 + d5) + d3;
+    }
+    if (j_t_size - 1 >= 0) {
+        std::copy(&b_J2P[0], &b_J2P[j_t_size], &j_j_data[0]);
+    }
+    //              end
+}
+
+//
+// function [ r_j ] = r_joint( this, r_t )
+//
+// Arguments    : const double r_t_data[]
+//                int r_t_size
+//                double r_j_data[]
+//                int *r_j_size
+// Return Type  : void
+//
+void Kinematics::r_joint(const double r_t_data[], int r_t_size, double r_j_data[],
+                         int *r_j_size) const
+{
+    ::coder::array<double, 1U> c_r_t_data;
+    double b_r_t_data[6];
+    double dv[5];
+    // 'Kinematics:92' coder.inline( "never" );
+    //              if( coder.target( 'MATLAB' ) )
+    // 'Kinematics:95' N   = size( r_t, 2 );
+    // 'Kinematics:96' r_j = zeros( size( r_t ) );
+    *r_j_size = r_t_size;
+    if (r_t_size - 1 >= 0) {
+        std::memset(&r_j_data[0], 0, r_t_size * sizeof(double));
+    }
+    // 'Kinematics:97' for j = 1 : N
+    // 'Kinematics:98' r_j( :, j ) = kin_xyzbc_tt_inverse( r_t( : , j ), this.parameters );
+    if (r_t_size - 1 >= 0) {
+        std::copy(&r_t_data[0], &r_t_data[r_t_size], &b_r_t_data[0]);
+    }
+    c_r_t_data.set(&b_r_t_data[0], r_t_size);
+    kin_xyzbc_tt_inverse(c_r_t_data, parameters, dv);
+    if (r_t_size - 1 >= 0) {
+        std::copy(&dv[0], &dv[r_t_size], &r_j_data[0]);
+    }
+    //              end
+}
+
+//
 // function [ r_j ] = r_joint( this, r_t )
 //
 // Arguments    : const ::coder::array<double, 2U> &r_t
@@ -818,7 +1420,8 @@ void Kinematics::joint(const ::coder::array<double, 2U> &r_t, const ::coder::arr
 void Kinematics::r_joint(const ::coder::array<double, 2U> &r_t,
                          ::coder::array<double, 2U> &r_j) const
 {
-    ::coder::array<double, 1U> b_r_t;
+    ::coder::array<double, 1U> b_r_t_data;
+    double r_t_data[6];
     int i1;
     int loop_ub;
     unsigned int unnamed_idx_0;
@@ -842,13 +1445,15 @@ void Kinematics::r_joint(const ::coder::array<double, 2U> &r_t,
         double dv[5];
         int c_loop_ub;
         int d_loop_ub;
+        int r_t_size;
         // 'Kinematics:98' r_j( :, j ) = kin_xyzbc_tt_inverse( r_t( : , j ), this.parameters );
         c_loop_ub = r_t.size(0);
-        b_r_t.set_size(r_t.size(0));
+        r_t_size = r_t.size(0);
         for (int i3{0}; i3 < c_loop_ub; i3++) {
-            b_r_t[i3] = r_t[i3 + r_t.size(0) * j];
+            r_t_data[i3] = r_t[i3 + r_t.size(0) * j];
         }
-        kin_xyzbc_tt_inverse(b_r_t, parameters, dv);
+        b_r_t_data.set(&r_t_data[0], r_t_size);
+        kin_xyzbc_tt_inverse(b_r_t_data, parameters, dv);
         d_loop_ub = r_j.size(0);
         for (int i4{0}; i4 < d_loop_ub; i4++) {
             r_j[i4 + r_j.size(0) * j] = dv[i4];
@@ -867,7 +1472,8 @@ void Kinematics::r_joint(const ::coder::array<double, 2U> &r_t,
 void Kinematics::r_relative(const ::coder::array<double, 2U> &r_j,
                             ::coder::array<double, 2U> &r_t) const
 {
-    ::coder::array<double, 1U> b_r_j;
+    ::coder::array<double, 1U> b_r_j_data;
+    double r_j_data[6];
     int i1;
     int loop_ub;
     unsigned int unnamed_idx_0;
@@ -894,13 +1500,15 @@ void Kinematics::r_relative(const ::coder::array<double, 2U> &r_j,
         double dv[5];
         int c_loop_ub;
         int d_loop_ub;
+        int r_j_size;
         // 'Kinematics:86' r_t( :, j ) = kin_xyzbc_tt_forward( r_j( : , j ), this.parameters );
         c_loop_ub = r_j.size(0);
-        b_r_j.set_size(r_j.size(0));
+        r_j_size = r_j.size(0);
         for (int i3{0}; i3 < c_loop_ub; i3++) {
-            b_r_j[i3] = r_j[i3 + r_j.size(0) * j];
+            r_j_data[i3] = r_j[i3 + r_j.size(0) * j];
         }
-        kin_xyzbc_tt_forward(b_r_j, parameters, dv);
+        b_r_j_data.set(&r_j_data[0], r_j_size);
+        kin_xyzbc_tt_forward(b_r_j_data, parameters, dv);
         d_loop_ub = r_t.size(0);
         for (int i4{0}; i4 < d_loop_ub; i4++) {
             r_t[i4 + r_t.size(0) * j] = dv[i4];
@@ -910,204 +1518,40 @@ void Kinematics::r_relative(const ::coder::array<double, 2U> &r_j,
 }
 
 //
-// function [ r_t, v_t, a_t, j_t ] = relative( this, r_j, v_j, a_j, j_j )
+// function [ r_t ] = r_relative( this, r_j )
 //
-// Arguments    : const ::coder::array<double, 2U> &r_j
-//                const ::coder::array<double, 2U> &v_j
-//                const ::coder::array<double, 2U> &a_j
-//                const ::coder::array<double, 2U> &j_j
-//                ::coder::array<double, 2U> &r_t
-//                ::coder::array<double, 2U> &v_t
-//                ::coder::array<double, 2U> &a_t
-//                ::coder::array<double, 2U> &j_t
+// Arguments    : const double r_j_data[]
+//                int r_j_size
+//                double r_t_data[]
+//                int *r_t_size
 // Return Type  : void
 //
-void Kinematics::relative(const ::coder::array<double, 2U> &r_j,
-                          const ::coder::array<double, 2U> &v_j,
-                          const ::coder::array<double, 2U> &a_j,
-                          const ::coder::array<double, 2U> &j_j, ::coder::array<double, 2U> &r_t,
-                          ::coder::array<double, 2U> &v_t, ::coder::array<double, 2U> &a_t,
-                          ::coder::array<double, 2U> &j_t) const
+void Kinematics::r_relative(const double r_j_data[], int r_j_size, double r_t_data[],
+                            int *r_t_size) const
 {
-    ::coder::array<double, 1U> b_a_j;
-    ::coder::array<double, 1U> b_r_j;
-    ::coder::array<double, 1U> b_v_j;
-    int c_loop_ub;
-    int e_loop_ub;
-    int g_loop_ub;
-    int i7;
-    int loop_ub;
-    unsigned int unnamed_idx_0;
+    ::coder::array<double, 1U> c_r_j_data;
+    double b_r_j_data[6];
+    double dv[5];
     // ----------------------------------------------------------------%
-    //  Advanced kinematics
+    //  Basic kinematics
     // ----------------------------------------------------------------%
-    //         %% All
-    // 'Kinematics:108' coder.inline( "never" );
+    // 'Kinematics:80' coder.inline( "never" );
     //              if( coder.target( 'MATLAB' ) )
-    // 'Kinematics:111' N   = size( r_j, 2 );
-    // 'Kinematics:112' r_t = zeros( size( r_j ) );
-    unnamed_idx_0 = static_cast<unsigned int>(r_j.size(0));
-    r_t.set_size(r_j.size(0), r_j.size(1));
-    loop_ub = r_j.size(1);
-    for (int i{0}; i < loop_ub; i++) {
-        int b_loop_ub;
-        b_loop_ub = static_cast<int>(unnamed_idx_0);
-        for (int i1{0}; i1 < b_loop_ub; i1++) {
-            r_t[i1 + r_t.size(0) * i] = 0.0;
-        }
+    // 'Kinematics:83' N   = size( r_j, 2 );
+    // 'Kinematics:84' r_t = zeros( size( r_j ) );
+    *r_t_size = r_j_size;
+    if (r_j_size - 1 >= 0) {
+        std::memset(&r_t_data[0], 0, r_j_size * sizeof(double));
     }
-    // 'Kinematics:113' v_t = zeros( size( v_j ) );
-    unnamed_idx_0 = static_cast<unsigned int>(v_j.size(0));
-    v_t.set_size(v_j.size(0), v_j.size(1));
-    c_loop_ub = v_j.size(1);
-    for (int i2{0}; i2 < c_loop_ub; i2++) {
-        int d_loop_ub;
-        d_loop_ub = static_cast<int>(unnamed_idx_0);
-        for (int i3{0}; i3 < d_loop_ub; i3++) {
-            v_t[i3 + v_t.size(0) * i2] = 0.0;
-        }
+    // 'Kinematics:85' for j = 1 : N
+    // 'Kinematics:86' r_t( :, j ) = kin_xyzbc_tt_forward( r_j( : , j ), this.parameters );
+    if (r_j_size - 1 >= 0) {
+        std::copy(&r_j_data[0], &r_j_data[r_j_size], &b_r_j_data[0]);
     }
-    // 'Kinematics:114' a_t = zeros( size( a_j ) );
-    unnamed_idx_0 = static_cast<unsigned int>(a_j.size(0));
-    a_t.set_size(a_j.size(0), a_j.size(1));
-    e_loop_ub = a_j.size(1);
-    for (int i4{0}; i4 < e_loop_ub; i4++) {
-        int f_loop_ub;
-        f_loop_ub = static_cast<int>(unnamed_idx_0);
-        for (int i5{0}; i5 < f_loop_ub; i5++) {
-            a_t[i5 + a_t.size(0) * i4] = 0.0;
-        }
-    }
-    // 'Kinematics:115' j_t = zeros( size( j_j ) );
-    unnamed_idx_0 = static_cast<unsigned int>(j_j.size(0));
-    j_t.set_size(j_j.size(0), j_j.size(1));
-    g_loop_ub = j_j.size(1);
-    for (int i6{0}; i6 < g_loop_ub; i6++) {
-        int h_loop_ub;
-        h_loop_ub = static_cast<int>(unnamed_idx_0);
-        for (int i8{0}; i8 < h_loop_ub; i8++) {
-            j_t[i8 + j_t.size(0) * i6] = 0.0;
-        }
-    }
-    // 'Kinematics:117' for j = 1 : N
-    i7 = r_j.size(1);
-    for (int j{0}; j < i7; j++) {
-        double J[5][5];
-        double J2P[5][5];
-        double JP[5][5];
-        double b_J[5];
-        double b_J2P[5];
-        double b_JP[5];
-        double dv[5];
-        int i_loop_ub;
-        int j_loop_ub;
-        int k_loop_ub;
-        int l_loop_ub;
-        int m_loop_ub;
-        int n_loop_ub;
-        int o_loop_ub;
-        int p_loop_ub;
-        int q_loop_ub;
-        int r_loop_ub;
-        int s_loop_ub;
-        // 'Kinematics:118' J   = kin_xyzbc_tt_J_tj( r_j( :, j ), this.parameters );
-        i_loop_ub = r_j.size(0);
-        b_r_j.set_size(r_j.size(0));
-        for (int i9{0}; i9 < i_loop_ub; i9++) {
-            b_r_j[i9] = r_j[i9 + r_j.size(0) * j];
-        }
-        kin_xyzbc_tt_J_tj(b_r_j, parameters, J);
-        // 'Kinematics:119' JP  = kin_xyzbc_tt_JP_tj( r_j( :, j ), v_j( :, j ), this.parameters );
-        j_loop_ub = r_j.size(0);
-        b_r_j.set_size(r_j.size(0));
-        for (int i10{0}; i10 < j_loop_ub; i10++) {
-            b_r_j[i10] = r_j[i10 + r_j.size(0) * j];
-        }
-        k_loop_ub = v_j.size(0);
-        b_v_j.set_size(v_j.size(0));
-        for (int i11{0}; i11 < k_loop_ub; i11++) {
-            b_v_j[i11] = v_j[i11 + v_j.size(0) * j];
-        }
-        kin_xyzbc_tt_JP_tj(b_r_j, b_v_j, parameters, JP);
-        // 'Kinematics:120' J2P = kin_xyzbc_tt_J2P_tj( r_j( :, j ), v_j( :, j ), a_j( :, j ),
-        // this.parameters );
-        l_loop_ub = r_j.size(0);
-        b_r_j.set_size(r_j.size(0));
-        for (int i12{0}; i12 < l_loop_ub; i12++) {
-            b_r_j[i12] = r_j[i12 + r_j.size(0) * j];
-        }
-        m_loop_ub = v_j.size(0);
-        b_v_j.set_size(v_j.size(0));
-        for (int i13{0}; i13 < m_loop_ub; i13++) {
-            b_v_j[i13] = v_j[i13 + v_j.size(0) * j];
-        }
-        n_loop_ub = a_j.size(0);
-        b_a_j.set_size(a_j.size(0));
-        for (int i14{0}; i14 < n_loop_ub; i14++) {
-            b_a_j[i14] = a_j[i14 + a_j.size(0) * j];
-        }
-        kin_xyzbc_tt_J2P_tj(b_r_j, b_v_j, b_a_j, parameters, J2P);
-        // 'Kinematics:121' r_t( :, j ) = kin_xyzbc_tt_forward( r_j( :, j ), this.parameters );
-        o_loop_ub = r_j.size(0);
-        b_r_j.set_size(r_j.size(0));
-        for (int i15{0}; i15 < o_loop_ub; i15++) {
-            b_r_j[i15] = r_j[i15 + r_j.size(0) * j];
-        }
-        kin_xyzbc_tt_forward(b_r_j, parameters, dv);
-        p_loop_ub = r_t.size(0);
-        for (int i16{0}; i16 < p_loop_ub; i16++) {
-            r_t[i16 + r_t.size(0) * j] = dv[i16];
-        }
-        // 'Kinematics:122' v_t( :, j ) = J * v_j( :, j );
-        for (int i17{0}; i17 < 5; i17++) {
-            double d;
-            d = 0.0;
-            for (int i19{0}; i19 < 5; i19++) {
-                d += J[i19][i17] * v_j[i19 + v_j.size(0) * j];
-            }
-            b_J[i17] = d;
-        }
-        q_loop_ub = v_t.size(0);
-        for (int i18{0}; i18 < q_loop_ub; i18++) {
-            v_t[i18 + v_t.size(0) * j] = b_J[i18];
-        }
-        // 'Kinematics:123' a_t( :, j ) = JP * v_j( :, j )  + J * a_j( :, j );
-        for (int i20{0}; i20 < 5; i20++) {
-            double d1;
-            double d2;
-            d1 = 0.0;
-            d2 = 0.0;
-            for (int i22{0}; i22 < 5; i22++) {
-                d1 += JP[i22][i20] * v_j[i22 + v_j.size(0) * j];
-                d2 += J[i22][i20] * a_j[i22 + a_j.size(0) * j];
-            }
-            b_J[i20] = d2;
-            b_JP[i20] = d1;
-        }
-        r_loop_ub = a_t.size(0);
-        for (int i21{0}; i21 < r_loop_ub; i21++) {
-            a_t[i21 + a_t.size(0) * j] = b_JP[i21] + b_J[i21];
-        }
-        // 'Kinematics:124' j_t( :, j ) = J2P * v_j( :, j ) + 2 * JP * a_j( :, j ) + J * j_j( :, j
-        // );
-        for (int i23{0}; i23 < 5; i23++) {
-            double d3;
-            double d4;
-            double d5;
-            d3 = 0.0;
-            d4 = 0.0;
-            d5 = 0.0;
-            for (int i25{0}; i25 < 5; i25++) {
-                d4 += J2P[i25][i23] * v_j[i25 + v_j.size(0) * j];
-                d5 += 2.0 * JP[i25][i23] * a_j[i25 + a_j.size(0) * j];
-                d3 += J[i25][i23] * j_j[i25 + j_j.size(0) * j];
-            }
-            b_J2P[i23] = (d4 + d5) + d3;
-        }
-        s_loop_ub = j_t.size(0);
-        for (int i24{0}; i24 < s_loop_ub; i24++) {
-            j_t[i24 + j_t.size(0) * j] = b_J2P[i24];
-        }
+    c_r_j_data.set(&b_r_j_data[0], r_j_size);
+    kin_xyzbc_tt_forward(c_r_j_data, parameters, dv);
+    if (r_j_size - 1 >= 0) {
+        std::copy(&dv[0], &dv[r_j_size], &r_t_data[0]);
     }
     //              end
 }
@@ -1290,6 +1734,21 @@ void Kinematics::relative(const ::coder::array<double, 1U> &r_j,
 }
 
 //
+// function [ this ] = set_machine_offset( this, offset )
+//
+// Arguments    : const double offset[3]
+// Return Type  : void
+//
+void Kinematics::set_machine_offset(const double offset[3])
+{
+    // 'Kinematics:47' coder.inline( "never" );
+    // 'Kinematics:48' this.parameters(this.indM) = offset;
+    parameters[static_cast<int>(indM[0]) - 1] = offset[0];
+    parameters[static_cast<int>(indM[1]) - 1] = offset[1];
+    parameters[static_cast<int>(indM[2]) - 1] = offset[2];
+}
+
+//
 // function [ this ] = set_params( this, parameters )
 //
 // Arguments    : const double parameters_data[]
@@ -1307,6 +1766,36 @@ void Kinematics::set_params(const double parameters_data[], int parameters_size)
 }
 
 //
+// function [ this ] = set_piece_offset( this, offset )
+//
+// Arguments    : void
+// Return Type  : void
+//
+void Kinematics::set_piece_offset()
+{
+    // 'Kinematics:57' coder.inline( "never" );
+    // 'Kinematics:58' this.parameters(this.indP) = offset;
+    parameters[static_cast<int>(indP[0]) - 1] = 0.0;
+    parameters[static_cast<int>(indP[1]) - 1] = 0.0;
+    parameters[static_cast<int>(indP[2]) - 1] = 0.0;
+}
+
+//
+// function [ this ] = set_piece_offset( this, offset )
+//
+// Arguments    : const double offset[3]
+// Return Type  : void
+//
+void Kinematics::set_piece_offset(const double offset[3])
+{
+    // 'Kinematics:57' coder.inline( "never" );
+    // 'Kinematics:58' this.parameters(this.indP) = offset;
+    parameters[static_cast<int>(indP[0]) - 1] = offset[0];
+    parameters[static_cast<int>(indP[1]) - 1] = offset[1];
+    parameters[static_cast<int>(indP[2]) - 1] = offset[2];
+}
+
+//
 // function [ this ] = set_tool_length( this, tool_length )
 //
 // Arguments    : double tool_length
@@ -1317,6 +1806,21 @@ void Kinematics::set_tool_length(double tool_length)
     // 'Kinematics:62' coder.inline( "never" );
     // 'Kinematics:63' this.parameters(this.indT(end)) = tool_length;
     parameters[static_cast<int>(indT[2]) - 1] = tool_length;
+}
+
+//
+// function [ this ] = set_tool_offset( this, offset )
+//
+// Arguments    : const double offset[3]
+// Return Type  : void
+//
+void Kinematics::set_tool_offset(const double offset[3])
+{
+    // 'Kinematics:52' coder.inline( "never" );
+    // 'Kinematics:53' this.parameters(this.indT) = offset;
+    parameters[static_cast<int>(indT[0]) - 1] = offset[0];
+    parameters[static_cast<int>(indT[1]) - 1] = offset[1];
+    parameters[static_cast<int>(indT[2]) - 1] = offset[2];
 }
 
 //
@@ -1332,67 +1836,6 @@ void Kinematics::set_type(const char b_type[8])
     for (int i{0}; i < 8; i++) {
         type[i] = b_type[i];
     }
-}
-
-//
-// function [ v_j ] = v_joint( this, r_t, v_t )
-//
-// Arguments    : const ::coder::array<double, 2U> &r_t
-//                const ::coder::array<double, 2U> &v_t
-//                ::coder::array<double, 2U> &v_j
-// Return Type  : void
-//
-void Kinematics::v_joint(const ::coder::array<double, 2U> &r_t,
-                         const ::coder::array<double, 2U> &v_t,
-                         ::coder::array<double, 2U> &v_j) const
-{
-    ::coder::array<double, 1U> b_r_t;
-    int i1;
-    int loop_ub;
-    unsigned int unnamed_idx_0;
-    // 'Kinematics:166' coder.inline( "never" );
-    //              if( coder.target( 'MATLAB' ) )
-    // 'Kinematics:169' N   = size( r_t, 2 );
-    // 'Kinematics:170' v_j = zeros( size( v_t ) );
-    unnamed_idx_0 = static_cast<unsigned int>(v_t.size(0));
-    v_j.set_size(v_t.size(0), v_t.size(1));
-    loop_ub = v_t.size(1);
-    for (int i{0}; i < loop_ub; i++) {
-        int b_loop_ub;
-        b_loop_ub = static_cast<int>(unnamed_idx_0);
-        for (int i2{0}; i2 < b_loop_ub; i2++) {
-            v_j[i2 + v_j.size(0) * i] = 0.0;
-        }
-    }
-    // 'Kinematics:172' for j = 1 : N
-    i1 = r_t.size(1);
-    for (int j{0}; j < i1; j++) {
-        double J[5][5];
-        double b_J[5];
-        int c_loop_ub;
-        int d_loop_ub;
-        // 'Kinematics:173' J   = kin_xyzbc_tt_J_jt( r_t( :, j ), this.parameters );
-        c_loop_ub = r_t.size(0);
-        b_r_t.set_size(r_t.size(0));
-        for (int i3{0}; i3 < c_loop_ub; i3++) {
-            b_r_t[i3] = r_t[i3 + r_t.size(0) * j];
-        }
-        kin_xyzbc_tt_J_jt(b_r_t, parameters, J);
-        // 'Kinematics:174' v_j( :, j ) = J * v_t( :, j );
-        for (int i4{0}; i4 < 5; i4++) {
-            double d;
-            d = 0.0;
-            for (int i6{0}; i6 < 5; i6++) {
-                d += J[i6][i4] * v_t[i6 + v_t.size(0) * j];
-            }
-            b_J[i4] = d;
-        }
-        d_loop_ub = v_j.size(0);
-        for (int i5{0}; i5 < d_loop_ub; i5++) {
-            v_j[i5 + v_j.size(0) * j] = b_J[i5];
-        }
-    }
-    //              end
 }
 
 //
@@ -1442,6 +1885,70 @@ void Kinematics::v_joint(const ::coder::array<double, 1U> &r_t,
     c_loop_ub = v_t.size(0);
     for (int i3{0}; i3 < c_loop_ub; i3++) {
         v_j[i3] = b_J[i3];
+    }
+    //              end
+}
+
+//
+// function [ v_j ] = v_joint( this, r_t, v_t )
+//
+// Arguments    : const ::coder::array<double, 2U> &r_t
+//                const ::coder::array<double, 2U> &v_t
+//                ::coder::array<double, 2U> &v_j
+// Return Type  : void
+//
+void Kinematics::v_joint(const ::coder::array<double, 2U> &r_t,
+                         const ::coder::array<double, 2U> &v_t,
+                         ::coder::array<double, 2U> &v_j) const
+{
+    ::coder::array<double, 1U> b_r_t_data;
+    double r_t_data[6];
+    int i1;
+    int loop_ub;
+    unsigned int unnamed_idx_0;
+    // 'Kinematics:166' coder.inline( "never" );
+    //              if( coder.target( 'MATLAB' ) )
+    // 'Kinematics:169' N   = size( r_t, 2 );
+    // 'Kinematics:170' v_j = zeros( size( v_t ) );
+    unnamed_idx_0 = static_cast<unsigned int>(v_t.size(0));
+    v_j.set_size(v_t.size(0), v_t.size(1));
+    loop_ub = v_t.size(1);
+    for (int i{0}; i < loop_ub; i++) {
+        int b_loop_ub;
+        b_loop_ub = static_cast<int>(unnamed_idx_0);
+        for (int i2{0}; i2 < b_loop_ub; i2++) {
+            v_j[i2 + v_j.size(0) * i] = 0.0;
+        }
+    }
+    // 'Kinematics:172' for j = 1 : N
+    i1 = r_t.size(1);
+    for (int j{0}; j < i1; j++) {
+        double J[5][5];
+        double b_J[5];
+        int c_loop_ub;
+        int d_loop_ub;
+        int r_t_size;
+        // 'Kinematics:173' J   = kin_xyzbc_tt_J_jt( r_t( :, j ), this.parameters );
+        c_loop_ub = r_t.size(0);
+        r_t_size = r_t.size(0);
+        for (int i3{0}; i3 < c_loop_ub; i3++) {
+            r_t_data[i3] = r_t[i3 + r_t.size(0) * j];
+        }
+        b_r_t_data.set(&r_t_data[0], r_t_size);
+        kin_xyzbc_tt_J_jt(b_r_t_data, parameters, J);
+        // 'Kinematics:174' v_j( :, j ) = J * v_t( :, j );
+        for (int i4{0}; i4 < 5; i4++) {
+            double d;
+            d = 0.0;
+            for (int i6{0}; i6 < 5; i6++) {
+                d += J[i6][i4] * v_t[i6 + v_t.size(0) * j];
+            }
+            b_J[i4] = d;
+        }
+        d_loop_ub = v_j.size(0);
+        for (int i5{0}; i5 < d_loop_ub; i5++) {
+            v_j[i5 + v_j.size(0) * j] = b_J[i5];
+        }
     }
     //              end
 }
@@ -1504,6 +2011,55 @@ void Kinematics::v_relative(const ::coder::array<double, 2U> &r_j,
         for (int i5{0}; i5 < d_loop_ub; i5++) {
             v_t[i5 + v_t.size(0) * j] = b_J[i5];
         }
+    }
+    //              end
+}
+
+//
+// function [ v_t ] = v_relative( this, r_j, v_j )
+//
+// Arguments    : const double r_j_data[]
+//                int r_j_size
+//                const double v_j_data[]
+//                int v_j_size
+//                double v_t_data[]
+//                int *v_t_size
+// Return Type  : void
+//
+void Kinematics::v_relative(const double r_j_data[], int r_j_size, const double v_j_data[],
+                            int v_j_size, double v_t_data[], int *v_t_size) const
+{
+    ::coder::array<double, 1U> c_r_j_data;
+    double J[5][5];
+    double b_r_j_data[6];
+    double b_J[5];
+    //         %% Jacobian
+    // 'Kinematics:153' coder.inline( "never" );
+    //              if( coder.target( 'MATLAB' ) )
+    // 'Kinematics:156' N   = size( r_j, 2 );
+    // 'Kinematics:157' v_t = zeros( size( v_j ) );
+    *v_t_size = v_j_size;
+    if (v_j_size - 1 >= 0) {
+        std::memset(&v_t_data[0], 0, v_j_size * sizeof(double));
+    }
+    // 'Kinematics:158' for j = 1 : N
+    // 'Kinematics:159' J   = kin_xyzbc_tt_J_tj( r_j( :, j ), this.parameters );
+    if (r_j_size - 1 >= 0) {
+        std::copy(&r_j_data[0], &r_j_data[r_j_size], &b_r_j_data[0]);
+    }
+    c_r_j_data.set(&b_r_j_data[0], r_j_size);
+    kin_xyzbc_tt_J_tj(c_r_j_data, parameters, J);
+    // 'Kinematics:160' v_t( :, j ) = J * v_j( :, j );
+    for (int i{0}; i < 5; i++) {
+        double d;
+        d = 0.0;
+        for (int i1{0}; i1 < 5; i1++) {
+            d += J[i1][i] * v_j_data[i1];
+        }
+        b_J[i] = d;
+    }
+    if (v_j_size - 1 >= 0) {
+        std::copy(&b_J[0], &b_J[v_j_size], &v_t_data[0]);
     }
     //              end
 }

@@ -17,6 +17,7 @@
 #include "c_simplex.h"
 #include "calcZeroConstraints.h"
 #include "mtimes.h"
+#include "ocn_assert.h"
 #include "opencn_matlab_internal_types.h"
 #include "opencn_matlab_types.h"
 #include "opencn_matlab_types111.h"
@@ -31,8 +32,9 @@
 
 // Function Declarations
 namespace ocn {
-static void add_slack(const ::coder::array<double, 2U> &f, const ::coder::array<double, 2U> &A,
-                      const ::coder::array<double, 1U> &b, const ::coder::array<double, 2U> &Aeq,
+static void add_slack(bool opt_FORCE_POSITIV_COEFFS, const ::coder::array<double, 2U> &f,
+                      const ::coder::array<double, 2U> &A, const ::coder::array<double, 1U> &b,
+                      const ::coder::array<double, 2U> &Aeq,
                       const ::coder::array<double, 2U> &indSlack, double LP_SLACK_PENALTY,
                       ::coder::array<double, 1U> &fSlack, ::coder::array<double, 2U> &ASlack,
                       ::coder::array<double, 1U> &bSlack, ::coder::array<double, 2U> &AeqSlack);
@@ -57,10 +59,11 @@ static void relax_intial_constraints(const ::coder::array<double, 1U> &f,
 
 // Function Definitions
 //
-// function [ fSlack, ASlack, bSlack, AeqSlack, beqSlack ] = add_slack( f, ...
-//     A, b, Aeq, beq, indSlack, LP )
+// function [ fSlack, ASlack, bSlack, AeqSlack, beqSlack ] = add_slack( opt, ...
+//     f, A, b, Aeq, beq, indSlack, LP )
 //
-// Arguments    : const ::coder::array<double, 2U> &f
+// Arguments    : bool opt_FORCE_POSITIV_COEFFS
+//                const ::coder::array<double, 2U> &f
 //                const ::coder::array<double, 2U> &A
 //                const ::coder::array<double, 1U> &b
 //                const ::coder::array<double, 2U> &Aeq
@@ -73,65 +76,129 @@ static void relax_intial_constraints(const ::coder::array<double, 1U> &f,
 // Return Type  : void
 //
 namespace ocn {
-static void add_slack(const ::coder::array<double, 2U> &f, const ::coder::array<double, 2U> &A,
-                      const ::coder::array<double, 1U> &b, const ::coder::array<double, 2U> &Aeq,
+static void add_slack(bool opt_FORCE_POSITIV_COEFFS, const ::coder::array<double, 2U> &f,
+                      const ::coder::array<double, 2U> &A, const ::coder::array<double, 1U> &b,
+                      const ::coder::array<double, 2U> &Aeq,
                       const ::coder::array<double, 2U> &indSlack, double LP_SLACK_PENALTY,
                       ::coder::array<double, 1U> &fSlack, ::coder::array<double, 2U> &ASlack,
                       ::coder::array<double, 1U> &bSlack, ::coder::array<double, 2U> &AeqSlack)
 {
     ::coder::array<double, 2U> b_result;
+    ::coder::array<double, 1U> bpos;
     ::coder::array<int, 2U> r;
+    ::coder::array<signed char, 2U> Apos;
+    ::coder::array<signed char, 2U> b_I;
     ::coder::array<signed char, 2U> varargin_3;
     ::coder::array<signed char, 1U> vecSlack;
     int b_f;
     int b_input_sizes_idx_0;
-    int b_loop_ub;
     int c_input_sizes_idx_1;
-    int c_loop_ub;
     int c_result;
     int d_loop_ub;
     int e_loop_ub;
     int f_loop_ub;
-    int i9;
+    int i17;
+    int i_loop_ub;
     int input_sizes_idx_0;
     int input_sizes_idx_1;
-    int loop_ub;
+    int j_loop_ub;
+    int k_loop_ub;
+    int l_loop_ub;
+    int m_loop_ub;
     int result;
     int sizes_idx_1;
     signed char b_input_sizes_idx_1;
     signed char d_input_sizes_idx_1;
     bool b_empty_non_axis_sizes;
     bool empty_non_axis_sizes;
-    // 'FeedratePlanning_LP:126' [ nAL, nAc ] = size( A );
-    // 'FeedratePlanning_LP:128' if( 0 )
-    // 'FeedratePlanning_LP:134' else
-    // 'FeedratePlanning_LP:135' Apos = [];
-    // 'FeedratePlanning_LP:136' bpos = [];
+    // 'FeedratePlanning_LP:148' [ nAL, nAc ] = size( A );
+    // 'FeedratePlanning_LP:150' if( opt.FORCE_POSITIV_COEFFS )
+    if (opt_FORCE_POSITIV_COEFFS) {
+        int c_loop_ub;
+        int g_loop_ub;
+        int i4;
+        int loop_ub;
+        int t;
+        //  Add condition of positivity on coeffs expected for the 2 first ones and the 2 lasts ones
+        // 'FeedratePlanning_LP:153' Apos = zeros( nAc-4 , nAc + 1 );
+        Apos.set_size(A.size(1) - 4, A.size(1) + 1);
+        loop_ub = A.size(1) + 1;
+        for (int i{0}; i < loop_ub; i++) {
+            int b_loop_ub;
+            b_loop_ub = A.size(1) - 4;
+            for (int i1{0}; i1 < b_loop_ub; i1++) {
+                Apos[i1 + Apos.size(0) * i] = 0;
+            }
+        }
+        // 'FeedratePlanning_LP:153' bpos = -1e-4 * ones( nAc-4 , 1);
+        bpos.set_size(A.size(1) - 4);
+        c_loop_ub = A.size(1) - 4;
+        for (int i2{0}; i2 < c_loop_ub; i2++) {
+            bpos[i2] = -0.0001;
+        }
+        // 'FeedratePlanning_LP:154' Apos( : , 3 : end -3   ) = -eye( nAc-4  );
+        if (A.size(1) - 2 < 3) {
+            i4 = 0;
+        } else {
+            i4 = 2;
+        }
+        if (A.size(1) - 4 < 0) {
+            t = 0;
+        } else {
+            t = A.size(1) - 4;
+        }
+        b_I.set_size(t, t);
+        for (int i7{0}; i7 < t; i7++) {
+            for (int i8{0}; i8 < t; i8++) {
+                b_I[i8 + b_I.size(0) * i7] = 0;
+            }
+        }
+        if (t > 0) {
+            for (int k{0}; k < t; k++) {
+                b_I[k + b_I.size(0) * k] = 1;
+            }
+        }
+        g_loop_ub = b_I.size(1);
+        for (int i10{0}; i10 < g_loop_ub; i10++) {
+            int h_loop_ub;
+            h_loop_ub = b_I.size(0);
+            for (int i11{0}; i11 < h_loop_ub; i11++) {
+                Apos[i11 + Apos.size(0) * (i4 + i10)] =
+                    static_cast<signed char>(-b_I[i11 + b_I.size(0) * i10]);
+            }
+        }
+    } else {
+        // 'FeedratePlanning_LP:155' else
+        // 'FeedratePlanning_LP:156' Apos = [];
+        Apos.set_size(0, 0);
+        // 'FeedratePlanning_LP:157' bpos = [];
+        bpos.set_size(0);
+    }
     //  Slack variables
-    // 'FeedratePlanning_LP:140' vecSlack    = zeros( nAL, 1 );
+    // 'FeedratePlanning_LP:161' vecSlack    = zeros( nAL, 1 );
     vecSlack.set_size(A.size(0));
-    loop_ub = A.size(0);
-    for (int i{0}; i < loop_ub; i++) {
-        vecSlack[i] = 0;
+    d_loop_ub = A.size(0);
+    for (int i3{0}; i3 < d_loop_ub; i3++) {
+        vecSlack[i3] = 0;
     }
-    // 'FeedratePlanning_LP:140' vecSlack( indSlack ) = -1;
+    // 'FeedratePlanning_LP:161' vecSlack( indSlack ) = -1;
     r.set_size(1, indSlack.size(1));
-    b_loop_ub = indSlack.size(1);
-    for (int i1{0}; i1 < b_loop_ub; i1++) {
-        r[i1] = static_cast<int>(indSlack[i1]);
+    e_loop_ub = indSlack.size(1);
+    for (int i5{0}; i5 < e_loop_ub; i5++) {
+        r[i5] = static_cast<int>(indSlack[i5]);
     }
-    c_loop_ub = r.size(1);
-    for (int i2{0}; i2 < c_loop_ub; i2++) {
-        vecSlack[r[i2] - 1] = -1;
+    f_loop_ub = r.size(1);
+    for (int i6{0}; i6 < f_loop_ub; i6++) {
+        vecSlack[r[i6] - 1] = -1;
     }
-    // 'FeedratePlanning_LP:141' fSlack      = [ f( : ); LP.SLACK_PENALTY ];
+    // 'FeedratePlanning_LP:162' fSlack      = [ f( : ); LP.SLACK_PENALTY ];
     b_f = f.size(0) * f.size(1);
     fSlack.set_size(b_f + 1);
-    for (int i3{0}; i3 < b_f; i3++) {
-        fSlack[i3] = f[i3];
+    for (int i9{0}; i9 < b_f; i9++) {
+        fSlack[i9] = f[i9];
     }
     fSlack[b_f] = LP_SLACK_PENALTY;
-    // 'FeedratePlanning_LP:142' ASlack      = [ Apos; A, vecSlack; zeros( 1, nAc ), -1 ];
+    // 'FeedratePlanning_LP:163' ASlack      = [ Apos; A, vecSlack; zeros( 1, nAc ), -1 ];
     if ((A.size(0) != 0) && (A.size(1) != 0)) {
         result = A.size(0);
     } else if (vecSlack.size(0) != 0) {
@@ -151,59 +218,72 @@ static void add_slack(const ::coder::array<double, 2U> &f, const ::coder::array<
         b_input_sizes_idx_1 = 0;
     }
     b_result.set_size(result, input_sizes_idx_1 + b_input_sizes_idx_1);
-    for (int i4{0}; i4 < input_sizes_idx_1; i4++) {
-        for (int i5{0}; i5 < result; i5++) {
-            b_result[i5 + b_result.size(0) * i4] = A[i5 + result * i4];
+    for (int i12{0}; i12 < input_sizes_idx_1; i12++) {
+        for (int i13{0}; i13 < result; i13++) {
+            b_result[i13 + b_result.size(0) * i12] = A[i13 + result * i12];
         }
     }
-    d_loop_ub = b_input_sizes_idx_1;
-    for (int i6{0}; i6 < d_loop_ub; i6++) {
-        for (int i7{0}; i7 < result; i7++) {
-            b_result[i7 + b_result.size(0) * input_sizes_idx_1] = vecSlack[i7];
+    i_loop_ub = b_input_sizes_idx_1;
+    for (int i14{0}; i14 < i_loop_ub; i14++) {
+        for (int i15{0}; i15 < result; i15++) {
+            b_result[i15 + b_result.size(0) * input_sizes_idx_1] = vecSlack[i15];
         }
     }
     varargin_3.set_size(1, A.size(1) + 1);
-    e_loop_ub = A.size(1);
-    for (int i8{0}; i8 < e_loop_ub; i8++) {
-        varargin_3[i8] = 0;
+    j_loop_ub = A.size(1);
+    for (int i16{0}; i16 < j_loop_ub; i16++) {
+        varargin_3[i16] = 0;
     }
     varargin_3[A.size(1)] = -1;
-    if ((b_result.size(0) != 0) && (b_result.size(1) != 0)) {
+    if ((Apos.size(0) != 0) && (Apos.size(1) != 0)) {
+        sizes_idx_1 = Apos.size(1);
+    } else if ((b_result.size(0) != 0) && (b_result.size(1) != 0)) {
         sizes_idx_1 = b_result.size(1);
     } else {
         sizes_idx_1 = varargin_3.size(1);
     }
-    if ((b_result.size(0) != 0) && (b_result.size(1) != 0)) {
-        input_sizes_idx_0 = b_result.size(0);
+    if ((Apos.size(0) != 0) && (Apos.size(1) != 0)) {
+        input_sizes_idx_0 = Apos.size(0);
     } else {
         input_sizes_idx_0 = 0;
     }
     if ((b_result.size(0) != 0) && (b_result.size(1) != 0)) {
-        i9 = b_result.size(0);
-    } else {
-        i9 = 0;
-    }
-    ASlack.set_size(i9 + 1, sizes_idx_1);
-    for (int i10{0}; i10 < sizes_idx_1; i10++) {
-        for (int i12{0}; i12 < input_sizes_idx_0; i12++) {
-            ASlack[i12 + ASlack.size(0) * i10] = b_result[i12 + input_sizes_idx_0 * i10];
-        }
-    }
-    for (int i11{0}; i11 < sizes_idx_1; i11++) {
-        ASlack[input_sizes_idx_0 + ASlack.size(0) * i11] = varargin_3[i11];
-    }
-    // 'FeedratePlanning_LP:143' bSlack      = [ bpos; b ; 0 ];
-    if (b.size(0) != 0) {
-        b_input_sizes_idx_0 = b.size(0);
+        b_input_sizes_idx_0 = b_result.size(0);
     } else {
         b_input_sizes_idx_0 = 0;
     }
-    bSlack.set_size(b_input_sizes_idx_0 + 1);
-    for (int i13{0}; i13 < b_input_sizes_idx_0; i13++) {
-        bSlack[i13] = b[i13];
+    if ((b_result.size(0) != 0) && (b_result.size(1) != 0)) {
+        i17 = b_result.size(0);
+    } else {
+        i17 = 0;
     }
-    bSlack[b_input_sizes_idx_0] = 0.0;
-    // 'FeedratePlanning_LP:144' AeqSlack    = [ Aeq, zeros( size( Aeq, 1), 1 ) ];
+    ASlack.set_size((input_sizes_idx_0 + i17) + 1, sizes_idx_1);
+    for (int i18{0}; i18 < sizes_idx_1; i18++) {
+        for (int i20{0}; i20 < input_sizes_idx_0; i20++) {
+            ASlack[i20 + ASlack.size(0) * i18] = Apos[i20 + input_sizes_idx_0 * i18];
+        }
+    }
+    for (int i19{0}; i19 < sizes_idx_1; i19++) {
+        for (int i22{0}; i22 < b_input_sizes_idx_0; i22++) {
+            ASlack[(i22 + input_sizes_idx_0) + ASlack.size(0) * i19] =
+                b_result[i22 + b_input_sizes_idx_0 * i19];
+        }
+    }
+    for (int i21{0}; i21 < sizes_idx_1; i21++) {
+        ASlack[(input_sizes_idx_0 + b_input_sizes_idx_0) + ASlack.size(0) * i21] = varargin_3[i21];
+    }
+    // 'FeedratePlanning_LP:164' bSlack      = [ bpos; b ; 0 ];
+    bSlack.set_size((bpos.size(0) + b.size(0)) + 1);
+    k_loop_ub = bpos.size(0);
+    for (int i23{0}; i23 < k_loop_ub; i23++) {
+        bSlack[i23] = -0.0001;
+    }
+    l_loop_ub = b.size(0);
+    for (int i24{0}; i24 < l_loop_ub; i24++) {
+        bSlack[i24 + bpos.size(0)] = b[i24];
+    }
+    bSlack[bpos.size(0) + b.size(0)] = 0.0;
+    // 'FeedratePlanning_LP:165' AeqSlack    = [ Aeq, zeros( size( Aeq, 1), 1 ) ];
     if ((Aeq.size(0) != 0) && (Aeq.size(1) != 0)) {
         c_result = Aeq.size(0);
     } else if (Aeq.size(0) != 0) {
@@ -223,18 +303,18 @@ static void add_slack(const ::coder::array<double, 2U> &f, const ::coder::array<
         d_input_sizes_idx_1 = 0;
     }
     AeqSlack.set_size(c_result, c_input_sizes_idx_1 + d_input_sizes_idx_1);
-    for (int i14{0}; i14 < c_input_sizes_idx_1; i14++) {
-        for (int i15{0}; i15 < c_result; i15++) {
-            AeqSlack[i15 + AeqSlack.size(0) * i14] = Aeq[i15 + c_result * i14];
+    for (int i25{0}; i25 < c_input_sizes_idx_1; i25++) {
+        for (int i26{0}; i26 < c_result; i26++) {
+            AeqSlack[i26 + AeqSlack.size(0) * i25] = Aeq[i26 + c_result * i25];
         }
     }
-    f_loop_ub = d_input_sizes_idx_1;
-    for (int i16{0}; i16 < f_loop_ub; i16++) {
-        for (int i17{0}; i17 < c_result; i17++) {
-            AeqSlack[i17 + AeqSlack.size(0) * c_input_sizes_idx_1] = 0.0;
+    m_loop_ub = d_input_sizes_idx_1;
+    for (int i27{0}; i27 < m_loop_ub; i27++) {
+        for (int i28{0}; i28 < c_result; i28++) {
+            AeqSlack[i28 + AeqSlack.size(0) * c_input_sizes_idx_1] = 0.0;
         }
     }
-    // 'FeedratePlanning_LP:145' beqSlack    = beq;
+    // 'FeedratePlanning_LP:166' beqSlack    = beq;
 }
 
 //
@@ -272,33 +352,33 @@ static void b_relax_intial_constraints(const ::coder::array<double, 1U> &f,
     int count;
     int loop_ub;
     bool b_success;
-    // 'FeedratePlanning_LP:156' success     = false;
+    // 'FeedratePlanning_LP:177' success     = false;
     b_success = false;
-    // 'FeedratePlanning_LP:157' count       = 0;
+    // 'FeedratePlanning_LP:178' count       = 0;
     count = 0;
-    // 'FeedratePlanning_LP:158' curv        = ctx.q_split.get( indCurv );
+    // 'FeedratePlanning_LP:179' curv        = ctx.q_split.get( indCurv );
     ctx->q_split.get(indCurv, &curv);
-    // 'FeedratePlanning_LP:159' atNorm      = 0;
+    // 'FeedratePlanning_LP:180' atNorm      = 0;
     atNorm = 0.0;
-    // 'FeedratePlanning_LP:160' vNorm       = 0;
+    // 'FeedratePlanning_LP:181' vNorm       = 0;
     vNorm = 0.0;
-    // 'FeedratePlanning_LP:161' status      = int32( 0 );
+    // 'FeedratePlanning_LP:182' status      = int32( 0 );
     b_status = 0;
-    // 'FeedratePlanning_LP:162' Coeff0      = zeros( size( f ) );
+    // 'FeedratePlanning_LP:183' Coeff0      = zeros( size( f ) );
     Coeff0.set_size(f.size(0), 1);
     loop_ub = f.size(0);
     for (int i{0}; i < loop_ub; i++) {
         Coeff0[i] = 0.0;
     }
-    // 'FeedratePlanning_LP:163' msg         = "";
+    // 'FeedratePlanning_LP:184' msg         = "";
     msg->Value.size[0] = 1;
     msg->Value.size[1] = 0;
-    // 'FeedratePlanning_LP:165' while( ~success && count < maxIter )
+    // 'FeedratePlanning_LP:186' while( ~success && count < maxIter )
     while ((!b_success) && (count < 15)) {
-        // 'FeedratePlanning_LP:166' [ curv, vNorm , atNorm ] = decrease_constjerk( ctx, curv, isEnd
-        // ); 'FeedratePlanning_LP:150' curv.ConstJerk = curv.ConstJerk / 8;
+        // 'FeedratePlanning_LP:187' [ curv, vNorm , atNorm ] = decrease_constjerk( ctx, curv, isEnd
+        // ); 'FeedratePlanning_LP:171' curv.ConstJerk = curv.ConstJerk / 8;
         curv.ConstJerk /= 8.0;
-        // 'FeedratePlanning_LP:151' [ vNorm, atNorm ] = calcZeroConstraints( ctx, curv, isEnd );
+        // 'FeedratePlanning_LP:172' [ vNorm, atNorm ] = calcZeroConstraints( ctx, curv, isEnd );
         b_calcZeroConstraints(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                               ctx->cfg.maskCart.data, ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
                               ctx->cfg.maskRot.size, ctx->cfg.indCart, ctx->cfg.indRot,
@@ -306,27 +386,27 @@ static void b_relax_intial_constraints(const ::coder::array<double, 1U> &f,
                               &b_atNorm);
         vNorm = b_vNorm;
         atNorm = b_atNorm;
-        // 'FeedratePlanning_LP:168' if(isEnd)
-        // 'FeedratePlanning_LP:169' beq( end-1 )    = -vNorm^2;
+        // 'FeedratePlanning_LP:189' if(isEnd)
+        // 'FeedratePlanning_LP:190' beq( end-1 )    = -vNorm^2;
         beq[beq.size(0) - 2] = -(b_vNorm * b_vNorm);
-        // 'FeedratePlanning_LP:170' beq( end )      = atNorm;
+        // 'FeedratePlanning_LP:191' beq( end )      = atNorm;
         beq[beq.size(0) - 1] = b_atNorm;
-        // 'FeedratePlanning_LP:176' [ Coeff0, success, status, msg ] = c_simplex( f, sparse( A ),
-        // b, ... 'FeedratePlanning_LP:177'         Aeq, beq, ctx );
+        // 'FeedratePlanning_LP:197' [ Coeff0, success, status, msg ] = c_simplex( f, sparse( A ),
+        // b, ... 'FeedratePlanning_LP:198'         Aeq, beq, ctx );
         coder::b_sparse(A, &r);
         c_simplex(f, &r, b, Aeq, beq, Coeff0, &b_success, &b_status);
         msg->Value.size[0] = 1;
         msg->Value.size[1] = 0;
-        // 'FeedratePlanning_LP:178' count = count + 1;
+        // 'FeedratePlanning_LP:199' count = count + 1;
         count++;
     }
     //  Set back the change into the queue
-    // 'FeedratePlanning_LP:183' ctx.q_split.set( indCurv, curv );
+    // 'FeedratePlanning_LP:204' ctx.q_split.set( indCurv, curv );
     ctx->q_split.set(indCurv, &curv);
-    // 'FeedratePlanning_LP:184' if(isEnd)
-    // 'FeedratePlanning_LP:185' ctx.at_1    = -atNorm;
+    // 'FeedratePlanning_LP:205' if(isEnd)
+    // 'FeedratePlanning_LP:206' ctx.at_1    = -atNorm;
     ctx->at_1 = -atNorm;
-    // 'FeedratePlanning_LP:186' ctx.v_1     = -vNorm;
+    // 'FeedratePlanning_LP:207' ctx.v_1     = -vNorm;
     ctx->v_1 = -vNorm;
     *success = b_success;
     *status = b_status;
@@ -367,33 +447,33 @@ static void relax_intial_constraints(const ::coder::array<double, 1U> &f,
     int count;
     int loop_ub;
     bool b_success;
-    // 'FeedratePlanning_LP:156' success     = false;
+    // 'FeedratePlanning_LP:177' success     = false;
     b_success = false;
-    // 'FeedratePlanning_LP:157' count       = 0;
+    // 'FeedratePlanning_LP:178' count       = 0;
     count = 0;
-    // 'FeedratePlanning_LP:158' curv        = ctx.q_split.get( indCurv );
+    // 'FeedratePlanning_LP:179' curv        = ctx.q_split.get( indCurv );
     ctx->q_split.get(indCurv, &curv);
-    // 'FeedratePlanning_LP:159' atNorm      = 0;
+    // 'FeedratePlanning_LP:180' atNorm      = 0;
     atNorm = 0.0;
-    // 'FeedratePlanning_LP:160' vNorm       = 0;
+    // 'FeedratePlanning_LP:181' vNorm       = 0;
     vNorm = 0.0;
-    // 'FeedratePlanning_LP:161' status      = int32( 0 );
+    // 'FeedratePlanning_LP:182' status      = int32( 0 );
     b_status = 0;
-    // 'FeedratePlanning_LP:162' Coeff0      = zeros( size( f ) );
+    // 'FeedratePlanning_LP:183' Coeff0      = zeros( size( f ) );
     Coeff0.set_size(f.size(0), 1);
     loop_ub = f.size(0);
     for (int i{0}; i < loop_ub; i++) {
         Coeff0[i] = 0.0;
     }
-    // 'FeedratePlanning_LP:163' msg         = "";
+    // 'FeedratePlanning_LP:184' msg         = "";
     msg->Value.size[0] = 1;
     msg->Value.size[1] = 0;
-    // 'FeedratePlanning_LP:165' while( ~success && count < maxIter )
+    // 'FeedratePlanning_LP:186' while( ~success && count < maxIter )
     while ((!b_success) && (count < 15)) {
-        // 'FeedratePlanning_LP:166' [ curv, vNorm , atNorm ] = decrease_constjerk( ctx, curv, isEnd
-        // ); 'FeedratePlanning_LP:150' curv.ConstJerk = curv.ConstJerk / 8;
+        // 'FeedratePlanning_LP:187' [ curv, vNorm , atNorm ] = decrease_constjerk( ctx, curv, isEnd
+        // ); 'FeedratePlanning_LP:171' curv.ConstJerk = curv.ConstJerk / 8;
         curv.ConstJerk /= 8.0;
-        // 'FeedratePlanning_LP:151' [ vNorm, atNorm ] = calcZeroConstraints( ctx, curv, isEnd );
+        // 'FeedratePlanning_LP:172' [ vNorm, atNorm ] = calcZeroConstraints( ctx, curv, isEnd );
         calcZeroConstraints(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                             ctx->cfg.maskCart.data, ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
                             ctx->cfg.maskRot.size, ctx->cfg.indCart, ctx->cfg.indRot,
@@ -401,40 +481,60 @@ static void relax_intial_constraints(const ::coder::array<double, 1U> &f,
                             &b_atNorm);
         vNorm = b_vNorm;
         atNorm = b_atNorm;
-        // 'FeedratePlanning_LP:168' if(isEnd)
-        // 'FeedratePlanning_LP:171' else
-        // 'FeedratePlanning_LP:172' beq( 1 )        = vNorm^2;
+        // 'FeedratePlanning_LP:189' if(isEnd)
+        // 'FeedratePlanning_LP:192' else
+        // 'FeedratePlanning_LP:193' beq( 1 )        = vNorm^2;
         beq[0] = b_vNorm * b_vNorm;
-        // 'FeedratePlanning_LP:173' beq( 2 )        = atNorm;
+        // 'FeedratePlanning_LP:194' beq( 2 )        = atNorm;
         beq[1] = b_atNorm;
-        // 'FeedratePlanning_LP:176' [ Coeff0, success, status, msg ] = c_simplex( f, sparse( A ),
-        // b, ... 'FeedratePlanning_LP:177'         Aeq, beq, ctx );
+        // 'FeedratePlanning_LP:197' [ Coeff0, success, status, msg ] = c_simplex( f, sparse( A ),
+        // b, ... 'FeedratePlanning_LP:198'         Aeq, beq, ctx );
         coder::b_sparse(A, &r);
         c_simplex(f, &r, b, Aeq, beq, Coeff0, &b_success, &b_status);
         msg->Value.size[0] = 1;
         msg->Value.size[1] = 0;
-        // 'FeedratePlanning_LP:178' count = count + 1;
+        // 'FeedratePlanning_LP:199' count = count + 1;
         count++;
     }
     //  Set back the change into the queue
-    // 'FeedratePlanning_LP:183' ctx.q_split.set( indCurv, curv );
+    // 'FeedratePlanning_LP:204' ctx.q_split.set( indCurv, curv );
     ctx->q_split.set(indCurv, &curv);
-    // 'FeedratePlanning_LP:184' if(isEnd)
-    // 'FeedratePlanning_LP:187' else
-    // 'FeedratePlanning_LP:188' ctx.at_0    = atNorm;
+    // 'FeedratePlanning_LP:205' if(isEnd)
+    // 'FeedratePlanning_LP:208' else
+    // 'FeedratePlanning_LP:209' ctx.at_0    = atNorm;
     ctx->at_0 = atNorm;
-    // 'FeedratePlanning_LP:189' ctx.v_0     = vNorm;
+    // 'FeedratePlanning_LP:210' ctx.v_0     = vNorm;
     ctx->v_0 = vNorm;
     *success = b_success;
     *status = b_status;
 }
 
 //
-// function [ctx, Coeff, success, status, msg] = ...
+// function [ ctx, Coeff, success, status, msg ] = ...
 //     FeedratePlanning_LP( ctx, window, amax, jmax, BasisVal, ...
 //     BasisValD, BasisValDD, BasisIntegr, u_vec, NWindow )
 //
-// 0) Initialization of the problem
+// FeedratePlanning_LP : Implement and solve the LP optimization scheme
+//
+//  Inputs :
+//    ctx         : The context of the computational chain
+//    window      : Window of curves
+//    amax        : Acceleration maximum
+//    jmax        : Jerk maximum
+//    BasisVal    : BSpline evalueted on a set given points
+//    BasisValD   : BSpline derivative evaluated on a set given points
+//    BasisValDD  : BSpline second derivative evaluated on a set given points
+//    BasisIntegr : BSpline integral evaluated on a set given points
+//    u_vec       : Vector of u values
+//    NWindow     : Number of curves in the window
+//
+//  Outputs :
+//    ctx         : The context of the computational chain
+//    Coeff       : Vector of coefficients
+//    success     : Boolean value, TRUE means the optimization succeeded
+//    status      : Status code return from the optimization
+//    msg         : Msg returned from the optimization
+//
 //
 // Arguments    : b_FeedoptContext *ctx
 //                const ::coder::array<CurvStruct, 2U> &window
@@ -464,41 +564,46 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
 {
     Kinematics b_ctx;
     Kinematics c_ctx;
-    coder::sparse r2;
-    coder::sparse r6;
+    coder::sparse r3;
+    coder::sparse r7;
     ::coder::array<CurvStruct, 2U> b_window;
     ::coder::array<double, 2U> A;
     ::coder::array<double, 2U> ASlack;
     ::coder::array<double, 2U> Aeq;
     ::coder::array<double, 2U> AeqSlack;
     ::coder::array<double, 2U> Aj;
-    ::coder::array<double, 2U> C;
     ::coder::array<double, 2U> Coeff0;
     ::coder::array<double, 2U> D;
     ::coder::array<double, 2U> b_A;
     ::coder::array<double, 2U> b_Aeq;
     ::coder::array<double, 2U> b_Aj;
     ::coder::array<double, 2U> b_Coeff0;
+    ::coder::array<double, 2U> b_D;
     ::coder::array<double, 2U> b_result;
     ::coder::array<double, 2U> continuity;
     ::coder::array<double, 2U> f;
     ::coder::array<double, 2U> lCurvs;
-    ::coder::array<double, 2U> r;
     ::coder::array<double, 2U> r1;
+    ::coder::array<double, 2U> r2;
+    ::coder::array<double, 2U> r4;
     ::coder::array<double, 2U> varargin_2;
     ::coder::array<double, 1U> bSlack;
     ::coder::array<double, 1U> b_b;
     ::coder::array<double, 1U> b_beqSlack;
     ::coder::array<double, 1U> beqSlack;
     ::coder::array<double, 1U> bj;
+    ::coder::array<double, 1U> bpos;
     ::coder::array<double, 1U> c_b;
     ::coder::array<double, 1U> c_beqSlack;
+    ::coder::array<double, 1U> c_f;
     ::coder::array<double, 1U> d_beqSlack;
+    ::coder::array<double, 1U> e_Coeff;
     ::coder::array<double, 1U> fSlack;
-    ::coder::array<double, 1U> r3;
+    ::coder::array<double, 1U> r;
     ::coder::array<double, 1U> t;
-    ::coder::array<double, 1U> v;
     ::coder::array<unsigned int, 2U> y;
+    ::coder::array<signed char, 2U> Apos;
+    ::coder::array<signed char, 2U> b_I;
     ::coder::array<signed char, 2U> varargin_3;
     int BasisVal_idx_0;
     int b_input_sizes_idx_0;
@@ -511,18 +616,21 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
     int calclen_idx_0;
     int d_loop_ub;
     int f_loop_ub;
+    int g_loop_ub;
     int h_loop_ub;
-    int i17;
-    int i7;
-    int i_loop_ub;
+    int i24;
     int inner;
     int input_sizes_idx_0;
     int input_sizes_idx_1;
-    int j_loop_ub;
     int loop_ub;
     int nc;
     int nv;
+    int o_loop_ub;
+    int p_loop_ub;
+    int q_loop_ub;
+    int r_loop_ub;
     int result;
+    int s_loop_ub;
     int sizes_idx_1;
     signed char b_input_sizes_idx_1;
     signed char d_input_sizes_idx_1;
@@ -532,12 +640,13 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
     bool d_success;
     bool e_success;
     bool empty_non_axis_sizes;
+    //  0) Initialization of the problem
     //  M     : number of discretization
     //  N     : number of coefficients
-    // 'FeedratePlanning_LP:9' [ M, N ]    = size( BasisVal );
-    // 'FeedratePlanning_LP:10' LP          = ctx.cfg.opt;
+    // 'FeedratePlanning_LP:31' [ M, N ]    = size( BasisVal );
+    // 'FeedratePlanning_LP:32' LP          = ctx.cfg.opt;
     //  Load parameters of the LP
-    // 'FeedratePlanning_LP:11' CurvArray   = window( 1 : NWindow );
+    // 'FeedratePlanning_LP:33' CurvArray   = window( 1 : NWindow );
     if (NWindow < 1.0) {
         loop_ub = 0;
     } else {
@@ -545,33 +654,33 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
     }
     //  Extract window of interest
     //  1) Optimization : first LP
-    // 'FeedratePlanning_LP:14' [ D, Dinv ] = compute_scaling_matrix( ctx, CurvArray, N );
-    // 'FeedratePlanning_LP:195' N       = length( curvArray );
-    // 'FeedratePlanning_LP:197' if( ctx.cfg.opt.USE_LENGTH_SCALING )
+    // 'FeedratePlanning_LP:36' [ D, Dinv ] = compute_scaling_matrix( ctx, CurvArray, N );
+    // 'FeedratePlanning_LP:216' N       = length( curvArray );
+    // 'FeedratePlanning_LP:218' if( ctx.cfg.opt.USE_LENGTH_SCALING )
     if (ctx->cfg.opt.USE_LENGTH_SCALING) {
         int b_lCurvs;
         int i;
-        // 'FeedratePlanning_LP:198' lCurvs  = zeros( NCoeff, N );
+        // 'FeedratePlanning_LP:219' lCurvs  = zeros( NCoeff, N );
         lCurvs.set_size(BasisVal.size(1), loop_ub);
-        // 'FeedratePlanning_LP:200' for ind = 1 : N
+        // 'FeedratePlanning_LP:221' for ind = 1 : N
         i = loop_ub - 1;
         if (loop_ub - 1 >= 0) {
             b_loop_ub = BasisVal.size(1);
         }
         for (int ind{0}; ind <= i; ind++) {
             double b;
-            // 'FeedratePlanning_LP:201' lCurvs( :, ind ) = ones( NCoeff, 1 ) * LengthCurv( ctx, ...
-            // 'FeedratePlanning_LP:202'                 curvArray( ind ), 0, 1 );
-            b = LengthCurv(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
-                           ctx->cfg.maskCart.data, ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
-                           ctx->cfg.maskRot.size, ctx->cfg.indCart, ctx->cfg.indRot,
-                           ctx->cfg.NumberAxis, ctx->cfg.NCart, ctx->cfg.NRot,
-                           ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW, &window[ind]);
+            // 'FeedratePlanning_LP:222' lCurvs( :, ind ) = ones( NCoeff, 1 ) * LengthCurv( ctx, ...
+            // 'FeedratePlanning_LP:223'                 curvArray( ind ), 0, 1 );
+            b = b_LengthCurv(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
+                             ctx->cfg.maskCart.data, ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
+                             ctx->cfg.maskRot.size, ctx->cfg.indCart, ctx->cfg.indRot,
+                             ctx->cfg.NumberAxis, ctx->cfg.NCart, ctx->cfg.NRot,
+                             ctx->cfg.GaussLegendreX, ctx->cfg.GaussLegendreW, &window[ind]);
             for (int i3{0}; i3 < b_loop_ub; i3++) {
                 lCurvs[i3 + lCurvs.size(0) * ind] = b;
             }
         }
-        // 'FeedratePlanning_LP:204' t       = lCurvs( : ).^2;
+        // 'FeedratePlanning_LP:225' t       = lCurvs( : ).^2;
         b_lCurvs = lCurvs.size(0) * lCurvs.size(1);
         t.set_size(b_lCurvs);
         for (int i4{0}; i4 < b_lCurvs; i4++) {
@@ -581,8 +690,8 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
         }
     } else {
         int unnamed_idx_0;
-        // 'FeedratePlanning_LP:205' else
-        // 'FeedratePlanning_LP:206' t       = ones( N * NCoeff, 1  );
+        // 'FeedratePlanning_LP:226' else
+        // 'FeedratePlanning_LP:227' t       = ones( N * NCoeff, 1  );
         unnamed_idx_0 =
             static_cast<int>(static_cast<double>(loop_ub) * static_cast<double>(BasisVal.size(1)));
         t.set_size(unnamed_idx_0);
@@ -590,67 +699,72 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
             t[i1] = 1.0;
         }
     }
-    // 'FeedratePlanning_LP:209' D       = diag( 1 ./ t );
-    v.set_size(t.size(0));
+    // 'FeedratePlanning_LP:230' D       = diag( 1 ./ t );
+    r.set_size(t.size(0));
     c_loop_ub = t.size(0);
     for (int i2{0}; i2 < c_loop_ub; i2++) {
-        v[i2] = 1.0 / t[i2];
+        r[i2] = 1.0 / t[i2];
     }
-    nv = v.size(0);
-    D.set_size(v.size(0), v.size(0));
-    d_loop_ub = v.size(0);
+    nv = r.size(0);
+    D.set_size(r.size(0), r.size(0));
+    d_loop_ub = r.size(0);
     for (int i5{0}; i5 < d_loop_ub; i5++) {
         int e_loop_ub;
-        e_loop_ub = v.size(0);
+        e_loop_ub = r.size(0);
         for (int i6{0}; i6 < e_loop_ub; i6++) {
             D[i6 + D.size(0) * i5] = 0.0;
         }
     }
     for (int j{0}; j < nv; j++) {
-        D[j + D.size(0) * j] = v[j];
+        D[j + D.size(0) * j] = r[j];
     }
-    // 'FeedratePlanning_LP:210' Dinv    = diag( t );
-    // 'FeedratePlanning_LP:15' DCon        = D( [ 1 : N ], [ 1 : N ] );
+    // 'FeedratePlanning_LP:231' Dinv    = diag( t );
+    // 'FeedratePlanning_LP:37' DCon        = D( [ 1 : N ], [ 1 : N ] );
     if (BasisVal.size(1) < 1) {
-        i7 = 0;
+        f_loop_ub = 0;
+        g_loop_ub = 0;
     } else {
-        i7 = BasisVal.size(1);
+        f_loop_ub = BasisVal.size(1);
+        g_loop_ub = BasisVal.size(1);
     }
     //  A. Linear objectif
-    // 'FeedratePlanning_LP:18' f = -repmat( BasisIntegr, 1, NWindow );
-    coder::repmat(BasisIntegr, NWindow, r);
-    f.set_size(r.size(0), r.size(1));
-    f_loop_ub = r.size(1);
-    for (int i8{0}; i8 < f_loop_ub; i8++) {
-        int g_loop_ub;
-        g_loop_ub = r.size(0);
-        for (int i9{0}; i9 < g_loop_ub; i9++) {
-            f[i9 + f.size(0) * i8] = -r[i9 + r.size(0) * i8];
+    // 'FeedratePlanning_LP:40' f = -repmat( BasisIntegr, 1, NWindow );
+    coder::repmat(BasisIntegr, NWindow, r1);
+    f.set_size(r1.size(0), r1.size(1));
+    h_loop_ub = r1.size(1);
+    for (int i7{0}; i7 < h_loop_ub; i7++) {
+        int i_loop_ub;
+        i_loop_ub = r1.size(0);
+        for (int i8{0}; i8 < i_loop_ub; i8++) {
+            f[i8 + f.size(0) * i7] = -r1[i8 + r1.size(0) * i7];
         }
     }
-    // 'FeedratePlanning_LP:19' f = reshape( f( : )'  * D, [], NWindow );
-    inner = f.size(0) * f.size(1);
+    int b_f;
+    // 'FeedratePlanning_LP:41' f = reshape( f( : )'  * D, [], NWindow );
+    b_f = f.size(0) * f.size(1);
+    c_f = f.reshape(b_f);
+    inner = c_f.size(0);
     nc = D.size(1);
-    r1.set_size(1, D.size(1));
+    r2.set_size(1, D.size(1));
     for (int b_j{0}; b_j < nc; b_j++) {
-        r1[b_j] = 0.0;
+        r2[b_j] = 0.0;
         for (int k{0}; k < inner; k++) {
-            r1[b_j] = r1[b_j] + f[k] * D[k + D.size(0) * b_j];
+            r2[b_j] = r2[b_j] + c_f[k] * D[k + D.size(0) * b_j];
         }
     }
     if (static_cast<int>(NWindow) > 0) {
-        calclen = r1.size(1) / static_cast<int>(NWindow);
+        calclen = r2.size(1) / static_cast<int>(NWindow);
     } else {
         calclen = 0;
     }
     //  B. Constraints : Inequality and Equality
     //  Feedrate and acceleration
-    // 'FeedratePlanning_LP:23' [ A, b, Aeq, beq, continuity ] = buildConstr( ctx, CurvArray, amax,
-    // ctx.v_0, ... 'FeedratePlanning_LP:24'     ctx.at_0, ctx.v_1, ctx.at_1, BasisVal, BasisValD,
+    // 'FeedratePlanning_LP:45' [ A, b, Aeq, beq, continuity ] = buildConstr( ctx, CurvArray, amax,
+    // ctx.v_0, ... 'FeedratePlanning_LP:46'     ctx.at_0, ctx.v_1, ctx.at_1, BasisVal, BasisValD,
     // u_vec);
     b_window.set_size(1, loop_ub);
-    for (int i10{0}; i10 < loop_ub; i10++) {
-        b_window[i10] = window[i10];
+    for (int i9{0}; i9 < loop_ub; i9++) {
+        b_window[i9] = window[i9];
     }
     b_ctx = ctx->kin;
     buildConstr(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
@@ -659,31 +773,89 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
                 ctx->cfg.NCart, ctx->cfg.NRot, ctx->cfg.vmax, ctx->cfg.opt.ACC_RAMP_OVER_WINDOWS,
                 ctx->cfg.opt.VEL_RAMP_OVER_WINDOWS, &b_ctx, b_window, amax, ctx->v_0, ctx->at_0,
                 ctx->v_1, ctx->at_1, BasisVal, BasisValD, u_vec, A, b_b, Aeq, beqSlack, continuity);
-    // 'FeedratePlanning_LP:27' A           = A * D;
+    // 'FeedratePlanning_LP:49' A           = A * D;
     coder::internal::blas::mtimes(A, D, b_A);
-    // 'FeedratePlanning_LP:28' Aeq         = Aeq * D;
+    // 'FeedratePlanning_LP:50' Aeq         = Aeq * D;
     coder::internal::blas::mtimes(Aeq, D, b_Aeq);
-    // 'FeedratePlanning_LP:29' continuity  = continuity * DCon;
-    // 'FeedratePlanning_LP:31' indSlack =  [];
+    // 'FeedratePlanning_LP:51' continuity  = continuity * DCon;
+    // 'FeedratePlanning_LP:53' indSlack =  [];
     // 1 : numel( b );
-    // 'FeedratePlanning_LP:33' [ fSlack, ASlack, bSlack, AeqSlack, beqSlack ] = add_slack( f, ...
-    // 'FeedratePlanning_LP:34'     A, b, Aeq, beq, indSlack, LP );
-    // 'FeedratePlanning_LP:126' [ nAL, nAc ] = size( A );
-    // 'FeedratePlanning_LP:128' if( 0 )
-    // 'FeedratePlanning_LP:134' else
-    // 'FeedratePlanning_LP:135' Apos = [];
-    // 'FeedratePlanning_LP:136' bpos = [];
+    // 'FeedratePlanning_LP:55' [ fSlack, ASlack, bSlack, AeqSlack, beqSlack ] = add_slack(
+    // ctx.cfg.opt, f, ... 'FeedratePlanning_LP:56'     A, b, Aeq, beq, indSlack, LP );
+    // 'FeedratePlanning_LP:148' [ nAL, nAc ] = size( A );
+    // 'FeedratePlanning_LP:150' if( opt.FORCE_POSITIV_COEFFS )
+    if (ctx->cfg.opt.FORCE_POSITIV_COEFFS) {
+        int b_t;
+        int i14;
+        int j_loop_ub;
+        int l_loop_ub;
+        int m_loop_ub;
+        //  Add condition of positivity on coeffs expected for the 2 first ones and the 2 lasts ones
+        // 'FeedratePlanning_LP:153' Apos = zeros( nAc-4 , nAc + 1 );
+        Apos.set_size(b_A.size(1) - 4, b_A.size(1) + 1);
+        j_loop_ub = b_A.size(1) + 1;
+        for (int i10{0}; i10 < j_loop_ub; i10++) {
+            int k_loop_ub;
+            k_loop_ub = b_A.size(1) - 4;
+            for (int i11{0}; i11 < k_loop_ub; i11++) {
+                Apos[i11 + Apos.size(0) * i10] = 0;
+            }
+        }
+        // 'FeedratePlanning_LP:153' bpos = -1e-4 * ones( nAc-4 , 1);
+        bpos.set_size(b_A.size(1) - 4);
+        l_loop_ub = b_A.size(1) - 4;
+        for (int i12{0}; i12 < l_loop_ub; i12++) {
+            bpos[i12] = -0.0001;
+        }
+        // 'FeedratePlanning_LP:154' Apos( : , 3 : end -3   ) = -eye( nAc-4  );
+        if (b_A.size(1) - 2 < 3) {
+            i14 = 0;
+        } else {
+            i14 = 2;
+        }
+        if (b_A.size(1) - 4 < 0) {
+            b_t = 0;
+        } else {
+            b_t = b_A.size(1) - 4;
+        }
+        b_I.set_size(b_t, b_t);
+        for (int i15{0}; i15 < b_t; i15++) {
+            for (int i16{0}; i16 < b_t; i16++) {
+                b_I[i16 + b_I.size(0) * i15] = 0;
+            }
+        }
+        if (b_t > 0) {
+            for (int b_k{0}; b_k < b_t; b_k++) {
+                b_I[b_k + b_I.size(0) * b_k] = 1;
+            }
+        }
+        m_loop_ub = b_I.size(1);
+        for (int i17{0}; i17 < m_loop_ub; i17++) {
+            int n_loop_ub;
+            n_loop_ub = b_I.size(0);
+            for (int i19{0}; i19 < n_loop_ub; i19++) {
+                Apos[i19 + Apos.size(0) * (i14 + i17)] =
+                    static_cast<signed char>(-b_I[i19 + b_I.size(0) * i17]);
+            }
+        }
+    } else {
+        // 'FeedratePlanning_LP:155' else
+        // 'FeedratePlanning_LP:156' Apos = [];
+        Apos.set_size(0, 0);
+        // 'FeedratePlanning_LP:157' bpos = [];
+        bpos.set_size(0);
+    }
     //  Slack variables
-    // 'FeedratePlanning_LP:140' vecSlack    = zeros( nAL, 1 );
-    // 'FeedratePlanning_LP:140' vecSlack( indSlack ) = -1;
-    // 'FeedratePlanning_LP:141' fSlack      = [ f( : ); LP.SLACK_PENALTY ];
+    // 'FeedratePlanning_LP:161' vecSlack    = zeros( nAL, 1 );
+    // 'FeedratePlanning_LP:161' vecSlack( indSlack ) = -1;
+    // 'FeedratePlanning_LP:162' fSlack      = [ f( : ); LP.SLACK_PENALTY ];
     calclen_idx_0 = calclen * static_cast<int>(NWindow);
     fSlack.set_size(calclen_idx_0 + 1);
-    for (int i11{0}; i11 < calclen_idx_0; i11++) {
-        fSlack[i11] = r1[i11];
+    for (int i13{0}; i13 < calclen_idx_0; i13++) {
+        fSlack[i13] = r2[i13];
     }
     fSlack[calclen_idx_0] = ctx->cfg.opt.SLACK_PENALTY;
-    // 'FeedratePlanning_LP:142' ASlack      = [ Apos; A, vecSlack; zeros( 1, nAc ), -1 ];
+    // 'FeedratePlanning_LP:163' ASlack      = [ Apos; A, vecSlack; zeros( 1, nAc ), -1 ];
     if ((b_A.size(0) != 0) && (b_A.size(1) != 0)) {
         result = b_A.size(0);
     } else if (b_A.size(0) != 0) {
@@ -703,59 +875,72 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
         b_input_sizes_idx_1 = 0;
     }
     b_result.set_size(result, input_sizes_idx_1 + b_input_sizes_idx_1);
-    for (int i12{0}; i12 < input_sizes_idx_1; i12++) {
-        for (int i13{0}; i13 < result; i13++) {
-            b_result[i13 + b_result.size(0) * i12] = b_A[i13 + result * i12];
+    for (int i18{0}; i18 < input_sizes_idx_1; i18++) {
+        for (int i20{0}; i20 < result; i20++) {
+            b_result[i20 + b_result.size(0) * i18] = b_A[i20 + result * i18];
         }
     }
-    h_loop_ub = b_input_sizes_idx_1;
-    for (int i14{0}; i14 < h_loop_ub; i14++) {
-        for (int i15{0}; i15 < result; i15++) {
-            b_result[i15 + b_result.size(0) * input_sizes_idx_1] = 0.0;
+    o_loop_ub = b_input_sizes_idx_1;
+    for (int i21{0}; i21 < o_loop_ub; i21++) {
+        for (int i22{0}; i22 < result; i22++) {
+            b_result[i22 + b_result.size(0) * input_sizes_idx_1] = 0.0;
         }
     }
     varargin_3.set_size(1, b_A.size(1) + 1);
-    i_loop_ub = b_A.size(1);
-    for (int i16{0}; i16 < i_loop_ub; i16++) {
-        varargin_3[i16] = 0;
+    p_loop_ub = b_A.size(1);
+    for (int i23{0}; i23 < p_loop_ub; i23++) {
+        varargin_3[i23] = 0;
     }
     varargin_3[b_A.size(1)] = -1;
-    if ((b_result.size(0) != 0) && (b_result.size(1) != 0)) {
+    if ((Apos.size(0) != 0) && (Apos.size(1) != 0)) {
+        sizes_idx_1 = Apos.size(1);
+    } else if ((b_result.size(0) != 0) && (b_result.size(1) != 0)) {
         sizes_idx_1 = b_result.size(1);
     } else {
         sizes_idx_1 = varargin_3.size(1);
     }
-    if ((b_result.size(0) != 0) && (b_result.size(1) != 0)) {
-        input_sizes_idx_0 = b_result.size(0);
+    if ((Apos.size(0) != 0) && (Apos.size(1) != 0)) {
+        input_sizes_idx_0 = Apos.size(0);
     } else {
         input_sizes_idx_0 = 0;
     }
     if ((b_result.size(0) != 0) && (b_result.size(1) != 0)) {
-        i17 = b_result.size(0);
-    } else {
-        i17 = 0;
-    }
-    ASlack.set_size(i17 + 1, sizes_idx_1);
-    for (int i18{0}; i18 < sizes_idx_1; i18++) {
-        for (int i20{0}; i20 < input_sizes_idx_0; i20++) {
-            ASlack[i20 + ASlack.size(0) * i18] = b_result[i20 + input_sizes_idx_0 * i18];
-        }
-    }
-    for (int i19{0}; i19 < sizes_idx_1; i19++) {
-        ASlack[input_sizes_idx_0 + ASlack.size(0) * i19] = varargin_3[i19];
-    }
-    // 'FeedratePlanning_LP:143' bSlack      = [ bpos; b ; 0 ];
-    if (b_b.size(0) != 0) {
-        b_input_sizes_idx_0 = b_b.size(0);
+        b_input_sizes_idx_0 = b_result.size(0);
     } else {
         b_input_sizes_idx_0 = 0;
     }
-    bSlack.set_size(b_input_sizes_idx_0 + 1);
-    for (int i21{0}; i21 < b_input_sizes_idx_0; i21++) {
-        bSlack[i21] = b_b[i21];
+    if ((b_result.size(0) != 0) && (b_result.size(1) != 0)) {
+        i24 = b_result.size(0);
+    } else {
+        i24 = 0;
     }
-    bSlack[b_input_sizes_idx_0] = 0.0;
-    // 'FeedratePlanning_LP:144' AeqSlack    = [ Aeq, zeros( size( Aeq, 1), 1 ) ];
+    ASlack.set_size((input_sizes_idx_0 + i24) + 1, sizes_idx_1);
+    for (int i25{0}; i25 < sizes_idx_1; i25++) {
+        for (int i27{0}; i27 < input_sizes_idx_0; i27++) {
+            ASlack[i27 + ASlack.size(0) * i25] = Apos[i27 + input_sizes_idx_0 * i25];
+        }
+    }
+    for (int i26{0}; i26 < sizes_idx_1; i26++) {
+        for (int i29{0}; i29 < b_input_sizes_idx_0; i29++) {
+            ASlack[(i29 + input_sizes_idx_0) + ASlack.size(0) * i26] =
+                b_result[i29 + b_input_sizes_idx_0 * i26];
+        }
+    }
+    for (int i28{0}; i28 < sizes_idx_1; i28++) {
+        ASlack[(input_sizes_idx_0 + b_input_sizes_idx_0) + ASlack.size(0) * i28] = varargin_3[i28];
+    }
+    // 'FeedratePlanning_LP:164' bSlack      = [ bpos; b ; 0 ];
+    bSlack.set_size((bpos.size(0) + b_b.size(0)) + 1);
+    q_loop_ub = bpos.size(0);
+    for (int i30{0}; i30 < q_loop_ub; i30++) {
+        bSlack[i30] = -0.0001;
+    }
+    r_loop_ub = b_b.size(0);
+    for (int i31{0}; i31 < r_loop_ub; i31++) {
+        bSlack[i31 + bpos.size(0)] = b_b[i31];
+    }
+    bSlack[bpos.size(0) + b_b.size(0)] = 0.0;
+    // 'FeedratePlanning_LP:165' AeqSlack    = [ Aeq, zeros( size( Aeq, 1), 1 ) ];
     if ((b_Aeq.size(0) != 0) && (b_Aeq.size(1) != 0)) {
         c_result = b_Aeq.size(0);
     } else if (b_Aeq.size(0) != 0) {
@@ -775,71 +960,71 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
         d_input_sizes_idx_1 = 0;
     }
     AeqSlack.set_size(c_result, c_input_sizes_idx_1 + d_input_sizes_idx_1);
-    for (int i22{0}; i22 < c_input_sizes_idx_1; i22++) {
-        for (int i23{0}; i23 < c_result; i23++) {
-            AeqSlack[i23 + AeqSlack.size(0) * i22] = b_Aeq[i23 + c_result * i22];
+    for (int i32{0}; i32 < c_input_sizes_idx_1; i32++) {
+        for (int i33{0}; i33 < c_result; i33++) {
+            AeqSlack[i33 + AeqSlack.size(0) * i32] = b_Aeq[i33 + c_result * i32];
         }
     }
-    j_loop_ub = d_input_sizes_idx_1;
-    for (int i24{0}; i24 < j_loop_ub; i24++) {
-        for (int i25{0}; i25 < c_result; i25++) {
-            AeqSlack[i25 + AeqSlack.size(0) * c_input_sizes_idx_1] = 0.0;
+    s_loop_ub = d_input_sizes_idx_1;
+    for (int i34{0}; i34 < s_loop_ub; i34++) {
+        for (int i35{0}; i35 < c_result; i35++) {
+            AeqSlack[i35 + AeqSlack.size(0) * c_input_sizes_idx_1] = 0.0;
         }
     }
-    // 'FeedratePlanning_LP:145' beqSlack    = beq;
+    // 'FeedratePlanning_LP:166' beqSlack    = beq;
     //  C. Solve the optimization problem
-    // 'FeedratePlanning_LP:38' [ ctx, Coeff, success, status, msg, beq ] = solve_LP( fSlack,
-    // ASlack, bSlack, ... 'FeedratePlanning_LP:39'     AeqSlack, beqSlack, ctx, N, NWindow, "First
+    // 'FeedratePlanning_LP:60' [ ctx, Coeff, success, status, msg, beq ] = solve_LP( fSlack,
+    // ASlack, bSlack, ... 'FeedratePlanning_LP:61'     AeqSlack, beqSlack, ctx, N, NWindow, "First
     // LP" );
     //  Call the solver
     // -------------------------------------------------------------------------
     //  Functions
     // -------------------------------------------------------------------------
-    // 'FeedratePlanning_LP:86' [ Coeff0, success, status, msg ] = c_simplex( f, sparse( A ), b,
-    // Aeq, ... 'FeedratePlanning_LP:87'     beq, ctx );
-    coder::b_sparse(ASlack, &r2);
-    c_simplex(fSlack, &r2, bSlack, AeqSlack, beqSlack, Coeff0, &b_success, &b_status);
+    // 'FeedratePlanning_LP:108' [ Coeff0, success, status, msg ] = c_simplex( f, sparse( A ), b,
+    // Aeq, ... 'FeedratePlanning_LP:109'     beq, ctx );
+    coder::b_sparse(ASlack, &r3);
+    c_simplex(fSlack, &r3, bSlack, AeqSlack, beqSlack, Coeff0, &b_success, &b_status);
     msg->Value.size[0] = 1;
     msg->Value.size[1] = 0;
     c_success = b_success;
-    // 'FeedratePlanning_LP:89' if( ~success && ( ctx.zero_start || ctx.zero_end ) )
+    // 'FeedratePlanning_LP:111' if( ~success && ( ctx.zero_start || ctx.zero_end ) )
     if ((!b_success) && (ctx->zero_start || ctx->zero_end)) {
         double Ntot;
         //  ZN or NZ case :
         //  Optimization failed due with zero end constaints, decrease pseudo jerk
-        // 'FeedratePlanning_LP:92' Ntot        = NWindow;
+        // 'FeedratePlanning_LP:114' Ntot        = NWindow;
         Ntot = NWindow;
-        // 'FeedratePlanning_LP:93' maxIter     = 15;
-        // 'FeedratePlanning_LP:95' if( ~success && ctx.zero_start )
+        // 'FeedratePlanning_LP:115' maxIter     = 15;
+        // 'FeedratePlanning_LP:117' if( ~success && ctx.zero_start )
         if (ctx->zero_start) {
-            int l_loop_ub;
-            // 'FeedratePlanning_LP:96' Ntot        = Ntot + 1;
+            int u_loop_ub;
+            // 'FeedratePlanning_LP:118' Ntot        = Ntot + 1;
             Ntot = NWindow + 1.0;
-            // 'FeedratePlanning_LP:97' indStart    = ctx.k0;
-            // 'FeedratePlanning_LP:98' [ctx, Coeff0, success, status, msg] =
-            // relax_intial_constraints( ... 'FeedratePlanning_LP:99'                 f, A, b, Aeq,
+            // 'FeedratePlanning_LP:119' indStart    = ctx.k0;
+            // 'FeedratePlanning_LP:120' [ctx, Coeff0, success, status, msg] =
+            // relax_intial_constraints( ... 'FeedratePlanning_LP:121'                 f, A, b, Aeq,
             // beq, ctx, indStart, false, maxIter);
             b_beqSlack.set_size(beqSlack.size(0));
-            l_loop_ub = beqSlack.size(0) - 1;
-            for (int i27{0}; i27 <= l_loop_ub; i27++) {
-                b_beqSlack[i27] = beqSlack[i27];
+            u_loop_ub = beqSlack.size(0) - 1;
+            for (int i37{0}; i37 <= u_loop_ub; i37++) {
+                b_beqSlack[i37] = beqSlack[i37];
             }
             relax_intial_constraints(fSlack, ASlack, bSlack, AeqSlack, b_beqSlack, ctx, ctx->k0,
                                      Coeff0, &c_success, &b_status, msg);
         }
-        // 'FeedratePlanning_LP:102' if( ~success && ctx.zero_end )
+        // 'FeedratePlanning_LP:124' if( ~success && ctx.zero_end )
         if ((!c_success) && ctx->zero_end) {
-            int n_loop_ub;
-            // 'FeedratePlanning_LP:103' Ntot        = Ntot + 1;
+            int w_loop_ub;
+            // 'FeedratePlanning_LP:125' Ntot        = Ntot + 1;
             Ntot++;
-            // 'FeedratePlanning_LP:104' indEnd      = ctx.k0 + Ntot -1;
-            // 'FeedratePlanning_LP:105' [ctx, Coeff0, success, status, msg] =
-            // relax_intial_constraints( ... 'FeedratePlanning_LP:106'                 f, A, b, Aeq,
+            // 'FeedratePlanning_LP:126' indEnd      = ctx.k0 + Ntot -1;
+            // 'FeedratePlanning_LP:127' [ctx, Coeff0, success, status, msg] =
+            // relax_intial_constraints( ... 'FeedratePlanning_LP:128'                 f, A, b, Aeq,
             // beq, ctx, indEnd, true, maxIter);
             c_beqSlack.set_size(beqSlack.size(0));
-            n_loop_ub = beqSlack.size(0) - 1;
-            for (int i29{0}; i29 <= n_loop_ub; i29++) {
-                c_beqSlack[i29] = beqSlack[i29];
+            w_loop_ub = beqSlack.size(0) - 1;
+            for (int i39{0}; i39 <= w_loop_ub; i39++) {
+                c_beqSlack[i39] = beqSlack[i39];
             }
             b_relax_intial_constraints(
                 fSlack, ASlack, bSlack, AeqSlack, c_beqSlack, ctx,
@@ -848,95 +1033,95 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
         }
     }
     //  Check the status of the optimization
-    // 'FeedratePlanning_LP:111' Coeff = [];
+    // 'FeedratePlanning_LP:133' Coeff = [];
     Coeff.set_size(0, 0);
-    // 'FeedratePlanning_LP:112' if( success )
+    // 'FeedratePlanning_LP:134' if( success )
     if (c_success) {
-        int k_loop_ub;
-        int m_loop_ub;
-        // 'FeedratePlanning_LP:113' Coeff   = reshape( Coeff0( 1 : end -1 ), N, NWindow );
+        int t_loop_ub;
+        int v_loop_ub;
+        // 'FeedratePlanning_LP:135' Coeff   = reshape( Coeff0( 1 : end -1 ), N, NWindow );
         if (Coeff0.size(0) - 1 < 1) {
-            k_loop_ub = 0;
+            t_loop_ub = 0;
         } else {
-            k_loop_ub = Coeff0.size(0) - 1;
+            t_loop_ub = Coeff0.size(0) - 1;
         }
-        b_Coeff0.set_size(1, k_loop_ub);
-        for (int i26{0}; i26 < k_loop_ub; i26++) {
-            b_Coeff0[i26] = Coeff0[i26];
+        b_Coeff0.set_size(1, t_loop_ub);
+        for (int i36{0}; i36 < t_loop_ub; i36++) {
+            b_Coeff0[i36] = Coeff0[i36];
         }
         BasisVal_idx_0 = BasisVal.size(1);
         Coeff.set_size(BasisVal.size(1), static_cast<int>(NWindow));
-        m_loop_ub = static_cast<int>(NWindow);
-        for (int i28{0}; i28 < m_loop_ub; i28++) {
-            for (int i30{0}; i30 < BasisVal_idx_0; i30++) {
-                Coeff[i30 + Coeff.size(0) * i28] = b_Coeff0[i30 + BasisVal_idx_0 * i28];
+        v_loop_ub = static_cast<int>(NWindow);
+        for (int i38{0}; i38 < v_loop_ub; i38++) {
+            for (int i40{0}; i40 < BasisVal_idx_0; i40++) {
+                Coeff[i40 + Coeff.size(0) * i38] = b_Coeff0[i40 + BasisVal_idx_0 * i38];
             }
         }
-        // 'FeedratePlanning_LP:115' if( coder.target( "MATLAB" ) && Coeff0( end ) > 0.0 )
+        // 'FeedratePlanning_LP:137' if( coder.target( "MATLAB" ) && Coeff0( end ) > 0.0 )
     } else {
-        // 'FeedratePlanning_LP:118' else
-        // 'FeedratePlanning_LP:119' msg = optName + " failed...";
+        // 'FeedratePlanning_LP:140' else
+        // 'FeedratePlanning_LP:141' msg = optName + " failed...";
         msg->init();
     }
     d_success = c_success;
-    // 'FeedratePlanning_LP:41' if( ~success )
+    // 'FeedratePlanning_LP:63' if( ~success )
     if (c_success) {
         int b_Coeff;
         //  2) Optimization : second LP with jerk constraints and slack
-        // 'FeedratePlanning_LP:45' if( ctx.cfg.opt.UseConstraintsOnJerk )
-        if (ctx->cfg.opt.UseConstraintsOnJerk) {
+        // 'FeedratePlanning_LP:67' if( ctx.cfg.opt.USE_JERK_CONSTRAINTS )
+        if (ctx->cfg.opt.USE_JERK_CONSTRAINTS) {
             ::coder::array<double, 1U> c_Coeff;
+            int ab_loop_ub;
             int b_calclen;
             int b_inner;
+            int bb_loop_ub;
             int c_input_sizes_idx_0;
             int calclen_idx_1;
+            int cb_loop_ub;
             int d_input_sizes_idx_0;
             int d_result;
             int mc;
-            int p_loop_ub;
-            int q_loop_ub;
-            int r_loop_ub;
             int unnamed_idx_1;
             bool c_empty_non_axis_sizes;
-            // 'FeedratePlanning_LP:46' Coeff       = reshape( D * Coeff( : ), N, [] );
+            // 'FeedratePlanning_LP:68' Coeff       = reshape( D * Coeff( : ), N, [] );
             b_Coeff = Coeff.size(0) * Coeff.size(1);
             c_Coeff = Coeff.reshape(b_Coeff);
             mc = D.size(0) - 1;
             b_inner = D.size(1);
-            r3.set_size(D.size(0));
+            r.set_size(D.size(0));
             for (int b_i{0}; b_i <= mc; b_i++) {
-                r3[b_i] = 0.0;
+                r[b_i] = 0.0;
             }
-            for (int b_k{0}; b_k < b_inner; b_k++) {
+            for (int c_k{0}; c_k < b_inner; c_k++) {
                 for (int c_i{0}; c_i <= mc; c_i++) {
-                    r3[c_i] = r3[c_i] + D[c_i + D.size(0) * b_k] * c_Coeff[b_k];
+                    r[c_i] = r[c_i] + D[c_i + D.size(0) * c_k] * c_Coeff[c_k];
                 }
             }
             //  B. Constraints : Inequality and Equality
             //  Feedrate, acceleration and jerk
-            // 'FeedratePlanning_LP:49' [ Aj, bj ] =  buildConstrJerk( ctx, CurvArray, Coeff, jmax,
-            // ... 'FeedratePlanning_LP:50'         BasisVal, BasisValD, BasisValDD, u_vec );
+            // 'FeedratePlanning_LP:71' [ Aj, bj ] =  buildConstrJerk( ctx, CurvArray, Coeff, jmax,
+            // ... 'FeedratePlanning_LP:72'         BasisVal, BasisValD, BasisValDD, u_vec );
             if (BasisVal.size(1) > 0) {
-                b_calclen = r3.size(0) / BasisVal.size(1);
+                b_calclen = r.size(0) / BasisVal.size(1);
             } else {
                 b_calclen = 0;
             }
             BasisVal_idx_0 = BasisVal.size(1);
             b_window.set_size(1, loop_ub);
-            for (int i31{0}; i31 < loop_ub; i31++) {
-                b_window[i31] = window[i31];
+            for (int i44{0}; i44 < loop_ub; i44++) {
+                b_window[i44] = window[i44];
             }
-            ::coder::array<double, 2U> r4;
+            ::coder::array<double, 2U> r5;
             c_ctx = ctx->kin;
-            r4 = r3.reshape(BasisVal_idx_0, b_calclen);
+            r5 = r.reshape(BasisVal_idx_0, b_calclen);
             buildConstrJerk(&ctx->q_spline, ctx->cfg.maskTot.data, ctx->cfg.maskTot.size,
                             ctx->cfg.maskCart.data, ctx->cfg.maskCart.size, ctx->cfg.maskRot.data,
                             ctx->cfg.maskRot.size, ctx->cfg.indCart, ctx->cfg.indRot,
                             ctx->cfg.NumberAxis, ctx->cfg.NCart, ctx->cfg.NRot, &c_ctx, b_window,
-                            r4, jmax, BasisVal, BasisValD, BasisValDD, u_vec, Aj, bj);
-            // 'FeedratePlanning_LP:52' Aj   = Aj * D;
+                            r5, jmax, BasisVal, BasisValD, BasisValDD, u_vec, Aj, bj);
+            // 'FeedratePlanning_LP:74' Aj   = Aj * D;
             coder::internal::blas::mtimes(Aj, D, b_Aj);
-            // 'FeedratePlanning_LP:53' Atot = [ A; Aj ];
+            // 'FeedratePlanning_LP:75' Atot = [ A; Aj ];
             if ((b_A.size(0) != 0) && (b_A.size(1) != 0)) {
                 d_result = b_A.size(1);
             } else if ((b_Aj.size(0) != 0) && (b_Aj.size(1) != 0)) {
@@ -958,25 +1143,26 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
             } else {
                 d_input_sizes_idx_0 = 0;
             }
-            // 'FeedratePlanning_LP:53' btot = [ b; bj ];
-            // 'FeedratePlanning_LP:55' indSlack = [ indSlack, numel( b ) + [ 1 : numel( bj ) ] ];
+            // 'FeedratePlanning_LP:75' btot = [ b; bj ];
+            // 'FeedratePlanning_LP:77' indSlack = [ indSlack, numel( b ) + [ 1 : numel( bj ) ] ];
             if (bj.size(0) < 1) {
                 y.set_size(1, 0);
             } else {
-                int o_loop_ub;
+                int y_loop_ub;
                 y.set_size(1, bj.size(0));
-                o_loop_ub = bj.size(0) - 1;
-                for (int i36{0}; i36 <= o_loop_ub; i36++) {
-                    y[i36] = i36 + 1U;
+                y_loop_ub = bj.size(0) - 1;
+                for (int i49{0}; i49 <= y_loop_ub; i49++) {
+                    y[i49] = i49 + 1U;
                 }
             }
             varargin_2.set_size(1, y.size(1));
-            p_loop_ub = y.size(1);
-            for (int i37{0}; i37 < p_loop_ub; i37++) {
-                varargin_2[i37] = y[i37] + b_b.size(0);
+            ab_loop_ub = y.size(1);
+            for (int i50{0}; i50 < ab_loop_ub; i50++) {
+                varargin_2[i50] = y[i50] + b_b.size(0);
             }
-            // 'FeedratePlanning_LP:57' [ fSlack, ASlack, bSlack, AeqSlack, beqSlack ] = add_slack(
-            // f, ... 'FeedratePlanning_LP:58'         Atot, btot, Aeq, beq, indSlack, LP );
+            // 'FeedratePlanning_LP:79' [ fSlack, ASlack, bSlack, AeqSlack, beqSlack ] = add_slack(
+            // ctx.cfg.opt, ... 'FeedratePlanning_LP:80'         f, Atot, btot, Aeq, beq, indSlack,
+            // LP );
             calclen_idx_1 = static_cast<int>(NWindow);
             if (varargin_2.size(1) != 0) {
                 unnamed_idx_1 = varargin_2.size(1);
@@ -984,78 +1170,78 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
                 unnamed_idx_1 = 0;
             }
             A.set_size(c_input_sizes_idx_0 + d_input_sizes_idx_0, d_result);
-            for (int i38{0}; i38 < d_result; i38++) {
-                for (int i40{0}; i40 < c_input_sizes_idx_0; i40++) {
-                    A[i40 + A.size(0) * i38] = b_A[i40 + c_input_sizes_idx_0 * i38];
+            for (int i51{0}; i51 < d_result; i51++) {
+                for (int i53{0}; i53 < c_input_sizes_idx_0; i53++) {
+                    A[i53 + A.size(0) * i51] = b_A[i53 + c_input_sizes_idx_0 * i51];
                 }
             }
-            for (int i39{0}; i39 < d_result; i39++) {
-                for (int i41{0}; i41 < d_input_sizes_idx_0; i41++) {
-                    A[(i41 + c_input_sizes_idx_0) + A.size(0) * i39] =
-                        b_Aj[i41 + d_input_sizes_idx_0 * i39];
+            for (int i52{0}; i52 < d_result; i52++) {
+                for (int i54{0}; i54 < d_input_sizes_idx_0; i54++) {
+                    A[(i54 + c_input_sizes_idx_0) + A.size(0) * i52] =
+                        b_Aj[i54 + d_input_sizes_idx_0 * i52];
                 }
             }
             c_b.set_size(b_b.size(0) + bj.size(0));
-            q_loop_ub = b_b.size(0);
-            for (int i42{0}; i42 < q_loop_ub; i42++) {
-                c_b[i42] = b_b[i42];
+            bb_loop_ub = b_b.size(0);
+            for (int i55{0}; i55 < bb_loop_ub; i55++) {
+                c_b[i55] = b_b[i55];
             }
-            r_loop_ub = bj.size(0);
-            for (int i43{0}; i43 < r_loop_ub; i43++) {
-                c_b[i43 + b_b.size(0)] = bj[i43];
+            cb_loop_ub = bj.size(0);
+            for (int i56{0}; i56 < cb_loop_ub; i56++) {
+                c_b[i56 + b_b.size(0)] = bj[i56];
             }
             ::coder::array<double, 2U> b_varargin_2;
-            ::coder::array<double, 2U> r5;
-            r5 = r1.reshape(calclen, calclen_idx_1);
+            ::coder::array<double, 2U> r6;
+            r6 = r2.reshape(calclen, calclen_idx_1);
             b_varargin_2 = varargin_2.reshape(1, unnamed_idx_1);
-            add_slack(r5, A, c_b, b_Aeq, b_varargin_2, ctx->cfg.opt.SLACK_PENALTY, fSlack, ASlack,
-                      bSlack, AeqSlack);
-            // 'FeedratePlanning_LP:60' [ ctx, Coeff, success, status, msg ] = solve_LP( fSlack,
-            // ASlack, bSlack, ... 'FeedratePlanning_LP:61'         AeqSlack, beqSlack, ctx, N,
+            add_slack(ctx->cfg.opt.FORCE_POSITIV_COEFFS, r6, A, c_b, b_Aeq, b_varargin_2,
+                      ctx->cfg.opt.SLACK_PENALTY, fSlack, ASlack, bSlack, AeqSlack);
+            // 'FeedratePlanning_LP:82' [ ctx, Coeff, success, status, msg ] = solve_LP( fSlack,
+            // ASlack, bSlack, ... 'FeedratePlanning_LP:83'         AeqSlack, beqSlack, ctx, N,
             // NWindow, "Second LP" );
             //  Call the solver
             // -------------------------------------------------------------------------
             //  Functions
             // -------------------------------------------------------------------------
-            // 'FeedratePlanning_LP:86' [ Coeff0, success, status, msg ] = c_simplex( f, sparse( A
-            // ), b, Aeq, ... 'FeedratePlanning_LP:87'     beq, ctx );
-            coder::b_sparse(ASlack, &r6);
-            c_simplex(fSlack, &r6, bSlack, AeqSlack, beqSlack, Coeff0, &e_success, &b_status);
+            // 'FeedratePlanning_LP:108' [ Coeff0, success, status, msg ] = c_simplex( f, sparse( A
+            // ), b, Aeq, ... 'FeedratePlanning_LP:109'     beq, ctx );
+            coder::b_sparse(ASlack, &r7);
+            c_simplex(fSlack, &r7, bSlack, AeqSlack, beqSlack, Coeff0, &e_success, &b_status);
             msg->Value.size[0] = 1;
             msg->Value.size[1] = 0;
             d_success = e_success;
-            // 'FeedratePlanning_LP:89' if( ~success && ( ctx.zero_start || ctx.zero_end ) )
+            // 'FeedratePlanning_LP:111' if( ~success && ( ctx.zero_start || ctx.zero_end ) )
             if ((!e_success) && (ctx->zero_start || ctx->zero_end)) {
                 double b_Ntot;
                 //  ZN or NZ case :
                 //  Optimization failed due with zero end constaints, decrease pseudo jerk
-                // 'FeedratePlanning_LP:92' Ntot        = NWindow;
+                // 'FeedratePlanning_LP:114' Ntot        = NWindow;
                 b_Ntot = NWindow;
-                // 'FeedratePlanning_LP:93' maxIter     = 15;
-                // 'FeedratePlanning_LP:95' if( ~success && ctx.zero_start )
+                // 'FeedratePlanning_LP:115' maxIter     = 15;
+                // 'FeedratePlanning_LP:117' if( ~success && ctx.zero_start )
                 if (ctx->zero_start) {
-                    int t_loop_ub;
-                    // 'FeedratePlanning_LP:96' Ntot        = Ntot + 1;
+                    int eb_loop_ub;
+                    // 'FeedratePlanning_LP:118' Ntot        = Ntot + 1;
                     b_Ntot = NWindow + 1.0;
-                    // 'FeedratePlanning_LP:97' indStart    = ctx.k0;
-                    // 'FeedratePlanning_LP:98' [ctx, Coeff0, success, status, msg] =
-                    // relax_intial_constraints( ... 'FeedratePlanning_LP:99'                 f, A,
+                    // 'FeedratePlanning_LP:119' indStart    = ctx.k0;
+                    // 'FeedratePlanning_LP:120' [ctx, Coeff0, success, status, msg] =
+                    // relax_intial_constraints( ... 'FeedratePlanning_LP:121'                 f, A,
                     // b, Aeq, beq, ctx, indStart, false, maxIter);
                     d_beqSlack.set_size(beqSlack.size(0));
-                    t_loop_ub = beqSlack.size(0) - 1;
-                    for (int i45{0}; i45 <= t_loop_ub; i45++) {
-                        d_beqSlack[i45] = beqSlack[i45];
+                    eb_loop_ub = beqSlack.size(0) - 1;
+                    for (int i58{0}; i58 <= eb_loop_ub; i58++) {
+                        d_beqSlack[i58] = beqSlack[i58];
                     }
                     relax_intial_constraints(fSlack, ASlack, bSlack, AeqSlack, d_beqSlack, ctx,
                                              ctx->k0, Coeff0, &d_success, &b_status, msg);
                 }
-                // 'FeedratePlanning_LP:102' if( ~success && ctx.zero_end )
+                // 'FeedratePlanning_LP:124' if( ~success && ctx.zero_end )
                 if ((!d_success) && ctx->zero_end) {
-                    // 'FeedratePlanning_LP:103' Ntot        = Ntot + 1;
+                    // 'FeedratePlanning_LP:125' Ntot        = Ntot + 1;
                     b_Ntot++;
-                    // 'FeedratePlanning_LP:104' indEnd      = ctx.k0 + Ntot -1;
-                    // 'FeedratePlanning_LP:105' [ctx, Coeff0, success, status, msg] =
-                    // relax_intial_constraints( ... 'FeedratePlanning_LP:106'                 f, A,
+                    // 'FeedratePlanning_LP:126' indEnd      = ctx.k0 + Ntot -1;
+                    // 'FeedratePlanning_LP:127' [ctx, Coeff0, success, status, msg] =
+                    // relax_intial_constraints( ... 'FeedratePlanning_LP:128'                 f, A,
                     // b, Aeq, beq, ctx, indEnd, true, maxIter);
                     b_relax_intial_constraints(
                         fSlack, ASlack, bSlack, AeqSlack, beqSlack, ctx,
@@ -1064,109 +1250,110 @@ void FeedratePlanning_LP(b_FeedoptContext *ctx, const ::coder::array<CurvStruct,
                 }
             }
             //  Check the status of the optimization
-            // 'FeedratePlanning_LP:111' Coeff = [];
+            // 'FeedratePlanning_LP:133' Coeff = [];
             Coeff.set_size(0, 0);
-            // 'FeedratePlanning_LP:112' if( success )
+            // 'FeedratePlanning_LP:134' if( success )
             if (d_success) {
-                int s_loop_ub;
-                int u_loop_ub;
-                // 'FeedratePlanning_LP:113' Coeff   = reshape( Coeff0( 1 : end -1 ), N, NWindow );
+                int db_loop_ub;
+                int fb_loop_ub;
+                // 'FeedratePlanning_LP:135' Coeff   = reshape( Coeff0( 1 : end -1 ), N, NWindow );
                 if (Coeff0.size(0) - 1 < 1) {
-                    s_loop_ub = 0;
+                    db_loop_ub = 0;
                 } else {
-                    s_loop_ub = Coeff0.size(0) - 1;
+                    db_loop_ub = Coeff0.size(0) - 1;
                 }
-                b_Coeff0.set_size(1, s_loop_ub);
-                for (int i44{0}; i44 < s_loop_ub; i44++) {
-                    b_Coeff0[i44] = Coeff0[i44];
+                b_Coeff0.set_size(1, db_loop_ub);
+                for (int i57{0}; i57 < db_loop_ub; i57++) {
+                    b_Coeff0[i57] = Coeff0[i57];
                 }
                 BasisVal_idx_0 = BasisVal.size(1);
                 Coeff.set_size(BasisVal.size(1), static_cast<int>(NWindow));
-                u_loop_ub = static_cast<int>(NWindow);
-                for (int i46{0}; i46 < u_loop_ub; i46++) {
-                    for (int i47{0}; i47 < BasisVal_idx_0; i47++) {
-                        Coeff[i47 + Coeff.size(0) * i46] = b_Coeff0[i47 + BasisVal_idx_0 * i46];
+                fb_loop_ub = static_cast<int>(NWindow);
+                for (int i59{0}; i59 < fb_loop_ub; i59++) {
+                    for (int i60{0}; i60 < BasisVal_idx_0; i60++) {
+                        Coeff[i60 + Coeff.size(0) * i59] = b_Coeff0[i60 + BasisVal_idx_0 * i59];
                     }
                 }
-                // 'FeedratePlanning_LP:115' if( coder.target( "MATLAB" ) && Coeff0( end ) > 0.0 )
+                // 'FeedratePlanning_LP:137' if( coder.target( "MATLAB" ) && Coeff0( end ) > 0.0 )
             } else {
-                // 'FeedratePlanning_LP:118' else
-                // 'FeedratePlanning_LP:119' msg = optName + " failed...";
+                // 'FeedratePlanning_LP:140' else
+                // 'FeedratePlanning_LP:141' msg = optName + " failed...";
                 msg->b_init();
             }
         }
-        // 'FeedratePlanning_LP:64' if( ~success )
+        // 'FeedratePlanning_LP:86' if( ~success )
         if (d_success) {
             ::coder::array<double, 1U> d_Coeff;
             int b_mc;
             int c_calclen;
-            int d_inner;
-            // 'FeedratePlanning_LP:66' if( ~ctx.zero_start )
+            int c_inner;
+            // 'FeedratePlanning_LP:88' if( ~ctx.zero_start )
             if (!ctx->zero_start) {
-                double X_idx_0;
-                double X_idx_1;
-                int b_nc;
-                int c_inner;
-                int e_inner;
+                int x_loop_ub;
                 //  Compute the continuity equations
-                // 'FeedratePlanning_LP:68' X           = continuity * Coeff( : , 1 );
-                c_inner = continuity.size(1);
-                b_nc = i7 - 1;
-                C.set_size(2, i7);
-                for (int c_j{0}; c_j <= b_nc; c_j++) {
-                    C[2 * c_j] = 0.0;
-                    C[2 * c_j + 1] = 0.0;
-                    for (int c_k{0}; c_k < c_inner; c_k++) {
-                        double bkj;
-                        bkj = D[c_k + D.size(0) * c_j];
-                        C[2 * c_j] = C[2 * c_j] + continuity[2 * c_k] * bkj;
-                        C[2 * c_j + 1] = C[2 * c_j + 1] + continuity[2 * c_k + 1] * bkj;
+                // 'FeedratePlanning_LP:90' X           = continuity * Coeff( : , 1 );
+                b_D.set_size(f_loop_ub, g_loop_ub);
+                for (int i41{0}; i41 < g_loop_ub; i41++) {
+                    for (int i42{0}; i42 < f_loop_ub; i42++) {
+                        b_D[i42 + b_D.size(0) * i41] = D[i42 + D.size(0) * i41];
                     }
                 }
-                e_inner = C.size(1);
-                X_idx_0 = 0.0;
-                X_idx_1 = 0.0;
-                for (int e_k{0}; e_k < e_inner; e_k++) {
-                    X_idx_0 += C[2 * e_k] * Coeff[e_k];
-                    X_idx_1 += C[2 * e_k + 1] * Coeff[e_k];
+                x_loop_ub = Coeff.size(0);
+                e_Coeff.set_size(Coeff.size(0));
+                for (int i43{0}; i43 < x_loop_ub; i43++) {
+                    e_Coeff[i43] = Coeff[i43];
                 }
-                // 'FeedratePlanning_LP:69' ctx.v_0     = sqrt( X( 1 ) );
-                ctx->v_0 = std::sqrt(X_idx_0);
-                // 'FeedratePlanning_LP:70' ctx.at_0    = X( 2 );
-                ctx->at_0 = X_idx_1;
+                double X[2];
+                coder::internal::blas::b_mtimes(continuity, b_D, r4);
+                coder::internal::blas::mtimes(r4, e_Coeff, X);
+                // 'FeedratePlanning_LP:91' ctx.v_0     = mysqrt( X( 1 ) );
+                //  mysqrt : Custom implementation of the sqrt method.
+                //
+                //  Inputs :
+                //    x : Value used for the computation
+                //  Outputs :
+                //    y : Resulting value
+                //
+                // 'mysqrt:9' ocn_assert( isreal( x ), "x should be real...", mfilename );
+                // 'mysqrt:10' ocn_assert( x >= 0, "x should not be negative...", mfilename );
+                ocn_assert(X[0] >= 0.0);
+                // 'mysqrt:11' y = sqrt(x);
+                ctx->v_0 = std::sqrt(X[0]);
+                // 'FeedratePlanning_LP:92' ctx.at_0    = X( 2 );
+                ctx->at_0 = X[1];
             }
-            // 'FeedratePlanning_LP:73' Coeff       = reshape( D * Coeff( : ), N, [] );
+            // 'FeedratePlanning_LP:95' Coeff       = reshape( D * Coeff( : ), N, [] );
             b_Coeff = Coeff.size(0) * Coeff.size(1);
             d_Coeff = Coeff.reshape(b_Coeff);
             b_mc = D.size(0) - 1;
-            d_inner = D.size(1);
-            r3.set_size(D.size(0));
+            c_inner = D.size(1);
+            r.set_size(D.size(0));
             for (int d_i{0}; d_i <= b_mc; d_i++) {
-                r3[d_i] = 0.0;
+                r[d_i] = 0.0;
             }
-            for (int d_k{0}; d_k < d_inner; d_k++) {
+            for (int d_k{0}; d_k < c_inner; d_k++) {
                 for (int e_i{0}; e_i <= b_mc; e_i++) {
-                    r3[e_i] = r3[e_i] + D[e_i + D.size(0) * d_k] * d_Coeff[d_k];
+                    r[e_i] = r[e_i] + D[e_i + D.size(0) * d_k] * d_Coeff[d_k];
                 }
             }
             if (BasisVal.size(1) > 0) {
-                c_calclen = r3.size(0) / BasisVal.size(1);
+                c_calclen = r.size(0) / BasisVal.size(1);
             } else {
                 c_calclen = 0;
             }
             BasisVal_idx_0 = BasisVal.size(1);
             Coeff.set_size(BasisVal.size(1), c_calclen);
-            for (int i32{0}; i32 < c_calclen; i32++) {
-                for (int i33{0}; i33 < BasisVal_idx_0; i33++) {
-                    Coeff[i33 + Coeff.size(0) * i32] = r3[i33 + BasisVal_idx_0 * i32];
+            for (int i45{0}; i45 < c_calclen; i45++) {
+                for (int i46{0}; i46 < BasisVal_idx_0; i46++) {
+                    Coeff[i46 + Coeff.size(0) * i45] = r[i46 + BasisVal_idx_0 * i45];
                 }
             }
-            // 'FeedratePlanning_LP:75' ctx.Coeff   = Coeff;
+            // 'FeedratePlanning_LP:97' ctx.Coeff   = Coeff;
             BasisVal_idx_0 = BasisVal.size(1);
             ctx->Coeff.set_size(BasisVal.size(1), c_calclen);
-            for (int i34{0}; i34 < c_calclen; i34++) {
-                for (int i35{0}; i35 < BasisVal_idx_0; i35++) {
-                    ctx->Coeff[i35 + ctx->Coeff.size(0) * i34] = r3[i35 + BasisVal_idx_0 * i34];
+            for (int i47{0}; i47 < c_calclen; i47++) {
+                for (int i48{0}; i48 < BasisVal_idx_0; i48++) {
+                    ctx->Coeff[i48 + ctx->Coeff.size(0) * i47] = r[i48 + BasisVal_idx_0 * i47];
                 }
             }
         }

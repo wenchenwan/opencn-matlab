@@ -10,6 +10,7 @@
 
 // Include Files
 #include "setMachineAxisInConfig.h"
+#include "ocn_assert.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_initialize.h"
 #include "opencn_matlab_types.h"
@@ -21,7 +22,11 @@
 namespace ocn {
 static void check_values(b_FeedoptConfig *cfg);
 
-}
+static void i_binary_expand_op(b_FeedoptConfig *in1, const bool in2[6]);
+
+static void j_binary_expand_op(b_FeedoptConfig *in1, const bool in2[6]);
+
+} // namespace ocn
 
 // Function Definitions
 //
@@ -40,19 +45,29 @@ static void check_values(b_FeedoptConfig *cfg)
     int d_y;
     int vlen;
     int y;
-    // 'setMachineAxisInConfig:21' cfg.maskCart   = and( cfg.maskTot, logical( [ 1, 1, 1, 0, 0, 0 ]
+    // 'setMachineAxisInConfig:22' cfg.maskCart   = and( cfg.maskTot, logical( [ 1, 1, 1, 0, 0, 0 ]
     // ) );
-    cfg->maskCart.size[0] = 1;
-    cfg->maskCart.size[1] = 6;
-    // 'setMachineAxisInConfig:22' cfg.maskRot    = and( cfg.maskTot, logical( [ 0, 0, 0, 1, 1, 1 ]
-    // ) );
-    cfg->maskRot.size[0] = 1;
-    cfg->maskRot.size[1] = 6;
-    for (int i{0}; i < 6; i++) {
-        cfg->maskCart.data[i] = (cfg->maskTot.data[i] && bv[i]);
-        cfg->maskRot.data[i] = (cfg->maskTot.data[i] && bv1[i]);
+    if (cfg->maskTot.size[1] == 6) {
+        cfg->maskCart.size[0] = 1;
+        cfg->maskCart.size[1] = 6;
+        for (int i{0}; i < 6; i++) {
+            cfg->maskCart.data[i] = (cfg->maskTot.data[i] && bv[i]);
+        }
+    } else {
+        j_binary_expand_op(cfg, bv);
     }
-    // 'setMachineAxisInConfig:23' cfg.NumberAxis = int32( sum( cfg.maskTot ) );
+    // 'setMachineAxisInConfig:23' cfg.maskRot    = and( cfg.maskTot, logical( [ 0, 0, 0, 1, 1, 1 ]
+    // ) );
+    if (cfg->maskTot.size[1] == 6) {
+        cfg->maskRot.size[0] = 1;
+        cfg->maskRot.size[1] = 6;
+        for (int i1{0}; i1 < 6; i1++) {
+            cfg->maskRot.data[i1] = (cfg->maskTot.data[i1] && bv1[i1]);
+        }
+    } else {
+        i_binary_expand_op(cfg, bv1);
+    }
+    // 'setMachineAxisInConfig:24' cfg.NumberAxis = int32( sum( cfg.maskTot ) );
     vlen = cfg->maskTot.size[1];
     if (cfg->maskTot.size[1] == 0) {
         y = 0;
@@ -70,7 +85,7 @@ static void check_values(b_FeedoptConfig *cfg)
         y = b_y;
     }
     cfg->NumberAxis = y;
-    // 'setMachineAxisInConfig:24' cfg.NCart      = int32( sum( cfg.maskCart ) );
+    // 'setMachineAxisInConfig:25' cfg.NCart      = int32( sum( cfg.maskCart ) );
     b_vlen = cfg->maskCart.size[1];
     if (cfg->maskCart.size[1] == 0) {
         d_y = 0;
@@ -88,18 +103,18 @@ static void check_values(b_FeedoptConfig *cfg)
         d_y = e_y;
     }
     cfg->NCart = d_y;
-    // 'setMachineAxisInConfig:25' cfg.NRot       = cfg.NumberAxis - cfg.NCart;
+    // 'setMachineAxisInConfig:26' cfg.NRot       = cfg.NumberAxis - cfg.NCart;
     cfg->NRot = y - d_y;
-    // 'setMachineAxisInConfig:26' cfg.D          = ones(cfg.NumberAxis, 1);
+    // 'setMachineAxisInConfig:27' cfg.D          = ones(cfg.NumberAxis, 1);
     cfg->D.set_size(y);
-    for (int i1{0}; i1 < y; i1++) {
-        cfg->D[i1] = 1.0;
+    for (int i2{0}; i2 < y; i2++) {
+        cfg->D[i2] = 1.0;
     }
-    // 'setMachineAxisInConfig:28' if( cfg.NCart > 0 )
+    // 'setMachineAxisInConfig:29' if( cfg.NCart > 0 )
     if (d_y > 0) {
         int loop_ub;
         int yk;
-        // 'setMachineAxisInConfig:29' cfg.indCart = [ 1 : cfg.NCart ].';
+        // 'setMachineAxisInConfig:30' cfg.indCart = [ 1 : cfg.NCart ].';
         g_y.set_size(1, d_y);
         g_y[0] = 1;
         yk = 1;
@@ -109,21 +124,21 @@ static void check_values(b_FeedoptConfig *cfg)
         }
         cfg->indCart.set_size(g_y.size(1));
         loop_ub = g_y.size(1);
-        for (int i2{0}; i2 < loop_ub; i2++) {
-            cfg->indCart[i2] = g_y[i2];
+        for (int i3{0}; i3 < loop_ub; i3++) {
+            cfg->indCart[i3] = g_y[i3];
         }
     } else {
-        // 'setMachineAxisInConfig:30' else
-        // 'setMachineAxisInConfig:31' cfg.indCart = int32( 0 );
+        // 'setMachineAxisInConfig:31' else
+        // 'setMachineAxisInConfig:32' cfg.indCart = int32( 0 );
         cfg->indCart.set_size(1);
         cfg->indCart[0] = 0;
     }
-    // 'setMachineAxisInConfig:34' if( cfg.NRot > 0 )
+    // 'setMachineAxisInConfig:35' if( cfg.NRot > 0 )
     if (cfg->NRot > 0) {
         int b_loop_ub;
         int c_loop_ub;
         int n;
-        // 'setMachineAxisInConfig:35' cfg.indRot = [ 1 : cfg.NRot ].' + cfg.NCart;
+        // 'setMachineAxisInConfig:36' cfg.indRot = [ 1 : cfg.NRot ].' + cfg.NCart;
         if (cfg->NRot < 1) {
             n = 0;
         } else {
@@ -141,19 +156,51 @@ static void check_values(b_FeedoptConfig *cfg)
         }
         cfg->indRot.set_size(g_y.size(1));
         b_loop_ub = g_y.size(1);
-        for (int i3{0}; i3 < b_loop_ub; i3++) {
-            cfg->indRot[i3] = g_y[i3] + d_y;
+        for (int i4{0}; i4 < b_loop_ub; i4++) {
+            cfg->indRot[i4] = g_y[i4] + d_y;
         }
-        // 'setMachineAxisInConfig:36' cfg.D(cfg.indRot) = cfg.coeffD;
+        // 'setMachineAxisInConfig:37' cfg.D(cfg.indRot) = cfg.coeffD;
         c_loop_ub = cfg->indRot.size(0);
-        for (int i4{0}; i4 < c_loop_ub; i4++) {
-            cfg->D[cfg->indRot[i4] - 1] = cfg->coeffD;
+        for (int i5{0}; i5 < c_loop_ub; i5++) {
+            cfg->D[cfg->indRot[i5] - 1] = cfg->coeffD;
         }
     } else {
-        // 'setMachineAxisInConfig:37' else
-        // 'setMachineAxisInConfig:38' cfg.indRot = int32( 0 );
+        // 'setMachineAxisInConfig:38' else
+        // 'setMachineAxisInConfig:39' cfg.indRot = int32( 0 );
         cfg->indRot.set_size(1);
         cfg->indRot[0] = 0;
+    }
+}
+
+//
+// Arguments    : b_FeedoptConfig *in1
+//                const bool in2[6]
+// Return Type  : void
+//
+static void i_binary_expand_op(b_FeedoptConfig *in1, const bool in2[6])
+{
+    int stride_0_1;
+    in1->maskRot.size[0] = 1;
+    in1->maskRot.size[1] = 6;
+    stride_0_1 = (in1->maskTot.size[1] != 1);
+    for (int i{0}; i < 6; i++) {
+        in1->maskRot.data[i] = (in1->maskTot.data[i * stride_0_1] && in2[i]);
+    }
+}
+
+//
+// Arguments    : b_FeedoptConfig *in1
+//                const bool in2[6]
+// Return Type  : void
+//
+static void j_binary_expand_op(b_FeedoptConfig *in1, const bool in2[6])
+{
+    int stride_0_1;
+    in1->maskCart.size[0] = 1;
+    in1->maskCart.size[1] = 6;
+    stride_0_1 = (in1->maskTot.size[1] != 1);
+    for (int i{0}; i < 6; i++) {
+        in1->maskCart.data[i] = (in1->maskTot.data[i * stride_0_1] && in2[i]);
     }
 }
 
@@ -163,10 +210,11 @@ static void check_values(b_FeedoptConfig *cfg)
 // setMachineAxisInConfig: Use maskTot to specify the axis used by the
 //  machine
 //  Inputs :
-//  cfg : The configuration structure
-//  maskTot : [ 1 x 6 ] logical vector [x,y,z,a,b,c]
+//  cfg       : The configuration structure
+//  maskTot   : [ 1 x 6 ] logical vector [x,y,z,a,b,c]
+//
 //  Outputs :
-//  cfg : The configuration structure
+//  cfg       : The configuration structure
 //
 // Arguments    : b_FeedoptConfig *cfg
 //                const bool maskTot_data[]
@@ -174,15 +222,17 @@ static void check_values(b_FeedoptConfig *cfg)
 //
 void b_setMachineAxisInConfig(b_FeedoptConfig *cfg, const bool maskTot_data[])
 {
-    // 'setMachineAxisInConfig:11' coder.inline("never");
-    // 'setMachineAxisInConfig:12' ocn_assert( numel( maskTot ) == 6, "MaskTot should have 6
-    // elements...", mfilename); 'setMachineAxisInConfig:14' cfg.maskTot = maskTot;
+    // 'setMachineAxisInConfig:12' coder.inline("never");
+    // 'setMachineAxisInConfig:13' ocn_assert( numel( maskTot ) == 6, "MaskTot should have 6
+    // elements...", mfilename);
+    b_ocn_assert(true);
+    // 'setMachineAxisInConfig:15' cfg.maskTot = maskTot;
     cfg->maskTot.size[0] = 1;
     cfg->maskTot.size[1] = 6;
     for (int i{0}; i < 6; i++) {
         cfg->maskTot.data[i] = maskTot_data[i];
     }
-    // 'setMachineAxisInConfig:16' cfg = check_values( cfg );
+    // 'setMachineAxisInConfig:17' cfg = check_values( cfg );
     check_values(cfg);
 }
 
@@ -192,16 +242,19 @@ void b_setMachineAxisInConfig(b_FeedoptConfig *cfg, const bool maskTot_data[])
 // setMachineAxisInConfig: Use maskTot to specify the axis used by the
 //  machine
 //  Inputs :
-//  cfg : The configuration structure
-//  maskTot : [ 1 x 6 ] logical vector [x,y,z,a,b,c]
+//  cfg       : The configuration structure
+//  maskTot   : [ 1 x 6 ] logical vector [x,y,z,a,b,c]
+//
 //  Outputs :
-//  cfg : The configuration structure
+//  cfg       : The configuration structure
 //
 // Arguments    : FeedoptConfig *cfg
-//                const bool maskTot[6]
+//                const bool maskTot_data[]
+//                const int maskTot_size[2]
 // Return Type  : void
 //
-void setMachineAxisInConfig(FeedoptConfig *cfg, const bool maskTot[6])
+void setMachineAxisInConfig(FeedoptConfig *cfg, const bool maskTot_data[],
+                            const int maskTot_size[2])
 {
     b_FeedoptConfig r;
     int b_loop_ub;
@@ -217,70 +270,77 @@ void setMachineAxisInConfig(FeedoptConfig *cfg, const bool maskTot[6])
     int l_loop_ub;
     int loop_ub;
     int m_loop_ub;
+    int n_loop_ub;
+    int o_loop_ub;
+    int p_loop_ub;
     if (!isInitialized_opencn_matlab) {
         opencn_matlab_initialize();
     }
-    // 'setMachineAxisInConfig:11' coder.inline("never");
-    // 'setMachineAxisInConfig:12' ocn_assert( numel( maskTot ) == 6, "MaskTot should have 6
-    // elements...", mfilename); 'setMachineAxisInConfig:14' cfg.maskTot = maskTot;
-    // 'setMachineAxisInConfig:16' cfg = check_values( cfg );
+    // 'setMachineAxisInConfig:12' coder.inline("never");
+    // 'setMachineAxisInConfig:13' ocn_assert( numel( maskTot ) == 6, "MaskTot should have 6
+    // elements...", mfilename);
+    b_ocn_assert(maskTot_size[1] == 6);
+    // 'setMachineAxisInConfig:15' cfg.maskTot = maskTot;
+    // 'setMachineAxisInConfig:17' cfg = check_values( cfg );
+    r.ENABLE_PRINT_MSG = cfg->ENABLE_PRINT_MSG;
     r.maskTot.size[0] = 1;
-    r.maskTot.size[1] = 6;
-    for (int i{0}; i < 6; i++) {
-        r.maskTot.data[i] = maskTot[i];
+    r.maskTot.size[1] = maskTot_size[1];
+    loop_ub = maskTot_size[1];
+    if (loop_ub - 1 >= 0) {
+        std::copy(&maskTot_data[0], &maskTot_data[loop_ub], &r.maskTot.data[0]);
     }
     r.maskCart.size[0] = 1;
     r.maskCart.size[1] = cfg->maskCart.size[1];
-    loop_ub = cfg->maskCart.size[1];
-    if (loop_ub - 1 >= 0) {
-        std::copy(&cfg->maskCart.data[0], &cfg->maskCart.data[loop_ub], &r.maskCart.data[0]);
+    b_loop_ub = cfg->maskCart.size[1];
+    if (b_loop_ub - 1 >= 0) {
+        std::copy(&cfg->maskCart.data[0], &cfg->maskCart.data[b_loop_ub], &r.maskCart.data[0]);
     }
     r.maskRot.size[0] = 1;
     r.maskRot.size[1] = cfg->maskRot.size[1];
-    b_loop_ub = cfg->maskRot.size[1];
-    if (b_loop_ub - 1 >= 0) {
-        std::copy(&cfg->maskRot.data[0], &cfg->maskRot.data[b_loop_ub], &r.maskRot.data[0]);
+    c_loop_ub = cfg->maskRot.size[1];
+    if (c_loop_ub - 1 >= 0) {
+        std::copy(&cfg->maskRot.data[0], &cfg->maskRot.data[c_loop_ub], &r.maskRot.data[0]);
     }
     r.indCart.set_size(cfg->indCart.size[0]);
-    c_loop_ub = cfg->indCart.size[0];
-    for (int i1{0}; i1 < c_loop_ub; i1++) {
-        r.indCart[i1] = cfg->indCart.data[i1];
+    d_loop_ub = cfg->indCart.size[0];
+    for (int i{0}; i < d_loop_ub; i++) {
+        r.indCart[i] = cfg->indCart.data[i];
     }
     r.indRot.set_size(cfg->indRot.size[0]);
-    d_loop_ub = cfg->indRot.size[0];
-    for (int i2{0}; i2 < d_loop_ub; i2++) {
-        r.indRot[i2] = cfg->indRot.data[i2];
+    e_loop_ub = cfg->indRot.size[0];
+    for (int i1{0}; i1 < e_loop_ub; i1++) {
+        r.indRot[i1] = cfg->indRot.data[i1];
     }
     r.NumberAxis = cfg->NumberAxis;
     r.NCart = cfg->NCart;
     r.NRot = cfg->NRot;
     r.D.set_size(cfg->D.size[0]);
-    e_loop_ub = cfg->D.size[0];
-    for (int i3{0}; i3 < e_loop_ub; i3++) {
-        r.D[i3] = cfg->D.data[i3];
+    f_loop_ub = cfg->D.size[0];
+    for (int i2{0}; i2 < f_loop_ub; i2++) {
+        r.D[i2] = cfg->D.data[i2];
     }
     r.coeffD = cfg->coeffD;
     r.kin_params.size[0] = cfg->kin_params.size[0];
-    f_loop_ub = cfg->kin_params.size[0];
-    if (f_loop_ub - 1 >= 0) {
-        std::copy(&cfg->kin_params.data[0], &cfg->kin_params.data[f_loop_ub],
+    g_loop_ub = cfg->kin_params.size[0];
+    if (g_loop_ub - 1 >= 0) {
+        std::copy(&cfg->kin_params.data[0], &cfg->kin_params.data[g_loop_ub],
                   &r.kin_params.data[0]);
     }
-    for (int i4{0}; i4 < 8; i4++) {
-        r.kin_type[i4] = cfg->kin_type[i4];
+    for (int i3{0}; i3 < 8; i3++) {
+        r.kin_type[i3] = cfg->kin_type[i3];
     }
     r.NDiscr = cfg->NDiscr;
     r.NBreak = cfg->NBreak;
+    r.SplitSpecialSpline = cfg->SplitSpecialSpline;
+    r.ReleaseMemoryOfTheQueues = cfg->ReleaseMemoryOfTheQueues;
     r.UseDynamicBreakpoints = cfg->UseDynamicBreakpoints;
     r.UseLinearBreakpoints = cfg->UseLinearBreakpoints;
     r.DynamicBreakpointsDistance = cfg->DynamicBreakpointsDistance;
     r.NHorz = cfg->NHorz;
-    r.fmax = cfg->fmax;
-    r.smax = cfg->smax;
-    for (int i5{0}; i5 < 6; i5++) {
-        r.vmax[i5] = cfg->vmax[i5];
-        r.amax[i5] = cfg->amax[i5];
-        r.jmax[i5] = cfg->jmax[i5];
+    for (int i4{0}; i4 < 6; i4++) {
+        r.vmax[i4] = cfg->vmax[i4];
+        r.amax[i4] = cfg->amax[i4];
+        r.jmax[i4] = cfg->jmax[i4];
     }
     r.LeeSplineDegree = cfg->LeeSplineDegree;
     r.SplineDegree = cfg->SplineDegree;
@@ -295,11 +355,12 @@ void setMachineAxisInConfig(FeedoptConfig *cfg, const bool maskTot[6])
     r.at_1 = cfg->at_1;
     r.dt = cfg->dt;
     r.DefaultZeroStopCount = cfg->DefaultZeroStopCount;
-    r.ZeroStartAccLimit = cfg->ZeroStartAccLimit;
-    r.ZeroStartJerkLimit = cfg->ZeroStartJerkLimit;
-    r.ZeroStartVelLimit = cfg->ZeroStartVelLimit;
-    std::copy(&cfg->source[0], &cfg->source[1024], &r.source[0]);
-    r.DebugCutZero = cfg->DebugCutZero;
+    r.source.size[0] = 1;
+    r.source.size[1] = cfg->source.size[1];
+    h_loop_ub = cfg->source.size[1];
+    if (h_loop_ub - 1 >= 0) {
+        std::copy(&cfg->source.data[0], &cfg->source.data[h_loop_ub], &r.source.data[0]);
+    }
     r.Cusp = cfg->Cusp;
     r.Compressing = cfg->Compressing;
     r.Smoothing = cfg->Smoothing;
@@ -309,67 +370,68 @@ void setMachineAxisInConfig(FeedoptConfig *cfg, const bool maskTot[6])
         r.GaussLegendreW[b_i] = cfg->GaussLegendreW[b_i];
     }
     r.opt = cfg->opt;
-    for (int i6{0}; i6 < 9; i6++) {
-        r.LogFileName[i6] = cfg->LogFileName[i6];
+    for (int i5{0}; i5 < 9; i5++) {
+        r.LogFileName[i5] = cfg->LogFileName[i5];
     }
     check_values(&r);
+    cfg->ENABLE_PRINT_MSG = r.ENABLE_PRINT_MSG;
     cfg->maskTot.size[0] = 1;
     cfg->maskTot.size[1] = r.maskTot.size[1];
-    g_loop_ub = r.maskTot.size[1];
-    if (g_loop_ub - 1 >= 0) {
-        std::copy(&r.maskTot.data[0], &r.maskTot.data[g_loop_ub], &cfg->maskTot.data[0]);
+    i_loop_ub = r.maskTot.size[1];
+    if (i_loop_ub - 1 >= 0) {
+        std::copy(&r.maskTot.data[0], &r.maskTot.data[i_loop_ub], &cfg->maskTot.data[0]);
     }
     cfg->maskCart.size[0] = 1;
     cfg->maskCart.size[1] = r.maskCart.size[1];
-    h_loop_ub = r.maskCart.size[1];
-    if (h_loop_ub - 1 >= 0) {
-        std::copy(&r.maskCart.data[0], &r.maskCart.data[h_loop_ub], &cfg->maskCart.data[0]);
+    j_loop_ub = r.maskCart.size[1];
+    if (j_loop_ub - 1 >= 0) {
+        std::copy(&r.maskCart.data[0], &r.maskCart.data[j_loop_ub], &cfg->maskCart.data[0]);
     }
     cfg->maskRot.size[0] = 1;
     cfg->maskRot.size[1] = r.maskRot.size[1];
-    i_loop_ub = r.maskRot.size[1];
-    if (i_loop_ub - 1 >= 0) {
-        std::copy(&r.maskRot.data[0], &r.maskRot.data[i_loop_ub], &cfg->maskRot.data[0]);
+    k_loop_ub = r.maskRot.size[1];
+    if (k_loop_ub - 1 >= 0) {
+        std::copy(&r.maskRot.data[0], &r.maskRot.data[k_loop_ub], &cfg->maskRot.data[0]);
     }
     cfg->indCart.size[0] = r.indCart.size(0);
-    j_loop_ub = r.indCart.size(0);
-    for (int i7{0}; i7 < j_loop_ub; i7++) {
-        cfg->indCart.data[i7] = r.indCart[i7];
+    l_loop_ub = r.indCart.size(0);
+    for (int i6{0}; i6 < l_loop_ub; i6++) {
+        cfg->indCart.data[i6] = r.indCart[i6];
     }
     cfg->indRot.size[0] = r.indRot.size(0);
-    k_loop_ub = r.indRot.size(0);
-    for (int i8{0}; i8 < k_loop_ub; i8++) {
-        cfg->indRot.data[i8] = r.indRot[i8];
+    m_loop_ub = r.indRot.size(0);
+    for (int i7{0}; i7 < m_loop_ub; i7++) {
+        cfg->indRot.data[i7] = r.indRot[i7];
     }
     cfg->NumberAxis = r.NumberAxis;
     cfg->NCart = r.NCart;
     cfg->NRot = r.NRot;
     cfg->D.size[0] = r.D.size(0);
-    l_loop_ub = r.D.size(0);
-    for (int i9{0}; i9 < l_loop_ub; i9++) {
-        cfg->D.data[i9] = r.D[i9];
+    n_loop_ub = r.D.size(0);
+    for (int i8{0}; i8 < n_loop_ub; i8++) {
+        cfg->D.data[i8] = r.D[i8];
     }
     cfg->coeffD = r.coeffD;
     cfg->kin_params.size[0] = r.kin_params.size[0];
-    m_loop_ub = r.kin_params.size[0];
-    if (m_loop_ub - 1 >= 0) {
-        std::copy(&r.kin_params.data[0], &r.kin_params.data[m_loop_ub], &cfg->kin_params.data[0]);
+    o_loop_ub = r.kin_params.size[0];
+    if (o_loop_ub - 1 >= 0) {
+        std::copy(&r.kin_params.data[0], &r.kin_params.data[o_loop_ub], &cfg->kin_params.data[0]);
     }
-    for (int i10{0}; i10 < 8; i10++) {
-        cfg->kin_type[i10] = r.kin_type[i10];
+    for (int i9{0}; i9 < 8; i9++) {
+        cfg->kin_type[i9] = r.kin_type[i9];
     }
     cfg->NDiscr = r.NDiscr;
     cfg->NBreak = r.NBreak;
+    cfg->SplitSpecialSpline = r.SplitSpecialSpline;
+    cfg->ReleaseMemoryOfTheQueues = r.ReleaseMemoryOfTheQueues;
     cfg->UseDynamicBreakpoints = r.UseDynamicBreakpoints;
     cfg->UseLinearBreakpoints = r.UseLinearBreakpoints;
     cfg->DynamicBreakpointsDistance = r.DynamicBreakpointsDistance;
     cfg->NHorz = r.NHorz;
-    cfg->fmax = r.fmax;
-    cfg->smax = r.smax;
-    for (int i11{0}; i11 < 6; i11++) {
-        cfg->vmax[i11] = r.vmax[i11];
-        cfg->amax[i11] = r.amax[i11];
-        cfg->jmax[i11] = r.jmax[i11];
+    for (int i10{0}; i10 < 6; i10++) {
+        cfg->vmax[i10] = r.vmax[i10];
+        cfg->amax[i10] = r.amax[i10];
+        cfg->jmax[i10] = r.jmax[i10];
     }
     cfg->LeeSplineDegree = r.LeeSplineDegree;
     cfg->SplineDegree = r.SplineDegree;
@@ -384,11 +446,12 @@ void setMachineAxisInConfig(FeedoptConfig *cfg, const bool maskTot[6])
     cfg->at_1 = r.at_1;
     cfg->dt = r.dt;
     cfg->DefaultZeroStopCount = r.DefaultZeroStopCount;
-    cfg->ZeroStartAccLimit = r.ZeroStartAccLimit;
-    cfg->ZeroStartJerkLimit = r.ZeroStartJerkLimit;
-    cfg->ZeroStartVelLimit = r.ZeroStartVelLimit;
-    std::copy(&r.source[0], &r.source[1024], &cfg->source[0]);
-    cfg->DebugCutZero = r.DebugCutZero;
+    cfg->source.size[0] = 1;
+    cfg->source.size[1] = r.source.size[1];
+    p_loop_ub = r.source.size[1];
+    if (p_loop_ub - 1 >= 0) {
+        std::copy(&r.source.data[0], &r.source.data[p_loop_ub], &cfg->source.data[0]);
+    }
     cfg->Cusp = r.Cusp;
     cfg->Compressing = r.Compressing;
     cfg->Smoothing = r.Smoothing;
@@ -398,8 +461,8 @@ void setMachineAxisInConfig(FeedoptConfig *cfg, const bool maskTot[6])
         cfg->GaussLegendreW[c_i] = r.GaussLegendreW[c_i];
     }
     cfg->opt = r.opt;
-    for (int i12{0}; i12 < 9; i12++) {
-        cfg->LogFileName[i12] = r.LogFileName[i12];
+    for (int i11{0}; i11 < 9; i11++) {
+        cfg->LogFileName[i11] = r.LogFileName[i11];
     }
 }
 

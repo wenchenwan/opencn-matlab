@@ -36,8 +36,18 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
                      const ::coder::array<int, 1U> &ctx_cfg_indCart,
                      const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
                      int ctx_cfg_NCart, int ctx_cfg_NRot, const double ctx_cfg_GaussLegendreX[5],
-                     const double ctx_cfg_GaussLegendreW[5], const CurvStruct *curv, double L,
-                     double *ret, CurvStruct *curv1, CurvStruct *curv2);
+                     const double ctx_cfg_GaussLegendreW[5], CurvStruct *curv, double L,
+                     double *ret, CurvStruct *curvRight);
+
+void c_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
+                     const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
+                     const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
+                     const int ctx_cfg_maskRot_size[2],
+                     const ::coder::array<int, 1U> &ctx_cfg_indCart,
+                     const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
+                     int ctx_cfg_NCart, int ctx_cfg_NRot, const double ctx_cfg_GaussLegendreX[5],
+                     const double ctx_cfg_GaussLegendreW[5], CurvStruct *curv, double L,
+                     double *ret, CurvStruct *curvRight);
 
 void cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
                    const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
@@ -46,8 +56,8 @@ void cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
                    const ::coder::array<int, 1U> &ctx_cfg_indCart,
                    const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
                    int ctx_cfg_NCart, int ctx_cfg_NRot, const double ctx_cfg_GaussLegendreX[5],
-                   const double ctx_cfg_GaussLegendreW[5], const CurvStruct *curv, double L,
-                   double *ret, CurvStruct *curv1, CurvStruct *curv2);
+                   const double ctx_cfg_GaussLegendreW[5], CurvStruct *curv, double L, double *ret,
+                   CurvStruct *curvRight);
 
 } // namespace ocn
 

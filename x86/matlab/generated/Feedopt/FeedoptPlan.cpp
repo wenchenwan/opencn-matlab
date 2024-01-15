@@ -12,9 +12,10 @@
 #include "FeedoptPlan.h"
 #include "CheckCurvStructs.h"
 #include "Kinematics.h"
+#include "ReadGCode.h"
 #include "add_tool_offset.h"
 #include "checkGeometry.h"
-#include "checkParametrisation.h"
+#include "checkParametrisationQueue.h"
 #include "checkZSpdmode.h"
 #include "compressCurvStructs.h"
 #include "constrCurvStruct.h"
@@ -44,7 +45,18 @@
 
 // Function Definitions
 //
-// function [ctx, optimized, opt_struct] = FeedoptPlan(ctx)
+// function [ ctx, optimized, opt_struct ] = FeedoptPlan( ctx )
+//
+// FeedoptPlan : Feedrate optimisation Finite State Machine (FSM).
+//
+//  Inputs :
+//  ctx        : The context of the computational chain
+//
+//  Outputs :
+//  ctx        : The context of the computational chain
+//  optimized  : Bolean value used to say if the curve has been optimized
+//  opt_struct : Optimized structure
+//
 //
 // Arguments    : FeedoptContext *ctx
 //                bool *optimized
@@ -67,92 +79,87 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
     coder::rtString b_obj;
     coder::rtString c_obj;
     coder::rtString d_obj;
-    coder::rtString e_obj;
     coder::rtString obj;
-    coder::rtString r1;
-    Axes params_tmp_tool_offset;
+    coder::rtString r3;
+    Axes params_tool_offset;
     CurvStruct c_CurvStruct;
     CurvStruct curv1;
     CurvStruct last;
     CurvStruct r2;
     MsgStruct err_msg;
-    SplineStruct params_tmp_spline;
+    SplineStruct params_spline;
     b_CurvStruct e_expl_temp;
-    b_CurvStruct expl_temp_tmp;
     b_FeedoptContext b_ctx;
     b_FeedoptContext r;
-    double params_tmp_CoeffP5[6];
-    double params_tmp_R0[6];
-    double params_tmp_R1[6];
+    b_FeedoptContext r1;
+    double params_CoeffP5[6];
+    double params_R0[6];
+    double params_R1[6];
     double off[3];
-    double params_tmp_Cprim[3];
-    double params_tmp_evec[3];
+    double params_Cprim[3];
+    double params_evec[3];
     double b_expl_temp;
     double c_expl_temp;
     double d_expl_temp;
     double expl_temp;
-    double params_tmp_gcodeInfoStruct_FeedRate;
-    double params_tmp_gcodeInfoStruct_SpindleSpeed;
-    double params_tmp_tool_backangle;
-    double params_tmp_tool_diameter;
-    double params_tmp_tool_frontangle;
+    double params_gcodeInfoStruct_FeedRate;
+    double params_gcodeInfoStruct_SpindleSpeed;
+    double params_tool_backangle;
+    double params_tool_diameter;
+    double params_tool_frontangle;
     int b_loop_ub;
     int c_loop_ub;
     int e_loop_ub;
     int loop_ub;
-    int params_tmp_gcodeInfoStruct_gcode_source_line;
-    int params_tmp_tool_orientation;
-    int params_tmp_tool_pocketno;
-    int params_tmp_tool_toolno;
-    char b_cv[1025];
-    char st[12];
-    char b_obj2Value_data[11];
+    int params_gcodeInfoStruct_gcode_source_line;
+    int params_tool_orientation;
+    int params_tool_pocketno;
+    int params_tool_toolno;
+    char tmp_data[1025];
     char obj2Value_data[11];
     bool b_optimized;
     bool c_optimized;
-    bool params_tmp_gcodeInfoStruct_G91;
-    bool params_tmp_gcodeInfoStruct_G91_1;
-    bool params_tmp_gcodeInfoStruct_HSC;
-    bool params_tmp_gcodeInfoStruct_TRAFO;
+    bool params_gcodeInfoStruct_G91;
+    bool params_gcodeInfoStruct_G91_1;
+    bool params_gcodeInfoStruct_HSC;
+    bool params_gcodeInfoStruct_TRAFO;
     bool quit;
-    CurveType params_tmp_gcodeInfoStruct_Type;
-    ZSpdMode params_tmp_gcodeInfoStruct_zspdmode;
+    CurveType params_gcodeInfoStruct_Type;
+    ReadGCodeError status;
+    ZSpdMode params_gcodeInfoStruct_zspdmode;
     if (!isInitialized_opencn_matlab) {
         opencn_matlab_initialize();
     }
-    // 'FeedoptPlan:4' optimized = false;
+    // 'FeedoptPlan:13' optimized = false;
     b_optimized = false;
-    // 'FeedoptPlan:6' opt_struct = constrCurvStructType;
+    // 'FeedoptPlan:15' opt_struct = constrCurvStructType;
     //  constrCurvStructType : Constructs a constrCurvStruct with default values.
     // 'constrCurvStructType:4' if( nargin > 0 )
     // 'constrCurvStructType:6' else
     // 'constrCurvStructType:7' [ params ] = paramsDefaultCurv;
-    paramsDefaultCurv(
-        &params_tmp_gcodeInfoStruct_Type, &params_tmp_gcodeInfoStruct_zspdmode,
-        &params_tmp_gcodeInfoStruct_TRAFO, &params_tmp_gcodeInfoStruct_HSC,
-        &params_tmp_gcodeInfoStruct_FeedRate, &params_tmp_gcodeInfoStruct_SpindleSpeed,
-        &params_tmp_gcodeInfoStruct_gcode_source_line, &params_tmp_gcodeInfoStruct_G91,
-        &params_tmp_gcodeInfoStruct_G91_1, &params_tmp_tool_toolno, &params_tmp_tool_pocketno,
-        &params_tmp_tool_offset, &params_tmp_tool_diameter, &params_tmp_tool_frontangle,
-        &params_tmp_tool_backangle, &params_tmp_tool_orientation, &params_tmp_spline, params_tmp_R0,
-        params_tmp_R1, params_tmp_Cprim, &expl_temp, params_tmp_evec, &b_expl_temp, &c_expl_temp,
-        params_tmp_CoeffP5, &d_expl_temp);
+    paramsDefaultCurv(&params_gcodeInfoStruct_Type, &params_gcodeInfoStruct_zspdmode,
+                      &params_gcodeInfoStruct_TRAFO, &params_gcodeInfoStruct_HSC,
+                      &params_gcodeInfoStruct_FeedRate, &params_gcodeInfoStruct_SpindleSpeed,
+                      &params_gcodeInfoStruct_gcode_source_line, &params_gcodeInfoStruct_G91,
+                      &params_gcodeInfoStruct_G91_1, &params_tool_toolno, &params_tool_pocketno,
+                      &params_tool_offset, &params_tool_diameter, &params_tool_frontangle,
+                      &params_tool_backangle, &params_tool_orientation, &params_spline, params_R0,
+                      params_R1, params_Cprim, &expl_temp, params_evec, &b_expl_temp, &c_expl_temp,
+                      params_CoeffP5, &d_expl_temp);
     // 'constrCurvStructType:10' if( coder.target( "MATLAB" ) )
     // 'constrCurvStructType:12' else
     // 'constrCurvStructType:13' C = constrCurvStruct( params.gcodeInfoStruct, params.tool, ...
     // 'constrCurvStructType:14'         params.spline, params.R0, params.R1, params.Cprim, ...
     // 'constrCurvStructType:15'         params.delta, params.evec, params.theta, params.pitch, ...
     // 'constrCurvStructType:16'         params.CoeffP5, params.Coeff );
-    b_constrCurvStruct(
-        params_tmp_gcodeInfoStruct_Type, params_tmp_gcodeInfoStruct_zspdmode,
-        params_tmp_gcodeInfoStruct_TRAFO, params_tmp_gcodeInfoStruct_HSC,
-        params_tmp_gcodeInfoStruct_FeedRate, params_tmp_gcodeInfoStruct_SpindleSpeed,
-        params_tmp_gcodeInfoStruct_gcode_source_line, params_tmp_gcodeInfoStruct_G91,
-        params_tmp_gcodeInfoStruct_G91_1, params_tmp_tool_toolno, params_tmp_tool_pocketno,
-        &params_tmp_tool_offset, params_tmp_tool_diameter, params_tmp_tool_frontangle,
-        params_tmp_tool_backangle, params_tmp_tool_orientation, &params_tmp_spline, params_tmp_R0,
-        params_tmp_R1, params_tmp_Cprim, params_tmp_evec, params_tmp_CoeffP5, &expl_temp_tmp);
-    e_expl_temp = expl_temp_tmp;
+    b_constrCurvStruct(params_gcodeInfoStruct_Type, params_gcodeInfoStruct_zspdmode,
+                       params_gcodeInfoStruct_TRAFO, params_gcodeInfoStruct_HSC,
+                       params_gcodeInfoStruct_FeedRate, params_gcodeInfoStruct_SpindleSpeed,
+                       params_gcodeInfoStruct_gcode_source_line, params_gcodeInfoStruct_G91,
+                       params_gcodeInfoStruct_G91_1, params_tool_toolno, params_tool_pocketno,
+                       &params_tool_offset, params_tool_diameter, params_tool_frontangle,
+                       params_tool_backangle, params_tool_orientation, &params_spline, params_R0,
+                       params_R1, params_Cprim, params_evec, params_CoeffP5, &e_expl_temp);
     opt_struct->Info = e_expl_temp.Info;
     opt_struct->tool = e_expl_temp.tool;
     opt_struct->sp = e_expl_temp.sp;
@@ -199,339 +206,223 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
     opt_struct->a_param = e_expl_temp.a_param;
     opt_struct->b_param = e_expl_temp.b_param;
     //  See InitFeedoptPlan for information about the context variable ctx
-    // 'FeedoptPlan:9' ocn_assert( ctx.errcode == FeedoptPlanError.NoError, ...
-    // 'FeedoptPlan:10'     "FeedoptPlan: error code was not handled...", mfilename );
-    d_ocn_assert(ctx->errcode == FeedoptPlanError_NoError);
-    // 'FeedoptPlan:12' switch ctx.op
+    // 'FeedoptPlan:18' ocn_assert( ctx.errcode == FeedoptPlanError.NoError, ...
+    // 'FeedoptPlan:19'     "FeedoptPlan: error code was not handled...", mfilename );
+    g_ocn_assert(ctx->errcode == FeedoptPlanError_NoError);
+    // 'FeedoptPlan:21' switch ctx.op
     switch (ctx->op) {
     case Fopt_Init:
-        // 'FeedoptPlan:13' case Fopt.Init
-        // 'FeedoptPlan:14' ctx.op = Fopt.GCode;
+        // 'FeedoptPlan:22' case Fopt.Init
+        // 'FeedoptPlan:23' ctx.op = Fopt.GCode;
         ctx->op = Fopt_GCode;
         //
         break;
     case Fopt_GCode: {
-        int be_loop_ub;
-        int cf_loop_ub;
-        int me_loop_ub;
-        int resCount;
+        int obj2Value_size[2];
+        int ao_loop_ub;
+        int bl_loop_ub;
+        int bp_loop_ub;
+        int cp_loop_ub;
+        int el_loop_ub;
+        int eo_loop_ub;
+        int fi_loop_ub;
+        int ii_loop_ub;
+        int il_loop_ub;
+        int io_loop_ub;
+        int ke_loop_ub;
+        int kk_loop_ub;
+        int km_loop_ub;
+        int li_loop_ub;
+        int mk_loop_ub;
+        int mn_loop_ub;
+        int nn_loop_ub;
+        int no_loop_ub;
+        int oi_loop_ub;
+        int on_loop_ub;
+        int oo_loop_ub;
+        int po_loop_ub;
+        int qo_loop_ub;
+        int ro_loop_ub;
+        int si_loop_ub;
+        int sk_loop_ub;
+        int sn_loop_ub;
+        int td_loop_ub;
+        int ue_loop_ub;
+        int uo_loop_ub;
+        int vh_loop_ub;
+        int vo_loop_ub;
+        int wl_loop_ub;
+        int wm_loop_ub;
+        int wn_loop_ub;
+        int yk_loop_ub;
         bool exitg1;
+        bool i_isValid;
+        bool j_isValid;
         bool zeroFlag;
-        ReadGCodeError status;
-        // 'FeedoptPlan:16' case Fopt.GCode
-        // 'FeedoptPlan:17' ctx.k0      = int32(1);
+        // 'FeedoptPlan:25' case Fopt.GCode
+        // 'FeedoptPlan:26' ctx.k0      = int32( 1 );
         ctx->k0 = 1;
-        // 'FeedoptPlan:18' status      = ReadGCode( ReadGCodeCmd.Load, ctx.cfg.source );
-        //  coder.extrinsic('ReadGCode_mex');
+        // 'FeedoptPlan:27' status      = ReadGCode( ctx.cfg, ReadGCodeCmd.Load, ctx.cfg.source );
+        //  ReadGCode : Read the G code contents.
+        //
+        //  Inputs :
+        //    cfg :           The configuration structure.
+        //    cmd :           The command operation.
+        //    filename :      The G code filename.
+        //
+        //  Outputs :
+        //    status :        The current status of the reading operation
+        //    CurvStruct :    The curve structure
+        //    err_msg :       The error message
+        //
         //  Wrapper for pulling the next gcode line from the interpreter
-        // 'ReadGCode:6' status          = ReadGCodeError.InterpError;
-        // 'ReadGCode:7' CurvStruct      = constrCurvStructType;
-        // 'ReadGCode:8' err_msg         = constrMsgStructType;
-        std::copy(&cv[0], &cv[2048], &err_msg.msg[0]);
+        // 'ReadGCode:18' status          = ReadGCodeError.InterpError;
+        // 'ReadGCode:19' CurvStruct      = constrCurvStructType;
+        // 'ReadGCode:20' err_msg         = constrMsgStructType;
+        std::copy(&cv1[0], &cv1[2048], &err_msg.msg[0]);
         err_msg.size = 2048.0;
-        // 'ReadGCode:10' if coder.target('matlab')
-        // 'ReadGCode:43' else
-        // 'ReadGCode:44' coder.updateBuildInfo('addDefines', '_POSIX_C_SOURCE=199309L')
-        // 'ReadGCode:46' my_path = StructTypeName.WDIR + "/src";
-        // 'ReadGCode:47' coder.updateBuildInfo('addIncludePaths',my_path);
-        // 'ReadGCode:49' pathRs274Src = StructTypeName.WDIR + "/../../rs274ngc/src";
+        // 'ReadGCode:22' if coder.target('matlab')
+        // 'ReadGCode:60' else
+        // 'ReadGCode:61' coder.updateBuildInfo('addDefines', '_POSIX_C_SOURCE=199309L')
+        // 'ReadGCode:63' my_path = StructTypeName.WDIR + "/src";
+        // 'ReadGCode:64' coder.updateBuildInfo('addIncludePaths',my_path);
+        // 'ReadGCode:66' pathRs274Src = StructTypeName.WDIR + "/../../rs274ngc/src";
         //      coder.updateBuildInfo('addDefines', '-DMEX_READGCODE')
-        // 'ReadGCode:51' coder.updateBuildInfo('addCompileFlags', '-fdiagnostics-color=always')
-        // 'ReadGCode:52' coder.updateBuildInfo('addSourceFiles','cpp_interp.cpp', my_path);
-        // 'ReadGCode:53' coder.updateBuildInfo('addSourceFiles','directives.cc', pathRs274Src);
-        // 'ReadGCode:54' coder.updateBuildInfo('addSourceFiles','rotational_axis_mode.cc',
-        // pathRs274Src); 'ReadGCode:55' coder.updateBuildInfo('addSourceFiles','interp_arc.cc',
-        // pathRs274Src); 'ReadGCode:56' coder.updateBuildInfo('addSourceFiles','interp_array.cc',
-        // pathRs274Src); 'ReadGCode:57' coder.updateBuildInfo('addSourceFiles','interp_base.cc',
-        // pathRs274Src); 'ReadGCode:58' coder.updateBuildInfo('addSourceFiles','interp_check.cc',
-        // pathRs274Src); 'ReadGCode:59' coder.updateBuildInfo('addSourceFiles','interp_convert.cc',
-        // pathRs274Src); 'ReadGCode:60' coder.updateBuildInfo('addSourceFiles','interp_cycles.cc',
-        // pathRs274Src); 'ReadGCode:61' coder.updateBuildInfo('addSourceFiles','interp_execute.cc',
-        // pathRs274Src); 'ReadGCode:62' coder.updateBuildInfo('addSourceFiles','interp_find.cc',
-        // pathRs274Src); 'ReadGCode:63'
+        // 'ReadGCode:68' coder.updateBuildInfo('addCompileFlags', '-fdiagnostics-color=always')
+        // 'ReadGCode:69' coder.updateBuildInfo('addSourceFiles','cpp_interp.cpp', my_path);
+        // 'ReadGCode:70' coder.updateBuildInfo('addSourceFiles','directives.cc', pathRs274Src);
+        // 'ReadGCode:71' coder.updateBuildInfo('addSourceFiles','rotational_axis_mode.cc',
+        // pathRs274Src); 'ReadGCode:72' coder.updateBuildInfo('addSourceFiles','interp_arc.cc',
+        // pathRs274Src); 'ReadGCode:73' coder.updateBuildInfo('addSourceFiles','interp_array.cc',
+        // pathRs274Src); 'ReadGCode:74' coder.updateBuildInfo('addSourceFiles','interp_base.cc',
+        // pathRs274Src); 'ReadGCode:75' coder.updateBuildInfo('addSourceFiles','interp_check.cc',
+        // pathRs274Src); 'ReadGCode:76' coder.updateBuildInfo('addSourceFiles','interp_convert.cc',
+        // pathRs274Src); 'ReadGCode:77' coder.updateBuildInfo('addSourceFiles','interp_cycles.cc',
+        // pathRs274Src); 'ReadGCode:78' coder.updateBuildInfo('addSourceFiles','interp_execute.cc',
+        // pathRs274Src); 'ReadGCode:79' coder.updateBuildInfo('addSourceFiles','interp_find.cc',
+        // pathRs274Src); 'ReadGCode:80'
         // coder.updateBuildInfo('addSourceFiles','interp_internal.cc', pathRs274Src);
-        // 'ReadGCode:64' coder.updateBuildInfo('addSourceFiles','interp_inverse.cc', pathRs274Src);
-        // 'ReadGCode:65' coder.updateBuildInfo('addSourceFiles','interp_namedparams.cc',
-        // pathRs274Src); 'ReadGCode:66' coder.updateBuildInfo('addSourceFiles','interp_o_word.cc',
-        // pathRs274Src); 'ReadGCode:67' coder.updateBuildInfo('addSourceFiles','interp_queue.cc',
-        // pathRs274Src); 'ReadGCode:68' coder.updateBuildInfo('addSourceFiles','interp_read.cc',
-        // pathRs274Src); 'ReadGCode:69' coder.updateBuildInfo('addSourceFiles','interp_remap.cc',
-        // pathRs274Src); 'ReadGCode:70' coder.updateBuildInfo('addSourceFiles','interp_setup.cc',
-        // pathRs274Src); 'ReadGCode:71' coder.updateBuildInfo('addSourceFiles','interp_write.cc',
-        // pathRs274Src); 'ReadGCode:72' coder.updateBuildInfo('addSourceFiles','ocn.cc',
-        // pathRs274Src); 'ReadGCode:73' coder.updateBuildInfo('addSourceFiles','rs274ngc_pre.cc',
-        // pathRs274Src); 'ReadGCode:74' coder.updateBuildInfo('addSourceFiles','inifile.cc',
-        // pathRs274Src); 'ReadGCode:75' coder.updateBuildInfo('addLinkFlags', '-ldl');
+        // 'ReadGCode:81' coder.updateBuildInfo('addSourceFiles','interp_inverse.cc', pathRs274Src);
+        // 'ReadGCode:82' coder.updateBuildInfo('addSourceFiles','interp_namedparams.cc',
+        // pathRs274Src); 'ReadGCode:83' coder.updateBuildInfo('addSourceFiles','interp_o_word.cc',
+        // pathRs274Src); 'ReadGCode:84' coder.updateBuildInfo('addSourceFiles','interp_queue.cc',
+        // pathRs274Src); 'ReadGCode:85' coder.updateBuildInfo('addSourceFiles','interp_read.cc',
+        // pathRs274Src); 'ReadGCode:86' coder.updateBuildInfo('addSourceFiles','interp_remap.cc',
+        // pathRs274Src); 'ReadGCode:87' coder.updateBuildInfo('addSourceFiles','interp_setup.cc',
+        // pathRs274Src); 'ReadGCode:88' coder.updateBuildInfo('addSourceFiles','interp_write.cc',
+        // pathRs274Src); 'ReadGCode:89' coder.updateBuildInfo('addSourceFiles','ocn.cc',
+        // pathRs274Src); 'ReadGCode:90' coder.updateBuildInfo('addSourceFiles','rs274ngc_pre.cc',
+        // pathRs274Src); 'ReadGCode:91' coder.updateBuildInfo('addSourceFiles','inifile.cc',
+        // pathRs274Src); 'ReadGCode:92' coder.updateBuildInfo('addLinkFlags', '-ldl');
         //     coder.updateBuildInfo('addIncludePaths', '$(START_DIR)/gen_mex/readgcode');
-        // 'ReadGCode:77' coder.cinclude('cpp_interp.hpp');
-        // 'ReadGCode:79' switch cmd
-        // 'ReadGCode:80' case ReadGCodeCmd.Load
-        // 'ReadGCode:81' status = coder.ceval( 'cpp_interp_init', [filename 0], coder.ref(err_msg)
+        // 'ReadGCode:94' coder.cinclude('cpp_interp.hpp');
+        // 'ReadGCode:96' switch cmd
+        // 'ReadGCode:97' case ReadGCodeCmd.Load
+        // 'ReadGCode:98' status = coder.ceval( 'cpp_interp_init', [filename 0], coder.ref(err_msg)
         // );
-        std::copy(&ctx->cfg.source[0], &ctx->cfg.source[1024], &b_cv[0]);
-        b_cv[1024] = '\x00';
-        status = cpp_interp_init(&b_cv[0], &err_msg);
-        // 'ReadGCode:93' if(0)
-        // 'ReadGCode:98' ocn_assert( status < ReadGCodeError.InterpNotOpen, ...
-        // 'ReadGCode:99'     "[Line " + CurvStruct.Info.gcode_source_line + "] " + ...
-        // 'ReadGCode:100'     err_msg.msg, mfilename );
-        resCount = sprintf(&st[0], "%d", 0);
-        if (resCount - 1 >= 0) {
-            std::copy(&st[0], &st[resCount], &obj2Value_data[0]);
+        td_loop_ub = ctx->cfg.source.size[1];
+        if (td_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.source.data[0], &ctx->cfg.source.data[td_loop_ub], &tmp_data[0]);
         }
+        tmp_data[ctx->cfg.source.size[1]] = '\x00';
+        status = cpp_interp_init(&tmp_data[0], &err_msg);
+        // 'ReadGCode:110' if(0)
+        // 'ReadGCode:115' ocn_assert( status < ReadGCodeError.InterpNotOpen, ...
+        // 'ReadGCode:116'     "[Line " + CurvStruct.Info.gcode_source_line + "] " + ...
+        // 'ReadGCode:117'     err_msg.msg( 1 : err_msg.size ), mfilename );
+        if (err_msg.size < 1.0) {
+            ke_loop_ub = 0;
+        } else {
+            ke_loop_ub = static_cast<int>(err_msg.size);
+        }
+        coder::rtString::convertToString(obj2Value_data, obj2Value_size);
         obj.Value.size[0] = 1;
-        obj.Value.size[1] = resCount + 2056;
-        for (int i64{0}; i64 < 6; i64++) {
-            obj.Value.data[i64] = obj1Value[i64];
+        obj.Value.size[1] = (obj2Value_size[1] + ke_loop_ub) + 8;
+        for (int i95{0}; i95 < 6; i95++) {
+            obj.Value.data[i95] = obj1Value[i95];
         }
-        if (resCount - 1 >= 0) {
-            std::copy(&obj2Value_data[0], &obj2Value_data[resCount], &obj.Value.data[6]);
+        ue_loop_ub = obj2Value_size[1];
+        if (ue_loop_ub - 1 >= 0) {
+            std::copy(&obj2Value_data[0], &obj2Value_data[ue_loop_ub], &obj.Value.data[6]);
         }
-        obj.Value.data[resCount + 6] = ']';
-        obj.Value.data[resCount + 7] = ' ';
-        std::copy(&err_msg.msg[0], &err_msg.msg[2048], &obj.Value.data[resCount + 8]);
-        c_ocn_assert(status < ReadGCodeError_InterpNotOpen, &obj);
-        // 'FeedoptPlan:19' CurvStruct  = opt_struct;
+        obj.Value.data[obj2Value_size[1] + 6] = ']';
+        obj.Value.data[obj2Value_size[1] + 7] = ' ';
+        for (int i103{0}; i103 < ke_loop_ub; i103++) {
+            obj.Value.data[(i103 + obj2Value_size[1]) + 8] = err_msg.msg[i103];
+        }
+        f_ocn_assert(status < ReadGCodeError_InterpNotOpen, &obj);
+        // 'FeedoptPlan:28' CurvStruct  = opt_struct;
         c_CurvStruct = *opt_struct;
-        // 'FeedoptPlan:20' CurvStruct.Info.Type = CurveType.None;
+        // 'FeedoptPlan:29' CurvStruct.Info.Type = CurveType.None;
         c_CurvStruct.Info.Type = CurveType_None;
-        // 'FeedoptPlan:21' DebugLog( DebugCfg.Validate, 'Reading G-code...\n' );
-        //  1 -> stdout
-        //  2 -> stderr
-        // 'DebugLog:5' if IsEnabledDebugLog(cfg)
-        // 'IsEnabledDebugLog:4' value = false;
-        // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
+        // 'FeedoptPlan:30' DebugLog( DebugCfg.Validate, 'Reading G-code...\n' );
+        //  DebugLog : Print msg in log pipe.
+        //
+        //  Inputs :
+        //  cfg       : The configuration structure
+        //  varargin  : Variable types of arguments (a.k.a print msg)
+        //
+        // 'DebugLog:9' if IsEnabledDebugLog( cfg )
+        //  IsEnableDebugLog : Is the Debug log enable
+        //
+        //  Inputs :
+        //    cfg : Configuration structure
+        //
+        //  Outputs :
+        //  Value : Boolean Value. TRUE means the debug log is enable.
+        //
+        // 'IsEnabledDebugLog:13' value = false;
+        // 'IsEnabledDebugLog:15' if bitget( DebugConfig, int32( cfg ) )
         if ((static_cast<unsigned long>(DebugConfig) & 128UL) != 0UL) {
-            // 'IsEnabledDebugLog:7' value = true;
-            // 'DebugLog:6' fprintf( 1, varargin{:} );
+            // 'IsEnabledDebugLog:16' value = true;
+            //    Output
+            //    stdout : 1
+            //    stderr : 2
+            // 'DebugLog:13' output  = 1;
+            // 'DebugLog:14' fprintf( output, varargin{ : } );
             printf("Reading G-code...\n");
             fflush(stdout);
         }
         //
-        // 'FeedoptPlan:23' while status < ReadGCodeError.InterpNotOpen
+        // 'FeedoptPlan:32' while status < ReadGCodeError.InterpNotOpen
         exitg1 = false;
         while ((!exitg1) && (status < ReadGCodeError_InterpNotOpen)) {
-            // 'FeedoptPlan:24' if( CurvStruct.Info.Type ~= CurveType.None )
+            // 'FeedoptPlan:33' if( CurvStruct.Info.Type ~= CurveType.None )
             if (c_CurvStruct.Info.Type != CurveType_None) {
-                // 'FeedoptPlan:25' ctx.q_gcode.push( CurvStruct );
+                // 'FeedoptPlan:34' ctx.q_gcode.push( CurvStruct );
                 ctx->q_gcode.push(&c_CurvStruct);
-                // 'FeedoptPlan:26' ctx.k0 = ctx.k0 + 1;
+                // 'FeedoptPlan:35' ctx.k0 = ctx.k0 + 1;
                 ctx->k0++;
             }
-            // 'FeedoptPlan:29' if( status == ReadGCodeError.InterpExit )
+            // 'FeedoptPlan:38' if( status == ReadGCodeError.InterpExit )
             if (status == ReadGCodeError_InterpExit) {
                 exitg1 = true;
             } else {
-                int ae_loop_ub;
-                int b_resCount;
-                int ee_loop_ub;
-                int ke_loop_ub;
-                int kf_loop_ub;
-                int kg_loop_ub;
-                int vd_loop_ub;
-                int wd_loop_ub;
-                int xd_loop_ub;
-                bool is_loaded;
-                ReadGCodeError b_status;
-                // 'FeedoptPlan:33' [ status, CurvStruct ] = ReadGCode( ReadGCodeCmd.Read, ...
-                // 'FeedoptPlan:34'                 ctx.cfg.source );
-                //  coder.extrinsic('ReadGCode_mex');
-                //  Wrapper for pulling the next gcode line from the interpreter
-                // 'ReadGCode:6' status          = ReadGCodeError.InterpError;
-                // 'ReadGCode:7' CurvStruct      = constrCurvStructType;
-                //  constrCurvStructType : Constructs a constrCurvStruct with default values.
-                // 'constrCurvStructType:4' if( nargin > 0 )
-                // 'constrCurvStructType:6' else
-                // 'constrCurvStructType:7' [ params ] = paramsDefaultCurv;
-                // 'constrCurvStructType:10' if( coder.target( "MATLAB" ) )
-                // 'constrCurvStructType:12' else
-                // 'constrCurvStructType:13' C = constrCurvStruct( params.gcodeInfoStruct,
-                // params.tool, ... 'constrCurvStructType:14'         params.spline, params.R0,
-                // params.R1, params.Cprim, ... 'constrCurvStructType:15'         params.delta,
-                // params.evec, params.theta, params.pitch, ... 'constrCurvStructType:16'
-                // params.CoeffP5, params.Coeff );
-                e_expl_temp.R0.size[0] = expl_temp_tmp.R0.size[0];
-                vd_loop_ub = expl_temp_tmp.R0.size[0];
-                if (vd_loop_ub - 1 >= 0) {
-                    std::copy(&expl_temp_tmp.R0.data[0], &expl_temp_tmp.R0.data[vd_loop_ub],
-                              &e_expl_temp.R0.data[0]);
-                }
-                e_expl_temp.R1.size[0] = expl_temp_tmp.R1.size[0];
-                wd_loop_ub = expl_temp_tmp.R1.size[0];
-                if (wd_loop_ub - 1 >= 0) {
-                    std::copy(&expl_temp_tmp.R1.data[0], &expl_temp_tmp.R1.data[wd_loop_ub],
-                              &e_expl_temp.R1.data[0]);
-                }
-                e_expl_temp.CoeffP5.set_size(expl_temp_tmp.CoeffP5.size(0),
-                                             expl_temp_tmp.CoeffP5.size(1));
-                xd_loop_ub = expl_temp_tmp.CoeffP5.size(1);
-                for (int i91{0}; i91 < xd_loop_ub; i91++) {
-                    int yd_loop_ub;
-                    yd_loop_ub = expl_temp_tmp.CoeffP5.size(0);
-                    for (int i94{0}; i94 < yd_loop_ub; i94++) {
-                        e_expl_temp.CoeffP5[i94 + e_expl_temp.CoeffP5.size(0) * i91] =
-                            expl_temp_tmp.CoeffP5[i94 + expl_temp_tmp.CoeffP5.size(0) * i91];
-                    }
-                }
-                e_expl_temp.Coeff.set_size(expl_temp_tmp.Coeff.size(0));
-                ae_loop_ub = expl_temp_tmp.Coeff.size(0);
-                for (int i95{0}; i95 < ae_loop_ub; i95++) {
-                    e_expl_temp.Coeff[i95] = expl_temp_tmp.Coeff[i95];
-                }
-                c_CurvStruct.Info = expl_temp_tmp.Info;
-                c_CurvStruct.tool = expl_temp_tmp.tool;
-                c_CurvStruct.sp = expl_temp_tmp.sp;
-                c_CurvStruct.R0.set_size(e_expl_temp.R0.size[0]);
-                ee_loop_ub = e_expl_temp.R0.size[0];
-                for (int i99{0}; i99 < ee_loop_ub; i99++) {
-                    c_CurvStruct.R0[i99] = e_expl_temp.R0.data[i99];
-                }
-                c_CurvStruct.R1.set_size(e_expl_temp.R1.size[0]);
-                ke_loop_ub = e_expl_temp.R1.size[0];
-                for (int i105{0}; i105 < ke_loop_ub; i105++) {
-                    c_CurvStruct.R1[i105] = e_expl_temp.R1.data[i105];
-                }
-                c_CurvStruct.delta = expl_temp_tmp.delta;
-                c_CurvStruct.CorrectedHelixCenter[0] = expl_temp_tmp.CorrectedHelixCenter[0];
-                c_CurvStruct.evec[0] = expl_temp_tmp.evec[0];
-                c_CurvStruct.CorrectedHelixCenter[1] = expl_temp_tmp.CorrectedHelixCenter[1];
-                c_CurvStruct.evec[1] = expl_temp_tmp.evec[1];
-                c_CurvStruct.CorrectedHelixCenter[2] = expl_temp_tmp.CorrectedHelixCenter[2];
-                c_CurvStruct.evec[2] = expl_temp_tmp.evec[2];
-                c_CurvStruct.theta = expl_temp_tmp.theta;
-                c_CurvStruct.pitch = expl_temp_tmp.pitch;
-                c_CurvStruct.CoeffP5.set_size(e_expl_temp.CoeffP5.size(0),
-                                              e_expl_temp.CoeffP5.size(1));
-                kf_loop_ub = e_expl_temp.CoeffP5.size(1);
-                for (int i130{0}; i130 < kf_loop_ub; i130++) {
-                    int sf_loop_ub;
-                    sf_loop_ub = e_expl_temp.CoeffP5.size(0);
-                    for (int i138{0}; i138 < sf_loop_ub; i138++) {
-                        c_CurvStruct.CoeffP5[i138 + c_CurvStruct.CoeffP5.size(0) * i130] =
-                            e_expl_temp.CoeffP5[i138 + e_expl_temp.CoeffP5.size(0) * i130];
-                    }
-                }
-                c_CurvStruct.sp_index = expl_temp_tmp.sp_index;
-                c_CurvStruct.i_begin_sp = expl_temp_tmp.i_begin_sp;
-                c_CurvStruct.i_end_sp = expl_temp_tmp.i_end_sp;
-                c_CurvStruct.index_smooth = expl_temp_tmp.index_smooth;
-                c_CurvStruct.UseConstJerk = expl_temp_tmp.UseConstJerk;
-                c_CurvStruct.ConstJerk = expl_temp_tmp.ConstJerk;
-                c_CurvStruct.Coeff.set_size(e_expl_temp.Coeff.size(0));
-                kg_loop_ub = e_expl_temp.Coeff.size(0);
-                for (int i155{0}; i155 < kg_loop_ub; i155++) {
-                    c_CurvStruct.Coeff[i155] = e_expl_temp.Coeff[i155];
-                }
-                c_CurvStruct.a_param = expl_temp_tmp.a_param;
-                c_CurvStruct.b_param = expl_temp_tmp.b_param;
-                // 'ReadGCode:8' err_msg         = constrMsgStructType;
-                std::copy(&cv[0], &cv[2048], &err_msg.msg[0]);
-                err_msg.size = 2048.0;
-                // 'ReadGCode:10' if coder.target('matlab')
-                // 'ReadGCode:43' else
-                // 'ReadGCode:44' coder.updateBuildInfo('addDefines', '_POSIX_C_SOURCE=199309L')
-                // 'ReadGCode:46' my_path = StructTypeName.WDIR + "/src";
-                // 'ReadGCode:47' coder.updateBuildInfo('addIncludePaths',my_path);
-                // 'ReadGCode:49' pathRs274Src = StructTypeName.WDIR + "/../../rs274ngc/src";
-                //      coder.updateBuildInfo('addDefines', '-DMEX_READGCODE')
-                // 'ReadGCode:51' coder.updateBuildInfo('addCompileFlags',
-                // '-fdiagnostics-color=always') 'ReadGCode:52'
-                // coder.updateBuildInfo('addSourceFiles','cpp_interp.cpp', my_path); 'ReadGCode:53'
-                // coder.updateBuildInfo('addSourceFiles','directives.cc', pathRs274Src);
-                // 'ReadGCode:54' coder.updateBuildInfo('addSourceFiles','rotational_axis_mode.cc',
-                // pathRs274Src); 'ReadGCode:55'
-                // coder.updateBuildInfo('addSourceFiles','interp_arc.cc', pathRs274Src);
-                // 'ReadGCode:56' coder.updateBuildInfo('addSourceFiles','interp_array.cc',
-                // pathRs274Src); 'ReadGCode:57'
-                // coder.updateBuildInfo('addSourceFiles','interp_base.cc', pathRs274Src);
-                // 'ReadGCode:58' coder.updateBuildInfo('addSourceFiles','interp_check.cc',
-                // pathRs274Src); 'ReadGCode:59'
-                // coder.updateBuildInfo('addSourceFiles','interp_convert.cc', pathRs274Src);
-                // 'ReadGCode:60' coder.updateBuildInfo('addSourceFiles','interp_cycles.cc',
-                // pathRs274Src); 'ReadGCode:61'
-                // coder.updateBuildInfo('addSourceFiles','interp_execute.cc', pathRs274Src);
-                // 'ReadGCode:62' coder.updateBuildInfo('addSourceFiles','interp_find.cc',
-                // pathRs274Src); 'ReadGCode:63'
-                // coder.updateBuildInfo('addSourceFiles','interp_internal.cc', pathRs274Src);
-                // 'ReadGCode:64' coder.updateBuildInfo('addSourceFiles','interp_inverse.cc',
-                // pathRs274Src); 'ReadGCode:65'
-                // coder.updateBuildInfo('addSourceFiles','interp_namedparams.cc', pathRs274Src);
-                // 'ReadGCode:66' coder.updateBuildInfo('addSourceFiles','interp_o_word.cc',
-                // pathRs274Src); 'ReadGCode:67'
-                // coder.updateBuildInfo('addSourceFiles','interp_queue.cc', pathRs274Src);
-                // 'ReadGCode:68' coder.updateBuildInfo('addSourceFiles','interp_read.cc',
-                // pathRs274Src); 'ReadGCode:69'
-                // coder.updateBuildInfo('addSourceFiles','interp_remap.cc', pathRs274Src);
-                // 'ReadGCode:70' coder.updateBuildInfo('addSourceFiles','interp_setup.cc',
-                // pathRs274Src); 'ReadGCode:71'
-                // coder.updateBuildInfo('addSourceFiles','interp_write.cc', pathRs274Src);
-                // 'ReadGCode:72' coder.updateBuildInfo('addSourceFiles','ocn.cc', pathRs274Src);
-                // 'ReadGCode:73' coder.updateBuildInfo('addSourceFiles','rs274ngc_pre.cc',
-                // pathRs274Src); 'ReadGCode:74'
-                // coder.updateBuildInfo('addSourceFiles','inifile.cc', pathRs274Src);
-                // 'ReadGCode:75' coder.updateBuildInfo('addLinkFlags', '-ldl');
-                //     coder.updateBuildInfo('addIncludePaths', '$(START_DIR)/gen_mex/readgcode');
-                // 'ReadGCode:77' coder.cinclude('cpp_interp.hpp');
-                // 'ReadGCode:79' switch cmd
-                // 'ReadGCode:82' case ReadGCodeCmd.Read
-                // 'ReadGCode:83' is_loaded = false;
-                // 'ReadGCode:84' is_loaded = coder.ceval( 'cpp_interp_loaded', coder.ref(err_msg)
-                // );
-                is_loaded = cpp_interp_loaded(&err_msg);
-                // 'ReadGCode:85' if is_loaded
-                if (is_loaded) {
-                    // 'ReadGCode:86' status  = coder.ceval( 'cpp_interp_read', coder.ref(
-                    // CurvStruct ), coder.ref(err_msg) );
-                    b_status = cpp_interp_read(&c_CurvStruct, &err_msg);
-                } else {
-                    // 'ReadGCode:87' else
-                    // 'ReadGCode:88' status  = ReadGCodeError.InterpError;
-                    b_status = ReadGCodeError_InterpError;
-                }
-                // 'ReadGCode:93' if(0)
-                // 'ReadGCode:98' ocn_assert( status < ReadGCodeError.InterpNotOpen, ...
-                // 'ReadGCode:99'     "[Line " + CurvStruct.Info.gcode_source_line + "] " + ...
-                // 'ReadGCode:100'     err_msg.msg, mfilename );
-                b_resCount = sprintf(&st[0], "%d", c_CurvStruct.Info.gcode_source_line);
-                if (b_resCount - 1 >= 0) {
-                    std::copy(&st[0], &st[b_resCount], &b_obj2Value_data[0]);
-                }
-                b_obj.Value.size[0] = 1;
-                b_obj.Value.size[1] = b_resCount + 2056;
-                for (int i184{0}; i184 < 6; i184++) {
-                    b_obj.Value.data[i184] = obj1Value[i184];
-                }
-                if (b_resCount - 1 >= 0) {
-                    std::copy(&b_obj2Value_data[0], &b_obj2Value_data[b_resCount],
-                              &b_obj.Value.data[6]);
-                }
-                b_obj.Value.data[b_resCount + 6] = ']';
-                b_obj.Value.data[b_resCount + 7] = ' ';
-                std::copy(&err_msg.msg[0], &err_msg.msg[2048], &b_obj.Value.data[b_resCount + 8]);
-                c_ocn_assert(b_status < ReadGCodeError_InterpNotOpen, &b_obj);
-                status = b_status;
-                // 'FeedoptPlan:36' if( CurvStruct.Info.Type ~= CurveType.None )
+                // 'FeedoptPlan:42' [ status, CurvStruct ] = ReadGCode( ctx.cfg, ReadGCodeCmd.Read,
+                // ... 'FeedoptPlan:43'                 ctx.cfg.source );
+                b_ReadGCode(&status, &c_CurvStruct);
+                // 'FeedoptPlan:45' if( CurvStruct.Info.Type ~= CurveType.None )
                 if (c_CurvStruct.Info.Type != CurveType_None) {
-                    __m128d r3;
                     __m128d r4;
                     __m128d r5;
+                    __m128d r6;
                     double prev_tool_offset_x;
                     double prev_tool_offset_y;
                     double prev_tool_offset_z;
-                    // 'FeedoptPlan:37' if( ctx.q_gcode.isempty )
+                    // 'FeedoptPlan:46' if( ctx.q_gcode.isempty )
                     if (ctx->q_gcode.isempty()) {
-                        // 'FeedoptPlan:38' prev_tool = constrToolStructType;
+                        // 'FeedoptPlan:47' prev_tool = constrToolStructType;
                         prev_tool_offset_x = 0.0;
                         prev_tool_offset_y = 0.0;
                         prev_tool_offset_z = 0.0;
                     } else {
-                        // 'FeedoptPlan:39' else
-                        // 'FeedoptPlan:40' prev_tool = ctx.q_gcode.rget(1).tool;
+                        // 'FeedoptPlan:48' else
+                        // 'FeedoptPlan:49' prev_tool = ctx.q_gcode.rget(1).tool;
                         ctx->q_gcode.rget(&r2);
                         prev_tool_offset_x = r2.tool.offset.x;
                         prev_tool_offset_y = r2.tool.offset.y;
                         prev_tool_offset_z = r2.tool.offset.z;
-                        // 'FeedoptPlan:42' if( ~toolIsEqual(prev_tool, CurvStruct.tool ) )
+                        // 'FeedoptPlan:51' if( ~toolIsEqual(prev_tool, CurvStruct.tool ) )
                         if (!toolIsEqual(r2.tool.toolno, r2.tool.pocketno, r2.tool.offset.x,
                                          r2.tool.offset.y, r2.tool.offset.z, r2.tool.offset.a,
                                          r2.tool.offset.b, r2.tool.offset.c, r2.tool.offset.u,
@@ -543,322 +434,775 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                                          c_CurvStruct.tool.orientation)) {
                             bool b_zeroFlag;
                             bool c_zeroFlag;
-                            // 'FeedoptPlan:43' curv1 = ctx.q_gcode.rget(1);
+                            // 'FeedoptPlan:52' curv1 = ctx.q_gcode.rget(1);
                             ctx->q_gcode.rget(&curv1);
-                            // 'FeedoptPlan:44' if( isAZeroStart(curv1) )
+                            // 'FeedoptPlan:53' if( isAZeroStart(curv1) )
                             //  isAZeroStart : Return true if the curv starts with zero speed
-                            //  Input :
+                            //
+                            //  Inputs :
                             //  curv / Info / ZSpdMode : A structure containning the information of
                             //  the curv zero speed.
-                            // 'isAZeroStart:6' zeroFlag = false;
+                            //
+                            //  Outputs :
+                            //  zeroflag : Boolean value. TRUE means zero structure with a zero
+                            //  speed.
+                            //
+                            // 'isAZeroStart:11' zeroFlag = false;
                             b_zeroFlag = false;
-                            // 'isAZeroStart:8' [zspdmode, error] = getZspdmode( speed );
-                            //  Get the zspdmode enum from either a curvStruct, infoStruct or
-                            //  zspdMode.
-                            // 'getZspdmode:3' error = false;
-                            // 'getZspdmode:5' if( isenum( speed ) )
-                            // 'getZspdmode:7' elseif( isfield( speed, "Info") )
-                            // 'getZspdmode:8' zspdmode = speed.Info.zspdmode;
-                            // 'isAZeroStart:10' if( error )
-                            // 'isAZeroStart:12' if( zspdmode == ZSpdMode.ZN || ...
-                            // 'isAZeroStart:13'     zspdmode == ZSpdMode.ZZ )
+                            // 'isAZeroStart:13' [zspdmode, error] = getZspdmode( speed );
+                            //  getZspdmode: Get the current zero speed mode
+                            //
+                            //  Inputs :
+                            //    speed    : structure with zspdmode for the speed
+                            //
+                            //  Outputs :
+                            //    zspdmode : Zero speed mode
+                            //    error    : Error bolean value. TRUE if no zspdmode has been found.
+                            //
+                            // 'getZspdmode:13' error = false;
+                            // 'getZspdmode:15' if( isenum( speed ) )
+                            // 'getZspdmode:17' elseif( isfield( speed, "Info") )
+                            // 'getZspdmode:18' zspdmode = speed.Info.zspdmode;
+                            // 'isAZeroStart:15' if( error )
+                            // 'isAZeroStart:17' if( zspdmode == ZSpdMode.ZN || ...
+                            // 'isAZeroStart:18'     zspdmode == ZSpdMode.ZZ )
                             if ((curv1.Info.zspdmode == ZSpdMode_ZN) ||
                                 (curv1.Info.zspdmode == ZSpdMode_ZZ)) {
-                                // 'isAZeroStart:14' zeroFlag = true;
+                                // 'isAZeroStart:19' zeroFlag = true;
                                 b_zeroFlag = true;
                             }
                             if (b_zeroFlag) {
-                                // 'FeedoptPlan:45' curv1.Info.zspdmode = ZSpdMode.ZZ;
+                                // 'FeedoptPlan:54' curv1.Info.zspdmode = ZSpdMode.ZZ;
                                 curv1.Info.zspdmode = ZSpdMode_ZZ;
                             } else {
-                                // 'FeedoptPlan:46' else
-                                // 'FeedoptPlan:47' curv1.Info.zspdmode = ZSpdMode.NZ;
+                                // 'FeedoptPlan:55' else
+                                // 'FeedoptPlan:56' curv1.Info.zspdmode = ZSpdMode.NZ;
                                 curv1.Info.zspdmode = ZSpdMode_NZ;
                             }
-                            // 'FeedoptPlan:50' ctx.q_gcode.set(ctx.q_gcode.size, curv1);
+                            // 'FeedoptPlan:59' ctx.q_gcode.set(ctx.q_gcode.size, curv1);
                             ctx->q_gcode.set(ctx->q_gcode.size(), &curv1);
-                            // 'FeedoptPlan:52' if( isAZeroEnd(CurvStruct) )
+                            // 'FeedoptPlan:61' if( isAZeroEnd(CurvStruct) )
                             //  isAZeroEnd : Return true if the curv ends with zero speed
-                            //  Input :
+                            //
+                            //  Inputs :
                             //  curv / Info / ZSpdMode : A structure containning the information of
                             //  the curv zero speed.
-                            // 'isAZeroEnd:6' zeroFlag = false;
+                            //
+                            //  Outputs :
+                            //  zeroFlag : Boolean value. TRUE mean zero flag
+                            // 'isAZeroEnd:10' zeroFlag = false;
                             c_zeroFlag = false;
-                            // 'isAZeroEnd:8' [zspdmode, error] = getZspdmode( speed );
-                            //  Get the zspdmode enum from either a curvStruct, infoStruct or
-                            //  zspdMode.
-                            // 'getZspdmode:3' error = false;
-                            // 'getZspdmode:5' if( isenum( speed ) )
-                            // 'getZspdmode:7' elseif( isfield( speed, "Info") )
-                            // 'getZspdmode:8' zspdmode = speed.Info.zspdmode;
-                            // 'isAZeroEnd:10' if( error )
-                            // 'isAZeroEnd:12' if( zspdmode == ZSpdMode.NZ || ...
-                            // 'isAZeroEnd:13'     zspdmode == ZSpdMode.ZZ )
+                            // 'isAZeroEnd:12' [zspdmode, error] = getZspdmode( speed );
+                            //  getZspdmode: Get the current zero speed mode
+                            //
+                            //  Inputs :
+                            //    speed    : structure with zspdmode for the speed
+                            //
+                            //  Outputs :
+                            //    zspdmode : Zero speed mode
+                            //    error    : Error bolean value. TRUE if no zspdmode has been found.
+                            //
+                            // 'getZspdmode:13' error = false;
+                            // 'getZspdmode:15' if( isenum( speed ) )
+                            // 'getZspdmode:17' elseif( isfield( speed, "Info") )
+                            // 'getZspdmode:18' zspdmode = speed.Info.zspdmode;
+                            // 'isAZeroEnd:14' if( error )
+                            // 'isAZeroEnd:16' if( zspdmode == ZSpdMode.NZ || ...
+                            // 'isAZeroEnd:17'     zspdmode == ZSpdMode.ZZ )
                             if ((c_CurvStruct.Info.zspdmode == ZSpdMode_NZ) ||
                                 (c_CurvStruct.Info.zspdmode == ZSpdMode_ZZ)) {
-                                // 'isAZeroEnd:14' zeroFlag = true;
+                                // 'isAZeroEnd:18' zeroFlag = true;
                                 c_zeroFlag = true;
                             }
                             if (c_zeroFlag) {
-                                // 'FeedoptPlan:53' CurvStruct.Info.zspdmode = ZSpdMode.ZZ;
+                                // 'FeedoptPlan:62' CurvStruct.Info.zspdmode = ZSpdMode.ZZ;
                                 c_CurvStruct.Info.zspdmode = ZSpdMode_ZZ;
                             } else {
-                                // 'FeedoptPlan:54' else
-                                // 'FeedoptPlan:55' CurvStruct.Info.zspdmode = ZSpdMode.ZN;
+                                // 'FeedoptPlan:63' else
+                                // 'FeedoptPlan:64' CurvStruct.Info.zspdmode = ZSpdMode.ZN;
                                 c_CurvStruct.Info.zspdmode = ZSpdMode_ZN;
                             }
                         }
                     }
-                    // 'FeedoptPlan:60' [CurvStruct] = add_tool_offset( CurvStruct, ctx.cfg.indCart,
-                    // prev_tool );
-                    //  Add the tool offset to the curve structure.
-                    // 'add_tool_offset:4' if( ~CurvStruct.Info.TRAFO )
+                    // 'FeedoptPlan:69' [CurvStruct] = add_tool_offset( CurvStruct, ...
+                    // 'FeedoptPlan:70'                     ctx.cfg.indCart, prev_tool );
+                    //  add_tool_offset : Add the tool offset to the curve structure.
+                    //
+                    //  Inputs :
+                    //  CurvStruct    : Curv structure
+                    //  indCart       : Index carthesien
+                    //  prev_tool     : Previous tool
+                    //
+                    //  Outputs:
+                    //  CurvStruct    : Curv structure
+                    // 'add_tool_offset:13' if( ~CurvStruct.Info.TRAFO )
                     if (!c_CurvStruct.Info.TRAFO) {
                         double CurvStruct_data[3];
                         int CurvStruct_size;
-                        // 'add_tool_offset:5' prev_off = [prev_tool.offset.x,prev_tool.offset.y,
-                        // prev_tool.offset.z]; 'add_tool_offset:6' off = [CurvStruct.tool.offset.x,
-                        // ... 'add_tool_offset:7'            CurvStruct.tool.offset.y, ...
-                        // 'add_tool_offset:8'            CurvStruct.tool.offset.z];
+                        // 'add_tool_offset:14' prev_off = [prev_tool.offset.x,prev_tool.offset.y,
+                        // prev_tool.offset.z]; 'add_tool_offset:15' off =
+                        // [CurvStruct.tool.offset.x, ... 'add_tool_offset:16'
+                        // CurvStruct.tool.offset.y, ... 'add_tool_offset:17'
+                        // CurvStruct.tool.offset.z];
                         off[0] = c_CurvStruct.tool.offset.x;
                         off[1] = c_CurvStruct.tool.offset.y;
                         off[2] = c_CurvStruct.tool.offset.z;
-                        // 'add_tool_offset:9' CurvStruct.R0( indCart ) = ...
-                        // 'add_tool_offset:10'         CurvStruct.R0( indCart ) + prev_off( : );
+                        // 'add_tool_offset:18' CurvStruct.R0( indCart ) = ...
+                        // 'add_tool_offset:19'         CurvStruct.R0( indCart ) + prev_off( : );
                         if (ctx->cfg.indCart.size[0] == 3) {
                             double b_prev_tool_offset_x[3];
-                            int ei_loop_ub;
+                            int di_loop_ub;
                             b_prev_tool_offset_x[0] = prev_tool_offset_x;
                             b_prev_tool_offset_x[1] = prev_tool_offset_y;
                             b_prev_tool_offset_x[2] = prev_tool_offset_z;
                             CurvStruct_size = ctx->cfg.indCart.size[0];
-                            ei_loop_ub = ctx->cfg.indCart.size[0];
-                            for (int i195{0}; i195 < ei_loop_ub; i195++) {
-                                CurvStruct_data[i195] =
-                                    c_CurvStruct.R0[ctx->cfg.indCart.data[i195] - 1] +
-                                    b_prev_tool_offset_x[i195];
+                            di_loop_ub = ctx->cfg.indCart.size[0];
+                            for (int i188{0}; i188 < di_loop_ub; i188++) {
+                                CurvStruct_data[i188] =
+                                    c_CurvStruct.R0[ctx->cfg.indCart.data[i188] - 1] +
+                                    b_prev_tool_offset_x[i188];
                             }
-                            for (int i197{0}; i197 < CurvStruct_size; i197++) {
-                                c_CurvStruct.R0[ctx->cfg.indCart.data[i197] - 1] =
-                                    CurvStruct_data[i197];
+                            for (int i193{0}; i193 < CurvStruct_size; i193++) {
+                                c_CurvStruct.R0[ctx->cfg.indCart.data[i193] - 1] =
+                                    CurvStruct_data[i193];
                             }
                         } else {
                             binary_expand_op(&c_CurvStruct, ctx, prev_tool_offset_x,
                                              prev_tool_offset_y, prev_tool_offset_z);
                         }
-                        // 'add_tool_offset:11' CurvStruct.R1( indCart ) = ...
-                        // 'add_tool_offset:12'         CurvStruct.R1( indCart ) + off( : );
+                        // 'add_tool_offset:20' CurvStruct.R1( indCart ) = ...
+                        // 'add_tool_offset:21'         CurvStruct.R1( indCart ) + off( : );
                         if (ctx->cfg.indCart.size[0] == 3) {
-                            int fi_loop_ub;
+                            int gi_loop_ub;
                             CurvStruct_size = ctx->cfg.indCart.size[0];
-                            fi_loop_ub = ctx->cfg.indCart.size[0];
-                            for (int i196{0}; i196 < fi_loop_ub; i196++) {
-                                CurvStruct_data[i196] =
-                                    c_CurvStruct.R1[ctx->cfg.indCart.data[i196] - 1] + off[i196];
+                            gi_loop_ub = ctx->cfg.indCart.size[0];
+                            for (int i191{0}; i191 < gi_loop_ub; i191++) {
+                                CurvStruct_data[i191] =
+                                    c_CurvStruct.R1[ctx->cfg.indCart.data[i191] - 1] + off[i191];
                             }
-                            for (int i198{0}; i198 < CurvStruct_size; i198++) {
-                                c_CurvStruct.R1[ctx->cfg.indCart.data[i198] - 1] =
-                                    CurvStruct_data[i198];
+                            for (int i194{0}; i194 < CurvStruct_size; i194++) {
+                                c_CurvStruct.R1[ctx->cfg.indCart.data[i194] - 1] =
+                                    CurvStruct_data[i194];
                             }
                         } else {
                             binary_expand_op(&c_CurvStruct, ctx, off);
                         }
-                        // 'add_tool_offset:13' if ( CurvStruct.Info.Type == CurveType.Helix )
+                        // 'add_tool_offset:22' if ( CurvStruct.Info.Type == CurveType.Helix )
                         if (c_CurvStruct.Info.Type == CurveType_Helix) {
-                            __m128d r6;
                             __m128d r7;
-                            // 'add_tool_offset:14' CurvStruct.CorrectedHelixCenter =
+                            __m128d r8;
+                            // 'add_tool_offset:23' CurvStruct.CorrectedHelixCenter =
                             // CurvStruct.CorrectedHelixCenter + off( : );
-                            r6 = _mm_loadu_pd(&c_CurvStruct.CorrectedHelixCenter[0]);
-                            r7 = _mm_loadu_pd(&off[0]);
+                            r7 = _mm_loadu_pd(&c_CurvStruct.CorrectedHelixCenter[0]);
+                            r8 = _mm_loadu_pd(&off[0]);
                             _mm_storeu_pd(&c_CurvStruct.CorrectedHelixCenter[0],
-                                          _mm_add_pd(r6, r7));
+                                          _mm_add_pd(r7, r8));
                             c_CurvStruct.CorrectedHelixCenter[2] += off[2];
                         }
                     }
-                    // 'FeedoptPlan:62' CurvStruct.R0( 4 : end ) = deg2rad( CurvStruct.R0( 4 : end )
+                    //  Convert degree to rad
+                    // 'FeedoptPlan:72' CurvStruct.R0( 4 : end ) = deg2rad( CurvStruct.R0( 4 : end )
                     // );
-                    r3 = _mm_loadu_pd(&c_CurvStruct.R0[3]);
-                    r4 = _mm_set1_pd(0.017453292519943295);
-                    _mm_storeu_pd(&c_CurvStruct.R0[3], _mm_mul_pd(r4, r3));
+                    r4 = _mm_loadu_pd(&c_CurvStruct.R0[3]);
+                    r5 = _mm_set1_pd(0.017453292519943295);
+                    _mm_storeu_pd(&c_CurvStruct.R0[3], _mm_mul_pd(r5, r4));
                     c_CurvStruct.R0[5] = 0.017453292519943295 * c_CurvStruct.R0[5];
-                    // 'FeedoptPlan:63' CurvStruct.R1( 4 : end ) = deg2rad( CurvStruct.R1( 4 : end )
+                    // 'FeedoptPlan:73' CurvStruct.R1( 4 : end ) = deg2rad( CurvStruct.R1( 4 : end )
                     // );
-                    r5 = _mm_loadu_pd(&c_CurvStruct.R1[3]);
-                    _mm_storeu_pd(&c_CurvStruct.R1[3], _mm_mul_pd(r4, r5));
+                    r6 = _mm_loadu_pd(&c_CurvStruct.R1[3]);
+                    _mm_storeu_pd(&c_CurvStruct.R1[3], _mm_mul_pd(r5, r6));
                     c_CurvStruct.R1[5] = 0.017453292519943295 * c_CurvStruct.R1[5];
-                    // 'FeedoptPlan:65' for j = 1 : StructTypeName.NumberAxisMax
-                    // 'FeedoptPlan:74' if( CurvStruct.Info.FeedRate == 0.0 )
-                    if (c_CurvStruct.Info.FeedRate == 0.0) {
-                        // 'FeedoptPlan:75' CurvStruct.Info.FeedRate = ctx.cfg.fmax;
-                        c_CurvStruct.Info.FeedRate = ctx->cfg.fmax;
-                    }
+                    // 'FeedoptPlan:75' for j = 1 : StructTypeName.NumberAxisMax
+                    // 'FeedoptPlan:84' ocn_assert( CurvStruct.Info.FeedRate > 0.0, ...
+                    // 'FeedoptPlan:85'                     "Feedrate is not valide...", mfilename
+                    // );
+                    h_ocn_assert(c_CurvStruct.Info.FeedRate > 0.0);
                 }
             }
         }
         //  Error if gcode queue is empty
-        // 'FeedoptPlan:80' ocn_assert( ~ctx.q_gcode.isempty(), "Gcode queue is empty", mfilename );
-        e_ocn_assert(!ctx->q_gcode.isempty());
-        // 'FeedoptPlan:82' last = ctx.q_gcode.rget(1);
+        // 'FeedoptPlan:90' ocn_assert( ~ctx.q_gcode.isempty(), "Gcode queue is empty", mfilename );
+        i_ocn_assert(!ctx->q_gcode.isempty());
+        // 'FeedoptPlan:92' last = ctx.q_gcode.rget(1);
         ctx->q_gcode.rget(&last);
-        // 'FeedoptPlan:83' if( isAZeroStart(last) )
+        // 'FeedoptPlan:93' if( isAZeroStart(last) )
         //  isAZeroStart : Return true if the curv starts with zero speed
-        //  Input :
+        //
+        //  Inputs :
         //  curv / Info / ZSpdMode : A structure containning the information of the
         //  curv zero speed.
-        // 'isAZeroStart:6' zeroFlag = false;
+        //
+        //  Outputs :
+        //  zeroflag : Boolean value. TRUE means zero structure with a zero speed.
+        //
+        // 'isAZeroStart:11' zeroFlag = false;
         zeroFlag = false;
-        // 'isAZeroStart:8' [zspdmode, error] = getZspdmode( speed );
-        //  Get the zspdmode enum from either a curvStruct, infoStruct or zspdMode.
-        // 'getZspdmode:3' error = false;
-        // 'getZspdmode:5' if( isenum( speed ) )
-        // 'getZspdmode:7' elseif( isfield( speed, "Info") )
-        // 'getZspdmode:8' zspdmode = speed.Info.zspdmode;
-        // 'isAZeroStart:10' if( error )
-        // 'isAZeroStart:12' if( zspdmode == ZSpdMode.ZN || ...
-        // 'isAZeroStart:13'     zspdmode == ZSpdMode.ZZ )
+        // 'isAZeroStart:13' [zspdmode, error] = getZspdmode( speed );
+        //  getZspdmode: Get the current zero speed mode
+        //
+        //  Inputs :
+        //    speed    : structure with zspdmode for the speed
+        //
+        //  Outputs :
+        //    zspdmode : Zero speed mode
+        //    error    : Error bolean value. TRUE if no zspdmode has been found.
+        //
+        // 'getZspdmode:13' error = false;
+        // 'getZspdmode:15' if( isenum( speed ) )
+        // 'getZspdmode:17' elseif( isfield( speed, "Info") )
+        // 'getZspdmode:18' zspdmode = speed.Info.zspdmode;
+        // 'isAZeroStart:15' if( error )
+        // 'isAZeroStart:17' if( zspdmode == ZSpdMode.ZN || ...
+        // 'isAZeroStart:18'     zspdmode == ZSpdMode.ZZ )
         if ((last.Info.zspdmode == ZSpdMode_ZN) || (last.Info.zspdmode == ZSpdMode_ZZ)) {
-            // 'isAZeroStart:14' zeroFlag = true;
+            // 'isAZeroStart:19' zeroFlag = true;
             zeroFlag = true;
         }
         if (zeroFlag) {
-            // 'FeedoptPlan:84' last.Info.zspdmode = ZSpdMode.ZZ;
+            // 'FeedoptPlan:94' last.Info.zspdmode = ZSpdMode.ZZ;
             last.Info.zspdmode = ZSpdMode_ZZ;
         } else {
-            // 'FeedoptPlan:85' else
-            // 'FeedoptPlan:86' last.Info.zspdmode = ZSpdMode.NZ;
+            // 'FeedoptPlan:95' else
+            // 'FeedoptPlan:96' last.Info.zspdmode = ZSpdMode.NZ;
             last.Info.zspdmode = ZSpdMode_NZ;
         }
-        // 'FeedoptPlan:88' ctx.q_gcode.set( ctx.q_gcode.size, last );
+        // 'FeedoptPlan:98' ctx.q_gcode.set( ctx.q_gcode.size, last );
         ctx->q_gcode.set(ctx->q_gcode.size(), &last);
-        // 'FeedoptPlan:90' assert_queue( ctx.op, ctx.q_gcode );
-        // 'FeedoptPlan:161' msg = string( op );
-        // 'FeedoptPlan:162' ocn_assert( checkGeometry( queue ), ...
-        // 'FeedoptPlan:163'     msg + " - Check geometry failed...", mfilename );
-        r1.init(ctx->op);
+        // 'FeedoptPlan:100' ctx = assert_queue( ctx, ctx.op, ctx.q_gcode );
+        r.BasisVal.set_size(ctx->BasisVal.size(0), ctx->BasisVal.size(1));
+        vh_loop_ub = ctx->BasisVal.size(1);
+        for (int i182{0}; i182 < vh_loop_ub; i182++) {
+            int ci_loop_ub;
+            ci_loop_ub = ctx->BasisVal.size(0);
+            for (int i187{0}; i187 < ci_loop_ub; i187++) {
+                r.BasisVal[i187 + r.BasisVal.size(0) * i182] =
+                    ctx->BasisVal[i187 + ctx->BasisVal.size(0) * i182];
+            }
+        }
+        r.BasisValD.set_size(ctx->BasisValD.size(0), ctx->BasisValD.size(1));
+        fi_loop_ub = ctx->BasisValD.size(1);
+        for (int i190{0}; i190 < fi_loop_ub; i190++) {
+            int hi_loop_ub;
+            hi_loop_ub = ctx->BasisValD.size(0);
+            for (int i195{0}; i195 < hi_loop_ub; i195++) {
+                r.BasisValD[i195 + r.BasisValD.size(0) * i190] =
+                    ctx->BasisValD[i195 + ctx->BasisValD.size(0) * i190];
+            }
+        }
+        r.BasisValDD.set_size(ctx->BasisValDD.size(0), ctx->BasisValDD.size(1));
+        ii_loop_ub = ctx->BasisValDD.size(1);
+        for (int i196{0}; i196 < ii_loop_ub; i196++) {
+            int ki_loop_ub;
+            ki_loop_ub = ctx->BasisValDD.size(0);
+            for (int i197{0}; i197 < ki_loop_ub; i197++) {
+                r.BasisValDD[i197 + r.BasisValDD.size(0) * i196] =
+                    ctx->BasisValDD[i197 + ctx->BasisValDD.size(0) * i196];
+            }
+        }
+        r.BasisValDDD.set_size(ctx->BasisValDDD.size(0), ctx->BasisValDDD.size(1));
+        li_loop_ub = ctx->BasisValDDD.size(1);
+        for (int i199{0}; i199 < li_loop_ub; i199++) {
+            int ni_loop_ub;
+            ni_loop_ub = ctx->BasisValDDD.size(0);
+            for (int i200{0}; i200 < ni_loop_ub; i200++) {
+                r.BasisValDDD[i200 + r.BasisValDDD.size(0) * i199] =
+                    ctx->BasisValDDD[i200 + ctx->BasisValDDD.size(0) * i199];
+            }
+        }
+        r.BasisIntegr.set_size(ctx->BasisIntegr.size(0));
+        oi_loop_ub = ctx->BasisIntegr.size(0);
+        for (int i201{0}; i201 < oi_loop_ub; i201++) {
+            r.BasisIntegr[i201] = ctx->BasisIntegr[i201];
+        }
+        r.Bl = ctx->Bl;
+        r.u_vec.set_size(1, ctx->u_vec.size(1));
+        si_loop_ub = ctx->u_vec.size(1);
+        for (int i206{0}; i206 < si_loop_ub; i206++) {
+            r.u_vec[i206] = ctx->u_vec[i206];
+        }
+        r.q_spline = ctx->q_spline;
+        r.q_gcode = ctx->q_gcode;
+        r.q_compress = ctx->q_compress;
+        r.q_smooth = ctx->q_smooth;
+        r.q_split = ctx->q_split;
+        r.q_opt = ctx->q_opt;
+        r.op = ctx->op;
+        r.go_next = ctx->go_next;
+        r.try_push_again = ctx->try_push_again;
+        r.n_optimized = ctx->n_optimized;
+        r.reached_end = ctx->reached_end;
+        r.k0 = ctx->k0;
+        r.v_0 = ctx->v_0;
+        r.v_1 = ctx->v_1;
+        r.at_0 = ctx->at_0;
+        r.at_1 = ctx->at_1;
+        r.cfg.ENABLE_PRINT_MSG = ctx->cfg.ENABLE_PRINT_MSG;
+        r.cfg.maskTot.size[0] = 1;
+        r.cfg.maskTot.size[1] = ctx->cfg.maskTot.size[1];
+        kk_loop_ub = ctx->cfg.maskTot.size[1];
+        if (kk_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.maskTot.data[0], &ctx->cfg.maskTot.data[kk_loop_ub],
+                      &r.cfg.maskTot.data[0]);
+        }
+        r.cfg.maskCart.size[0] = 1;
+        r.cfg.maskCart.size[1] = ctx->cfg.maskCart.size[1];
+        mk_loop_ub = ctx->cfg.maskCart.size[1];
+        if (mk_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.maskCart.data[0], &ctx->cfg.maskCart.data[mk_loop_ub],
+                      &r.cfg.maskCart.data[0]);
+        }
+        r.cfg.maskRot.size[0] = 1;
+        r.cfg.maskRot.size[1] = ctx->cfg.maskRot.size[1];
+        sk_loop_ub = ctx->cfg.maskRot.size[1];
+        if (sk_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.maskRot.data[0], &ctx->cfg.maskRot.data[sk_loop_ub],
+                      &r.cfg.maskRot.data[0]);
+        }
+        r.cfg.indCart.set_size(ctx->cfg.indCart.size[0]);
+        yk_loop_ub = ctx->cfg.indCart.size[0];
+        for (int i243{0}; i243 < yk_loop_ub; i243++) {
+            r.cfg.indCart[i243] = ctx->cfg.indCart.data[i243];
+        }
+        r.cfg.indRot.set_size(ctx->cfg.indRot.size[0]);
+        bl_loop_ub = ctx->cfg.indRot.size[0];
+        for (int i245{0}; i245 < bl_loop_ub; i245++) {
+            r.cfg.indRot[i245] = ctx->cfg.indRot.data[i245];
+        }
+        r.cfg.NumberAxis = ctx->cfg.NumberAxis;
+        r.cfg.NCart = ctx->cfg.NCart;
+        r.cfg.NRot = ctx->cfg.NRot;
+        r.cfg.D.set_size(ctx->cfg.D.size[0]);
+        el_loop_ub = ctx->cfg.D.size[0];
+        for (int i251{0}; i251 < el_loop_ub; i251++) {
+            r.cfg.D[i251] = ctx->cfg.D.data[i251];
+        }
+        r.cfg.coeffD = ctx->cfg.coeffD;
+        r.cfg.kin_params.size[0] = ctx->cfg.kin_params.size[0];
+        il_loop_ub = ctx->cfg.kin_params.size[0];
+        if (il_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.kin_params.data[0], &ctx->cfg.kin_params.data[il_loop_ub],
+                      &r.cfg.kin_params.data[0]);
+        }
+        for (int i253{0}; i253 < 8; i253++) {
+            r.cfg.kin_type[i253] = ctx->cfg.kin_type[i253];
+        }
+        r.cfg.NDiscr = ctx->cfg.NDiscr;
+        r.cfg.NBreak = ctx->cfg.NBreak;
+        r.cfg.SplitSpecialSpline = ctx->cfg.SplitSpecialSpline;
+        r.cfg.ReleaseMemoryOfTheQueues = ctx->cfg.ReleaseMemoryOfTheQueues;
+        r.cfg.UseDynamicBreakpoints = ctx->cfg.UseDynamicBreakpoints;
+        r.cfg.UseLinearBreakpoints = ctx->cfg.UseLinearBreakpoints;
+        r.cfg.DynamicBreakpointsDistance = ctx->cfg.DynamicBreakpointsDistance;
+        r.cfg.NHorz = ctx->cfg.NHorz;
+        for (int i258{0}; i258 < 6; i258++) {
+            r.cfg.vmax[i258] = ctx->cfg.vmax[i258];
+            r.cfg.amax[i258] = ctx->cfg.amax[i258];
+            r.cfg.jmax[i258] = ctx->cfg.jmax[i258];
+        }
+        r.cfg.LeeSplineDegree = ctx->cfg.LeeSplineDegree;
+        r.cfg.SplineDegree = ctx->cfg.SplineDegree;
+        r.cfg.CutOff = ctx->cfg.CutOff;
+        r.cfg.LSplit = ctx->cfg.LSplit;
+        r.cfg.LSplitZero = ctx->cfg.LSplitZero;
+        r.cfg.LThresholdMax = ctx->cfg.LThresholdMax;
+        r.cfg.LThresholdMin = ctx->cfg.LThresholdMin;
+        r.cfg.v_0 = ctx->cfg.v_0;
+        r.cfg.at_0 = ctx->cfg.at_0;
+        r.cfg.v_1 = ctx->cfg.v_1;
+        r.cfg.at_1 = ctx->cfg.at_1;
+        r.cfg.dt = ctx->cfg.dt;
+        r.cfg.DefaultZeroStopCount = ctx->cfg.DefaultZeroStopCount;
+        r.cfg.source.size[0] = 1;
+        r.cfg.source.size[1] = ctx->cfg.source.size[1];
+        wl_loop_ub = ctx->cfg.source.size[1];
+        if (wl_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.source.data[0], &ctx->cfg.source.data[wl_loop_ub],
+                      &r.cfg.source.data[0]);
+        }
+        r.cfg.Cusp = ctx->cfg.Cusp;
+        r.cfg.Compressing = ctx->cfg.Compressing;
+        r.cfg.Smoothing = ctx->cfg.Smoothing;
+        r.cfg.GaussLegendreN = ctx->cfg.GaussLegendreN;
+        for (int n_i{0}; n_i < 5; n_i++) {
+            r.cfg.GaussLegendreX[n_i] = ctx->cfg.GaussLegendreX[n_i];
+            r.cfg.GaussLegendreW[n_i] = ctx->cfg.GaussLegendreW[n_i];
+        }
+        r.cfg.opt = ctx->cfg.opt;
+        for (int i279{0}; i279 < 9; i279++) {
+            r.cfg.LogFileName[i279] = ctx->cfg.LogFileName[i279];
+        }
+        r.jmax_increase_count = ctx->jmax_increase_count;
+        r.zero_start = ctx->zero_start;
+        r.zero_end = ctx->zero_end;
+        r.zero_forced = ctx->zero_forced;
+        r.zero_forced_buffer[0] = ctx->zero_forced_buffer[0];
+        r.zero_forced_buffer[1] = ctx->zero_forced_buffer[1];
+        r.simplex_calls = ctx->simplex_calls;
+        r.forced_stop = ctx->forced_stop;
+        r.programmed_stop = ctx->programmed_stop;
+        r.Coeff.set_size(ctx->Coeff.size(0), ctx->Coeff.size(1));
+        km_loop_ub = ctx->Coeff.size(1);
+        for (int i280{0}; i280 < km_loop_ub; i280++) {
+            int mm_loop_ub;
+            mm_loop_ub = ctx->Coeff.size(0);
+            for (int i283{0}; i283 < mm_loop_ub; i283++) {
+                r.Coeff[i283 + r.Coeff.size(0) * i280] =
+                    ctx->Coeff[i283 + ctx->Coeff.size(0) * i280];
+            }
+        }
+        r.Skipped = ctx->Skipped;
+        r.kin = ctx->kin;
+        r.errmsg = ctx->errmsg;
+        r.errcode = ctx->errcode;
+        // 'FeedoptPlan:172' msg = string( op );
+        // 'FeedoptPlan:173' ocn_assert( checkGeometry( queue ), ...
+        // 'FeedoptPlan:174'     msg + " - Check geometry failed...", mfilename );
+        r3.init(ctx->op);
+        b_obj.Value.size[0] = 1;
+        b_obj.Value.size[1] = r3.Value.size[1] + 27;
+        wm_loop_ub = r3.Value.size[1];
+        if (wm_loop_ub - 1 >= 0) {
+            std::copy(&r3.Value.data[0], &r3.Value.data[wm_loop_ub], &b_obj.Value.data[0]);
+        }
+        for (int i297{0}; i297 < 27; i297++) {
+            b_obj.Value.data[i297 + r3.Value.size[1]] = obj2Value[i297];
+        }
+        j_ocn_assert(checkGeometry(&ctx->q_gcode), &b_obj);
+        // 'FeedoptPlan:176' [ isValid, ctx ] = checkZSpdmode( ctx, queue );
+        i_isValid = checkZSpdmode(&r, &ctx->q_gcode);
+        // 'FeedoptPlan:177' ocn_assert( isValid, ...
+        // 'FeedoptPlan:178'     msg + " - Check zspdmode failed...", mfilename );
         c_obj.Value.size[0] = 1;
-        c_obj.Value.size[1] = r1.Value.size[1] + 27;
-        be_loop_ub = r1.Value.size[1];
-        if (be_loop_ub - 1 >= 0) {
-            std::copy(&r1.Value.data[0], &r1.Value.data[be_loop_ub], &c_obj.Value.data[0]);
+        c_obj.Value.size[1] = r3.Value.size[1] + 27;
+        mn_loop_ub = r3.Value.size[1];
+        if (mn_loop_ub - 1 >= 0) {
+            std::copy(&r3.Value.data[0], &r3.Value.data[mn_loop_ub], &c_obj.Value.data[0]);
         }
-        for (int i96{0}; i96 < 27; i96++) {
-            c_obj.Value.data[i96 + r1.Value.size[1]] = obj2Value[i96];
+        for (int i309{0}; i309 < 27; i309++) {
+            c_obj.Value.data[i309 + r3.Value.size[1]] = b_obj2Value[i309];
         }
-        f_ocn_assert(checkGeometry(&ctx->q_gcode), &c_obj);
-        // 'FeedoptPlan:164' ocn_assert( checkZSpdmode( queue ), ...
-        // 'FeedoptPlan:165'     msg + " - Check zspdmode failed...", mfilename );
+        j_ocn_assert(i_isValid, &c_obj);
+        // 'FeedoptPlan:180' isValid = checkParametrisationQueue( queue );
+        j_isValid = checkParametrisationQueue(&ctx->q_gcode);
+        // 'FeedoptPlan:181' ocn_assert( isValid, ...
+        // 'FeedoptPlan:182'     msg + " - Check parametrisation failed...", mfilename );
         d_obj.Value.size[0] = 1;
-        d_obj.Value.size[1] = r1.Value.size[1] + 27;
-        me_loop_ub = r1.Value.size[1];
-        if (me_loop_ub - 1 >= 0) {
-            std::copy(&r1.Value.data[0], &r1.Value.data[me_loop_ub], &d_obj.Value.data[0]);
+        d_obj.Value.size[1] = r3.Value.size[1] + 34;
+        nn_loop_ub = r3.Value.size[1];
+        if (nn_loop_ub - 1 >= 0) {
+            std::copy(&r3.Value.data[0], &r3.Value.data[nn_loop_ub], &d_obj.Value.data[0]);
         }
-        for (int i109{0}; i109 < 27; i109++) {
-            d_obj.Value.data[i109 + r1.Value.size[1]] = b_obj2Value[i109];
+        for (int i310{0}; i310 < 34; i310++) {
+            d_obj.Value.data[i310 + r3.Value.size[1]] = c_obj2Value[i310];
         }
-        f_ocn_assert(checkZSpdmode(&ctx->q_gcode), &d_obj);
-        // 'FeedoptPlan:166' ocn_assert( checkParametrisation( queue ), ...
-        // 'FeedoptPlan:167'     msg + " - Check parametrisation failed...", mfilename );
-        e_obj.Value.size[0] = 1;
-        e_obj.Value.size[1] = r1.Value.size[1] + 34;
-        cf_loop_ub = r1.Value.size[1];
-        if (cf_loop_ub - 1 >= 0) {
-            std::copy(&r1.Value.data[0], &r1.Value.data[cf_loop_ub], &e_obj.Value.data[0]);
+        j_ocn_assert(j_isValid, &d_obj);
+        ctx->BasisVal.set_size(r.BasisVal.size(0), r.BasisVal.size(1));
+        on_loop_ub = r.BasisVal.size(1);
+        for (int i311{0}; i311 < on_loop_ub; i311++) {
+            int rn_loop_ub;
+            rn_loop_ub = r.BasisVal.size(0);
+            for (int i312{0}; i312 < rn_loop_ub; i312++) {
+                ctx->BasisVal[i312 + ctx->BasisVal.size(0) * i311] =
+                    r.BasisVal[i312 + r.BasisVal.size(0) * i311];
+            }
         }
-        for (int i129{0}; i129 < 34; i129++) {
-            e_obj.Value.data[i129 + r1.Value.size[1]] = c_obj2Value[i129];
+        ctx->BasisValD.set_size(r.BasisValD.size(0), r.BasisValD.size(1));
+        sn_loop_ub = r.BasisValD.size(1);
+        for (int i313{0}; i313 < sn_loop_ub; i313++) {
+            int un_loop_ub;
+            un_loop_ub = r.BasisValD.size(0);
+            for (int i314{0}; i314 < un_loop_ub; i314++) {
+                ctx->BasisValD[i314 + ctx->BasisValD.size(0) * i313] =
+                    r.BasisValD[i314 + r.BasisValD.size(0) * i313];
+            }
         }
-        f_ocn_assert(checkParametrisation(&ctx->q_gcode), &e_obj);
-        // 'FeedoptPlan:92' ctx.op = Fopt.Check;
+        ctx->BasisValDD.set_size(r.BasisValDD.size(0), r.BasisValDD.size(1));
+        wn_loop_ub = r.BasisValDD.size(1);
+        for (int i315{0}; i315 < wn_loop_ub; i315++) {
+            int xn_loop_ub;
+            xn_loop_ub = r.BasisValDD.size(0);
+            for (int i316{0}; i316 < xn_loop_ub; i316++) {
+                ctx->BasisValDD[i316 + ctx->BasisValDD.size(0) * i315] =
+                    r.BasisValDD[i316 + r.BasisValDD.size(0) * i315];
+            }
+        }
+        ctx->BasisValDDD.set_size(r.BasisValDDD.size(0), r.BasisValDDD.size(1));
+        ao_loop_ub = r.BasisValDDD.size(1);
+        for (int i317{0}; i317 < ao_loop_ub; i317++) {
+            int co_loop_ub;
+            co_loop_ub = r.BasisValDDD.size(0);
+            for (int i318{0}; i318 < co_loop_ub; i318++) {
+                ctx->BasisValDDD[i318 + ctx->BasisValDDD.size(0) * i317] =
+                    r.BasisValDDD[i318 + r.BasisValDDD.size(0) * i317];
+            }
+        }
+        ctx->BasisIntegr.set_size(r.BasisIntegr.size(0));
+        eo_loop_ub = r.BasisIntegr.size(0);
+        for (int i320{0}; i320 < eo_loop_ub; i320++) {
+            ctx->BasisIntegr[i320] = r.BasisIntegr[i320];
+        }
+        ctx->Bl = r.Bl;
+        ctx->u_vec.set_size(1, r.u_vec.size(1));
+        io_loop_ub = r.u_vec.size(1);
+        for (int i324{0}; i324 < io_loop_ub; i324++) {
+            ctx->u_vec[i324] = r.u_vec[i324];
+        }
+        ctx->q_spline = r.q_spline;
+        ctx->q_gcode = r.q_gcode;
+        ctx->q_compress = r.q_compress;
+        ctx->q_smooth = r.q_smooth;
+        ctx->q_split = r.q_split;
+        ctx->q_opt = r.q_opt;
+        ctx->go_next = r.go_next;
+        ctx->try_push_again = r.try_push_again;
+        ctx->n_optimized = r.n_optimized;
+        ctx->reached_end = r.reached_end;
+        ctx->k0 = r.k0;
+        ctx->v_0 = r.v_0;
+        ctx->v_1 = r.v_1;
+        ctx->at_0 = r.at_0;
+        ctx->at_1 = r.at_1;
+        ctx->cfg.ENABLE_PRINT_MSG = r.cfg.ENABLE_PRINT_MSG;
+        ctx->cfg.maskTot.size[0] = 1;
+        ctx->cfg.maskTot.size[1] = r.cfg.maskTot.size[1];
+        no_loop_ub = r.cfg.maskTot.size[1];
+        if (no_loop_ub - 1 >= 0) {
+            std::copy(&r.cfg.maskTot.data[0], &r.cfg.maskTot.data[no_loop_ub],
+                      &ctx->cfg.maskTot.data[0]);
+        }
+        ctx->cfg.maskCart.size[0] = 1;
+        ctx->cfg.maskCart.size[1] = r.cfg.maskCart.size[1];
+        oo_loop_ub = r.cfg.maskCart.size[1];
+        if (oo_loop_ub - 1 >= 0) {
+            std::copy(&r.cfg.maskCart.data[0], &r.cfg.maskCart.data[oo_loop_ub],
+                      &ctx->cfg.maskCart.data[0]);
+        }
+        ctx->cfg.maskRot.size[0] = 1;
+        ctx->cfg.maskRot.size[1] = r.cfg.maskRot.size[1];
+        po_loop_ub = r.cfg.maskRot.size[1];
+        if (po_loop_ub - 1 >= 0) {
+            std::copy(&r.cfg.maskRot.data[0], &r.cfg.maskRot.data[po_loop_ub],
+                      &ctx->cfg.maskRot.data[0]);
+        }
+        ctx->cfg.indCart.size[0] = r.cfg.indCart.size(0);
+        qo_loop_ub = r.cfg.indCart.size(0);
+        for (int i331{0}; i331 < qo_loop_ub; i331++) {
+            ctx->cfg.indCart.data[i331] = r.cfg.indCart[i331];
+        }
+        ctx->cfg.indRot.size[0] = r.cfg.indRot.size(0);
+        ro_loop_ub = r.cfg.indRot.size(0);
+        for (int i332{0}; i332 < ro_loop_ub; i332++) {
+            ctx->cfg.indRot.data[i332] = r.cfg.indRot[i332];
+        }
+        ctx->cfg.NumberAxis = r.cfg.NumberAxis;
+        ctx->cfg.NCart = r.cfg.NCart;
+        ctx->cfg.NRot = r.cfg.NRot;
+        ctx->cfg.D.size[0] = r.cfg.D.size(0);
+        uo_loop_ub = r.cfg.D.size(0);
+        for (int i333{0}; i333 < uo_loop_ub; i333++) {
+            ctx->cfg.D.data[i333] = r.cfg.D[i333];
+        }
+        ctx->cfg.coeffD = r.cfg.coeffD;
+        ctx->cfg.kin_params.size[0] = r.cfg.kin_params.size[0];
+        vo_loop_ub = r.cfg.kin_params.size[0];
+        if (vo_loop_ub - 1 >= 0) {
+            std::copy(&r.cfg.kin_params.data[0], &r.cfg.kin_params.data[vo_loop_ub],
+                      &ctx->cfg.kin_params.data[0]);
+        }
+        for (int i336{0}; i336 < 8; i336++) {
+            ctx->cfg.kin_type[i336] = r.cfg.kin_type[i336];
+        }
+        ctx->cfg.NDiscr = r.cfg.NDiscr;
+        ctx->cfg.NBreak = r.cfg.NBreak;
+        ctx->cfg.SplitSpecialSpline = r.cfg.SplitSpecialSpline;
+        ctx->cfg.ReleaseMemoryOfTheQueues = r.cfg.ReleaseMemoryOfTheQueues;
+        ctx->cfg.UseDynamicBreakpoints = r.cfg.UseDynamicBreakpoints;
+        ctx->cfg.UseLinearBreakpoints = r.cfg.UseLinearBreakpoints;
+        ctx->cfg.DynamicBreakpointsDistance = r.cfg.DynamicBreakpointsDistance;
+        ctx->cfg.NHorz = r.cfg.NHorz;
+        for (int i338{0}; i338 < 6; i338++) {
+            ctx->cfg.vmax[i338] = r.cfg.vmax[i338];
+            ctx->cfg.amax[i338] = r.cfg.amax[i338];
+            ctx->cfg.jmax[i338] = r.cfg.jmax[i338];
+        }
+        ctx->cfg.LeeSplineDegree = r.cfg.LeeSplineDegree;
+        ctx->cfg.SplineDegree = r.cfg.SplineDegree;
+        ctx->cfg.CutOff = r.cfg.CutOff;
+        ctx->cfg.LSplit = r.cfg.LSplit;
+        ctx->cfg.LSplitZero = r.cfg.LSplitZero;
+        ctx->cfg.LThresholdMax = r.cfg.LThresholdMax;
+        ctx->cfg.LThresholdMin = r.cfg.LThresholdMin;
+        ctx->cfg.v_0 = r.cfg.v_0;
+        ctx->cfg.at_0 = r.cfg.at_0;
+        ctx->cfg.v_1 = r.cfg.v_1;
+        ctx->cfg.at_1 = r.cfg.at_1;
+        ctx->cfg.dt = r.cfg.dt;
+        ctx->cfg.DefaultZeroStopCount = r.cfg.DefaultZeroStopCount;
+        ctx->cfg.source.size[0] = 1;
+        ctx->cfg.source.size[1] = r.cfg.source.size[1];
+        bp_loop_ub = r.cfg.source.size[1];
+        if (bp_loop_ub - 1 >= 0) {
+            std::copy(&r.cfg.source.data[0], &r.cfg.source.data[bp_loop_ub],
+                      &ctx->cfg.source.data[0]);
+        }
+        ctx->cfg.Cusp = r.cfg.Cusp;
+        ctx->cfg.Compressing = r.cfg.Compressing;
+        ctx->cfg.Smoothing = r.cfg.Smoothing;
+        ctx->cfg.GaussLegendreN = r.cfg.GaussLegendreN;
+        for (int s_i{0}; s_i < 5; s_i++) {
+            ctx->cfg.GaussLegendreX[s_i] = r.cfg.GaussLegendreX[s_i];
+            ctx->cfg.GaussLegendreW[s_i] = r.cfg.GaussLegendreW[s_i];
+        }
+        ctx->cfg.opt = r.cfg.opt;
+        for (int i342{0}; i342 < 9; i342++) {
+            ctx->cfg.LogFileName[i342] = r.cfg.LogFileName[i342];
+        }
+        ctx->jmax_increase_count = r.jmax_increase_count;
+        ctx->zero_start = r.zero_start;
+        ctx->zero_end = r.zero_end;
+        ctx->zero_forced = r.zero_forced;
+        ctx->zero_forced_buffer[0] = r.zero_forced_buffer[0];
+        ctx->zero_forced_buffer[1] = r.zero_forced_buffer[1];
+        ctx->simplex_calls = r.simplex_calls;
+        ctx->forced_stop = r.forced_stop;
+        ctx->programmed_stop = r.programmed_stop;
+        ctx->Coeff.set_size(r.Coeff.size(0), r.Coeff.size(1));
+        cp_loop_ub = r.Coeff.size(1);
+        for (int i343{0}; i343 < cp_loop_ub; i343++) {
+            int dp_loop_ub;
+            dp_loop_ub = r.Coeff.size(0);
+            for (int i344{0}; i344 < dp_loop_ub; i344++) {
+                ctx->Coeff[i344 + ctx->Coeff.size(0) * i343] =
+                    r.Coeff[i344 + r.Coeff.size(0) * i343];
+            }
+        }
+        ctx->Skipped = r.Skipped;
+        ctx->kin = r.kin;
+        ctx->errmsg = r.errmsg;
+        ctx->errcode = r.errcode;
+        // 'FeedoptPlan:102' ctx.op = Fopt.Check;
         ctx->op = Fopt_Check;
     } break;
     case Fopt_Check: {
-        int jc_loop_ub;
-        int v_loop_ub;
-        int wb_loop_ub;
-        // 'FeedoptPlan:94' case Fopt.Check
-        // 'FeedoptPlan:95' if ~ctx.cfg.Cusp.Skip
+        int al_loop_ub;
+        int bn_loop_ub;
+        int cl_loop_ub;
+        int dd_loop_ub;
+        int ff_loop_ub;
+        int fj_loop_ub;
+        int fl_loop_ub;
+        int ge_loop_ub;
+        int hb_loop_ub;
+        int hl_loop_ub;
+        int i_loop_ub;
+        int im_loop_ub;
+        int jd_loop_ub;
+        int jg_loop_ub;
+        int ji_loop_ub;
+        int kc_loop_ub;
+        int kl_loop_ub;
+        int mf_loop_ub;
+        int nl_loop_ub;
+        int oj_loop_ub;
+        int pe_loop_ub;
+        int pi_loop_ub;
+        int qd_loop_ub;
+        int qh_loop_ub;
+        int ri_loop_ub;
+        int t_loop_ub;
+        int tl_loop_ub;
+        int uc_loop_ub;
+        int vb_loop_ub;
+        int we_loop_ub;
+        int xi_loop_ub;
+        int xj_loop_ub;
+        int yd_loop_ub;
+        bool c_isValid;
+        bool isValid;
+        // 'FeedoptPlan:104' case Fopt.Check
+        // 'FeedoptPlan:105' if ~ctx.cfg.Cusp.Skip
         if (!ctx->cfg.Cusp.Skip) {
-            int af_loop_ub;
-            int bb_loop_ub;
-            int bh_loop_ub;
-            int bi_loop_ub;
-            int dd_loop_ub;
-            int fc_loop_ub;
+            int cd_loop_ub;
+            int ch_loop_ub;
+            int ef_loop_ub;
+            int fb_loop_ub;
             int fe_loop_ub;
-            int gh_loop_ub;
+            int fg_loop_ub;
+            int fk_loop_ub;
+            int gj_loop_ub;
             int h_loop_ub;
+            int ic_loop_ub;
             int id_loop_ub;
-            int ig_loop_ub;
-            int ii_loop_ub;
-            int lh_loop_ub;
-            int mb_loop_ub;
-            int mf_loop_ub;
-            int nc_loop_ub;
-            int nd_loop_ub;
-            int p_loop_ub;
+            int lf_loop_ub;
+            int mh_loop_ub;
+            int nk_loop_ub;
+            int oe_loop_ub;
+            int ol_loop_ub;
+            int pd_loop_ub;
             int qg_loop_ub;
-            int qh_loop_ub;
-            int re_loop_ub;
+            int qj_loop_ub;
+            int r_loop_ub;
             int sc_loop_ub;
-            int sd_loop_ub;
-            int vg_loop_ub;
-            int vh_loop_ub;
-            int xb_loop_ub;
-            int xc_loop_ub;
-            int xf_loop_ub;
-            // 'FeedoptPlan:96' ctx     = CheckCurvStructs( ctx );
+            int tb_loop_ub;
+            int tk_loop_ub;
+            int ve_loop_ub;
+            int vi_loop_ub;
+            int wf_loop_ub;
+            int wh_loop_ub;
+            int xd_loop_ub;
+            int xl_loop_ub;
+            int yj_loop_ub;
+            // 'FeedoptPlan:106' ctx     = CheckCurvStructs( ctx );
             r.BasisVal.set_size(ctx->BasisVal.size(0), ctx->BasisVal.size(1));
             h_loop_ub = ctx->BasisVal.size(1);
             for (int i8{0}; i8 < h_loop_ub; i8++) {
-                int o_loop_ub;
-                o_loop_ub = ctx->BasisVal.size(0);
-                for (int i15{0}; i15 < o_loop_ub; i15++) {
-                    r.BasisVal[i15 + r.BasisVal.size(0) * i8] =
-                        ctx->BasisVal[i15 + ctx->BasisVal.size(0) * i8];
+                int p_loop_ub;
+                p_loop_ub = ctx->BasisVal.size(0);
+                for (int i16{0}; i16 < p_loop_ub; i16++) {
+                    r.BasisVal[i16 + r.BasisVal.size(0) * i8] =
+                        ctx->BasisVal[i16 + ctx->BasisVal.size(0) * i8];
                 }
             }
             r.BasisValD.set_size(ctx->BasisValD.size(0), ctx->BasisValD.size(1));
-            p_loop_ub = ctx->BasisValD.size(1);
-            for (int i16{0}; i16 < p_loop_ub; i16++) {
-                int ab_loop_ub;
-                ab_loop_ub = ctx->BasisValD.size(0);
-                for (int i25{0}; i25 < ab_loop_ub; i25++) {
-                    r.BasisValD[i25 + r.BasisValD.size(0) * i16] =
-                        ctx->BasisValD[i25 + ctx->BasisValD.size(0) * i16];
+            r_loop_ub = ctx->BasisValD.size(1);
+            for (int i18{0}; i18 < r_loop_ub; i18++) {
+                int db_loop_ub;
+                db_loop_ub = ctx->BasisValD.size(0);
+                for (int i29{0}; i29 < db_loop_ub; i29++) {
+                    r.BasisValD[i29 + r.BasisValD.size(0) * i18] =
+                        ctx->BasisValD[i29 + ctx->BasisValD.size(0) * i18];
                 }
             }
             r.BasisValDD.set_size(ctx->BasisValDD.size(0), ctx->BasisValDD.size(1));
-            bb_loop_ub = ctx->BasisValDD.size(1);
-            for (int i27{0}; i27 < bb_loop_ub; i27++) {
-                int kb_loop_ub;
-                kb_loop_ub = ctx->BasisValDD.size(0);
-                for (int i36{0}; i36 < kb_loop_ub; i36++) {
-                    r.BasisValDD[i36 + r.BasisValDD.size(0) * i27] =
-                        ctx->BasisValDD[i36 + ctx->BasisValDD.size(0) * i27];
+            fb_loop_ub = ctx->BasisValDD.size(1);
+            for (int i31{0}; i31 < fb_loop_ub; i31++) {
+                int rb_loop_ub;
+                rb_loop_ub = ctx->BasisValDD.size(0);
+                for (int i43{0}; i43 < rb_loop_ub; i43++) {
+                    r.BasisValDD[i43 + r.BasisValDD.size(0) * i31] =
+                        ctx->BasisValDD[i43 + ctx->BasisValDD.size(0) * i31];
                 }
             }
             r.BasisValDDD.set_size(ctx->BasisValDDD.size(0), ctx->BasisValDDD.size(1));
-            mb_loop_ub = ctx->BasisValDDD.size(1);
-            for (int i37{0}; i37 < mb_loop_ub; i37++) {
-                int vb_loop_ub;
-                vb_loop_ub = ctx->BasisValDDD.size(0);
-                for (int i47{0}; i47 < vb_loop_ub; i47++) {
-                    r.BasisValDDD[i47 + r.BasisValDDD.size(0) * i37] =
-                        ctx->BasisValDDD[i47 + ctx->BasisValDDD.size(0) * i37];
+            tb_loop_ub = ctx->BasisValDDD.size(1);
+            for (int i45{0}; i45 < tb_loop_ub; i45++) {
+                int gc_loop_ub;
+                gc_loop_ub = ctx->BasisValDDD.size(0);
+                for (int i57{0}; i57 < gc_loop_ub; i57++) {
+                    r.BasisValDDD[i57 + r.BasisValDDD.size(0) * i45] =
+                        ctx->BasisValDDD[i57 + ctx->BasisValDDD.size(0) * i45];
                 }
             }
             r.BasisIntegr.set_size(ctx->BasisIntegr.size(0));
-            xb_loop_ub = ctx->BasisIntegr.size(0);
-            for (int i48{0}; i48 < xb_loop_ub; i48++) {
-                r.BasisIntegr[i48] = ctx->BasisIntegr[i48];
+            ic_loop_ub = ctx->BasisIntegr.size(0);
+            for (int i59{0}; i59 < ic_loop_ub; i59++) {
+                r.BasisIntegr[i59] = ctx->BasisIntegr[i59];
             }
             r.Bl = ctx->Bl;
             r.u_vec.set_size(1, ctx->u_vec.size(1));
-            fc_loop_ub = ctx->u_vec.size(1);
-            for (int i56{0}; i56 < fc_loop_ub; i56++) {
-                r.u_vec[i56] = ctx->u_vec[i56];
+            sc_loop_ub = ctx->u_vec.size(1);
+            for (int i69{0}; i69 < sc_loop_ub; i69++) {
+                r.u_vec[i69] = ctx->u_vec[i69];
             }
             r.q_spline = ctx->q_spline;
             r.q_gcode = ctx->q_gcode;
@@ -876,67 +1220,68 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             r.v_1 = ctx->v_1;
             r.at_0 = ctx->at_0;
             r.at_1 = ctx->at_1;
+            r.cfg.ENABLE_PRINT_MSG = ctx->cfg.ENABLE_PRINT_MSG;
             r.cfg.maskTot.size[0] = 1;
             r.cfg.maskTot.size[1] = ctx->cfg.maskTot.size[1];
-            nc_loop_ub = ctx->cfg.maskTot.size[1];
-            if (nc_loop_ub - 1 >= 0) {
-                std::copy(&ctx->cfg.maskTot.data[0], &ctx->cfg.maskTot.data[nc_loop_ub],
+            cd_loop_ub = ctx->cfg.maskTot.size[1];
+            if (cd_loop_ub - 1 >= 0) {
+                std::copy(&ctx->cfg.maskTot.data[0], &ctx->cfg.maskTot.data[cd_loop_ub],
                           &r.cfg.maskTot.data[0]);
             }
             r.cfg.maskCart.size[0] = 1;
             r.cfg.maskCart.size[1] = ctx->cfg.maskCart.size[1];
-            sc_loop_ub = ctx->cfg.maskCart.size[1];
-            if (sc_loop_ub - 1 >= 0) {
-                std::copy(&ctx->cfg.maskCart.data[0], &ctx->cfg.maskCart.data[sc_loop_ub],
+            id_loop_ub = ctx->cfg.maskCart.size[1];
+            if (id_loop_ub - 1 >= 0) {
+                std::copy(&ctx->cfg.maskCart.data[0], &ctx->cfg.maskCart.data[id_loop_ub],
                           &r.cfg.maskCart.data[0]);
             }
             r.cfg.maskRot.size[0] = 1;
             r.cfg.maskRot.size[1] = ctx->cfg.maskRot.size[1];
-            xc_loop_ub = ctx->cfg.maskRot.size[1];
-            if (xc_loop_ub - 1 >= 0) {
-                std::copy(&ctx->cfg.maskRot.data[0], &ctx->cfg.maskRot.data[xc_loop_ub],
+            pd_loop_ub = ctx->cfg.maskRot.size[1];
+            if (pd_loop_ub - 1 >= 0) {
+                std::copy(&ctx->cfg.maskRot.data[0], &ctx->cfg.maskRot.data[pd_loop_ub],
                           &r.cfg.maskRot.data[0]);
             }
             r.cfg.indCart.set_size(ctx->cfg.indCart.size[0]);
-            dd_loop_ub = ctx->cfg.indCart.size[0];
-            for (int i65{0}; i65 < dd_loop_ub; i65++) {
-                r.cfg.indCart[i65] = ctx->cfg.indCart.data[i65];
+            xd_loop_ub = ctx->cfg.indCart.size[0];
+            for (int i78{0}; i78 < xd_loop_ub; i78++) {
+                r.cfg.indCart[i78] = ctx->cfg.indCart.data[i78];
             }
             r.cfg.indRot.set_size(ctx->cfg.indRot.size[0]);
-            id_loop_ub = ctx->cfg.indRot.size[0];
-            for (int i70{0}; i70 < id_loop_ub; i70++) {
-                r.cfg.indRot[i70] = ctx->cfg.indRot.data[i70];
+            fe_loop_ub = ctx->cfg.indRot.size[0];
+            for (int i84{0}; i84 < fe_loop_ub; i84++) {
+                r.cfg.indRot[i84] = ctx->cfg.indRot.data[i84];
             }
             r.cfg.NumberAxis = ctx->cfg.NumberAxis;
             r.cfg.NCart = ctx->cfg.NCart;
             r.cfg.NRot = ctx->cfg.NRot;
             r.cfg.D.set_size(ctx->cfg.D.size[0]);
-            nd_loop_ub = ctx->cfg.D.size[0];
-            for (int i75{0}; i75 < nd_loop_ub; i75++) {
-                r.cfg.D[i75] = ctx->cfg.D.data[i75];
+            oe_loop_ub = ctx->cfg.D.size[0];
+            for (int i92{0}; i92 < oe_loop_ub; i92++) {
+                r.cfg.D[i92] = ctx->cfg.D.data[i92];
             }
             r.cfg.coeffD = ctx->cfg.coeffD;
             r.cfg.kin_params.size[0] = ctx->cfg.kin_params.size[0];
-            sd_loop_ub = ctx->cfg.kin_params.size[0];
-            if (sd_loop_ub - 1 >= 0) {
-                std::copy(&ctx->cfg.kin_params.data[0], &ctx->cfg.kin_params.data[sd_loop_ub],
+            ve_loop_ub = ctx->cfg.kin_params.size[0];
+            if (ve_loop_ub - 1 >= 0) {
+                std::copy(&ctx->cfg.kin_params.data[0], &ctx->cfg.kin_params.data[ve_loop_ub],
                           &r.cfg.kin_params.data[0]);
             }
-            for (int i80{0}; i80 < 8; i80++) {
-                r.cfg.kin_type[i80] = ctx->cfg.kin_type[i80];
+            for (int i100{0}; i100 < 8; i100++) {
+                r.cfg.kin_type[i100] = ctx->cfg.kin_type[i100];
             }
             r.cfg.NDiscr = ctx->cfg.NDiscr;
             r.cfg.NBreak = ctx->cfg.NBreak;
+            r.cfg.SplitSpecialSpline = ctx->cfg.SplitSpecialSpline;
+            r.cfg.ReleaseMemoryOfTheQueues = ctx->cfg.ReleaseMemoryOfTheQueues;
             r.cfg.UseDynamicBreakpoints = ctx->cfg.UseDynamicBreakpoints;
             r.cfg.UseLinearBreakpoints = ctx->cfg.UseLinearBreakpoints;
             r.cfg.DynamicBreakpointsDistance = ctx->cfg.DynamicBreakpointsDistance;
             r.cfg.NHorz = ctx->cfg.NHorz;
-            r.cfg.fmax = ctx->cfg.fmax;
-            r.cfg.smax = ctx->cfg.smax;
-            for (int i85{0}; i85 < 6; i85++) {
-                r.cfg.vmax[i85] = ctx->cfg.vmax[i85];
-                r.cfg.amax[i85] = ctx->cfg.amax[i85];
-                r.cfg.jmax[i85] = ctx->cfg.jmax[i85];
+            for (int i108{0}; i108 < 6; i108++) {
+                r.cfg.vmax[i108] = ctx->cfg.vmax[i108];
+                r.cfg.amax[i108] = ctx->cfg.amax[i108];
+                r.cfg.jmax[i108] = ctx->cfg.jmax[i108];
             }
             r.cfg.LeeSplineDegree = ctx->cfg.LeeSplineDegree;
             r.cfg.SplineDegree = ctx->cfg.SplineDegree;
@@ -951,11 +1296,13 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             r.cfg.at_1 = ctx->cfg.at_1;
             r.cfg.dt = ctx->cfg.dt;
             r.cfg.DefaultZeroStopCount = ctx->cfg.DefaultZeroStopCount;
-            r.cfg.ZeroStartAccLimit = ctx->cfg.ZeroStartAccLimit;
-            r.cfg.ZeroStartJerkLimit = ctx->cfg.ZeroStartJerkLimit;
-            r.cfg.ZeroStartVelLimit = ctx->cfg.ZeroStartVelLimit;
-            std::copy(&ctx->cfg.source[0], &ctx->cfg.source[1024], &r.cfg.source[0]);
-            r.cfg.DebugCutZero = ctx->cfg.DebugCutZero;
+            r.cfg.source.size[0] = 1;
+            r.cfg.source.size[1] = ctx->cfg.source.size[1];
+            ef_loop_ub = ctx->cfg.source.size[1];
+            if (ef_loop_ub - 1 >= 0) {
+                std::copy(&ctx->cfg.source.data[0], &ctx->cfg.source.data[ef_loop_ub],
+                          &r.cfg.source.data[0]);
+            }
             r.cfg.Cusp = ctx->cfg.Cusp;
             r.cfg.Compressing = ctx->cfg.Compressing;
             r.cfg.Smoothing = ctx->cfg.Smoothing;
@@ -965,8 +1312,8 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                 r.cfg.GaussLegendreW[d_i] = ctx->cfg.GaussLegendreW[d_i];
             }
             r.cfg.opt = ctx->cfg.opt;
-            for (int i90{0}; i90 < 9; i90++) {
-                r.cfg.LogFileName[i90] = ctx->cfg.LogFileName[i90];
+            for (int i115{0}; i115 < 9; i115++) {
+                r.cfg.LogFileName[i115] = ctx->cfg.LogFileName[i115];
             }
             r.jmax_increase_count = ctx->jmax_increase_count;
             r.zero_start = ctx->zero_start;
@@ -978,13 +1325,13 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             r.forced_stop = ctx->forced_stop;
             r.programmed_stop = ctx->programmed_stop;
             r.Coeff.set_size(ctx->Coeff.size(0), ctx->Coeff.size(1));
-            fe_loop_ub = ctx->Coeff.size(1);
-            for (int i100{0}; i100 < fe_loop_ub; i100++) {
-                int le_loop_ub;
-                le_loop_ub = ctx->Coeff.size(0);
-                for (int i106{0}; i106 < le_loop_ub; i106++) {
-                    r.Coeff[i106 + r.Coeff.size(0) * i100] =
-                        ctx->Coeff[i106 + ctx->Coeff.size(0) * i100];
+            lf_loop_ub = ctx->Coeff.size(1);
+            for (int i122{0}; i122 < lf_loop_ub; i122++) {
+                int rf_loop_ub;
+                rf_loop_ub = ctx->Coeff.size(0);
+                for (int i128{0}; i128 < rf_loop_ub; i128++) {
+                    r.Coeff[i128 + r.Coeff.size(0) * i122] =
+                        ctx->Coeff[i128 + ctx->Coeff.size(0) * i122];
                 }
             }
             r.Skipped = ctx->Skipped;
@@ -993,55 +1340,55 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             r.errcode = ctx->errcode;
             CheckCurvStructs(&r);
             ctx->BasisVal.set_size(r.BasisVal.size(0), r.BasisVal.size(1));
-            re_loop_ub = r.BasisVal.size(1);
-            for (int i112{0}; i112 < re_loop_ub; i112++) {
-                int ye_loop_ub;
-                ye_loop_ub = r.BasisVal.size(0);
-                for (int i119{0}; i119 < ye_loop_ub; i119++) {
-                    ctx->BasisVal[i119 + ctx->BasisVal.size(0) * i112] =
-                        r.BasisVal[i119 + r.BasisVal.size(0) * i112];
+            wf_loop_ub = r.BasisVal.size(1);
+            for (int i133{0}; i133 < wf_loop_ub; i133++) {
+                int dg_loop_ub;
+                dg_loop_ub = r.BasisVal.size(0);
+                for (int i139{0}; i139 < dg_loop_ub; i139++) {
+                    ctx->BasisVal[i139 + ctx->BasisVal.size(0) * i133] =
+                        r.BasisVal[i139 + r.BasisVal.size(0) * i133];
                 }
             }
             ctx->BasisValD.set_size(r.BasisValD.size(0), r.BasisValD.size(1));
-            af_loop_ub = r.BasisValD.size(1);
-            for (int i120{0}; i120 < af_loop_ub; i120++) {
-                int lf_loop_ub;
-                lf_loop_ub = r.BasisValD.size(0);
-                for (int i131{0}; i131 < lf_loop_ub; i131++) {
-                    ctx->BasisValD[i131 + ctx->BasisValD.size(0) * i120] =
-                        r.BasisValD[i131 + r.BasisValD.size(0) * i120];
+            fg_loop_ub = r.BasisValD.size(1);
+            for (int i141{0}; i141 < fg_loop_ub; i141++) {
+                int og_loop_ub;
+                og_loop_ub = r.BasisValD.size(0);
+                for (int i150{0}; i150 < og_loop_ub; i150++) {
+                    ctx->BasisValD[i150 + ctx->BasisValD.size(0) * i141] =
+                        r.BasisValD[i150 + r.BasisValD.size(0) * i141];
                 }
             }
             ctx->BasisValDD.set_size(r.BasisValDD.size(0), r.BasisValDD.size(1));
-            mf_loop_ub = r.BasisValDD.size(1);
-            for (int i132{0}; i132 < mf_loop_ub; i132++) {
-                int wf_loop_ub;
-                wf_loop_ub = r.BasisValDD.size(0);
-                for (int i142{0}; i142 < wf_loop_ub; i142++) {
-                    ctx->BasisValDD[i142 + ctx->BasisValDD.size(0) * i132] =
-                        r.BasisValDD[i142 + r.BasisValDD.size(0) * i132];
+            qg_loop_ub = r.BasisValDD.size(1);
+            for (int i152{0}; i152 < qg_loop_ub; i152++) {
+                int ah_loop_ub;
+                ah_loop_ub = r.BasisValDD.size(0);
+                for (int i160{0}; i160 < ah_loop_ub; i160++) {
+                    ctx->BasisValDD[i160 + ctx->BasisValDD.size(0) * i152] =
+                        r.BasisValDD[i160 + r.BasisValDD.size(0) * i152];
                 }
             }
             ctx->BasisValDDD.set_size(r.BasisValDDD.size(0), r.BasisValDDD.size(1));
-            xf_loop_ub = r.BasisValDDD.size(1);
-            for (int i143{0}; i143 < xf_loop_ub; i143++) {
-                int hg_loop_ub;
-                hg_loop_ub = r.BasisValDDD.size(0);
-                for (int i152{0}; i152 < hg_loop_ub; i152++) {
-                    ctx->BasisValDDD[i152 + ctx->BasisValDDD.size(0) * i143] =
-                        r.BasisValDDD[i152 + r.BasisValDDD.size(0) * i143];
+            ch_loop_ub = r.BasisValDDD.size(1);
+            for (int i162{0}; i162 < ch_loop_ub; i162++) {
+                int kh_loop_ub;
+                kh_loop_ub = r.BasisValDDD.size(0);
+                for (int i171{0}; i171 < kh_loop_ub; i171++) {
+                    ctx->BasisValDDD[i171 + ctx->BasisValDDD.size(0) * i162] =
+                        r.BasisValDDD[i171 + r.BasisValDDD.size(0) * i162];
                 }
             }
             ctx->BasisIntegr.set_size(r.BasisIntegr.size(0));
-            ig_loop_ub = r.BasisIntegr.size(0);
-            for (int i153{0}; i153 < ig_loop_ub; i153++) {
-                ctx->BasisIntegr[i153] = r.BasisIntegr[i153];
+            mh_loop_ub = r.BasisIntegr.size(0);
+            for (int i173{0}; i173 < mh_loop_ub; i173++) {
+                ctx->BasisIntegr[i173] = r.BasisIntegr[i173];
             }
             ctx->Bl = r.Bl;
             ctx->u_vec.set_size(1, r.u_vec.size(1));
-            qg_loop_ub = r.u_vec.size(1);
-            for (int i161{0}; i161 < qg_loop_ub; i161++) {
-                ctx->u_vec[i161] = r.u_vec[i161];
+            wh_loop_ub = r.u_vec.size(1);
+            for (int i183{0}; i183 < wh_loop_ub; i183++) {
+                ctx->u_vec[i183] = r.u_vec[i183];
             }
             ctx->q_spline = r.q_spline;
             ctx->q_gcode = r.q_gcode;
@@ -1059,67 +1406,68 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             ctx->v_1 = r.v_1;
             ctx->at_0 = r.at_0;
             ctx->at_1 = r.at_1;
+            ctx->cfg.ENABLE_PRINT_MSG = r.cfg.ENABLE_PRINT_MSG;
             ctx->cfg.maskTot.size[0] = 1;
             ctx->cfg.maskTot.size[1] = r.cfg.maskTot.size[1];
-            vg_loop_ub = r.cfg.maskTot.size[1];
-            if (vg_loop_ub - 1 >= 0) {
-                std::copy(&r.cfg.maskTot.data[0], &r.cfg.maskTot.data[vg_loop_ub],
+            vi_loop_ub = r.cfg.maskTot.size[1];
+            if (vi_loop_ub - 1 >= 0) {
+                std::copy(&r.cfg.maskTot.data[0], &r.cfg.maskTot.data[vi_loop_ub],
                           &ctx->cfg.maskTot.data[0]);
             }
             ctx->cfg.maskCart.size[0] = 1;
             ctx->cfg.maskCart.size[1] = r.cfg.maskCart.size[1];
-            bh_loop_ub = r.cfg.maskCart.size[1];
-            if (bh_loop_ub - 1 >= 0) {
-                std::copy(&r.cfg.maskCart.data[0], &r.cfg.maskCart.data[bh_loop_ub],
+            gj_loop_ub = r.cfg.maskCart.size[1];
+            if (gj_loop_ub - 1 >= 0) {
+                std::copy(&r.cfg.maskCart.data[0], &r.cfg.maskCart.data[gj_loop_ub],
                           &ctx->cfg.maskCart.data[0]);
             }
             ctx->cfg.maskRot.size[0] = 1;
             ctx->cfg.maskRot.size[1] = r.cfg.maskRot.size[1];
-            gh_loop_ub = r.cfg.maskRot.size[1];
-            if (gh_loop_ub - 1 >= 0) {
-                std::copy(&r.cfg.maskRot.data[0], &r.cfg.maskRot.data[gh_loop_ub],
+            qj_loop_ub = r.cfg.maskRot.size[1];
+            if (qj_loop_ub - 1 >= 0) {
+                std::copy(&r.cfg.maskRot.data[0], &r.cfg.maskRot.data[qj_loop_ub],
                           &ctx->cfg.maskRot.data[0]);
             }
             ctx->cfg.indCart.size[0] = r.cfg.indCart.size(0);
-            lh_loop_ub = r.cfg.indCart.size(0);
-            for (int i166{0}; i166 < lh_loop_ub; i166++) {
-                ctx->cfg.indCart.data[i166] = r.cfg.indCart[i166];
+            yj_loop_ub = r.cfg.indCart.size(0);
+            for (int i222{0}; i222 < yj_loop_ub; i222++) {
+                ctx->cfg.indCart.data[i222] = r.cfg.indCart[i222];
             }
             ctx->cfg.indRot.size[0] = r.cfg.indRot.size(0);
-            qh_loop_ub = r.cfg.indRot.size(0);
-            for (int i171{0}; i171 < qh_loop_ub; i171++) {
-                ctx->cfg.indRot.data[i171] = r.cfg.indRot[i171];
+            fk_loop_ub = r.cfg.indRot.size(0);
+            for (int i228{0}; i228 < fk_loop_ub; i228++) {
+                ctx->cfg.indRot.data[i228] = r.cfg.indRot[i228];
             }
             ctx->cfg.NumberAxis = r.cfg.NumberAxis;
             ctx->cfg.NCart = r.cfg.NCart;
             ctx->cfg.NRot = r.cfg.NRot;
             ctx->cfg.D.size[0] = r.cfg.D.size(0);
-            vh_loop_ub = r.cfg.D.size(0);
-            for (int i176{0}; i176 < vh_loop_ub; i176++) {
-                ctx->cfg.D.data[i176] = r.cfg.D[i176];
+            nk_loop_ub = r.cfg.D.size(0);
+            for (int i234{0}; i234 < nk_loop_ub; i234++) {
+                ctx->cfg.D.data[i234] = r.cfg.D[i234];
             }
             ctx->cfg.coeffD = r.cfg.coeffD;
             ctx->cfg.kin_params.size[0] = r.cfg.kin_params.size[0];
-            bi_loop_ub = r.cfg.kin_params.size[0];
-            if (bi_loop_ub - 1 >= 0) {
-                std::copy(&r.cfg.kin_params.data[0], &r.cfg.kin_params.data[bi_loop_ub],
+            tk_loop_ub = r.cfg.kin_params.size[0];
+            if (tk_loop_ub - 1 >= 0) {
+                std::copy(&r.cfg.kin_params.data[0], &r.cfg.kin_params.data[tk_loop_ub],
                           &ctx->cfg.kin_params.data[0]);
             }
-            for (int i181{0}; i181 < 8; i181++) {
-                ctx->cfg.kin_type[i181] = r.cfg.kin_type[i181];
+            for (int i239{0}; i239 < 8; i239++) {
+                ctx->cfg.kin_type[i239] = r.cfg.kin_type[i239];
             }
             ctx->cfg.NDiscr = r.cfg.NDiscr;
             ctx->cfg.NBreak = r.cfg.NBreak;
+            ctx->cfg.SplitSpecialSpline = r.cfg.SplitSpecialSpline;
+            ctx->cfg.ReleaseMemoryOfTheQueues = r.cfg.ReleaseMemoryOfTheQueues;
             ctx->cfg.UseDynamicBreakpoints = r.cfg.UseDynamicBreakpoints;
             ctx->cfg.UseLinearBreakpoints = r.cfg.UseLinearBreakpoints;
             ctx->cfg.DynamicBreakpointsDistance = r.cfg.DynamicBreakpointsDistance;
             ctx->cfg.NHorz = r.cfg.NHorz;
-            ctx->cfg.fmax = r.cfg.fmax;
-            ctx->cfg.smax = r.cfg.smax;
-            for (int i187{0}; i187 < 6; i187++) {
-                ctx->cfg.vmax[i187] = r.cfg.vmax[i187];
-                ctx->cfg.amax[i187] = r.cfg.amax[i187];
-                ctx->cfg.jmax[i187] = r.cfg.jmax[i187];
+            for (int i246{0}; i246 < 6; i246++) {
+                ctx->cfg.vmax[i246] = r.cfg.vmax[i246];
+                ctx->cfg.amax[i246] = r.cfg.amax[i246];
+                ctx->cfg.jmax[i246] = r.cfg.jmax[i246];
             }
             ctx->cfg.LeeSplineDegree = r.cfg.LeeSplineDegree;
             ctx->cfg.SplineDegree = r.cfg.SplineDegree;
@@ -1134,11 +1482,13 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             ctx->cfg.at_1 = r.cfg.at_1;
             ctx->cfg.dt = r.cfg.dt;
             ctx->cfg.DefaultZeroStopCount = r.cfg.DefaultZeroStopCount;
-            ctx->cfg.ZeroStartAccLimit = r.cfg.ZeroStartAccLimit;
-            ctx->cfg.ZeroStartJerkLimit = r.cfg.ZeroStartJerkLimit;
-            ctx->cfg.ZeroStartVelLimit = r.cfg.ZeroStartVelLimit;
-            std::copy(&r.cfg.source[0], &r.cfg.source[1024], &ctx->cfg.source[0]);
-            ctx->cfg.DebugCutZero = r.cfg.DebugCutZero;
+            ctx->cfg.source.size[0] = 1;
+            ctx->cfg.source.size[1] = r.cfg.source.size[1];
+            ol_loop_ub = r.cfg.source.size[1];
+            if (ol_loop_ub - 1 >= 0) {
+                std::copy(&r.cfg.source.data[0], &r.cfg.source.data[ol_loop_ub],
+                          &ctx->cfg.source.data[0]);
+            }
             ctx->cfg.Cusp = r.cfg.Cusp;
             ctx->cfg.Compressing = r.cfg.Compressing;
             ctx->cfg.Smoothing = r.cfg.Smoothing;
@@ -1148,8 +1498,8 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
                 ctx->cfg.GaussLegendreW[i_i] = r.cfg.GaussLegendreW[i_i];
             }
             ctx->cfg.opt = r.cfg.opt;
-            for (int i192{0}; i192 < 9; i192++) {
-                ctx->cfg.LogFileName[i192] = r.cfg.LogFileName[i192];
+            for (int i261{0}; i261 < 9; i261++) {
+                ctx->cfg.LogFileName[i261] = r.cfg.LogFileName[i261];
             }
             ctx->jmax_increase_count = r.jmax_increase_count;
             ctx->zero_start = r.zero_start;
@@ -1161,13 +1511,13 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             ctx->forced_stop = r.forced_stop;
             ctx->programmed_stop = r.programmed_stop;
             ctx->Coeff.set_size(r.Coeff.size(0), r.Coeff.size(1));
-            ii_loop_ub = r.Coeff.size(1);
-            for (int i201{0}; i201 < ii_loop_ub; i201++) {
-                int ni_loop_ub;
-                ni_loop_ub = r.Coeff.size(0);
-                for (int i206{0}; i206 < ni_loop_ub; i206++) {
-                    ctx->Coeff[i206 + ctx->Coeff.size(0) * i201] =
-                        r.Coeff[i206 + r.Coeff.size(0) * i201];
+            xl_loop_ub = r.Coeff.size(1);
+            for (int i268{0}; i268 < xl_loop_ub; i268++) {
+                int dm_loop_ub;
+                dm_loop_ub = r.Coeff.size(0);
+                for (int i274{0}; i274 < dm_loop_ub; i274++) {
+                    ctx->Coeff[i274 + ctx->Coeff.size(0) * i268] =
+                        r.Coeff[i274 + r.Coeff.size(0) * i268];
                 }
             }
             ctx->Skipped = r.Skipped;
@@ -1175,147 +1525,554 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             ctx->errmsg = r.errmsg;
             ctx->errcode = r.errcode;
         }
-        // 'FeedoptPlan:99' assert_queue( ctx.op, ctx.q_gcode );
-        // 'FeedoptPlan:161' msg = string( op );
-        // 'FeedoptPlan:162' ocn_assert( checkGeometry( queue ), ...
-        // 'FeedoptPlan:163'     msg + " - Check geometry failed...", mfilename );
-        r1.init(ctx->op);
+        // 'FeedoptPlan:109' ctx = assert_queue( ctx, ctx.op, ctx.q_gcode );
+        r1.BasisVal.set_size(ctx->BasisVal.size(0), ctx->BasisVal.size(1));
+        i_loop_ub = ctx->BasisVal.size(1);
+        for (int i9{0}; i9 < i_loop_ub; i9++) {
+            int q_loop_ub;
+            q_loop_ub = ctx->BasisVal.size(0);
+            for (int i17{0}; i17 < q_loop_ub; i17++) {
+                r1.BasisVal[i17 + r1.BasisVal.size(0) * i9] =
+                    ctx->BasisVal[i17 + ctx->BasisVal.size(0) * i9];
+            }
+        }
+        r1.BasisValD.set_size(ctx->BasisValD.size(0), ctx->BasisValD.size(1));
+        t_loop_ub = ctx->BasisValD.size(1);
+        for (int i20{0}; i20 < t_loop_ub; i20++) {
+            int eb_loop_ub;
+            eb_loop_ub = ctx->BasisValD.size(0);
+            for (int i30{0}; i30 < eb_loop_ub; i30++) {
+                r1.BasisValD[i30 + r1.BasisValD.size(0) * i20] =
+                    ctx->BasisValD[i30 + ctx->BasisValD.size(0) * i20];
+            }
+        }
+        r1.BasisValDD.set_size(ctx->BasisValDD.size(0), ctx->BasisValDD.size(1));
+        hb_loop_ub = ctx->BasisValDD.size(1);
+        for (int i33{0}; i33 < hb_loop_ub; i33++) {
+            int sb_loop_ub;
+            sb_loop_ub = ctx->BasisValDD.size(0);
+            for (int i44{0}; i44 < sb_loop_ub; i44++) {
+                r1.BasisValDD[i44 + r1.BasisValDD.size(0) * i33] =
+                    ctx->BasisValDD[i44 + ctx->BasisValDD.size(0) * i33];
+            }
+        }
+        r1.BasisValDDD.set_size(ctx->BasisValDDD.size(0), ctx->BasisValDDD.size(1));
+        vb_loop_ub = ctx->BasisValDDD.size(1);
+        for (int i47{0}; i47 < vb_loop_ub; i47++) {
+            int hc_loop_ub;
+            hc_loop_ub = ctx->BasisValDDD.size(0);
+            for (int i58{0}; i58 < hc_loop_ub; i58++) {
+                r1.BasisValDDD[i58 + r1.BasisValDDD.size(0) * i47] =
+                    ctx->BasisValDDD[i58 + ctx->BasisValDDD.size(0) * i47];
+            }
+        }
+        r1.BasisIntegr.set_size(ctx->BasisIntegr.size(0));
+        kc_loop_ub = ctx->BasisIntegr.size(0);
+        for (int i61{0}; i61 < kc_loop_ub; i61++) {
+            r1.BasisIntegr[i61] = ctx->BasisIntegr[i61];
+        }
+        r1.Bl = ctx->Bl;
+        r1.u_vec.set_size(1, ctx->u_vec.size(1));
+        uc_loop_ub = ctx->u_vec.size(1);
+        for (int i71{0}; i71 < uc_loop_ub; i71++) {
+            r1.u_vec[i71] = ctx->u_vec[i71];
+        }
+        r1.q_spline = ctx->q_spline;
+        r1.q_gcode = ctx->q_gcode;
+        r1.q_compress = ctx->q_compress;
+        r1.q_smooth = ctx->q_smooth;
+        r1.q_split = ctx->q_split;
+        r1.q_opt = ctx->q_opt;
+        r1.op = ctx->op;
+        r1.go_next = ctx->go_next;
+        r1.try_push_again = ctx->try_push_again;
+        r1.n_optimized = ctx->n_optimized;
+        r1.reached_end = ctx->reached_end;
+        r1.k0 = ctx->k0;
+        r1.v_0 = ctx->v_0;
+        r1.v_1 = ctx->v_1;
+        r1.at_0 = ctx->at_0;
+        r1.at_1 = ctx->at_1;
+        r1.cfg.ENABLE_PRINT_MSG = ctx->cfg.ENABLE_PRINT_MSG;
+        r1.cfg.maskTot.size[0] = 1;
+        r1.cfg.maskTot.size[1] = ctx->cfg.maskTot.size[1];
+        dd_loop_ub = ctx->cfg.maskTot.size[1];
+        if (dd_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.maskTot.data[0], &ctx->cfg.maskTot.data[dd_loop_ub],
+                      &r1.cfg.maskTot.data[0]);
+        }
+        r1.cfg.maskCart.size[0] = 1;
+        r1.cfg.maskCart.size[1] = ctx->cfg.maskCart.size[1];
+        jd_loop_ub = ctx->cfg.maskCart.size[1];
+        if (jd_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.maskCart.data[0], &ctx->cfg.maskCart.data[jd_loop_ub],
+                      &r1.cfg.maskCart.data[0]);
+        }
+        r1.cfg.maskRot.size[0] = 1;
+        r1.cfg.maskRot.size[1] = ctx->cfg.maskRot.size[1];
+        qd_loop_ub = ctx->cfg.maskRot.size[1];
+        if (qd_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.maskRot.data[0], &ctx->cfg.maskRot.data[qd_loop_ub],
+                      &r1.cfg.maskRot.data[0]);
+        }
+        r1.cfg.indCart.set_size(ctx->cfg.indCart.size[0]);
+        yd_loop_ub = ctx->cfg.indCart.size[0];
+        for (int i79{0}; i79 < yd_loop_ub; i79++) {
+            r1.cfg.indCart[i79] = ctx->cfg.indCart.data[i79];
+        }
+        r1.cfg.indRot.set_size(ctx->cfg.indRot.size[0]);
+        ge_loop_ub = ctx->cfg.indRot.size[0];
+        for (int i85{0}; i85 < ge_loop_ub; i85++) {
+            r1.cfg.indRot[i85] = ctx->cfg.indRot.data[i85];
+        }
+        r1.cfg.NumberAxis = ctx->cfg.NumberAxis;
+        r1.cfg.NCart = ctx->cfg.NCart;
+        r1.cfg.NRot = ctx->cfg.NRot;
+        r1.cfg.D.set_size(ctx->cfg.D.size[0]);
+        pe_loop_ub = ctx->cfg.D.size[0];
+        for (int i93{0}; i93 < pe_loop_ub; i93++) {
+            r1.cfg.D[i93] = ctx->cfg.D.data[i93];
+        }
+        r1.cfg.coeffD = ctx->cfg.coeffD;
+        r1.cfg.kin_params.size[0] = ctx->cfg.kin_params.size[0];
+        we_loop_ub = ctx->cfg.kin_params.size[0];
+        if (we_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.kin_params.data[0], &ctx->cfg.kin_params.data[we_loop_ub],
+                      &r1.cfg.kin_params.data[0]);
+        }
+        for (int i101{0}; i101 < 8; i101++) {
+            r1.cfg.kin_type[i101] = ctx->cfg.kin_type[i101];
+        }
+        r1.cfg.NDiscr = ctx->cfg.NDiscr;
+        r1.cfg.NBreak = ctx->cfg.NBreak;
+        r1.cfg.SplitSpecialSpline = ctx->cfg.SplitSpecialSpline;
+        r1.cfg.ReleaseMemoryOfTheQueues = ctx->cfg.ReleaseMemoryOfTheQueues;
+        r1.cfg.UseDynamicBreakpoints = ctx->cfg.UseDynamicBreakpoints;
+        r1.cfg.UseLinearBreakpoints = ctx->cfg.UseLinearBreakpoints;
+        r1.cfg.DynamicBreakpointsDistance = ctx->cfg.DynamicBreakpointsDistance;
+        r1.cfg.NHorz = ctx->cfg.NHorz;
+        for (int i109{0}; i109 < 6; i109++) {
+            r1.cfg.vmax[i109] = ctx->cfg.vmax[i109];
+            r1.cfg.amax[i109] = ctx->cfg.amax[i109];
+            r1.cfg.jmax[i109] = ctx->cfg.jmax[i109];
+        }
+        r1.cfg.LeeSplineDegree = ctx->cfg.LeeSplineDegree;
+        r1.cfg.SplineDegree = ctx->cfg.SplineDegree;
+        r1.cfg.CutOff = ctx->cfg.CutOff;
+        r1.cfg.LSplit = ctx->cfg.LSplit;
+        r1.cfg.LSplitZero = ctx->cfg.LSplitZero;
+        r1.cfg.LThresholdMax = ctx->cfg.LThresholdMax;
+        r1.cfg.LThresholdMin = ctx->cfg.LThresholdMin;
+        r1.cfg.v_0 = ctx->cfg.v_0;
+        r1.cfg.at_0 = ctx->cfg.at_0;
+        r1.cfg.v_1 = ctx->cfg.v_1;
+        r1.cfg.at_1 = ctx->cfg.at_1;
+        r1.cfg.dt = ctx->cfg.dt;
+        r1.cfg.DefaultZeroStopCount = ctx->cfg.DefaultZeroStopCount;
+        r1.cfg.source.size[0] = 1;
+        r1.cfg.source.size[1] = ctx->cfg.source.size[1];
+        ff_loop_ub = ctx->cfg.source.size[1];
+        if (ff_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.source.data[0], &ctx->cfg.source.data[ff_loop_ub],
+                      &r1.cfg.source.data[0]);
+        }
+        r1.cfg.Cusp = ctx->cfg.Cusp;
+        r1.cfg.Compressing = ctx->cfg.Compressing;
+        r1.cfg.Smoothing = ctx->cfg.Smoothing;
+        r1.cfg.GaussLegendreN = ctx->cfg.GaussLegendreN;
+        for (int e_i{0}; e_i < 5; e_i++) {
+            r1.cfg.GaussLegendreX[e_i] = ctx->cfg.GaussLegendreX[e_i];
+            r1.cfg.GaussLegendreW[e_i] = ctx->cfg.GaussLegendreW[e_i];
+        }
+        r1.cfg.opt = ctx->cfg.opt;
+        for (int i116{0}; i116 < 9; i116++) {
+            r1.cfg.LogFileName[i116] = ctx->cfg.LogFileName[i116];
+        }
+        r1.jmax_increase_count = ctx->jmax_increase_count;
+        r1.zero_start = ctx->zero_start;
+        r1.zero_end = ctx->zero_end;
+        r1.zero_forced = ctx->zero_forced;
+        r1.zero_forced_buffer[0] = ctx->zero_forced_buffer[0];
+        r1.zero_forced_buffer[1] = ctx->zero_forced_buffer[1];
+        r1.simplex_calls = ctx->simplex_calls;
+        r1.forced_stop = ctx->forced_stop;
+        r1.programmed_stop = ctx->programmed_stop;
+        r1.Coeff.set_size(ctx->Coeff.size(0), ctx->Coeff.size(1));
+        mf_loop_ub = ctx->Coeff.size(1);
+        for (int i123{0}; i123 < mf_loop_ub; i123++) {
+            int sf_loop_ub;
+            sf_loop_ub = ctx->Coeff.size(0);
+            for (int i129{0}; i129 < sf_loop_ub; i129++) {
+                r1.Coeff[i129 + r1.Coeff.size(0) * i123] =
+                    ctx->Coeff[i129 + ctx->Coeff.size(0) * i123];
+            }
+        }
+        r1.Skipped = ctx->Skipped;
+        r1.kin = ctx->kin;
+        r1.errmsg = ctx->errmsg;
+        r1.errcode = ctx->errcode;
+        // 'FeedoptPlan:172' msg = string( op );
+        // 'FeedoptPlan:173' ocn_assert( checkGeometry( queue ), ...
+        // 'FeedoptPlan:174'     msg + " - Check geometry failed...", mfilename );
+        r3.init(ctx->op);
         obj.Value.size[0] = 1;
-        obj.Value.size[1] = r1.Value.size[1] + 27;
-        v_loop_ub = r1.Value.size[1];
-        if (v_loop_ub - 1 >= 0) {
-            std::copy(&r1.Value.data[0], &r1.Value.data[v_loop_ub], &obj.Value.data[0]);
+        obj.Value.size[1] = r3.Value.size[1] + 27;
+        jg_loop_ub = r3.Value.size[1];
+        if (jg_loop_ub - 1 >= 0) {
+            std::copy(&r3.Value.data[0], &r3.Value.data[jg_loop_ub], &obj.Value.data[0]);
         }
-        for (int i26{0}; i26 < 27; i26++) {
-            obj.Value.data[i26 + r1.Value.size[1]] = obj2Value[i26];
+        for (int i149{0}; i149 < 27; i149++) {
+            obj.Value.data[i149 + r3.Value.size[1]] = obj2Value[i149];
         }
-        f_ocn_assert(checkGeometry(&ctx->q_gcode), &obj);
-        // 'FeedoptPlan:164' ocn_assert( checkZSpdmode( queue ), ...
-        // 'FeedoptPlan:165'     msg + " - Check zspdmode failed...", mfilename );
+        j_ocn_assert(checkGeometry(&ctx->q_gcode), &obj);
+        // 'FeedoptPlan:176' [ isValid, ctx ] = checkZSpdmode( ctx, queue );
+        isValid = checkZSpdmode(&r1, &ctx->q_gcode);
+        // 'FeedoptPlan:177' ocn_assert( isValid, ...
+        // 'FeedoptPlan:178'     msg + " - Check zspdmode failed...", mfilename );
         b_obj.Value.size[0] = 1;
-        b_obj.Value.size[1] = r1.Value.size[1] + 27;
-        wb_loop_ub = r1.Value.size[1];
-        if (wb_loop_ub - 1 >= 0) {
-            std::copy(&r1.Value.data[0], &r1.Value.data[wb_loop_ub], &b_obj.Value.data[0]);
+        b_obj.Value.size[1] = r3.Value.size[1] + 27;
+        qh_loop_ub = r3.Value.size[1];
+        if (qh_loop_ub - 1 >= 0) {
+            std::copy(&r3.Value.data[0], &r3.Value.data[qh_loop_ub], &b_obj.Value.data[0]);
         }
-        for (int i52{0}; i52 < 27; i52++) {
-            b_obj.Value.data[i52 + r1.Value.size[1]] = b_obj2Value[i52];
+        for (int i181{0}; i181 < 27; i181++) {
+            b_obj.Value.data[i181 + r3.Value.size[1]] = b_obj2Value[i181];
         }
-        f_ocn_assert(checkZSpdmode(&ctx->q_gcode), &b_obj);
-        // 'FeedoptPlan:166' ocn_assert( checkParametrisation( queue ), ...
-        // 'FeedoptPlan:167'     msg + " - Check parametrisation failed...", mfilename );
+        j_ocn_assert(isValid, &b_obj);
+        // 'FeedoptPlan:180' isValid = checkParametrisationQueue( queue );
+        c_isValid = checkParametrisationQueue(&ctx->q_gcode);
+        // 'FeedoptPlan:181' ocn_assert( isValid, ...
+        // 'FeedoptPlan:182'     msg + " - Check parametrisation failed...", mfilename );
         c_obj.Value.size[0] = 1;
-        c_obj.Value.size[1] = r1.Value.size[1] + 34;
-        jc_loop_ub = r1.Value.size[1];
-        if (jc_loop_ub - 1 >= 0) {
-            std::copy(&r1.Value.data[0], &r1.Value.data[jc_loop_ub], &c_obj.Value.data[0]);
+        c_obj.Value.size[1] = r3.Value.size[1] + 34;
+        ji_loop_ub = r3.Value.size[1];
+        if (ji_loop_ub - 1 >= 0) {
+            std::copy(&r3.Value.data[0], &r3.Value.data[ji_loop_ub], &c_obj.Value.data[0]);
         }
-        for (int i60{0}; i60 < 34; i60++) {
-            c_obj.Value.data[i60 + r1.Value.size[1]] = c_obj2Value[i60];
+        for (int i198{0}; i198 < 34; i198++) {
+            c_obj.Value.data[i198 + r3.Value.size[1]] = c_obj2Value[i198];
         }
-        f_ocn_assert(checkParametrisation(&ctx->q_gcode), &c_obj);
-        // 'FeedoptPlan:101' ctx.op  = Fopt.Compress;
+        j_ocn_assert(c_isValid, &c_obj);
+        ctx->BasisVal.set_size(r1.BasisVal.size(0), r1.BasisVal.size(1));
+        pi_loop_ub = r1.BasisVal.size(1);
+        for (int i202{0}; i202 < pi_loop_ub; i202++) {
+            int qi_loop_ub;
+            qi_loop_ub = r1.BasisVal.size(0);
+            for (int i204{0}; i204 < qi_loop_ub; i204++) {
+                ctx->BasisVal[i204 + ctx->BasisVal.size(0) * i202] =
+                    r1.BasisVal[i204 + r1.BasisVal.size(0) * i202];
+            }
+        }
+        ctx->BasisValD.set_size(r1.BasisValD.size(0), r1.BasisValD.size(1));
+        ri_loop_ub = r1.BasisValD.size(1);
+        for (int i205{0}; i205 < ri_loop_ub; i205++) {
+            int ui_loop_ub;
+            ui_loop_ub = r1.BasisValD.size(0);
+            for (int i208{0}; i208 < ui_loop_ub; i208++) {
+                ctx->BasisValD[i208 + ctx->BasisValD.size(0) * i205] =
+                    r1.BasisValD[i208 + r1.BasisValD.size(0) * i205];
+            }
+        }
+        ctx->BasisValDD.set_size(r1.BasisValDD.size(0), r1.BasisValDD.size(1));
+        xi_loop_ub = r1.BasisValDD.size(1);
+        for (int i209{0}; i209 < xi_loop_ub; i209++) {
+            int ej_loop_ub;
+            ej_loop_ub = r1.BasisValDD.size(0);
+            for (int i212{0}; i212 < ej_loop_ub; i212++) {
+                ctx->BasisValDD[i212 + ctx->BasisValDD.size(0) * i209] =
+                    r1.BasisValDD[i212 + r1.BasisValDD.size(0) * i209];
+            }
+        }
+        ctx->BasisValDDD.set_size(r1.BasisValDDD.size(0), r1.BasisValDDD.size(1));
+        fj_loop_ub = r1.BasisValDDD.size(1);
+        for (int i213{0}; i213 < fj_loop_ub; i213++) {
+            int nj_loop_ub;
+            nj_loop_ub = r1.BasisValDDD.size(0);
+            for (int i216{0}; i216 < nj_loop_ub; i216++) {
+                ctx->BasisValDDD[i216 + ctx->BasisValDDD.size(0) * i213] =
+                    r1.BasisValDDD[i216 + r1.BasisValDDD.size(0) * i213];
+            }
+        }
+        ctx->BasisIntegr.set_size(r1.BasisIntegr.size(0));
+        oj_loop_ub = r1.BasisIntegr.size(0);
+        for (int i217{0}; i217 < oj_loop_ub; i217++) {
+            ctx->BasisIntegr[i217] = r1.BasisIntegr[i217];
+        }
+        ctx->Bl = r1.Bl;
+        ctx->u_vec.set_size(1, r1.u_vec.size(1));
+        xj_loop_ub = r1.u_vec.size(1);
+        for (int i221{0}; i221 < xj_loop_ub; i221++) {
+            ctx->u_vec[i221] = r1.u_vec[i221];
+        }
+        ctx->q_spline = r1.q_spline;
+        ctx->q_gcode = r1.q_gcode;
+        ctx->q_compress = r1.q_compress;
+        ctx->q_smooth = r1.q_smooth;
+        ctx->q_split = r1.q_split;
+        ctx->q_opt = r1.q_opt;
+        ctx->go_next = r1.go_next;
+        ctx->try_push_again = r1.try_push_again;
+        ctx->n_optimized = r1.n_optimized;
+        ctx->reached_end = r1.reached_end;
+        ctx->k0 = r1.k0;
+        ctx->v_0 = r1.v_0;
+        ctx->v_1 = r1.v_1;
+        ctx->at_0 = r1.at_0;
+        ctx->at_1 = r1.at_1;
+        ctx->cfg.ENABLE_PRINT_MSG = r1.cfg.ENABLE_PRINT_MSG;
+        ctx->cfg.maskTot.size[0] = 1;
+        ctx->cfg.maskTot.size[1] = r1.cfg.maskTot.size[1];
+        al_loop_ub = r1.cfg.maskTot.size[1];
+        if (al_loop_ub - 1 >= 0) {
+            std::copy(&r1.cfg.maskTot.data[0], &r1.cfg.maskTot.data[al_loop_ub],
+                      &ctx->cfg.maskTot.data[0]);
+        }
+        ctx->cfg.maskCart.size[0] = 1;
+        ctx->cfg.maskCart.size[1] = r1.cfg.maskCart.size[1];
+        cl_loop_ub = r1.cfg.maskCart.size[1];
+        if (cl_loop_ub - 1 >= 0) {
+            std::copy(&r1.cfg.maskCart.data[0], &r1.cfg.maskCart.data[cl_loop_ub],
+                      &ctx->cfg.maskCart.data[0]);
+        }
+        ctx->cfg.maskRot.size[0] = 1;
+        ctx->cfg.maskRot.size[1] = r1.cfg.maskRot.size[1];
+        fl_loop_ub = r1.cfg.maskRot.size[1];
+        if (fl_loop_ub - 1 >= 0) {
+            std::copy(&r1.cfg.maskRot.data[0], &r1.cfg.maskRot.data[fl_loop_ub],
+                      &ctx->cfg.maskRot.data[0]);
+        }
+        ctx->cfg.indCart.size[0] = r1.cfg.indCart.size(0);
+        hl_loop_ub = r1.cfg.indCart.size(0);
+        for (int i252{0}; i252 < hl_loop_ub; i252++) {
+            ctx->cfg.indCart.data[i252] = r1.cfg.indCart[i252];
+        }
+        ctx->cfg.indRot.size[0] = r1.cfg.indRot.size(0);
+        kl_loop_ub = r1.cfg.indRot.size(0);
+        for (int i254{0}; i254 < kl_loop_ub; i254++) {
+            ctx->cfg.indRot.data[i254] = r1.cfg.indRot[i254];
+        }
+        ctx->cfg.NumberAxis = r1.cfg.NumberAxis;
+        ctx->cfg.NCart = r1.cfg.NCart;
+        ctx->cfg.NRot = r1.cfg.NRot;
+        ctx->cfg.D.size[0] = r1.cfg.D.size(0);
+        nl_loop_ub = r1.cfg.D.size(0);
+        for (int i257{0}; i257 < nl_loop_ub; i257++) {
+            ctx->cfg.D.data[i257] = r1.cfg.D[i257];
+        }
+        ctx->cfg.coeffD = r1.cfg.coeffD;
+        ctx->cfg.kin_params.size[0] = r1.cfg.kin_params.size[0];
+        tl_loop_ub = r1.cfg.kin_params.size[0];
+        if (tl_loop_ub - 1 >= 0) {
+            std::copy(&r1.cfg.kin_params.data[0], &r1.cfg.kin_params.data[tl_loop_ub],
+                      &ctx->cfg.kin_params.data[0]);
+        }
+        for (int i260{0}; i260 < 8; i260++) {
+            ctx->cfg.kin_type[i260] = r1.cfg.kin_type[i260];
+        }
+        ctx->cfg.NDiscr = r1.cfg.NDiscr;
+        ctx->cfg.NBreak = r1.cfg.NBreak;
+        ctx->cfg.SplitSpecialSpline = r1.cfg.SplitSpecialSpline;
+        ctx->cfg.ReleaseMemoryOfTheQueues = r1.cfg.ReleaseMemoryOfTheQueues;
+        ctx->cfg.UseDynamicBreakpoints = r1.cfg.UseDynamicBreakpoints;
+        ctx->cfg.UseLinearBreakpoints = r1.cfg.UseLinearBreakpoints;
+        ctx->cfg.DynamicBreakpointsDistance = r1.cfg.DynamicBreakpointsDistance;
+        ctx->cfg.NHorz = r1.cfg.NHorz;
+        for (int i267{0}; i267 < 6; i267++) {
+            ctx->cfg.vmax[i267] = r1.cfg.vmax[i267];
+            ctx->cfg.amax[i267] = r1.cfg.amax[i267];
+            ctx->cfg.jmax[i267] = r1.cfg.jmax[i267];
+        }
+        ctx->cfg.LeeSplineDegree = r1.cfg.LeeSplineDegree;
+        ctx->cfg.SplineDegree = r1.cfg.SplineDegree;
+        ctx->cfg.CutOff = r1.cfg.CutOff;
+        ctx->cfg.LSplit = r1.cfg.LSplit;
+        ctx->cfg.LSplitZero = r1.cfg.LSplitZero;
+        ctx->cfg.LThresholdMax = r1.cfg.LThresholdMax;
+        ctx->cfg.LThresholdMin = r1.cfg.LThresholdMin;
+        ctx->cfg.v_0 = r1.cfg.v_0;
+        ctx->cfg.at_0 = r1.cfg.at_0;
+        ctx->cfg.v_1 = r1.cfg.v_1;
+        ctx->cfg.at_1 = r1.cfg.at_1;
+        ctx->cfg.dt = r1.cfg.dt;
+        ctx->cfg.DefaultZeroStopCount = r1.cfg.DefaultZeroStopCount;
+        ctx->cfg.source.size[0] = 1;
+        ctx->cfg.source.size[1] = r1.cfg.source.size[1];
+        im_loop_ub = r1.cfg.source.size[1];
+        if (im_loop_ub - 1 >= 0) {
+            std::copy(&r1.cfg.source.data[0], &r1.cfg.source.data[im_loop_ub],
+                      &ctx->cfg.source.data[0]);
+        }
+        ctx->cfg.Cusp = r1.cfg.Cusp;
+        ctx->cfg.Compressing = r1.cfg.Compressing;
+        ctx->cfg.Smoothing = r1.cfg.Smoothing;
+        ctx->cfg.GaussLegendreN = r1.cfg.GaussLegendreN;
+        for (int o_i{0}; o_i < 5; o_i++) {
+            ctx->cfg.GaussLegendreX[o_i] = r1.cfg.GaussLegendreX[o_i];
+            ctx->cfg.GaussLegendreW[o_i] = r1.cfg.GaussLegendreW[o_i];
+        }
+        ctx->cfg.opt = r1.cfg.opt;
+        for (int i281{0}; i281 < 9; i281++) {
+            ctx->cfg.LogFileName[i281] = r1.cfg.LogFileName[i281];
+        }
+        ctx->jmax_increase_count = r1.jmax_increase_count;
+        ctx->zero_start = r1.zero_start;
+        ctx->zero_end = r1.zero_end;
+        ctx->zero_forced = r1.zero_forced;
+        ctx->zero_forced_buffer[0] = r1.zero_forced_buffer[0];
+        ctx->zero_forced_buffer[1] = r1.zero_forced_buffer[1];
+        ctx->simplex_calls = r1.simplex_calls;
+        ctx->forced_stop = r1.forced_stop;
+        ctx->programmed_stop = r1.programmed_stop;
+        ctx->Coeff.set_size(r1.Coeff.size(0), r1.Coeff.size(1));
+        bn_loop_ub = r1.Coeff.size(1);
+        for (int i298{0}; i298 < bn_loop_ub; i298++) {
+            int en_loop_ub;
+            en_loop_ub = r1.Coeff.size(0);
+            for (int i301{0}; i301 < en_loop_ub; i301++) {
+                ctx->Coeff[i301 + ctx->Coeff.size(0) * i298] =
+                    r1.Coeff[i301 + r1.Coeff.size(0) * i298];
+            }
+        }
+        ctx->Skipped = r1.Skipped;
+        ctx->kin = r1.kin;
+        ctx->errmsg = r1.errmsg;
+        ctx->errcode = r1.errcode;
+        // 'FeedoptPlan:111' ctx.op  = Fopt.Compress;
         ctx->op = Fopt_Compress;
     } break;
     case Fopt_Compress: {
-        int gc_loop_ub;
-        int kc_loop_ub;
-        int lb_loop_ub;
-        // 'FeedoptPlan:103' case Fopt.Compress
-        // 'FeedoptPlan:104' if ctx.cfg.Compressing.Skip
+        int ai_loop_ub;
+        int ak_loop_ub;
+        int be_loop_ub;
+        int bf_loop_ub;
+        int cc_loop_ub;
+        int cj_loop_ub;
+        int dl_loop_ub;
+        int gl_loop_ub;
+        int ie_loop_ub;
+        int if_loop_ub;
+        int ik_loop_ub;
+        int in_loop_ub;
+        int jl_loop_ub;
+        int jm_loop_ub;
+        int kj_loop_ub;
+        int ld_loop_ub;
+        int ll_loop_ub;
+        int mi_loop_ub;
+        int ml_loop_ub;
+        int nb_loop_ub;
+        int ne_loop_ub;
+        int oc_loop_ub;
+        int rj_loop_ub;
+        int sd_loop_ub;
+        int ti_loop_ub;
+        int ul_loop_ub;
+        int vf_loop_ub;
+        int vl_loop_ub;
+        int wc_loop_ub;
+        int xg_loop_ub;
+        int y_loop_ub;
+        int yc_loop_ub;
+        int ye_loop_ub;
+        bool b_isValid;
+        bool d_isValid;
+        // 'FeedoptPlan:113' case Fopt.Compress
+        // 'FeedoptPlan:114' if ctx.cfg.Compressing.Skip
         if (ctx->cfg.Compressing.Skip) {
             int i7;
             unsigned int u;
-            // 'FeedoptPlan:105' for j = 1 : ctx.q_gcode.size
+            // 'FeedoptPlan:115' for j = 1 : ctx.q_gcode.size
             u = ctx->q_gcode.size();
             i7 = static_cast<int>(u);
             for (int j{0}; j < i7; j++) {
                 //  Copy queue GCode in queue Compress
-                // 'FeedoptPlan:106' ctx.q_compress.push( ctx.q_gcode.get( j ) );
+                // 'FeedoptPlan:117' ctx.q_compress.push( ctx.q_gcode.get( j ) );
                 ctx->q_gcode.get(j + 1U, &r2);
                 ctx->q_compress.push(&r2);
             }
         } else {
-            int ac_loop_ub;
+            int ae_loop_ub;
             int ag_loop_ub;
-            int ch_loop_ub;
-            int ci_loop_ub;
-            int db_loop_ub;
-            int df_loop_ub;
+            int am_loop_ub;
+            int ck_loop_ub;
             int ed_loop_ub;
-            int ge_loop_ub;
-            int hc_loop_ub;
-            int hh_loop_ub;
-            int i_loop_ub;
-            int jd_loop_ub;
-            int lg_loop_ub;
-            int li_loop_ub;
-            int mh_loop_ub;
-            int ob_loop_ub;
-            int oc_loop_ub;
-            int od_loop_ub;
-            int of_loop_ub;
-            int r_loop_ub;
-            int rg_loop_ub;
+            int gf_loop_ub;
+            int gh_loop_ub;
+            int he_loop_ub;
+            int hk_loop_ub;
+            int ib_loop_ub;
+            int j_loop_ub;
+            int jj_loop_ub;
+            int kd_loop_ub;
+            int kg_loop_ub;
+            int lc_loop_ub;
+            int nf_loop_ub;
+            int pk_loop_ub;
+            int qe_loop_ub;
+            int ql_loop_ub;
+            int rd_loop_ub;
             int rh_loop_ub;
-            int se_loop_ub;
-            int tc_loop_ub;
-            int td_loop_ub;
-            int wg_loop_ub;
-            int wh_loop_ub;
-            int yc_loop_ub;
-            // 'FeedoptPlan:108' else
-            // 'FeedoptPlan:109' ctx = compressCurvStructs(ctx);
+            int tj_loop_ub;
+            int u_loop_ub;
+            int ug_loop_ub;
+            int vc_loop_ub;
+            int vk_loop_ub;
+            int wb_loop_ub;
+            int xe_loop_ub;
+            int yh_loop_ub;
+            int yi_loop_ub;
+            // 'FeedoptPlan:119' else
+            // 'FeedoptPlan:120' ctx = compressCurvStructs(ctx);
             r.BasisVal.set_size(ctx->BasisVal.size(0), ctx->BasisVal.size(1));
-            i_loop_ub = ctx->BasisVal.size(1);
-            for (int i9{0}; i9 < i_loop_ub; i9++) {
-                int q_loop_ub;
-                q_loop_ub = ctx->BasisVal.size(0);
-                for (int i17{0}; i17 < q_loop_ub; i17++) {
-                    r.BasisVal[i17 + r.BasisVal.size(0) * i9] =
-                        ctx->BasisVal[i17 + ctx->BasisVal.size(0) * i9];
+            j_loop_ub = ctx->BasisVal.size(1);
+            for (int i10{0}; i10 < j_loop_ub; i10++) {
+                int s_loop_ub;
+                s_loop_ub = ctx->BasisVal.size(0);
+                for (int i19{0}; i19 < s_loop_ub; i19++) {
+                    r.BasisVal[i19 + r.BasisVal.size(0) * i10] =
+                        ctx->BasisVal[i19 + ctx->BasisVal.size(0) * i10];
                 }
             }
             r.BasisValD.set_size(ctx->BasisValD.size(0), ctx->BasisValD.size(1));
-            r_loop_ub = ctx->BasisValD.size(1);
-            for (int i18{0}; i18 < r_loop_ub; i18++) {
-                int cb_loop_ub;
-                cb_loop_ub = ctx->BasisValD.size(0);
-                for (int i28{0}; i28 < cb_loop_ub; i28++) {
-                    r.BasisValD[i28 + r.BasisValD.size(0) * i18] =
-                        ctx->BasisValD[i28 + ctx->BasisValD.size(0) * i18];
+            u_loop_ub = ctx->BasisValD.size(1);
+            for (int i21{0}; i21 < u_loop_ub; i21++) {
+                int gb_loop_ub;
+                gb_loop_ub = ctx->BasisValD.size(0);
+                for (int i32{0}; i32 < gb_loop_ub; i32++) {
+                    r.BasisValD[i32 + r.BasisValD.size(0) * i21] =
+                        ctx->BasisValD[i32 + ctx->BasisValD.size(0) * i21];
                 }
             }
             r.BasisValDD.set_size(ctx->BasisValDD.size(0), ctx->BasisValDD.size(1));
-            db_loop_ub = ctx->BasisValDD.size(1);
-            for (int i29{0}; i29 < db_loop_ub; i29++) {
-                int nb_loop_ub;
-                nb_loop_ub = ctx->BasisValDD.size(0);
-                for (int i38{0}; i38 < nb_loop_ub; i38++) {
-                    r.BasisValDD[i38 + r.BasisValDD.size(0) * i29] =
-                        ctx->BasisValDD[i38 + ctx->BasisValDD.size(0) * i29];
+            ib_loop_ub = ctx->BasisValDD.size(1);
+            for (int i34{0}; i34 < ib_loop_ub; i34++) {
+                int ub_loop_ub;
+                ub_loop_ub = ctx->BasisValDD.size(0);
+                for (int i46{0}; i46 < ub_loop_ub; i46++) {
+                    r.BasisValDD[i46 + r.BasisValDD.size(0) * i34] =
+                        ctx->BasisValDD[i46 + ctx->BasisValDD.size(0) * i34];
                 }
             }
             r.BasisValDDD.set_size(ctx->BasisValDDD.size(0), ctx->BasisValDDD.size(1));
-            ob_loop_ub = ctx->BasisValDDD.size(1);
-            for (int i39{0}; i39 < ob_loop_ub; i39++) {
-                int yb_loop_ub;
-                yb_loop_ub = ctx->BasisValDDD.size(0);
-                for (int i49{0}; i49 < yb_loop_ub; i49++) {
-                    r.BasisValDDD[i49 + r.BasisValDDD.size(0) * i39] =
-                        ctx->BasisValDDD[i49 + ctx->BasisValDDD.size(0) * i39];
+            wb_loop_ub = ctx->BasisValDDD.size(1);
+            for (int i48{0}; i48 < wb_loop_ub; i48++) {
+                int jc_loop_ub;
+                jc_loop_ub = ctx->BasisValDDD.size(0);
+                for (int i60{0}; i60 < jc_loop_ub; i60++) {
+                    r.BasisValDDD[i60 + r.BasisValDDD.size(0) * i48] =
+                        ctx->BasisValDDD[i60 + ctx->BasisValDDD.size(0) * i48];
                 }
             }
             r.BasisIntegr.set_size(ctx->BasisIntegr.size(0));
-            ac_loop_ub = ctx->BasisIntegr.size(0);
-            for (int i50{0}; i50 < ac_loop_ub; i50++) {
-                r.BasisIntegr[i50] = ctx->BasisIntegr[i50];
+            lc_loop_ub = ctx->BasisIntegr.size(0);
+            for (int i62{0}; i62 < lc_loop_ub; i62++) {
+                r.BasisIntegr[i62] = ctx->BasisIntegr[i62];
             }
             r.Bl = ctx->Bl;
             r.u_vec.set_size(1, ctx->u_vec.size(1));
-            hc_loop_ub = ctx->u_vec.size(1);
-            for (int i57{0}; i57 < hc_loop_ub; i57++) {
-                r.u_vec[i57] = ctx->u_vec[i57];
+            vc_loop_ub = ctx->u_vec.size(1);
+            for (int i72{0}; i72 < vc_loop_ub; i72++) {
+                r.u_vec[i72] = ctx->u_vec[i72];
             }
             r.q_spline = ctx->q_spline;
             r.q_gcode = ctx->q_gcode;
@@ -1333,67 +2090,68 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             r.v_1 = ctx->v_1;
             r.at_0 = ctx->at_0;
             r.at_1 = ctx->at_1;
+            r.cfg.ENABLE_PRINT_MSG = ctx->cfg.ENABLE_PRINT_MSG;
             r.cfg.maskTot.size[0] = 1;
             r.cfg.maskTot.size[1] = ctx->cfg.maskTot.size[1];
-            oc_loop_ub = ctx->cfg.maskTot.size[1];
-            if (oc_loop_ub - 1 >= 0) {
-                std::copy(&ctx->cfg.maskTot.data[0], &ctx->cfg.maskTot.data[oc_loop_ub],
+            ed_loop_ub = ctx->cfg.maskTot.size[1];
+            if (ed_loop_ub - 1 >= 0) {
+                std::copy(&ctx->cfg.maskTot.data[0], &ctx->cfg.maskTot.data[ed_loop_ub],
                           &r.cfg.maskTot.data[0]);
             }
             r.cfg.maskCart.size[0] = 1;
             r.cfg.maskCart.size[1] = ctx->cfg.maskCart.size[1];
-            tc_loop_ub = ctx->cfg.maskCart.size[1];
-            if (tc_loop_ub - 1 >= 0) {
-                std::copy(&ctx->cfg.maskCart.data[0], &ctx->cfg.maskCart.data[tc_loop_ub],
+            kd_loop_ub = ctx->cfg.maskCart.size[1];
+            if (kd_loop_ub - 1 >= 0) {
+                std::copy(&ctx->cfg.maskCart.data[0], &ctx->cfg.maskCart.data[kd_loop_ub],
                           &r.cfg.maskCart.data[0]);
             }
             r.cfg.maskRot.size[0] = 1;
             r.cfg.maskRot.size[1] = ctx->cfg.maskRot.size[1];
-            yc_loop_ub = ctx->cfg.maskRot.size[1];
-            if (yc_loop_ub - 1 >= 0) {
-                std::copy(&ctx->cfg.maskRot.data[0], &ctx->cfg.maskRot.data[yc_loop_ub],
+            rd_loop_ub = ctx->cfg.maskRot.size[1];
+            if (rd_loop_ub - 1 >= 0) {
+                std::copy(&ctx->cfg.maskRot.data[0], &ctx->cfg.maskRot.data[rd_loop_ub],
                           &r.cfg.maskRot.data[0]);
             }
             r.cfg.indCart.set_size(ctx->cfg.indCart.size[0]);
-            ed_loop_ub = ctx->cfg.indCart.size[0];
-            for (int i66{0}; i66 < ed_loop_ub; i66++) {
-                r.cfg.indCart[i66] = ctx->cfg.indCart.data[i66];
+            ae_loop_ub = ctx->cfg.indCart.size[0];
+            for (int i80{0}; i80 < ae_loop_ub; i80++) {
+                r.cfg.indCart[i80] = ctx->cfg.indCart.data[i80];
             }
             r.cfg.indRot.set_size(ctx->cfg.indRot.size[0]);
-            jd_loop_ub = ctx->cfg.indRot.size[0];
-            for (int i71{0}; i71 < jd_loop_ub; i71++) {
-                r.cfg.indRot[i71] = ctx->cfg.indRot.data[i71];
+            he_loop_ub = ctx->cfg.indRot.size[0];
+            for (int i86{0}; i86 < he_loop_ub; i86++) {
+                r.cfg.indRot[i86] = ctx->cfg.indRot.data[i86];
             }
             r.cfg.NumberAxis = ctx->cfg.NumberAxis;
             r.cfg.NCart = ctx->cfg.NCart;
             r.cfg.NRot = ctx->cfg.NRot;
             r.cfg.D.set_size(ctx->cfg.D.size[0]);
-            od_loop_ub = ctx->cfg.D.size[0];
-            for (int i76{0}; i76 < od_loop_ub; i76++) {
-                r.cfg.D[i76] = ctx->cfg.D.data[i76];
+            qe_loop_ub = ctx->cfg.D.size[0];
+            for (int i94{0}; i94 < qe_loop_ub; i94++) {
+                r.cfg.D[i94] = ctx->cfg.D.data[i94];
             }
             r.cfg.coeffD = ctx->cfg.coeffD;
             r.cfg.kin_params.size[0] = ctx->cfg.kin_params.size[0];
-            td_loop_ub = ctx->cfg.kin_params.size[0];
-            if (td_loop_ub - 1 >= 0) {
-                std::copy(&ctx->cfg.kin_params.data[0], &ctx->cfg.kin_params.data[td_loop_ub],
+            xe_loop_ub = ctx->cfg.kin_params.size[0];
+            if (xe_loop_ub - 1 >= 0) {
+                std::copy(&ctx->cfg.kin_params.data[0], &ctx->cfg.kin_params.data[xe_loop_ub],
                           &r.cfg.kin_params.data[0]);
             }
-            for (int i81{0}; i81 < 8; i81++) {
-                r.cfg.kin_type[i81] = ctx->cfg.kin_type[i81];
+            for (int i102{0}; i102 < 8; i102++) {
+                r.cfg.kin_type[i102] = ctx->cfg.kin_type[i102];
             }
             r.cfg.NDiscr = ctx->cfg.NDiscr;
             r.cfg.NBreak = ctx->cfg.NBreak;
+            r.cfg.SplitSpecialSpline = ctx->cfg.SplitSpecialSpline;
+            r.cfg.ReleaseMemoryOfTheQueues = ctx->cfg.ReleaseMemoryOfTheQueues;
             r.cfg.UseDynamicBreakpoints = ctx->cfg.UseDynamicBreakpoints;
             r.cfg.UseLinearBreakpoints = ctx->cfg.UseLinearBreakpoints;
             r.cfg.DynamicBreakpointsDistance = ctx->cfg.DynamicBreakpointsDistance;
             r.cfg.NHorz = ctx->cfg.NHorz;
-            r.cfg.fmax = ctx->cfg.fmax;
-            r.cfg.smax = ctx->cfg.smax;
-            for (int i86{0}; i86 < 6; i86++) {
-                r.cfg.vmax[i86] = ctx->cfg.vmax[i86];
-                r.cfg.amax[i86] = ctx->cfg.amax[i86];
-                r.cfg.jmax[i86] = ctx->cfg.jmax[i86];
+            for (int i110{0}; i110 < 6; i110++) {
+                r.cfg.vmax[i110] = ctx->cfg.vmax[i110];
+                r.cfg.amax[i110] = ctx->cfg.amax[i110];
+                r.cfg.jmax[i110] = ctx->cfg.jmax[i110];
             }
             r.cfg.LeeSplineDegree = ctx->cfg.LeeSplineDegree;
             r.cfg.SplineDegree = ctx->cfg.SplineDegree;
@@ -1408,22 +2166,24 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             r.cfg.at_1 = ctx->cfg.at_1;
             r.cfg.dt = ctx->cfg.dt;
             r.cfg.DefaultZeroStopCount = ctx->cfg.DefaultZeroStopCount;
-            r.cfg.ZeroStartAccLimit = ctx->cfg.ZeroStartAccLimit;
-            r.cfg.ZeroStartJerkLimit = ctx->cfg.ZeroStartJerkLimit;
-            r.cfg.ZeroStartVelLimit = ctx->cfg.ZeroStartVelLimit;
-            std::copy(&ctx->cfg.source[0], &ctx->cfg.source[1024], &r.cfg.source[0]);
-            r.cfg.DebugCutZero = ctx->cfg.DebugCutZero;
+            r.cfg.source.size[0] = 1;
+            r.cfg.source.size[1] = ctx->cfg.source.size[1];
+            gf_loop_ub = ctx->cfg.source.size[1];
+            if (gf_loop_ub - 1 >= 0) {
+                std::copy(&ctx->cfg.source.data[0], &ctx->cfg.source.data[gf_loop_ub],
+                          &r.cfg.source.data[0]);
+            }
             r.cfg.Cusp = ctx->cfg.Cusp;
             r.cfg.Compressing = ctx->cfg.Compressing;
             r.cfg.Smoothing = ctx->cfg.Smoothing;
             r.cfg.GaussLegendreN = ctx->cfg.GaussLegendreN;
-            for (int e_i{0}; e_i < 5; e_i++) {
-                r.cfg.GaussLegendreX[e_i] = ctx->cfg.GaussLegendreX[e_i];
-                r.cfg.GaussLegendreW[e_i] = ctx->cfg.GaussLegendreW[e_i];
+            for (int f_i{0}; f_i < 5; f_i++) {
+                r.cfg.GaussLegendreX[f_i] = ctx->cfg.GaussLegendreX[f_i];
+                r.cfg.GaussLegendreW[f_i] = ctx->cfg.GaussLegendreW[f_i];
             }
             r.cfg.opt = ctx->cfg.opt;
-            for (int i92{0}; i92 < 9; i92++) {
-                r.cfg.LogFileName[i92] = ctx->cfg.LogFileName[i92];
+            for (int i117{0}; i117 < 9; i117++) {
+                r.cfg.LogFileName[i117] = ctx->cfg.LogFileName[i117];
             }
             r.jmax_increase_count = ctx->jmax_increase_count;
             r.zero_start = ctx->zero_start;
@@ -1435,13 +2195,13 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             r.forced_stop = ctx->forced_stop;
             r.programmed_stop = ctx->programmed_stop;
             r.Coeff.set_size(ctx->Coeff.size(0), ctx->Coeff.size(1));
-            ge_loop_ub = ctx->Coeff.size(1);
-            for (int i101{0}; i101 < ge_loop_ub; i101++) {
-                int ne_loop_ub;
-                ne_loop_ub = ctx->Coeff.size(0);
-                for (int i107{0}; i107 < ne_loop_ub; i107++) {
-                    r.Coeff[i107 + r.Coeff.size(0) * i101] =
-                        ctx->Coeff[i107 + ctx->Coeff.size(0) * i101];
+            nf_loop_ub = ctx->Coeff.size(1);
+            for (int i124{0}; i124 < nf_loop_ub; i124++) {
+                int tf_loop_ub;
+                tf_loop_ub = ctx->Coeff.size(0);
+                for (int i130{0}; i130 < tf_loop_ub; i130++) {
+                    r.Coeff[i130 + r.Coeff.size(0) * i124] =
+                        ctx->Coeff[i130 + ctx->Coeff.size(0) * i124];
                 }
             }
             r.Skipped = ctx->Skipped;
@@ -1450,55 +2210,55 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             r.errcode = ctx->errcode;
             compressCurvStructs(&r);
             ctx->BasisVal.set_size(r.BasisVal.size(0), r.BasisVal.size(1));
-            se_loop_ub = r.BasisVal.size(1);
-            for (int i113{0}; i113 < se_loop_ub; i113++) {
-                int bf_loop_ub;
-                bf_loop_ub = r.BasisVal.size(0);
-                for (int i121{0}; i121 < bf_loop_ub; i121++) {
-                    ctx->BasisVal[i121 + ctx->BasisVal.size(0) * i113] =
-                        r.BasisVal[i121 + r.BasisVal.size(0) * i113];
+            ag_loop_ub = r.BasisVal.size(1);
+            for (int i136{0}; i136 < ag_loop_ub; i136++) {
+                int gg_loop_ub;
+                gg_loop_ub = r.BasisVal.size(0);
+                for (int i142{0}; i142 < gg_loop_ub; i142++) {
+                    ctx->BasisVal[i142 + ctx->BasisVal.size(0) * i136] =
+                        r.BasisVal[i142 + r.BasisVal.size(0) * i136];
                 }
             }
             ctx->BasisValD.set_size(r.BasisValD.size(0), r.BasisValD.size(1));
-            df_loop_ub = r.BasisValD.size(1);
-            for (int i122{0}; i122 < df_loop_ub; i122++) {
-                int nf_loop_ub;
-                nf_loop_ub = r.BasisValD.size(0);
-                for (int i133{0}; i133 < nf_loop_ub; i133++) {
-                    ctx->BasisValD[i133 + ctx->BasisValD.size(0) * i122] =
-                        r.BasisValD[i133 + r.BasisValD.size(0) * i122];
+            kg_loop_ub = r.BasisValD.size(1);
+            for (int i145{0}; i145 < kg_loop_ub; i145++) {
+                int rg_loop_ub;
+                rg_loop_ub = r.BasisValD.size(0);
+                for (int i153{0}; i153 < rg_loop_ub; i153++) {
+                    ctx->BasisValD[i153 + ctx->BasisValD.size(0) * i145] =
+                        r.BasisValD[i153 + r.BasisValD.size(0) * i145];
                 }
             }
             ctx->BasisValDD.set_size(r.BasisValDD.size(0), r.BasisValDD.size(1));
-            of_loop_ub = r.BasisValDD.size(1);
-            for (int i134{0}; i134 < of_loop_ub; i134++) {
-                int yf_loop_ub;
-                yf_loop_ub = r.BasisValDD.size(0);
-                for (int i144{0}; i144 < yf_loop_ub; i144++) {
-                    ctx->BasisValDD[i144 + ctx->BasisValDD.size(0) * i134] =
-                        r.BasisValDD[i144 + r.BasisValDD.size(0) * i134];
+            ug_loop_ub = r.BasisValDD.size(1);
+            for (int i156{0}; i156 < ug_loop_ub; i156++) {
+                int dh_loop_ub;
+                dh_loop_ub = r.BasisValDD.size(0);
+                for (int i163{0}; i163 < dh_loop_ub; i163++) {
+                    ctx->BasisValDD[i163 + ctx->BasisValDD.size(0) * i156] =
+                        r.BasisValDD[i163 + r.BasisValDD.size(0) * i156];
                 }
             }
             ctx->BasisValDDD.set_size(r.BasisValDDD.size(0), r.BasisValDDD.size(1));
-            ag_loop_ub = r.BasisValDDD.size(1);
-            for (int i145{0}; i145 < ag_loop_ub; i145++) {
-                int jg_loop_ub;
-                jg_loop_ub = r.BasisValDDD.size(0);
-                for (int i154{0}; i154 < jg_loop_ub; i154++) {
-                    ctx->BasisValDDD[i154 + ctx->BasisValDDD.size(0) * i145] =
-                        r.BasisValDDD[i154 + r.BasisValDDD.size(0) * i145];
+            gh_loop_ub = r.BasisValDDD.size(1);
+            for (int i167{0}; i167 < gh_loop_ub; i167++) {
+                int nh_loop_ub;
+                nh_loop_ub = r.BasisValDDD.size(0);
+                for (int i174{0}; i174 < nh_loop_ub; i174++) {
+                    ctx->BasisValDDD[i174 + ctx->BasisValDDD.size(0) * i167] =
+                        r.BasisValDDD[i174 + r.BasisValDDD.size(0) * i167];
                 }
             }
             ctx->BasisIntegr.set_size(r.BasisIntegr.size(0));
-            lg_loop_ub = r.BasisIntegr.size(0);
-            for (int i156{0}; i156 < lg_loop_ub; i156++) {
-                ctx->BasisIntegr[i156] = r.BasisIntegr[i156];
+            rh_loop_ub = r.BasisIntegr.size(0);
+            for (int i177{0}; i177 < rh_loop_ub; i177++) {
+                ctx->BasisIntegr[i177] = r.BasisIntegr[i177];
             }
             ctx->Bl = r.Bl;
             ctx->u_vec.set_size(1, r.u_vec.size(1));
-            rg_loop_ub = r.u_vec.size(1);
-            for (int i162{0}; i162 < rg_loop_ub; i162++) {
-                ctx->u_vec[i162] = r.u_vec[i162];
+            yh_loop_ub = r.u_vec.size(1);
+            for (int i185{0}; i185 < yh_loop_ub; i185++) {
+                ctx->u_vec[i185] = r.u_vec[i185];
             }
             ctx->q_spline = r.q_spline;
             ctx->q_gcode = r.q_gcode;
@@ -1516,67 +2276,68 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             ctx->v_1 = r.v_1;
             ctx->at_0 = r.at_0;
             ctx->at_1 = r.at_1;
+            ctx->cfg.ENABLE_PRINT_MSG = r.cfg.ENABLE_PRINT_MSG;
             ctx->cfg.maskTot.size[0] = 1;
             ctx->cfg.maskTot.size[1] = r.cfg.maskTot.size[1];
-            wg_loop_ub = r.cfg.maskTot.size[1];
-            if (wg_loop_ub - 1 >= 0) {
-                std::copy(&r.cfg.maskTot.data[0], &r.cfg.maskTot.data[wg_loop_ub],
+            yi_loop_ub = r.cfg.maskTot.size[1];
+            if (yi_loop_ub - 1 >= 0) {
+                std::copy(&r.cfg.maskTot.data[0], &r.cfg.maskTot.data[yi_loop_ub],
                           &ctx->cfg.maskTot.data[0]);
             }
             ctx->cfg.maskCart.size[0] = 1;
             ctx->cfg.maskCart.size[1] = r.cfg.maskCart.size[1];
-            ch_loop_ub = r.cfg.maskCart.size[1];
-            if (ch_loop_ub - 1 >= 0) {
-                std::copy(&r.cfg.maskCart.data[0], &r.cfg.maskCart.data[ch_loop_ub],
+            jj_loop_ub = r.cfg.maskCart.size[1];
+            if (jj_loop_ub - 1 >= 0) {
+                std::copy(&r.cfg.maskCart.data[0], &r.cfg.maskCart.data[jj_loop_ub],
                           &ctx->cfg.maskCart.data[0]);
             }
             ctx->cfg.maskRot.size[0] = 1;
             ctx->cfg.maskRot.size[1] = r.cfg.maskRot.size[1];
-            hh_loop_ub = r.cfg.maskRot.size[1];
-            if (hh_loop_ub - 1 >= 0) {
-                std::copy(&r.cfg.maskRot.data[0], &r.cfg.maskRot.data[hh_loop_ub],
+            tj_loop_ub = r.cfg.maskRot.size[1];
+            if (tj_loop_ub - 1 >= 0) {
+                std::copy(&r.cfg.maskRot.data[0], &r.cfg.maskRot.data[tj_loop_ub],
                           &ctx->cfg.maskRot.data[0]);
             }
             ctx->cfg.indCart.size[0] = r.cfg.indCart.size(0);
-            mh_loop_ub = r.cfg.indCart.size(0);
-            for (int i167{0}; i167 < mh_loop_ub; i167++) {
-                ctx->cfg.indCart.data[i167] = r.cfg.indCart[i167];
+            ck_loop_ub = r.cfg.indCart.size(0);
+            for (int i225{0}; i225 < ck_loop_ub; i225++) {
+                ctx->cfg.indCart.data[i225] = r.cfg.indCart[i225];
             }
             ctx->cfg.indRot.size[0] = r.cfg.indRot.size(0);
-            rh_loop_ub = r.cfg.indRot.size(0);
-            for (int i172{0}; i172 < rh_loop_ub; i172++) {
-                ctx->cfg.indRot.data[i172] = r.cfg.indRot[i172];
+            hk_loop_ub = r.cfg.indRot.size(0);
+            for (int i230{0}; i230 < hk_loop_ub; i230++) {
+                ctx->cfg.indRot.data[i230] = r.cfg.indRot[i230];
             }
             ctx->cfg.NumberAxis = r.cfg.NumberAxis;
             ctx->cfg.NCart = r.cfg.NCart;
             ctx->cfg.NRot = r.cfg.NRot;
             ctx->cfg.D.size[0] = r.cfg.D.size(0);
-            wh_loop_ub = r.cfg.D.size(0);
-            for (int i177{0}; i177 < wh_loop_ub; i177++) {
-                ctx->cfg.D.data[i177] = r.cfg.D[i177];
+            pk_loop_ub = r.cfg.D.size(0);
+            for (int i236{0}; i236 < pk_loop_ub; i236++) {
+                ctx->cfg.D.data[i236] = r.cfg.D[i236];
             }
             ctx->cfg.coeffD = r.cfg.coeffD;
             ctx->cfg.kin_params.size[0] = r.cfg.kin_params.size[0];
-            ci_loop_ub = r.cfg.kin_params.size[0];
-            if (ci_loop_ub - 1 >= 0) {
-                std::copy(&r.cfg.kin_params.data[0], &r.cfg.kin_params.data[ci_loop_ub],
+            vk_loop_ub = r.cfg.kin_params.size[0];
+            if (vk_loop_ub - 1 >= 0) {
+                std::copy(&r.cfg.kin_params.data[0], &r.cfg.kin_params.data[vk_loop_ub],
                           &ctx->cfg.kin_params.data[0]);
             }
-            for (int i182{0}; i182 < 8; i182++) {
-                ctx->cfg.kin_type[i182] = r.cfg.kin_type[i182];
+            for (int i241{0}; i241 < 8; i241++) {
+                ctx->cfg.kin_type[i241] = r.cfg.kin_type[i241];
             }
             ctx->cfg.NDiscr = r.cfg.NDiscr;
             ctx->cfg.NBreak = r.cfg.NBreak;
+            ctx->cfg.SplitSpecialSpline = r.cfg.SplitSpecialSpline;
+            ctx->cfg.ReleaseMemoryOfTheQueues = r.cfg.ReleaseMemoryOfTheQueues;
             ctx->cfg.UseDynamicBreakpoints = r.cfg.UseDynamicBreakpoints;
             ctx->cfg.UseLinearBreakpoints = r.cfg.UseLinearBreakpoints;
             ctx->cfg.DynamicBreakpointsDistance = r.cfg.DynamicBreakpointsDistance;
             ctx->cfg.NHorz = r.cfg.NHorz;
-            ctx->cfg.fmax = r.cfg.fmax;
-            ctx->cfg.smax = r.cfg.smax;
-            for (int i188{0}; i188 < 6; i188++) {
-                ctx->cfg.vmax[i188] = r.cfg.vmax[i188];
-                ctx->cfg.amax[i188] = r.cfg.amax[i188];
-                ctx->cfg.jmax[i188] = r.cfg.jmax[i188];
+            for (int i248{0}; i248 < 6; i248++) {
+                ctx->cfg.vmax[i248] = r.cfg.vmax[i248];
+                ctx->cfg.amax[i248] = r.cfg.amax[i248];
+                ctx->cfg.jmax[i248] = r.cfg.jmax[i248];
             }
             ctx->cfg.LeeSplineDegree = r.cfg.LeeSplineDegree;
             ctx->cfg.SplineDegree = r.cfg.SplineDegree;
@@ -1591,22 +2352,24 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             ctx->cfg.at_1 = r.cfg.at_1;
             ctx->cfg.dt = r.cfg.dt;
             ctx->cfg.DefaultZeroStopCount = r.cfg.DefaultZeroStopCount;
-            ctx->cfg.ZeroStartAccLimit = r.cfg.ZeroStartAccLimit;
-            ctx->cfg.ZeroStartJerkLimit = r.cfg.ZeroStartJerkLimit;
-            ctx->cfg.ZeroStartVelLimit = r.cfg.ZeroStartVelLimit;
-            std::copy(&r.cfg.source[0], &r.cfg.source[1024], &ctx->cfg.source[0]);
-            ctx->cfg.DebugCutZero = r.cfg.DebugCutZero;
+            ctx->cfg.source.size[0] = 1;
+            ctx->cfg.source.size[1] = r.cfg.source.size[1];
+            ql_loop_ub = r.cfg.source.size[1];
+            if (ql_loop_ub - 1 >= 0) {
+                std::copy(&r.cfg.source.data[0], &r.cfg.source.data[ql_loop_ub],
+                          &ctx->cfg.source.data[0]);
+            }
             ctx->cfg.Cusp = r.cfg.Cusp;
             ctx->cfg.Compressing = r.cfg.Compressing;
             ctx->cfg.Smoothing = r.cfg.Smoothing;
             ctx->cfg.GaussLegendreN = r.cfg.GaussLegendreN;
-            for (int j_i{0}; j_i < 5; j_i++) {
-                ctx->cfg.GaussLegendreX[j_i] = r.cfg.GaussLegendreX[j_i];
-                ctx->cfg.GaussLegendreW[j_i] = r.cfg.GaussLegendreW[j_i];
+            for (int k_i{0}; k_i < 5; k_i++) {
+                ctx->cfg.GaussLegendreX[k_i] = r.cfg.GaussLegendreX[k_i];
+                ctx->cfg.GaussLegendreW[k_i] = r.cfg.GaussLegendreW[k_i];
             }
             ctx->cfg.opt = r.cfg.opt;
-            for (int i193{0}; i193 < 9; i193++) {
-                ctx->cfg.LogFileName[i193] = r.cfg.LogFileName[i193];
+            for (int i263{0}; i263 < 9; i263++) {
+                ctx->cfg.LogFileName[i263] = r.cfg.LogFileName[i263];
             }
             ctx->jmax_increase_count = r.jmax_increase_count;
             ctx->zero_start = r.zero_start;
@@ -1618,13 +2381,13 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             ctx->forced_stop = r.forced_stop;
             ctx->programmed_stop = r.programmed_stop;
             ctx->Coeff.set_size(r.Coeff.size(0), r.Coeff.size(1));
-            li_loop_ub = r.Coeff.size(1);
-            for (int i204{0}; i204 < li_loop_ub; i204++) {
-                int oi_loop_ub;
-                oi_loop_ub = r.Coeff.size(0);
-                for (int i207{0}; i207 < oi_loop_ub; i207++) {
-                    ctx->Coeff[i207 + ctx->Coeff.size(0) * i204] =
-                        r.Coeff[i207 + r.Coeff.size(0) * i204];
+            am_loop_ub = r.Coeff.size(1);
+            for (int i271{0}; i271 < am_loop_ub; i271++) {
+                int fm_loop_ub;
+                fm_loop_ub = r.Coeff.size(0);
+                for (int i276{0}; i276 < fm_loop_ub; i276++) {
+                    ctx->Coeff[i276 + ctx->Coeff.size(0) * i271] =
+                        r.Coeff[i276 + r.Coeff.size(0) * i271];
                 }
             }
             ctx->Skipped = r.Skipped;
@@ -1632,130 +2395,524 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             ctx->errmsg = r.errmsg;
             ctx->errcode = r.errcode;
         }
-        // 'FeedoptPlan:112' assert_queue( ctx.op, ctx.q_compress );
-        // 'FeedoptPlan:161' msg = string( op );
-        // 'FeedoptPlan:162' ocn_assert( checkGeometry( queue ), ...
-        // 'FeedoptPlan:163'     msg + " - Check geometry failed...", mfilename );
-        r1.init(ctx->op);
+        // 'FeedoptPlan:123' ctx = assert_queue( ctx, ctx.op, ctx.q_compress );
+        r1.BasisVal.set_size(ctx->BasisVal.size(0), ctx->BasisVal.size(1));
+        y_loop_ub = ctx->BasisVal.size(1);
+        for (int i25{0}; i25 < y_loop_ub; i25++) {
+            int jb_loop_ub;
+            jb_loop_ub = ctx->BasisVal.size(0);
+            for (int i35{0}; i35 < jb_loop_ub; i35++) {
+                r1.BasisVal[i35 + r1.BasisVal.size(0) * i25] =
+                    ctx->BasisVal[i35 + ctx->BasisVal.size(0) * i25];
+            }
+        }
+        r1.BasisValD.set_size(ctx->BasisValD.size(0), ctx->BasisValD.size(1));
+        nb_loop_ub = ctx->BasisValD.size(1);
+        for (int i39{0}; i39 < nb_loop_ub; i39++) {
+            int xb_loop_ub;
+            xb_loop_ub = ctx->BasisValD.size(0);
+            for (int i49{0}; i49 < xb_loop_ub; i49++) {
+                r1.BasisValD[i49 + r1.BasisValD.size(0) * i39] =
+                    ctx->BasisValD[i49 + ctx->BasisValD.size(0) * i39];
+            }
+        }
+        r1.BasisValDD.set_size(ctx->BasisValDD.size(0), ctx->BasisValDD.size(1));
+        cc_loop_ub = ctx->BasisValDD.size(1);
+        for (int i53{0}; i53 < cc_loop_ub; i53++) {
+            int mc_loop_ub;
+            mc_loop_ub = ctx->BasisValDD.size(0);
+            for (int i63{0}; i63 < mc_loop_ub; i63++) {
+                r1.BasisValDD[i63 + r1.BasisValDD.size(0) * i53] =
+                    ctx->BasisValDD[i63 + ctx->BasisValDD.size(0) * i53];
+            }
+        }
+        r1.BasisValDDD.set_size(ctx->BasisValDDD.size(0), ctx->BasisValDDD.size(1));
+        oc_loop_ub = ctx->BasisValDDD.size(1);
+        for (int i65{0}; i65 < oc_loop_ub; i65++) {
+            int tc_loop_ub;
+            tc_loop_ub = ctx->BasisValDDD.size(0);
+            for (int i70{0}; i70 < tc_loop_ub; i70++) {
+                r1.BasisValDDD[i70 + r1.BasisValDDD.size(0) * i65] =
+                    ctx->BasisValDDD[i70 + ctx->BasisValDDD.size(0) * i65];
+            }
+        }
+        r1.BasisIntegr.set_size(ctx->BasisIntegr.size(0));
+        wc_loop_ub = ctx->BasisIntegr.size(0);
+        for (int i73{0}; i73 < wc_loop_ub; i73++) {
+            r1.BasisIntegr[i73] = ctx->BasisIntegr[i73];
+        }
+        r1.Bl = ctx->Bl;
+        r1.u_vec.set_size(1, ctx->u_vec.size(1));
+        yc_loop_ub = ctx->u_vec.size(1);
+        for (int i75{0}; i75 < yc_loop_ub; i75++) {
+            r1.u_vec[i75] = ctx->u_vec[i75];
+        }
+        r1.q_spline = ctx->q_spline;
+        r1.q_gcode = ctx->q_gcode;
+        r1.q_compress = ctx->q_compress;
+        r1.q_smooth = ctx->q_smooth;
+        r1.q_split = ctx->q_split;
+        r1.q_opt = ctx->q_opt;
+        r1.op = ctx->op;
+        r1.go_next = ctx->go_next;
+        r1.try_push_again = ctx->try_push_again;
+        r1.n_optimized = ctx->n_optimized;
+        r1.reached_end = ctx->reached_end;
+        r1.k0 = ctx->k0;
+        r1.v_0 = ctx->v_0;
+        r1.v_1 = ctx->v_1;
+        r1.at_0 = ctx->at_0;
+        r1.at_1 = ctx->at_1;
+        r1.cfg.ENABLE_PRINT_MSG = ctx->cfg.ENABLE_PRINT_MSG;
+        r1.cfg.maskTot.size[0] = 1;
+        r1.cfg.maskTot.size[1] = ctx->cfg.maskTot.size[1];
+        ld_loop_ub = ctx->cfg.maskTot.size[1];
+        if (ld_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.maskTot.data[0], &ctx->cfg.maskTot.data[ld_loop_ub],
+                      &r1.cfg.maskTot.data[0]);
+        }
+        r1.cfg.maskCart.size[0] = 1;
+        r1.cfg.maskCart.size[1] = ctx->cfg.maskCart.size[1];
+        sd_loop_ub = ctx->cfg.maskCart.size[1];
+        if (sd_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.maskCart.data[0], &ctx->cfg.maskCart.data[sd_loop_ub],
+                      &r1.cfg.maskCart.data[0]);
+        }
+        r1.cfg.maskRot.size[0] = 1;
+        r1.cfg.maskRot.size[1] = ctx->cfg.maskRot.size[1];
+        be_loop_ub = ctx->cfg.maskRot.size[1];
+        if (be_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.maskRot.data[0], &ctx->cfg.maskRot.data[be_loop_ub],
+                      &r1.cfg.maskRot.data[0]);
+        }
+        r1.cfg.indCart.set_size(ctx->cfg.indCart.size[0]);
+        ie_loop_ub = ctx->cfg.indCart.size[0];
+        for (int i87{0}; i87 < ie_loop_ub; i87++) {
+            r1.cfg.indCart[i87] = ctx->cfg.indCart.data[i87];
+        }
+        r1.cfg.indRot.set_size(ctx->cfg.indRot.size[0]);
+        ne_loop_ub = ctx->cfg.indRot.size[0];
+        for (int i91{0}; i91 < ne_loop_ub; i91++) {
+            r1.cfg.indRot[i91] = ctx->cfg.indRot.data[i91];
+        }
+        r1.cfg.NumberAxis = ctx->cfg.NumberAxis;
+        r1.cfg.NCart = ctx->cfg.NCart;
+        r1.cfg.NRot = ctx->cfg.NRot;
+        r1.cfg.D.set_size(ctx->cfg.D.size[0]);
+        ye_loop_ub = ctx->cfg.D.size[0];
+        for (int i99{0}; i99 < ye_loop_ub; i99++) {
+            r1.cfg.D[i99] = ctx->cfg.D.data[i99];
+        }
+        r1.cfg.coeffD = ctx->cfg.coeffD;
+        r1.cfg.kin_params.size[0] = ctx->cfg.kin_params.size[0];
+        bf_loop_ub = ctx->cfg.kin_params.size[0];
+        if (bf_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.kin_params.data[0], &ctx->cfg.kin_params.data[bf_loop_ub],
+                      &r1.cfg.kin_params.data[0]);
+        }
+        for (int i105{0}; i105 < 8; i105++) {
+            r1.cfg.kin_type[i105] = ctx->cfg.kin_type[i105];
+        }
+        r1.cfg.NDiscr = ctx->cfg.NDiscr;
+        r1.cfg.NBreak = ctx->cfg.NBreak;
+        r1.cfg.SplitSpecialSpline = ctx->cfg.SplitSpecialSpline;
+        r1.cfg.ReleaseMemoryOfTheQueues = ctx->cfg.ReleaseMemoryOfTheQueues;
+        r1.cfg.UseDynamicBreakpoints = ctx->cfg.UseDynamicBreakpoints;
+        r1.cfg.UseLinearBreakpoints = ctx->cfg.UseLinearBreakpoints;
+        r1.cfg.DynamicBreakpointsDistance = ctx->cfg.DynamicBreakpointsDistance;
+        r1.cfg.NHorz = ctx->cfg.NHorz;
+        for (int i112{0}; i112 < 6; i112++) {
+            r1.cfg.vmax[i112] = ctx->cfg.vmax[i112];
+            r1.cfg.amax[i112] = ctx->cfg.amax[i112];
+            r1.cfg.jmax[i112] = ctx->cfg.jmax[i112];
+        }
+        r1.cfg.LeeSplineDegree = ctx->cfg.LeeSplineDegree;
+        r1.cfg.SplineDegree = ctx->cfg.SplineDegree;
+        r1.cfg.CutOff = ctx->cfg.CutOff;
+        r1.cfg.LSplit = ctx->cfg.LSplit;
+        r1.cfg.LSplitZero = ctx->cfg.LSplitZero;
+        r1.cfg.LThresholdMax = ctx->cfg.LThresholdMax;
+        r1.cfg.LThresholdMin = ctx->cfg.LThresholdMin;
+        r1.cfg.v_0 = ctx->cfg.v_0;
+        r1.cfg.at_0 = ctx->cfg.at_0;
+        r1.cfg.v_1 = ctx->cfg.v_1;
+        r1.cfg.at_1 = ctx->cfg.at_1;
+        r1.cfg.dt = ctx->cfg.dt;
+        r1.cfg.DefaultZeroStopCount = ctx->cfg.DefaultZeroStopCount;
+        r1.cfg.source.size[0] = 1;
+        r1.cfg.source.size[1] = ctx->cfg.source.size[1];
+        if_loop_ub = ctx->cfg.source.size[1];
+        if (if_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.source.data[0], &ctx->cfg.source.data[if_loop_ub],
+                      &r1.cfg.source.data[0]);
+        }
+        r1.cfg.Cusp = ctx->cfg.Cusp;
+        r1.cfg.Compressing = ctx->cfg.Compressing;
+        r1.cfg.Smoothing = ctx->cfg.Smoothing;
+        r1.cfg.GaussLegendreN = ctx->cfg.GaussLegendreN;
+        for (int h_i{0}; h_i < 5; h_i++) {
+            r1.cfg.GaussLegendreX[h_i] = ctx->cfg.GaussLegendreX[h_i];
+            r1.cfg.GaussLegendreW[h_i] = ctx->cfg.GaussLegendreW[h_i];
+        }
+        r1.cfg.opt = ctx->cfg.opt;
+        for (int i119{0}; i119 < 9; i119++) {
+            r1.cfg.LogFileName[i119] = ctx->cfg.LogFileName[i119];
+        }
+        r1.jmax_increase_count = ctx->jmax_increase_count;
+        r1.zero_start = ctx->zero_start;
+        r1.zero_end = ctx->zero_end;
+        r1.zero_forced = ctx->zero_forced;
+        r1.zero_forced_buffer[0] = ctx->zero_forced_buffer[0];
+        r1.zero_forced_buffer[1] = ctx->zero_forced_buffer[1];
+        r1.simplex_calls = ctx->simplex_calls;
+        r1.forced_stop = ctx->forced_stop;
+        r1.programmed_stop = ctx->programmed_stop;
+        r1.Coeff.set_size(ctx->Coeff.size(0), ctx->Coeff.size(1));
+        vf_loop_ub = ctx->Coeff.size(1);
+        for (int i132{0}; i132 < vf_loop_ub; i132++) {
+            int xf_loop_ub;
+            xf_loop_ub = ctx->Coeff.size(0);
+            for (int i134{0}; i134 < xf_loop_ub; i134++) {
+                r1.Coeff[i134 + r1.Coeff.size(0) * i132] =
+                    ctx->Coeff[i134 + ctx->Coeff.size(0) * i132];
+            }
+        }
+        r1.Skipped = ctx->Skipped;
+        r1.kin = ctx->kin;
+        r1.errmsg = ctx->errmsg;
+        r1.errcode = ctx->errcode;
+        // 'FeedoptPlan:172' msg = string( op );
+        // 'FeedoptPlan:173' ocn_assert( checkGeometry( queue ), ...
+        // 'FeedoptPlan:174'     msg + " - Check geometry failed...", mfilename );
+        r3.init(ctx->op);
         obj.Value.size[0] = 1;
-        obj.Value.size[1] = r1.Value.size[1] + 27;
-        lb_loop_ub = r1.Value.size[1];
-        if (lb_loop_ub - 1 >= 0) {
-            std::copy(&r1.Value.data[0], &r1.Value.data[lb_loop_ub], &obj.Value.data[0]);
+        obj.Value.size[1] = r3.Value.size[1] + 27;
+        xg_loop_ub = r3.Value.size[1];
+        if (xg_loop_ub - 1 >= 0) {
+            std::copy(&r3.Value.data[0], &r3.Value.data[xg_loop_ub], &obj.Value.data[0]);
         }
-        for (int i40{0}; i40 < 27; i40++) {
-            obj.Value.data[i40 + r1.Value.size[1]] = obj2Value[i40];
+        for (int i164{0}; i164 < 27; i164++) {
+            obj.Value.data[i164 + r3.Value.size[1]] = obj2Value[i164];
         }
-        f_ocn_assert(checkGeometry(&ctx->q_compress), &obj);
-        // 'FeedoptPlan:164' ocn_assert( checkZSpdmode( queue ), ...
-        // 'FeedoptPlan:165'     msg + " - Check zspdmode failed...", mfilename );
+        j_ocn_assert(checkGeometry(&ctx->q_compress), &obj);
+        // 'FeedoptPlan:176' [ isValid, ctx ] = checkZSpdmode( ctx, queue );
+        b_isValid = checkZSpdmode(&r1, &ctx->q_compress);
+        // 'FeedoptPlan:177' ocn_assert( isValid, ...
+        // 'FeedoptPlan:178'     msg + " - Check zspdmode failed...", mfilename );
         b_obj.Value.size[0] = 1;
-        b_obj.Value.size[1] = r1.Value.size[1] + 27;
-        gc_loop_ub = r1.Value.size[1];
-        if (gc_loop_ub - 1 >= 0) {
-            std::copy(&r1.Value.data[0], &r1.Value.data[gc_loop_ub], &b_obj.Value.data[0]);
+        b_obj.Value.size[1] = r3.Value.size[1] + 27;
+        ai_loop_ub = r3.Value.size[1];
+        if (ai_loop_ub - 1 >= 0) {
+            std::copy(&r3.Value.data[0], &r3.Value.data[ai_loop_ub], &b_obj.Value.data[0]);
         }
-        for (int i58{0}; i58 < 27; i58++) {
-            b_obj.Value.data[i58 + r1.Value.size[1]] = b_obj2Value[i58];
+        for (int i192{0}; i192 < 27; i192++) {
+            b_obj.Value.data[i192 + r3.Value.size[1]] = b_obj2Value[i192];
         }
-        f_ocn_assert(checkZSpdmode(&ctx->q_compress), &b_obj);
-        // 'FeedoptPlan:166' ocn_assert( checkParametrisation( queue ), ...
-        // 'FeedoptPlan:167'     msg + " - Check parametrisation failed...", mfilename );
+        j_ocn_assert(b_isValid, &b_obj);
+        // 'FeedoptPlan:180' isValid = checkParametrisationQueue( queue );
+        d_isValid = checkParametrisationQueue(&ctx->q_compress);
+        // 'FeedoptPlan:181' ocn_assert( isValid, ...
+        // 'FeedoptPlan:182'     msg + " - Check parametrisation failed...", mfilename );
         c_obj.Value.size[0] = 1;
-        c_obj.Value.size[1] = r1.Value.size[1] + 34;
-        kc_loop_ub = r1.Value.size[1];
-        if (kc_loop_ub - 1 >= 0) {
-            std::copy(&r1.Value.data[0], &r1.Value.data[kc_loop_ub], &c_obj.Value.data[0]);
+        c_obj.Value.size[1] = r3.Value.size[1] + 34;
+        mi_loop_ub = r3.Value.size[1];
+        if (mi_loop_ub - 1 >= 0) {
+            std::copy(&r3.Value.data[0], &r3.Value.data[mi_loop_ub], &c_obj.Value.data[0]);
         }
-        for (int i61{0}; i61 < 34; i61++) {
-            c_obj.Value.data[i61 + r1.Value.size[1]] = c_obj2Value[i61];
+        for (int i203{0}; i203 < 34; i203++) {
+            c_obj.Value.data[i203 + r3.Value.size[1]] = c_obj2Value[i203];
         }
-        f_ocn_assert(checkParametrisation(&ctx->q_compress), &c_obj);
-        // 'FeedoptPlan:114' ctx.op = Fopt.Smooth;
+        j_ocn_assert(d_isValid, &c_obj);
+        ctx->BasisVal.set_size(r1.BasisVal.size(0), r1.BasisVal.size(1));
+        ti_loop_ub = r1.BasisVal.size(1);
+        for (int i207{0}; i207 < ti_loop_ub; i207++) {
+            int aj_loop_ub;
+            aj_loop_ub = r1.BasisVal.size(0);
+            for (int i210{0}; i210 < aj_loop_ub; i210++) {
+                ctx->BasisVal[i210 + ctx->BasisVal.size(0) * i207] =
+                    r1.BasisVal[i210 + r1.BasisVal.size(0) * i207];
+            }
+        }
+        ctx->BasisValD.set_size(r1.BasisValD.size(0), r1.BasisValD.size(1));
+        cj_loop_ub = r1.BasisValD.size(1);
+        for (int i211{0}; i211 < cj_loop_ub; i211++) {
+            int hj_loop_ub;
+            hj_loop_ub = r1.BasisValD.size(0);
+            for (int i214{0}; i214 < hj_loop_ub; i214++) {
+                ctx->BasisValD[i214 + ctx->BasisValD.size(0) * i211] =
+                    r1.BasisValD[i214 + r1.BasisValD.size(0) * i211];
+            }
+        }
+        ctx->BasisValDD.set_size(r1.BasisValDD.size(0), r1.BasisValDD.size(1));
+        kj_loop_ub = r1.BasisValDD.size(1);
+        for (int i215{0}; i215 < kj_loop_ub; i215++) {
+            int pj_loop_ub;
+            pj_loop_ub = r1.BasisValDD.size(0);
+            for (int i218{0}; i218 < pj_loop_ub; i218++) {
+                ctx->BasisValDD[i218 + ctx->BasisValDD.size(0) * i215] =
+                    r1.BasisValDD[i218 + r1.BasisValDD.size(0) * i215];
+            }
+        }
+        ctx->BasisValDDD.set_size(r1.BasisValDDD.size(0), r1.BasisValDDD.size(1));
+        rj_loop_ub = r1.BasisValDDD.size(1);
+        for (int i219{0}; i219 < rj_loop_ub; i219++) {
+            int wj_loop_ub;
+            wj_loop_ub = r1.BasisValDDD.size(0);
+            for (int i220{0}; i220 < wj_loop_ub; i220++) {
+                ctx->BasisValDDD[i220 + ctx->BasisValDDD.size(0) * i219] =
+                    r1.BasisValDDD[i220 + r1.BasisValDDD.size(0) * i219];
+            }
+        }
+        ctx->BasisIntegr.set_size(r1.BasisIntegr.size(0));
+        ak_loop_ub = r1.BasisIntegr.size(0);
+        for (int i223{0}; i223 < ak_loop_ub; i223++) {
+            ctx->BasisIntegr[i223] = r1.BasisIntegr[i223];
+        }
+        ctx->Bl = r1.Bl;
+        ctx->u_vec.set_size(1, r1.u_vec.size(1));
+        ik_loop_ub = r1.u_vec.size(1);
+        for (int i231{0}; i231 < ik_loop_ub; i231++) {
+            ctx->u_vec[i231] = r1.u_vec[i231];
+        }
+        ctx->q_spline = r1.q_spline;
+        ctx->q_gcode = r1.q_gcode;
+        ctx->q_compress = r1.q_compress;
+        ctx->q_smooth = r1.q_smooth;
+        ctx->q_split = r1.q_split;
+        ctx->q_opt = r1.q_opt;
+        ctx->go_next = r1.go_next;
+        ctx->try_push_again = r1.try_push_again;
+        ctx->n_optimized = r1.n_optimized;
+        ctx->reached_end = r1.reached_end;
+        ctx->k0 = r1.k0;
+        ctx->v_0 = r1.v_0;
+        ctx->v_1 = r1.v_1;
+        ctx->at_0 = r1.at_0;
+        ctx->at_1 = r1.at_1;
+        ctx->cfg.ENABLE_PRINT_MSG = r1.cfg.ENABLE_PRINT_MSG;
+        ctx->cfg.maskTot.size[0] = 1;
+        ctx->cfg.maskTot.size[1] = r1.cfg.maskTot.size[1];
+        dl_loop_ub = r1.cfg.maskTot.size[1];
+        if (dl_loop_ub - 1 >= 0) {
+            std::copy(&r1.cfg.maskTot.data[0], &r1.cfg.maskTot.data[dl_loop_ub],
+                      &ctx->cfg.maskTot.data[0]);
+        }
+        ctx->cfg.maskCart.size[0] = 1;
+        ctx->cfg.maskCart.size[1] = r1.cfg.maskCart.size[1];
+        gl_loop_ub = r1.cfg.maskCart.size[1];
+        if (gl_loop_ub - 1 >= 0) {
+            std::copy(&r1.cfg.maskCart.data[0], &r1.cfg.maskCart.data[gl_loop_ub],
+                      &ctx->cfg.maskCart.data[0]);
+        }
+        ctx->cfg.maskRot.size[0] = 1;
+        ctx->cfg.maskRot.size[1] = r1.cfg.maskRot.size[1];
+        jl_loop_ub = r1.cfg.maskRot.size[1];
+        if (jl_loop_ub - 1 >= 0) {
+            std::copy(&r1.cfg.maskRot.data[0], &r1.cfg.maskRot.data[jl_loop_ub],
+                      &ctx->cfg.maskRot.data[0]);
+        }
+        ctx->cfg.indCart.size[0] = r1.cfg.indCart.size(0);
+        ll_loop_ub = r1.cfg.indCart.size(0);
+        for (int i255{0}; i255 < ll_loop_ub; i255++) {
+            ctx->cfg.indCart.data[i255] = r1.cfg.indCart[i255];
+        }
+        ctx->cfg.indRot.size[0] = r1.cfg.indRot.size(0);
+        ml_loop_ub = r1.cfg.indRot.size(0);
+        for (int i256{0}; i256 < ml_loop_ub; i256++) {
+            ctx->cfg.indRot.data[i256] = r1.cfg.indRot[i256];
+        }
+        ctx->cfg.NumberAxis = r1.cfg.NumberAxis;
+        ctx->cfg.NCart = r1.cfg.NCart;
+        ctx->cfg.NRot = r1.cfg.NRot;
+        ctx->cfg.D.size[0] = r1.cfg.D.size(0);
+        ul_loop_ub = r1.cfg.D.size(0);
+        for (int i259{0}; i259 < ul_loop_ub; i259++) {
+            ctx->cfg.D.data[i259] = r1.cfg.D[i259];
+        }
+        ctx->cfg.coeffD = r1.cfg.coeffD;
+        ctx->cfg.kin_params.size[0] = r1.cfg.kin_params.size[0];
+        vl_loop_ub = r1.cfg.kin_params.size[0];
+        if (vl_loop_ub - 1 >= 0) {
+            std::copy(&r1.cfg.kin_params.data[0], &r1.cfg.kin_params.data[vl_loop_ub],
+                      &ctx->cfg.kin_params.data[0]);
+        }
+        for (int i266{0}; i266 < 8; i266++) {
+            ctx->cfg.kin_type[i266] = r1.cfg.kin_type[i266];
+        }
+        ctx->cfg.NDiscr = r1.cfg.NDiscr;
+        ctx->cfg.NBreak = r1.cfg.NBreak;
+        ctx->cfg.SplitSpecialSpline = r1.cfg.SplitSpecialSpline;
+        ctx->cfg.ReleaseMemoryOfTheQueues = r1.cfg.ReleaseMemoryOfTheQueues;
+        ctx->cfg.UseDynamicBreakpoints = r1.cfg.UseDynamicBreakpoints;
+        ctx->cfg.UseLinearBreakpoints = r1.cfg.UseLinearBreakpoints;
+        ctx->cfg.DynamicBreakpointsDistance = r1.cfg.DynamicBreakpointsDistance;
+        ctx->cfg.NHorz = r1.cfg.NHorz;
+        for (int i269{0}; i269 < 6; i269++) {
+            ctx->cfg.vmax[i269] = r1.cfg.vmax[i269];
+            ctx->cfg.amax[i269] = r1.cfg.amax[i269];
+            ctx->cfg.jmax[i269] = r1.cfg.jmax[i269];
+        }
+        ctx->cfg.LeeSplineDegree = r1.cfg.LeeSplineDegree;
+        ctx->cfg.SplineDegree = r1.cfg.SplineDegree;
+        ctx->cfg.CutOff = r1.cfg.CutOff;
+        ctx->cfg.LSplit = r1.cfg.LSplit;
+        ctx->cfg.LSplitZero = r1.cfg.LSplitZero;
+        ctx->cfg.LThresholdMax = r1.cfg.LThresholdMax;
+        ctx->cfg.LThresholdMin = r1.cfg.LThresholdMin;
+        ctx->cfg.v_0 = r1.cfg.v_0;
+        ctx->cfg.at_0 = r1.cfg.at_0;
+        ctx->cfg.v_1 = r1.cfg.v_1;
+        ctx->cfg.at_1 = r1.cfg.at_1;
+        ctx->cfg.dt = r1.cfg.dt;
+        ctx->cfg.DefaultZeroStopCount = r1.cfg.DefaultZeroStopCount;
+        ctx->cfg.source.size[0] = 1;
+        ctx->cfg.source.size[1] = r1.cfg.source.size[1];
+        jm_loop_ub = r1.cfg.source.size[1];
+        if (jm_loop_ub - 1 >= 0) {
+            std::copy(&r1.cfg.source.data[0], &r1.cfg.source.data[jm_loop_ub],
+                      &ctx->cfg.source.data[0]);
+        }
+        ctx->cfg.Cusp = r1.cfg.Cusp;
+        ctx->cfg.Compressing = r1.cfg.Compressing;
+        ctx->cfg.Smoothing = r1.cfg.Smoothing;
+        ctx->cfg.GaussLegendreN = r1.cfg.GaussLegendreN;
+        for (int p_i{0}; p_i < 5; p_i++) {
+            ctx->cfg.GaussLegendreX[p_i] = r1.cfg.GaussLegendreX[p_i];
+            ctx->cfg.GaussLegendreW[p_i] = r1.cfg.GaussLegendreW[p_i];
+        }
+        ctx->cfg.opt = r1.cfg.opt;
+        for (int i288{0}; i288 < 9; i288++) {
+            ctx->cfg.LogFileName[i288] = r1.cfg.LogFileName[i288];
+        }
+        ctx->jmax_increase_count = r1.jmax_increase_count;
+        ctx->zero_start = r1.zero_start;
+        ctx->zero_end = r1.zero_end;
+        ctx->zero_forced = r1.zero_forced;
+        ctx->zero_forced_buffer[0] = r1.zero_forced_buffer[0];
+        ctx->zero_forced_buffer[1] = r1.zero_forced_buffer[1];
+        ctx->simplex_calls = r1.simplex_calls;
+        ctx->forced_stop = r1.forced_stop;
+        ctx->programmed_stop = r1.programmed_stop;
+        ctx->Coeff.set_size(r1.Coeff.size(0), r1.Coeff.size(1));
+        in_loop_ub = r1.Coeff.size(1);
+        for (int i305{0}; i305 < in_loop_ub; i305++) {
+            int jn_loop_ub;
+            jn_loop_ub = r1.Coeff.size(0);
+            for (int i306{0}; i306 < jn_loop_ub; i306++) {
+                ctx->Coeff[i306 + ctx->Coeff.size(0) * i305] =
+                    r1.Coeff[i306 + r1.Coeff.size(0) * i305];
+            }
+        }
+        ctx->Skipped = r1.Skipped;
+        ctx->kin = r1.kin;
+        ctx->errmsg = r1.errmsg;
+        ctx->errcode = r1.errcode;
+        // 'FeedoptPlan:125' ctx.op = Fopt.Smooth;
         ctx->op = Fopt_Smooth;
-        // 'FeedoptPlan:115' if( coder.target( 'MATLAB') )
+        // 'FeedoptPlan:126' if( ctx.cfg.ReleaseMemoryOfTheQueues )
+        if (r1.cfg.ReleaseMemoryOfTheQueues) {
+            // 'FeedoptPlan:126' ctx.q_gcode.delete();
+            r1.q_gcode.queue_coder_delete();
+        }
     } break;
     case Fopt_Smooth: {
+        int ab_loop_ub;
         int ad_loop_ub;
+        int bk_loop_ub;
         int ce_loop_ub;
+        int cf_loop_ub;
         int dc_loop_ub;
-        int dh_loop_ub;
-        int eg_loop_ub;
+        int do_loop_ub;
+        int eh_loop_ub;
         int f_loop_ub;
-        int fd_loop_ub;
-        int gi_loop_ub;
-        int hb_loop_ub;
-        int hf_loop_ub;
-        int ih_loop_ub;
-        int l_loop_ub;
-        int lc_loop_ub;
-        int ld_loop_ub;
-        int nh_loop_ub;
-        int og_loop_ub;
-        int pe_loop_ub;
+        int fn_loop_ub;
+        int gd_loop_ub;
+        int gk_loop_ub;
+        int go_loop_ub;
+        int hg_loop_ub;
+        int ij_loop_ub;
+        int jf_loop_ub;
+        int jo_loop_ub;
+        int kn_loop_ub;
+        int le_loop_ub;
+        int lm_loop_ub;
+        int lo_loop_ub;
+        int m_loop_ub;
+        int nd_loop_ub;
+        int ob_loop_ub;
+        int oh_loop_ub;
+        int ok_loop_ub;
+        int pl_loop_ub;
+        int pm_loop_ub;
+        int pn_loop_ub;
         int qc_loop_ub;
-        int qd_loop_ub;
-        int sb_loop_ub;
-        int tf_loop_ub;
-        int tg_loop_ub;
-        int th_loop_ub;
-        int vc_loop_ub;
-        int ve_loop_ub;
-        int w_loop_ub;
-        int xg_loop_ub;
+        int se_loop_ub;
+        int sg_loop_ub;
+        int sj_loop_ub;
+        int so_loop_ub;
+        int tm_loop_ub;
+        int tn_loop_ub;
+        int ud_loop_ub;
+        int uk_loop_ub;
+        int wi_loop_ub;
+        int wo_loop_ub;
         int xh_loop_ub;
-        // 'FeedoptPlan:117' case Fopt.Smooth
-        // 'FeedoptPlan:118' ctx = smoothCurvStructs(ctx);
+        int yf_loop_ub;
+        int yl_loop_ub;
+        int ym_loop_ub;
+        int yn_loop_ub;
+        // 'FeedoptPlan:128' case Fopt.Smooth
+        // 'FeedoptPlan:129' ctx = smoothCurvStructs(ctx);
         r.BasisVal.set_size(ctx->BasisVal.size(0), ctx->BasisVal.size(1));
         f_loop_ub = ctx->BasisVal.size(1);
         for (int i5{0}; i5 < f_loop_ub; i5++) {
-            int j_loop_ub;
-            j_loop_ub = ctx->BasisVal.size(0);
-            for (int i10{0}; i10 < j_loop_ub; i10++) {
-                r.BasisVal[i10 + r.BasisVal.size(0) * i5] =
-                    ctx->BasisVal[i10 + ctx->BasisVal.size(0) * i5];
+            int k_loop_ub;
+            k_loop_ub = ctx->BasisVal.size(0);
+            for (int i11{0}; i11 < k_loop_ub; i11++) {
+                r.BasisVal[i11 + r.BasisVal.size(0) * i5] =
+                    ctx->BasisVal[i11 + ctx->BasisVal.size(0) * i5];
             }
         }
         r.BasisValD.set_size(ctx->BasisValD.size(0), ctx->BasisValD.size(1));
-        l_loop_ub = ctx->BasisValD.size(1);
-        for (int i12{0}; i12 < l_loop_ub; i12++) {
-            int s_loop_ub;
-            s_loop_ub = ctx->BasisValD.size(0);
-            for (int i19{0}; i19 < s_loop_ub; i19++) {
-                r.BasisValD[i19 + r.BasisValD.size(0) * i12] =
-                    ctx->BasisValD[i19 + ctx->BasisValD.size(0) * i12];
+        m_loop_ub = ctx->BasisValD.size(1);
+        for (int i13{0}; i13 < m_loop_ub; i13++) {
+            int v_loop_ub;
+            v_loop_ub = ctx->BasisValD.size(0);
+            for (int i22{0}; i22 < v_loop_ub; i22++) {
+                r.BasisValD[i22 + r.BasisValD.size(0) * i13] =
+                    ctx->BasisValD[i22 + ctx->BasisValD.size(0) * i13];
             }
         }
         r.BasisValDD.set_size(ctx->BasisValDD.size(0), ctx->BasisValDD.size(1));
-        w_loop_ub = ctx->BasisValDD.size(1);
-        for (int i22{0}; i22 < w_loop_ub; i22++) {
-            int eb_loop_ub;
-            eb_loop_ub = ctx->BasisValDD.size(0);
-            for (int i30{0}; i30 < eb_loop_ub; i30++) {
-                r.BasisValDD[i30 + r.BasisValDD.size(0) * i22] =
-                    ctx->BasisValDD[i30 + ctx->BasisValDD.size(0) * i22];
+        ab_loop_ub = ctx->BasisValDD.size(1);
+        for (int i26{0}; i26 < ab_loop_ub; i26++) {
+            int kb_loop_ub;
+            kb_loop_ub = ctx->BasisValDD.size(0);
+            for (int i36{0}; i36 < kb_loop_ub; i36++) {
+                r.BasisValDD[i36 + r.BasisValDD.size(0) * i26] =
+                    ctx->BasisValDD[i36 + ctx->BasisValDD.size(0) * i26];
             }
         }
         r.BasisValDDD.set_size(ctx->BasisValDDD.size(0), ctx->BasisValDDD.size(1));
-        hb_loop_ub = ctx->BasisValDDD.size(1);
-        for (int i33{0}; i33 < hb_loop_ub; i33++) {
-            int pb_loop_ub;
-            pb_loop_ub = ctx->BasisValDDD.size(0);
-            for (int i41{0}; i41 < pb_loop_ub; i41++) {
-                r.BasisValDDD[i41 + r.BasisValDDD.size(0) * i33] =
-                    ctx->BasisValDDD[i41 + ctx->BasisValDDD.size(0) * i33];
+        ob_loop_ub = ctx->BasisValDDD.size(1);
+        for (int i40{0}; i40 < ob_loop_ub; i40++) {
+            int yb_loop_ub;
+            yb_loop_ub = ctx->BasisValDDD.size(0);
+            for (int i50{0}; i50 < yb_loop_ub; i50++) {
+                r.BasisValDDD[i50 + r.BasisValDDD.size(0) * i40] =
+                    ctx->BasisValDDD[i50 + ctx->BasisValDDD.size(0) * i40];
             }
         }
         r.BasisIntegr.set_size(ctx->BasisIntegr.size(0));
-        sb_loop_ub = ctx->BasisIntegr.size(0);
-        for (int i44{0}; i44 < sb_loop_ub; i44++) {
-            r.BasisIntegr[i44] = ctx->BasisIntegr[i44];
+        dc_loop_ub = ctx->BasisIntegr.size(0);
+        for (int i54{0}; i54 < dc_loop_ub; i54++) {
+            r.BasisIntegr[i54] = ctx->BasisIntegr[i54];
         }
         r.Bl = ctx->Bl;
         r.u_vec.set_size(1, ctx->u_vec.size(1));
-        dc_loop_ub = ctx->u_vec.size(1);
-        for (int i54{0}; i54 < dc_loop_ub; i54++) {
-            r.u_vec[i54] = ctx->u_vec[i54];
+        qc_loop_ub = ctx->u_vec.size(1);
+        for (int i67{0}; i67 < qc_loop_ub; i67++) {
+            r.u_vec[i67] = ctx->u_vec[i67];
         }
         r.q_spline = ctx->q_spline;
         r.q_gcode = ctx->q_gcode;
@@ -1773,67 +2930,68 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         r.v_1 = ctx->v_1;
         r.at_0 = ctx->at_0;
         r.at_1 = ctx->at_1;
+        r.cfg.ENABLE_PRINT_MSG = ctx->cfg.ENABLE_PRINT_MSG;
         r.cfg.maskTot.size[0] = 1;
         r.cfg.maskTot.size[1] = ctx->cfg.maskTot.size[1];
-        lc_loop_ub = ctx->cfg.maskTot.size[1];
-        if (lc_loop_ub - 1 >= 0) {
-            std::copy(&ctx->cfg.maskTot.data[0], &ctx->cfg.maskTot.data[lc_loop_ub],
+        ad_loop_ub = ctx->cfg.maskTot.size[1];
+        if (ad_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.maskTot.data[0], &ctx->cfg.maskTot.data[ad_loop_ub],
                       &r.cfg.maskTot.data[0]);
         }
         r.cfg.maskCart.size[0] = 1;
         r.cfg.maskCart.size[1] = ctx->cfg.maskCart.size[1];
-        qc_loop_ub = ctx->cfg.maskCart.size[1];
-        if (qc_loop_ub - 1 >= 0) {
-            std::copy(&ctx->cfg.maskCart.data[0], &ctx->cfg.maskCart.data[qc_loop_ub],
+        gd_loop_ub = ctx->cfg.maskCart.size[1];
+        if (gd_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.maskCart.data[0], &ctx->cfg.maskCart.data[gd_loop_ub],
                       &r.cfg.maskCart.data[0]);
         }
         r.cfg.maskRot.size[0] = 1;
         r.cfg.maskRot.size[1] = ctx->cfg.maskRot.size[1];
-        vc_loop_ub = ctx->cfg.maskRot.size[1];
-        if (vc_loop_ub - 1 >= 0) {
-            std::copy(&ctx->cfg.maskRot.data[0], &ctx->cfg.maskRot.data[vc_loop_ub],
+        nd_loop_ub = ctx->cfg.maskRot.size[1];
+        if (nd_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.maskRot.data[0], &ctx->cfg.maskRot.data[nd_loop_ub],
                       &r.cfg.maskRot.data[0]);
         }
         r.cfg.indCart.set_size(ctx->cfg.indCart.size[0]);
-        ad_loop_ub = ctx->cfg.indCart.size[0];
-        for (int i62{0}; i62 < ad_loop_ub; i62++) {
-            r.cfg.indCart[i62] = ctx->cfg.indCart.data[i62];
+        ud_loop_ub = ctx->cfg.indCart.size[0];
+        for (int i76{0}; i76 < ud_loop_ub; i76++) {
+            r.cfg.indCart[i76] = ctx->cfg.indCart.data[i76];
         }
         r.cfg.indRot.set_size(ctx->cfg.indRot.size[0]);
-        fd_loop_ub = ctx->cfg.indRot.size[0];
-        for (int i67{0}; i67 < fd_loop_ub; i67++) {
-            r.cfg.indRot[i67] = ctx->cfg.indRot.data[i67];
+        ce_loop_ub = ctx->cfg.indRot.size[0];
+        for (int i81{0}; i81 < ce_loop_ub; i81++) {
+            r.cfg.indRot[i81] = ctx->cfg.indRot.data[i81];
         }
         r.cfg.NumberAxis = ctx->cfg.NumberAxis;
         r.cfg.NCart = ctx->cfg.NCart;
         r.cfg.NRot = ctx->cfg.NRot;
         r.cfg.D.set_size(ctx->cfg.D.size[0]);
-        ld_loop_ub = ctx->cfg.D.size[0];
-        for (int i73{0}; i73 < ld_loop_ub; i73++) {
-            r.cfg.D[i73] = ctx->cfg.D.data[i73];
+        le_loop_ub = ctx->cfg.D.size[0];
+        for (int i89{0}; i89 < le_loop_ub; i89++) {
+            r.cfg.D[i89] = ctx->cfg.D.data[i89];
         }
         r.cfg.coeffD = ctx->cfg.coeffD;
         r.cfg.kin_params.size[0] = ctx->cfg.kin_params.size[0];
-        qd_loop_ub = ctx->cfg.kin_params.size[0];
-        if (qd_loop_ub - 1 >= 0) {
-            std::copy(&ctx->cfg.kin_params.data[0], &ctx->cfg.kin_params.data[qd_loop_ub],
+        se_loop_ub = ctx->cfg.kin_params.size[0];
+        if (se_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.kin_params.data[0], &ctx->cfg.kin_params.data[se_loop_ub],
                       &r.cfg.kin_params.data[0]);
         }
-        for (int i78{0}; i78 < 8; i78++) {
-            r.cfg.kin_type[i78] = ctx->cfg.kin_type[i78];
+        for (int i97{0}; i97 < 8; i97++) {
+            r.cfg.kin_type[i97] = ctx->cfg.kin_type[i97];
         }
         r.cfg.NDiscr = ctx->cfg.NDiscr;
         r.cfg.NBreak = ctx->cfg.NBreak;
+        r.cfg.SplitSpecialSpline = ctx->cfg.SplitSpecialSpline;
+        r.cfg.ReleaseMemoryOfTheQueues = ctx->cfg.ReleaseMemoryOfTheQueues;
         r.cfg.UseDynamicBreakpoints = ctx->cfg.UseDynamicBreakpoints;
         r.cfg.UseLinearBreakpoints = ctx->cfg.UseLinearBreakpoints;
         r.cfg.DynamicBreakpointsDistance = ctx->cfg.DynamicBreakpointsDistance;
         r.cfg.NHorz = ctx->cfg.NHorz;
-        r.cfg.fmax = ctx->cfg.fmax;
-        r.cfg.smax = ctx->cfg.smax;
-        for (int i83{0}; i83 < 6; i83++) {
-            r.cfg.vmax[i83] = ctx->cfg.vmax[i83];
-            r.cfg.amax[i83] = ctx->cfg.amax[i83];
-            r.cfg.jmax[i83] = ctx->cfg.jmax[i83];
+        for (int i106{0}; i106 < 6; i106++) {
+            r.cfg.vmax[i106] = ctx->cfg.vmax[i106];
+            r.cfg.amax[i106] = ctx->cfg.amax[i106];
+            r.cfg.jmax[i106] = ctx->cfg.jmax[i106];
         }
         r.cfg.LeeSplineDegree = ctx->cfg.LeeSplineDegree;
         r.cfg.SplineDegree = ctx->cfg.SplineDegree;
@@ -1848,11 +3006,13 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         r.cfg.at_1 = ctx->cfg.at_1;
         r.cfg.dt = ctx->cfg.dt;
         r.cfg.DefaultZeroStopCount = ctx->cfg.DefaultZeroStopCount;
-        r.cfg.ZeroStartAccLimit = ctx->cfg.ZeroStartAccLimit;
-        r.cfg.ZeroStartJerkLimit = ctx->cfg.ZeroStartJerkLimit;
-        r.cfg.ZeroStartVelLimit = ctx->cfg.ZeroStartVelLimit;
-        std::copy(&ctx->cfg.source[0], &ctx->cfg.source[1024], &r.cfg.source[0]);
-        r.cfg.DebugCutZero = ctx->cfg.DebugCutZero;
+        r.cfg.source.size[0] = 1;
+        r.cfg.source.size[1] = ctx->cfg.source.size[1];
+        cf_loop_ub = ctx->cfg.source.size[1];
+        if (cf_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.source.data[0], &ctx->cfg.source.data[cf_loop_ub],
+                      &r.cfg.source.data[0]);
+        }
         r.cfg.Cusp = ctx->cfg.Cusp;
         r.cfg.Compressing = ctx->cfg.Compressing;
         r.cfg.Smoothing = ctx->cfg.Smoothing;
@@ -1862,8 +3022,8 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
             r.cfg.GaussLegendreW[b_i] = ctx->cfg.GaussLegendreW[b_i];
         }
         r.cfg.opt = ctx->cfg.opt;
-        for (int i88{0}; i88 < 9; i88++) {
-            r.cfg.LogFileName[i88] = ctx->cfg.LogFileName[i88];
+        for (int i113{0}; i113 < 9; i113++) {
+            r.cfg.LogFileName[i113] = ctx->cfg.LogFileName[i113];
         }
         r.jmax_increase_count = ctx->jmax_increase_count;
         r.zero_start = ctx->zero_start;
@@ -1875,12 +3035,13 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         r.forced_stop = ctx->forced_stop;
         r.programmed_stop = ctx->programmed_stop;
         r.Coeff.set_size(ctx->Coeff.size(0), ctx->Coeff.size(1));
-        ce_loop_ub = ctx->Coeff.size(1);
-        for (int i97{0}; i97 < ce_loop_ub; i97++) {
-            int he_loop_ub;
-            he_loop_ub = ctx->Coeff.size(0);
-            for (int i102{0}; i102 < he_loop_ub; i102++) {
-                r.Coeff[i102 + r.Coeff.size(0) * i97] = ctx->Coeff[i102 + ctx->Coeff.size(0) * i97];
+        jf_loop_ub = ctx->Coeff.size(1);
+        for (int i120{0}; i120 < jf_loop_ub; i120++) {
+            int of_loop_ub;
+            of_loop_ub = ctx->Coeff.size(0);
+            for (int i125{0}; i125 < of_loop_ub; i125++) {
+                r.Coeff[i125 + r.Coeff.size(0) * i120] =
+                    ctx->Coeff[i125 + ctx->Coeff.size(0) * i120];
             }
         }
         r.Skipped = ctx->Skipped;
@@ -1888,883 +3049,259 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         r.errmsg = ctx->errmsg;
         r.errcode = ctx->errcode;
         smoothCurvStructs(&r);
-        ctx->BasisVal.set_size(r.BasisVal.size(0), r.BasisVal.size(1));
-        pe_loop_ub = r.BasisVal.size(1);
-        for (int i110{0}; i110 < pe_loop_ub; i110++) {
-            int te_loop_ub;
-            te_loop_ub = r.BasisVal.size(0);
-            for (int i114{0}; i114 < te_loop_ub; i114++) {
-                ctx->BasisVal[i114 + ctx->BasisVal.size(0) * i110] =
-                    r.BasisVal[i114 + r.BasisVal.size(0) * i110];
+        // 'FeedoptPlan:130' ctx.op = Fopt.Split;
+        // 'FeedoptPlan:132' ctx = assert_queue( ctx, ctx.op, ctx.q_smooth );
+        b_ctx.BasisVal.set_size(r.BasisVal.size(0), r.BasisVal.size(1));
+        yf_loop_ub = r.BasisVal.size(1);
+        for (int i135{0}; i135 < yf_loop_ub; i135++) {
+            int eg_loop_ub;
+            eg_loop_ub = r.BasisVal.size(0);
+            for (int i140{0}; i140 < eg_loop_ub; i140++) {
+                b_ctx.BasisVal[i140 + b_ctx.BasisVal.size(0) * i135] =
+                    r.BasisVal[i140 + r.BasisVal.size(0) * i135];
             }
         }
-        ctx->BasisValD.set_size(r.BasisValD.size(0), r.BasisValD.size(1));
-        ve_loop_ub = r.BasisValD.size(1);
-        for (int i116{0}; i116 < ve_loop_ub; i116++) {
-            int ef_loop_ub;
-            ef_loop_ub = r.BasisValD.size(0);
-            for (int i123{0}; i123 < ef_loop_ub; i123++) {
-                ctx->BasisValD[i123 + ctx->BasisValD.size(0) * i116] =
-                    r.BasisValD[i123 + r.BasisValD.size(0) * i116];
+        b_ctx.BasisValD.set_size(r.BasisValD.size(0), r.BasisValD.size(1));
+        hg_loop_ub = r.BasisValD.size(1);
+        for (int i143{0}; i143 < hg_loop_ub; i143++) {
+            int pg_loop_ub;
+            pg_loop_ub = r.BasisValD.size(0);
+            for (int i151{0}; i151 < pg_loop_ub; i151++) {
+                b_ctx.BasisValD[i151 + b_ctx.BasisValD.size(0) * i143] =
+                    r.BasisValD[i151 + r.BasisValD.size(0) * i143];
             }
         }
-        ctx->BasisValDD.set_size(r.BasisValDD.size(0), r.BasisValDD.size(1));
-        hf_loop_ub = r.BasisValDD.size(1);
-        for (int i126{0}; i126 < hf_loop_ub; i126++) {
-            int pf_loop_ub;
-            pf_loop_ub = r.BasisValDD.size(0);
-            for (int i135{0}; i135 < pf_loop_ub; i135++) {
-                ctx->BasisValDD[i135 + ctx->BasisValDD.size(0) * i126] =
-                    r.BasisValDD[i135 + r.BasisValDD.size(0) * i126];
+        b_ctx.BasisValDD.set_size(r.BasisValDD.size(0), r.BasisValDD.size(1));
+        sg_loop_ub = r.BasisValDD.size(1);
+        for (int i154{0}; i154 < sg_loop_ub; i154++) {
+            int bh_loop_ub;
+            bh_loop_ub = r.BasisValDD.size(0);
+            for (int i161{0}; i161 < bh_loop_ub; i161++) {
+                b_ctx.BasisValDD[i161 + b_ctx.BasisValDD.size(0) * i154] =
+                    r.BasisValDD[i161 + r.BasisValDD.size(0) * i154];
             }
         }
-        ctx->BasisValDDD.set_size(r.BasisValDDD.size(0), r.BasisValDDD.size(1));
-        tf_loop_ub = r.BasisValDDD.size(1);
-        for (int i139{0}; i139 < tf_loop_ub; i139++) {
-            int bg_loop_ub;
-            bg_loop_ub = r.BasisValDDD.size(0);
-            for (int i146{0}; i146 < bg_loop_ub; i146++) {
-                ctx->BasisValDDD[i146 + ctx->BasisValDDD.size(0) * i139] =
-                    r.BasisValDDD[i146 + r.BasisValDDD.size(0) * i139];
+        b_ctx.BasisValDDD.set_size(r.BasisValDDD.size(0), r.BasisValDDD.size(1));
+        eh_loop_ub = r.BasisValDDD.size(1);
+        for (int i165{0}; i165 < eh_loop_ub; i165++) {
+            int lh_loop_ub;
+            lh_loop_ub = r.BasisValDDD.size(0);
+            for (int i172{0}; i172 < lh_loop_ub; i172++) {
+                b_ctx.BasisValDDD[i172 + b_ctx.BasisValDDD.size(0) * i165] =
+                    r.BasisValDDD[i172 + r.BasisValDDD.size(0) * i165];
             }
         }
-        ctx->BasisIntegr.set_size(r.BasisIntegr.size(0));
-        eg_loop_ub = r.BasisIntegr.size(0);
-        for (int i149{0}; i149 < eg_loop_ub; i149++) {
-            ctx->BasisIntegr[i149] = r.BasisIntegr[i149];
+        b_ctx.BasisIntegr.set_size(r.BasisIntegr.size(0));
+        oh_loop_ub = r.BasisIntegr.size(0);
+        for (int i175{0}; i175 < oh_loop_ub; i175++) {
+            b_ctx.BasisIntegr[i175] = r.BasisIntegr[i175];
         }
-        ctx->Bl = r.Bl;
-        ctx->u_vec.set_size(1, r.u_vec.size(1));
-        og_loop_ub = r.u_vec.size(1);
-        for (int i159{0}; i159 < og_loop_ub; i159++) {
-            ctx->u_vec[i159] = r.u_vec[i159];
+        b_ctx.Bl = r.Bl;
+        b_ctx.u_vec.set_size(1, r.u_vec.size(1));
+        xh_loop_ub = r.u_vec.size(1);
+        for (int i184{0}; i184 < xh_loop_ub; i184++) {
+            b_ctx.u_vec[i184] = r.u_vec[i184];
         }
-        ctx->q_spline = r.q_spline;
-        ctx->q_gcode = r.q_gcode;
-        ctx->q_compress = r.q_compress;
-        ctx->q_smooth = r.q_smooth;
-        ctx->q_split = r.q_split;
-        ctx->q_opt = r.q_opt;
-        ctx->go_next = r.go_next;
-        ctx->try_push_again = r.try_push_again;
-        ctx->n_optimized = r.n_optimized;
-        ctx->reached_end = r.reached_end;
-        ctx->k0 = r.k0;
-        ctx->v_0 = r.v_0;
-        ctx->v_1 = r.v_1;
-        ctx->at_0 = r.at_0;
-        ctx->at_1 = r.at_1;
-        ctx->cfg.maskTot.size[0] = 1;
-        ctx->cfg.maskTot.size[1] = r.cfg.maskTot.size[1];
-        tg_loop_ub = r.cfg.maskTot.size[1];
-        if (tg_loop_ub - 1 >= 0) {
-            std::copy(&r.cfg.maskTot.data[0], &r.cfg.maskTot.data[tg_loop_ub],
-                      &ctx->cfg.maskTot.data[0]);
-        }
-        ctx->cfg.maskCart.size[0] = 1;
-        ctx->cfg.maskCart.size[1] = r.cfg.maskCart.size[1];
-        xg_loop_ub = r.cfg.maskCart.size[1];
-        if (xg_loop_ub - 1 >= 0) {
-            std::copy(&r.cfg.maskCart.data[0], &r.cfg.maskCart.data[xg_loop_ub],
-                      &ctx->cfg.maskCart.data[0]);
-        }
-        ctx->cfg.maskRot.size[0] = 1;
-        ctx->cfg.maskRot.size[1] = r.cfg.maskRot.size[1];
-        dh_loop_ub = r.cfg.maskRot.size[1];
-        if (dh_loop_ub - 1 >= 0) {
-            std::copy(&r.cfg.maskRot.data[0], &r.cfg.maskRot.data[dh_loop_ub],
-                      &ctx->cfg.maskRot.data[0]);
-        }
-        ctx->cfg.indCart.size[0] = r.cfg.indCart.size(0);
-        ih_loop_ub = r.cfg.indCart.size(0);
-        for (int i164{0}; i164 < ih_loop_ub; i164++) {
-            ctx->cfg.indCart.data[i164] = r.cfg.indCart[i164];
-        }
-        ctx->cfg.indRot.size[0] = r.cfg.indRot.size(0);
-        nh_loop_ub = r.cfg.indRot.size(0);
-        for (int i168{0}; i168 < nh_loop_ub; i168++) {
-            ctx->cfg.indRot.data[i168] = r.cfg.indRot[i168];
-        }
-        ctx->cfg.NumberAxis = r.cfg.NumberAxis;
-        ctx->cfg.NCart = r.cfg.NCart;
-        ctx->cfg.NRot = r.cfg.NRot;
-        ctx->cfg.D.size[0] = r.cfg.D.size(0);
-        th_loop_ub = r.cfg.D.size(0);
-        for (int i174{0}; i174 < th_loop_ub; i174++) {
-            ctx->cfg.D.data[i174] = r.cfg.D[i174];
-        }
-        ctx->cfg.coeffD = r.cfg.coeffD;
-        ctx->cfg.kin_params.size[0] = r.cfg.kin_params.size[0];
-        xh_loop_ub = r.cfg.kin_params.size[0];
-        if (xh_loop_ub - 1 >= 0) {
-            std::copy(&r.cfg.kin_params.data[0], &r.cfg.kin_params.data[xh_loop_ub],
-                      &ctx->cfg.kin_params.data[0]);
-        }
-        for (int i179{0}; i179 < 8; i179++) {
-            ctx->cfg.kin_type[i179] = r.cfg.kin_type[i179];
-        }
-        ctx->cfg.NDiscr = r.cfg.NDiscr;
-        ctx->cfg.NBreak = r.cfg.NBreak;
-        ctx->cfg.UseDynamicBreakpoints = r.cfg.UseDynamicBreakpoints;
-        ctx->cfg.UseLinearBreakpoints = r.cfg.UseLinearBreakpoints;
-        ctx->cfg.DynamicBreakpointsDistance = r.cfg.DynamicBreakpointsDistance;
-        ctx->cfg.NHorz = r.cfg.NHorz;
-        ctx->cfg.fmax = r.cfg.fmax;
-        ctx->cfg.smax = r.cfg.smax;
-        for (int i185{0}; i185 < 6; i185++) {
-            ctx->cfg.vmax[i185] = r.cfg.vmax[i185];
-            ctx->cfg.amax[i185] = r.cfg.amax[i185];
-            ctx->cfg.jmax[i185] = r.cfg.jmax[i185];
-        }
-        ctx->cfg.LeeSplineDegree = r.cfg.LeeSplineDegree;
-        ctx->cfg.SplineDegree = r.cfg.SplineDegree;
-        ctx->cfg.CutOff = r.cfg.CutOff;
-        ctx->cfg.LSplit = r.cfg.LSplit;
-        ctx->cfg.LSplitZero = r.cfg.LSplitZero;
-        ctx->cfg.LThresholdMax = r.cfg.LThresholdMax;
-        ctx->cfg.LThresholdMin = r.cfg.LThresholdMin;
-        ctx->cfg.v_0 = r.cfg.v_0;
-        ctx->cfg.at_0 = r.cfg.at_0;
-        ctx->cfg.v_1 = r.cfg.v_1;
-        ctx->cfg.at_1 = r.cfg.at_1;
-        ctx->cfg.dt = r.cfg.dt;
-        ctx->cfg.DefaultZeroStopCount = r.cfg.DefaultZeroStopCount;
-        ctx->cfg.ZeroStartAccLimit = r.cfg.ZeroStartAccLimit;
-        ctx->cfg.ZeroStartJerkLimit = r.cfg.ZeroStartJerkLimit;
-        ctx->cfg.ZeroStartVelLimit = r.cfg.ZeroStartVelLimit;
-        std::copy(&r.cfg.source[0], &r.cfg.source[1024], &ctx->cfg.source[0]);
-        ctx->cfg.DebugCutZero = r.cfg.DebugCutZero;
-        ctx->cfg.Cusp = r.cfg.Cusp;
-        ctx->cfg.Compressing = r.cfg.Compressing;
-        ctx->cfg.Smoothing = r.cfg.Smoothing;
-        ctx->cfg.GaussLegendreN = r.cfg.GaussLegendreN;
-        for (int g_i{0}; g_i < 5; g_i++) {
-            ctx->cfg.GaussLegendreX[g_i] = r.cfg.GaussLegendreX[g_i];
-            ctx->cfg.GaussLegendreW[g_i] = r.cfg.GaussLegendreW[g_i];
-        }
-        ctx->cfg.opt = r.cfg.opt;
-        for (int i190{0}; i190 < 9; i190++) {
-            ctx->cfg.LogFileName[i190] = r.cfg.LogFileName[i190];
-        }
-        ctx->jmax_increase_count = r.jmax_increase_count;
-        ctx->zero_start = r.zero_start;
-        ctx->zero_end = r.zero_end;
-        ctx->zero_forced = r.zero_forced;
-        ctx->zero_forced_buffer[0] = r.zero_forced_buffer[0];
-        ctx->zero_forced_buffer[1] = r.zero_forced_buffer[1];
-        ctx->simplex_calls = r.simplex_calls;
-        ctx->forced_stop = r.forced_stop;
-        ctx->programmed_stop = r.programmed_stop;
-        ctx->Coeff.set_size(r.Coeff.size(0), r.Coeff.size(1));
-        gi_loop_ub = r.Coeff.size(1);
-        for (int i199{0}; i199 < gi_loop_ub; i199++) {
-            int ji_loop_ub;
-            ji_loop_ub = r.Coeff.size(0);
-            for (int i202{0}; i202 < ji_loop_ub; i202++) {
-                ctx->Coeff[i202 + ctx->Coeff.size(0) * i199] =
-                    r.Coeff[i202 + r.Coeff.size(0) * i199];
-            }
-        }
-        ctx->Skipped = r.Skipped;
-        ctx->kin = r.kin;
-        ctx->errmsg = r.errmsg;
-        ctx->errcode = r.errcode;
-        // 'FeedoptPlan:119' ctx.op = Fopt.Split;
-        ctx->op = Fopt_Split;
-        // 'FeedoptPlan:121' assert_queue( ctx.op, ctx.q_smooth );
-        // 'FeedoptPlan:161' msg = string( op );
-        // 'FeedoptPlan:162' ocn_assert( checkGeometry( queue ), ...
-        // 'FeedoptPlan:163'     msg + " - Check geometry failed...", mfilename );
-        p_ocn_assert(checkGeometry(&r.q_smooth));
-        // 'FeedoptPlan:164' ocn_assert( checkZSpdmode( queue ), ...
-        // 'FeedoptPlan:165'     msg + " - Check zspdmode failed...", mfilename );
-        q_ocn_assert(checkZSpdmode(&r.q_smooth));
-        // 'FeedoptPlan:166' ocn_assert( checkParametrisation( queue ), ...
-        // 'FeedoptPlan:167'     msg + " - Check parametrisation failed...", mfilename );
-        r_ocn_assert(checkParametrisation(&r.q_smooth));
-        // 'FeedoptPlan:123' if( coder.target( 'MATLAB') )
-    } break;
-    case Fopt_Split: {
-        int bd_loop_ub;
-        int de_loop_ub;
-        int ec_loop_ub;
-        int eh_loop_ub;
-        int fg_loop_ub;
-        int g_loop_ub;
-        int gd_loop_ub;
-        int hi_loop_ub;
-        int ib_loop_ub;
-        int if_loop_ub;
-        int jh_loop_ub;
-        int m_loop_ub;
-        int mc_loop_ub;
-        int md_loop_ub;
-        int oh_loop_ub;
-        int pg_loop_ub;
-        int qe_loop_ub;
-        int rc_loop_ub;
-        int rd_loop_ub;
-        int tb_loop_ub;
-        int uf_loop_ub;
-        int ug_loop_ub;
-        int uh_loop_ub;
-        int wc_loop_ub;
-        int we_loop_ub;
-        int x_loop_ub;
-        int yg_loop_ub;
-        int yh_loop_ub;
-        // 'FeedoptPlan:125' case Fopt.Split
-        // 'FeedoptPlan:126' ctx     = splitQueue( ctx );
-        r.BasisVal.set_size(ctx->BasisVal.size(0), ctx->BasisVal.size(1));
-        g_loop_ub = ctx->BasisVal.size(1);
-        for (int i6{0}; i6 < g_loop_ub; i6++) {
-            int k_loop_ub;
-            k_loop_ub = ctx->BasisVal.size(0);
-            for (int i11{0}; i11 < k_loop_ub; i11++) {
-                r.BasisVal[i11 + r.BasisVal.size(0) * i6] =
-                    ctx->BasisVal[i11 + ctx->BasisVal.size(0) * i6];
-            }
-        }
-        r.BasisValD.set_size(ctx->BasisValD.size(0), ctx->BasisValD.size(1));
-        m_loop_ub = ctx->BasisValD.size(1);
-        for (int i13{0}; i13 < m_loop_ub; i13++) {
-            int t_loop_ub;
-            t_loop_ub = ctx->BasisValD.size(0);
-            for (int i20{0}; i20 < t_loop_ub; i20++) {
-                r.BasisValD[i20 + r.BasisValD.size(0) * i13] =
-                    ctx->BasisValD[i20 + ctx->BasisValD.size(0) * i13];
-            }
-        }
-        r.BasisValDD.set_size(ctx->BasisValDD.size(0), ctx->BasisValDD.size(1));
-        x_loop_ub = ctx->BasisValDD.size(1);
-        for (int i23{0}; i23 < x_loop_ub; i23++) {
-            int fb_loop_ub;
-            fb_loop_ub = ctx->BasisValDD.size(0);
-            for (int i31{0}; i31 < fb_loop_ub; i31++) {
-                r.BasisValDD[i31 + r.BasisValDD.size(0) * i23] =
-                    ctx->BasisValDD[i31 + ctx->BasisValDD.size(0) * i23];
-            }
-        }
-        r.BasisValDDD.set_size(ctx->BasisValDDD.size(0), ctx->BasisValDDD.size(1));
-        ib_loop_ub = ctx->BasisValDDD.size(1);
-        for (int i34{0}; i34 < ib_loop_ub; i34++) {
-            int qb_loop_ub;
-            qb_loop_ub = ctx->BasisValDDD.size(0);
-            for (int i42{0}; i42 < qb_loop_ub; i42++) {
-                r.BasisValDDD[i42 + r.BasisValDDD.size(0) * i34] =
-                    ctx->BasisValDDD[i42 + ctx->BasisValDDD.size(0) * i34];
-            }
-        }
-        r.BasisIntegr.set_size(ctx->BasisIntegr.size(0));
-        tb_loop_ub = ctx->BasisIntegr.size(0);
-        for (int i45{0}; i45 < tb_loop_ub; i45++) {
-            r.BasisIntegr[i45] = ctx->BasisIntegr[i45];
-        }
-        r.Bl = ctx->Bl;
-        r.u_vec.set_size(1, ctx->u_vec.size(1));
-        ec_loop_ub = ctx->u_vec.size(1);
-        for (int i55{0}; i55 < ec_loop_ub; i55++) {
-            r.u_vec[i55] = ctx->u_vec[i55];
-        }
-        r.q_spline = ctx->q_spline;
-        r.q_gcode = ctx->q_gcode;
-        r.q_compress = ctx->q_compress;
-        r.q_smooth = ctx->q_smooth;
-        r.q_split = ctx->q_split;
-        r.q_opt = ctx->q_opt;
-        r.op = ctx->op;
-        r.go_next = ctx->go_next;
-        r.try_push_again = ctx->try_push_again;
-        r.n_optimized = ctx->n_optimized;
-        r.reached_end = ctx->reached_end;
-        r.k0 = ctx->k0;
-        r.v_0 = ctx->v_0;
-        r.v_1 = ctx->v_1;
-        r.at_0 = ctx->at_0;
-        r.at_1 = ctx->at_1;
-        r.cfg.maskTot.size[0] = 1;
-        r.cfg.maskTot.size[1] = ctx->cfg.maskTot.size[1];
-        mc_loop_ub = ctx->cfg.maskTot.size[1];
-        if (mc_loop_ub - 1 >= 0) {
-            std::copy(&ctx->cfg.maskTot.data[0], &ctx->cfg.maskTot.data[mc_loop_ub],
-                      &r.cfg.maskTot.data[0]);
-        }
-        r.cfg.maskCart.size[0] = 1;
-        r.cfg.maskCart.size[1] = ctx->cfg.maskCart.size[1];
-        rc_loop_ub = ctx->cfg.maskCart.size[1];
-        if (rc_loop_ub - 1 >= 0) {
-            std::copy(&ctx->cfg.maskCart.data[0], &ctx->cfg.maskCart.data[rc_loop_ub],
-                      &r.cfg.maskCart.data[0]);
-        }
-        r.cfg.maskRot.size[0] = 1;
-        r.cfg.maskRot.size[1] = ctx->cfg.maskRot.size[1];
-        wc_loop_ub = ctx->cfg.maskRot.size[1];
-        if (wc_loop_ub - 1 >= 0) {
-            std::copy(&ctx->cfg.maskRot.data[0], &ctx->cfg.maskRot.data[wc_loop_ub],
-                      &r.cfg.maskRot.data[0]);
-        }
-        r.cfg.indCart.set_size(ctx->cfg.indCart.size[0]);
-        bd_loop_ub = ctx->cfg.indCart.size[0];
-        for (int i63{0}; i63 < bd_loop_ub; i63++) {
-            r.cfg.indCart[i63] = ctx->cfg.indCart.data[i63];
-        }
-        r.cfg.indRot.set_size(ctx->cfg.indRot.size[0]);
-        gd_loop_ub = ctx->cfg.indRot.size[0];
-        for (int i68{0}; i68 < gd_loop_ub; i68++) {
-            r.cfg.indRot[i68] = ctx->cfg.indRot.data[i68];
-        }
-        r.cfg.NumberAxis = ctx->cfg.NumberAxis;
-        r.cfg.NCart = ctx->cfg.NCart;
-        r.cfg.NRot = ctx->cfg.NRot;
-        r.cfg.D.set_size(ctx->cfg.D.size[0]);
-        md_loop_ub = ctx->cfg.D.size[0];
-        for (int i74{0}; i74 < md_loop_ub; i74++) {
-            r.cfg.D[i74] = ctx->cfg.D.data[i74];
-        }
-        r.cfg.coeffD = ctx->cfg.coeffD;
-        r.cfg.kin_params.size[0] = ctx->cfg.kin_params.size[0];
-        rd_loop_ub = ctx->cfg.kin_params.size[0];
-        if (rd_loop_ub - 1 >= 0) {
-            std::copy(&ctx->cfg.kin_params.data[0], &ctx->cfg.kin_params.data[rd_loop_ub],
-                      &r.cfg.kin_params.data[0]);
-        }
-        for (int i79{0}; i79 < 8; i79++) {
-            r.cfg.kin_type[i79] = ctx->cfg.kin_type[i79];
-        }
-        r.cfg.NDiscr = ctx->cfg.NDiscr;
-        r.cfg.NBreak = ctx->cfg.NBreak;
-        r.cfg.UseDynamicBreakpoints = ctx->cfg.UseDynamicBreakpoints;
-        r.cfg.UseLinearBreakpoints = ctx->cfg.UseLinearBreakpoints;
-        r.cfg.DynamicBreakpointsDistance = ctx->cfg.DynamicBreakpointsDistance;
-        r.cfg.NHorz = ctx->cfg.NHorz;
-        r.cfg.fmax = ctx->cfg.fmax;
-        r.cfg.smax = ctx->cfg.smax;
-        for (int i84{0}; i84 < 6; i84++) {
-            r.cfg.vmax[i84] = ctx->cfg.vmax[i84];
-            r.cfg.amax[i84] = ctx->cfg.amax[i84];
-            r.cfg.jmax[i84] = ctx->cfg.jmax[i84];
-        }
-        r.cfg.LeeSplineDegree = ctx->cfg.LeeSplineDegree;
-        r.cfg.SplineDegree = ctx->cfg.SplineDegree;
-        r.cfg.CutOff = ctx->cfg.CutOff;
-        r.cfg.LSplit = ctx->cfg.LSplit;
-        r.cfg.LSplitZero = ctx->cfg.LSplitZero;
-        r.cfg.LThresholdMax = ctx->cfg.LThresholdMax;
-        r.cfg.LThresholdMin = ctx->cfg.LThresholdMin;
-        r.cfg.v_0 = ctx->cfg.v_0;
-        r.cfg.at_0 = ctx->cfg.at_0;
-        r.cfg.v_1 = ctx->cfg.v_1;
-        r.cfg.at_1 = ctx->cfg.at_1;
-        r.cfg.dt = ctx->cfg.dt;
-        r.cfg.DefaultZeroStopCount = ctx->cfg.DefaultZeroStopCount;
-        r.cfg.ZeroStartAccLimit = ctx->cfg.ZeroStartAccLimit;
-        r.cfg.ZeroStartJerkLimit = ctx->cfg.ZeroStartJerkLimit;
-        r.cfg.ZeroStartVelLimit = ctx->cfg.ZeroStartVelLimit;
-        std::copy(&ctx->cfg.source[0], &ctx->cfg.source[1024], &r.cfg.source[0]);
-        r.cfg.DebugCutZero = ctx->cfg.DebugCutZero;
-        r.cfg.Cusp = ctx->cfg.Cusp;
-        r.cfg.Compressing = ctx->cfg.Compressing;
-        r.cfg.Smoothing = ctx->cfg.Smoothing;
-        r.cfg.GaussLegendreN = ctx->cfg.GaussLegendreN;
-        for (int c_i{0}; c_i < 5; c_i++) {
-            r.cfg.GaussLegendreX[c_i] = ctx->cfg.GaussLegendreX[c_i];
-            r.cfg.GaussLegendreW[c_i] = ctx->cfg.GaussLegendreW[c_i];
-        }
-        r.cfg.opt = ctx->cfg.opt;
-        for (int i89{0}; i89 < 9; i89++) {
-            r.cfg.LogFileName[i89] = ctx->cfg.LogFileName[i89];
-        }
-        r.jmax_increase_count = ctx->jmax_increase_count;
-        r.zero_start = ctx->zero_start;
-        r.zero_end = ctx->zero_end;
-        r.zero_forced = ctx->zero_forced;
-        r.zero_forced_buffer[0] = ctx->zero_forced_buffer[0];
-        r.zero_forced_buffer[1] = ctx->zero_forced_buffer[1];
-        r.simplex_calls = ctx->simplex_calls;
-        r.forced_stop = ctx->forced_stop;
-        r.programmed_stop = ctx->programmed_stop;
-        r.Coeff.set_size(ctx->Coeff.size(0), ctx->Coeff.size(1));
-        de_loop_ub = ctx->Coeff.size(1);
-        for (int i98{0}; i98 < de_loop_ub; i98++) {
-            int ie_loop_ub;
-            ie_loop_ub = ctx->Coeff.size(0);
-            for (int i103{0}; i103 < ie_loop_ub; i103++) {
-                r.Coeff[i103 + r.Coeff.size(0) * i98] = ctx->Coeff[i103 + ctx->Coeff.size(0) * i98];
-            }
-        }
-        r.Skipped = ctx->Skipped;
-        r.kin = ctx->kin;
-        r.errmsg = ctx->errmsg;
-        r.errcode = ctx->errcode;
-        splitQueue(&r);
-        ctx->BasisVal.set_size(r.BasisVal.size(0), r.BasisVal.size(1));
-        qe_loop_ub = r.BasisVal.size(1);
-        for (int i111{0}; i111 < qe_loop_ub; i111++) {
-            int ue_loop_ub;
-            ue_loop_ub = r.BasisVal.size(0);
-            for (int i115{0}; i115 < ue_loop_ub; i115++) {
-                ctx->BasisVal[i115 + ctx->BasisVal.size(0) * i111] =
-                    r.BasisVal[i115 + r.BasisVal.size(0) * i111];
-            }
-        }
-        ctx->BasisValD.set_size(r.BasisValD.size(0), r.BasisValD.size(1));
-        we_loop_ub = r.BasisValD.size(1);
-        for (int i117{0}; i117 < we_loop_ub; i117++) {
-            int ff_loop_ub;
-            ff_loop_ub = r.BasisValD.size(0);
-            for (int i124{0}; i124 < ff_loop_ub; i124++) {
-                ctx->BasisValD[i124 + ctx->BasisValD.size(0) * i117] =
-                    r.BasisValD[i124 + r.BasisValD.size(0) * i117];
-            }
-        }
-        ctx->BasisValDD.set_size(r.BasisValDD.size(0), r.BasisValDD.size(1));
-        if_loop_ub = r.BasisValDD.size(1);
-        for (int i127{0}; i127 < if_loop_ub; i127++) {
-            int qf_loop_ub;
-            qf_loop_ub = r.BasisValDD.size(0);
-            for (int i136{0}; i136 < qf_loop_ub; i136++) {
-                ctx->BasisValDD[i136 + ctx->BasisValDD.size(0) * i127] =
-                    r.BasisValDD[i136 + r.BasisValDD.size(0) * i127];
-            }
-        }
-        ctx->BasisValDDD.set_size(r.BasisValDDD.size(0), r.BasisValDDD.size(1));
-        uf_loop_ub = r.BasisValDDD.size(1);
-        for (int i140{0}; i140 < uf_loop_ub; i140++) {
-            int cg_loop_ub;
-            cg_loop_ub = r.BasisValDDD.size(0);
-            for (int i147{0}; i147 < cg_loop_ub; i147++) {
-                ctx->BasisValDDD[i147 + ctx->BasisValDDD.size(0) * i140] =
-                    r.BasisValDDD[i147 + r.BasisValDDD.size(0) * i140];
-            }
-        }
-        ctx->BasisIntegr.set_size(r.BasisIntegr.size(0));
-        fg_loop_ub = r.BasisIntegr.size(0);
-        for (int i150{0}; i150 < fg_loop_ub; i150++) {
-            ctx->BasisIntegr[i150] = r.BasisIntegr[i150];
-        }
-        ctx->Bl = r.Bl;
-        ctx->u_vec.set_size(1, r.u_vec.size(1));
-        pg_loop_ub = r.u_vec.size(1);
-        for (int i160{0}; i160 < pg_loop_ub; i160++) {
-            ctx->u_vec[i160] = r.u_vec[i160];
-        }
-        ctx->q_spline = r.q_spline;
-        ctx->q_gcode = r.q_gcode;
-        ctx->q_compress = r.q_compress;
-        ctx->q_smooth = r.q_smooth;
-        ctx->q_split = r.q_split;
-        ctx->q_opt = r.q_opt;
-        ctx->go_next = r.go_next;
-        ctx->try_push_again = r.try_push_again;
-        ctx->n_optimized = r.n_optimized;
-        ctx->reached_end = r.reached_end;
-        ctx->k0 = r.k0;
-        ctx->v_0 = r.v_0;
-        ctx->v_1 = r.v_1;
-        ctx->at_0 = r.at_0;
-        ctx->at_1 = r.at_1;
-        ctx->cfg.maskTot.size[0] = 1;
-        ctx->cfg.maskTot.size[1] = r.cfg.maskTot.size[1];
-        ug_loop_ub = r.cfg.maskTot.size[1];
-        if (ug_loop_ub - 1 >= 0) {
-            std::copy(&r.cfg.maskTot.data[0], &r.cfg.maskTot.data[ug_loop_ub],
-                      &ctx->cfg.maskTot.data[0]);
-        }
-        ctx->cfg.maskCart.size[0] = 1;
-        ctx->cfg.maskCart.size[1] = r.cfg.maskCart.size[1];
-        yg_loop_ub = r.cfg.maskCart.size[1];
-        if (yg_loop_ub - 1 >= 0) {
-            std::copy(&r.cfg.maskCart.data[0], &r.cfg.maskCart.data[yg_loop_ub],
-                      &ctx->cfg.maskCart.data[0]);
-        }
-        ctx->cfg.maskRot.size[0] = 1;
-        ctx->cfg.maskRot.size[1] = r.cfg.maskRot.size[1];
-        eh_loop_ub = r.cfg.maskRot.size[1];
-        if (eh_loop_ub - 1 >= 0) {
-            std::copy(&r.cfg.maskRot.data[0], &r.cfg.maskRot.data[eh_loop_ub],
-                      &ctx->cfg.maskRot.data[0]);
-        }
-        ctx->cfg.indCart.size[0] = r.cfg.indCart.size(0);
-        jh_loop_ub = r.cfg.indCart.size(0);
-        for (int i165{0}; i165 < jh_loop_ub; i165++) {
-            ctx->cfg.indCart.data[i165] = r.cfg.indCart[i165];
-        }
-        ctx->cfg.indRot.size[0] = r.cfg.indRot.size(0);
-        oh_loop_ub = r.cfg.indRot.size(0);
-        for (int i169{0}; i169 < oh_loop_ub; i169++) {
-            ctx->cfg.indRot.data[i169] = r.cfg.indRot[i169];
-        }
-        ctx->cfg.NumberAxis = r.cfg.NumberAxis;
-        ctx->cfg.NCart = r.cfg.NCart;
-        ctx->cfg.NRot = r.cfg.NRot;
-        ctx->cfg.D.size[0] = r.cfg.D.size(0);
-        uh_loop_ub = r.cfg.D.size(0);
-        for (int i175{0}; i175 < uh_loop_ub; i175++) {
-            ctx->cfg.D.data[i175] = r.cfg.D[i175];
-        }
-        ctx->cfg.coeffD = r.cfg.coeffD;
-        ctx->cfg.kin_params.size[0] = r.cfg.kin_params.size[0];
-        yh_loop_ub = r.cfg.kin_params.size[0];
-        if (yh_loop_ub - 1 >= 0) {
-            std::copy(&r.cfg.kin_params.data[0], &r.cfg.kin_params.data[yh_loop_ub],
-                      &ctx->cfg.kin_params.data[0]);
-        }
-        for (int i180{0}; i180 < 8; i180++) {
-            ctx->cfg.kin_type[i180] = r.cfg.kin_type[i180];
-        }
-        ctx->cfg.NDiscr = r.cfg.NDiscr;
-        ctx->cfg.NBreak = r.cfg.NBreak;
-        ctx->cfg.UseDynamicBreakpoints = r.cfg.UseDynamicBreakpoints;
-        ctx->cfg.UseLinearBreakpoints = r.cfg.UseLinearBreakpoints;
-        ctx->cfg.DynamicBreakpointsDistance = r.cfg.DynamicBreakpointsDistance;
-        ctx->cfg.NHorz = r.cfg.NHorz;
-        ctx->cfg.fmax = r.cfg.fmax;
-        ctx->cfg.smax = r.cfg.smax;
-        for (int i186{0}; i186 < 6; i186++) {
-            ctx->cfg.vmax[i186] = r.cfg.vmax[i186];
-            ctx->cfg.amax[i186] = r.cfg.amax[i186];
-            ctx->cfg.jmax[i186] = r.cfg.jmax[i186];
-        }
-        ctx->cfg.LeeSplineDegree = r.cfg.LeeSplineDegree;
-        ctx->cfg.SplineDegree = r.cfg.SplineDegree;
-        ctx->cfg.CutOff = r.cfg.CutOff;
-        ctx->cfg.LSplit = r.cfg.LSplit;
-        ctx->cfg.LSplitZero = r.cfg.LSplitZero;
-        ctx->cfg.LThresholdMax = r.cfg.LThresholdMax;
-        ctx->cfg.LThresholdMin = r.cfg.LThresholdMin;
-        ctx->cfg.v_0 = r.cfg.v_0;
-        ctx->cfg.at_0 = r.cfg.at_0;
-        ctx->cfg.v_1 = r.cfg.v_1;
-        ctx->cfg.at_1 = r.cfg.at_1;
-        ctx->cfg.dt = r.cfg.dt;
-        ctx->cfg.DefaultZeroStopCount = r.cfg.DefaultZeroStopCount;
-        ctx->cfg.ZeroStartAccLimit = r.cfg.ZeroStartAccLimit;
-        ctx->cfg.ZeroStartJerkLimit = r.cfg.ZeroStartJerkLimit;
-        ctx->cfg.ZeroStartVelLimit = r.cfg.ZeroStartVelLimit;
-        std::copy(&r.cfg.source[0], &r.cfg.source[1024], &ctx->cfg.source[0]);
-        ctx->cfg.DebugCutZero = r.cfg.DebugCutZero;
-        ctx->cfg.Cusp = r.cfg.Cusp;
-        ctx->cfg.Compressing = r.cfg.Compressing;
-        ctx->cfg.Smoothing = r.cfg.Smoothing;
-        ctx->cfg.GaussLegendreN = r.cfg.GaussLegendreN;
-        for (int h_i{0}; h_i < 5; h_i++) {
-            ctx->cfg.GaussLegendreX[h_i] = r.cfg.GaussLegendreX[h_i];
-            ctx->cfg.GaussLegendreW[h_i] = r.cfg.GaussLegendreW[h_i];
-        }
-        ctx->cfg.opt = r.cfg.opt;
-        for (int i191{0}; i191 < 9; i191++) {
-            ctx->cfg.LogFileName[i191] = r.cfg.LogFileName[i191];
-        }
-        ctx->jmax_increase_count = r.jmax_increase_count;
-        ctx->zero_start = r.zero_start;
-        ctx->zero_end = r.zero_end;
-        ctx->zero_forced = r.zero_forced;
-        ctx->zero_forced_buffer[0] = r.zero_forced_buffer[0];
-        ctx->zero_forced_buffer[1] = r.zero_forced_buffer[1];
-        ctx->simplex_calls = r.simplex_calls;
-        ctx->forced_stop = r.forced_stop;
-        ctx->programmed_stop = r.programmed_stop;
-        ctx->Coeff.set_size(r.Coeff.size(0), r.Coeff.size(1));
-        hi_loop_ub = r.Coeff.size(1);
-        for (int i200{0}; i200 < hi_loop_ub; i200++) {
-            int ki_loop_ub;
-            ki_loop_ub = r.Coeff.size(0);
-            for (int i203{0}; i203 < ki_loop_ub; i203++) {
-                ctx->Coeff[i203 + ctx->Coeff.size(0) * i200] =
-                    r.Coeff[i203 + r.Coeff.size(0) * i200];
-            }
-        }
-        ctx->Skipped = r.Skipped;
-        ctx->kin = r.kin;
-        ctx->errmsg = r.errmsg;
-        ctx->errcode = r.errcode;
-        // 'FeedoptPlan:127' ctx.op  = Fopt.Opt;
-        ctx->op = Fopt_Opt;
-        // 'FeedoptPlan:129' if( coder.target( 'MATLAB' ) )
-        // 'FeedoptPlan:133' assert_queue( ctx.op, ctx.q_split );
-        // 'FeedoptPlan:161' msg = string( op );
-        // 'FeedoptPlan:162' ocn_assert( checkGeometry( queue ), ...
-        // 'FeedoptPlan:163'     msg + " - Check geometry failed...", mfilename );
-        cb_ocn_assert(checkGeometry(&r.q_split));
-        // 'FeedoptPlan:164' ocn_assert( checkZSpdmode( queue ), ...
-        // 'FeedoptPlan:165'     msg + " - Check zspdmode failed...", mfilename );
-        db_ocn_assert(checkZSpdmode(&r.q_split));
-        // 'FeedoptPlan:166' ocn_assert( checkParametrisation( queue ), ...
-        // 'FeedoptPlan:167'     msg + " - Check parametrisation failed...", mfilename );
-        eb_ocn_assert(checkParametrisation(&r.q_split));
-        //          histogramLength( ctx, ctx.q_split, "Splitting" );
-        // 'FeedoptPlan:136' if( coder.target( 'MATLAB' ) )
-    } break;
-    case Fopt_Opt: {
-        int ah_loop_ub;
-        int ai_loop_ub;
-        int cc_loop_ub;
-        int cd_loop_ub;
-        int di_loop_ub;
-        int fh_loop_ub;
-        int gg_loop_ub;
-        int hd_loop_ub;
-        int ic_loop_ub;
-        int jb_loop_ub;
-        int je_loop_ub;
-        int jf_loop_ub;
-        int kd_loop_ub;
-        int kh_loop_ub;
-        int mi_loop_ub;
-        int n_loop_ub;
-        int ng_loop_ub;
-        int pc_loop_ub;
-        int pd_loop_ub;
-        int ph_loop_ub;
-        int sg_loop_ub;
-        int sh_loop_ub;
-        int ub_loop_ub;
-        int uc_loop_ub;
-        int ud_loop_ub;
-        int vf_loop_ub;
-        int xe_loop_ub;
-        int y_loop_ub;
-        // 'FeedoptPlan:138' case Fopt.Opt
-        // 'FeedoptPlan:139' if( ctx.q_opt.size() == 0 )
-        if (ctx->q_opt.size() == 0U) {
-            // 'FeedoptPlan:139' ctx.k0 = int32( 1 );
-            ctx->k0 = 1;
-        }
-        //          ctx.op = Fopt.Finished; return;
-        // 'FeedoptPlan:141' [ ctx, optimized, opt_struct, quit ] = feedratePlanning( ctx );
-        b_ctx.BasisVal.set_size(ctx->BasisVal.size(0), ctx->BasisVal.size(1));
-        n_loop_ub = ctx->BasisVal.size(1);
-        for (int i14{0}; i14 < n_loop_ub; i14++) {
-            int u_loop_ub;
-            u_loop_ub = ctx->BasisVal.size(0);
-            for (int i21{0}; i21 < u_loop_ub; i21++) {
-                b_ctx.BasisVal[i21 + b_ctx.BasisVal.size(0) * i14] =
-                    ctx->BasisVal[i21 + ctx->BasisVal.size(0) * i14];
-            }
-        }
-        b_ctx.BasisValD.set_size(ctx->BasisValD.size(0), ctx->BasisValD.size(1));
-        y_loop_ub = ctx->BasisValD.size(1);
-        for (int i24{0}; i24 < y_loop_ub; i24++) {
-            int gb_loop_ub;
-            gb_loop_ub = ctx->BasisValD.size(0);
-            for (int i32{0}; i32 < gb_loop_ub; i32++) {
-                b_ctx.BasisValD[i32 + b_ctx.BasisValD.size(0) * i24] =
-                    ctx->BasisValD[i32 + ctx->BasisValD.size(0) * i24];
-            }
-        }
-        b_ctx.BasisValDD.set_size(ctx->BasisValDD.size(0), ctx->BasisValDD.size(1));
-        jb_loop_ub = ctx->BasisValDD.size(1);
-        for (int i35{0}; i35 < jb_loop_ub; i35++) {
-            int rb_loop_ub;
-            rb_loop_ub = ctx->BasisValDD.size(0);
-            for (int i43{0}; i43 < rb_loop_ub; i43++) {
-                b_ctx.BasisValDD[i43 + b_ctx.BasisValDD.size(0) * i35] =
-                    ctx->BasisValDD[i43 + ctx->BasisValDD.size(0) * i35];
-            }
-        }
-        b_ctx.BasisValDDD.set_size(ctx->BasisValDDD.size(0), ctx->BasisValDDD.size(1));
-        ub_loop_ub = ctx->BasisValDDD.size(1);
-        for (int i46{0}; i46 < ub_loop_ub; i46++) {
-            int bc_loop_ub;
-            bc_loop_ub = ctx->BasisValDDD.size(0);
-            for (int i51{0}; i51 < bc_loop_ub; i51++) {
-                b_ctx.BasisValDDD[i51 + b_ctx.BasisValDDD.size(0) * i46] =
-                    ctx->BasisValDDD[i51 + ctx->BasisValDDD.size(0) * i46];
-            }
-        }
-        b_ctx.BasisIntegr.set_size(ctx->BasisIntegr.size(0));
-        cc_loop_ub = ctx->BasisIntegr.size(0);
-        for (int i53{0}; i53 < cc_loop_ub; i53++) {
-            b_ctx.BasisIntegr[i53] = ctx->BasisIntegr[i53];
-        }
-        b_ctx.Bl = ctx->Bl;
-        b_ctx.u_vec.set_size(1, ctx->u_vec.size(1));
-        ic_loop_ub = ctx->u_vec.size(1);
-        for (int i59{0}; i59 < ic_loop_ub; i59++) {
-            b_ctx.u_vec[i59] = ctx->u_vec[i59];
-        }
-        b_ctx.q_spline = ctx->q_spline;
-        b_ctx.q_gcode = ctx->q_gcode;
-        b_ctx.q_compress = ctx->q_compress;
-        b_ctx.q_smooth = ctx->q_smooth;
-        b_ctx.q_split = ctx->q_split;
-        b_ctx.q_opt = ctx->q_opt;
-        b_ctx.op = ctx->op;
-        b_ctx.go_next = ctx->go_next;
-        b_ctx.try_push_again = ctx->try_push_again;
-        b_ctx.n_optimized = ctx->n_optimized;
-        b_ctx.reached_end = ctx->reached_end;
-        b_ctx.k0 = ctx->k0;
-        b_ctx.v_0 = ctx->v_0;
-        b_ctx.v_1 = ctx->v_1;
-        b_ctx.at_0 = ctx->at_0;
-        b_ctx.at_1 = ctx->at_1;
+        b_ctx.q_spline = r.q_spline;
+        b_ctx.q_gcode = r.q_gcode;
+        b_ctx.q_compress = r.q_compress;
+        b_ctx.q_smooth = r.q_smooth;
+        b_ctx.q_split = r.q_split;
+        b_ctx.q_opt = r.q_opt;
+        b_ctx.op = Fopt_Split;
+        b_ctx.go_next = r.go_next;
+        b_ctx.try_push_again = r.try_push_again;
+        b_ctx.n_optimized = r.n_optimized;
+        b_ctx.reached_end = r.reached_end;
+        b_ctx.k0 = r.k0;
+        b_ctx.v_0 = r.v_0;
+        b_ctx.v_1 = r.v_1;
+        b_ctx.at_0 = r.at_0;
+        b_ctx.at_1 = r.at_1;
+        b_ctx.cfg.ENABLE_PRINT_MSG = r.cfg.ENABLE_PRINT_MSG;
         b_ctx.cfg.maskTot.size[0] = 1;
-        b_ctx.cfg.maskTot.size[1] = ctx->cfg.maskTot.size[1];
-        pc_loop_ub = ctx->cfg.maskTot.size[1];
-        if (pc_loop_ub - 1 >= 0) {
-            std::copy(&ctx->cfg.maskTot.data[0], &ctx->cfg.maskTot.data[pc_loop_ub],
+        b_ctx.cfg.maskTot.size[1] = r.cfg.maskTot.size[1];
+        wi_loop_ub = r.cfg.maskTot.size[1];
+        if (wi_loop_ub - 1 >= 0) {
+            std::copy(&r.cfg.maskTot.data[0], &r.cfg.maskTot.data[wi_loop_ub],
                       &b_ctx.cfg.maskTot.data[0]);
         }
         b_ctx.cfg.maskCart.size[0] = 1;
-        b_ctx.cfg.maskCart.size[1] = ctx->cfg.maskCart.size[1];
-        uc_loop_ub = ctx->cfg.maskCart.size[1];
-        if (uc_loop_ub - 1 >= 0) {
-            std::copy(&ctx->cfg.maskCart.data[0], &ctx->cfg.maskCart.data[uc_loop_ub],
+        b_ctx.cfg.maskCart.size[1] = r.cfg.maskCart.size[1];
+        ij_loop_ub = r.cfg.maskCart.size[1];
+        if (ij_loop_ub - 1 >= 0) {
+            std::copy(&r.cfg.maskCart.data[0], &r.cfg.maskCart.data[ij_loop_ub],
                       &b_ctx.cfg.maskCart.data[0]);
         }
         b_ctx.cfg.maskRot.size[0] = 1;
-        b_ctx.cfg.maskRot.size[1] = ctx->cfg.maskRot.size[1];
-        cd_loop_ub = ctx->cfg.maskRot.size[1];
-        if (cd_loop_ub - 1 >= 0) {
-            std::copy(&ctx->cfg.maskRot.data[0], &ctx->cfg.maskRot.data[cd_loop_ub],
+        b_ctx.cfg.maskRot.size[1] = r.cfg.maskRot.size[1];
+        sj_loop_ub = r.cfg.maskRot.size[1];
+        if (sj_loop_ub - 1 >= 0) {
+            std::copy(&r.cfg.maskRot.data[0], &r.cfg.maskRot.data[sj_loop_ub],
                       &b_ctx.cfg.maskRot.data[0]);
         }
-        b_ctx.cfg.indCart.set_size(ctx->cfg.indCart.size[0]);
-        hd_loop_ub = ctx->cfg.indCart.size[0];
-        for (int i69{0}; i69 < hd_loop_ub; i69++) {
-            b_ctx.cfg.indCart[i69] = ctx->cfg.indCart.data[i69];
+        b_ctx.cfg.indCart.set_size(r.cfg.indCart.size(0));
+        bk_loop_ub = r.cfg.indCart.size(0);
+        for (int i224{0}; i224 < bk_loop_ub; i224++) {
+            b_ctx.cfg.indCart[i224] = r.cfg.indCart[i224];
         }
-        b_ctx.cfg.indRot.set_size(ctx->cfg.indRot.size[0]);
-        kd_loop_ub = ctx->cfg.indRot.size[0];
-        for (int i72{0}; i72 < kd_loop_ub; i72++) {
-            b_ctx.cfg.indRot[i72] = ctx->cfg.indRot.data[i72];
+        b_ctx.cfg.indRot.set_size(r.cfg.indRot.size(0));
+        gk_loop_ub = r.cfg.indRot.size(0);
+        for (int i229{0}; i229 < gk_loop_ub; i229++) {
+            b_ctx.cfg.indRot[i229] = r.cfg.indRot[i229];
         }
-        b_ctx.cfg.NumberAxis = ctx->cfg.NumberAxis;
-        b_ctx.cfg.NCart = ctx->cfg.NCart;
-        b_ctx.cfg.NRot = ctx->cfg.NRot;
-        b_ctx.cfg.D.set_size(ctx->cfg.D.size[0]);
-        pd_loop_ub = ctx->cfg.D.size[0];
-        for (int i77{0}; i77 < pd_loop_ub; i77++) {
-            b_ctx.cfg.D[i77] = ctx->cfg.D.data[i77];
+        b_ctx.cfg.NumberAxis = r.cfg.NumberAxis;
+        b_ctx.cfg.NCart = r.cfg.NCart;
+        b_ctx.cfg.NRot = r.cfg.NRot;
+        b_ctx.cfg.D.set_size(r.cfg.D.size(0));
+        ok_loop_ub = r.cfg.D.size(0);
+        for (int i235{0}; i235 < ok_loop_ub; i235++) {
+            b_ctx.cfg.D[i235] = r.cfg.D[i235];
         }
-        b_ctx.cfg.coeffD = ctx->cfg.coeffD;
-        b_ctx.cfg.kin_params.size[0] = ctx->cfg.kin_params.size[0];
-        ud_loop_ub = ctx->cfg.kin_params.size[0];
-        if (ud_loop_ub - 1 >= 0) {
-            std::copy(&ctx->cfg.kin_params.data[0], &ctx->cfg.kin_params.data[ud_loop_ub],
+        b_ctx.cfg.coeffD = r.cfg.coeffD;
+        b_ctx.cfg.kin_params.size[0] = r.cfg.kin_params.size[0];
+        uk_loop_ub = r.cfg.kin_params.size[0];
+        if (uk_loop_ub - 1 >= 0) {
+            std::copy(&r.cfg.kin_params.data[0], &r.cfg.kin_params.data[uk_loop_ub],
                       &b_ctx.cfg.kin_params.data[0]);
         }
-        for (int i82{0}; i82 < 8; i82++) {
-            b_ctx.cfg.kin_type[i82] = ctx->cfg.kin_type[i82];
+        for (int i240{0}; i240 < 8; i240++) {
+            b_ctx.cfg.kin_type[i240] = r.cfg.kin_type[i240];
         }
-        b_ctx.cfg.NDiscr = ctx->cfg.NDiscr;
-        b_ctx.cfg.NBreak = ctx->cfg.NBreak;
-        b_ctx.cfg.UseDynamicBreakpoints = ctx->cfg.UseDynamicBreakpoints;
-        b_ctx.cfg.UseLinearBreakpoints = ctx->cfg.UseLinearBreakpoints;
-        b_ctx.cfg.DynamicBreakpointsDistance = ctx->cfg.DynamicBreakpointsDistance;
-        b_ctx.cfg.NHorz = ctx->cfg.NHorz;
-        b_ctx.cfg.fmax = ctx->cfg.fmax;
-        b_ctx.cfg.smax = ctx->cfg.smax;
-        for (int i87{0}; i87 < 6; i87++) {
-            b_ctx.cfg.vmax[i87] = ctx->cfg.vmax[i87];
-            b_ctx.cfg.amax[i87] = ctx->cfg.amax[i87];
-            b_ctx.cfg.jmax[i87] = ctx->cfg.jmax[i87];
+        b_ctx.cfg.NDiscr = r.cfg.NDiscr;
+        b_ctx.cfg.NBreak = r.cfg.NBreak;
+        b_ctx.cfg.SplitSpecialSpline = r.cfg.SplitSpecialSpline;
+        b_ctx.cfg.ReleaseMemoryOfTheQueues = r.cfg.ReleaseMemoryOfTheQueues;
+        b_ctx.cfg.UseDynamicBreakpoints = r.cfg.UseDynamicBreakpoints;
+        b_ctx.cfg.UseLinearBreakpoints = r.cfg.UseLinearBreakpoints;
+        b_ctx.cfg.DynamicBreakpointsDistance = r.cfg.DynamicBreakpointsDistance;
+        b_ctx.cfg.NHorz = r.cfg.NHorz;
+        for (int i247{0}; i247 < 6; i247++) {
+            b_ctx.cfg.vmax[i247] = r.cfg.vmax[i247];
+            b_ctx.cfg.amax[i247] = r.cfg.amax[i247];
+            b_ctx.cfg.jmax[i247] = r.cfg.jmax[i247];
         }
-        b_ctx.cfg.LeeSplineDegree = ctx->cfg.LeeSplineDegree;
-        b_ctx.cfg.SplineDegree = ctx->cfg.SplineDegree;
-        b_ctx.cfg.CutOff = ctx->cfg.CutOff;
-        b_ctx.cfg.LSplit = ctx->cfg.LSplit;
-        b_ctx.cfg.LSplitZero = ctx->cfg.LSplitZero;
-        b_ctx.cfg.LThresholdMax = ctx->cfg.LThresholdMax;
-        b_ctx.cfg.LThresholdMin = ctx->cfg.LThresholdMin;
-        b_ctx.cfg.v_0 = ctx->cfg.v_0;
-        b_ctx.cfg.at_0 = ctx->cfg.at_0;
-        b_ctx.cfg.v_1 = ctx->cfg.v_1;
-        b_ctx.cfg.at_1 = ctx->cfg.at_1;
-        b_ctx.cfg.dt = ctx->cfg.dt;
-        b_ctx.cfg.DefaultZeroStopCount = ctx->cfg.DefaultZeroStopCount;
-        b_ctx.cfg.ZeroStartAccLimit = ctx->cfg.ZeroStartAccLimit;
-        b_ctx.cfg.ZeroStartJerkLimit = ctx->cfg.ZeroStartJerkLimit;
-        b_ctx.cfg.ZeroStartVelLimit = ctx->cfg.ZeroStartVelLimit;
-        std::copy(&ctx->cfg.source[0], &ctx->cfg.source[1024], &b_ctx.cfg.source[0]);
-        b_ctx.cfg.DebugCutZero = ctx->cfg.DebugCutZero;
-        b_ctx.cfg.Cusp = ctx->cfg.Cusp;
-        b_ctx.cfg.Compressing = ctx->cfg.Compressing;
-        b_ctx.cfg.Smoothing = ctx->cfg.Smoothing;
-        b_ctx.cfg.GaussLegendreN = ctx->cfg.GaussLegendreN;
-        for (int f_i{0}; f_i < 5; f_i++) {
-            b_ctx.cfg.GaussLegendreX[f_i] = ctx->cfg.GaussLegendreX[f_i];
-            b_ctx.cfg.GaussLegendreW[f_i] = ctx->cfg.GaussLegendreW[f_i];
+        b_ctx.cfg.LeeSplineDegree = r.cfg.LeeSplineDegree;
+        b_ctx.cfg.SplineDegree = r.cfg.SplineDegree;
+        b_ctx.cfg.CutOff = r.cfg.CutOff;
+        b_ctx.cfg.LSplit = r.cfg.LSplit;
+        b_ctx.cfg.LSplitZero = r.cfg.LSplitZero;
+        b_ctx.cfg.LThresholdMax = r.cfg.LThresholdMax;
+        b_ctx.cfg.LThresholdMin = r.cfg.LThresholdMin;
+        b_ctx.cfg.v_0 = r.cfg.v_0;
+        b_ctx.cfg.at_0 = r.cfg.at_0;
+        b_ctx.cfg.v_1 = r.cfg.v_1;
+        b_ctx.cfg.at_1 = r.cfg.at_1;
+        b_ctx.cfg.dt = r.cfg.dt;
+        b_ctx.cfg.DefaultZeroStopCount = r.cfg.DefaultZeroStopCount;
+        b_ctx.cfg.source.size[0] = 1;
+        b_ctx.cfg.source.size[1] = r.cfg.source.size[1];
+        pl_loop_ub = r.cfg.source.size[1];
+        if (pl_loop_ub - 1 >= 0) {
+            std::copy(&r.cfg.source.data[0], &r.cfg.source.data[pl_loop_ub],
+                      &b_ctx.cfg.source.data[0]);
         }
-        b_ctx.cfg.opt = ctx->cfg.opt;
-        for (int i93{0}; i93 < 9; i93++) {
-            b_ctx.cfg.LogFileName[i93] = ctx->cfg.LogFileName[i93];
+        b_ctx.cfg.Cusp = r.cfg.Cusp;
+        b_ctx.cfg.Compressing = r.cfg.Compressing;
+        b_ctx.cfg.Smoothing = r.cfg.Smoothing;
+        b_ctx.cfg.GaussLegendreN = r.cfg.GaussLegendreN;
+        for (int j_i{0}; j_i < 5; j_i++) {
+            b_ctx.cfg.GaussLegendreX[j_i] = r.cfg.GaussLegendreX[j_i];
+            b_ctx.cfg.GaussLegendreW[j_i] = r.cfg.GaussLegendreW[j_i];
         }
-        b_ctx.jmax_increase_count = ctx->jmax_increase_count;
-        b_ctx.zero_start = ctx->zero_start;
-        b_ctx.zero_end = ctx->zero_end;
-        b_ctx.zero_forced = ctx->zero_forced;
-        b_ctx.zero_forced_buffer[0] = ctx->zero_forced_buffer[0];
-        b_ctx.zero_forced_buffer[1] = ctx->zero_forced_buffer[1];
-        b_ctx.simplex_calls = ctx->simplex_calls;
-        b_ctx.forced_stop = ctx->forced_stop;
-        b_ctx.programmed_stop = ctx->programmed_stop;
-        b_ctx.Coeff.set_size(ctx->Coeff.size(0), ctx->Coeff.size(1));
-        je_loop_ub = ctx->Coeff.size(1);
-        for (int i104{0}; i104 < je_loop_ub; i104++) {
-            int oe_loop_ub;
-            oe_loop_ub = ctx->Coeff.size(0);
-            for (int i108{0}; i108 < oe_loop_ub; i108++) {
-                b_ctx.Coeff[i108 + b_ctx.Coeff.size(0) * i104] =
-                    ctx->Coeff[i108 + ctx->Coeff.size(0) * i104];
+        b_ctx.cfg.opt = r.cfg.opt;
+        for (int i262{0}; i262 < 9; i262++) {
+            b_ctx.cfg.LogFileName[i262] = r.cfg.LogFileName[i262];
+        }
+        b_ctx.jmax_increase_count = r.jmax_increase_count;
+        b_ctx.zero_start = r.zero_start;
+        b_ctx.zero_end = r.zero_end;
+        b_ctx.zero_forced = r.zero_forced;
+        b_ctx.zero_forced_buffer[0] = r.zero_forced_buffer[0];
+        b_ctx.zero_forced_buffer[1] = r.zero_forced_buffer[1];
+        b_ctx.simplex_calls = r.simplex_calls;
+        b_ctx.forced_stop = r.forced_stop;
+        b_ctx.programmed_stop = r.programmed_stop;
+        b_ctx.Coeff.set_size(r.Coeff.size(0), r.Coeff.size(1));
+        yl_loop_ub = r.Coeff.size(1);
+        for (int i270{0}; i270 < yl_loop_ub; i270++) {
+            int em_loop_ub;
+            em_loop_ub = r.Coeff.size(0);
+            for (int i275{0}; i275 < em_loop_ub; i275++) {
+                b_ctx.Coeff[i275 + b_ctx.Coeff.size(0) * i270] =
+                    r.Coeff[i275 + r.Coeff.size(0) * i270];
             }
         }
-        b_ctx.Skipped = ctx->Skipped;
-        b_ctx.kin = ctx->kin;
-        b_ctx.errmsg = ctx->errmsg;
-        b_ctx.errcode = ctx->errcode;
-        feedratePlanning(&b_ctx, &c_optimized, opt_struct, &quit);
+        bool e_isValid;
+        bool g_isValid;
+        b_ctx.Skipped = r.Skipped;
+        b_ctx.kin = r.kin;
+        b_ctx.errmsg = r.errmsg;
+        b_ctx.errcode = r.errcode;
+        // 'FeedoptPlan:172' msg = string( op );
+        // 'FeedoptPlan:173' ocn_assert( checkGeometry( queue ), ...
+        // 'FeedoptPlan:174'     msg + " - Check geometry failed...", mfilename );
+        x_ocn_assert(checkGeometry(&r.q_smooth));
+        // 'FeedoptPlan:176' [ isValid, ctx ] = checkZSpdmode( ctx, queue );
+        e_isValid = checkZSpdmode(&b_ctx, &r.q_smooth);
+        // 'FeedoptPlan:177' ocn_assert( isValid, ...
+        // 'FeedoptPlan:178'     msg + " - Check zspdmode failed...", mfilename );
+        y_ocn_assert(e_isValid);
+        // 'FeedoptPlan:180' isValid = checkParametrisationQueue( queue );
+        g_isValid = checkParametrisationQueue(&r.q_smooth);
+        // 'FeedoptPlan:181' ocn_assert( isValid, ...
+        // 'FeedoptPlan:182'     msg + " - Check parametrisation failed...", mfilename );
+        ab_ocn_assert(g_isValid);
         ctx->BasisVal.set_size(b_ctx.BasisVal.size(0), b_ctx.BasisVal.size(1));
-        xe_loop_ub = b_ctx.BasisVal.size(1);
-        for (int i118{0}; i118 < xe_loop_ub; i118++) {
-            int gf_loop_ub;
-            gf_loop_ub = b_ctx.BasisVal.size(0);
-            for (int i125{0}; i125 < gf_loop_ub; i125++) {
-                ctx->BasisVal[i125 + ctx->BasisVal.size(0) * i118] =
-                    b_ctx.BasisVal[i125 + b_ctx.BasisVal.size(0) * i118];
+        lm_loop_ub = b_ctx.BasisVal.size(1);
+        for (int i282{0}; i282 < lm_loop_ub; i282++) {
+            int om_loop_ub;
+            om_loop_ub = b_ctx.BasisVal.size(0);
+            for (int i285{0}; i285 < om_loop_ub; i285++) {
+                ctx->BasisVal[i285 + ctx->BasisVal.size(0) * i282] =
+                    b_ctx.BasisVal[i285 + b_ctx.BasisVal.size(0) * i282];
             }
         }
         ctx->BasisValD.set_size(b_ctx.BasisValD.size(0), b_ctx.BasisValD.size(1));
-        jf_loop_ub = b_ctx.BasisValD.size(1);
-        for (int i128{0}; i128 < jf_loop_ub; i128++) {
-            int rf_loop_ub;
-            rf_loop_ub = b_ctx.BasisValD.size(0);
-            for (int i137{0}; i137 < rf_loop_ub; i137++) {
-                ctx->BasisValD[i137 + ctx->BasisValD.size(0) * i128] =
-                    b_ctx.BasisValD[i137 + b_ctx.BasisValD.size(0) * i128];
+        pm_loop_ub = b_ctx.BasisValD.size(1);
+        for (int i286{0}; i286 < pm_loop_ub; i286++) {
+            int sm_loop_ub;
+            sm_loop_ub = b_ctx.BasisValD.size(0);
+            for (int i290{0}; i290 < sm_loop_ub; i290++) {
+                ctx->BasisValD[i290 + ctx->BasisValD.size(0) * i286] =
+                    b_ctx.BasisValD[i290 + b_ctx.BasisValD.size(0) * i286];
             }
         }
         ctx->BasisValDD.set_size(b_ctx.BasisValDD.size(0), b_ctx.BasisValDD.size(1));
-        vf_loop_ub = b_ctx.BasisValDD.size(1);
-        for (int i141{0}; i141 < vf_loop_ub; i141++) {
-            int dg_loop_ub;
-            dg_loop_ub = b_ctx.BasisValDD.size(0);
-            for (int i148{0}; i148 < dg_loop_ub; i148++) {
-                ctx->BasisValDD[i148 + ctx->BasisValDD.size(0) * i141] =
-                    b_ctx.BasisValDD[i148 + b_ctx.BasisValDD.size(0) * i141];
+        tm_loop_ub = b_ctx.BasisValDD.size(1);
+        for (int i291{0}; i291 < tm_loop_ub; i291++) {
+            int xm_loop_ub;
+            xm_loop_ub = b_ctx.BasisValDD.size(0);
+            for (int i294{0}; i294 < xm_loop_ub; i294++) {
+                ctx->BasisValDD[i294 + ctx->BasisValDD.size(0) * i291] =
+                    b_ctx.BasisValDD[i294 + b_ctx.BasisValDD.size(0) * i291];
             }
         }
         ctx->BasisValDDD.set_size(b_ctx.BasisValDDD.size(0), b_ctx.BasisValDDD.size(1));
-        gg_loop_ub = b_ctx.BasisValDDD.size(1);
-        for (int i151{0}; i151 < gg_loop_ub; i151++) {
-            int mg_loop_ub;
-            mg_loop_ub = b_ctx.BasisValDDD.size(0);
-            for (int i157{0}; i157 < mg_loop_ub; i157++) {
-                ctx->BasisValDDD[i157 + ctx->BasisValDDD.size(0) * i151] =
-                    b_ctx.BasisValDDD[i157 + b_ctx.BasisValDDD.size(0) * i151];
+        ym_loop_ub = b_ctx.BasisValDDD.size(1);
+        for (int i295{0}; i295 < ym_loop_ub; i295++) {
+            int dn_loop_ub;
+            dn_loop_ub = b_ctx.BasisValDDD.size(0);
+            for (int i300{0}; i300 < dn_loop_ub; i300++) {
+                ctx->BasisValDDD[i300 + ctx->BasisValDDD.size(0) * i295] =
+                    b_ctx.BasisValDDD[i300 + b_ctx.BasisValDDD.size(0) * i295];
             }
         }
         ctx->BasisIntegr.set_size(b_ctx.BasisIntegr.size(0));
-        ng_loop_ub = b_ctx.BasisIntegr.size(0);
-        for (int i158{0}; i158 < ng_loop_ub; i158++) {
-            ctx->BasisIntegr[i158] = b_ctx.BasisIntegr[i158];
+        fn_loop_ub = b_ctx.BasisIntegr.size(0);
+        for (int i302{0}; i302 < fn_loop_ub; i302++) {
+            ctx->BasisIntegr[i302] = b_ctx.BasisIntegr[i302];
         }
         ctx->Bl = b_ctx.Bl;
         ctx->u_vec.set_size(1, b_ctx.u_vec.size(1));
-        sg_loop_ub = b_ctx.u_vec.size(1);
-        for (int i163{0}; i163 < sg_loop_ub; i163++) {
-            ctx->u_vec[i163] = b_ctx.u_vec[i163];
+        kn_loop_ub = b_ctx.u_vec.size(1);
+        for (int i307{0}; i307 < kn_loop_ub; i307++) {
+            ctx->u_vec[i307] = b_ctx.u_vec[i307];
         }
         ctx->q_spline = b_ctx.q_spline;
         ctx->q_gcode = b_ctx.q_gcode;
@@ -2782,67 +3319,68 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         ctx->v_1 = b_ctx.v_1;
         ctx->at_0 = b_ctx.at_0;
         ctx->at_1 = b_ctx.at_1;
+        ctx->cfg.ENABLE_PRINT_MSG = b_ctx.cfg.ENABLE_PRINT_MSG;
         ctx->cfg.maskTot.size[0] = 1;
         ctx->cfg.maskTot.size[1] = b_ctx.cfg.maskTot.size[1];
-        ah_loop_ub = b_ctx.cfg.maskTot.size[1];
-        if (ah_loop_ub - 1 >= 0) {
-            std::copy(&b_ctx.cfg.maskTot.data[0], &b_ctx.cfg.maskTot.data[ah_loop_ub],
+        pn_loop_ub = b_ctx.cfg.maskTot.size[1];
+        if (pn_loop_ub - 1 >= 0) {
+            std::copy(&b_ctx.cfg.maskTot.data[0], &b_ctx.cfg.maskTot.data[pn_loop_ub],
                       &ctx->cfg.maskTot.data[0]);
         }
         ctx->cfg.maskCart.size[0] = 1;
         ctx->cfg.maskCart.size[1] = b_ctx.cfg.maskCart.size[1];
-        fh_loop_ub = b_ctx.cfg.maskCart.size[1];
-        if (fh_loop_ub - 1 >= 0) {
-            std::copy(&b_ctx.cfg.maskCart.data[0], &b_ctx.cfg.maskCart.data[fh_loop_ub],
+        tn_loop_ub = b_ctx.cfg.maskCart.size[1];
+        if (tn_loop_ub - 1 >= 0) {
+            std::copy(&b_ctx.cfg.maskCart.data[0], &b_ctx.cfg.maskCart.data[tn_loop_ub],
                       &ctx->cfg.maskCart.data[0]);
         }
         ctx->cfg.maskRot.size[0] = 1;
         ctx->cfg.maskRot.size[1] = b_ctx.cfg.maskRot.size[1];
-        kh_loop_ub = b_ctx.cfg.maskRot.size[1];
-        if (kh_loop_ub - 1 >= 0) {
-            std::copy(&b_ctx.cfg.maskRot.data[0], &b_ctx.cfg.maskRot.data[kh_loop_ub],
+        yn_loop_ub = b_ctx.cfg.maskRot.size[1];
+        if (yn_loop_ub - 1 >= 0) {
+            std::copy(&b_ctx.cfg.maskRot.data[0], &b_ctx.cfg.maskRot.data[yn_loop_ub],
                       &ctx->cfg.maskRot.data[0]);
         }
         ctx->cfg.indCart.size[0] = b_ctx.cfg.indCart.size(0);
-        ph_loop_ub = b_ctx.cfg.indCart.size(0);
-        for (int i170{0}; i170 < ph_loop_ub; i170++) {
-            ctx->cfg.indCart.data[i170] = b_ctx.cfg.indCart[i170];
+        do_loop_ub = b_ctx.cfg.indCart.size(0);
+        for (int i319{0}; i319 < do_loop_ub; i319++) {
+            ctx->cfg.indCart.data[i319] = b_ctx.cfg.indCart[i319];
         }
         ctx->cfg.indRot.size[0] = b_ctx.cfg.indRot.size(0);
-        sh_loop_ub = b_ctx.cfg.indRot.size(0);
-        for (int i173{0}; i173 < sh_loop_ub; i173++) {
-            ctx->cfg.indRot.data[i173] = b_ctx.cfg.indRot[i173];
+        go_loop_ub = b_ctx.cfg.indRot.size(0);
+        for (int i322{0}; i322 < go_loop_ub; i322++) {
+            ctx->cfg.indRot.data[i322] = b_ctx.cfg.indRot[i322];
         }
         ctx->cfg.NumberAxis = b_ctx.cfg.NumberAxis;
         ctx->cfg.NCart = b_ctx.cfg.NCart;
         ctx->cfg.NRot = b_ctx.cfg.NRot;
         ctx->cfg.D.size[0] = b_ctx.cfg.D.size(0);
-        ai_loop_ub = b_ctx.cfg.D.size(0);
-        for (int i178{0}; i178 < ai_loop_ub; i178++) {
-            ctx->cfg.D.data[i178] = b_ctx.cfg.D[i178];
+        jo_loop_ub = b_ctx.cfg.D.size(0);
+        for (int i325{0}; i325 < jo_loop_ub; i325++) {
+            ctx->cfg.D.data[i325] = b_ctx.cfg.D[i325];
         }
         ctx->cfg.coeffD = b_ctx.cfg.coeffD;
         ctx->cfg.kin_params.size[0] = b_ctx.cfg.kin_params.size[0];
-        di_loop_ub = b_ctx.cfg.kin_params.size[0];
-        if (di_loop_ub - 1 >= 0) {
-            std::copy(&b_ctx.cfg.kin_params.data[0], &b_ctx.cfg.kin_params.data[di_loop_ub],
+        lo_loop_ub = b_ctx.cfg.kin_params.size[0];
+        if (lo_loop_ub - 1 >= 0) {
+            std::copy(&b_ctx.cfg.kin_params.data[0], &b_ctx.cfg.kin_params.data[lo_loop_ub],
                       &ctx->cfg.kin_params.data[0]);
         }
-        for (int i183{0}; i183 < 8; i183++) {
-            ctx->cfg.kin_type[i183] = b_ctx.cfg.kin_type[i183];
+        for (int i327{0}; i327 < 8; i327++) {
+            ctx->cfg.kin_type[i327] = b_ctx.cfg.kin_type[i327];
         }
         ctx->cfg.NDiscr = b_ctx.cfg.NDiscr;
         ctx->cfg.NBreak = b_ctx.cfg.NBreak;
+        ctx->cfg.SplitSpecialSpline = b_ctx.cfg.SplitSpecialSpline;
+        ctx->cfg.ReleaseMemoryOfTheQueues = b_ctx.cfg.ReleaseMemoryOfTheQueues;
         ctx->cfg.UseDynamicBreakpoints = b_ctx.cfg.UseDynamicBreakpoints;
         ctx->cfg.UseLinearBreakpoints = b_ctx.cfg.UseLinearBreakpoints;
         ctx->cfg.DynamicBreakpointsDistance = b_ctx.cfg.DynamicBreakpointsDistance;
         ctx->cfg.NHorz = b_ctx.cfg.NHorz;
-        ctx->cfg.fmax = b_ctx.cfg.fmax;
-        ctx->cfg.smax = b_ctx.cfg.smax;
-        for (int i189{0}; i189 < 6; i189++) {
-            ctx->cfg.vmax[i189] = b_ctx.cfg.vmax[i189];
-            ctx->cfg.amax[i189] = b_ctx.cfg.amax[i189];
-            ctx->cfg.jmax[i189] = b_ctx.cfg.jmax[i189];
+        for (int i329{0}; i329 < 6; i329++) {
+            ctx->cfg.vmax[i329] = b_ctx.cfg.vmax[i329];
+            ctx->cfg.amax[i329] = b_ctx.cfg.amax[i329];
+            ctx->cfg.jmax[i329] = b_ctx.cfg.jmax[i329];
         }
         ctx->cfg.LeeSplineDegree = b_ctx.cfg.LeeSplineDegree;
         ctx->cfg.SplineDegree = b_ctx.cfg.SplineDegree;
@@ -2857,22 +3395,24 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         ctx->cfg.at_1 = b_ctx.cfg.at_1;
         ctx->cfg.dt = b_ctx.cfg.dt;
         ctx->cfg.DefaultZeroStopCount = b_ctx.cfg.DefaultZeroStopCount;
-        ctx->cfg.ZeroStartAccLimit = b_ctx.cfg.ZeroStartAccLimit;
-        ctx->cfg.ZeroStartJerkLimit = b_ctx.cfg.ZeroStartJerkLimit;
-        ctx->cfg.ZeroStartVelLimit = b_ctx.cfg.ZeroStartVelLimit;
-        std::copy(&b_ctx.cfg.source[0], &b_ctx.cfg.source[1024], &ctx->cfg.source[0]);
-        ctx->cfg.DebugCutZero = b_ctx.cfg.DebugCutZero;
+        ctx->cfg.source.size[0] = 1;
+        ctx->cfg.source.size[1] = b_ctx.cfg.source.size[1];
+        so_loop_ub = b_ctx.cfg.source.size[1];
+        if (so_loop_ub - 1 >= 0) {
+            std::copy(&b_ctx.cfg.source.data[0], &b_ctx.cfg.source.data[so_loop_ub],
+                      &ctx->cfg.source.data[0]);
+        }
         ctx->cfg.Cusp = b_ctx.cfg.Cusp;
         ctx->cfg.Compressing = b_ctx.cfg.Compressing;
         ctx->cfg.Smoothing = b_ctx.cfg.Smoothing;
         ctx->cfg.GaussLegendreN = b_ctx.cfg.GaussLegendreN;
-        for (int k_i{0}; k_i < 5; k_i++) {
-            ctx->cfg.GaussLegendreX[k_i] = b_ctx.cfg.GaussLegendreX[k_i];
-            ctx->cfg.GaussLegendreW[k_i] = b_ctx.cfg.GaussLegendreW[k_i];
+        for (int q_i{0}; q_i < 5; q_i++) {
+            ctx->cfg.GaussLegendreX[q_i] = b_ctx.cfg.GaussLegendreX[q_i];
+            ctx->cfg.GaussLegendreW[q_i] = b_ctx.cfg.GaussLegendreW[q_i];
         }
         ctx->cfg.opt = b_ctx.cfg.opt;
-        for (int i194{0}; i194 < 9; i194++) {
-            ctx->cfg.LogFileName[i194] = b_ctx.cfg.LogFileName[i194];
+        for (int i334{0}; i334 < 9; i334++) {
+            ctx->cfg.LogFileName[i334] = b_ctx.cfg.LogFileName[i334];
         }
         ctx->jmax_increase_count = b_ctx.jmax_increase_count;
         ctx->zero_start = b_ctx.zero_start;
@@ -2884,13 +3424,1059 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         ctx->forced_stop = b_ctx.forced_stop;
         ctx->programmed_stop = b_ctx.programmed_stop;
         ctx->Coeff.set_size(b_ctx.Coeff.size(0), b_ctx.Coeff.size(1));
-        mi_loop_ub = b_ctx.Coeff.size(1);
-        for (int i205{0}; i205 < mi_loop_ub; i205++) {
-            int pi_loop_ub;
-            pi_loop_ub = b_ctx.Coeff.size(0);
-            for (int i208{0}; i208 < pi_loop_ub; i208++) {
-                ctx->Coeff[i208 + ctx->Coeff.size(0) * i205] =
-                    b_ctx.Coeff[i208 + b_ctx.Coeff.size(0) * i205];
+        wo_loop_ub = b_ctx.Coeff.size(1);
+        for (int i337{0}; i337 < wo_loop_ub; i337++) {
+            int yo_loop_ub;
+            yo_loop_ub = b_ctx.Coeff.size(0);
+            for (int i340{0}; i340 < yo_loop_ub; i340++) {
+                ctx->Coeff[i340 + ctx->Coeff.size(0) * i337] =
+                    b_ctx.Coeff[i340 + b_ctx.Coeff.size(0) * i337];
+            }
+        }
+        ctx->Skipped = b_ctx.Skipped;
+        ctx->kin = b_ctx.kin;
+        ctx->errmsg = b_ctx.errmsg;
+        ctx->errcode = b_ctx.errcode;
+        // 'FeedoptPlan:134' if( ctx.cfg.ReleaseMemoryOfTheQueues )
+        if (b_ctx.cfg.ReleaseMemoryOfTheQueues) {
+            // 'FeedoptPlan:134' ctx.q_compress.delete();
+            b_ctx.q_compress.queue_coder_delete();
+        }
+    } break;
+    case Fopt_Split: {
+        int bb_loop_ub;
+        int bd_loop_ub;
+        int bg_loop_ub;
+        int bi_loop_ub;
+        int bj_loop_ub;
+        int bm_loop_ub;
+        int bo_loop_ub;
+        int cn_loop_ub;
+        int de_loop_ub;
+        int df_loop_ub;
+        int dk_loop_ub;
+        int ec_loop_ub;
+        int fo_loop_ub;
+        int g_loop_ub;
+        int hd_loop_ub;
+        int hh_loop_ub;
+        int hn_loop_ub;
+        int ho_loop_ub;
+        int jk_loop_ub;
+        int kf_loop_ub;
+        int ko_loop_ub;
+        int lg_loop_ub;
+        int lj_loop_ub;
+        int ln_loop_ub;
+        int me_loop_ub;
+        int mo_loop_ub;
+        int n_loop_ub;
+        int nm_loop_ub;
+        int od_loop_ub;
+        int pb_loop_ub;
+        int qk_loop_ub;
+        int qn_loop_ub;
+        int rc_loop_ub;
+        int rl_loop_ub;
+        int rm_loop_ub;
+        int sh_loop_ub;
+        int te_loop_ub;
+        int to_loop_ub;
+        int uj_loop_ub;
+        int vd_loop_ub;
+        int vg_loop_ub;
+        int vm_loop_ub;
+        int vn_loop_ub;
+        int wk_loop_ub;
+        int xo_loop_ub;
+        // 'FeedoptPlan:136' case Fopt.Split
+        // 'FeedoptPlan:137' ctx     = splitQueue( ctx );
+        r.BasisVal.set_size(ctx->BasisVal.size(0), ctx->BasisVal.size(1));
+        g_loop_ub = ctx->BasisVal.size(1);
+        for (int i6{0}; i6 < g_loop_ub; i6++) {
+            int l_loop_ub;
+            l_loop_ub = ctx->BasisVal.size(0);
+            for (int i12{0}; i12 < l_loop_ub; i12++) {
+                r.BasisVal[i12 + r.BasisVal.size(0) * i6] =
+                    ctx->BasisVal[i12 + ctx->BasisVal.size(0) * i6];
+            }
+        }
+        r.BasisValD.set_size(ctx->BasisValD.size(0), ctx->BasisValD.size(1));
+        n_loop_ub = ctx->BasisValD.size(1);
+        for (int i14{0}; i14 < n_loop_ub; i14++) {
+            int w_loop_ub;
+            w_loop_ub = ctx->BasisValD.size(0);
+            for (int i23{0}; i23 < w_loop_ub; i23++) {
+                r.BasisValD[i23 + r.BasisValD.size(0) * i14] =
+                    ctx->BasisValD[i23 + ctx->BasisValD.size(0) * i14];
+            }
+        }
+        r.BasisValDD.set_size(ctx->BasisValDD.size(0), ctx->BasisValDD.size(1));
+        bb_loop_ub = ctx->BasisValDD.size(1);
+        for (int i27{0}; i27 < bb_loop_ub; i27++) {
+            int lb_loop_ub;
+            lb_loop_ub = ctx->BasisValDD.size(0);
+            for (int i37{0}; i37 < lb_loop_ub; i37++) {
+                r.BasisValDD[i37 + r.BasisValDD.size(0) * i27] =
+                    ctx->BasisValDD[i37 + ctx->BasisValDD.size(0) * i27];
+            }
+        }
+        r.BasisValDDD.set_size(ctx->BasisValDDD.size(0), ctx->BasisValDDD.size(1));
+        pb_loop_ub = ctx->BasisValDDD.size(1);
+        for (int i41{0}; i41 < pb_loop_ub; i41++) {
+            int ac_loop_ub;
+            ac_loop_ub = ctx->BasisValDDD.size(0);
+            for (int i51{0}; i51 < ac_loop_ub; i51++) {
+                r.BasisValDDD[i51 + r.BasisValDDD.size(0) * i41] =
+                    ctx->BasisValDDD[i51 + ctx->BasisValDDD.size(0) * i41];
+            }
+        }
+        r.BasisIntegr.set_size(ctx->BasisIntegr.size(0));
+        ec_loop_ub = ctx->BasisIntegr.size(0);
+        for (int i55{0}; i55 < ec_loop_ub; i55++) {
+            r.BasisIntegr[i55] = ctx->BasisIntegr[i55];
+        }
+        r.Bl = ctx->Bl;
+        r.u_vec.set_size(1, ctx->u_vec.size(1));
+        rc_loop_ub = ctx->u_vec.size(1);
+        for (int i68{0}; i68 < rc_loop_ub; i68++) {
+            r.u_vec[i68] = ctx->u_vec[i68];
+        }
+        r.q_spline = ctx->q_spline;
+        r.q_gcode = ctx->q_gcode;
+        r.q_compress = ctx->q_compress;
+        r.q_smooth = ctx->q_smooth;
+        r.q_split = ctx->q_split;
+        r.q_opt = ctx->q_opt;
+        r.op = ctx->op;
+        r.go_next = ctx->go_next;
+        r.try_push_again = ctx->try_push_again;
+        r.n_optimized = ctx->n_optimized;
+        r.reached_end = ctx->reached_end;
+        r.k0 = ctx->k0;
+        r.v_0 = ctx->v_0;
+        r.v_1 = ctx->v_1;
+        r.at_0 = ctx->at_0;
+        r.at_1 = ctx->at_1;
+        r.cfg.ENABLE_PRINT_MSG = ctx->cfg.ENABLE_PRINT_MSG;
+        r.cfg.maskTot.size[0] = 1;
+        r.cfg.maskTot.size[1] = ctx->cfg.maskTot.size[1];
+        bd_loop_ub = ctx->cfg.maskTot.size[1];
+        if (bd_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.maskTot.data[0], &ctx->cfg.maskTot.data[bd_loop_ub],
+                      &r.cfg.maskTot.data[0]);
+        }
+        r.cfg.maskCart.size[0] = 1;
+        r.cfg.maskCart.size[1] = ctx->cfg.maskCart.size[1];
+        hd_loop_ub = ctx->cfg.maskCart.size[1];
+        if (hd_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.maskCart.data[0], &ctx->cfg.maskCart.data[hd_loop_ub],
+                      &r.cfg.maskCart.data[0]);
+        }
+        r.cfg.maskRot.size[0] = 1;
+        r.cfg.maskRot.size[1] = ctx->cfg.maskRot.size[1];
+        od_loop_ub = ctx->cfg.maskRot.size[1];
+        if (od_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.maskRot.data[0], &ctx->cfg.maskRot.data[od_loop_ub],
+                      &r.cfg.maskRot.data[0]);
+        }
+        r.cfg.indCart.set_size(ctx->cfg.indCart.size[0]);
+        vd_loop_ub = ctx->cfg.indCart.size[0];
+        for (int i77{0}; i77 < vd_loop_ub; i77++) {
+            r.cfg.indCart[i77] = ctx->cfg.indCart.data[i77];
+        }
+        r.cfg.indRot.set_size(ctx->cfg.indRot.size[0]);
+        de_loop_ub = ctx->cfg.indRot.size[0];
+        for (int i82{0}; i82 < de_loop_ub; i82++) {
+            r.cfg.indRot[i82] = ctx->cfg.indRot.data[i82];
+        }
+        r.cfg.NumberAxis = ctx->cfg.NumberAxis;
+        r.cfg.NCart = ctx->cfg.NCart;
+        r.cfg.NRot = ctx->cfg.NRot;
+        r.cfg.D.set_size(ctx->cfg.D.size[0]);
+        me_loop_ub = ctx->cfg.D.size[0];
+        for (int i90{0}; i90 < me_loop_ub; i90++) {
+            r.cfg.D[i90] = ctx->cfg.D.data[i90];
+        }
+        r.cfg.coeffD = ctx->cfg.coeffD;
+        r.cfg.kin_params.size[0] = ctx->cfg.kin_params.size[0];
+        te_loop_ub = ctx->cfg.kin_params.size[0];
+        if (te_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.kin_params.data[0], &ctx->cfg.kin_params.data[te_loop_ub],
+                      &r.cfg.kin_params.data[0]);
+        }
+        for (int i98{0}; i98 < 8; i98++) {
+            r.cfg.kin_type[i98] = ctx->cfg.kin_type[i98];
+        }
+        r.cfg.NDiscr = ctx->cfg.NDiscr;
+        r.cfg.NBreak = ctx->cfg.NBreak;
+        r.cfg.SplitSpecialSpline = ctx->cfg.SplitSpecialSpline;
+        r.cfg.ReleaseMemoryOfTheQueues = ctx->cfg.ReleaseMemoryOfTheQueues;
+        r.cfg.UseDynamicBreakpoints = ctx->cfg.UseDynamicBreakpoints;
+        r.cfg.UseLinearBreakpoints = ctx->cfg.UseLinearBreakpoints;
+        r.cfg.DynamicBreakpointsDistance = ctx->cfg.DynamicBreakpointsDistance;
+        r.cfg.NHorz = ctx->cfg.NHorz;
+        for (int i107{0}; i107 < 6; i107++) {
+            r.cfg.vmax[i107] = ctx->cfg.vmax[i107];
+            r.cfg.amax[i107] = ctx->cfg.amax[i107];
+            r.cfg.jmax[i107] = ctx->cfg.jmax[i107];
+        }
+        r.cfg.LeeSplineDegree = ctx->cfg.LeeSplineDegree;
+        r.cfg.SplineDegree = ctx->cfg.SplineDegree;
+        r.cfg.CutOff = ctx->cfg.CutOff;
+        r.cfg.LSplit = ctx->cfg.LSplit;
+        r.cfg.LSplitZero = ctx->cfg.LSplitZero;
+        r.cfg.LThresholdMax = ctx->cfg.LThresholdMax;
+        r.cfg.LThresholdMin = ctx->cfg.LThresholdMin;
+        r.cfg.v_0 = ctx->cfg.v_0;
+        r.cfg.at_0 = ctx->cfg.at_0;
+        r.cfg.v_1 = ctx->cfg.v_1;
+        r.cfg.at_1 = ctx->cfg.at_1;
+        r.cfg.dt = ctx->cfg.dt;
+        r.cfg.DefaultZeroStopCount = ctx->cfg.DefaultZeroStopCount;
+        r.cfg.source.size[0] = 1;
+        r.cfg.source.size[1] = ctx->cfg.source.size[1];
+        df_loop_ub = ctx->cfg.source.size[1];
+        if (df_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.source.data[0], &ctx->cfg.source.data[df_loop_ub],
+                      &r.cfg.source.data[0]);
+        }
+        r.cfg.Cusp = ctx->cfg.Cusp;
+        r.cfg.Compressing = ctx->cfg.Compressing;
+        r.cfg.Smoothing = ctx->cfg.Smoothing;
+        r.cfg.GaussLegendreN = ctx->cfg.GaussLegendreN;
+        for (int c_i{0}; c_i < 5; c_i++) {
+            r.cfg.GaussLegendreX[c_i] = ctx->cfg.GaussLegendreX[c_i];
+            r.cfg.GaussLegendreW[c_i] = ctx->cfg.GaussLegendreW[c_i];
+        }
+        r.cfg.opt = ctx->cfg.opt;
+        for (int i114{0}; i114 < 9; i114++) {
+            r.cfg.LogFileName[i114] = ctx->cfg.LogFileName[i114];
+        }
+        r.jmax_increase_count = ctx->jmax_increase_count;
+        r.zero_start = ctx->zero_start;
+        r.zero_end = ctx->zero_end;
+        r.zero_forced = ctx->zero_forced;
+        r.zero_forced_buffer[0] = ctx->zero_forced_buffer[0];
+        r.zero_forced_buffer[1] = ctx->zero_forced_buffer[1];
+        r.simplex_calls = ctx->simplex_calls;
+        r.forced_stop = ctx->forced_stop;
+        r.programmed_stop = ctx->programmed_stop;
+        r.Coeff.set_size(ctx->Coeff.size(0), ctx->Coeff.size(1));
+        kf_loop_ub = ctx->Coeff.size(1);
+        for (int i121{0}; i121 < kf_loop_ub; i121++) {
+            int pf_loop_ub;
+            pf_loop_ub = ctx->Coeff.size(0);
+            for (int i126{0}; i126 < pf_loop_ub; i126++) {
+                r.Coeff[i126 + r.Coeff.size(0) * i121] =
+                    ctx->Coeff[i126 + ctx->Coeff.size(0) * i121];
+            }
+        }
+        r.Skipped = ctx->Skipped;
+        r.kin = ctx->kin;
+        r.errmsg = ctx->errmsg;
+        r.errcode = ctx->errcode;
+        splitQueue(&r);
+        // 'FeedoptPlan:138' ctx.op  = Fopt.Opt;
+        // 'FeedoptPlan:140' if( coder.target( 'MATLAB' ) )
+        // 'FeedoptPlan:144' ctx = assert_queue( ctx, ctx.op, ctx.q_split );
+        b_ctx.BasisVal.set_size(r.BasisVal.size(0), r.BasisVal.size(1));
+        bg_loop_ub = r.BasisVal.size(1);
+        for (int i137{0}; i137 < bg_loop_ub; i137++) {
+            int ig_loop_ub;
+            ig_loop_ub = r.BasisVal.size(0);
+            for (int i144{0}; i144 < ig_loop_ub; i144++) {
+                b_ctx.BasisVal[i144 + b_ctx.BasisVal.size(0) * i137] =
+                    r.BasisVal[i144 + r.BasisVal.size(0) * i137];
+            }
+        }
+        b_ctx.BasisValD.set_size(r.BasisValD.size(0), r.BasisValD.size(1));
+        lg_loop_ub = r.BasisValD.size(1);
+        for (int i146{0}; i146 < lg_loop_ub; i146++) {
+            int tg_loop_ub;
+            tg_loop_ub = r.BasisValD.size(0);
+            for (int i155{0}; i155 < tg_loop_ub; i155++) {
+                b_ctx.BasisValD[i155 + b_ctx.BasisValD.size(0) * i146] =
+                    r.BasisValD[i155 + r.BasisValD.size(0) * i146];
+            }
+        }
+        b_ctx.BasisValDD.set_size(r.BasisValDD.size(0), r.BasisValDD.size(1));
+        vg_loop_ub = r.BasisValDD.size(1);
+        for (int i157{0}; i157 < vg_loop_ub; i157++) {
+            int fh_loop_ub;
+            fh_loop_ub = r.BasisValDD.size(0);
+            for (int i166{0}; i166 < fh_loop_ub; i166++) {
+                b_ctx.BasisValDD[i166 + b_ctx.BasisValDD.size(0) * i157] =
+                    r.BasisValDD[i166 + r.BasisValDD.size(0) * i157];
+            }
+        }
+        b_ctx.BasisValDDD.set_size(r.BasisValDDD.size(0), r.BasisValDDD.size(1));
+        hh_loop_ub = r.BasisValDDD.size(1);
+        for (int i168{0}; i168 < hh_loop_ub; i168++) {
+            int ph_loop_ub;
+            ph_loop_ub = r.BasisValDDD.size(0);
+            for (int i176{0}; i176 < ph_loop_ub; i176++) {
+                b_ctx.BasisValDDD[i176 + b_ctx.BasisValDDD.size(0) * i168] =
+                    r.BasisValDDD[i176 + r.BasisValDDD.size(0) * i168];
+            }
+        }
+        b_ctx.BasisIntegr.set_size(r.BasisIntegr.size(0));
+        sh_loop_ub = r.BasisIntegr.size(0);
+        for (int i178{0}; i178 < sh_loop_ub; i178++) {
+            b_ctx.BasisIntegr[i178] = r.BasisIntegr[i178];
+        }
+        b_ctx.Bl = r.Bl;
+        b_ctx.u_vec.set_size(1, r.u_vec.size(1));
+        bi_loop_ub = r.u_vec.size(1);
+        for (int i186{0}; i186 < bi_loop_ub; i186++) {
+            b_ctx.u_vec[i186] = r.u_vec[i186];
+        }
+        b_ctx.q_spline = r.q_spline;
+        b_ctx.q_gcode = r.q_gcode;
+        b_ctx.q_compress = r.q_compress;
+        b_ctx.q_smooth = r.q_smooth;
+        b_ctx.q_split = r.q_split;
+        b_ctx.q_opt = r.q_opt;
+        b_ctx.op = Fopt_Opt;
+        b_ctx.go_next = r.go_next;
+        b_ctx.try_push_again = r.try_push_again;
+        b_ctx.n_optimized = r.n_optimized;
+        b_ctx.reached_end = r.reached_end;
+        b_ctx.k0 = r.k0;
+        b_ctx.v_0 = r.v_0;
+        b_ctx.v_1 = r.v_1;
+        b_ctx.at_0 = r.at_0;
+        b_ctx.at_1 = r.at_1;
+        b_ctx.cfg.ENABLE_PRINT_MSG = r.cfg.ENABLE_PRINT_MSG;
+        b_ctx.cfg.maskTot.size[0] = 1;
+        b_ctx.cfg.maskTot.size[1] = r.cfg.maskTot.size[1];
+        bj_loop_ub = r.cfg.maskTot.size[1];
+        if (bj_loop_ub - 1 >= 0) {
+            std::copy(&r.cfg.maskTot.data[0], &r.cfg.maskTot.data[bj_loop_ub],
+                      &b_ctx.cfg.maskTot.data[0]);
+        }
+        b_ctx.cfg.maskCart.size[0] = 1;
+        b_ctx.cfg.maskCart.size[1] = r.cfg.maskCart.size[1];
+        lj_loop_ub = r.cfg.maskCart.size[1];
+        if (lj_loop_ub - 1 >= 0) {
+            std::copy(&r.cfg.maskCart.data[0], &r.cfg.maskCart.data[lj_loop_ub],
+                      &b_ctx.cfg.maskCart.data[0]);
+        }
+        b_ctx.cfg.maskRot.size[0] = 1;
+        b_ctx.cfg.maskRot.size[1] = r.cfg.maskRot.size[1];
+        uj_loop_ub = r.cfg.maskRot.size[1];
+        if (uj_loop_ub - 1 >= 0) {
+            std::copy(&r.cfg.maskRot.data[0], &r.cfg.maskRot.data[uj_loop_ub],
+                      &b_ctx.cfg.maskRot.data[0]);
+        }
+        b_ctx.cfg.indCart.set_size(r.cfg.indCart.size(0));
+        dk_loop_ub = r.cfg.indCart.size(0);
+        for (int i226{0}; i226 < dk_loop_ub; i226++) {
+            b_ctx.cfg.indCart[i226] = r.cfg.indCart[i226];
+        }
+        b_ctx.cfg.indRot.set_size(r.cfg.indRot.size(0));
+        jk_loop_ub = r.cfg.indRot.size(0);
+        for (int i232{0}; i232 < jk_loop_ub; i232++) {
+            b_ctx.cfg.indRot[i232] = r.cfg.indRot[i232];
+        }
+        b_ctx.cfg.NumberAxis = r.cfg.NumberAxis;
+        b_ctx.cfg.NCart = r.cfg.NCart;
+        b_ctx.cfg.NRot = r.cfg.NRot;
+        b_ctx.cfg.D.set_size(r.cfg.D.size(0));
+        qk_loop_ub = r.cfg.D.size(0);
+        for (int i237{0}; i237 < qk_loop_ub; i237++) {
+            b_ctx.cfg.D[i237] = r.cfg.D[i237];
+        }
+        b_ctx.cfg.coeffD = r.cfg.coeffD;
+        b_ctx.cfg.kin_params.size[0] = r.cfg.kin_params.size[0];
+        wk_loop_ub = r.cfg.kin_params.size[0];
+        if (wk_loop_ub - 1 >= 0) {
+            std::copy(&r.cfg.kin_params.data[0], &r.cfg.kin_params.data[wk_loop_ub],
+                      &b_ctx.cfg.kin_params.data[0]);
+        }
+        for (int i242{0}; i242 < 8; i242++) {
+            b_ctx.cfg.kin_type[i242] = r.cfg.kin_type[i242];
+        }
+        b_ctx.cfg.NDiscr = r.cfg.NDiscr;
+        b_ctx.cfg.NBreak = r.cfg.NBreak;
+        b_ctx.cfg.SplitSpecialSpline = r.cfg.SplitSpecialSpline;
+        b_ctx.cfg.ReleaseMemoryOfTheQueues = r.cfg.ReleaseMemoryOfTheQueues;
+        b_ctx.cfg.UseDynamicBreakpoints = r.cfg.UseDynamicBreakpoints;
+        b_ctx.cfg.UseLinearBreakpoints = r.cfg.UseLinearBreakpoints;
+        b_ctx.cfg.DynamicBreakpointsDistance = r.cfg.DynamicBreakpointsDistance;
+        b_ctx.cfg.NHorz = r.cfg.NHorz;
+        for (int i249{0}; i249 < 6; i249++) {
+            b_ctx.cfg.vmax[i249] = r.cfg.vmax[i249];
+            b_ctx.cfg.amax[i249] = r.cfg.amax[i249];
+            b_ctx.cfg.jmax[i249] = r.cfg.jmax[i249];
+        }
+        b_ctx.cfg.LeeSplineDegree = r.cfg.LeeSplineDegree;
+        b_ctx.cfg.SplineDegree = r.cfg.SplineDegree;
+        b_ctx.cfg.CutOff = r.cfg.CutOff;
+        b_ctx.cfg.LSplit = r.cfg.LSplit;
+        b_ctx.cfg.LSplitZero = r.cfg.LSplitZero;
+        b_ctx.cfg.LThresholdMax = r.cfg.LThresholdMax;
+        b_ctx.cfg.LThresholdMin = r.cfg.LThresholdMin;
+        b_ctx.cfg.v_0 = r.cfg.v_0;
+        b_ctx.cfg.at_0 = r.cfg.at_0;
+        b_ctx.cfg.v_1 = r.cfg.v_1;
+        b_ctx.cfg.at_1 = r.cfg.at_1;
+        b_ctx.cfg.dt = r.cfg.dt;
+        b_ctx.cfg.DefaultZeroStopCount = r.cfg.DefaultZeroStopCount;
+        b_ctx.cfg.source.size[0] = 1;
+        b_ctx.cfg.source.size[1] = r.cfg.source.size[1];
+        rl_loop_ub = r.cfg.source.size[1];
+        if (rl_loop_ub - 1 >= 0) {
+            std::copy(&r.cfg.source.data[0], &r.cfg.source.data[rl_loop_ub],
+                      &b_ctx.cfg.source.data[0]);
+        }
+        b_ctx.cfg.Cusp = r.cfg.Cusp;
+        b_ctx.cfg.Compressing = r.cfg.Compressing;
+        b_ctx.cfg.Smoothing = r.cfg.Smoothing;
+        b_ctx.cfg.GaussLegendreN = r.cfg.GaussLegendreN;
+        for (int l_i{0}; l_i < 5; l_i++) {
+            b_ctx.cfg.GaussLegendreX[l_i] = r.cfg.GaussLegendreX[l_i];
+            b_ctx.cfg.GaussLegendreW[l_i] = r.cfg.GaussLegendreW[l_i];
+        }
+        b_ctx.cfg.opt = r.cfg.opt;
+        for (int i264{0}; i264 < 9; i264++) {
+            b_ctx.cfg.LogFileName[i264] = r.cfg.LogFileName[i264];
+        }
+        b_ctx.jmax_increase_count = r.jmax_increase_count;
+        b_ctx.zero_start = r.zero_start;
+        b_ctx.zero_end = r.zero_end;
+        b_ctx.zero_forced = r.zero_forced;
+        b_ctx.zero_forced_buffer[0] = r.zero_forced_buffer[0];
+        b_ctx.zero_forced_buffer[1] = r.zero_forced_buffer[1];
+        b_ctx.simplex_calls = r.simplex_calls;
+        b_ctx.forced_stop = r.forced_stop;
+        b_ctx.programmed_stop = r.programmed_stop;
+        b_ctx.Coeff.set_size(r.Coeff.size(0), r.Coeff.size(1));
+        bm_loop_ub = r.Coeff.size(1);
+        for (int i272{0}; i272 < bm_loop_ub; i272++) {
+            int gm_loop_ub;
+            gm_loop_ub = r.Coeff.size(0);
+            for (int i277{0}; i277 < gm_loop_ub; i277++) {
+                b_ctx.Coeff[i277 + b_ctx.Coeff.size(0) * i272] =
+                    r.Coeff[i277 + r.Coeff.size(0) * i272];
+            }
+        }
+        bool f_isValid;
+        bool h_isValid;
+        b_ctx.Skipped = r.Skipped;
+        b_ctx.kin = r.kin;
+        b_ctx.errmsg = r.errmsg;
+        b_ctx.errcode = r.errcode;
+        // 'FeedoptPlan:172' msg = string( op );
+        // 'FeedoptPlan:173' ocn_assert( checkGeometry( queue ), ...
+        // 'FeedoptPlan:174'     msg + " - Check geometry failed...", mfilename );
+        kb_ocn_assert(checkGeometry(&r.q_split));
+        // 'FeedoptPlan:176' [ isValid, ctx ] = checkZSpdmode( ctx, queue );
+        f_isValid = checkZSpdmode(&b_ctx, &r.q_split);
+        // 'FeedoptPlan:177' ocn_assert( isValid, ...
+        // 'FeedoptPlan:178'     msg + " - Check zspdmode failed...", mfilename );
+        lb_ocn_assert(f_isValid);
+        // 'FeedoptPlan:180' isValid = checkParametrisationQueue( queue );
+        h_isValid = checkParametrisationQueue(&r.q_split);
+        // 'FeedoptPlan:181' ocn_assert( isValid, ...
+        // 'FeedoptPlan:182'     msg + " - Check parametrisation failed...", mfilename );
+        mb_ocn_assert(h_isValid);
+        ctx->BasisVal.set_size(b_ctx.BasisVal.size(0), b_ctx.BasisVal.size(1));
+        nm_loop_ub = b_ctx.BasisVal.size(1);
+        for (int i284{0}; i284 < nm_loop_ub; i284++) {
+            int qm_loop_ub;
+            qm_loop_ub = b_ctx.BasisVal.size(0);
+            for (int i287{0}; i287 < qm_loop_ub; i287++) {
+                ctx->BasisVal[i287 + ctx->BasisVal.size(0) * i284] =
+                    b_ctx.BasisVal[i287 + b_ctx.BasisVal.size(0) * i284];
+            }
+        }
+        ctx->BasisValD.set_size(b_ctx.BasisValD.size(0), b_ctx.BasisValD.size(1));
+        rm_loop_ub = b_ctx.BasisValD.size(1);
+        for (int i289{0}; i289 < rm_loop_ub; i289++) {
+            int um_loop_ub;
+            um_loop_ub = b_ctx.BasisValD.size(0);
+            for (int i292{0}; i292 < um_loop_ub; i292++) {
+                ctx->BasisValD[i292 + ctx->BasisValD.size(0) * i289] =
+                    b_ctx.BasisValD[i292 + b_ctx.BasisValD.size(0) * i289];
+            }
+        }
+        ctx->BasisValDD.set_size(b_ctx.BasisValDD.size(0), b_ctx.BasisValDD.size(1));
+        vm_loop_ub = b_ctx.BasisValDD.size(1);
+        for (int i293{0}; i293 < vm_loop_ub; i293++) {
+            int an_loop_ub;
+            an_loop_ub = b_ctx.BasisValDD.size(0);
+            for (int i296{0}; i296 < an_loop_ub; i296++) {
+                ctx->BasisValDD[i296 + ctx->BasisValDD.size(0) * i293] =
+                    b_ctx.BasisValDD[i296 + b_ctx.BasisValDD.size(0) * i293];
+            }
+        }
+        ctx->BasisValDDD.set_size(b_ctx.BasisValDDD.size(0), b_ctx.BasisValDDD.size(1));
+        cn_loop_ub = b_ctx.BasisValDDD.size(1);
+        for (int i299{0}; i299 < cn_loop_ub; i299++) {
+            int gn_loop_ub;
+            gn_loop_ub = b_ctx.BasisValDDD.size(0);
+            for (int i303{0}; i303 < gn_loop_ub; i303++) {
+                ctx->BasisValDDD[i303 + ctx->BasisValDDD.size(0) * i299] =
+                    b_ctx.BasisValDDD[i303 + b_ctx.BasisValDDD.size(0) * i299];
+            }
+        }
+        ctx->BasisIntegr.set_size(b_ctx.BasisIntegr.size(0));
+        hn_loop_ub = b_ctx.BasisIntegr.size(0);
+        for (int i304{0}; i304 < hn_loop_ub; i304++) {
+            ctx->BasisIntegr[i304] = b_ctx.BasisIntegr[i304];
+        }
+        ctx->Bl = b_ctx.Bl;
+        ctx->u_vec.set_size(1, b_ctx.u_vec.size(1));
+        ln_loop_ub = b_ctx.u_vec.size(1);
+        for (int i308{0}; i308 < ln_loop_ub; i308++) {
+            ctx->u_vec[i308] = b_ctx.u_vec[i308];
+        }
+        ctx->q_spline = b_ctx.q_spline;
+        ctx->q_gcode = b_ctx.q_gcode;
+        ctx->q_compress = b_ctx.q_compress;
+        ctx->q_smooth = b_ctx.q_smooth;
+        ctx->q_split = b_ctx.q_split;
+        ctx->q_opt = b_ctx.q_opt;
+        ctx->op = b_ctx.op;
+        ctx->go_next = b_ctx.go_next;
+        ctx->try_push_again = b_ctx.try_push_again;
+        ctx->n_optimized = b_ctx.n_optimized;
+        ctx->reached_end = b_ctx.reached_end;
+        ctx->k0 = b_ctx.k0;
+        ctx->v_0 = b_ctx.v_0;
+        ctx->v_1 = b_ctx.v_1;
+        ctx->at_0 = b_ctx.at_0;
+        ctx->at_1 = b_ctx.at_1;
+        ctx->cfg.ENABLE_PRINT_MSG = b_ctx.cfg.ENABLE_PRINT_MSG;
+        ctx->cfg.maskTot.size[0] = 1;
+        ctx->cfg.maskTot.size[1] = b_ctx.cfg.maskTot.size[1];
+        qn_loop_ub = b_ctx.cfg.maskTot.size[1];
+        if (qn_loop_ub - 1 >= 0) {
+            std::copy(&b_ctx.cfg.maskTot.data[0], &b_ctx.cfg.maskTot.data[qn_loop_ub],
+                      &ctx->cfg.maskTot.data[0]);
+        }
+        ctx->cfg.maskCart.size[0] = 1;
+        ctx->cfg.maskCart.size[1] = b_ctx.cfg.maskCart.size[1];
+        vn_loop_ub = b_ctx.cfg.maskCart.size[1];
+        if (vn_loop_ub - 1 >= 0) {
+            std::copy(&b_ctx.cfg.maskCart.data[0], &b_ctx.cfg.maskCart.data[vn_loop_ub],
+                      &ctx->cfg.maskCart.data[0]);
+        }
+        ctx->cfg.maskRot.size[0] = 1;
+        ctx->cfg.maskRot.size[1] = b_ctx.cfg.maskRot.size[1];
+        bo_loop_ub = b_ctx.cfg.maskRot.size[1];
+        if (bo_loop_ub - 1 >= 0) {
+            std::copy(&b_ctx.cfg.maskRot.data[0], &b_ctx.cfg.maskRot.data[bo_loop_ub],
+                      &ctx->cfg.maskRot.data[0]);
+        }
+        ctx->cfg.indCart.size[0] = b_ctx.cfg.indCart.size(0);
+        fo_loop_ub = b_ctx.cfg.indCart.size(0);
+        for (int i321{0}; i321 < fo_loop_ub; i321++) {
+            ctx->cfg.indCart.data[i321] = b_ctx.cfg.indCart[i321];
+        }
+        ctx->cfg.indRot.size[0] = b_ctx.cfg.indRot.size(0);
+        ho_loop_ub = b_ctx.cfg.indRot.size(0);
+        for (int i323{0}; i323 < ho_loop_ub; i323++) {
+            ctx->cfg.indRot.data[i323] = b_ctx.cfg.indRot[i323];
+        }
+        ctx->cfg.NumberAxis = b_ctx.cfg.NumberAxis;
+        ctx->cfg.NCart = b_ctx.cfg.NCart;
+        ctx->cfg.NRot = b_ctx.cfg.NRot;
+        ctx->cfg.D.size[0] = b_ctx.cfg.D.size(0);
+        ko_loop_ub = b_ctx.cfg.D.size(0);
+        for (int i326{0}; i326 < ko_loop_ub; i326++) {
+            ctx->cfg.D.data[i326] = b_ctx.cfg.D[i326];
+        }
+        ctx->cfg.coeffD = b_ctx.cfg.coeffD;
+        ctx->cfg.kin_params.size[0] = b_ctx.cfg.kin_params.size[0];
+        mo_loop_ub = b_ctx.cfg.kin_params.size[0];
+        if (mo_loop_ub - 1 >= 0) {
+            std::copy(&b_ctx.cfg.kin_params.data[0], &b_ctx.cfg.kin_params.data[mo_loop_ub],
+                      &ctx->cfg.kin_params.data[0]);
+        }
+        for (int i328{0}; i328 < 8; i328++) {
+            ctx->cfg.kin_type[i328] = b_ctx.cfg.kin_type[i328];
+        }
+        ctx->cfg.NDiscr = b_ctx.cfg.NDiscr;
+        ctx->cfg.NBreak = b_ctx.cfg.NBreak;
+        ctx->cfg.SplitSpecialSpline = b_ctx.cfg.SplitSpecialSpline;
+        ctx->cfg.ReleaseMemoryOfTheQueues = b_ctx.cfg.ReleaseMemoryOfTheQueues;
+        ctx->cfg.UseDynamicBreakpoints = b_ctx.cfg.UseDynamicBreakpoints;
+        ctx->cfg.UseLinearBreakpoints = b_ctx.cfg.UseLinearBreakpoints;
+        ctx->cfg.DynamicBreakpointsDistance = b_ctx.cfg.DynamicBreakpointsDistance;
+        ctx->cfg.NHorz = b_ctx.cfg.NHorz;
+        for (int i330{0}; i330 < 6; i330++) {
+            ctx->cfg.vmax[i330] = b_ctx.cfg.vmax[i330];
+            ctx->cfg.amax[i330] = b_ctx.cfg.amax[i330];
+            ctx->cfg.jmax[i330] = b_ctx.cfg.jmax[i330];
+        }
+        ctx->cfg.LeeSplineDegree = b_ctx.cfg.LeeSplineDegree;
+        ctx->cfg.SplineDegree = b_ctx.cfg.SplineDegree;
+        ctx->cfg.CutOff = b_ctx.cfg.CutOff;
+        ctx->cfg.LSplit = b_ctx.cfg.LSplit;
+        ctx->cfg.LSplitZero = b_ctx.cfg.LSplitZero;
+        ctx->cfg.LThresholdMax = b_ctx.cfg.LThresholdMax;
+        ctx->cfg.LThresholdMin = b_ctx.cfg.LThresholdMin;
+        ctx->cfg.v_0 = b_ctx.cfg.v_0;
+        ctx->cfg.at_0 = b_ctx.cfg.at_0;
+        ctx->cfg.v_1 = b_ctx.cfg.v_1;
+        ctx->cfg.at_1 = b_ctx.cfg.at_1;
+        ctx->cfg.dt = b_ctx.cfg.dt;
+        ctx->cfg.DefaultZeroStopCount = b_ctx.cfg.DefaultZeroStopCount;
+        ctx->cfg.source.size[0] = 1;
+        ctx->cfg.source.size[1] = b_ctx.cfg.source.size[1];
+        to_loop_ub = b_ctx.cfg.source.size[1];
+        if (to_loop_ub - 1 >= 0) {
+            std::copy(&b_ctx.cfg.source.data[0], &b_ctx.cfg.source.data[to_loop_ub],
+                      &ctx->cfg.source.data[0]);
+        }
+        ctx->cfg.Cusp = b_ctx.cfg.Cusp;
+        ctx->cfg.Compressing = b_ctx.cfg.Compressing;
+        ctx->cfg.Smoothing = b_ctx.cfg.Smoothing;
+        ctx->cfg.GaussLegendreN = b_ctx.cfg.GaussLegendreN;
+        for (int r_i{0}; r_i < 5; r_i++) {
+            ctx->cfg.GaussLegendreX[r_i] = b_ctx.cfg.GaussLegendreX[r_i];
+            ctx->cfg.GaussLegendreW[r_i] = b_ctx.cfg.GaussLegendreW[r_i];
+        }
+        ctx->cfg.opt = b_ctx.cfg.opt;
+        for (int i335{0}; i335 < 9; i335++) {
+            ctx->cfg.LogFileName[i335] = b_ctx.cfg.LogFileName[i335];
+        }
+        ctx->jmax_increase_count = b_ctx.jmax_increase_count;
+        ctx->zero_start = b_ctx.zero_start;
+        ctx->zero_end = b_ctx.zero_end;
+        ctx->zero_forced = b_ctx.zero_forced;
+        ctx->zero_forced_buffer[0] = b_ctx.zero_forced_buffer[0];
+        ctx->zero_forced_buffer[1] = b_ctx.zero_forced_buffer[1];
+        ctx->simplex_calls = b_ctx.simplex_calls;
+        ctx->forced_stop = b_ctx.forced_stop;
+        ctx->programmed_stop = b_ctx.programmed_stop;
+        ctx->Coeff.set_size(b_ctx.Coeff.size(0), b_ctx.Coeff.size(1));
+        xo_loop_ub = b_ctx.Coeff.size(1);
+        for (int i339{0}; i339 < xo_loop_ub; i339++) {
+            int ap_loop_ub;
+            ap_loop_ub = b_ctx.Coeff.size(0);
+            for (int i341{0}; i341 < ap_loop_ub; i341++) {
+                ctx->Coeff[i341 + ctx->Coeff.size(0) * i339] =
+                    b_ctx.Coeff[i341 + b_ctx.Coeff.size(0) * i339];
+            }
+        }
+        ctx->Skipped = b_ctx.Skipped;
+        ctx->kin = b_ctx.kin;
+        ctx->errmsg = b_ctx.errmsg;
+        ctx->errcode = b_ctx.errcode;
+        //          histogramLength( ctx, ctx.q_split, "Splitting" );
+        // 'FeedoptPlan:147' if( ctx.cfg.ReleaseMemoryOfTheQueues )
+        if (b_ctx.cfg.ReleaseMemoryOfTheQueues) {
+            // 'FeedoptPlan:147' ctx.q_smooth.delete();
+            b_ctx.q_smooth.queue_coder_delete();
+        }
+    } break;
+    case Fopt_Opt: {
+        int af_loop_ub;
+        int cb_loop_ub;
+        int cg_loop_ub;
+        int cm_loop_ub;
+        int dj_loop_ub;
+        int ee_loop_ub;
+        int ei_loop_ub;
+        int ek_loop_ub;
+        int fc_loop_ub;
+        int fd_loop_ub;
+        int hf_loop_ub;
+        int je_loop_ub;
+        int jh_loop_ub;
+        int lk_loop_ub;
+        int md_loop_ub;
+        int mj_loop_ub;
+        int ng_loop_ub;
+        int o_loop_ub;
+        int pc_loop_ub;
+        int qb_loop_ub;
+        int qf_loop_ub;
+        int re_loop_ub;
+        int rk_loop_ub;
+        int sl_loop_ub;
+        int uh_loop_ub;
+        int vj_loop_ub;
+        int wd_loop_ub;
+        int xc_loop_ub;
+        int xk_loop_ub;
+        int yg_loop_ub;
+        // 'FeedoptPlan:149' case Fopt.Opt
+        // 'FeedoptPlan:150' if( ctx.q_opt.size() == 0 )
+        if (ctx->q_opt.size() == 0U) {
+            // 'FeedoptPlan:150' ctx.k0 = int32( 1 );
+            ctx->k0 = 1;
+        }
+        //          ctx.op = Fopt.Finished; return;
+        // 'FeedoptPlan:152' [ ctx, optimized, opt_struct, quit ] = feedratePlanning( ctx );
+        b_ctx.BasisVal.set_size(ctx->BasisVal.size(0), ctx->BasisVal.size(1));
+        o_loop_ub = ctx->BasisVal.size(1);
+        for (int i15{0}; i15 < o_loop_ub; i15++) {
+            int x_loop_ub;
+            x_loop_ub = ctx->BasisVal.size(0);
+            for (int i24{0}; i24 < x_loop_ub; i24++) {
+                b_ctx.BasisVal[i24 + b_ctx.BasisVal.size(0) * i15] =
+                    ctx->BasisVal[i24 + ctx->BasisVal.size(0) * i15];
+            }
+        }
+        b_ctx.BasisValD.set_size(ctx->BasisValD.size(0), ctx->BasisValD.size(1));
+        cb_loop_ub = ctx->BasisValD.size(1);
+        for (int i28{0}; i28 < cb_loop_ub; i28++) {
+            int mb_loop_ub;
+            mb_loop_ub = ctx->BasisValD.size(0);
+            for (int i38{0}; i38 < mb_loop_ub; i38++) {
+                b_ctx.BasisValD[i38 + b_ctx.BasisValD.size(0) * i28] =
+                    ctx->BasisValD[i38 + ctx->BasisValD.size(0) * i28];
+            }
+        }
+        b_ctx.BasisValDD.set_size(ctx->BasisValDD.size(0), ctx->BasisValDD.size(1));
+        qb_loop_ub = ctx->BasisValDD.size(1);
+        for (int i42{0}; i42 < qb_loop_ub; i42++) {
+            int bc_loop_ub;
+            bc_loop_ub = ctx->BasisValDD.size(0);
+            for (int i52{0}; i52 < bc_loop_ub; i52++) {
+                b_ctx.BasisValDD[i52 + b_ctx.BasisValDD.size(0) * i42] =
+                    ctx->BasisValDD[i52 + ctx->BasisValDD.size(0) * i42];
+            }
+        }
+        b_ctx.BasisValDDD.set_size(ctx->BasisValDDD.size(0), ctx->BasisValDDD.size(1));
+        fc_loop_ub = ctx->BasisValDDD.size(1);
+        for (int i56{0}; i56 < fc_loop_ub; i56++) {
+            int nc_loop_ub;
+            nc_loop_ub = ctx->BasisValDDD.size(0);
+            for (int i64{0}; i64 < nc_loop_ub; i64++) {
+                b_ctx.BasisValDDD[i64 + b_ctx.BasisValDDD.size(0) * i56] =
+                    ctx->BasisValDDD[i64 + ctx->BasisValDDD.size(0) * i56];
+            }
+        }
+        b_ctx.BasisIntegr.set_size(ctx->BasisIntegr.size(0));
+        pc_loop_ub = ctx->BasisIntegr.size(0);
+        for (int i66{0}; i66 < pc_loop_ub; i66++) {
+            b_ctx.BasisIntegr[i66] = ctx->BasisIntegr[i66];
+        }
+        b_ctx.Bl = ctx->Bl;
+        b_ctx.u_vec.set_size(1, ctx->u_vec.size(1));
+        xc_loop_ub = ctx->u_vec.size(1);
+        for (int i74{0}; i74 < xc_loop_ub; i74++) {
+            b_ctx.u_vec[i74] = ctx->u_vec[i74];
+        }
+        b_ctx.q_spline = ctx->q_spline;
+        b_ctx.q_gcode = ctx->q_gcode;
+        b_ctx.q_compress = ctx->q_compress;
+        b_ctx.q_smooth = ctx->q_smooth;
+        b_ctx.q_split = ctx->q_split;
+        b_ctx.q_opt = ctx->q_opt;
+        b_ctx.op = ctx->op;
+        b_ctx.go_next = ctx->go_next;
+        b_ctx.try_push_again = ctx->try_push_again;
+        b_ctx.n_optimized = ctx->n_optimized;
+        b_ctx.reached_end = ctx->reached_end;
+        b_ctx.k0 = ctx->k0;
+        b_ctx.v_0 = ctx->v_0;
+        b_ctx.v_1 = ctx->v_1;
+        b_ctx.at_0 = ctx->at_0;
+        b_ctx.at_1 = ctx->at_1;
+        b_ctx.cfg.ENABLE_PRINT_MSG = ctx->cfg.ENABLE_PRINT_MSG;
+        b_ctx.cfg.maskTot.size[0] = 1;
+        b_ctx.cfg.maskTot.size[1] = ctx->cfg.maskTot.size[1];
+        fd_loop_ub = ctx->cfg.maskTot.size[1];
+        if (fd_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.maskTot.data[0], &ctx->cfg.maskTot.data[fd_loop_ub],
+                      &b_ctx.cfg.maskTot.data[0]);
+        }
+        b_ctx.cfg.maskCart.size[0] = 1;
+        b_ctx.cfg.maskCart.size[1] = ctx->cfg.maskCart.size[1];
+        md_loop_ub = ctx->cfg.maskCart.size[1];
+        if (md_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.maskCart.data[0], &ctx->cfg.maskCart.data[md_loop_ub],
+                      &b_ctx.cfg.maskCart.data[0]);
+        }
+        b_ctx.cfg.maskRot.size[0] = 1;
+        b_ctx.cfg.maskRot.size[1] = ctx->cfg.maskRot.size[1];
+        wd_loop_ub = ctx->cfg.maskRot.size[1];
+        if (wd_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.maskRot.data[0], &ctx->cfg.maskRot.data[wd_loop_ub],
+                      &b_ctx.cfg.maskRot.data[0]);
+        }
+        b_ctx.cfg.indCart.set_size(ctx->cfg.indCart.size[0]);
+        ee_loop_ub = ctx->cfg.indCart.size[0];
+        for (int i83{0}; i83 < ee_loop_ub; i83++) {
+            b_ctx.cfg.indCart[i83] = ctx->cfg.indCart.data[i83];
+        }
+        b_ctx.cfg.indRot.set_size(ctx->cfg.indRot.size[0]);
+        je_loop_ub = ctx->cfg.indRot.size[0];
+        for (int i88{0}; i88 < je_loop_ub; i88++) {
+            b_ctx.cfg.indRot[i88] = ctx->cfg.indRot.data[i88];
+        }
+        b_ctx.cfg.NumberAxis = ctx->cfg.NumberAxis;
+        b_ctx.cfg.NCart = ctx->cfg.NCart;
+        b_ctx.cfg.NRot = ctx->cfg.NRot;
+        b_ctx.cfg.D.set_size(ctx->cfg.D.size[0]);
+        re_loop_ub = ctx->cfg.D.size[0];
+        for (int i96{0}; i96 < re_loop_ub; i96++) {
+            b_ctx.cfg.D[i96] = ctx->cfg.D.data[i96];
+        }
+        b_ctx.cfg.coeffD = ctx->cfg.coeffD;
+        b_ctx.cfg.kin_params.size[0] = ctx->cfg.kin_params.size[0];
+        af_loop_ub = ctx->cfg.kin_params.size[0];
+        if (af_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.kin_params.data[0], &ctx->cfg.kin_params.data[af_loop_ub],
+                      &b_ctx.cfg.kin_params.data[0]);
+        }
+        for (int i104{0}; i104 < 8; i104++) {
+            b_ctx.cfg.kin_type[i104] = ctx->cfg.kin_type[i104];
+        }
+        b_ctx.cfg.NDiscr = ctx->cfg.NDiscr;
+        b_ctx.cfg.NBreak = ctx->cfg.NBreak;
+        b_ctx.cfg.SplitSpecialSpline = ctx->cfg.SplitSpecialSpline;
+        b_ctx.cfg.ReleaseMemoryOfTheQueues = ctx->cfg.ReleaseMemoryOfTheQueues;
+        b_ctx.cfg.UseDynamicBreakpoints = ctx->cfg.UseDynamicBreakpoints;
+        b_ctx.cfg.UseLinearBreakpoints = ctx->cfg.UseLinearBreakpoints;
+        b_ctx.cfg.DynamicBreakpointsDistance = ctx->cfg.DynamicBreakpointsDistance;
+        b_ctx.cfg.NHorz = ctx->cfg.NHorz;
+        for (int i111{0}; i111 < 6; i111++) {
+            b_ctx.cfg.vmax[i111] = ctx->cfg.vmax[i111];
+            b_ctx.cfg.amax[i111] = ctx->cfg.amax[i111];
+            b_ctx.cfg.jmax[i111] = ctx->cfg.jmax[i111];
+        }
+        b_ctx.cfg.LeeSplineDegree = ctx->cfg.LeeSplineDegree;
+        b_ctx.cfg.SplineDegree = ctx->cfg.SplineDegree;
+        b_ctx.cfg.CutOff = ctx->cfg.CutOff;
+        b_ctx.cfg.LSplit = ctx->cfg.LSplit;
+        b_ctx.cfg.LSplitZero = ctx->cfg.LSplitZero;
+        b_ctx.cfg.LThresholdMax = ctx->cfg.LThresholdMax;
+        b_ctx.cfg.LThresholdMin = ctx->cfg.LThresholdMin;
+        b_ctx.cfg.v_0 = ctx->cfg.v_0;
+        b_ctx.cfg.at_0 = ctx->cfg.at_0;
+        b_ctx.cfg.v_1 = ctx->cfg.v_1;
+        b_ctx.cfg.at_1 = ctx->cfg.at_1;
+        b_ctx.cfg.dt = ctx->cfg.dt;
+        b_ctx.cfg.DefaultZeroStopCount = ctx->cfg.DefaultZeroStopCount;
+        b_ctx.cfg.source.size[0] = 1;
+        b_ctx.cfg.source.size[1] = ctx->cfg.source.size[1];
+        hf_loop_ub = ctx->cfg.source.size[1];
+        if (hf_loop_ub - 1 >= 0) {
+            std::copy(&ctx->cfg.source.data[0], &ctx->cfg.source.data[hf_loop_ub],
+                      &b_ctx.cfg.source.data[0]);
+        }
+        b_ctx.cfg.Cusp = ctx->cfg.Cusp;
+        b_ctx.cfg.Compressing = ctx->cfg.Compressing;
+        b_ctx.cfg.Smoothing = ctx->cfg.Smoothing;
+        b_ctx.cfg.GaussLegendreN = ctx->cfg.GaussLegendreN;
+        for (int g_i{0}; g_i < 5; g_i++) {
+            b_ctx.cfg.GaussLegendreX[g_i] = ctx->cfg.GaussLegendreX[g_i];
+            b_ctx.cfg.GaussLegendreW[g_i] = ctx->cfg.GaussLegendreW[g_i];
+        }
+        b_ctx.cfg.opt = ctx->cfg.opt;
+        for (int i118{0}; i118 < 9; i118++) {
+            b_ctx.cfg.LogFileName[i118] = ctx->cfg.LogFileName[i118];
+        }
+        b_ctx.jmax_increase_count = ctx->jmax_increase_count;
+        b_ctx.zero_start = ctx->zero_start;
+        b_ctx.zero_end = ctx->zero_end;
+        b_ctx.zero_forced = ctx->zero_forced;
+        b_ctx.zero_forced_buffer[0] = ctx->zero_forced_buffer[0];
+        b_ctx.zero_forced_buffer[1] = ctx->zero_forced_buffer[1];
+        b_ctx.simplex_calls = ctx->simplex_calls;
+        b_ctx.forced_stop = ctx->forced_stop;
+        b_ctx.programmed_stop = ctx->programmed_stop;
+        b_ctx.Coeff.set_size(ctx->Coeff.size(0), ctx->Coeff.size(1));
+        qf_loop_ub = ctx->Coeff.size(1);
+        for (int i127{0}; i127 < qf_loop_ub; i127++) {
+            int uf_loop_ub;
+            uf_loop_ub = ctx->Coeff.size(0);
+            for (int i131{0}; i131 < uf_loop_ub; i131++) {
+                b_ctx.Coeff[i131 + b_ctx.Coeff.size(0) * i127] =
+                    ctx->Coeff[i131 + ctx->Coeff.size(0) * i127];
+            }
+        }
+        b_ctx.Skipped = ctx->Skipped;
+        b_ctx.kin = ctx->kin;
+        b_ctx.errmsg = ctx->errmsg;
+        b_ctx.errcode = ctx->errcode;
+        feedratePlanning(&b_ctx, &c_optimized, opt_struct, &quit);
+        ctx->BasisVal.set_size(b_ctx.BasisVal.size(0), b_ctx.BasisVal.size(1));
+        cg_loop_ub = b_ctx.BasisVal.size(1);
+        for (int i138{0}; i138 < cg_loop_ub; i138++) {
+            int mg_loop_ub;
+            mg_loop_ub = b_ctx.BasisVal.size(0);
+            for (int i147{0}; i147 < mg_loop_ub; i147++) {
+                ctx->BasisVal[i147 + ctx->BasisVal.size(0) * i138] =
+                    b_ctx.BasisVal[i147 + b_ctx.BasisVal.size(0) * i138];
+            }
+        }
+        ctx->BasisValD.set_size(b_ctx.BasisValD.size(0), b_ctx.BasisValD.size(1));
+        ng_loop_ub = b_ctx.BasisValD.size(1);
+        for (int i148{0}; i148 < ng_loop_ub; i148++) {
+            int wg_loop_ub;
+            wg_loop_ub = b_ctx.BasisValD.size(0);
+            for (int i158{0}; i158 < wg_loop_ub; i158++) {
+                ctx->BasisValD[i158 + ctx->BasisValD.size(0) * i148] =
+                    b_ctx.BasisValD[i158 + b_ctx.BasisValD.size(0) * i148];
+            }
+        }
+        ctx->BasisValDD.set_size(b_ctx.BasisValDD.size(0), b_ctx.BasisValDD.size(1));
+        yg_loop_ub = b_ctx.BasisValDD.size(1);
+        for (int i159{0}; i159 < yg_loop_ub; i159++) {
+            int ih_loop_ub;
+            ih_loop_ub = b_ctx.BasisValDD.size(0);
+            for (int i169{0}; i169 < ih_loop_ub; i169++) {
+                ctx->BasisValDD[i169 + ctx->BasisValDD.size(0) * i159] =
+                    b_ctx.BasisValDD[i169 + b_ctx.BasisValDD.size(0) * i159];
+            }
+        }
+        ctx->BasisValDDD.set_size(b_ctx.BasisValDDD.size(0), b_ctx.BasisValDDD.size(1));
+        jh_loop_ub = b_ctx.BasisValDDD.size(1);
+        for (int i170{0}; i170 < jh_loop_ub; i170++) {
+            int th_loop_ub;
+            th_loop_ub = b_ctx.BasisValDDD.size(0);
+            for (int i179{0}; i179 < th_loop_ub; i179++) {
+                ctx->BasisValDDD[i179 + ctx->BasisValDDD.size(0) * i170] =
+                    b_ctx.BasisValDDD[i179 + b_ctx.BasisValDDD.size(0) * i170];
+            }
+        }
+        ctx->BasisIntegr.set_size(b_ctx.BasisIntegr.size(0));
+        uh_loop_ub = b_ctx.BasisIntegr.size(0);
+        for (int i180{0}; i180 < uh_loop_ub; i180++) {
+            ctx->BasisIntegr[i180] = b_ctx.BasisIntegr[i180];
+        }
+        ctx->Bl = b_ctx.Bl;
+        ctx->u_vec.set_size(1, b_ctx.u_vec.size(1));
+        ei_loop_ub = b_ctx.u_vec.size(1);
+        for (int i189{0}; i189 < ei_loop_ub; i189++) {
+            ctx->u_vec[i189] = b_ctx.u_vec[i189];
+        }
+        ctx->q_spline = b_ctx.q_spline;
+        ctx->q_gcode = b_ctx.q_gcode;
+        ctx->q_compress = b_ctx.q_compress;
+        ctx->q_smooth = b_ctx.q_smooth;
+        ctx->q_split = b_ctx.q_split;
+        ctx->q_opt = b_ctx.q_opt;
+        ctx->op = b_ctx.op;
+        ctx->go_next = b_ctx.go_next;
+        ctx->try_push_again = b_ctx.try_push_again;
+        ctx->n_optimized = b_ctx.n_optimized;
+        ctx->reached_end = b_ctx.reached_end;
+        ctx->k0 = b_ctx.k0;
+        ctx->v_0 = b_ctx.v_0;
+        ctx->v_1 = b_ctx.v_1;
+        ctx->at_0 = b_ctx.at_0;
+        ctx->at_1 = b_ctx.at_1;
+        ctx->cfg.ENABLE_PRINT_MSG = b_ctx.cfg.ENABLE_PRINT_MSG;
+        ctx->cfg.maskTot.size[0] = 1;
+        ctx->cfg.maskTot.size[1] = b_ctx.cfg.maskTot.size[1];
+        dj_loop_ub = b_ctx.cfg.maskTot.size[1];
+        if (dj_loop_ub - 1 >= 0) {
+            std::copy(&b_ctx.cfg.maskTot.data[0], &b_ctx.cfg.maskTot.data[dj_loop_ub],
+                      &ctx->cfg.maskTot.data[0]);
+        }
+        ctx->cfg.maskCart.size[0] = 1;
+        ctx->cfg.maskCart.size[1] = b_ctx.cfg.maskCart.size[1];
+        mj_loop_ub = b_ctx.cfg.maskCart.size[1];
+        if (mj_loop_ub - 1 >= 0) {
+            std::copy(&b_ctx.cfg.maskCart.data[0], &b_ctx.cfg.maskCart.data[mj_loop_ub],
+                      &ctx->cfg.maskCart.data[0]);
+        }
+        ctx->cfg.maskRot.size[0] = 1;
+        ctx->cfg.maskRot.size[1] = b_ctx.cfg.maskRot.size[1];
+        vj_loop_ub = b_ctx.cfg.maskRot.size[1];
+        if (vj_loop_ub - 1 >= 0) {
+            std::copy(&b_ctx.cfg.maskRot.data[0], &b_ctx.cfg.maskRot.data[vj_loop_ub],
+                      &ctx->cfg.maskRot.data[0]);
+        }
+        ctx->cfg.indCart.size[0] = b_ctx.cfg.indCart.size(0);
+        ek_loop_ub = b_ctx.cfg.indCart.size(0);
+        for (int i227{0}; i227 < ek_loop_ub; i227++) {
+            ctx->cfg.indCart.data[i227] = b_ctx.cfg.indCart[i227];
+        }
+        ctx->cfg.indRot.size[0] = b_ctx.cfg.indRot.size(0);
+        lk_loop_ub = b_ctx.cfg.indRot.size(0);
+        for (int i233{0}; i233 < lk_loop_ub; i233++) {
+            ctx->cfg.indRot.data[i233] = b_ctx.cfg.indRot[i233];
+        }
+        ctx->cfg.NumberAxis = b_ctx.cfg.NumberAxis;
+        ctx->cfg.NCart = b_ctx.cfg.NCart;
+        ctx->cfg.NRot = b_ctx.cfg.NRot;
+        ctx->cfg.D.size[0] = b_ctx.cfg.D.size(0);
+        rk_loop_ub = b_ctx.cfg.D.size(0);
+        for (int i238{0}; i238 < rk_loop_ub; i238++) {
+            ctx->cfg.D.data[i238] = b_ctx.cfg.D[i238];
+        }
+        ctx->cfg.coeffD = b_ctx.cfg.coeffD;
+        ctx->cfg.kin_params.size[0] = b_ctx.cfg.kin_params.size[0];
+        xk_loop_ub = b_ctx.cfg.kin_params.size[0];
+        if (xk_loop_ub - 1 >= 0) {
+            std::copy(&b_ctx.cfg.kin_params.data[0], &b_ctx.cfg.kin_params.data[xk_loop_ub],
+                      &ctx->cfg.kin_params.data[0]);
+        }
+        for (int i244{0}; i244 < 8; i244++) {
+            ctx->cfg.kin_type[i244] = b_ctx.cfg.kin_type[i244];
+        }
+        ctx->cfg.NDiscr = b_ctx.cfg.NDiscr;
+        ctx->cfg.NBreak = b_ctx.cfg.NBreak;
+        ctx->cfg.SplitSpecialSpline = b_ctx.cfg.SplitSpecialSpline;
+        ctx->cfg.ReleaseMemoryOfTheQueues = b_ctx.cfg.ReleaseMemoryOfTheQueues;
+        ctx->cfg.UseDynamicBreakpoints = b_ctx.cfg.UseDynamicBreakpoints;
+        ctx->cfg.UseLinearBreakpoints = b_ctx.cfg.UseLinearBreakpoints;
+        ctx->cfg.DynamicBreakpointsDistance = b_ctx.cfg.DynamicBreakpointsDistance;
+        ctx->cfg.NHorz = b_ctx.cfg.NHorz;
+        for (int i250{0}; i250 < 6; i250++) {
+            ctx->cfg.vmax[i250] = b_ctx.cfg.vmax[i250];
+            ctx->cfg.amax[i250] = b_ctx.cfg.amax[i250];
+            ctx->cfg.jmax[i250] = b_ctx.cfg.jmax[i250];
+        }
+        ctx->cfg.LeeSplineDegree = b_ctx.cfg.LeeSplineDegree;
+        ctx->cfg.SplineDegree = b_ctx.cfg.SplineDegree;
+        ctx->cfg.CutOff = b_ctx.cfg.CutOff;
+        ctx->cfg.LSplit = b_ctx.cfg.LSplit;
+        ctx->cfg.LSplitZero = b_ctx.cfg.LSplitZero;
+        ctx->cfg.LThresholdMax = b_ctx.cfg.LThresholdMax;
+        ctx->cfg.LThresholdMin = b_ctx.cfg.LThresholdMin;
+        ctx->cfg.v_0 = b_ctx.cfg.v_0;
+        ctx->cfg.at_0 = b_ctx.cfg.at_0;
+        ctx->cfg.v_1 = b_ctx.cfg.v_1;
+        ctx->cfg.at_1 = b_ctx.cfg.at_1;
+        ctx->cfg.dt = b_ctx.cfg.dt;
+        ctx->cfg.DefaultZeroStopCount = b_ctx.cfg.DefaultZeroStopCount;
+        ctx->cfg.source.size[0] = 1;
+        ctx->cfg.source.size[1] = b_ctx.cfg.source.size[1];
+        sl_loop_ub = b_ctx.cfg.source.size[1];
+        if (sl_loop_ub - 1 >= 0) {
+            std::copy(&b_ctx.cfg.source.data[0], &b_ctx.cfg.source.data[sl_loop_ub],
+                      &ctx->cfg.source.data[0]);
+        }
+        ctx->cfg.Cusp = b_ctx.cfg.Cusp;
+        ctx->cfg.Compressing = b_ctx.cfg.Compressing;
+        ctx->cfg.Smoothing = b_ctx.cfg.Smoothing;
+        ctx->cfg.GaussLegendreN = b_ctx.cfg.GaussLegendreN;
+        for (int m_i{0}; m_i < 5; m_i++) {
+            ctx->cfg.GaussLegendreX[m_i] = b_ctx.cfg.GaussLegendreX[m_i];
+            ctx->cfg.GaussLegendreW[m_i] = b_ctx.cfg.GaussLegendreW[m_i];
+        }
+        ctx->cfg.opt = b_ctx.cfg.opt;
+        for (int i265{0}; i265 < 9; i265++) {
+            ctx->cfg.LogFileName[i265] = b_ctx.cfg.LogFileName[i265];
+        }
+        ctx->jmax_increase_count = b_ctx.jmax_increase_count;
+        ctx->zero_start = b_ctx.zero_start;
+        ctx->zero_end = b_ctx.zero_end;
+        ctx->zero_forced = b_ctx.zero_forced;
+        ctx->zero_forced_buffer[0] = b_ctx.zero_forced_buffer[0];
+        ctx->zero_forced_buffer[1] = b_ctx.zero_forced_buffer[1];
+        ctx->simplex_calls = b_ctx.simplex_calls;
+        ctx->forced_stop = b_ctx.forced_stop;
+        ctx->programmed_stop = b_ctx.programmed_stop;
+        ctx->Coeff.set_size(b_ctx.Coeff.size(0), b_ctx.Coeff.size(1));
+        cm_loop_ub = b_ctx.Coeff.size(1);
+        for (int i273{0}; i273 < cm_loop_ub; i273++) {
+            int hm_loop_ub;
+            hm_loop_ub = b_ctx.Coeff.size(0);
+            for (int i278{0}; i278 < hm_loop_ub; i278++) {
+                ctx->Coeff[i278 + ctx->Coeff.size(0) * i273] =
+                    b_ctx.Coeff[i278 + b_ctx.Coeff.size(0) * i273];
             }
         }
         ctx->Skipped = b_ctx.Skipped;
@@ -2898,35 +4484,51 @@ void FeedoptPlan(FeedoptContext *ctx, bool *optimized, CurvStruct *opt_struct)
         ctx->errmsg = b_ctx.errmsg;
         ctx->errcode = b_ctx.errcode;
         b_optimized = c_optimized;
-        // 'FeedoptPlan:142' if optimized
+        // 'FeedoptPlan:153' if optimized
         if (c_optimized) {
-            // 'FeedoptPlan:143' ctx.go_next = true;
+            // 'FeedoptPlan:154' ctx.go_next = true;
             ctx->go_next = true;
-            // 'FeedoptPlan:144' ctx.q_opt.push( opt_struct );
+            // 'FeedoptPlan:155' ctx.q_opt.push( opt_struct );
             b_ctx.q_opt.push(opt_struct);
         }
-        // 'FeedoptPlan:147' if( quit )
+        // 'FeedoptPlan:158' if( quit )
     } break;
     case Fopt_Finished:
-        // 'FeedoptPlan:149' case Fopt.Finished
-        // 'FeedoptPlan:150' ctx.op = Fopt.Finished;
+        // 'FeedoptPlan:160' case Fopt.Finished
+        // 'FeedoptPlan:161' ctx.op = Fopt.Finished;
         ctx->op = Fopt_Finished;
         break;
     default:
-        // 'FeedoptPlan:152' otherwise
-        // 'FeedoptPlan:153' DebugLog(DebugCfg.Global, 'FEEDOPT: WRONG STATE\n')
-        //  1 -> stdout
-        //  2 -> stderr
-        // 'DebugLog:5' if IsEnabledDebugLog(cfg)
-        // 'IsEnabledDebugLog:4' value = false;
-        // 'IsEnabledDebugLog:6' if bitget(DebugConfig, int32(cfg))
+        // 'FeedoptPlan:163' otherwise
+        // 'FeedoptPlan:164' DebugLog(DebugCfg.Global, 'FEEDOPT: WRONG STATE\n')
+        //  DebugLog : Print msg in log pipe.
+        //
+        //  Inputs :
+        //  cfg       : The configuration structure
+        //  varargin  : Variable types of arguments (a.k.a print msg)
+        //
+        // 'DebugLog:9' if IsEnabledDebugLog( cfg )
+        //  IsEnableDebugLog : Is the Debug log enable
+        //
+        //  Inputs :
+        //    cfg : Configuration structure
+        //
+        //  Outputs :
+        //  Value : Boolean Value. TRUE means the debug log is enable.
+        //
+        // 'IsEnabledDebugLog:13' value = false;
+        // 'IsEnabledDebugLog:15' if bitget( DebugConfig, int32( cfg ) )
         if ((static_cast<unsigned long>(DebugConfig) & 8UL) != 0UL) {
-            // 'IsEnabledDebugLog:7' value = true;
-            // 'DebugLog:6' fprintf( 1, varargin{:} );
+            // 'IsEnabledDebugLog:16' value = true;
+            //    Output
+            //    stdout : 1
+            //    stderr : 2
+            // 'DebugLog:13' output  = 1;
+            // 'DebugLog:14' fprintf( output, varargin{ : } );
             printf("FEEDOPT: WRONG STATE\n");
             fflush(stdout);
         }
-        // 'FeedoptPlan:154' ctx.op = Fopt.Finished;
+        // 'FeedoptPlan:165' ctx.op = Fopt.Finished;
         ctx->op = Fopt_Finished;
         break;
     }

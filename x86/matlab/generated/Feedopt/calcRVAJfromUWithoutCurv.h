@@ -31,7 +31,7 @@ void binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<doub
 void binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
                       const ::coder::array<double, 2U> &in3, const ::coder::array<double, 2U> &in4,
                       const ::coder::array<double, 2U> &in5, const ::coder::array<double, 2U> &in6,
-                      const ::coder::array<double, 2U> &in7, double in8, const unsigned int in9[2]);
+                      const ::coder::array<double, 2U> &in7, const ::coder::array<double, 2U> &in8);
 
 } // namespace ocn
 

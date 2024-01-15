@@ -21,7 +21,7 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-extern void bspline_copy(const BaseSplineStruct *Bl, BaseSplineStruct *Copy);
+extern void bspline_copy(const BaseSplineStruct *Bl, BaseSplineStruct *copy);
 
 }
 

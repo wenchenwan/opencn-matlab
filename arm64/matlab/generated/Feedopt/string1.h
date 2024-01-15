@@ -28,7 +28,8 @@ class rtString {
     void init(Fopt val);
     void init();
     void b_init();
-    ::coder::bounded_array<char, 2156U, 2U> Value;
+    static void convertToString(char str_data[], int str_size[2]);
+    ::coder::bounded_array<char, 2225U, 2U> Value;
 };
 
 } // namespace coder

@@ -24,10 +24,15 @@ namespace ocn {
 namespace coder {
 namespace internal {
 namespace blas {
+void b_mtimes(const ::coder::array<double, 2U> &A, const ::coder::array<double, 2U> &B,
+              ::coder::array<double, 2U> &C);
+
 void mtimes(const ::coder::array<double, 2U> &A, const ::coder::array<double, 2U> &B,
             ::coder::array<double, 2U> &C);
 
-}
+void mtimes(const ::coder::array<double, 2U> &A, const ::coder::array<double, 1U> &B, double C[2]);
+
+} // namespace blas
 } // namespace internal
 } // namespace coder
 } // namespace ocn

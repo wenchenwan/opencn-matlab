@@ -28,10 +28,10 @@ class ResampleStateClass;
 
 // Function Declarations
 namespace ocn {
-void resampleCurv(ResampleStateClass *b_state, unsigned long Bl_handle, ZSpdMode curv_mode,
+void resampleCurv(ResampleStateClass *state, unsigned long Bl_handle, ZSpdMode curv_mode,
                   const ::coder::array<double, 1U> &coeff, double constJerk, double dt,
                   const ::coder::array<double, 1U> &GaussLegendreX,
-                  const ::coder::array<double, 1U> &GaussLegendreW);
+                  const ::coder::array<double, 1U> &GaussLegendreW, bool enablePrint);
 
 }
 

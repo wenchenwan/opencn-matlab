@@ -10,10 +10,8 @@
 
 // Include Files
 #include "cutCurvStruct.h"
-#include "EvalBSpline.h"
 #include "EvalCurvStruct.h"
 #include "LengthCurv.h"
-#include "find.h"
 #include "ocn_assert.h"
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_types1.h"
@@ -21,24 +19,30 @@
 #include "opencn_matlab_types111.h"
 #include "opencn_matlab_types2.h"
 #include "queue_coder.h"
+#include "splineLengthFindU.h"
 #include "sum.h"
 #include "coder_array.h"
 #include <cmath>
 
 // Function Definitions
 //
-// function [ ret, curv1, curv2 ] = cutCurvStruct( ctx, curv, u0, L, isEnd )
+// function [ ret, curvLeft, curvRight ] = cutCurvStruct( ctx, curv, u0, L, isEnd )
 //
 // cutCurvStruct: Cut a piece of the structure with a size of L
-//  starting at point u0
+//  starting at point u0.
+//
 //  Inputs :
 //  ctx   : Context
 //  curv  : Curvature
 //  u0    : Starting point of the spline
 //  L     : Length of the segment of curv
 //  isEnd : Is a zero stop curv
+//
 //  Outputs :
-//  u1    : The last point of the splitted curv
+//  ret       : Return 0 if operation fails
+//  curvLeft  : Left curve after cutting
+//  curvRight : Right curve after cutting
+//
 //
 // Arguments    : const queue_coder *ctx_q_spline
 //                const bool ctx_cfg_maskTot_data[]
@@ -54,11 +58,10 @@
 //                int ctx_cfg_NRot
 //                const double ctx_cfg_GaussLegendreX[5]
 //                const double ctx_cfg_GaussLegendreW[5]
-//                const CurvStruct *curv
+//                CurvStruct *curv
 //                double L
 //                double *ret
-//                CurvStruct *curv1
-//                CurvStruct *curv2
+//                CurvStruct *curvRight
 // Return Type  : void
 //
 namespace ocn {
@@ -69,410 +72,78 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
                      const ::coder::array<int, 1U> &ctx_cfg_indCart,
                      const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
                      int ctx_cfg_NCart, int ctx_cfg_NRot, const double ctx_cfg_GaussLegendreX[5],
-                     const double ctx_cfg_GaussLegendreW[5], const CurvStruct *curv, double L,
-                     double *ret, CurvStruct *curv1, CurvStruct *curv2)
+                     const double ctx_cfg_GaussLegendreW[5], CurvStruct *curv, double L,
+                     double *ret, CurvStruct *curvRight)
 {
-    ::coder::array<double, 2U> Knots;
-    ::coder::array<double, 2U> LEnd;
-    ::coder::array<double, 2U> Lk;
-    ::coder::array<double, 2U> b_a__1;
-    ::coder::array<double, 2U> r1;
-    ::coder::array<double, 2U> r1D;
-    ::coder::array<double, 2U> x;
     ::coder::array<double, 1U> a__1;
     ::coder::array<double, 1U> r;
     ::coder::array<double, 1U> r1D1;
-    ::coder::array<bool, 2U> b_Knots;
-    ::coder::array<bool, 2U> b_LEnd;
     CurvStruct expl_temp;
     double u_tilda;
-    int LkEndVec_data;
     int b_ret;
-    // 'cutCurvStruct:12' curv1 = curv;
-    *curv1 = *curv;
-    // 'cutCurvStruct:12' curv2 = curv1;
-    *curv2 = *curv;
-    // 'cutCurvStruct:13' ret   = 0;
+    // 'cutCurvStruct:18' curvLeft = curv;
+    // 'cutCurvStruct:18' curvRight = curvLeft;
+    *curvRight = *curv;
+    // 'cutCurvStruct:19' ret   = 0;
     b_ret = 0;
-    // 'cutCurvStruct:15' u_tilda = cutCurvStructU( ctx, curv, u0, L, isEnd );
-    //  cutCurvStructU: Cut a piece of the structure with a size of L
-    //  starting at point u0
+    // 'cutCurvStruct:21' u_tilda = cutCurvStructU( ctx, curv, u0, L, isEnd );
+    //  cutCurvStructU : Cut a piece of the structure with a size of L
+    //  starting at point u0.
+    //
     //  Inputs :
-    //  ctx   : Context
-    //  curv  : Curvature
-    //  u0    : Starting point of the spline
-    //  L     : Length of the segment of curv
-    //  isEnd : Is a cut from the end
+    //  ctx       : Context
+    //  curv      : Curvature
+    //  u0        : Starting point of the spline
+    //  L         : Length of the segment of curv
+    //  isEnd     : Is a cut from the end
+    //
     //  Outputs :
-    //  u1    : The last point of the splitted curv
-    // 'cutCurvStructU:13' if( LengthCurv( ctx, curv, 0, 1 ) <= L )
-    if (LengthCurv(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
-                   ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
-                   ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart, ctx_cfg_NRot,
-                   ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, curv) <= L) {
-        // 'cutCurvStructU:13' u1_tilda = -1;
+    //  u1_tilda  : The last point of the splitted curve. A value of -1 means a
+    //              faillure of the operation.
+    //
+    // 'cutCurvStructU:18' if( LengthCurv( ctx, curv, 0, 1 ) <= L )
+    if (b_LengthCurv(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+                     ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
+                     ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
+                     ctx_cfg_NCart, ctx_cfg_NRot, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
+                     curv) <= L) {
+        // 'cutCurvStructU:18' u1_tilda = -1;
         u_tilda = -1.0;
 
-        // 'cutCurvStructU:15' a = curv.a_param;
-        // 'cutCurvStructU:16' b = curv.b_param;
-        // 'cutCurvStructU:18' if ( curv.Info.Type == CurveType.Spline )
+        // 'cutCurvStructU:20' a = curv.a_param;
+        // 'cutCurvStructU:21' b = curv.b_param;
+        // 'cutCurvStructU:23' if ( curv.Info.Type == CurveType.Spline )
     } else if (curv->Info.Type == CurveType_Spline) {
-        double dv[5];
-        double r1Dnorm[5];
-        double LStart;
-        double d;
-        double u0;
-        int LkEndVec_size[2];
-        int b_loop_ub;
-        int c_loop_ub;
-        int d_loop_ub;
-        int e_loop_ub;
-        int f_loop_ub;
-        int g_loop_ub;
-        int h_loop_ub;
-        int i1;
-        int i2;
-        int i3;
-        int i8;
-        int i9;
-        int kStartVec_data;
-        // 'cutCurvStructU:19' spline = ctx.q_spline.get( curv.sp_index );
+        // 'cutCurvStructU:24' spline = ctx.q_spline.get( curv.sp_index );
         ctx_q_spline->get(curv->sp_index, &expl_temp);
-        // 'cutCurvStructU:20' u1_tilda = splineLengthFindU( ctx.cfg, spline, L, a * u0 + b, isEnd
+        // 'cutCurvStructU:25' u1_tilda = splineLengthFindU( ctx.cfg, spline, L, a * u0 + b, isEnd
         // );
-        //  Computes approximately the value of curve parameter u such that the arc
-        //  length starting from u1 equals L.
-        //  This function takes usage of the precalculated arc lengths between knots.
-        //  The last integration interval is approximated by the trapezoidal rule.
-        //  u1 must satisfy 0 < u1 < 1.
-        //  In the normal case, u must satisfy 0 < u < u1. If L is too large, u is
-        //  set to -1.
-        //  The parameter isEnd is used to start inverse the problem, the length is
-        //  estimated starting from u quals to 1 to 0. It's used to cut a specific
-        //  length at the beginning of the curv.
-        // 'splineLengthFindU:13' ITER_MAX    = 1000;
-        // 'splineLengthFindU:14' DEFAULT_TOL = 1E-7;
-        //  Get the sp structure
-        // 'splineLengthFindU:17' sp     = spline.sp;
-        // 'splineLengthFindU:19' IND_KNOTS_MULT  = sp.Bl.order;
-        //  Index used to remove multiple knots
-        //  Eliminate multiplicities at the end points
-        // 'splineLengthFindU:21' Knots  = sp.knots( 1, IND_KNOTS_MULT : end - IND_KNOTS_MULT + 1 );
-        i1 = (expl_temp.sp.knots.size(1) - expl_temp.sp.Bl.order) + 1;
-        if (expl_temp.sp.Bl.order > i1) {
-            i2 = 0;
-            i3 = 0;
-        } else {
-            i2 = expl_temp.sp.Bl.order - 1;
-            i3 = i1;
-        }
-        // 'splineLengthFindU:22' Lk     = sp.Lk;
-        // 'splineLengthFindU:23' kMax   = numel( Lk );
-        // 'splineLengthFindU:25' if( isEnd )
-        // 'splineLengthFindU:26' u0      = 1 - u0;
-        u0 = 1.0 - (curv->a_param + curv->b_param);
-        // 'splineLengthFindU:27' Knots   = flip( 1 - Knots );
-        b_loop_ub = i3 - i2;
-        Knots.set_size(1, b_loop_ub);
-        for (int i4{0}; i4 < b_loop_ub; i4++) {
-            Knots[i4] = 1.0 - expl_temp.sp.knots[i2 + i4];
-        }
-        if (Knots.size(1) > 1) {
-            int lup;
-            lup = Knots.size(1) >> 1;
-            for (int k{0}; k < lup; k++) {
-                double tmp;
-                int subs2_idx_1;
-                subs2_idx_1 = Knots.size(1) - k;
-                tmp = Knots[k];
-                Knots[k] = Knots[subs2_idx_1 - 1];
-                Knots[subs2_idx_1 - 1] = tmp;
-            }
-        }
-        // 'splineLengthFindU:28' Lk      = flip( Lk );
-        Lk.set_size(1, expl_temp.sp.Lk.size(1));
-        c_loop_ub = expl_temp.sp.Lk.size(1);
-        for (int i5{0}; i5 < c_loop_ub; i5++) {
-            Lk[i5] = expl_temp.sp.Lk[i5];
-        }
-        if (expl_temp.sp.Lk.size(1) > 1) {
-            int b_lup;
-            b_lup = expl_temp.sp.Lk.size(1) >> 1;
-            for (int b_k{0}; b_k < b_lup; b_k++) {
-                double b_tmp;
-                int b_subs2_idx_1;
-                b_subs2_idx_1 = Lk.size(1) - b_k;
-                b_tmp = Lk[b_k];
-                Lk[b_k] = Lk[b_subs2_idx_1 - 1];
-                Lk[b_subs2_idx_1 - 1] = b_tmp;
-            }
-        }
-        // 'splineLengthFindU:31' C_ASSERT_MSG = 'u0 must be %s or equal than the first spline
-        // knot'; 'splineLengthFindU:32' ocn_assert( u0 >= Knots(1),   sprintf(C_ASSERT_MSG,
-        // 'greater'), mfilename );
-        l_ocn_assert(u0 >= Knots[0]);
-        // 'splineLengthFindU:33' ocn_assert( u0 <= Knots(end), sprintf(C_ASSERT_MSG, 'smaller'),
-        // mfilename );
-        m_ocn_assert(u0 <= Knots[Knots.size(1) - 1]);
-        // 'splineLengthFindU:35' kStartVec = find( Knots <= u0, 1, "last" );
-        b_Knots.set_size(1, Knots.size(1));
-        d_loop_ub = Knots.size(1);
-        for (int i6{0}; i6 < d_loop_ub; i6++) {
-            b_Knots[i6] = (Knots[i6] <= u0);
-        }
-        coder::eml_find(b_Knots, (int *)&LkEndVec_data, LkEndVec_size);
-        e_loop_ub = LkEndVec_size[1];
-        for (int i7{0}; i7 < e_loop_ub; i7++) {
-            kStartVec_data = LkEndVec_data;
-        }
-        // 'splineLengthFindU:36' kStart    = kStartVec( 1 );
-        // 'splineLengthFindU:38' if( Knots( kStart ) < u0 )
-        d = Knots[kStartVec_data - 1];
-        if (d < u0) {
-            double b_r1Dnorm;
-            int i_loop_ub;
-            // 'splineLengthFindU:39' LStart = splineLengthApprox_Interval( cfg, spline, Knots(
-            // kStart ), u0, isEnd );
-            //  computes approximately the arc length L with integration bounds u1 and u2.
-            //  IMPORTANT : u0 and u1 should lie in the same knot interval.
-            //  The computation is based on numerical Gauss Legendre integration
-            //
-            //  get Gauss-Legendre knots and weights
-            // 'splineLengthApprox_Interval:7' GL_X   = cfg.GaussLegendreX;
-            // 'splineLengthApprox_Interval:8' GL_W   = cfg.GaussLegendreW;
-            // 'splineLengthApprox_Interval:10' if( isEnd )
-            // 'splineLengthApprox_Interval:11' a   = 1 - u0;
-            // 'splineLengthApprox_Interval:12' u0  = 1 - u1;
-            // 'splineLengthApprox_Interval:13' u1  = a;
-            //  apply linear map from[-1, 1] to [u0, u1]
-            // 'splineLengthApprox_Interval:17' uvec   = ( ( u0 * ( 1 - GL_X ) + u1 * ( 1 + GL_X ) )
-            // / 2 ).';
-            //
-            // 'splineLengthApprox_Interval:20' [ ~, r1D ]  = EvalBSpline( spline, uvec );
-            for (int i13{0}; i13 < 5; i13++) {
-                double d1;
-                d1 = ctx_cfg_GaussLegendreX[i13];
-                dv[i13] = ((1.0 - u0) * (1.0 - d1) + (1.0 - d) * (d1 + 1.0)) / 2.0;
-            }
-            EvalBSpline(expl_temp.sp.Bl.handle, expl_temp.sp.coeff, dv, b_a__1, r1D);
-            // 'splineLengthApprox_Interval:21' r1Dnorm     = MyNorm( r1D );
-            // 'MyNorm:2' coder.inline('always');
-            // 'MyNorm:3' n = mysqrt(sum(x.^2));
-            r1.set_size(r1D.size(0), 5);
-            i_loop_ub = r1D.size(0);
-            for (int i15{0}; i15 < 5; i15++) {
-                for (int i16{0}; i16 < i_loop_ub; i16++) {
-                    double b_varargin_1;
-                    b_varargin_1 = r1D[i16 + r1D.size(0) * i15];
-                    r1[i16 + r1.size(0) * i15] = std::pow(b_varargin_1, 2.0);
-                }
-            }
-            coder::sum(r1, r1Dnorm);
-            // 'mysqrt:3' y = sqrt(x);
-            // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-            sqrt_calls++;
-            // 'splineLengthApprox_Interval:22' L           = r1Dnorm * GL_W * ( u1 - u0 ) / 2;
-            b_r1Dnorm = 0.0;
-            for (int d_k{0}; d_k < 5; d_k++) {
-                double d2;
-                d2 = std::sqrt(r1Dnorm[d_k]);
-                r1Dnorm[d_k] = d2;
-                b_r1Dnorm += d2 * ctx_cfg_GaussLegendreW[d_k];
-            }
-            LStart = b_r1Dnorm * ((1.0 - d) - (1.0 - u0)) / 2.0;
-            //  Gauss Legendre integration
-            // 'splineLengthApprox_Interval:23' L = L( 1 );
-            //  to satisfy Matlab Coder
-        } else {
-            // 'splineLengthFindU:40' else
-            // 'splineLengthFindU:41' LStart = 0;
-            LStart = 0.0;
-        }
-        // 'splineLengthFindU:44' LEnd = cumsum( Lk( kStart : kMax) ) - LStart;
-        if (kStartVec_data > expl_temp.sp.Lk.size(1)) {
-            i8 = -1;
-            i9 = -1;
-        } else {
-            i8 = kStartVec_data - 2;
-            i9 = expl_temp.sp.Lk.size(1) - 1;
-        }
-        f_loop_ub = i9 - i8;
-        x.set_size(1, f_loop_ub);
-        for (int i10{0}; i10 < f_loop_ub; i10++) {
-            x[i10] = Lk[(i8 + i10) + 1];
-        }
-        if ((f_loop_ub != 0) && (f_loop_ub != 1)) {
-            int i11;
-            i11 = f_loop_ub - 2;
-            for (int c_k{0}; c_k <= i11; c_k++) {
-                x[c_k + 1] = x[c_k] + x[c_k + 1];
-            }
-        }
-        LEnd.set_size(1, x.size(1));
-        g_loop_ub = x.size(1);
-        for (int i12{0}; i12 < g_loop_ub; i12++) {
-            LEnd[i12] = x[i12] - LStart;
-        }
-        // 'splineLengthFindU:46' LkEndVec = find( LEnd >= L, 1, "first" );
-        b_LEnd.set_size(1, LEnd.size(1));
-        h_loop_ub = LEnd.size(1);
-        for (int i14{0}; i14 < h_loop_ub; i14++) {
-            b_LEnd[i14] = (LEnd[i14] >= L);
-        }
-        coder::b_eml_find(b_LEnd, (int *)&LkEndVec_data, LkEndVec_size);
-        // 'splineLengthFindU:47' if( isempty( LkEndVec ) )
-        if (LkEndVec_size[1] == 0) {
-            // 'splineLengthFindU:48' u = -1;
-            u_tilda = -1.0;
-        } else {
-            double LDiff;
-            double fk;
-            double kEnd;
-            double u;
-            double uLeft;
-            double uMiddle;
-            double uRight;
-            double uRight_tmp;
-            double uStart_tmp;
-            int count;
-            // 'splineLengthFindU:49' else
-            // 'splineLengthFindU:50' LkEnd    = LkEndVec( 1 );
-            // 'splineLengthFindU:51' if( LkEnd > 1 )
-            if (LkEndVec_data > 1) {
-                // 'splineLengthFindU:52' LDiff = L - LEnd( LkEnd - 1 );
-                LDiff = L - LEnd[LkEndVec_data - 2];
-            } else {
-                // 'splineLengthFindU:53' else
-                // 'splineLengthFindU:54' LDiff = L + LStart;
-                LDiff = L + LStart;
-            }
-            // 'splineLengthFindU:58' kEnd = LkEnd + kStart;
-            kEnd = static_cast<double>(LkEndVec_data) + static_cast<double>(kStartVec_data);
-            // 'splineLengthFindU:60' uLeft       = Knots( kEnd -1 );
-            uLeft = Knots[static_cast<int>(kEnd - 1.0) - 1];
-            // 'splineLengthFindU:61' uRight      = Knots( kEnd );
-            uRight_tmp = Knots[static_cast<int>(kEnd) - 1];
-            uRight = uRight_tmp;
-            // 'splineLengthFindU:63' [ u, count ] = bisection( uLeft, uRight, cfg, spline, LDiff,
-            // ITER_MAX, DEFAULT_TOL, isEnd );
-            // -------------------------------------------------------------------------%
-            //  Functions
-            // -------------------------------------------------------------------------%
-            // 'splineLengthFindU:78' count   = 0;
-            count = 0;
-            // 'splineLengthFindU:79' uStart  = uLeft;
-            uStart_tmp = Knots[static_cast<int>(kEnd) - 2];
-            // 'splineLengthFindU:80' fk      = tol * 1.1;
-            fk = 1.1E-7;
-            // 'splineLengthFindU:82' uMiddle = ( uLeft + uRight ) / 2;
-            uMiddle = (uStart_tmp + uRight_tmp) / 2.0;
-            // 'splineLengthFindU:84' while( count < iterMax && abs( fk ) > tol )
-            while ((count < 1000) && (std::abs(fk) > 1.0E-7)) {
-                double c_r1Dnorm;
-                int j_loop_ub;
-                // 'splineLengthFindU:85' uMiddle = ( uLeft + uRight ) / 2;
-                uMiddle = (uLeft + uRight) / 2.0;
-                // 'splineLengthFindU:87' fk  = splineLengthApprox_Interval( cfg, spline, uStart,
-                // uMiddle, isEnd ) - LDiff;
-                //  computes approximately the arc length L with integration bounds u1 and u2.
-                //  IMPORTANT : u0 and u1 should lie in the same knot interval.
-                //  The computation is based on numerical Gauss Legendre integration
-                //
-                //  get Gauss-Legendre knots and weights
-                // 'splineLengthApprox_Interval:7' GL_X   = cfg.GaussLegendreX;
-                // 'splineLengthApprox_Interval:8' GL_W   = cfg.GaussLegendreW;
-                // 'splineLengthApprox_Interval:10' if( isEnd )
-                // 'splineLengthApprox_Interval:11' a   = 1 - u0;
-                // 'splineLengthApprox_Interval:12' u0  = 1 - u1;
-                // 'splineLengthApprox_Interval:13' u1  = a;
-                //  apply linear map from[-1, 1] to [u0, u1]
-                // 'splineLengthApprox_Interval:17' uvec   = ( ( u0 * ( 1 - GL_X ) + u1 * ( 1 + GL_X
-                // ) ) / 2 ).';
-                //
-                // 'splineLengthApprox_Interval:20' [ ~, r1D ]  = EvalBSpline( spline, uvec );
-                for (int i17{0}; i17 < 5; i17++) {
-                    double d3;
-                    d3 = ctx_cfg_GaussLegendreX[i17];
-                    dv[i17] =
-                        ((1.0 - uMiddle) * (1.0 - d3) + (1.0 - uStart_tmp) * (d3 + 1.0)) / 2.0;
-                }
-                EvalBSpline(expl_temp.sp.Bl.handle, expl_temp.sp.coeff, dv, b_a__1, r1D);
-                // 'splineLengthApprox_Interval:21' r1Dnorm     = MyNorm( r1D );
-                // 'MyNorm:2' coder.inline('always');
-                // 'MyNorm:3' n = mysqrt(sum(x.^2));
-                r1.set_size(r1D.size(0), 5);
-                j_loop_ub = r1D.size(0);
-                for (int i18{0}; i18 < 5; i18++) {
-                    for (int i19{0}; i19 < j_loop_ub; i19++) {
-                        double c_varargin_1;
-                        c_varargin_1 = r1D[i19 + r1D.size(0) * i18];
-                        r1[i19 + r1.size(0) * i18] = std::pow(c_varargin_1, 2.0);
-                    }
-                }
-                coder::sum(r1, r1Dnorm);
-                // 'mysqrt:3' y = sqrt(x);
-                // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-                sqrt_calls++;
-                // 'splineLengthApprox_Interval:22' L           = r1Dnorm * GL_W * ( u1 - u0 ) / 2;
-                //  Gauss Legendre integration
-                // 'splineLengthApprox_Interval:23' L = L( 1 );
-                //  to satisfy Matlab Coder
-                c_r1Dnorm = 0.0;
-                for (int e_k{0}; e_k < 5; e_k++) {
-                    double d4;
-                    d4 = std::sqrt(r1Dnorm[e_k]);
-                    r1Dnorm[e_k] = d4;
-                    c_r1Dnorm += d4 * ctx_cfg_GaussLegendreW[e_k];
-                }
-                fk = c_r1Dnorm * ((1.0 - uStart_tmp) - (1.0 - uMiddle)) / 2.0 - LDiff;
-                // 'splineLengthFindU:89' if( fk > 0 )
-                if (fk > 0.0) {
-                    // 'splineLengthFindU:90' uRight = uMiddle;
-                    uRight = uMiddle;
-                } else {
-                    // 'splineLengthFindU:91' else
-                    // 'splineLengthFindU:92' uLeft  = uMiddle;
-                    uLeft = uMiddle;
-                }
-                // 'splineLengthFindU:94' count = count + 1;
-                count++;
-            }
-            // 'splineLengthFindU:97' if( count >= iterMax )
-            if (count >= 1000) {
-                // 'splineLengthFindU:98' u = -1;
-                u = -1.0;
-            } else {
-                // 'splineLengthFindU:99' else
-                // 'splineLengthFindU:100' u = uMiddle;
-                u = uMiddle;
-            }
-            u_tilda = u;
-            // 'splineLengthFindU:65' ocn_assert(~(u < 0), "Fails to compute length", mfilename);
-            n_ocn_assert(u >= 0.0);
-            // 'splineLengthFindU:67' if( isEnd && u >= 0 )
-            if (u >= 0.0) {
-                // 'splineLengthFindU:68' u = 1 -u;
-                u_tilda = 1.0 - u;
-            }
-        }
+        u_tilda = b_splineLengthFindU(ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
+                                      expl_temp.sp.Bl.handle, expl_temp.sp.Bl.order,
+                                      expl_temp.sp.coeff, expl_temp.sp.knots, expl_temp.sp.Lk, L,
+                                      curv->a_param + curv->b_param);
     } else {
         int loop_ub;
-        // 'cutCurvStructU:21' else
+        // 'cutCurvStructU:26' else
         //  In case of helix and line, ||r'(u)||=const,
         //  for 0 < u < 1
-        // 'cutCurvStructU:25' if( isEnd )
-        // 'cutCurvStructU:26' [ ~, r1D1 ] = EvalCurvStruct( ctx, curv, 1 );
-        e_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+        // 'cutCurvStructU:30' if( isEnd )
+        // 'cutCurvStructU:31' [ ~, r1D1 ] = EvalCurvStruct( ctx, curv, 1 );
+        n_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                          ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                          ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                          ctx_cfg_NCart, ctx_cfg_NRot, curv, a__1, r1D1);
-        // 'cutCurvStructU:27' u1 = u0 - L / MyNorm( r1D1 );
-        // 'MyNorm:2' coder.inline('always');
-        // 'MyNorm:3' n = mysqrt(sum(x.^2));
-        // 'mysqrt:3' y = sqrt(x);
-        // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-        sqrt_calls++;
-        // 'cutCurvStructU:32' u1_tilda = a * u1 + b;
+        // 'cutCurvStructU:32' u1 = u0 - L / MyNorm( r1D1 );
+        //  MyNorm : My implementation of the norm computation.
+        //
+        //  Inputs :
+        //    x   : The input vector.
+        //
+        //  Outputs :
+        //    n   : The resulting norm.
+        //
+        // 'MyNorm:10' coder.inline( 'always' );
+        // 'MyNorm:11' n = mysqrt( sum( x.^2 ) );
         r.set_size(r1D1.size(0));
         loop_ub = r1D1.size(0);
         for (int i{0}; i < loop_ub; i++) {
@@ -480,96 +151,193 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
             varargin_1 = r1D1[i];
             r[i] = std::pow(varargin_1, 2.0);
         }
-        u_tilda = curv->a_param * (1.0 - L / std::sqrt(coder::sum(r))) + curv->b_param;
+        double x;
+        x = coder::sum(r);
+        //  mysqrt : Custom implementation of the sqrt method.
+        //
+        //  Inputs :
+        //    x : Value used for the computation
+        //  Outputs :
+        //    y : Resulting value
+        //
+        // 'mysqrt:9' ocn_assert( isreal( x ), "x should be real...", mfilename );
+        // 'mysqrt:10' ocn_assert( x >= 0, "x should not be negative...", mfilename );
+        ocn_assert(x >= 0.0);
+        // 'mysqrt:11' y = sqrt(x);
+        // 'cutCurvStructU:37' u1_tilda = a * u1 + b;
+        u_tilda = curv->a_param * (1.0 - L / std::sqrt(x)) + curv->b_param;
     }
-    // 'cutCurvStruct:17' if( u_tilda <= 0 )
+    // 'cutCurvStruct:23' if( u_tilda <= 0 )
     if (u_tilda <= 0.0) {
-        // 'cutCurvStruct:17' ret = -1;
+        // 'cutCurvStruct:23' ret = -1;
         b_ret = -1;
     } else {
+        double b_curv_a_param;
+        double curv_a_param;
+        double curv_b_param;
+        bool b_valid;
         bool b_zeroFlag;
+        bool valid;
         bool zeroFlag;
-        // 'cutCurvStruct:19' a = curv.a_param;
-        // 'cutCurvStruct:20' b = curv.b_param;
-        // 'cutCurvStruct:22' curv2.b_param = u_tilda;
-        curv2->b_param = u_tilda;
-        // 'cutCurvStruct:23' curv2.a_param = a + b - curv2.b_param;
-        curv2->a_param = (curv->a_param + curv->b_param) - u_tilda;
-        // 'cutCurvStruct:25' if( isAZeroEnd( curv2 ) )
+        // 'cutCurvStruct:25' a = curv.a_param;
+        // 'cutCurvStruct:26' b = curv.b_param;
+        // 'cutCurvStruct:28' curvRight.b_param = u_tilda;
+        curvRight->b_param = u_tilda;
+        // 'cutCurvStruct:29' curvRight.a_param = a + b - curvRight.b_param;
+        curvRight->a_param = (curv->a_param + curv->b_param) - u_tilda;
+        // 'cutCurvStruct:31' if( isAZeroEnd( curvRight ) )
         //  isAZeroEnd : Return true if the curv ends with zero speed
-        //  Input :
+        //
+        //  Inputs :
         //  curv / Info / ZSpdMode : A structure containning the information of the
         //  curv zero speed.
-        // 'isAZeroEnd:6' zeroFlag = false;
+        //
+        //  Outputs :
+        //  zeroFlag : Boolean value. TRUE mean zero flag
+        // 'isAZeroEnd:10' zeroFlag = false;
         zeroFlag = false;
-        // 'isAZeroEnd:8' [zspdmode, error] = getZspdmode( speed );
-        //  Get the zspdmode enum from either a curvStruct, infoStruct or zspdMode.
-        // 'getZspdmode:3' error = false;
-        // 'getZspdmode:5' if( isenum( speed ) )
-        // 'getZspdmode:7' elseif( isfield( speed, "Info") )
-        // 'getZspdmode:8' zspdmode = speed.Info.zspdmode;
-        // 'isAZeroEnd:10' if( error )
-        // 'isAZeroEnd:12' if( zspdmode == ZSpdMode.NZ || ...
-        // 'isAZeroEnd:13'     zspdmode == ZSpdMode.ZZ )
+        // 'isAZeroEnd:12' [zspdmode, error] = getZspdmode( speed );
+        //  getZspdmode: Get the current zero speed mode
+        //
+        //  Inputs :
+        //    speed    : structure with zspdmode for the speed
+        //
+        //  Outputs :
+        //    zspdmode : Zero speed mode
+        //    error    : Error bolean value. TRUE if no zspdmode has been found.
+        //
+        // 'getZspdmode:13' error = false;
+        // 'getZspdmode:15' if( isenum( speed ) )
+        // 'getZspdmode:17' elseif( isfield( speed, "Info") )
+        // 'getZspdmode:18' zspdmode = speed.Info.zspdmode;
+        // 'isAZeroEnd:14' if( error )
+        // 'isAZeroEnd:16' if( zspdmode == ZSpdMode.NZ || ...
+        // 'isAZeroEnd:17'     zspdmode == ZSpdMode.ZZ )
         if ((curv->Info.zspdmode == ZSpdMode_NZ) || (curv->Info.zspdmode == ZSpdMode_ZZ)) {
-            // 'isAZeroEnd:14' zeroFlag = true;
+            // 'isAZeroEnd:18' zeroFlag = true;
             zeroFlag = true;
         }
         if (zeroFlag) {
-            // 'cutCurvStruct:26' curv2.Info.zspdmode = ZSpdMode.NZ;
-            curv2->Info.zspdmode = ZSpdMode_NZ;
+            // 'cutCurvStruct:32' curvRight.Info.zspdmode = ZSpdMode.NZ;
+            curvRight->Info.zspdmode = ZSpdMode_NZ;
         } else {
-            // 'cutCurvStruct:27' else
-            // 'cutCurvStruct:28' curv2.Info.zspdmode = ZSpdMode.NN;
-            curv2->Info.zspdmode = ZSpdMode_NN;
+            // 'cutCurvStruct:33' else
+            // 'cutCurvStruct:34' curvRight.Info.zspdmode = ZSpdMode.NN;
+            curvRight->Info.zspdmode = ZSpdMode_NN;
         }
-        // 'cutCurvStruct:31' curv1.a_param = u_tilda - curv1.b_param;
-        curv1->a_param = u_tilda - curv->b_param;
-        // 'cutCurvStruct:32' if( isAZeroStart( curv1 ) )
+        // 'cutCurvStruct:37' ocn_assert( checkParametrisation( curvRight ), ...
+        // 'cutCurvStruct:38'     "Parametrisation is not correct...", mfilename );
+        curv_a_param = curvRight->a_param;
+        //  checkParametrisation : Check whether the curv parametrisation is correct
+        //  or not.
+        //
+        //  Inputs :
+        //    curv        : A curvStruct
+        //
+        //  Outputs :
+        //    valid       : Boolean value, TRUE means the parametrisation is sound.
+        //
+        // 'checkParametrisation:11' valid = false;
+        valid = false;
+        // 'checkParametrisation:12' if( ~(curv.a_param > 0 && curv.a_param <= 1) )
+        if ((curv_a_param > 0.0) && (curv_a_param <= 1.0) && (u_tilda >= 0.0) && (u_tilda < 1.0) &&
+            ((curv_a_param + u_tilda) - 1.0 <= 2.2204460492503131E-16)) {
+            // 'checkParametrisation:13' if( ~(curv.b_param >= 0 && curv.b_param < 1) )
+            // 'checkParametrisation:14' if( curv.a_param + curv.b_param -1 > eps )
+            // 'checkParametrisation:15' valid = true;
+            valid = true;
+        }
+        v_ocn_assert(valid);
+        // 'cutCurvStruct:40' curvLeft.a_param = u_tilda - curvLeft.b_param;
+        curv->a_param = u_tilda - curv->b_param;
+        // 'cutCurvStruct:41' if( isAZeroStart( curvLeft ) )
         //  isAZeroStart : Return true if the curv starts with zero speed
-        //  Input :
+        //
+        //  Inputs :
         //  curv / Info / ZSpdMode : A structure containning the information of the
         //  curv zero speed.
-        // 'isAZeroStart:6' zeroFlag = false;
+        //
+        //  Outputs :
+        //  zeroflag : Boolean value. TRUE means zero structure with a zero speed.
+        //
+        // 'isAZeroStart:11' zeroFlag = false;
         b_zeroFlag = false;
-        // 'isAZeroStart:8' [zspdmode, error] = getZspdmode( speed );
-        //  Get the zspdmode enum from either a curvStruct, infoStruct or zspdMode.
-        // 'getZspdmode:3' error = false;
-        // 'getZspdmode:5' if( isenum( speed ) )
-        // 'getZspdmode:7' elseif( isfield( speed, "Info") )
-        // 'getZspdmode:8' zspdmode = speed.Info.zspdmode;
-        // 'isAZeroStart:10' if( error )
-        // 'isAZeroStart:12' if( zspdmode == ZSpdMode.ZN || ...
-        // 'isAZeroStart:13'     zspdmode == ZSpdMode.ZZ )
+        // 'isAZeroStart:13' [zspdmode, error] = getZspdmode( speed );
+        //  getZspdmode: Get the current zero speed mode
+        //
+        //  Inputs :
+        //    speed    : structure with zspdmode for the speed
+        //
+        //  Outputs :
+        //    zspdmode : Zero speed mode
+        //    error    : Error bolean value. TRUE if no zspdmode has been found.
+        //
+        // 'getZspdmode:13' error = false;
+        // 'getZspdmode:15' if( isenum( speed ) )
+        // 'getZspdmode:17' elseif( isfield( speed, "Info") )
+        // 'getZspdmode:18' zspdmode = speed.Info.zspdmode;
+        // 'isAZeroStart:15' if( error )
+        // 'isAZeroStart:17' if( zspdmode == ZSpdMode.ZN || ...
+        // 'isAZeroStart:18'     zspdmode == ZSpdMode.ZZ )
         if ((curv->Info.zspdmode == ZSpdMode_ZN) || (curv->Info.zspdmode == ZSpdMode_ZZ)) {
-            // 'isAZeroStart:14' zeroFlag = true;
+            // 'isAZeroStart:19' zeroFlag = true;
             b_zeroFlag = true;
         }
         if (b_zeroFlag) {
-            // 'cutCurvStruct:33' curv1.Info.zspdmode = ZSpdMode.ZN;
-            curv1->Info.zspdmode = ZSpdMode_ZN;
+            // 'cutCurvStruct:42' curvLeft.Info.zspdmode = ZSpdMode.ZN;
+            curv->Info.zspdmode = ZSpdMode_ZN;
         } else {
-            // 'cutCurvStruct:34' else
-            // 'cutCurvStruct:35' curv1.Info.zspdmode = ZSpdMode.NN;
-            curv1->Info.zspdmode = ZSpdMode_NN;
+            // 'cutCurvStruct:43' else
+            // 'cutCurvStruct:44' curvLeft.Info.zspdmode = ZSpdMode.NN;
+            curv->Info.zspdmode = ZSpdMode_NN;
         }
+        // 'cutCurvStruct:47' ocn_assert( checkParametrisation( curvLeft ), ...
+        // 'cutCurvStruct:48'     "Parametrisation is not correct...", mfilename  );
+        b_curv_a_param = curv->a_param;
+        curv_b_param = curv->b_param;
+        //  checkParametrisation : Check whether the curv parametrisation is correct
+        //  or not.
+        //
+        //  Inputs :
+        //    curv        : A curvStruct
+        //
+        //  Outputs :
+        //    valid       : Boolean value, TRUE means the parametrisation is sound.
+        //
+        // 'checkParametrisation:11' valid = false;
+        b_valid = false;
+        // 'checkParametrisation:12' if( ~(curv.a_param > 0 && curv.a_param <= 1) )
+        if ((b_curv_a_param > 0.0) && (b_curv_a_param <= 1.0) && (curv_b_param >= 0.0) &&
+            (curv_b_param < 1.0) &&
+            ((b_curv_a_param + curv_b_param) - 1.0 <= 2.2204460492503131E-16)) {
+            // 'checkParametrisation:13' if( ~(curv.b_param >= 0 && curv.b_param < 1) )
+            // 'checkParametrisation:14' if( curv.a_param + curv.b_param -1 > eps )
+            // 'checkParametrisation:15' valid = true;
+            b_valid = true;
+        }
+        v_ocn_assert(b_valid);
     }
     *ret = b_ret;
 }
 
 //
-// function [ ret, curv1, curv2 ] = cutCurvStruct( ctx, curv, u0, L, isEnd )
+// function [ ret, curvLeft, curvRight ] = cutCurvStruct( ctx, curv, u0, L, isEnd )
 //
 // cutCurvStruct: Cut a piece of the structure with a size of L
-//  starting at point u0
+//  starting at point u0.
+//
 //  Inputs :
 //  ctx   : Context
 //  curv  : Curvature
 //  u0    : Starting point of the spline
 //  L     : Length of the segment of curv
 //  isEnd : Is a zero stop curv
+//
 //  Outputs :
-//  u1    : The last point of the splitted curv
+//  ret       : Return 0 if operation fails
+//  curvLeft  : Left curve after cutting
+//  curvRight : Right curve after cutting
+//
 //
 // Arguments    : const queue_coder *ctx_q_spline
 //                const bool ctx_cfg_maskTot_data[]
@@ -585,11 +353,305 @@ void b_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
 //                int ctx_cfg_NRot
 //                const double ctx_cfg_GaussLegendreX[5]
 //                const double ctx_cfg_GaussLegendreW[5]
-//                const CurvStruct *curv
+//                CurvStruct *curv
 //                double L
 //                double *ret
-//                CurvStruct *curv1
-//                CurvStruct *curv2
+//                CurvStruct *curvRight
+// Return Type  : void
+//
+void c_cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
+                     const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
+                     const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
+                     const int ctx_cfg_maskRot_size[2],
+                     const ::coder::array<int, 1U> &ctx_cfg_indCart,
+                     const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
+                     int ctx_cfg_NCart, int ctx_cfg_NRot, const double ctx_cfg_GaussLegendreX[5],
+                     const double ctx_cfg_GaussLegendreW[5], CurvStruct *curv, double L,
+                     double *ret, CurvStruct *curvRight)
+{
+    ::coder::array<double, 1U> a__2;
+    ::coder::array<double, 1U> r;
+    ::coder::array<double, 1U> r1D0;
+    CurvStruct expl_temp;
+    double u_tilda;
+    int b_ret;
+    // 'cutCurvStruct:18' curvLeft = curv;
+    // 'cutCurvStruct:18' curvRight = curvLeft;
+    *curvRight = *curv;
+    // 'cutCurvStruct:19' ret   = 0;
+    b_ret = 0;
+    // 'cutCurvStruct:21' u_tilda = cutCurvStructU( ctx, curv, u0, L, isEnd );
+    //  cutCurvStructU : Cut a piece of the structure with a size of L
+    //  starting at point u0.
+    //
+    //  Inputs :
+    //  ctx       : Context
+    //  curv      : Curvature
+    //  u0        : Starting point of the spline
+    //  L         : Length of the segment of curv
+    //  isEnd     : Is a cut from the end
+    //
+    //  Outputs :
+    //  u1_tilda  : The last point of the splitted curve. A value of -1 means a
+    //              faillure of the operation.
+    //
+    // 'cutCurvStructU:18' if( LengthCurv( ctx, curv, 0, 1 ) <= L )
+    if (c_LengthCurv(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+                     ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
+                     ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
+                     ctx_cfg_NCart, ctx_cfg_NRot, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
+                     curv) <= L) {
+        // 'cutCurvStructU:18' u1_tilda = -1;
+        u_tilda = -1.0;
+
+        // 'cutCurvStructU:20' a = curv.a_param;
+        // 'cutCurvStructU:21' b = curv.b_param;
+        // 'cutCurvStructU:23' if ( curv.Info.Type == CurveType.Spline )
+    } else if (curv->Info.Type == CurveType_Spline) {
+        // 'cutCurvStructU:24' spline = ctx.q_spline.get( curv.sp_index );
+        ctx_q_spline->get(curv->sp_index, &expl_temp);
+        // 'cutCurvStructU:25' u1_tilda = splineLengthFindU( ctx.cfg, spline, L, a * u0 + b, isEnd
+        // );
+        u_tilda =
+            splineLengthFindU(ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
+                              expl_temp.sp.Bl.handle, expl_temp.sp.Bl.order, expl_temp.sp.coeff,
+                              expl_temp.sp.knots, expl_temp.sp.Lk, L, curv->b_param);
+    } else {
+        int loop_ub;
+        // 'cutCurvStructU:26' else
+        //  In case of helix and line, ||r'(u)||=const,
+        //  for 0 < u < 1
+        // 'cutCurvStructU:30' if( isEnd )
+        // 'cutCurvStructU:33' else
+        // 'cutCurvStructU:34' [ ~, r1D0 ] = EvalCurvStruct( ctx, curv, 0 );
+        r_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+                         ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
+                         ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
+                         ctx_cfg_NCart, ctx_cfg_NRot, curv, a__2, r1D0);
+        // 'cutCurvStructU:35' u1 = u0 + L / MyNorm( r1D0 );
+        //  MyNorm : My implementation of the norm computation.
+        //
+        //  Inputs :
+        //    x   : The input vector.
+        //
+        //  Outputs :
+        //    n   : The resulting norm.
+        //
+        // 'MyNorm:10' coder.inline( 'always' );
+        // 'MyNorm:11' n = mysqrt( sum( x.^2 ) );
+        r.set_size(r1D0.size(0));
+        loop_ub = r1D0.size(0);
+        for (int i{0}; i < loop_ub; i++) {
+            double varargin_1;
+            varargin_1 = r1D0[i];
+            r[i] = std::pow(varargin_1, 2.0);
+        }
+        double x;
+        x = coder::sum(r);
+        //  mysqrt : Custom implementation of the sqrt method.
+        //
+        //  Inputs :
+        //    x : Value used for the computation
+        //  Outputs :
+        //    y : Resulting value
+        //
+        // 'mysqrt:9' ocn_assert( isreal( x ), "x should be real...", mfilename );
+        // 'mysqrt:10' ocn_assert( x >= 0, "x should not be negative...", mfilename );
+        ocn_assert(x >= 0.0);
+        // 'mysqrt:11' y = sqrt(x);
+        // 'cutCurvStructU:37' u1_tilda = a * u1 + b;
+        u_tilda = curv->a_param * (L / std::sqrt(x)) + curv->b_param;
+    }
+    // 'cutCurvStruct:23' if( u_tilda <= 0 )
+    if (u_tilda <= 0.0) {
+        // 'cutCurvStruct:23' ret = -1;
+        b_ret = -1;
+    } else {
+        double b_curv_a_param;
+        double curv_a_param;
+        double curv_b_param;
+        bool b_valid;
+        bool b_zeroFlag;
+        bool valid;
+        bool zeroFlag;
+        // 'cutCurvStruct:25' a = curv.a_param;
+        // 'cutCurvStruct:26' b = curv.b_param;
+        // 'cutCurvStruct:28' curvRight.b_param = u_tilda;
+        curvRight->b_param = u_tilda;
+        // 'cutCurvStruct:29' curvRight.a_param = a + b - curvRight.b_param;
+        curvRight->a_param = (curv->a_param + curv->b_param) - u_tilda;
+        // 'cutCurvStruct:31' if( isAZeroEnd( curvRight ) )
+        //  isAZeroEnd : Return true if the curv ends with zero speed
+        //
+        //  Inputs :
+        //  curv / Info / ZSpdMode : A structure containning the information of the
+        //  curv zero speed.
+        //
+        //  Outputs :
+        //  zeroFlag : Boolean value. TRUE mean zero flag
+        // 'isAZeroEnd:10' zeroFlag = false;
+        zeroFlag = false;
+        // 'isAZeroEnd:12' [zspdmode, error] = getZspdmode( speed );
+        //  getZspdmode: Get the current zero speed mode
+        //
+        //  Inputs :
+        //    speed    : structure with zspdmode for the speed
+        //
+        //  Outputs :
+        //    zspdmode : Zero speed mode
+        //    error    : Error bolean value. TRUE if no zspdmode has been found.
+        //
+        // 'getZspdmode:13' error = false;
+        // 'getZspdmode:15' if( isenum( speed ) )
+        // 'getZspdmode:17' elseif( isfield( speed, "Info") )
+        // 'getZspdmode:18' zspdmode = speed.Info.zspdmode;
+        // 'isAZeroEnd:14' if( error )
+        // 'isAZeroEnd:16' if( zspdmode == ZSpdMode.NZ || ...
+        // 'isAZeroEnd:17'     zspdmode == ZSpdMode.ZZ )
+        if ((curv->Info.zspdmode == ZSpdMode_NZ) || (curv->Info.zspdmode == ZSpdMode_ZZ)) {
+            // 'isAZeroEnd:18' zeroFlag = true;
+            zeroFlag = true;
+        }
+        if (zeroFlag) {
+            // 'cutCurvStruct:32' curvRight.Info.zspdmode = ZSpdMode.NZ;
+            curvRight->Info.zspdmode = ZSpdMode_NZ;
+        } else {
+            // 'cutCurvStruct:33' else
+            // 'cutCurvStruct:34' curvRight.Info.zspdmode = ZSpdMode.NN;
+            curvRight->Info.zspdmode = ZSpdMode_NN;
+        }
+        // 'cutCurvStruct:37' ocn_assert( checkParametrisation( curvRight ), ...
+        // 'cutCurvStruct:38'     "Parametrisation is not correct...", mfilename );
+        curv_a_param = curvRight->a_param;
+        //  checkParametrisation : Check whether the curv parametrisation is correct
+        //  or not.
+        //
+        //  Inputs :
+        //    curv        : A curvStruct
+        //
+        //  Outputs :
+        //    valid       : Boolean value, TRUE means the parametrisation is sound.
+        //
+        // 'checkParametrisation:11' valid = false;
+        valid = false;
+        // 'checkParametrisation:12' if( ~(curv.a_param > 0 && curv.a_param <= 1) )
+        if ((curv_a_param > 0.0) && (curv_a_param <= 1.0) && (u_tilda >= 0.0) && (u_tilda < 1.0) &&
+            ((curv_a_param + u_tilda) - 1.0 <= 2.2204460492503131E-16)) {
+            // 'checkParametrisation:13' if( ~(curv.b_param >= 0 && curv.b_param < 1) )
+            // 'checkParametrisation:14' if( curv.a_param + curv.b_param -1 > eps )
+            // 'checkParametrisation:15' valid = true;
+            valid = true;
+        }
+        v_ocn_assert(valid);
+        // 'cutCurvStruct:40' curvLeft.a_param = u_tilda - curvLeft.b_param;
+        curv->a_param = u_tilda - curv->b_param;
+        // 'cutCurvStruct:41' if( isAZeroStart( curvLeft ) )
+        //  isAZeroStart : Return true if the curv starts with zero speed
+        //
+        //  Inputs :
+        //  curv / Info / ZSpdMode : A structure containning the information of the
+        //  curv zero speed.
+        //
+        //  Outputs :
+        //  zeroflag : Boolean value. TRUE means zero structure with a zero speed.
+        //
+        // 'isAZeroStart:11' zeroFlag = false;
+        b_zeroFlag = false;
+        // 'isAZeroStart:13' [zspdmode, error] = getZspdmode( speed );
+        //  getZspdmode: Get the current zero speed mode
+        //
+        //  Inputs :
+        //    speed    : structure with zspdmode for the speed
+        //
+        //  Outputs :
+        //    zspdmode : Zero speed mode
+        //    error    : Error bolean value. TRUE if no zspdmode has been found.
+        //
+        // 'getZspdmode:13' error = false;
+        // 'getZspdmode:15' if( isenum( speed ) )
+        // 'getZspdmode:17' elseif( isfield( speed, "Info") )
+        // 'getZspdmode:18' zspdmode = speed.Info.zspdmode;
+        // 'isAZeroStart:15' if( error )
+        // 'isAZeroStart:17' if( zspdmode == ZSpdMode.ZN || ...
+        // 'isAZeroStart:18'     zspdmode == ZSpdMode.ZZ )
+        if ((curv->Info.zspdmode == ZSpdMode_ZN) || (curv->Info.zspdmode == ZSpdMode_ZZ)) {
+            // 'isAZeroStart:19' zeroFlag = true;
+            b_zeroFlag = true;
+        }
+        if (b_zeroFlag) {
+            // 'cutCurvStruct:42' curvLeft.Info.zspdmode = ZSpdMode.ZN;
+            curv->Info.zspdmode = ZSpdMode_ZN;
+        } else {
+            // 'cutCurvStruct:43' else
+            // 'cutCurvStruct:44' curvLeft.Info.zspdmode = ZSpdMode.NN;
+            curv->Info.zspdmode = ZSpdMode_NN;
+        }
+        // 'cutCurvStruct:47' ocn_assert( checkParametrisation( curvLeft ), ...
+        // 'cutCurvStruct:48'     "Parametrisation is not correct...", mfilename  );
+        b_curv_a_param = curv->a_param;
+        curv_b_param = curv->b_param;
+        //  checkParametrisation : Check whether the curv parametrisation is correct
+        //  or not.
+        //
+        //  Inputs :
+        //    curv        : A curvStruct
+        //
+        //  Outputs :
+        //    valid       : Boolean value, TRUE means the parametrisation is sound.
+        //
+        // 'checkParametrisation:11' valid = false;
+        b_valid = false;
+        // 'checkParametrisation:12' if( ~(curv.a_param > 0 && curv.a_param <= 1) )
+        if ((b_curv_a_param > 0.0) && (b_curv_a_param <= 1.0) && (curv_b_param >= 0.0) &&
+            (curv_b_param < 1.0) &&
+            ((b_curv_a_param + curv_b_param) - 1.0 <= 2.2204460492503131E-16)) {
+            // 'checkParametrisation:13' if( ~(curv.b_param >= 0 && curv.b_param < 1) )
+            // 'checkParametrisation:14' if( curv.a_param + curv.b_param -1 > eps )
+            // 'checkParametrisation:15' valid = true;
+            b_valid = true;
+        }
+        v_ocn_assert(b_valid);
+    }
+    *ret = b_ret;
+}
+
+//
+// function [ ret, curvLeft, curvRight ] = cutCurvStruct( ctx, curv, u0, L, isEnd )
+//
+// cutCurvStruct: Cut a piece of the structure with a size of L
+//  starting at point u0.
+//
+//  Inputs :
+//  ctx   : Context
+//  curv  : Curvature
+//  u0    : Starting point of the spline
+//  L     : Length of the segment of curv
+//  isEnd : Is a zero stop curv
+//
+//  Outputs :
+//  ret       : Return 0 if operation fails
+//  curvLeft  : Left curve after cutting
+//  curvRight : Right curve after cutting
+//
+//
+// Arguments    : const queue_coder *ctx_q_spline
+//                const bool ctx_cfg_maskTot_data[]
+//                const int ctx_cfg_maskTot_size[2]
+//                const bool ctx_cfg_maskCart_data[]
+//                const int ctx_cfg_maskCart_size[2]
+//                const bool ctx_cfg_maskRot_data[]
+//                const int ctx_cfg_maskRot_size[2]
+//                const ::coder::array<int, 1U> &ctx_cfg_indCart
+//                const ::coder::array<int, 1U> &ctx_cfg_indRot
+//                int ctx_cfg_NumberAxis
+//                int ctx_cfg_NCart
+//                int ctx_cfg_NRot
+//                const double ctx_cfg_GaussLegendreX[5]
+//                const double ctx_cfg_GaussLegendreW[5]
+//                CurvStruct *curv
+//                double L
+//                double *ret
+//                CurvStruct *curvRight
 // Return Type  : void
 //
 void cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
@@ -599,360 +661,79 @@ void cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
                    const ::coder::array<int, 1U> &ctx_cfg_indCart,
                    const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
                    int ctx_cfg_NCart, int ctx_cfg_NRot, const double ctx_cfg_GaussLegendreX[5],
-                   const double ctx_cfg_GaussLegendreW[5], const CurvStruct *curv, double L,
-                   double *ret, CurvStruct *curv1, CurvStruct *curv2)
+                   const double ctx_cfg_GaussLegendreW[5], CurvStruct *curv, double L, double *ret,
+                   CurvStruct *curvRight)
 {
-    ::coder::array<double, 2U> LEnd;
-    ::coder::array<double, 2U> a__1;
-    ::coder::array<double, 2U> r1;
-    ::coder::array<double, 2U> r1D;
-    ::coder::array<double, 2U> x;
     ::coder::array<double, 1U> a__2;
     ::coder::array<double, 1U> r;
     ::coder::array<double, 1U> r1D0;
-    ::coder::array<bool, 2U> b_LEnd;
-    ::coder::array<bool, 2U> b_expl_temp;
     CurvStruct expl_temp;
     double u_tilda;
-    int LkEndVec_data;
     int b_ret;
-    // 'cutCurvStruct:12' curv1 = curv;
-    *curv1 = *curv;
-    // 'cutCurvStruct:12' curv2 = curv1;
-    *curv2 = *curv;
-    // 'cutCurvStruct:13' ret   = 0;
+    // 'cutCurvStruct:18' curvLeft = curv;
+    // 'cutCurvStruct:18' curvRight = curvLeft;
+    *curvRight = *curv;
+    // 'cutCurvStruct:19' ret   = 0;
     b_ret = 0;
-    // 'cutCurvStruct:15' u_tilda = cutCurvStructU( ctx, curv, u0, L, isEnd );
-    //  cutCurvStructU: Cut a piece of the structure with a size of L
-    //  starting at point u0
+    // 'cutCurvStruct:21' u_tilda = cutCurvStructU( ctx, curv, u0, L, isEnd );
+    //  cutCurvStructU : Cut a piece of the structure with a size of L
+    //  starting at point u0.
+    //
     //  Inputs :
-    //  ctx   : Context
-    //  curv  : Curvature
-    //  u0    : Starting point of the spline
-    //  L     : Length of the segment of curv
-    //  isEnd : Is a cut from the end
+    //  ctx       : Context
+    //  curv      : Curvature
+    //  u0        : Starting point of the spline
+    //  L         : Length of the segment of curv
+    //  isEnd     : Is a cut from the end
+    //
     //  Outputs :
-    //  u1    : The last point of the splitted curv
-    // 'cutCurvStructU:13' if( LengthCurv( ctx, curv, 0, 1 ) <= L )
-    if (LengthCurv(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size, ctx_cfg_maskCart_data,
-                   ctx_cfg_maskCart_size, ctx_cfg_maskRot_data, ctx_cfg_maskRot_size,
-                   ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis, ctx_cfg_NCart, ctx_cfg_NRot,
-                   ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW, curv) <= L) {
-        // 'cutCurvStructU:13' u1_tilda = -1;
+    //  u1_tilda  : The last point of the splitted curve. A value of -1 means a
+    //              faillure of the operation.
+    //
+    // 'cutCurvStructU:18' if( LengthCurv( ctx, curv, 0, 1 ) <= L )
+    if (b_LengthCurv(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+                     ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
+                     ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
+                     ctx_cfg_NCart, ctx_cfg_NRot, ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
+                     curv) <= L) {
+        // 'cutCurvStructU:18' u1_tilda = -1;
         u_tilda = -1.0;
 
-        // 'cutCurvStructU:15' a = curv.a_param;
-        // 'cutCurvStructU:16' b = curv.b_param;
-        // 'cutCurvStructU:18' if ( curv.Info.Type == CurveType.Spline )
+        // 'cutCurvStructU:20' a = curv.a_param;
+        // 'cutCurvStructU:21' b = curv.b_param;
+        // 'cutCurvStructU:23' if ( curv.Info.Type == CurveType.Spline )
     } else if (curv->Info.Type == CurveType_Spline) {
-        double r1Dnorm[5];
-        double LStart;
-        int LkEndVec_size[2];
-        int b_loop_ub;
-        int c_loop_ub;
-        int d_loop_ub;
-        int e_loop_ub;
-        int f_loop_ub;
-        int i1;
-        int i2;
-        int i3;
-        int i6;
-        int i7;
-        int i8;
-        int kStartVec_data;
-        // 'cutCurvStructU:19' spline = ctx.q_spline.get( curv.sp_index );
+        // 'cutCurvStructU:24' spline = ctx.q_spline.get( curv.sp_index );
         ctx_q_spline->get(curv->sp_index, &expl_temp);
-        // 'cutCurvStructU:20' u1_tilda = splineLengthFindU( ctx.cfg, spline, L, a * u0 + b, isEnd
+        // 'cutCurvStructU:25' u1_tilda = splineLengthFindU( ctx.cfg, spline, L, a * u0 + b, isEnd
         // );
-        //  Computes approximately the value of curve parameter u such that the arc
-        //  length starting from u1 equals L.
-        //  This function takes usage of the precalculated arc lengths between knots.
-        //  The last integration interval is approximated by the trapezoidal rule.
-        //  u1 must satisfy 0 < u1 < 1.
-        //  In the normal case, u must satisfy 0 < u < u1. If L is too large, u is
-        //  set to -1.
-        //  The parameter isEnd is used to start inverse the problem, the length is
-        //  estimated starting from u quals to 1 to 0. It's used to cut a specific
-        //  length at the beginning of the curv.
-        // 'splineLengthFindU:13' ITER_MAX    = 1000;
-        // 'splineLengthFindU:14' DEFAULT_TOL = 1E-7;
-        //  Get the sp structure
-        // 'splineLengthFindU:17' sp     = spline.sp;
-        // 'splineLengthFindU:19' IND_KNOTS_MULT  = sp.Bl.order;
-        //  Index used to remove multiple knots
-        //  Eliminate multiplicities at the end points
-        // 'splineLengthFindU:21' Knots  = sp.knots( 1, IND_KNOTS_MULT : end - IND_KNOTS_MULT + 1 );
-        i1 = (expl_temp.sp.knots.size(1) - expl_temp.sp.Bl.order) + 1;
-        if (expl_temp.sp.Bl.order > i1) {
-            i2 = -1;
-            i3 = -1;
-        } else {
-            i2 = expl_temp.sp.Bl.order - 2;
-            i3 = i1 - 1;
-        }
-        // 'splineLengthFindU:22' Lk     = sp.Lk;
-        // 'splineLengthFindU:23' kMax   = numel( Lk );
-        // 'splineLengthFindU:25' if( isEnd )
-        // 'splineLengthFindU:31' C_ASSERT_MSG = 'u0 must be %s or equal than the first spline
-        // knot'; 'splineLengthFindU:32' ocn_assert( u0 >= Knots(1),   sprintf(C_ASSERT_MSG,
-        // 'greater'), mfilename );
-        l_ocn_assert(curv->b_param >= expl_temp.sp.knots[i2 + 1]);
-        // 'splineLengthFindU:33' ocn_assert( u0 <= Knots(end), sprintf(C_ASSERT_MSG, 'smaller'),
-        // mfilename );
-        m_ocn_assert(curv->b_param <= expl_temp.sp.knots[i3]);
-        // 'splineLengthFindU:35' kStartVec = find( Knots <= u0, 1, "last" );
-        b_loop_ub = i3 - i2;
-        b_expl_temp.set_size(1, b_loop_ub);
-        for (int i4{0}; i4 < b_loop_ub; i4++) {
-            b_expl_temp[i4] = (expl_temp.sp.knots[(i2 + i4) + 1] <= curv->b_param);
-        }
-        coder::eml_find(b_expl_temp, (int *)&LkEndVec_data, LkEndVec_size);
-        c_loop_ub = LkEndVec_size[1];
-        for (int i5{0}; i5 < c_loop_ub; i5++) {
-            kStartVec_data = LkEndVec_data;
-        }
-        // 'splineLengthFindU:36' kStart    = kStartVec( 1 );
-        // 'splineLengthFindU:38' if( Knots( kStart ) < u0 )
-        i6 = i2 + kStartVec_data;
-        if (expl_temp.sp.knots[i6] < curv->b_param) {
-            double d_expl_temp[5];
-            double b_r1Dnorm;
-            double c_expl_temp;
-            int g_loop_ub;
-            // 'splineLengthFindU:39' LStart = splineLengthApprox_Interval( cfg, spline, Knots(
-            // kStart ), u0, isEnd );
-            //  computes approximately the arc length L with integration bounds u1 and u2.
-            //  IMPORTANT : u0 and u1 should lie in the same knot interval.
-            //  The computation is based on numerical Gauss Legendre integration
-            //
-            //  get Gauss-Legendre knots and weights
-            // 'splineLengthApprox_Interval:7' GL_X   = cfg.GaussLegendreX;
-            // 'splineLengthApprox_Interval:8' GL_W   = cfg.GaussLegendreW;
-            // 'splineLengthApprox_Interval:10' if( isEnd )
-            //  apply linear map from[-1, 1] to [u0, u1]
-            // 'splineLengthApprox_Interval:17' uvec   = ( ( u0 * ( 1 - GL_X ) + u1 * ( 1 + GL_X ) )
-            // / 2 ).';
-            //
-            // 'splineLengthApprox_Interval:20' [ ~, r1D ]  = EvalBSpline( spline, uvec );
-            c_expl_temp = expl_temp.sp.knots[i6];
-            for (int i11{0}; i11 < 5; i11++) {
-                double d;
-                d = ctx_cfg_GaussLegendreX[i11];
-                d_expl_temp[i11] = (c_expl_temp * (1.0 - d) + curv->b_param * (d + 1.0)) / 2.0;
-            }
-            EvalBSpline(expl_temp.sp.Bl.handle, expl_temp.sp.coeff, d_expl_temp, a__1, r1D);
-            // 'splineLengthApprox_Interval:21' r1Dnorm     = MyNorm( r1D );
-            // 'MyNorm:2' coder.inline('always');
-            // 'MyNorm:3' n = mysqrt(sum(x.^2));
-            r1.set_size(r1D.size(0), 5);
-            g_loop_ub = r1D.size(0);
-            for (int i14{0}; i14 < 5; i14++) {
-                for (int i15{0}; i15 < g_loop_ub; i15++) {
-                    double b_varargin_1;
-                    b_varargin_1 = r1D[i15 + r1D.size(0) * i14];
-                    r1[i15 + r1.size(0) * i14] = std::pow(b_varargin_1, 2.0);
-                }
-            }
-            coder::sum(r1, r1Dnorm);
-            // 'mysqrt:3' y = sqrt(x);
-            // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-            sqrt_calls++;
-            // 'splineLengthApprox_Interval:22' L           = r1Dnorm * GL_W * ( u1 - u0 ) / 2;
-            b_r1Dnorm = 0.0;
-            for (int b_k{0}; b_k < 5; b_k++) {
-                double d1;
-                d1 = std::sqrt(r1Dnorm[b_k]);
-                r1Dnorm[b_k] = d1;
-                b_r1Dnorm += d1 * ctx_cfg_GaussLegendreW[b_k];
-            }
-            LStart = b_r1Dnorm * (curv->b_param - expl_temp.sp.knots[i6]) / 2.0;
-            //  Gauss Legendre integration
-            // 'splineLengthApprox_Interval:23' L = L( 1 );
-            //  to satisfy Matlab Coder
-        } else {
-            // 'splineLengthFindU:40' else
-            // 'splineLengthFindU:41' LStart = 0;
-            LStart = 0.0;
-        }
-        // 'splineLengthFindU:44' LEnd = cumsum( Lk( kStart : kMax) ) - LStart;
-        if (kStartVec_data > expl_temp.sp.Lk.size(1)) {
-            i7 = -1;
-            i8 = -1;
-        } else {
-            i7 = kStartVec_data - 2;
-            i8 = expl_temp.sp.Lk.size(1) - 1;
-        }
-        d_loop_ub = i8 - i7;
-        x.set_size(1, d_loop_ub);
-        for (int i9{0}; i9 < d_loop_ub; i9++) {
-            x[i9] = expl_temp.sp.Lk[(i7 + i9) + 1];
-        }
-        if ((d_loop_ub != 0) && (d_loop_ub != 1)) {
-            int i10;
-            i10 = d_loop_ub - 2;
-            for (int k{0}; k <= i10; k++) {
-                x[k + 1] = x[k] + x[k + 1];
-            }
-        }
-        LEnd.set_size(1, x.size(1));
-        e_loop_ub = x.size(1);
-        for (int i12{0}; i12 < e_loop_ub; i12++) {
-            LEnd[i12] = x[i12] - LStart;
-        }
-        // 'splineLengthFindU:46' LkEndVec = find( LEnd >= L, 1, "first" );
-        b_LEnd.set_size(1, LEnd.size(1));
-        f_loop_ub = LEnd.size(1);
-        for (int i13{0}; i13 < f_loop_ub; i13++) {
-            b_LEnd[i13] = (LEnd[i13] >= L);
-        }
-        coder::b_eml_find(b_LEnd, (int *)&LkEndVec_data, LkEndVec_size);
-        // 'splineLengthFindU:47' if( isempty( LkEndVec ) )
-        if (LkEndVec_size[1] == 0) {
-            // 'splineLengthFindU:48' u = -1;
-            u_tilda = -1.0;
-        } else {
-            double LDiff;
-            double fk;
-            double kEnd;
-            double u;
-            double uLeft;
-            double uMiddle;
-            double uRight;
-            double uStart;
-            int count;
-            int uRight_tmp;
-            // 'splineLengthFindU:49' else
-            // 'splineLengthFindU:50' LkEnd    = LkEndVec( 1 );
-            // 'splineLengthFindU:51' if( LkEnd > 1 )
-            if (LkEndVec_data > 1) {
-                // 'splineLengthFindU:52' LDiff = L - LEnd( LkEnd - 1 );
-                LDiff = L - LEnd[LkEndVec_data - 2];
-            } else {
-                // 'splineLengthFindU:53' else
-                // 'splineLengthFindU:54' LDiff = L + LStart;
-                LDiff = L + LStart;
-            }
-            // 'splineLengthFindU:58' kEnd = LkEnd + kStart;
-            kEnd = static_cast<double>(LkEndVec_data) + static_cast<double>(kStartVec_data);
-            // 'splineLengthFindU:60' uLeft       = Knots( kEnd -1 );
-            uLeft = expl_temp.sp.knots[i2 + static_cast<int>(kEnd - 1.0)];
-            // 'splineLengthFindU:61' uRight      = Knots( kEnd );
-            uRight_tmp = i2 + static_cast<int>(kEnd);
-            uRight = expl_temp.sp.knots[uRight_tmp];
-            // 'splineLengthFindU:63' [ u, count ] = bisection( uLeft, uRight, cfg, spline, LDiff,
-            // ITER_MAX, DEFAULT_TOL, isEnd );
-            // -------------------------------------------------------------------------%
-            //  Functions
-            // -------------------------------------------------------------------------%
-            // 'splineLengthFindU:78' count   = 0;
-            count = 0;
-            // 'splineLengthFindU:79' uStart  = uLeft;
-            uStart = expl_temp.sp.knots[uRight_tmp - 1];
-            // 'splineLengthFindU:80' fk      = tol * 1.1;
-            fk = 1.1E-7;
-            // 'splineLengthFindU:82' uMiddle = ( uLeft + uRight ) / 2;
-            uMiddle = (expl_temp.sp.knots[uRight_tmp - 1] + expl_temp.sp.knots[uRight_tmp]) / 2.0;
-            // 'splineLengthFindU:84' while( count < iterMax && abs( fk ) > tol )
-            while ((count < 1000) && (std::abs(fk) > 1.0E-7)) {
-                double b_uStart[5];
-                double c_r1Dnorm;
-                int h_loop_ub;
-                // 'splineLengthFindU:85' uMiddle = ( uLeft + uRight ) / 2;
-                uMiddle = (uLeft + uRight) / 2.0;
-                // 'splineLengthFindU:87' fk  = splineLengthApprox_Interval( cfg, spline, uStart,
-                // uMiddle, isEnd ) - LDiff;
-                //  computes approximately the arc length L with integration bounds u1 and u2.
-                //  IMPORTANT : u0 and u1 should lie in the same knot interval.
-                //  The computation is based on numerical Gauss Legendre integration
-                //
-                //  get Gauss-Legendre knots and weights
-                // 'splineLengthApprox_Interval:7' GL_X   = cfg.GaussLegendreX;
-                // 'splineLengthApprox_Interval:8' GL_W   = cfg.GaussLegendreW;
-                // 'splineLengthApprox_Interval:10' if( isEnd )
-                //  apply linear map from[-1, 1] to [u0, u1]
-                // 'splineLengthApprox_Interval:17' uvec   = ( ( u0 * ( 1 - GL_X ) + u1 * ( 1 + GL_X
-                // ) ) / 2 ).';
-                //
-                // 'splineLengthApprox_Interval:20' [ ~, r1D ]  = EvalBSpline( spline, uvec );
-                for (int i16{0}; i16 < 5; i16++) {
-                    double d2;
-                    d2 = ctx_cfg_GaussLegendreX[i16];
-                    b_uStart[i16] = (uStart * (1.0 - d2) + uMiddle * (d2 + 1.0)) / 2.0;
-                }
-                EvalBSpline(expl_temp.sp.Bl.handle, expl_temp.sp.coeff, b_uStart, a__1, r1D);
-                // 'splineLengthApprox_Interval:21' r1Dnorm     = MyNorm( r1D );
-                // 'MyNorm:2' coder.inline('always');
-                // 'MyNorm:3' n = mysqrt(sum(x.^2));
-                r1.set_size(r1D.size(0), 5);
-                h_loop_ub = r1D.size(0);
-                for (int i17{0}; i17 < 5; i17++) {
-                    for (int i18{0}; i18 < h_loop_ub; i18++) {
-                        double c_varargin_1;
-                        c_varargin_1 = r1D[i18 + r1D.size(0) * i17];
-                        r1[i18 + r1.size(0) * i17] = std::pow(c_varargin_1, 2.0);
-                    }
-                }
-                coder::sum(r1, r1Dnorm);
-                // 'mysqrt:3' y = sqrt(x);
-                // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-                sqrt_calls++;
-                // 'splineLengthApprox_Interval:22' L           = r1Dnorm * GL_W * ( u1 - u0 ) / 2;
-                //  Gauss Legendre integration
-                // 'splineLengthApprox_Interval:23' L = L( 1 );
-                //  to satisfy Matlab Coder
-                c_r1Dnorm = 0.0;
-                for (int c_k{0}; c_k < 5; c_k++) {
-                    double d3;
-                    d3 = std::sqrt(r1Dnorm[c_k]);
-                    r1Dnorm[c_k] = d3;
-                    c_r1Dnorm += d3 * ctx_cfg_GaussLegendreW[c_k];
-                }
-                fk = c_r1Dnorm * (uMiddle - uStart) / 2.0 - LDiff;
-                // 'splineLengthFindU:89' if( fk > 0 )
-                if (fk > 0.0) {
-                    // 'splineLengthFindU:90' uRight = uMiddle;
-                    uRight = uMiddle;
-                } else {
-                    // 'splineLengthFindU:91' else
-                    // 'splineLengthFindU:92' uLeft  = uMiddle;
-                    uLeft = uMiddle;
-                }
-                // 'splineLengthFindU:94' count = count + 1;
-                count++;
-            }
-            // 'splineLengthFindU:97' if( count >= iterMax )
-            if (count >= 1000) {
-                // 'splineLengthFindU:98' u = -1;
-                u = -1.0;
-            } else {
-                // 'splineLengthFindU:99' else
-                // 'splineLengthFindU:100' u = uMiddle;
-                u = uMiddle;
-            }
-            u_tilda = u;
-            // 'splineLengthFindU:65' ocn_assert(~(u < 0), "Fails to compute length", mfilename);
-            n_ocn_assert(u >= 0.0);
-            // 'splineLengthFindU:67' if( isEnd && u >= 0 )
-        }
+        u_tilda =
+            splineLengthFindU(ctx_cfg_GaussLegendreX, ctx_cfg_GaussLegendreW,
+                              expl_temp.sp.Bl.handle, expl_temp.sp.Bl.order, expl_temp.sp.coeff,
+                              expl_temp.sp.knots, expl_temp.sp.Lk, L, curv->b_param);
     } else {
         int loop_ub;
-        // 'cutCurvStructU:21' else
+        // 'cutCurvStructU:26' else
         //  In case of helix and line, ||r'(u)||=const,
         //  for 0 < u < 1
-        // 'cutCurvStructU:25' if( isEnd )
-        // 'cutCurvStructU:28' else
-        // 'cutCurvStructU:29' [ ~, r1D0 ] = EvalCurvStruct( ctx, curv, 0 );
-        d_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+        // 'cutCurvStructU:30' if( isEnd )
+        // 'cutCurvStructU:33' else
+        // 'cutCurvStructU:34' [ ~, r1D0 ] = EvalCurvStruct( ctx, curv, 0 );
+        r_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                          ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                          ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                          ctx_cfg_NCart, ctx_cfg_NRot, curv, a__2, r1D0);
-        // 'cutCurvStructU:30' u1 = u0 + L / MyNorm( r1D0 );
-        // 'MyNorm:2' coder.inline('always');
-        // 'MyNorm:3' n = mysqrt(sum(x.^2));
-        // 'mysqrt:3' y = sqrt(x);
-        // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-        sqrt_calls++;
-        // 'cutCurvStructU:32' u1_tilda = a * u1 + b;
+        // 'cutCurvStructU:35' u1 = u0 + L / MyNorm( r1D0 );
+        //  MyNorm : My implementation of the norm computation.
+        //
+        //  Inputs :
+        //    x   : The input vector.
+        //
+        //  Outputs :
+        //    n   : The resulting norm.
+        //
+        // 'MyNorm:10' coder.inline( 'always' );
+        // 'MyNorm:11' n = mysqrt( sum( x.^2 ) );
         r.set_size(r1D0.size(0));
         loop_ub = r1D0.size(0);
         for (int i{0}; i < loop_ub; i++) {
@@ -960,79 +741,171 @@ void cutCurvStruct(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_d
             varargin_1 = r1D0[i];
             r[i] = std::pow(varargin_1, 2.0);
         }
-        u_tilda = curv->a_param * (L / std::sqrt(coder::sum(r))) + curv->b_param;
+        double x;
+        x = coder::sum(r);
+        //  mysqrt : Custom implementation of the sqrt method.
+        //
+        //  Inputs :
+        //    x : Value used for the computation
+        //  Outputs :
+        //    y : Resulting value
+        //
+        // 'mysqrt:9' ocn_assert( isreal( x ), "x should be real...", mfilename );
+        // 'mysqrt:10' ocn_assert( x >= 0, "x should not be negative...", mfilename );
+        ocn_assert(x >= 0.0);
+        // 'mysqrt:11' y = sqrt(x);
+        // 'cutCurvStructU:37' u1_tilda = a * u1 + b;
+        u_tilda = curv->a_param * (L / std::sqrt(x)) + curv->b_param;
     }
-    // 'cutCurvStruct:17' if( u_tilda <= 0 )
+    // 'cutCurvStruct:23' if( u_tilda <= 0 )
     if (u_tilda <= 0.0) {
-        // 'cutCurvStruct:17' ret = -1;
+        // 'cutCurvStruct:23' ret = -1;
         b_ret = -1;
     } else {
+        double b_curv_a_param;
+        double curv_a_param;
+        double curv_b_param;
+        bool b_valid;
         bool b_zeroFlag;
+        bool valid;
         bool zeroFlag;
-        // 'cutCurvStruct:19' a = curv.a_param;
-        // 'cutCurvStruct:20' b = curv.b_param;
-        // 'cutCurvStruct:22' curv2.b_param = u_tilda;
-        curv2->b_param = u_tilda;
-        // 'cutCurvStruct:23' curv2.a_param = a + b - curv2.b_param;
-        curv2->a_param = (curv->a_param + curv->b_param) - u_tilda;
-        // 'cutCurvStruct:25' if( isAZeroEnd( curv2 ) )
+        // 'cutCurvStruct:25' a = curv.a_param;
+        // 'cutCurvStruct:26' b = curv.b_param;
+        // 'cutCurvStruct:28' curvRight.b_param = u_tilda;
+        curvRight->b_param = u_tilda;
+        // 'cutCurvStruct:29' curvRight.a_param = a + b - curvRight.b_param;
+        curvRight->a_param = (curv->a_param + curv->b_param) - u_tilda;
+        // 'cutCurvStruct:31' if( isAZeroEnd( curvRight ) )
         //  isAZeroEnd : Return true if the curv ends with zero speed
-        //  Input :
+        //
+        //  Inputs :
         //  curv / Info / ZSpdMode : A structure containning the information of the
         //  curv zero speed.
-        // 'isAZeroEnd:6' zeroFlag = false;
+        //
+        //  Outputs :
+        //  zeroFlag : Boolean value. TRUE mean zero flag
+        // 'isAZeroEnd:10' zeroFlag = false;
         zeroFlag = false;
-        // 'isAZeroEnd:8' [zspdmode, error] = getZspdmode( speed );
-        //  Get the zspdmode enum from either a curvStruct, infoStruct or zspdMode.
-        // 'getZspdmode:3' error = false;
-        // 'getZspdmode:5' if( isenum( speed ) )
-        // 'getZspdmode:7' elseif( isfield( speed, "Info") )
-        // 'getZspdmode:8' zspdmode = speed.Info.zspdmode;
-        // 'isAZeroEnd:10' if( error )
-        // 'isAZeroEnd:12' if( zspdmode == ZSpdMode.NZ || ...
-        // 'isAZeroEnd:13'     zspdmode == ZSpdMode.ZZ )
+        // 'isAZeroEnd:12' [zspdmode, error] = getZspdmode( speed );
+        //  getZspdmode: Get the current zero speed mode
+        //
+        //  Inputs :
+        //    speed    : structure with zspdmode for the speed
+        //
+        //  Outputs :
+        //    zspdmode : Zero speed mode
+        //    error    : Error bolean value. TRUE if no zspdmode has been found.
+        //
+        // 'getZspdmode:13' error = false;
+        // 'getZspdmode:15' if( isenum( speed ) )
+        // 'getZspdmode:17' elseif( isfield( speed, "Info") )
+        // 'getZspdmode:18' zspdmode = speed.Info.zspdmode;
+        // 'isAZeroEnd:14' if( error )
+        // 'isAZeroEnd:16' if( zspdmode == ZSpdMode.NZ || ...
+        // 'isAZeroEnd:17'     zspdmode == ZSpdMode.ZZ )
         if ((curv->Info.zspdmode == ZSpdMode_NZ) || (curv->Info.zspdmode == ZSpdMode_ZZ)) {
-            // 'isAZeroEnd:14' zeroFlag = true;
+            // 'isAZeroEnd:18' zeroFlag = true;
             zeroFlag = true;
         }
         if (zeroFlag) {
-            // 'cutCurvStruct:26' curv2.Info.zspdmode = ZSpdMode.NZ;
-            curv2->Info.zspdmode = ZSpdMode_NZ;
+            // 'cutCurvStruct:32' curvRight.Info.zspdmode = ZSpdMode.NZ;
+            curvRight->Info.zspdmode = ZSpdMode_NZ;
         } else {
-            // 'cutCurvStruct:27' else
-            // 'cutCurvStruct:28' curv2.Info.zspdmode = ZSpdMode.NN;
-            curv2->Info.zspdmode = ZSpdMode_NN;
+            // 'cutCurvStruct:33' else
+            // 'cutCurvStruct:34' curvRight.Info.zspdmode = ZSpdMode.NN;
+            curvRight->Info.zspdmode = ZSpdMode_NN;
         }
-        // 'cutCurvStruct:31' curv1.a_param = u_tilda - curv1.b_param;
-        curv1->a_param = u_tilda - curv->b_param;
-        // 'cutCurvStruct:32' if( isAZeroStart( curv1 ) )
+        // 'cutCurvStruct:37' ocn_assert( checkParametrisation( curvRight ), ...
+        // 'cutCurvStruct:38'     "Parametrisation is not correct...", mfilename );
+        curv_a_param = curvRight->a_param;
+        //  checkParametrisation : Check whether the curv parametrisation is correct
+        //  or not.
+        //
+        //  Inputs :
+        //    curv        : A curvStruct
+        //
+        //  Outputs :
+        //    valid       : Boolean value, TRUE means the parametrisation is sound.
+        //
+        // 'checkParametrisation:11' valid = false;
+        valid = false;
+        // 'checkParametrisation:12' if( ~(curv.a_param > 0 && curv.a_param <= 1) )
+        if ((curv_a_param > 0.0) && (curv_a_param <= 1.0) && (u_tilda >= 0.0) && (u_tilda < 1.0) &&
+            ((curv_a_param + u_tilda) - 1.0 <= 2.2204460492503131E-16)) {
+            // 'checkParametrisation:13' if( ~(curv.b_param >= 0 && curv.b_param < 1) )
+            // 'checkParametrisation:14' if( curv.a_param + curv.b_param -1 > eps )
+            // 'checkParametrisation:15' valid = true;
+            valid = true;
+        }
+        v_ocn_assert(valid);
+        // 'cutCurvStruct:40' curvLeft.a_param = u_tilda - curvLeft.b_param;
+        curv->a_param = u_tilda - curv->b_param;
+        // 'cutCurvStruct:41' if( isAZeroStart( curvLeft ) )
         //  isAZeroStart : Return true if the curv starts with zero speed
-        //  Input :
+        //
+        //  Inputs :
         //  curv / Info / ZSpdMode : A structure containning the information of the
         //  curv zero speed.
-        // 'isAZeroStart:6' zeroFlag = false;
+        //
+        //  Outputs :
+        //  zeroflag : Boolean value. TRUE means zero structure with a zero speed.
+        //
+        // 'isAZeroStart:11' zeroFlag = false;
         b_zeroFlag = false;
-        // 'isAZeroStart:8' [zspdmode, error] = getZspdmode( speed );
-        //  Get the zspdmode enum from either a curvStruct, infoStruct or zspdMode.
-        // 'getZspdmode:3' error = false;
-        // 'getZspdmode:5' if( isenum( speed ) )
-        // 'getZspdmode:7' elseif( isfield( speed, "Info") )
-        // 'getZspdmode:8' zspdmode = speed.Info.zspdmode;
-        // 'isAZeroStart:10' if( error )
-        // 'isAZeroStart:12' if( zspdmode == ZSpdMode.ZN || ...
-        // 'isAZeroStart:13'     zspdmode == ZSpdMode.ZZ )
+        // 'isAZeroStart:13' [zspdmode, error] = getZspdmode( speed );
+        //  getZspdmode: Get the current zero speed mode
+        //
+        //  Inputs :
+        //    speed    : structure with zspdmode for the speed
+        //
+        //  Outputs :
+        //    zspdmode : Zero speed mode
+        //    error    : Error bolean value. TRUE if no zspdmode has been found.
+        //
+        // 'getZspdmode:13' error = false;
+        // 'getZspdmode:15' if( isenum( speed ) )
+        // 'getZspdmode:17' elseif( isfield( speed, "Info") )
+        // 'getZspdmode:18' zspdmode = speed.Info.zspdmode;
+        // 'isAZeroStart:15' if( error )
+        // 'isAZeroStart:17' if( zspdmode == ZSpdMode.ZN || ...
+        // 'isAZeroStart:18'     zspdmode == ZSpdMode.ZZ )
         if ((curv->Info.zspdmode == ZSpdMode_ZN) || (curv->Info.zspdmode == ZSpdMode_ZZ)) {
-            // 'isAZeroStart:14' zeroFlag = true;
+            // 'isAZeroStart:19' zeroFlag = true;
             b_zeroFlag = true;
         }
         if (b_zeroFlag) {
-            // 'cutCurvStruct:33' curv1.Info.zspdmode = ZSpdMode.ZN;
-            curv1->Info.zspdmode = ZSpdMode_ZN;
+            // 'cutCurvStruct:42' curvLeft.Info.zspdmode = ZSpdMode.ZN;
+            curv->Info.zspdmode = ZSpdMode_ZN;
         } else {
-            // 'cutCurvStruct:34' else
-            // 'cutCurvStruct:35' curv1.Info.zspdmode = ZSpdMode.NN;
-            curv1->Info.zspdmode = ZSpdMode_NN;
+            // 'cutCurvStruct:43' else
+            // 'cutCurvStruct:44' curvLeft.Info.zspdmode = ZSpdMode.NN;
+            curv->Info.zspdmode = ZSpdMode_NN;
         }
+        // 'cutCurvStruct:47' ocn_assert( checkParametrisation( curvLeft ), ...
+        // 'cutCurvStruct:48'     "Parametrisation is not correct...", mfilename  );
+        b_curv_a_param = curv->a_param;
+        curv_b_param = curv->b_param;
+        //  checkParametrisation : Check whether the curv parametrisation is correct
+        //  or not.
+        //
+        //  Inputs :
+        //    curv        : A curvStruct
+        //
+        //  Outputs :
+        //    valid       : Boolean value, TRUE means the parametrisation is sound.
+        //
+        // 'checkParametrisation:11' valid = false;
+        b_valid = false;
+        // 'checkParametrisation:12' if( ~(curv.a_param > 0 && curv.a_param <= 1) )
+        if ((b_curv_a_param > 0.0) && (b_curv_a_param <= 1.0) && (curv_b_param >= 0.0) &&
+            (curv_b_param < 1.0) &&
+            ((b_curv_a_param + curv_b_param) - 1.0 <= 2.2204460492503131E-16)) {
+            // 'checkParametrisation:13' if( ~(curv.b_param >= 0 && curv.b_param < 1) )
+            // 'checkParametrisation:14' if( curv.a_param + curv.b_param -1 > eps )
+            // 'checkParametrisation:15' valid = true;
+            b_valid = true;
+        }
+        v_ocn_assert(b_valid);
     }
     *ret = b_ret;
 }

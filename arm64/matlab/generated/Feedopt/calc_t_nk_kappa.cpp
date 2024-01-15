@@ -11,6 +11,7 @@
 // Include Files
 #include "calc_t_nk_kappa.h"
 #include "norm.h"
+#include "ocn_assert.h"
 #include "coder_array.h"
 #include <cmath>
 
@@ -143,7 +144,18 @@ void calc_t_nk_kappa(const double rD1[6], const double rD2[6], double t[6], doub
     if (num < 0.0) {
         unnamed_idx_0 = 0.0;
     }
-    // 'calc_t_nk_kappa:20' kappa       = sqrt( num ) ./ norm_rD1_3;
+    // 'calc_t_nk_kappa:20' kappa       = mysqrt( num ) ./ norm_rD1_3;
+    //  mysqrt : Custom implementation of the sqrt method.
+    //
+    //  Inputs :
+    //    x : Value used for the computation
+    //  Outputs :
+    //    y : Resulting value
+    //
+    // 'mysqrt:9' ocn_assert( isreal( x ), "x should be real...", mfilename );
+    // 'mysqrt:10' ocn_assert( x >= 0, "x should not be negative...", mfilename );
+    ocn_assert(unnamed_idx_0 >= 0.0);
+    // 'mysqrt:11' y = sqrt(x);
     *kappa = std::sqrt(unnamed_idx_0) / (norm_rD1_2 * norm_rD1);
 }
 
@@ -214,7 +226,18 @@ void calc_t_nk_kappa(const ::coder::array<double, 1U> &rD1, const ::coder::array
     if (num < 0.0) {
         unnamed_idx_0 = 0.0;
     }
-    // 'calc_t_nk_kappa:20' kappa       = sqrt( num ) ./ norm_rD1_3;
+    // 'calc_t_nk_kappa:20' kappa       = mysqrt( num ) ./ norm_rD1_3;
+    //  mysqrt : Custom implementation of the sqrt method.
+    //
+    //  Inputs :
+    //    x : Value used for the computation
+    //  Outputs :
+    //    y : Resulting value
+    //
+    // 'mysqrt:9' ocn_assert( isreal( x ), "x should be real...", mfilename );
+    // 'mysqrt:10' ocn_assert( x >= 0, "x should not be negative...", mfilename );
+    ocn_assert(unnamed_idx_0 >= 0.0);
+    // 'mysqrt:11' y = sqrt(x);
     *kappa = std::sqrt(unnamed_idx_0) / (norm_rD1_2 * norm_rD1);
 }
 

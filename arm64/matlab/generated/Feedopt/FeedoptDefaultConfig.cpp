@@ -23,14 +23,21 @@
 //
 // function [ cfg ] = FeedoptDefaultConfig()
 //
+// FeedoptDefaultConfig : Create a configuration structure with the default
+//  settings.
+//
+//  Outputs :
+//  cfg   : The resulting default structure
+//
+//
 // Arguments    : FeedoptConfig *cfg
 // Return Type  : void
 //
 namespace ocn {
 void FeedoptDefaultConfig(FeedoptConfig *cfg)
 {
-    static const double dv[15]{0.0, 0.0, 0.0,   0.0,  0.0, 0.0, 0.0, 0.0,
-                               0.0, 0.0, -60.8, -6.6, 0.0, 0.0, 0.0};
+    static const double dv[15]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.07155, -0.1645,
+                               1.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     static const double GaussLegendreW[5]{0.23692688505618911, 0.47862867049936625,
                                           0.56888888888888889, 0.47862867049936625,
                                           0.23692688505618911};
@@ -38,7 +45,7 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
                                           0.538469310105683, 0.90617984593866385};
     static const int iv2[6]{1500000, 1500000, 1500000, 0, 10000, 50000};
     static const short iv[6]{500, 500, 500, 0, 40, 50};
-    static const short iv1[6]{20000, 20000, 20000, 0, 200, 1000};
+    static const short iv1[6]{15000, 15000, 15000, 0, 200, 1000};
     static const char b_cv[9]{'l', 'o', 'g', 's', '/', 'l', 'o', 'g', 's'};
     static const char kin_type[8]{'x', 'y', 'z', 'b', 'c', '_', 't', 't'};
     static const bool bv[6]{true, true, true, false, true, true};
@@ -49,104 +56,118 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     int e_loop_ub;
     int f_loop_ub;
     int g_loop_ub;
+    int h_loop_ub;
     int loop_ub;
     if (!isInitialized_opencn_matlab) {
         opencn_matlab_initialize();
     }
-    // 'FeedoptDefaultConfig:2' coder.inline("never");
-    // 'FeedoptDefaultConfig:4' tol_col_compress_deg    = 30;
-    // 'FeedoptDefaultConfig:5' tol_col_smooth_deg      = 10;
+    // 'FeedoptDefaultConfig:10' coder.inline("never");
+    // 'FeedoptDefaultConfig:12' tol_col_compress_deg    = 30;
+    // 'FeedoptDefaultConfig:13' tol_col_smooth_deg      = 10;
     //  Computation of Gauss-Legendre knots and weights for numerical integration
-    // 'FeedoptDefaultConfig:8' GaussLegendreN = 5;
+    // 'FeedoptDefaultConfig:16' GaussLegendreN = 5;
     //  number of evaluation points
-    // 'FeedoptDefaultConfig:9' [GaussLegendreX, GaussLegendreW] = lgwt(GaussLegendreN, -1, 1);
+    // 'FeedoptDefaultConfig:17' [GaussLegendreX, GaussLegendreW] = lgwt(GaussLegendreN, -1, 1);
     //  normalized to integration interval [-1, 1]
-    // 'FeedoptDefaultConfig:10' GaussLegendreX = flipud(GaussLegendreX);
-    // 'FeedoptDefaultConfig:13' LP = struct(...
-    // 'FeedoptDefaultConfig:14'     'Type', 'LP', ...
-    // 'FeedoptDefaultConfig:15'     'UseConstraintsOnJerk', true,...
-    // 'FeedoptDefaultConfig:16'     'EnableFindReasonInfeasibility', true,...
-    // 'FeedoptDefaultConfig:17'     'ACC_RAMP_OVER_WINDOWS', 1.0 - 1E-3,...
-    // 'FeedoptDefaultConfig:18'     'VEL_RAMP_OVER_WINDOWS', 1.0 - 1E-3,...
-    // 'FeedoptDefaultConfig:19'     'SLACK_PENALTY', 10000, ...
-    // 'FeedoptDefaultConfig:20'     'USE_LENGTH_SCALING', true, ...
-    // 'FeedoptDefaultConfig:21'     'USE_LINPROG', false...
-    // 'FeedoptDefaultConfig:22'     );
-    // 'FeedoptDefaultConfig:24' if( ~coder.target('MATLAB') )
-    // 'FeedoptDefaultConfig:25' coder.cstructname( LP,          StructTypeName.LPCfg );
-    // 'FeedoptDefaultConfig:28' use_kin_quentin = false;
-    // 'FeedoptDefaultConfig:30' if(use_kin_quentin)
-    // 'FeedoptDefaultConfig:37' else
-    // 'FeedoptDefaultConfig:38' offM = [ 0, 0, -68.802 ]';
-    // 'FeedoptDefaultConfig:39' offM = [ 0, 0, 0 ]';
-    // 'FeedoptDefaultConfig:40' offT = [ 0, 0, 0 ]';
-    // 'FeedoptDefaultConfig:41' offP = [ 0,0,0 ]';
-    // 'FeedoptDefaultConfig:42' offB = [ 0, -60.8, -6.6 ]';
-    // 'FeedoptDefaultConfig:43' offC = [ 0, 0, 0 ]';
-    // 'FeedoptDefaultConfig:44' kin_params = [ offM offT offP offB offC ];
-    // 'FeedoptDefaultConfig:45' kin_type = 'xyzbc_tt';
-    // 'FeedoptDefaultConfig:48' cfg = struct(...
-    // 'FeedoptDefaultConfig:49'     'maskTot',  logical( [ 1, 1, 1, 0, 1, 1 ] ),... % [X,Y,Z,A,B,C]
-    // 'FeedoptDefaultConfig:50'     'maskCart', logical( 0 ),...                    % Do not modify
-    // 'FeedoptDefaultConfig:51'     'maskRot',  logical( 0 ),...                    % Do not modify
-    // 'FeedoptDefaultConfig:52'     'indCart', int32( 0 ), ...                      % Do not modify
-    // 'FeedoptDefaultConfig:53'     'indRot',  int32( 0 ),...                       % Do not modify
-    // 'FeedoptDefaultConfig:54'     'NumberAxis', int32( 0 ), ...                   % Do not modify
-    // 'FeedoptDefaultConfig:55'     'NCart',   int32( 0 ), ...                      % Do not modify
-    // 'FeedoptDefaultConfig:56'     'NRot',    int32( 0 ), ...                      % Do not modify
-    // 'FeedoptDefaultConfig:57'     'D', 0, ...                                     % Do not modify
-    // 'FeedoptDefaultConfig:58'     'coeffD', 1, ...                                % Coefficient
-    // between cartésian and rotativ axis 'FeedoptDefaultConfig:59'     'kin_params', reshape(
-    // kin_params, [], 1 ), ... 'FeedoptDefaultConfig:60'     'kin_type', kin_type, ...
-    // 'FeedoptDefaultConfig:61'     'NDiscr', int32( 20 ),...
-    // 'FeedoptDefaultConfig:62'     'NBreak', int32( 10 ),...
-    // 'FeedoptDefaultConfig:63'     'UseDynamicBreakpoints',false,...       % Use a variable number
-    // of breakpoints for different lengths 'FeedoptDefaultConfig:64'
-    // 'UseLinearBreakpoints',true,...        % Use a linear distribution of breakpoints (else
-    // sinspace) 'FeedoptDefaultConfig:65'     'DynamicBreakpointsDistance', 0.1,...   % Distance
-    // between two breakpoints in mm 'FeedoptDefaultConfig:66'     'NHorz', int32( 10 ),...
-    // 'FeedoptDefaultConfig:67'     'fmax', 1000,...
-    // 'FeedoptDefaultConfig:68'     'smax', 75000,...
-    // 'FeedoptDefaultConfig:69'     'vmax', [500,500,500,0, 40,50],... %[mm] [rad]
-    // 'FeedoptDefaultConfig:70'     'amax', [20000,20000,20000,0, 200,1000],...
-    // 'FeedoptDefaultConfig:71'     'jmax', [1500000,1500000,1500000,0,10000,50000],...
-    // 'FeedoptDefaultConfig:72'     'LeeSplineDegree', int32( 4 ),...
-    // 'FeedoptDefaultConfig:73'     'SplineDegree',    int32( 3 ),...
-    // 'FeedoptDefaultConfig:74'     'CutOff', 1E-1,...
-    // 'FeedoptDefaultConfig:75'     'LSplit',  3,...
-    // 'FeedoptDefaultConfig:76'     'LSplitZero', 1,...
-    // 'FeedoptDefaultConfig:77'     'LThresholdMax', 3,...
-    // 'FeedoptDefaultConfig:78'     'LThresholdMin', 4E-1,...
-    // 'FeedoptDefaultConfig:79'     'v_0', 0, 'at_0', 0,...
-    // 'FeedoptDefaultConfig:80'     'v_1', 0, 'at_1', 0,...
-    // 'FeedoptDefaultConfig:81'     'dt', 1e-2, ...
-    // 'FeedoptDefaultConfig:82'     'DefaultZeroStopCount', 1,...
-    // 'FeedoptDefaultConfig:83'     'ZeroStartAccLimit', 0.01, ...
-    // 'FeedoptDefaultConfig:84'     'ZeroStartJerkLimit', 1E6, ...
-    // 'FeedoptDefaultConfig:85'     'ZeroStartVelLimit', 0.5, ...
-    // 'FeedoptDefaultConfig:86'     'source', repmat(char(0), [1, 1024]),...
-    // 'FeedoptDefaultConfig:87'     'DebugCutZero', false,...
-    // 'FeedoptDefaultConfig:88'     'Cusp', ...
-    // 'FeedoptDefaultConfig:89'     struct(...
-    // 'FeedoptDefaultConfig:90'         'Skip', false,...
-    // 'FeedoptDefaultConfig:91'         'CuspThreshold', 10 ...
-    // 'FeedoptDefaultConfig:92'     ),...
-    // 'FeedoptDefaultConfig:93'     'Compressing', ...
-    // 'FeedoptDefaultConfig:94'     struct(...
-    // 'FeedoptDefaultConfig:95'         'Skip', false,...
-    // 'FeedoptDefaultConfig:96'         'ColTolCosLee',     cosd(tol_col_compress_deg) ...
-    // 'FeedoptDefaultConfig:97'     ),...
-    // 'FeedoptDefaultConfig:98'     'Smoothing', ...
-    // 'FeedoptDefaultConfig:99'     struct( ...
-    // 'FeedoptDefaultConfig:100'         'Skip', false,...
-    // 'FeedoptDefaultConfig:101'         'ColTolCosSmooth',  cosd(tol_col_smooth_deg), ...
-    // 'FeedoptDefaultConfig:102'         'ColTolSmooth',     1E-5 ...
-    // 'FeedoptDefaultConfig:103'     ),...
-    // 'FeedoptDefaultConfig:104'     'GaussLegendreN', GaussLegendreN, ...
-    // 'FeedoptDefaultConfig:105'     'GaussLegendreX', GaussLegendreX, ...
-    // 'FeedoptDefaultConfig:106'     'GaussLegendreW', GaussLegendreW, ...
-    // 'FeedoptDefaultConfig:107'     'opt', LP,...
-    // 'FeedoptDefaultConfig:108'     'LogFileName', 'logs/logs');
+    // 'FeedoptDefaultConfig:19' GaussLegendreX = flipud( GaussLegendreX );
+    // 'FeedoptDefaultConfig:22' LP = struct(...
+    // 'FeedoptDefaultConfig:23'     'Type', 'LP', ...                       % Optimisation type
+    // 'FeedoptDefaultConfig:24'     'USE_JERK_CONSTRAINTS', true,...        % Use jerk constraints
+    // 'FeedoptDefaultConfig:25'     'FIND_REASON_INFEASIBILITY', true,...   % Find the reason of
+    // the infeasibility 'FeedoptDefaultConfig:26'     'ACC_RAMP_OVER_WINDOWS', 1.0 - 1E-3,... %
+    // Acceleration ramp used in the optimisation 'FeedoptDefaultConfig:27'
+    // 'VEL_RAMP_OVER_WINDOWS', 1.0 - 1E-3,... % Velocity ramp used in the optimisation
+    // 'FeedoptDefaultConfig:28'     'SLACK_PENALTY', 10000, ...             % Slack penalty
+    // 'FeedoptDefaultConfig:29'     'USE_LENGTH_SCALING', false, ...        % Use diagonal length
+    // scaling 'FeedoptDefaultConfig:30'     'USE_LINPROG', false,...                % Use Linprog
+    // solver 'FeedoptDefaultConfig:31'     'FORCE_POSITIV_COEFFS', false...        % For the use of
+    // positiv coefficients 'FeedoptDefaultConfig:32'     );
+    //                        % Optimisation type
+    //         % Use jerk constraints
+    //    % Find the reason of the infeasibility
+    //  % Acceleration ramp used in the optimisation
+    //  % Velocity ramp used in the optimisation
+    //              % Slack penalty
+    //         % Use diagonal length scaling
+    //                 % Use Linprog solver
+    //         % For the use of positiv coefficients
+    // 'FeedoptDefaultConfig:34' if( ~coder.target('MATLAB') )
+    // 'FeedoptDefaultConfig:35' coder.cstructname( LP,          StructTypeName.LPCfg );
+    //  To use XSR manual CAM offset
+    // 'FeedoptDefaultConfig:39' use_XSR_offset = true;
+    // 'FeedoptDefaultConfig:41' if( use_XSR_offset )
+    // 'FeedoptDefaultConfig:42' offM = [ 0, 0, 0 ]';
+    // 'FeedoptDefaultConfig:43' offT = [ 0, 0, 0 ]';
+    // 'FeedoptDefaultConfig:44' offP = [ 0.07155, -0.1645, 1.6 ]';
+    // 'FeedoptDefaultConfig:45' offB = [ 0, 0, 0 ]';
+    // 'FeedoptDefaultConfig:46' offC = [ 0, 0, 0 ]';
+    // 'FeedoptDefaultConfig:55' kin_params  = [ offM offT offP offB offC ];
+    // 'FeedoptDefaultConfig:56' kin_type    = 'xyzbc_tt';
+    // 'FeedoptDefaultConfig:58' cfg = struct(...
+    // 'FeedoptDefaultConfig:59'     'ENABLE_PRINT_MSG', true, ...                   % Enable
+    // console msg 'FeedoptDefaultConfig:60'     'maskTot',  logical( [ 1, 1, 1, 0, 1, 1 ] ),... %
+    // [X,Y,Z,A,B,C] 'FeedoptDefaultConfig:61'     'maskCart', logical( 0 ),...                    %
+    // Do not modify 'FeedoptDefaultConfig:62'     'maskRot',  logical( 0 ),...                    %
+    // Do not modify 'FeedoptDefaultConfig:63'     'indCart', int32( 0 ), ...                      %
+    // Do not modify 'FeedoptDefaultConfig:64'     'indRot',  int32( 0 ),...                       %
+    // Do not modify 'FeedoptDefaultConfig:65'     'NumberAxis', int32( 0 ), ...                   %
+    // Do not modify 'FeedoptDefaultConfig:66'     'NCart',   int32( 0 ), ...                      %
+    // Do not modify 'FeedoptDefaultConfig:67'     'NRot',    int32( 0 ), ...                      %
+    // Do not modify 'FeedoptDefaultConfig:68'     'D', 0, ...                                     %
+    // Do not modify 'FeedoptDefaultConfig:69'     'coeffD', 1, ...                                %
+    // Scaling for cartesian and rotary axis 'FeedoptDefaultConfig:70'     'kin_params', reshape(
+    // kin_params, [], 1 ), ... % See kinematics parameters' structure 'FeedoptDefaultConfig:71'
+    // 'kin_type', kin_type, ... % Kinematics type 'FeedoptDefaultConfig:72'     'NDiscr', int32( 20
+    // ),... % Number of discretization points 'FeedoptDefaultConfig:73'     'NBreak', int32( 10
+    // ),... % Number of break points 'FeedoptDefaultConfig:74'     'SplitSpecialSpline', false,...
+    // % Split methode specific to spline 'FeedoptDefaultConfig:75'     'ReleaseMemoryOfTheQueues',
+    // true, ...  % Release memory of the queues once they're not required anymore
+    // 'FeedoptDefaultConfig:76'     'UseDynamicBreakpoints',false,...       % Use a variable number
+    // of breakpoints for different lengths 'FeedoptDefaultConfig:77'
+    // 'UseLinearBreakpoints',true,...         % Use a linear distribution of breakpoints (else
+    // sinspace) 'FeedoptDefaultConfig:78'     'DynamicBreakpointsDistance', 0.1,...   % Distance
+    // between two breakpoints in mm 'FeedoptDefaultConfig:79'     'NHorz', int32( 5 ),... % Number
+    // of curves used in the window for the optimisation 'FeedoptDefaultConfig:80'     'vmax',
+    // [500,500,500,0, 40,50],... % Max speed per axe {[mm],[rad]} / s 'FeedoptDefaultConfig:81'
+    // 'amax', [15000,15000,15000,0, 200,1000],... % Max acceleration per axe {[mm],[rad]} / s^2
+    // 'FeedoptDefaultConfig:82'     'jmax', [1500000,1500000,1500000,0,10000,50000],... % Max jerk
+    // per axe {[mm],[rad]} / s^3 'FeedoptDefaultConfig:83'     'LeeSplineDegree', int32( 4 ),... %
+    // B Spline order used in the Lee algorithm 'FeedoptDefaultConfig:84'     'SplineDegree', int32(
+    // 3 ),... % B Spline order used in the optimization 'FeedoptDefaultConfig:85'     'CutOff',
+    // 1E-1,... % Length used by the transition algorithm to cut the curves
+    // 'FeedoptDefaultConfig:86'     'LSplit',  3,... % Length used to cut the curves at a given
+    // length 'FeedoptDefaultConfig:87'     'LSplitZero', 1,... % Length used to cut the curves for
+    // a Zero start / end 'FeedoptDefaultConfig:88'     'LThresholdMax', 3,... % Maximum length used
+    // in the compressing algorithm 'FeedoptDefaultConfig:89'     'LThresholdMin', 5E-1,... %
+    // Minimum length used in the compressing algorithm 'FeedoptDefaultConfig:90'     'v_0', 0,
+    // 'at_0', 0,... % Boundaries conditions used by the optimization 'FeedoptDefaultConfig:91'
+    // 'v_1', 0, 'at_1', 0,... % Boundaries conditions used by the optimization
+    // 'FeedoptDefaultConfig:92'     'dt', 1e-3, ...% Discretization time / time step
+    // 'FeedoptDefaultConfig:93'     'DefaultZeroStopCount', 1,... % Number of time step passed with
+    // stop 'FeedoptDefaultConfig:94'     'source', repmat(char(0), [1, 1024]),... % Path to the G
+    // Code filename 'FeedoptDefaultConfig:95'     'Cusp', ... % Configuration for the CUSP step :
+    // 'FeedoptDefaultConfig:96'     struct(...
+    // 'FeedoptDefaultConfig:97'         'Skip', false,...       % Disable this step
+    // 'FeedoptDefaultConfig:98'         'CuspThreshold', 10 ... % Cusp's threshold in degree
+    // 'FeedoptDefaultConfig:99'     ),...
+    // 'FeedoptDefaultConfig:100'     'Compressing', ... % Configuration for the Compressing step :
+    // 'FeedoptDefaultConfig:101'     struct(...
+    // 'FeedoptDefaultConfig:102'         'Skip', false,...       % Disable this step
+    // 'FeedoptDefaultConfig:103'         'ColTolCosLee', cosd(tol_col_compress_deg) ... % Tolerance
+    // in term of colinearity (cos of the angle) 'FeedoptDefaultConfig:104'     ),...
+    // 'FeedoptDefaultConfig:105'     'Smoothing', ... % Configuration for the transition
+    // 'FeedoptDefaultConfig:106'     struct( ...
+    // 'FeedoptDefaultConfig:107'         'Skip', false,... % Disable this step
+    // 'FeedoptDefaultConfig:108'         'ColTolCosSmooth',  cosd(tol_col_smooth_deg), ... %
+    // Tolerance in term of colinearity (cos of the angle) 'FeedoptDefaultConfig:109'
+    // 'ColTolSmooth',     1E-5 ... % Tolerance in term of colinearity (cos of the angle)
+    // 'FeedoptDefaultConfig:110'     ), ...
+    // 'FeedoptDefaultConfig:111'     'GaussLegendreN', GaussLegendreN, ... % Gauss Legendre N
+    // 'FeedoptDefaultConfig:112'     'GaussLegendreX', GaussLegendreX, ... % Gauss Legendre X
+    // 'FeedoptDefaultConfig:113'     'GaussLegendreW', GaussLegendreW, ... % Gauss Legendre W
+    // 'FeedoptDefaultConfig:114'     'opt', LP,... % Optimisation Structure : Linear Programming
+    // (LP) 'FeedoptDefaultConfig:115'     'LogFileName', 'logs/logs' ... 'FeedoptDefaultConfig:116'
+    // );
     cfg->maskCart.size[0] = 1;
     cfg->maskCart.size[1] = 1;
     cfg->maskCart.data[0] = false;
@@ -159,6 +180,7 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     cfg->indRot.data[0] = 0;
     cfg->D.size[0] = 1;
     cfg->D.data[0] = 0.0;
+    //                    % Enable console msg
     //  % [X,Y,Z,A,B,C]
     //                     % Do not modify
     //                       % Do not modify
@@ -166,20 +188,56 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     //                    % Do not modify
     //                       % Do not modify
     //                                      % Do not modify
-    //                                 % Coefficient between cartésian and rotativ axis
+    //                                 % Scaling for cartesian and rotary axis
+    //  % See kinematics parameters' structure
+    //  % Kinematics type
+    //  % Number of discretization points
+    //  % Number of break points
+    //  % Split methode specific to spline
+    //   % Release memory of the queues once they're not required anymore
     //        % Use a variable number of breakpoints for different lengths
-    //         % Use a linear distribution of breakpoints (else sinspace)
+    //          % Use a linear distribution of breakpoints (else sinspace)
     //    % Distance between two breakpoints in mm
-    //  %[mm] [rad]
-    // 'FeedoptDefaultConfig:110' coder.varsize( 'cfg.indCart',   StructTypeName.dimInd{ : } );
-    // 'FeedoptDefaultConfig:111' coder.varsize( 'cfg.indRot',    StructTypeName.dimInd{ : } );
-    // 'FeedoptDefaultConfig:112' coder.varsize( 'cfg.maskTot',   StructTypeName.dimMask{ : } );
-    // 'FeedoptDefaultConfig:113' coder.varsize( 'cfg.maskCart',  StructTypeName.dimMask{ : } );
-    // 'FeedoptDefaultConfig:114' coder.varsize( 'cfg.maskRot',   StructTypeName.dimMask{ : } );
-    // 'FeedoptDefaultConfig:115' coder.varsize( 'cfg.D',         StructTypeName.dimD{ : } );
-    // 'FeedoptDefaultConfig:116' coder.varsize( 'cfg.kin_params',StructTypeName.dimKinParams{ : }
-    // ); 'FeedoptDefaultConfig:117' coder.cstructname( cfg,         StructTypeName.FeedoptCfg );
-    // 'FeedoptDefaultConfig:119' [ cfg ] = setMachineAxisInConfig( cfg, cfg.maskTot );
+    //  % Number of curves used in the window for the optimisation
+    //  % Max speed per axe {[mm],[rad]} / s
+    //  % Max acceleration per axe {[mm],[rad]} / s^2
+    //  % Max jerk per axe {[mm],[rad]} / s^3
+    //  % B Spline order used in the Lee algorithm
+    //  % B Spline order used in the optimization
+    //  % Length used by the transition algorithm to cut the curves
+    //  % Length used to cut the curves at a given length
+    //  % Length used to cut the curves for a Zero start / end
+    //  % Maximum length used in the compressing algorithm
+    //  % Minimum length used in the compressing algorithm
+    //  % Boundaries conditions used by the optimization
+    // % Discretization time / time step
+    //  % Number of time step passed with stop
+    //  % Path to the G Code filename
+    //  % Configuration for the CUSP step :
+    //        % Disable this step
+    //  % Cusp's threshold in degree
+    //  % Configuration for the Compressing step :
+    //        % Disable this step
+    //  % Tolerance in term of colinearity (cos of the angle)
+    //  % Configuration for the transition
+    //  % Disable this step
+    //  % Tolerance in term of colinearity (cos of the angle)
+    //  % Gauss Legendre N
+    //  % Gauss Legendre X
+    //  % Gauss Legendre W
+    //  % Optimisation Structure : Linear Programming (LP)
+    // 'FeedoptDefaultConfig:118' if ~coder.target( 'MATLAB' )
+    // 'FeedoptDefaultConfig:119' coder.varsize( 'cfg.indCart',       StructTypeName.dimInd{ : } );
+    // 'FeedoptDefaultConfig:120' coder.varsize( 'cfg.indRot',        StructTypeName.dimInd{ : } );
+    // 'FeedoptDefaultConfig:121' coder.varsize( 'cfg.maskTot',       StructTypeName.dimMask{ : } );
+    // 'FeedoptDefaultConfig:122' coder.varsize( 'cfg.maskCart',      StructTypeName.dimMask{ : } );
+    // 'FeedoptDefaultConfig:123' coder.varsize( 'cfg.maskRot',       StructTypeName.dimMask{ : } );
+    // 'FeedoptDefaultConfig:124' coder.varsize( 'cfg.D',             StructTypeName.dimD{ : } );
+    // 'FeedoptDefaultConfig:125' coder.varsize( 'cfg.source',        StructTypeName.dimFileName{ :
+    // } ); 'FeedoptDefaultConfig:126' coder.varsize( 'cfg.kin_params', StructTypeName.dimKinParams{
+    // : } ); 'FeedoptDefaultConfig:127' coder.cstructname( cfg, StructTypeName.FeedoptCfg );
+    // 'FeedoptDefaultConfig:130' [ cfg ] = setMachineAxisInConfig( cfg, cfg.maskTot );
+    r.ENABLE_PRINT_MSG = true;
     r.maskTot.size[0] = 1;
     r.maskTot.size[1] = 6;
     for (int i{0}; i < 6; i++) {
@@ -208,12 +266,12 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     }
     r.NDiscr = 20;
     r.NBreak = 10;
+    r.SplitSpecialSpline = false;
+    r.ReleaseMemoryOfTheQueues = true;
     r.UseDynamicBreakpoints = false;
     r.UseLinearBreakpoints = true;
     r.DynamicBreakpointsDistance = 0.1;
-    r.NHorz = 10;
-    r.fmax = 1000.0;
-    r.smax = 75000.0;
+    r.NHorz = 5;
     for (int i2{0}; i2 < 6; i2++) {
         r.vmax[i2] = iv[i2];
         r.amax[i2] = iv1[i2];
@@ -225,18 +283,16 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     r.LSplit = 3.0;
     r.LSplitZero = 1.0;
     r.LThresholdMax = 3.0;
-    r.LThresholdMin = 0.4;
+    r.LThresholdMin = 0.5;
     r.v_0 = 0.0;
     r.at_0 = 0.0;
     r.v_1 = 0.0;
     r.at_1 = 0.0;
-    r.dt = 0.01;
+    r.dt = 0.001;
     r.DefaultZeroStopCount = 1.0;
-    r.ZeroStartAccLimit = 0.01;
-    r.ZeroStartJerkLimit = 1.0E+6;
-    r.ZeroStartVelLimit = 0.5;
-    std::memset(&r.source[0], 0, 1024U * sizeof(char));
-    r.DebugCutZero = false;
+    r.source.size[0] = 1;
+    r.source.size[1] = 1024;
+    std::memset(&r.source.data[0], 0, 1024U * sizeof(char));
     r.Cusp.Skip = false;
     r.Cusp.CuspThreshold = 10.0;
     r.Compressing.Skip = false;
@@ -251,17 +307,19 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     }
     r.opt.Type[0] = 'L';
     r.opt.Type[1] = 'P';
-    r.opt.UseConstraintsOnJerk = true;
-    r.opt.EnableFindReasonInfeasibility = true;
+    r.opt.USE_JERK_CONSTRAINTS = true;
+    r.opt.FIND_REASON_INFEASIBILITY = true;
     r.opt.ACC_RAMP_OVER_WINDOWS = 0.999;
     r.opt.VEL_RAMP_OVER_WINDOWS = 0.999;
     r.opt.SLACK_PENALTY = 10000.0;
-    r.opt.USE_LENGTH_SCALING = true;
+    r.opt.USE_LENGTH_SCALING = false;
     r.opt.USE_LINPROG = false;
+    r.opt.FORCE_POSITIV_COEFFS = false;
     for (int i3{0}; i3 < 9; i3++) {
         r.LogFileName[i3] = b_cv[i3];
     }
     b_setMachineAxisInConfig(&r, bv);
+    cfg->ENABLE_PRINT_MSG = r.ENABLE_PRINT_MSG;
     cfg->maskTot.size[0] = 1;
     cfg->maskTot.size[1] = r.maskTot.size[1];
     loop_ub = r.maskTot.size[1];
@@ -309,12 +367,12 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     }
     cfg->NDiscr = r.NDiscr;
     cfg->NBreak = r.NBreak;
+    cfg->SplitSpecialSpline = r.SplitSpecialSpline;
+    cfg->ReleaseMemoryOfTheQueues = r.ReleaseMemoryOfTheQueues;
     cfg->UseDynamicBreakpoints = r.UseDynamicBreakpoints;
     cfg->UseLinearBreakpoints = r.UseLinearBreakpoints;
     cfg->DynamicBreakpointsDistance = r.DynamicBreakpointsDistance;
     cfg->NHorz = r.NHorz;
-    cfg->fmax = r.fmax;
-    cfg->smax = r.smax;
     for (int i8{0}; i8 < 6; i8++) {
         cfg->vmax[i8] = r.vmax[i8];
         cfg->amax[i8] = r.amax[i8];
@@ -333,11 +391,12 @@ void FeedoptDefaultConfig(FeedoptConfig *cfg)
     cfg->at_1 = r.at_1;
     cfg->dt = r.dt;
     cfg->DefaultZeroStopCount = r.DefaultZeroStopCount;
-    cfg->ZeroStartAccLimit = r.ZeroStartAccLimit;
-    cfg->ZeroStartJerkLimit = r.ZeroStartJerkLimit;
-    cfg->ZeroStartVelLimit = r.ZeroStartVelLimit;
-    std::copy(&r.source[0], &r.source[1024], &cfg->source[0]);
-    cfg->DebugCutZero = r.DebugCutZero;
+    cfg->source.size[0] = 1;
+    cfg->source.size[1] = r.source.size[1];
+    h_loop_ub = r.source.size[1];
+    if (h_loop_ub - 1 >= 0) {
+        std::copy(&r.source.data[0], &r.source.data[h_loop_ub], &cfg->source.data[0]);
+    }
     cfg->Cusp = r.Cusp;
     cfg->Compressing = r.Compressing;
     cfg->Smoothing = r.Smoothing;

@@ -21,12 +21,12 @@
 // Function Definitions
 //
 // function [ state ] = resampleCurvOCN( state, Bl, curv_mode, ...
-//     coeff, constJerk, dt, GaussLegendreX, GaussLegendreW )
+//     coeff, constJerk, dt, GaussLegendreX, GaussLegendreW, enablePrint )
 //
-// resampleCurvOCN :
-//  Interface for the resampling in ocn
+// resampleCurvOCN : Interface for a call from the real target (See.
+//  resampleCurv).
 //
-// Arguments    : ResampleStateClass *b_state
+// Arguments    : ResampleStateClass *state
 //                const BaseSplineStruct *Bl
 //                ZSpdMode curv_mode
 //                const ::coder::array<double, 1U> &coeff
@@ -34,21 +34,22 @@
 //                double dt
 //                const ::coder::array<double, 1U> &GaussLegendreX
 //                const ::coder::array<double, 1U> &GaussLegendreW
+//                bool enablePrint
 // Return Type  : void
 //
 namespace ocn {
-void resampleCurvOCN(ResampleStateClass *b_state, const BaseSplineStruct *Bl, ZSpdMode curv_mode,
+void resampleCurvOCN(ResampleStateClass *state, const BaseSplineStruct *Bl, ZSpdMode curv_mode,
                      const ::coder::array<double, 1U> &coeff, double constJerk, double dt,
                      const ::coder::array<double, 1U> &GaussLegendreX,
-                     const ::coder::array<double, 1U> &GaussLegendreW)
+                     const ::coder::array<double, 1U> &GaussLegendreW, bool enablePrint)
 {
     if (!isInitialized_opencn_matlab) {
         opencn_matlab_initialize();
     }
-    // 'resampleCurvOCN:5' [ state ] = resampleCurv(state, Bl, curv_mode, coeff, constJerk, dt, ...
-    // 'resampleCurvOCN:6'     GaussLegendreX, GaussLegendreW );
-    resampleCurv(b_state, Bl->handle, curv_mode, coeff, constJerk, dt, GaussLegendreX,
-                 GaussLegendreW);
+    // 'resampleCurvOCN:6' [ state ] = resampleCurv(state, Bl, curv_mode, coeff, constJerk, dt, ...
+    // 'resampleCurvOCN:7'     GaussLegendreX, GaussLegendreW, enablePrint );
+    resampleCurv(state, Bl->handle, curv_mode, coeff, constJerk, dt, GaussLegendreX, GaussLegendreW,
+                 enablePrint);
 }
 
 } // namespace ocn

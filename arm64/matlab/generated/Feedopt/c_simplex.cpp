@@ -16,7 +16,24 @@
 
 // Function Definitions
 //
-// function [C, success, status, msg] = c_simplex(f, A, b, Aeq, beq, ctx)
+// function [ C, success, status, msg ] = c_simplex( f, A, b, Aeq, beq, ctx )
+//
+// c_simplex : C wrapper for the solver simplex.
+//
+//  Inputs :
+//  f         : Objective cost function
+//  A         : Inequality constraints matrix
+//  b         : Inequality constraints vector
+//  Aeq       : Equility constraints matrix
+//  beq       : Equility constraints vector
+//  ctx       : Matlab context
+//
+//  Outputs :
+//  C         : Result of the optimization
+//  success   : Success boolean (true : success, false : failure)
+//  status    : Status code of the optimization
+//  msg       : Msg of the optimization
+//
 //
 // Arguments    : const ::coder::array<double, 1U> &f
 //                const coder::sparse *A
@@ -59,11 +76,11 @@ void c_simplex(const ::coder::array<double, 1U> &f, const coder::sparse *A,
     bool emptyflag_idx_1;
     bool isAcceptableEmpty;
     bool isAcceptableEmpty_tmp;
-    // 'c_simplex:2' msg = "";
-    // 'c_simplex:3' if coder.target('rtw') || coder.target('mex')
-    // 'c_simplex:4' c_prof_in(mfilename);
-    // 'c_simplex:5' c_prof_in('join_A');
-    // 'c_simplex:6' Atot = [A; Aeq];
+    // 'c_simplex:19' msg = "";
+    // 'c_simplex:20' if coder.target('rtw') || coder.target('mex')
+    // 'c_simplex:21' c_prof_in(mfilename);
+    // 'c_simplex:22' c_prof_in('join_A');
+    // 'c_simplex:23' Atot = [A; Aeq];
     cnfixeddim = A->n;
     if ((A->m == 0) || (A->n == 0)) {
         isAcceptableEmpty_tmp = true;
@@ -159,17 +176,17 @@ void c_simplex(const ::coder::array<double, 1U> &f, const coder::sparse *A,
         }
         Atot.colidx[ccol + 1] = nzCount + 2;
     }
-    // 'c_simplex:7' c_prof_out('join_A');
+    // 'c_simplex:24' c_prof_out('join_A');
     //      MaxCoeff = FeedoptLimits.MaxNCoeff*FeedoptLimits.MaxNHorz;
-    // 'c_simplex:9' [NCoeff, NHorz] = size(f);
-    // 'c_simplex:10' C = zeros(NCoeff, NHorz);
+    // 'c_simplex:26' [NCoeff, NHorz] = size(f);
+    // 'c_simplex:27' C = zeros(NCoeff, NHorz);
     C.set_size(f.size(0), 1);
     loop_ub = f.size(0);
     for (int i3{0}; i3 < loop_ub; i3++) {
         C[i3] = 0.0;
     }
-    // 'c_simplex:11' coder.varsize('C', [Inf, Inf], [1,1]);
-    // 'c_simplex:13' [Aisd, Ajsd, Avs] = find(Atot);
+    // 'c_simplex:28' coder.varsize('C', [Inf, Inf], [1,1]);
+    // 'c_simplex:30' [Aisd, Ajsd, Avs] = find(Atot);
     nx = Atot.colidx[Atot.colidx.size(0) - 1] - 2;
     if (Atot.colidx[Atot.colidx.size(0) - 1] - 1 == 0) {
         b_i.set_size(0);
@@ -225,28 +242,28 @@ void c_simplex(const ::coder::array<double, 1U> &f, const coder::sparse *A,
             Avs.set_size(e_idx);
         }
     }
-    // 'c_simplex:14' Ais = int32(Aisd)-1;
+    // 'c_simplex:31' Ais = int32(Aisd)-1;
     Ais.set_size(b_i.size(0));
     b_loop_ub = b_i.size(0);
     for (int i5{0}; i5 < b_loop_ub; i5++) {
         Ais[i5] = b_i[i5] - 1;
     }
-    // 'c_simplex:15' Ajs = int32(Ajsd)-1;
+    // 'c_simplex:32' Ajs = int32(Ajsd)-1;
     Ajs.set_size(jj.size(0));
     c_loop_ub = jj.size(0);
     for (int i6{0}; i6 < c_loop_ub; i6++) {
         Ajs[i6] = jj[i6] - 1;
     }
-    // 'c_simplex:17' coder.varsize('Avs', [Inf, 1], [1, 0]);
-    // 'c_simplex:18' coder.varsize('Ais', [Inf, 1], [1, 0]);
-    // 'c_simplex:19' coder.varsize('Ajs', [Inf, 1], [1, 0]);
-    // 'c_simplex:21' fsize = int32(size(f));
+    // 'c_simplex:34' coder.varsize('Avs', [Inf, 1], [1, 0]);
+    // 'c_simplex:35' coder.varsize('Ais', [Inf, 1], [1, 0]);
+    // 'c_simplex:36' coder.varsize('Ajs', [Inf, 1], [1, 0]);
+    // 'c_simplex:38' fsize = int32(size(f));
     fsize[0] = f.size(0);
     fsize[1] = 1;
-    // 'c_simplex:22' Asize = int32(size(Atot));
+    // 'c_simplex:39' Asize = int32(size(Atot));
     Asize[0] = cnvardim;
     Asize[1] = cnfixeddim;
-    // 'c_simplex:23' An = int32(nnz(Avs));
+    // 'c_simplex:40' An = int32(nnz(Avs));
     b_n = 0;
     i7 = Avs.size(0);
     for (int b_k{0}; b_k < i7; b_k++) {
@@ -258,40 +275,40 @@ void c_simplex(const ::coder::array<double, 1U> &f, const coder::sparse *A,
     int beqsize[2];
     int bsize[2];
     int b_status;
-    // 'c_simplex:24' bsize = int32(size(b));
+    // 'c_simplex:41' bsize = int32(size(b));
     bsize[0] = b.size(0);
     bsize[1] = 1;
-    // 'c_simplex:25' beqsize = int32(size(beq));
+    // 'c_simplex:42' beqsize = int32(size(beq));
     beqsize[0] = beq.size(0);
     beqsize[1] = 1;
-    // 'c_simplex:26' Csize = int32(size(C));
+    // 'c_simplex:43' Csize = int32(size(C));
     Csize[0] = f.size(0);
     Csize[1] = 1;
-    // 'c_simplex:27' success = int32(0);
-    // 'c_simplex:28' status = int32(0);
-    // 'c_simplex:30' my_path = StructTypeName.WDIR + "/src";
-    // 'c_simplex:31' coder.updateBuildInfo('addIncludePaths',my_path);
-    // 'c_simplex:32' coder.updateBuildInfo('addSourceFiles','cpp_simplex.cpp', my_path);
-    // 'c_simplex:33' coder.updateBuildInfo('addLinkFlags', LibInfo.clp.lflags );
-    // 'c_simplex:34' coder.cinclude('cpp_simplex.hpp');
-    // 'c_simplex:36' status = coder.ceval('simplex_solve', coder.rref(f), fsize,...
-    // 'c_simplex:37'         coder.rref(Avs), coder.rref(Ais), coder.rref(Ajs), Asize, An,...
-    // 'c_simplex:38'         coder.rref(b), bsize, coder.rref(beq),beqsize,...
-    // 'c_simplex:39'         coder.ref(C), Csize);
+    // 'c_simplex:44' success = int32(0);
+    // 'c_simplex:45' status = int32(0);
+    // 'c_simplex:47' my_path = StructTypeName.WDIR + "/src";
+    // 'c_simplex:48' coder.updateBuildInfo('addIncludePaths',my_path);
+    // 'c_simplex:49' coder.updateBuildInfo('addSourceFiles','cpp_simplex.cpp', my_path);
+    // 'c_simplex:50' coder.updateBuildInfo('addLinkFlags', LibInfo.clp.lflags );
+    // 'c_simplex:51' coder.cinclude('cpp_simplex.hpp');
+    // 'c_simplex:53' status = coder.ceval('simplex_solve', coder.rref(f), fsize,...
+    // 'c_simplex:54'         coder.rref(Avs), coder.rref(Ais), coder.rref(Ajs), Asize, An,...
+    // 'c_simplex:55'         coder.rref(b), bsize, coder.rref(beq),beqsize,...
+    // 'c_simplex:56'         coder.ref(C), Csize);
     b_status = simplex_solve(&(((::coder::array<double, 1U> *)&f)->data())[0], &fsize[0],
                              &(Avs.data())[0], &(Ais.data())[0], &(Ajs.data())[0], &Asize[0], b_n,
                              &(((::coder::array<double, 1U> *)&b)->data())[0], &bsize[0],
                              &(((::coder::array<double, 1U> *)&beq)->data())[0], &beqsize[0], &C[0],
                              &Csize[0]);
     //          C = solution.solution;
-    // 'c_simplex:41' success = status == 0;
+    // 'c_simplex:58' success = status == 0;
     //  Status :
     //        0 : Primal Dual Optimality
     //        1 : Primal Infeasible
     //        2 : Dual Infeasible
     //        3 : Max iteration reached
     //        4 : isAbandoned
-    // 'c_simplex:48' c_prof_out(mfilename);
+    // 'c_simplex:65' c_prof_out(mfilename);
     *success = (b_status == 0);
     *status = b_status;
 }

@@ -42,6 +42,32 @@ void b_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot
                      Kinematics *ctx_kin, const CurvStruct *curv, ::coder::array<double, 2U> &u,
                      ::coder::array<double, 2U> &ud, ::coder::array<double, 2U> &udd, double *jps);
 
+void c_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
+                     const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
+                     const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
+                     const int ctx_cfg_maskRot_size[2],
+                     const ::coder::array<int, 1U> &ctx_cfg_indCart,
+                     const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
+                     int ctx_cfg_NCart, int ctx_cfg_NRot, const double ctx_cfg_vmax[6],
+                     const double ctx_cfg_amax[6], const double ctx_cfg_jmax[6], double ctx_cfg_dt,
+                     Kinematics *ctx_kin, const CurvStruct *curv, ::coder::array<double, 2U> &u,
+                     ::coder::array<double, 2U> &ud, ::coder::array<double, 2U> &udd, double *jps);
+
+void calc_u_init();
+
+void d_zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
+                     const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
+                     const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],
+                     const int ctx_cfg_maskRot_size[2],
+                     const ::coder::array<int, 1U> &ctx_cfg_indCart,
+                     const ::coder::array<int, 1U> &ctx_cfg_indRot, int ctx_cfg_NumberAxis,
+                     int ctx_cfg_NCart, int ctx_cfg_NRot, const double ctx_cfg_vmax[6],
+                     const double ctx_cfg_amax[6], const double ctx_cfg_jmax[6], double ctx_cfg_dt,
+                     Kinematics *ctx_kin, const CurvStruct *curv, ::coder::array<double, 2U> &u,
+                     ::coder::array<double, 2U> &ud, ::coder::array<double, 2U> &udd, double *jps);
+
+void ratio_not_empty_init();
+
 void zeroSpeedCurv(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_data[],
                    const int ctx_cfg_maskTot_size[2], const bool ctx_cfg_maskCart_data[],
                    const int ctx_cfg_maskCart_size[2], const bool ctx_cfg_maskRot_data[],

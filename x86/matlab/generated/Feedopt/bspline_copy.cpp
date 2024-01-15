@@ -19,33 +19,48 @@
 
 // Function Definitions
 //
-// function Copy = bspline_copy(Bl)
+// function [ copy ] = bspline_copy( Bl )
+//
+// bspline_copy : Copy the bspline bases
+//  Inputs :
+//  Bl            : BSpline bases
+//  Outputs :
+//  Copy          : Copy of the BSpline bases
 //
 // Arguments    : const BaseSplineStruct *Bl
-//                BaseSplineStruct *Copy
+//                BaseSplineStruct *copy
 // Return Type  : void
 //
 namespace ocn {
-void bspline_copy(const BaseSplineStruct *Bl, BaseSplineStruct *Copy)
+void bspline_copy(const BaseSplineStruct *Bl, BaseSplineStruct *copy)
 {
     ::coder::array<double, 2U> breakpoints;
     int loop_ub;
     if (!isInitialized_opencn_matlab) {
         opencn_matlab_initialize();
     }
-    // 'bspline_copy:2' coder.inline("never");
-    // 'bspline_copy:3' Copy = bspline_create(Bl.order, Bl.breakpoints);
-    // 'bspline_create:2' if  coder.target('rtw') || coder.target('mex')
-    // 'bspline_create:3' nbreak = length(breakpoints);
-    // 'bspline_create:4' ncoeff = nbreak + degree - 2;
-    // 'bspline_create:5' h = uint64(0);
-    // 'bspline_create:6' my_path = StructTypeName.WDIR + "/src";
-    // 'bspline_create:7' coder.updateBuildInfo('addIncludePaths',my_path);
-    // 'bspline_create:8' coder.updateBuildInfo('addSourceFiles','c_spline.c', my_path);
-    // 'bspline_create:9' coder.updateBuildInfo('addLinkFlags', LibInfo.gsl.lflags);
-    // 'bspline_create:10' coder.cinclude('c_spline.h');
-    // 'bspline_create:11' coder.ceval('c_bspline_create_with_breakpoints', coder.wref(h), degree,
-    // breakpoints, int32(nbreak) );
+    // 'bspline_copy:7' coder.inline("never");
+    // 'bspline_copy:8' copy = bspline_create( Bl.order, Bl.breakpoints );
+    //  bspline_create : Create the BSpline basis functions
+    //
+    //  Inputs :
+    //  degree        : BSpline degree
+    //  breakpoints   : Vector of breakpoints
+    //
+    //  Outputs :
+    //  Bl            : Bspline basis
+    // 'bspline_create:10' if  coder.target( "MATLAB" )
+    // 'bspline_create:12' else
+    // 'bspline_create:13' nbreak  = length(breakpoints);
+    // 'bspline_create:14' ncoeff  = nbreak + degree - 2;
+    // 'bspline_create:15' h       = uint64(0);
+    // 'bspline_create:16' my_path = StructTypeName.WDIR + "/src";
+    // 'bspline_create:17' coder.updateBuildInfo('addIncludePaths',my_path);
+    // 'bspline_create:18' coder.updateBuildInfo('addSourceFiles','c_spline.c', my_path);
+    // 'bspline_create:19' coder.updateBuildInfo('addLinkFlags', LibInfo.gsl.lflags);
+    // 'bspline_create:20' coder.cinclude('c_spline.h');
+    // 'bspline_create:21' coder.ceval('c_bspline_create_with_breakpoints', coder.wref(h), ...
+    // 'bspline_create:22'         degree, breakpoints, int32(nbreak) );
     breakpoints.set_size(1, Bl->breakpoints.size(1));
     loop_ub = Bl->breakpoints.size(1);
     for (int i{0}; i < loop_ub; i++) {
@@ -53,9 +68,9 @@ void bspline_copy(const BaseSplineStruct *Bl, BaseSplineStruct *Copy)
     }
     unsigned long h;
     c_bspline_create_with_breakpoints(&h, Bl->order, &breakpoints[0], Bl->breakpoints.size(1));
-    // 'bspline_create:12' Bl = constrBaseSpline( ncoeff, breakpoints, h, int32(degree) );
+    // 'bspline_create:23' Bl = constrBaseSpline( ncoeff, breakpoints, h, int32(degree) );
     constrBaseSpline((Bl->breakpoints.size(1) + Bl->order) - 2, Bl->breakpoints, h, Bl->order,
-                     Copy);
+                     copy);
 }
 
 } // namespace ocn

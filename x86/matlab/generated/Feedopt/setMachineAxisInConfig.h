@@ -23,7 +23,8 @@
 namespace ocn {
 void b_setMachineAxisInConfig(b_FeedoptConfig *cfg, const bool maskTot_data[]);
 
-extern void setMachineAxisInConfig(FeedoptConfig *cfg, const bool maskTot[6]);
+extern void setMachineAxisInConfig(FeedoptConfig *cfg, const bool maskTot_data[],
+                                   const int maskTot_size[2]);
 
 } // namespace ocn
 

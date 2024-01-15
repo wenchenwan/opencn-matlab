@@ -21,15 +21,24 @@
 
 // Function Definitions
 //
-// function [ valid ] = checkGeometry( queue )
+// function [ valid ] = checkGeometry( queueCurv )
 //
-// checkZSpdmode : Check if the queue has a valid geometry
+// checkZSpdmode : Check if the queue have two folowing curvs with the same
+//  geometry.
 //
-// Arguments    : const queue_coder *queue
+//  Inputs :
+//    queueCurv   : A queue a curvStructs
+//
+//  Outputs :
+//    valid       : Boolean value, TRUE means they are no same curv geometry
+//                  in the whole queue.
+//
+//
+// Arguments    : const queue_coder *queueCurv
 // Return Type  : bool
 //
 namespace ocn {
-bool checkGeometry(const queue_coder *queue)
+bool checkGeometry(const queue_coder *queueCurv)
 {
     ::coder::array<bool, 2U> b_y;
     ::coder::array<bool, 2U> c_x;
@@ -38,13 +47,13 @@ bool checkGeometry(const queue_coder *queue)
     CurvStruct expl_temp;
     unsigned int N;
     bool valid;
-    // 'checkGeometry:4' valid = false;
+    // 'checkGeometry:12' valid = false;
     valid = false;
-    // 'checkGeometry:6' N = queue.size;
-    N = queue->size();
-    // 'checkGeometry:8' if( N == 0 )
+    // 'checkGeometry:14' N = queueCurv.size;
+    N = queueCurv->size();
+    // 'checkGeometry:16' if( N == 0 )
     if (N == 0U) {
-        // 'checkGeometry:9' valid = true;
+        // 'checkGeometry:17' valid = true;
         valid = true;
     } else {
         double curv_a_param;
@@ -70,8 +79,8 @@ bool checkGeometry(const queue_coder *queue)
         unsigned int k;
         bool curv_Info_TRAFO;
         CurveType curv_Info_Type;
-        // 'checkGeometry:13' curv = queue.get( 1 );
-        queue->get(&expl_temp);
+        // 'checkGeometry:21' curv = queueCurv.get( 1 );
+        queueCurv->get(&expl_temp);
         curv_Info_Type = expl_temp.Info.Type;
         curv_Info_TRAFO = expl_temp.Info.TRAFO;
         curv_Info_gcode_source_line = expl_temp.Info.gcode_source_line;
@@ -94,27 +103,35 @@ bool checkGeometry(const queue_coder *queue)
         curv_sp_index = expl_temp.sp_index;
         curv_a_param = expl_temp.a_param;
         curv_b_param = expl_temp.b_param;
-        // 'checkGeometry:15' for k = 2 : N
+        // 'checkGeometry:23' for k = 2 : N
         k = 2U;
         int exitg1;
         do {
             exitg1 = 0;
             if (k <= N) {
                 bool isSame;
-                // 'checkGeometry:16' curvNext = queue.get( k );
-                queue->get(k, &b_expl_temp);
-                // 'checkGeometry:18' if( isSameGeometry(curv, curvNext) )
-                //  Check if the machine parameters are equals
-                // 'isSameGeometry:3' isSame = false;
+                // 'checkGeometry:24' curvNext = queueCurv.get( k );
+                queueCurv->get(k, &b_expl_temp);
+                // 'checkGeometry:26' if( isSameGeometry(curv, curvNext) )
+                //  isSameGeometry : Check if the curves geometry is equal
+                //
+                //  Inputs :
+                //    curv1 : First curve
+                //    curv2 : Second curve
+                //
+                //  Outputs :
+                //    value : Boolean value. TRUE means the two curves are equals.
+                //
+                // 'isSameGeometry:12' isSame = false;
                 isSame = false;
-                // 'isSameGeometry:4' if( curv1.Info.Type ~= curv2.Info.Type )
+                // 'isSameGeometry:13' if( curv1.Info.Type ~= curv2.Info.Type )
                 if ((curv_Info_Type == b_expl_temp.Info.Type) &&
                     (curv_Info_TRAFO == b_expl_temp.Info.TRAFO)) {
                     int b_k;
                     bool exitg2;
                     bool varargout_1;
-                    // 'isSameGeometry:5' if( curv1.Info.TRAFO ~= curv2.Info.TRAFO )
-                    // 'isSameGeometry:6' if( any(curv1.R0 ~= curv2.R0) )
+                    // 'isSameGeometry:14' if( curv1.Info.TRAFO ~= curv2.Info.TRAFO )
+                    // 'isSameGeometry:15' if( any(curv1.R0 ~= curv2.R0) )
                     if (expl_temp.R0.size(0) == b_expl_temp.R0.size(0)) {
                         int loop_ub;
                         x.set_size(expl_temp.R0.size(0));
@@ -139,7 +156,7 @@ bool checkGeometry(const queue_coder *queue)
                     if (!varargout_1) {
                         int c_k;
                         bool b_varargout_1;
-                        // 'isSameGeometry:7' if( any(curv1.R1 ~= curv2.R1) )
+                        // 'isSameGeometry:16' if( any(curv1.R1 ~= curv2.R1) )
                         if (expl_temp.R1.size(0) == b_expl_temp.R1.size(0)) {
                             int b_loop_ub;
                             x.set_size(expl_temp.R1.size(0));
@@ -166,9 +183,9 @@ bool checkGeometry(const queue_coder *queue)
                             int d_k;
                             bool b_x[3];
                             bool y;
-                            // 'isSameGeometry:8' if( curv1.a_param ~= curv2.a_param )
-                            // 'isSameGeometry:9' if( curv1.b_param ~= curv2.b_param )
-                            // 'isSameGeometry:10' if( any(curv1.CorrectedHelixCenter ~=
+                            // 'isSameGeometry:17' if( curv1.a_param ~= curv2.a_param )
+                            // 'isSameGeometry:18' if( curv1.b_param ~= curv2.b_param )
+                            // 'isSameGeometry:19' if( any(curv1.CorrectedHelixCenter ~=
                             // curv2.CorrectedHelixCenter) )
                             b_x[0] = (expl_temp.CorrectedHelixCenter[0] !=
                                       b_expl_temp.CorrectedHelixCenter[0]);
@@ -191,8 +208,8 @@ bool checkGeometry(const queue_coder *queue)
                                 int h_loop_ub;
                                 int hi;
                                 bool c_y;
-                                // 'isSameGeometry:12' if( curv1.delta ~= curv2.delta )
-                                // 'isSameGeometry:13' if( any(curv1.CoeffP5 ~= curv2.CoeffP5) )
+                                // 'isSameGeometry:21' if( curv1.delta ~= curv2.delta )
+                                // 'isSameGeometry:22' if( any(curv1.CoeffP5 ~= curv2.CoeffP5) )
                                 if ((expl_temp.CoeffP5.size(0) == b_expl_temp.CoeffP5.size(0)) &&
                                     (expl_temp.CoeffP5.size(1) == b_expl_temp.CoeffP5.size(1))) {
                                     int f_loop_ub;
@@ -251,7 +268,7 @@ bool checkGeometry(const queue_coder *queue)
                                 if (!c_y) {
                                     int h_k;
                                     bool d_y;
-                                    // 'isSameGeometry:14' if( any(curv1.evec ~= curv2.evec) )
+                                    // 'isSameGeometry:23' if( any(curv1.evec ~= curv2.evec) )
                                     b_x[0] = (expl_temp.evec[0] != b_expl_temp.evec[0]);
                                     b_x[1] = (expl_temp.evec[1] != b_expl_temp.evec[1]);
                                     b_x[2] = (expl_temp.evec[2] != b_expl_temp.evec[2]);
@@ -283,11 +300,11 @@ bool checkGeometry(const queue_coder *queue)
                                         (curv_sp_index == b_expl_temp.sp_index) &&
                                         (curv_Info_gcode_source_line ==
                                          b_expl_temp.Info.gcode_source_line)) {
-                                        // 'isSameGeometry:15' if( ~toolIsEqual(curv1.tool,
-                                        // curv2.tool ) ) 'isSameGeometry:16' if( curv1.sp_index ~=
-                                        // curv2.sp_index ) 'isSameGeometry:17' if(
+                                        // 'isSameGeometry:24' if( ~toolIsEqual(curv1.tool,
+                                        // curv2.tool ) ) 'isSameGeometry:25' if( curv1.sp_index ~=
+                                        // curv2.sp_index ) 'isSameGeometry:26' if(
                                         // curv1.Info.gcode_source_line ~=
-                                        // curv2.Info.gcode_source_line ) 'isSameGeometry:18' isSame
+                                        // curv2.Info.gcode_source_line ) 'isSameGeometry:27' isSame
                                         // = true;
                                         isSame = true;
                                     }
@@ -302,7 +319,7 @@ bool checkGeometry(const queue_coder *queue)
                     int c_loop_ub;
                     int d_loop_ub;
                     int e_loop_ub;
-                    // 'checkGeometry:22' curv = curvNext;
+                    // 'checkGeometry:30' curv = curvNext;
                     curv_Info_Type = b_expl_temp.Info.Type;
                     curv_Info_TRAFO = b_expl_temp.Info.TRAFO;
                     curv_Info_gcode_source_line = b_expl_temp.Info.gcode_source_line;
@@ -355,7 +372,7 @@ bool checkGeometry(const queue_coder *queue)
                     k++;
                 }
             } else {
-                // 'checkGeometry:25' valid = true;
+                // 'checkGeometry:33' valid = true;
                 valid = true;
                 exitg1 = 1;
             }

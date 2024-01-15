@@ -12,11 +12,13 @@
 #include "string1.h"
 #include "opencn_matlab_types.h"
 #include "coder_bounded_array.h"
+#include <algorithm>
+#include <stdio.h>
 
 // Type Definitions
 namespace ocn {
 struct cell_wrap_8 {
-    ::coder::bounded_array<char, 2142U, 2U> f1;
+    ::coder::bounded_array<char, 2208U, 2U> f1;
 };
 
 } // namespace ocn
@@ -36,6 +38,23 @@ void rtString::b_init()
     Value.size[1] = 19;
     for (int i{0}; i < 19; i++) {
         Value.data[i] = b_cv[i];
+    }
+}
+
+//
+// Arguments    : char str_data[]
+//                int str_size[2]
+// Return Type  : void
+//
+void rtString::convertToString(char str_data[], int str_size[2])
+{
+    int resCount;
+    char st[12];
+    resCount = sprintf(&st[0], "%d", 0);
+    str_size[0] = 1;
+    str_size[1] = resCount;
+    if (resCount - 1 >= 0) {
+        std::copy(&st[0], &st[resCount], &str_data[0]);
     }
 }
 
@@ -60,22 +79,22 @@ void rtString::init()
 //
 void rtString::init(Fopt val)
 {
-    static const char cv2[8]{'C', 'o', 'm', 'p', 'r', 'e', 's', 's'};
+    static const char b_cv2[8]{'C', 'o', 'm', 'p', 'r', 'e', 's', 's'};
     static const char cv5[8]{'F', 'i', 'n', 'i', 's', 'h', 'e', 'd'};
-    static const char cv3[6]{'S', 'm', 'o', 'o', 't', 'h'};
+    static const char b_cv3[6]{'S', 'm', 'o', 'o', 't', 'h'};
     static const char b_cv[5]{'G', 'C', 'o', 'd', 'e'};
-    static const char cv1[5]{'C', 'h', 'e', 'c', 'k'};
+    static const char b_cv1[5]{'C', 'h', 'e', 'c', 'k'};
     static const char cv4[5]{'S', 'p', 'l', 'i', 't'};
     static const Fopt enumVals[8]{Fopt_Init,   Fopt_GCode, Fopt_Check, Fopt_Compress,
                                   Fopt_Smooth, Fopt_Split, Fopt_Opt,   Fopt_Finished};
-    ::coder::bounded_array<char, 2142U, 2U> b_f1;
-    ::coder::bounded_array<char, 2142U, 2U> c_f1;
-    ::coder::bounded_array<char, 2142U, 2U> d_f1;
-    ::coder::bounded_array<char, 2142U, 2U> e_f1;
-    ::coder::bounded_array<char, 2142U, 2U> f1;
-    ::coder::bounded_array<char, 2142U, 2U> f_f1;
-    ::coder::bounded_array<char, 2142U, 2U> g_f1;
-    ::coder::bounded_array<char, 2142U, 2U> h_f1;
+    ::coder::bounded_array<char, 2208U, 2U> b_f1;
+    ::coder::bounded_array<char, 2208U, 2U> c_f1;
+    ::coder::bounded_array<char, 2208U, 2U> d_f1;
+    ::coder::bounded_array<char, 2208U, 2U> e_f1;
+    ::coder::bounded_array<char, 2208U, 2U> f1;
+    ::coder::bounded_array<char, 2208U, 2U> f_f1;
+    ::coder::bounded_array<char, 2208U, 2U> g_f1;
+    ::coder::bounded_array<char, 2208U, 2U> h_f1;
     cell_wrap_8 rv[8];
     int enumIdx;
     int k;
@@ -93,17 +112,17 @@ void rtString::init(Fopt val)
     c_f1.size[1] = 5;
     for (int i{0}; i < 5; i++) {
         b_f1.data[i] = b_cv[i];
-        c_f1.data[i] = cv1[i];
+        c_f1.data[i] = b_cv1[i];
     }
     d_f1.size[0] = 1;
     d_f1.size[1] = 8;
     for (int i1{0}; i1 < 8; i1++) {
-        d_f1.data[i1] = cv2[i1];
+        d_f1.data[i1] = b_cv2[i1];
     }
     e_f1.size[0] = 1;
     e_f1.size[1] = 6;
     for (int i2{0}; i2 < 6; i2++) {
-        e_f1.data[i2] = cv3[i2];
+        e_f1.data[i2] = b_cv3[i2];
     }
     f_f1.size[0] = 1;
     f_f1.size[1] = 5;

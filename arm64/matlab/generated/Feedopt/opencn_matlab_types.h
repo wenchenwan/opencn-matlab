@@ -42,23 +42,25 @@ struct struct2_T {
     double ColTolSmooth;
 };
 
-struct LPCfg {
-    char Type[2];
-    bool UseConstraintsOnJerk;
-    bool EnableFindReasonInfeasibility;
-    double ACC_RAMP_OVER_WINDOWS;
-    double VEL_RAMP_OVER_WINDOWS;
-    double SLACK_PENALTY;
-    bool USE_LENGTH_SCALING;
-    bool USE_LINPROG;
-};
-
 struct MsgStruct {
     char msg[2048];
     double size;
 };
 
+struct LPCfg {
+    char Type[2];
+    bool USE_JERK_CONSTRAINTS;
+    bool FIND_REASON_INFEASIBILITY;
+    double ACC_RAMP_OVER_WINDOWS;
+    double VEL_RAMP_OVER_WINDOWS;
+    double SLACK_PENALTY;
+    bool USE_LENGTH_SCALING;
+    bool USE_LINPROG;
+    bool FORCE_POSITIV_COEFFS;
+};
+
 struct FeedoptConfig {
+    bool ENABLE_PRINT_MSG;
     ::coder::bounded_array<bool, 6U, 2U> maskTot;
     ::coder::bounded_array<bool, 6U, 2U> maskCart;
     ::coder::bounded_array<bool, 6U, 2U> maskRot;
@@ -73,12 +75,12 @@ struct FeedoptConfig {
     char kin_type[8];
     int NDiscr;
     int NBreak;
+    bool SplitSpecialSpline;
+    bool ReleaseMemoryOfTheQueues;
     bool UseDynamicBreakpoints;
     bool UseLinearBreakpoints;
     double DynamicBreakpointsDistance;
     int NHorz;
-    double fmax;
-    double smax;
     double vmax[6];
     double amax[6];
     double jmax[6];
@@ -95,11 +97,7 @@ struct FeedoptConfig {
     double at_1;
     double dt;
     double DefaultZeroStopCount;
-    double ZeroStartAccLimit;
-    double ZeroStartJerkLimit;
-    double ZeroStartVelLimit;
-    char source[1024];
-    bool DebugCutZero;
+    ::coder::bounded_array<char, 1024U, 2U> source;
     struct0_T Cusp;
     struct1_T Compressing;
     struct2_T Smoothing;
@@ -111,6 +109,7 @@ struct FeedoptConfig {
 };
 
 struct b_FeedoptConfig {
+    bool ENABLE_PRINT_MSG;
     ::coder::bounded_array<bool, 6U, 2U> maskTot;
     ::coder::bounded_array<bool, 6U, 2U> maskCart;
     ::coder::bounded_array<bool, 6U, 2U> maskRot;
@@ -125,12 +124,12 @@ struct b_FeedoptConfig {
     char kin_type[8];
     int NDiscr;
     int NBreak;
+    bool SplitSpecialSpline;
+    bool ReleaseMemoryOfTheQueues;
     bool UseDynamicBreakpoints;
     bool UseLinearBreakpoints;
     double DynamicBreakpointsDistance;
     int NHorz;
-    double fmax;
-    double smax;
     double vmax[6];
     double amax[6];
     double jmax[6];
@@ -147,11 +146,7 @@ struct b_FeedoptConfig {
     double at_1;
     double dt;
     double DefaultZeroStopCount;
-    double ZeroStartAccLimit;
-    double ZeroStartJerkLimit;
-    double ZeroStartVelLimit;
-    char source[1024];
-    bool DebugCutZero;
+    ::coder::bounded_array<char, 1024U, 2U> source;
     struct0_T Cusp;
     struct1_T Compressing;
     struct2_T Smoothing;

@@ -14,9 +14,17 @@
 
 // Function Definitions
 //
-// function [isEqual] = toolIsEqual(tool1, tool2)
+// function [ isEqual ] = toolIsEqual( tool1, tool2 )
 //
-// Check the tools are equals
+// toolIsEqual : Check if the tools are equal or not.
+//
+//  Inputs :
+//    tool1       : First tool.
+//    tool2       : Second tool.
+//
+//  Outputs :
+//    isEqual     : Boolean value. TRUE means tools are equals.
+//
 //
 // Arguments    : int tool1_toolno
 //                int tool1_pocketno
@@ -52,9 +60,10 @@ bool toolIsEqual(int tool1_toolno, int tool1_pocketno, double tool1_offset_x, do
                  double tool2_frontangle, double tool2_backangle, int tool2_orientation)
 {
     bool isEqual;
-    // 'toolIsEqual:3' isEqual = false;
+    //  Check the tools are equals
+    // 'toolIsEqual:14' isEqual = false;
     isEqual = false;
-    // 'toolIsEqual:5' if( tool1.toolno        ~= tool2.toolno )
+    // 'toolIsEqual:16' if( tool1.toolno        ~= tool2.toolno )
     if ((tool1_toolno == tool2_toolno) && (tool1_pocketno == tool2_pocketno) &&
         (tool1_diameter == tool2_diameter) && (tool1_frontangle == tool2_frontangle) &&
         (tool1_backangle == tool2_backangle) && (tool1_orientation == tool2_orientation) &&
@@ -63,21 +72,21 @@ bool toolIsEqual(int tool1_toolno, int tool1_pocketno, double tool1_offset_x, do
         (tool1_offset_b == tool2_offset->b) && (tool1_offset_c == tool2_offset->c) &&
         (tool1_offset_u == tool2_offset->u) && (tool1_offset_v == tool2_offset->v) &&
         (tool1_offset_w == tool2_offset->w)) {
-        // 'toolIsEqual:6' if( tool1.pocketno      ~= tool2.pocketno )
-        // 'toolIsEqual:7' if( tool1.diameter      ~= tool2.diameter )
-        // 'toolIsEqual:8' if( tool1.frontangle    ~= tool2.frontangle )
-        // 'toolIsEqual:9' if( tool1.backangle     ~= tool2.backangle )
-        // 'toolIsEqual:10' if( tool1.orientation   ~= tool2.orientation )
-        // 'toolIsEqual:11' if( tool1.offset.x      ~= tool2.offset.x )
-        // 'toolIsEqual:12' if( tool1.offset.y      ~= tool2.offset.y )
-        // 'toolIsEqual:13' if( tool1.offset.z      ~= tool2.offset.z )
-        // 'toolIsEqual:14' if( tool1.offset.a      ~= tool2.offset.a )
-        // 'toolIsEqual:15' if( tool1.offset.b      ~= tool2.offset.b )
-        // 'toolIsEqual:16' if( tool1.offset.c      ~= tool2.offset.c )
-        // 'toolIsEqual:17' if( tool1.offset.u      ~= tool2.offset.u )
-        // 'toolIsEqual:18' if( tool1.offset.v      ~= tool2.offset.v )
-        // 'toolIsEqual:19' if( tool1.offset.w      ~= tool2.offset.w )
-        // 'toolIsEqual:21' isEqual = true;
+        // 'toolIsEqual:17' if( tool1.pocketno      ~= tool2.pocketno )
+        // 'toolIsEqual:18' if( tool1.diameter      ~= tool2.diameter )
+        // 'toolIsEqual:19' if( tool1.frontangle    ~= tool2.frontangle )
+        // 'toolIsEqual:20' if( tool1.backangle     ~= tool2.backangle )
+        // 'toolIsEqual:21' if( tool1.orientation   ~= tool2.orientation )
+        // 'toolIsEqual:22' if( tool1.offset.x      ~= tool2.offset.x )
+        // 'toolIsEqual:23' if( tool1.offset.y      ~= tool2.offset.y )
+        // 'toolIsEqual:24' if( tool1.offset.z      ~= tool2.offset.z )
+        // 'toolIsEqual:25' if( tool1.offset.a      ~= tool2.offset.a )
+        // 'toolIsEqual:26' if( tool1.offset.b      ~= tool2.offset.b )
+        // 'toolIsEqual:27' if( tool1.offset.c      ~= tool2.offset.c )
+        // 'toolIsEqual:28' if( tool1.offset.u      ~= tool2.offset.u )
+        // 'toolIsEqual:29' if( tool1.offset.v      ~= tool2.offset.v )
+        // 'toolIsEqual:30' if( tool1.offset.w      ~= tool2.offset.w )
+        // 'toolIsEqual:32' isEqual = true;
         isEqual = true;
     }
     return isEqual;

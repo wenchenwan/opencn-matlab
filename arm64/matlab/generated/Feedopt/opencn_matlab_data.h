@@ -23,12 +23,12 @@
 #include "functions.h"
 // Variable Declarations
 namespace ocn {
-extern double sqrt_calls;
 extern double cos_calls;
 extern double sin_calls;
 extern double DebugConfig;
-extern unsigned int state[625];
-extern const char cv[2048];
+extern const char cv1[2048];
+extern const char cv2[30];
+extern const char cv3[30];
 extern bool isInitialized_opencn_matlab;
 } // namespace ocn
 

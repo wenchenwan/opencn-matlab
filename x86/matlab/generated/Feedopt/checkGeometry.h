@@ -26,7 +26,7 @@ class queue_coder;
 
 // Function Declarations
 namespace ocn {
-bool checkGeometry(const queue_coder *queue);
+bool checkGeometry(const queue_coder *queueCurv);
 
 }
 

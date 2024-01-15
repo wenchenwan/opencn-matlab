@@ -27,6 +27,21 @@
 //
 // function [r0D, r1D, r2D, r3D] = EvalCurvStructNoCtx( cfg, curv, spline, u_vec )
 //
+// EvalCurvStructNoCtx : Eval curve structure and its derivatives on
+//  a set of u points without any need of the context structure.
+//
+//  Inputs :
+//  cfg       : The configuration structure of the computational chain
+//  curv      : The curve used in the evaluation
+//  spline    : The required spline for the evaluation
+//  u_vec     : U vectors
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
+//
 //
 // Arguments    : const bool cfg_maskTot_data[]
 //                const int cfg_maskTot_size[2]
@@ -90,8 +105,8 @@ void EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_si
     bool b_varargout_1;
     bool exitg1;
     bool varargout_1;
-    // 'EvalCurvStructNoCtx:5' coder.inline("never");
-    // 'EvalCurvStructNoCtx:7' ocn_assert( ~any( u_vec > 1.0 ), "u_vec > 1", mfilename );
+    // 'EvalCurvStructNoCtx:18' coder.inline("never");
+    // 'EvalCurvStructNoCtx:20' ocn_assert( ~any( u_vec > 1.0 ), "u_vec > 1", mfilename );
     x.set_size(u_vec.size(0));
     loop_ub = u_vec.size(0);
     for (int i{0}; i < loop_ub; i++) {
@@ -108,8 +123,8 @@ void EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_si
             k++;
         }
     }
-    ocn_assert(!varargout_1);
-    // 'EvalCurvStructNoCtx:8' ocn_assert( ~any( u_vec < 0.0 ), "u_vec < 0", mfilename );
+    c_ocn_assert(!varargout_1);
+    // 'EvalCurvStructNoCtx:21' ocn_assert( ~any( u_vec < 0.0 ), "u_vec < 0", mfilename );
     x.set_size(u_vec.size(0));
     b_loop_ub = u_vec.size(0);
     for (int i1{0}; i1 < b_loop_ub; i1++) {
@@ -126,13 +141,13 @@ void EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_si
             b_k++;
         }
     }
-    b_ocn_assert(!b_varargout_1);
+    d_ocn_assert(!b_varargout_1);
     //
-    // 'EvalCurvStructNoCtx:11' Type    = curv.Info.Type;
+    // 'EvalCurvStructNoCtx:24' Type    = curv.Info.Type;
     //
-    // 'EvalCurvStructNoCtx:13' N       = numel( u_vec );
-    // 'EvalCurvStructNoCtx:14' M       = cfg.NumberAxis;
-    // 'EvalCurvStructNoCtx:16' r0D     = zeros( M, N );
+    // 'EvalCurvStructNoCtx:26' N       = numel( u_vec );
+    // 'EvalCurvStructNoCtx:27' M       = cfg.NumberAxis;
+    // 'EvalCurvStructNoCtx:29' r0D     = zeros( M, N );
     r0D.set_size(cfg_NumberAxis, u_vec.size(0));
     c_loop_ub = u_vec.size(0);
     for (int i2{0}; i2 < c_loop_ub; i2++) {
@@ -140,7 +155,7 @@ void EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_si
             r0D[i3 + r0D.size(0) * i2] = 0.0;
         }
     }
-    // 'EvalCurvStructNoCtx:17' r1D = r0D;
+    // 'EvalCurvStructNoCtx:30' r1D = r0D;
     r1D.set_size(cfg_NumberAxis, u_vec.size(0));
     d_loop_ub = u_vec.size(0);
     for (int i4{0}; i4 < d_loop_ub; i4++) {
@@ -148,7 +163,7 @@ void EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_si
             r1D[i5 + r1D.size(0) * i4] = 0.0;
         }
     }
-    // 'EvalCurvStructNoCtx:17' r2D = r0D;
+    // 'EvalCurvStructNoCtx:30' r2D = r0D;
     r2D.set_size(cfg_NumberAxis, u_vec.size(0));
     e_loop_ub = u_vec.size(0);
     for (int i6{0}; i6 < e_loop_ub; i6++) {
@@ -156,7 +171,7 @@ void EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_si
             r2D[i7 + r2D.size(0) * i6] = 0.0;
         }
     }
-    // 'EvalCurvStructNoCtx:17' r3D = r0D;
+    // 'EvalCurvStructNoCtx:30' r3D = r0D;
     r3D.set_size(cfg_NumberAxis, u_vec.size(0));
     f_loop_ub = u_vec.size(0);
     for (int i8{0}; i8 < f_loop_ub; i8++) {
@@ -164,26 +179,26 @@ void EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_si
             r3D[i9 + r3D.size(0) * i8] = 0.0;
         }
     }
-    // 'EvalCurvStructNoCtx:19' a = curv.a_param;
-    // 'EvalCurvStructNoCtx:20' b = curv.b_param;
-    // 'EvalCurvStructNoCtx:22' u_vec_tilda = a * u_vec + b;
+    // 'EvalCurvStructNoCtx:32' a = curv.a_param;
+    // 'EvalCurvStructNoCtx:33' b = curv.b_param;
+    // 'EvalCurvStructNoCtx:35' u_vec_tilda = a * u_vec + b;
     u_vec_tilda.set_size(u_vec.size(0));
     g_loop_ub = u_vec.size(0);
     for (int i10{0}; i10 < g_loop_ub; i10++) {
         u_vec_tilda[i10] = curv->a_param * u_vec[i10] + curv->b_param;
     }
-    // 'EvalCurvStructNoCtx:24' indC     = cfg.indCart;
-    // 'EvalCurvStructNoCtx:25' indR     = cfg.indRot;
-    // 'EvalCurvStructNoCtx:26' maskTot  = cfg.maskTot;
-    // 'EvalCurvStructNoCtx:27' maskRot  = cfg.maskRot;
-    // 'EvalCurvStructNoCtx:28' maskCart = cfg.maskCart;
-    // 'EvalCurvStructNoCtx:30' switch Type
+    // 'EvalCurvStructNoCtx:37' indC     = cfg.indCart;
+    // 'EvalCurvStructNoCtx:38' indR     = cfg.indRot;
+    // 'EvalCurvStructNoCtx:39' maskTot  = cfg.maskTot;
+    // 'EvalCurvStructNoCtx:40' maskRot  = cfg.maskRot;
+    // 'EvalCurvStructNoCtx:41' maskCart = cfg.maskCart;
+    // 'EvalCurvStructNoCtx:43' switch Type
     switch (curv->Info.Type) {
     case CurveType_Line: {
         int r0D_idx_0;
-        // 'EvalCurvStructNoCtx:31' case CurveType.Line
+        // 'EvalCurvStructNoCtx:44' case CurveType.Line
         //  Line (G01)
-        // 'EvalCurvStructNoCtx:32' [r0D, r1D, r2D, r3D] = EvalLine( curv, u_vec_tilda, maskTot );
+        // 'EvalCurvStructNoCtx:45' [r0D, r1D, r2D, r3D] = EvalLine( curv, u_vec_tilda, maskTot );
         EvalLine(curv->R0, curv->R1, u_vec_tilda, cfg_maskTot_data, cfg_maskTot_size, b_r0D, r1D,
                  r2D, r3D);
         r0D_idx_0 = b_r0D.size(0);
@@ -195,25 +210,25 @@ void EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_si
     case CurveType_Helix: {
         int tmp_data[3];
         int tmp_size;
-        // 'EvalCurvStructNoCtx:33' case CurveType.Helix
+        // 'EvalCurvStructNoCtx:46' case CurveType.Helix
         //  Arc of circle / helix (G02, G03)
-        // 'EvalCurvStructNoCtx:34' if( cfg.NCart > 0 )
+        // 'EvalCurvStructNoCtx:47' if( cfg.NCart > 0 )
         if (cfg_NCart > 0) {
             double dv[3];
             double dv1[3];
             double dv2[3];
             double dv3[3];
-            int cb_loop_ub;
-            int eb_loop_ub;
+            int bb_loop_ub;
+            int db_loop_ub;
             int fb_loop_ub;
             int gb_loop_ub;
             int m_loop_ub;
             int p_loop_ub;
-            int v_loop_ub;
-            int y_loop_ub;
+            int u_loop_ub;
+            int x_loop_ub;
             //  Cartesian axis
-            // 'EvalCurvStructNoCtx:35' [r0D( indC, : ), r1D( indC, : ), r2D( indC, : ), r3D( indC,
-            // : )] = ... 'EvalCurvStructNoCtx:36'                 EvalHelix( curv, u_vec_tilda,
+            // 'EvalCurvStructNoCtx:48' [r0D( indC, : ), r1D( indC, : ), r2D( indC, : ), r3D( indC,
+            // : )] = ... 'EvalCurvStructNoCtx:49'                 EvalHelix( curv, u_vec_tilda,
             // maskCart );
             EvalHelix(curv->R0, curv->CorrectedHelixCenter, curv->evec, curv->theta, curv->pitch,
                       u_vec_tilda, cfg_maskCart_data, cfg_maskCart_size, dv, dv1, dv2, dv3);
@@ -229,31 +244,31 @@ void EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_si
                 }
             }
             tmp_size = cfg_indCart.size(0);
-            v_loop_ub = cfg_indCart.size(0);
-            for (int i28{0}; i28 < v_loop_ub; i28++) {
-                tmp_data[i28] = cfg_indCart[i28] - 1;
+            u_loop_ub = cfg_indCart.size(0);
+            for (int i27{0}; i27 < u_loop_ub; i27++) {
+                tmp_data[i27] = cfg_indCart[i27] - 1;
             }
-            y_loop_ub = u_vec.size(0);
-            for (int i32{0}; i32 < y_loop_ub; i32++) {
-                for (int i34{0}; i34 < tmp_size; i34++) {
-                    r1D[tmp_data[i34] + r1D.size(0) * i32] = dv1[i34 + tmp_size * i32];
+            x_loop_ub = u_vec.size(0);
+            for (int i30{0}; i30 < x_loop_ub; i30++) {
+                for (int i32{0}; i32 < tmp_size; i32++) {
+                    r1D[tmp_data[i32] + r1D.size(0) * i30] = dv1[i32 + tmp_size * i30];
                 }
             }
             tmp_size = cfg_indCart.size(0);
-            cb_loop_ub = cfg_indCart.size(0);
-            for (int i37{0}; i37 < cb_loop_ub; i37++) {
-                tmp_data[i37] = cfg_indCart[i37] - 1;
+            bb_loop_ub = cfg_indCart.size(0);
+            for (int i35{0}; i35 < bb_loop_ub; i35++) {
+                tmp_data[i35] = cfg_indCart[i35] - 1;
             }
-            eb_loop_ub = u_vec.size(0);
-            for (int i39{0}; i39 < eb_loop_ub; i39++) {
-                for (int i42{0}; i42 < tmp_size; i42++) {
-                    r2D[tmp_data[i42] + r2D.size(0) * i39] = dv2[i42 + tmp_size * i39];
+            db_loop_ub = u_vec.size(0);
+            for (int i38{0}; i38 < db_loop_ub; i38++) {
+                for (int i39{0}; i39 < tmp_size; i39++) {
+                    r2D[tmp_data[i39] + r2D.size(0) * i38] = dv2[i39 + tmp_size * i38];
                 }
             }
             tmp_size = cfg_indCart.size(0);
             fb_loop_ub = cfg_indCart.size(0);
-            for (int i43{0}; i43 < fb_loop_ub; i43++) {
-                tmp_data[i43] = cfg_indCart[i43] - 1;
+            for (int i42{0}; i42 < fb_loop_ub; i42++) {
+                tmp_data[i42] = cfg_indCart[i42] - 1;
             }
             gb_loop_ub = u_vec.size(0);
             for (int i44{0}; i44 < gb_loop_ub; i44++) {
@@ -262,16 +277,16 @@ void EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_si
                 }
             }
         }
-        // 'EvalCurvStructNoCtx:38' if( cfg.NRot > 0 )
+        // 'EvalCurvStructNoCtx:51' if( cfg.NRot > 0 )
         if (cfg_NRot > 0) {
             int k_loop_ub;
             int o_loop_ub;
             int r_loop_ub;
-            int t_loop_ub;
-            int w_loop_ub;
+            int s_loop_ub;
+            int v_loop_ub;
             //  Rotative axis
-            // 'EvalCurvStructNoCtx:39' [r0D( indR, : ), r1D( indR, : ), r2D( indR, : ), r3D( indR,
-            // : )] = ... 'EvalCurvStructNoCtx:40'                 EvalLine( curv, u_vec_tilda,
+            // 'EvalCurvStructNoCtx:52' [r0D( indR, : ), r1D( indR, : ), r2D( indR, : ), r3D( indR,
+            // : )] = ... 'EvalCurvStructNoCtx:53'                 EvalLine( curv, u_vec_tilda,
             // maskRot );
             EvalLine(curv->R0, curv->R1, u_vec_tilda, cfg_maskRot_data, cfg_maskRot_size, r, r1, r2,
                      r3);
@@ -288,92 +303,95 @@ void EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_si
             }
             r_loop_ub = r1.size(1);
             for (int i23{0}; i23 < r_loop_ub; i23++) {
-                int u_loop_ub;
-                u_loop_ub = r1.size(0);
-                for (int i27{0}; i27 < u_loop_ub; i27++) {
-                    r1D[(cfg_indRot[i27] + r1D.size(0) * i23) - 1] = r1[i27 + r1.size(0) * i23];
+                int t_loop_ub;
+                t_loop_ub = r1.size(0);
+                for (int i26{0}; i26 < t_loop_ub; i26++) {
+                    r1D[(cfg_indRot[i26] + r1D.size(0) * i23) - 1] = r1[i26 + r1.size(0) * i23];
                 }
             }
-            t_loop_ub = r2.size(1);
-            for (int i26{0}; i26 < t_loop_ub; i26++) {
-                int x_loop_ub;
-                x_loop_ub = r2.size(0);
-                for (int i31{0}; i31 < x_loop_ub; i31++) {
-                    r2D[(cfg_indRot[i31] + r2D.size(0) * i26) - 1] = r2[i31 + r2.size(0) * i26];
+            s_loop_ub = r2.size(1);
+            for (int i25{0}; i25 < s_loop_ub; i25++) {
+                int w_loop_ub;
+                w_loop_ub = r2.size(0);
+                for (int i29{0}; i29 < w_loop_ub; i29++) {
+                    r2D[(cfg_indRot[i29] + r2D.size(0) * i25) - 1] = r2[i29 + r2.size(0) * i25];
                 }
             }
-            w_loop_ub = r3.size(1);
-            for (int i30{0}; i30 < w_loop_ub; i30++) {
-                int bb_loop_ub;
-                bb_loop_ub = r3.size(0);
-                for (int i35{0}; i35 < bb_loop_ub; i35++) {
-                    r3D[(cfg_indRot[i35] + r3D.size(0) * i30) - 1] = r3[i35 + r3.size(0) * i30];
+            v_loop_ub = r3.size(1);
+            for (int i28{0}; i28 < v_loop_ub; i28++) {
+                int ab_loop_ub;
+                ab_loop_ub = r3.size(0);
+                for (int i34{0}; i34 < ab_loop_ub; i34++) {
+                    r3D[(cfg_indRot[i34] + r3D.size(0) * i28) - 1] = r3[i34 + r3.size(0) * i28];
                 }
             }
         }
     } break;
     case CurveType_TransP5:
-        // 'EvalCurvStructNoCtx:42' case CurveType.TransP5
+        // 'EvalCurvStructNoCtx:55' case CurveType.TransP5
         //  Polynomial transition
-        // 'EvalCurvStructNoCtx:43' [r0D, r1D, r2D, r3D]    = EvalTransP5( curv, u_vec_tilda,
+        // 'EvalCurvStructNoCtx:56' [r0D, r1D, r2D, r3D]    = EvalTransP5( curv, u_vec_tilda,
         // maskTot );
         EvalTransP5(curv->CoeffP5, u_vec_tilda, cfg_maskTot_data, cfg_maskTot_size, r0D, r1D, r2D,
                     r3D);
         break;
     case CurveType_Spline: {
-        int ab_loop_ub;
-        int db_loop_ub;
-        int i41;
-        int s_loop_ub;
+        int cb_loop_ub;
+        int eb_loop_ub;
+        int i43;
         int unnamed_idx_0;
-        // 'EvalCurvStructNoCtx:44' case CurveType.Spline
+        int y_loop_ub;
+        // 'EvalCurvStructNoCtx:57' case CurveType.Spline
         //  Spline
-        // 'EvalCurvStructNoCtx:45' [ r0D, r1D, r2D, r3D ]  = EvalBSpline( spline, u_vec_tilda );
+        // 'EvalCurvStructNoCtx:58' [ r0D, r1D, r2D, r3D ]  = EvalBSpline( spline, u_vec_tilda );
         //  EvalBSpline
         //
-        //  INPUT
+        //  Inputs :
         //  spline        : struct : Spline structure
         //  u_vec         :    1xn : Vector for evaluation of the curv
         //
-        //  OUTPUT
-        //  r0D           :   nDxn : The evaluated B spline at u\_vec points
-        //  r1D           :   nDxn : 1rst order parametric derivative for the B spline at u\_vec
-        //  points r2D           :   nDxn : 2nd order parametric derivative for the B spline at
-        //  u\_vec points r3D           :   nDxn : 3rd order parametric derivative for the B spline
-        //  at u\_vec points
-        // 'EvalBSpline:14' sp = spline.sp;
-        // 'EvalBSpline:15' N  = length( u_vec );
-        // 'EvalBSpline:16' M  = size( sp.coeff, 1 );
-        // 'EvalBSpline:18' r0D = zeros( M, N );
+        //  Outputs:
+        //  r0D           :   nDxn : The evaluated B spline at u_vec points
+        //  r1D           :   nDxn : 1rst order parametric derivative for the Bspline
+        //                    at u_vec points
+        //  r2D           :   nDxn : 2nd order parametric derivative for the Bspline
+        //                    at u_vec points
+        //  r3D           :   nDxn : 3rd order parametric derivative for the B spline
+        //                    at u_vec points
+        //
+        // 'EvalBSpline:19' sp  = spline.sp;
+        // 'EvalBSpline:20' N   = length( u_vec );
+        // 'EvalBSpline:21' M   = size( sp.coeff, 1 );
+        // 'EvalBSpline:22' r0D = zeros( M, N );
         unnamed_idx_0 = spline->sp.coeff.size(0);
-        // 'EvalBSpline:18' r1D = r0D;
+        // 'EvalBSpline:22' r1D = r0D;
         r1D.set_size(spline->sp.coeff.size(0), u_vec_tilda.size(0));
-        s_loop_ub = u_vec_tilda.size(0);
-        for (int i25{0}; i25 < s_loop_ub; i25++) {
-            for (int i29{0}; i29 < unnamed_idx_0; i29++) {
-                r1D[i29 + r1D.size(0) * i25] = 0.0;
+        y_loop_ub = u_vec_tilda.size(0);
+        for (int i31{0}; i31 < y_loop_ub; i31++) {
+            for (int i33{0}; i33 < unnamed_idx_0; i33++) {
+                r1D[i33 + r1D.size(0) * i31] = 0.0;
             }
         }
-        // 'EvalBSpline:18' r2D = r1D;
+        // 'EvalBSpline:22' r2D = r1D;
         r2D.set_size(spline->sp.coeff.size(0), u_vec_tilda.size(0));
-        ab_loop_ub = u_vec_tilda.size(0);
-        for (int i33{0}; i33 < ab_loop_ub; i33++) {
-            for (int i36{0}; i36 < unnamed_idx_0; i36++) {
-                r2D[i36 + r2D.size(0) * i33] = 0.0;
+        cb_loop_ub = u_vec_tilda.size(0);
+        for (int i36{0}; i36 < cb_loop_ub; i36++) {
+            for (int i37{0}; i37 < unnamed_idx_0; i37++) {
+                r2D[i37 + r2D.size(0) * i36] = 0.0;
             }
         }
-        // 'EvalBSpline:18' r3D = r2D;
+        // 'EvalBSpline:22' r3D = r2D;
         r3D.set_size(spline->sp.coeff.size(0), u_vec_tilda.size(0));
-        db_loop_ub = u_vec_tilda.size(0);
-        for (int i38{0}; i38 < db_loop_ub; i38++) {
-            for (int i40{0}; i40 < unnamed_idx_0; i40++) {
-                r3D[i40 + r3D.size(0) * i38] = 0.0;
+        eb_loop_ub = u_vec_tilda.size(0);
+        for (int i40{0}; i40 < eb_loop_ub; i40++) {
+            for (int i41{0}; i41 < unnamed_idx_0; i41++) {
+                r3D[i41 + r3D.size(0) * i40] = 0.0;
             }
         }
-        // 'EvalBSpline:20' for j = 1 : M
-        i41 = spline->sp.coeff.size(0);
+        // 'EvalBSpline:24' for j = 1 : M
+        i43 = spline->sp.coeff.size(0);
         r0D.set_size(spline->sp.coeff.size(0), u_vec_tilda.size(0));
-        for (int j{0}; j < i41; j++) {
+        for (int j{0}; j < i43; j++) {
             int hb_loop_ub;
             int i50;
             int ib_loop_ub;
@@ -383,37 +401,52 @@ void EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_si
             int nb_loop_ub;
             int ob_loop_ub;
             int pb_loop_ub;
-            // 'EvalBSpline:21' [r0D( j , : ), r1D( j , : ), r2D( j , : ), r3D( j , : ) ] = ...
-            // 'EvalBSpline:22'                             bspline_eval_vec( sp.Bl, sp.coeff( j, :
-            // ), u_vec ); 'bspline_eval_vec:3' x       = zeros(size(u));
+            // 'EvalBSpline:25' [r0D( j , : ), r1D( j , : ), r2D( j , : ), r3D( j , : ) ] = ...
+            // 'EvalBSpline:26'                         bspline_eval_vec( sp.Bl, sp.coeff( j, : ),
+            // u_vec );
+            //  bspline_eval_vec  : Eval Bspline bases for a given set of u value.
+            //
+            //  Inputs    :
+            //  Bl            : BSpline bases
+            //  coeffs        : BSpline coefficients
+            //  uVec          : U vector of points to evaluate
+            //
+            //  Outputs   :
+            //  x             : Evaluation of the BSpline
+            //  xd            : Evaluation of the first derivative of the BSpline
+            //  xdd           : Evaluation of the second derivative of the BSpline
+            //  xddd          : Evaluation of the third derivative of the BSpline
+            //
+            // 'bspline_eval_vec:15' x       = zeros(size(uVec));
             r.set_size(u_vec_tilda.size(0));
             hb_loop_ub = u_vec_tilda.size(0);
             for (int i46{0}; i46 < hb_loop_ub; i46++) {
                 r[i46] = 0.0;
             }
-            // 'bspline_eval_vec:4' xd      = zeros(size(u));
+            // 'bspline_eval_vec:16' xd      = zeros(size(uVec));
             r4.set_size(u_vec_tilda.size(0));
             ib_loop_ub = u_vec_tilda.size(0);
             for (int i47{0}; i47 < ib_loop_ub; i47++) {
                 r4[i47] = 0.0;
             }
-            // 'bspline_eval_vec:5' xdd     = zeros(size(u));
+            // 'bspline_eval_vec:17' xdd     = zeros(size(uVec));
             r5.set_size(u_vec_tilda.size(0));
             jb_loop_ub = u_vec_tilda.size(0);
             for (int i48{0}; i48 < jb_loop_ub; i48++) {
                 r5[i48] = 0.0;
             }
-            // 'bspline_eval_vec:6' xddd    = zeros(size(u));
+            // 'bspline_eval_vec:18' xddd    = zeros(size(uVec));
             r6.set_size(u_vec_tilda.size(0));
             kb_loop_ub = u_vec_tilda.size(0);
             for (int i49{0}; i49 < kb_loop_ub; i49++) {
                 r6[i49] = 0.0;
             }
-            // 'bspline_eval_vec:8' for k = 1:length(u)
+            // 'bspline_eval_vec:20' for k = 1:length(uVec)
             i50 = u_vec_tilda.size(0);
             for (int c_k{0}; c_k < i50; c_k++) {
                 int mb_loop_ub;
-                // 'bspline_eval_vec:9' [xk, xdk, xddk, xdddk] = bspline_eval(Bl, coeffs, u(k));
+                // 'bspline_eval_vec:21' [xk, xdk, xddk, xdddk] = bspline_eval( Bl, coeffs, uVec( k
+                // ) );
                 r[c_k] = u_vec_tilda[c_k];
                 mb_loop_ub = spline->sp.coeff.size(1);
                 b_spline.set_size(1, spline->sp.coeff.size(1));
@@ -424,10 +457,10 @@ void EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_si
                 r6[c_k] = d2;
                 r5[c_k] = d1;
                 r4[c_k] = d;
-                // 'bspline_eval_vec:10' x(k)    = xk;
-                // 'bspline_eval_vec:11' xd(k)   = xdk;
-                // 'bspline_eval_vec:12' xdd(k)  = xddk;
-                // 'bspline_eval_vec:13' xddd(k) = xdddk;
+                // 'bspline_eval_vec:22' x(k)    = xk;
+                // 'bspline_eval_vec:23' xd(k)   = xdk;
+                // 'bspline_eval_vec:24' xdd(k)  = xddk;
+                // 'bspline_eval_vec:25' xddd(k) = xdddk;
             }
             lb_loop_ub = r0D.size(1);
             for (int i51{0}; i51 < lb_loop_ub; i51++) {
@@ -448,14 +481,14 @@ void EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_si
         }
     } break;
     default:
-        // 'EvalCurvStructNoCtx:46' otherwise
-        // 'EvalCurvStructNoCtx:47' ocn_assert( false, "Unknown Curve Type for Eval...", mfilename
+        // 'EvalCurvStructNoCtx:59' otherwise
+        // 'EvalCurvStructNoCtx:60' ocn_assert( false, "Unknown Curve Type for Eval...", mfilename
         // );
-        ib_ocn_assert();
+        qb_ocn_assert();
         break;
     }
-    // 'EvalCurvStructNoCtx:50' if( 1 )
-    // 'EvalCurvStructNoCtx:51' r1D = a     .* r1D;
+    // 'EvalCurvStructNoCtx:63' if( 1 )
+    // 'EvalCurvStructNoCtx:64' r1D = a     .* r1D;
     h_loop_ub = r1D.size(1);
     for (int i12{0}; i12 < h_loop_ub; i12++) {
         int i_loop_ub;
@@ -464,7 +497,7 @@ void EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_si
             r1D[i13 + r1D.size(0) * i12] = curv->a_param * r1D[i13 + r1D.size(0) * i12];
         }
     }
-    // 'EvalCurvStructNoCtx:52' r2D = a^2   .* r2D;
+    // 'EvalCurvStructNoCtx:65' r2D = a^2   .* r2D;
     c = curv->a_param * curv->a_param;
     j_loop_ub = r2D.size(1);
     for (int i14{0}; i14 < j_loop_ub; i14++) {
@@ -474,7 +507,7 @@ void EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_si
             r2D[i16 + r2D.size(0) * i14] = c * r2D[i16 + r2D.size(0) * i14];
         }
     }
-    // 'EvalCurvStructNoCtx:53' r3D = a^3   .* r3D;
+    // 'EvalCurvStructNoCtx:66' r3D = a^3   .* r3D;
     b_c = std::pow(curv->a_param, 3.0);
     n_loop_ub = r3D.size(1);
     for (int i18{0}; i18 < n_loop_ub; i18++) {
@@ -488,6 +521,21 @@ void EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_si
 
 //
 // function [r0D, r1D, r2D, r3D] = EvalCurvStructNoCtx( cfg, curv, spline, u_vec )
+//
+// EvalCurvStructNoCtx : Eval curve structure and its derivatives on
+//  a set of u points without any need of the context structure.
+//
+//  Inputs :
+//  cfg       : The configuration structure of the computational chain
+//  curv      : The curve used in the evaluation
+//  spline    : The required spline for the evaluation
+//  u_vec     : U vectors
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
 //
 //
 // Arguments    : const bool cfg_maskTot_data[]
@@ -536,48 +584,48 @@ void b_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
     int r2D_size;
     int r3D_size;
     int tmp_size;
-    // 'EvalCurvStructNoCtx:5' coder.inline("never");
-    // 'EvalCurvStructNoCtx:7' ocn_assert( ~any( u_vec > 1.0 ), "u_vec > 1", mfilename );
-    ocn_assert(u_vec <= 1.0);
-    // 'EvalCurvStructNoCtx:8' ocn_assert( ~any( u_vec < 0.0 ), "u_vec < 0", mfilename );
-    b_ocn_assert(u_vec >= 0.0);
+    // 'EvalCurvStructNoCtx:18' coder.inline("never");
+    // 'EvalCurvStructNoCtx:20' ocn_assert( ~any( u_vec > 1.0 ), "u_vec > 1", mfilename );
+    c_ocn_assert(u_vec <= 1.0);
+    // 'EvalCurvStructNoCtx:21' ocn_assert( ~any( u_vec < 0.0 ), "u_vec < 0", mfilename );
+    d_ocn_assert(u_vec >= 0.0);
     //
-    // 'EvalCurvStructNoCtx:11' Type    = curv.Info.Type;
+    // 'EvalCurvStructNoCtx:24' Type    = curv.Info.Type;
     //
-    // 'EvalCurvStructNoCtx:13' N       = numel( u_vec );
-    // 'EvalCurvStructNoCtx:14' M       = cfg.NumberAxis;
-    // 'EvalCurvStructNoCtx:16' r0D     = zeros( M, N );
+    // 'EvalCurvStructNoCtx:26' N       = numel( u_vec );
+    // 'EvalCurvStructNoCtx:27' M       = cfg.NumberAxis;
+    // 'EvalCurvStructNoCtx:29' r0D     = zeros( M, N );
     r0D.set_size(cfg_NumberAxis);
     for (int i{0}; i < cfg_NumberAxis; i++) {
         r0D[i] = 0.0;
     }
-    // 'EvalCurvStructNoCtx:17' r1D = r0D;
-    // 'EvalCurvStructNoCtx:17' r2D = r0D;
-    // 'EvalCurvStructNoCtx:17' r3D = r0D;
-    // 'EvalCurvStructNoCtx:19' a = curv.a_param;
-    // 'EvalCurvStructNoCtx:20' b = curv.b_param;
-    // 'EvalCurvStructNoCtx:22' u_vec_tilda = a * u_vec + b;
+    // 'EvalCurvStructNoCtx:30' r1D = r0D;
+    // 'EvalCurvStructNoCtx:30' r2D = r0D;
+    // 'EvalCurvStructNoCtx:30' r3D = r0D;
+    // 'EvalCurvStructNoCtx:32' a = curv.a_param;
+    // 'EvalCurvStructNoCtx:33' b = curv.b_param;
+    // 'EvalCurvStructNoCtx:35' u_vec_tilda = a * u_vec + b;
     u_vec_tilda = curv->a_param * u_vec + curv->b_param;
-    // 'EvalCurvStructNoCtx:24' indC     = cfg.indCart;
-    // 'EvalCurvStructNoCtx:25' indR     = cfg.indRot;
-    // 'EvalCurvStructNoCtx:26' maskTot  = cfg.maskTot;
-    // 'EvalCurvStructNoCtx:27' maskRot  = cfg.maskRot;
-    // 'EvalCurvStructNoCtx:28' maskCart = cfg.maskCart;
-    // 'EvalCurvStructNoCtx:30' switch Type
+    // 'EvalCurvStructNoCtx:37' indC     = cfg.indCart;
+    // 'EvalCurvStructNoCtx:38' indR     = cfg.indRot;
+    // 'EvalCurvStructNoCtx:39' maskTot  = cfg.maskTot;
+    // 'EvalCurvStructNoCtx:40' maskRot  = cfg.maskRot;
+    // 'EvalCurvStructNoCtx:41' maskCart = cfg.maskCart;
+    // 'EvalCurvStructNoCtx:43' switch Type
     switch (curv->Info.Type) {
     case CurveType_Line:
-        // 'EvalCurvStructNoCtx:31' case CurveType.Line
+        // 'EvalCurvStructNoCtx:44' case CurveType.Line
         //  Line (G01)
-        // 'EvalCurvStructNoCtx:32' [r0D, r1D, r2D, r3D] = EvalLine( curv, u_vec_tilda, maskTot );
+        // 'EvalCurvStructNoCtx:45' [r0D, r1D, r2D, r3D] = EvalLine( curv, u_vec_tilda, maskTot );
         r0D.reserve(6);
         b_EvalLine(curv->R0, curv->R1, u_vec_tilda, cfg_maskTot_data, cfg_maskTot_size,
                    (double *)r0D.data(), &(*(int(*)[1])r0D.size())[0], r1D_data, &r1D_size, r2D,
                    r3D);
         break;
     case CurveType_Helix: {
-        // 'EvalCurvStructNoCtx:33' case CurveType.Helix
+        // 'EvalCurvStructNoCtx:46' case CurveType.Helix
         //  Arc of circle / helix (G02, G03)
-        // 'EvalCurvStructNoCtx:34' if( cfg.NCart > 0 )
+        // 'EvalCurvStructNoCtx:47' if( cfg.NCart > 0 )
         if (cfg_NCart > 0) {
             double dv[3];
             double dv1[3];
@@ -587,8 +635,8 @@ void b_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
             int c_tmp_size;
             int loop_ub;
             //  Cartesian axis
-            // 'EvalCurvStructNoCtx:35' [r0D( indC, : ), r1D( indC, : ), r2D( indC, : ), r3D( indC,
-            // : )] = ... 'EvalCurvStructNoCtx:36'                 EvalHelix( curv, u_vec_tilda,
+            // 'EvalCurvStructNoCtx:48' [r0D( indC, : ), r1D( indC, : ), r2D( indC, : ), r3D( indC,
+            // : )] = ... 'EvalCurvStructNoCtx:49'                 EvalHelix( curv, u_vec_tilda,
             // maskCart );
             b_EvalHelix(curv->R0, curv->CorrectedHelixCenter, curv->evec, curv->theta, curv->pitch,
                         u_vec_tilda, cfg_maskCart_data, cfg_maskCart_size, dv, dv1, dv2, dv3);
@@ -601,11 +649,11 @@ void b_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
                 r0D[c_tmp_data[i4]] = dv[i4];
             }
         }
-        // 'EvalCurvStructNoCtx:38' if( cfg.NRot > 0 )
+        // 'EvalCurvStructNoCtx:51' if( cfg.NRot > 0 )
         if (cfg_NRot > 0) {
             //  Rotative axis
-            // 'EvalCurvStructNoCtx:39' [r0D( indR, : ), r1D( indR, : ), r2D( indR, : ), r3D( indR,
-            // : )] = ... 'EvalCurvStructNoCtx:40'                 EvalLine( curv, u_vec_tilda,
+            // 'EvalCurvStructNoCtx:52' [r0D( indR, : ), r1D( indR, : ), r2D( indR, : ), r3D( indR,
+            // : )] = ... 'EvalCurvStructNoCtx:53'                 EvalLine( curv, u_vec_tilda,
             // maskRot );
             b_EvalLine(curv->R0, curv->R1, u_vec_tilda, cfg_maskRot_data, cfg_maskRot_size,
                        tmp_data, &tmp_size, b_tmp_data, &b_tmp_size, r, r1);
@@ -615,9 +663,9 @@ void b_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
         }
     } break;
     case CurveType_TransP5:
-        // 'EvalCurvStructNoCtx:42' case CurveType.TransP5
+        // 'EvalCurvStructNoCtx:55' case CurveType.TransP5
         //  Polynomial transition
-        // 'EvalCurvStructNoCtx:43' [r0D, r1D, r2D, r3D]    = EvalTransP5( curv, u_vec_tilda,
+        // 'EvalCurvStructNoCtx:56' [r0D, r1D, r2D, r3D]    = EvalTransP5( curv, u_vec_tilda,
         // maskTot );
         r0D.reserve(6);
         b_EvalTransP5(curv->CoeffP5, u_vec_tilda, cfg_maskTot_data, cfg_maskTot_size,
@@ -631,58 +679,77 @@ void b_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
         int d_loop_ub;
         int e_loop_ub;
         int i9;
-        // 'EvalCurvStructNoCtx:44' case CurveType.Spline
+        // 'EvalCurvStructNoCtx:57' case CurveType.Spline
         //  Spline
-        // 'EvalCurvStructNoCtx:45' [ r0D, r1D, r2D, r3D ]  = EvalBSpline( spline, u_vec_tilda );
+        // 'EvalCurvStructNoCtx:58' [ r0D, r1D, r2D, r3D ]  = EvalBSpline( spline, u_vec_tilda );
         //  EvalBSpline
         //
-        //  INPUT
+        //  Inputs :
         //  spline        : struct : Spline structure
         //  u_vec         :    1xn : Vector for evaluation of the curv
         //
-        //  OUTPUT
-        //  r0D           :   nDxn : The evaluated B spline at u\_vec points
-        //  r1D           :   nDxn : 1rst order parametric derivative for the B spline at u\_vec
-        //  points r2D           :   nDxn : 2nd order parametric derivative for the B spline at
-        //  u\_vec points r3D           :   nDxn : 3rd order parametric derivative for the B spline
-        //  at u\_vec points
-        // 'EvalBSpline:14' sp = spline.sp;
-        // 'EvalBSpline:15' N  = length( u_vec );
-        // 'EvalBSpline:16' M  = size( sp.coeff, 1 );
-        // 'EvalBSpline:18' r0D = zeros( M, N );
+        //  Outputs:
+        //  r0D           :   nDxn : The evaluated B spline at u_vec points
+        //  r1D           :   nDxn : 1rst order parametric derivative for the Bspline
+        //                    at u_vec points
+        //  r2D           :   nDxn : 2nd order parametric derivative for the Bspline
+        //                    at u_vec points
+        //  r3D           :   nDxn : 3rd order parametric derivative for the B spline
+        //                    at u_vec points
+        //
+        // 'EvalBSpline:19' sp  = spline.sp;
+        // 'EvalBSpline:20' N   = length( u_vec );
+        // 'EvalBSpline:21' M   = size( sp.coeff, 1 );
+        // 'EvalBSpline:22' r0D = zeros( M, N );
         r0D.set_size(spline->sp.coeff.size(0));
         b_loop_ub = spline->sp.coeff.size(0);
         for (int i5{0}; i5 < b_loop_ub; i5++) {
             r0D[i5] = 0.0;
         }
-        // 'EvalBSpline:18' r1D = r0D;
+        // 'EvalBSpline:22' r1D = r0D;
         r1D.set_size(spline->sp.coeff.size(0));
         c_loop_ub = spline->sp.coeff.size(0);
         for (int i6{0}; i6 < c_loop_ub; i6++) {
             r1D[i6] = 0.0;
         }
-        // 'EvalBSpline:18' r2D = r1D;
+        // 'EvalBSpline:22' r2D = r1D;
         r2D.set_size(spline->sp.coeff.size(0));
         d_loop_ub = spline->sp.coeff.size(0);
         for (int i7{0}; i7 < d_loop_ub; i7++) {
             r2D[i7] = 0.0;
         }
-        // 'EvalBSpline:18' r3D = r2D;
+        // 'EvalBSpline:22' r3D = r2D;
         r3D.set_size(spline->sp.coeff.size(0));
         e_loop_ub = spline->sp.coeff.size(0);
         for (int i8{0}; i8 < e_loop_ub; i8++) {
             r3D[i8] = 0.0;
         }
-        // 'EvalBSpline:20' for j = 1 : M
+        // 'EvalBSpline:24' for j = 1 : M
         i9 = spline->sp.coeff.size(0);
         for (int j{0}; j < i9; j++) {
             int f_loop_ub;
-            // 'EvalBSpline:21' [r0D( j , : ), r1D( j , : ), r2D( j , : ), r3D( j , : ) ] = ...
-            // 'EvalBSpline:22'                             bspline_eval_vec( sp.Bl, sp.coeff( j, :
-            // ), u_vec ); 'bspline_eval_vec:3' x       = zeros(size(u)); 'bspline_eval_vec:4' xd =
-            // zeros(size(u)); 'bspline_eval_vec:5' xdd     = zeros(size(u)); 'bspline_eval_vec:6'
-            // xddd    = zeros(size(u)); 'bspline_eval_vec:8' for k = 1:length(u)
-            // 'bspline_eval_vec:9' [xk, xdk, xddk, xdddk] = bspline_eval(Bl, coeffs, u(k));
+            // 'EvalBSpline:25' [r0D( j , : ), r1D( j , : ), r2D( j , : ), r3D( j , : ) ] = ...
+            // 'EvalBSpline:26'                         bspline_eval_vec( sp.Bl, sp.coeff( j, : ),
+            // u_vec );
+            //  bspline_eval_vec  : Eval Bspline bases for a given set of u value.
+            //
+            //  Inputs    :
+            //  Bl            : BSpline bases
+            //  coeffs        : BSpline coefficients
+            //  uVec          : U vector of points to evaluate
+            //
+            //  Outputs   :
+            //  x             : Evaluation of the BSpline
+            //  xd            : Evaluation of the first derivative of the BSpline
+            //  xdd           : Evaluation of the second derivative of the BSpline
+            //  xddd          : Evaluation of the third derivative of the BSpline
+            //
+            // 'bspline_eval_vec:15' x       = zeros(size(uVec));
+            // 'bspline_eval_vec:16' xd      = zeros(size(uVec));
+            // 'bspline_eval_vec:17' xdd     = zeros(size(uVec));
+            // 'bspline_eval_vec:18' xddd    = zeros(size(uVec));
+            // 'bspline_eval_vec:20' for k = 1:length(uVec)
+            // 'bspline_eval_vec:21' [xk, xdk, xddk, xdddk] = bspline_eval( Bl, coeffs, uVec( k ) );
             r0D[j] = u_vec_tilda;
             f_loop_ub = spline->sp.coeff.size(1);
             b_spline.set_size(1, spline->sp.coeff.size(1));
@@ -693,27 +760,42 @@ void b_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
             r3D[j] = d2;
             r2D[j] = d1;
             r1D[j] = d;
-            // 'bspline_eval_vec:10' x(k)    = xk;
-            // 'bspline_eval_vec:11' xd(k)   = xdk;
-            // 'bspline_eval_vec:12' xdd(k)  = xddk;
-            // 'bspline_eval_vec:13' xddd(k) = xdddk;
+            // 'bspline_eval_vec:22' x(k)    = xk;
+            // 'bspline_eval_vec:23' xd(k)   = xdk;
+            // 'bspline_eval_vec:24' xdd(k)  = xddk;
+            // 'bspline_eval_vec:25' xddd(k) = xdddk;
         }
     } break;
     default:
-        // 'EvalCurvStructNoCtx:46' otherwise
-        // 'EvalCurvStructNoCtx:47' ocn_assert( false, "Unknown Curve Type for Eval...", mfilename
+        // 'EvalCurvStructNoCtx:59' otherwise
+        // 'EvalCurvStructNoCtx:60' ocn_assert( false, "Unknown Curve Type for Eval...", mfilename
         // );
-        ib_ocn_assert();
+        qb_ocn_assert();
         break;
     }
-    // 'EvalCurvStructNoCtx:50' if( 1 )
-    // 'EvalCurvStructNoCtx:51' r1D = a     .* r1D;
-    // 'EvalCurvStructNoCtx:52' r2D = a^2   .* r2D;
-    // 'EvalCurvStructNoCtx:53' r3D = a^3   .* r3D;
+    // 'EvalCurvStructNoCtx:63' if( 1 )
+    // 'EvalCurvStructNoCtx:64' r1D = a     .* r1D;
+    // 'EvalCurvStructNoCtx:65' r2D = a^2   .* r2D;
+    // 'EvalCurvStructNoCtx:66' r3D = a^3   .* r3D;
 }
 
 //
 // function [r0D, r1D, r2D, r3D] = EvalCurvStructNoCtx( cfg, curv, spline, u_vec )
+//
+// EvalCurvStructNoCtx : Eval curve structure and its derivatives on
+//  a set of u points without any need of the context structure.
+//
+//  Inputs :
+//  cfg       : The configuration structure of the computational chain
+//  curv      : The curve used in the evaluation
+//  spline    : The required spline for the evaluation
+//  u_vec     : U vectors
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
 //
 //
 // Arguments    : const bool cfg_maskTot_data[]
@@ -765,23 +847,23 @@ void c_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
     int i5;
     int loop_ub;
     int tmp_size;
-    // 'EvalCurvStructNoCtx:5' coder.inline("never");
-    // 'EvalCurvStructNoCtx:7' ocn_assert( ~any( u_vec > 1.0 ), "u_vec > 1", mfilename );
-    ocn_assert(true);
-    // 'EvalCurvStructNoCtx:8' ocn_assert( ~any( u_vec < 0.0 ), "u_vec < 0", mfilename );
-    b_ocn_assert(true);
+    // 'EvalCurvStructNoCtx:18' coder.inline("never");
+    // 'EvalCurvStructNoCtx:20' ocn_assert( ~any( u_vec > 1.0 ), "u_vec > 1", mfilename );
+    c_ocn_assert(true);
+    // 'EvalCurvStructNoCtx:21' ocn_assert( ~any( u_vec < 0.0 ), "u_vec < 0", mfilename );
+    d_ocn_assert(true);
     //
-    // 'EvalCurvStructNoCtx:11' Type    = curv.Info.Type;
+    // 'EvalCurvStructNoCtx:24' Type    = curv.Info.Type;
     //
-    // 'EvalCurvStructNoCtx:13' N       = numel( u_vec );
-    // 'EvalCurvStructNoCtx:14' M       = cfg.NumberAxis;
-    // 'EvalCurvStructNoCtx:16' r0D     = zeros( M, N );
+    // 'EvalCurvStructNoCtx:26' N       = numel( u_vec );
+    // 'EvalCurvStructNoCtx:27' M       = cfg.NumberAxis;
+    // 'EvalCurvStructNoCtx:29' r0D     = zeros( M, N );
     r0D.set_size(cfg_NumberAxis);
-    // 'EvalCurvStructNoCtx:17' r1D = r0D;
+    // 'EvalCurvStructNoCtx:30' r1D = r0D;
     r1D.set_size(cfg_NumberAxis);
-    // 'EvalCurvStructNoCtx:17' r2D = r0D;
+    // 'EvalCurvStructNoCtx:30' r2D = r0D;
     r2D.set_size(cfg_NumberAxis);
-    // 'EvalCurvStructNoCtx:17' r3D = r0D;
+    // 'EvalCurvStructNoCtx:30' r3D = r0D;
     r3D.set_size(cfg_NumberAxis);
     for (int i{0}; i < cfg_NumberAxis; i++) {
         r0D[i] = 0.0;
@@ -789,21 +871,21 @@ void c_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
         r2D[i] = 0.0;
         r3D[i] = 0.0;
     }
-    // 'EvalCurvStructNoCtx:19' a = curv.a_param;
-    // 'EvalCurvStructNoCtx:20' b = curv.b_param;
-    // 'EvalCurvStructNoCtx:22' u_vec_tilda = a * u_vec + b;
+    // 'EvalCurvStructNoCtx:32' a = curv.a_param;
+    // 'EvalCurvStructNoCtx:33' b = curv.b_param;
+    // 'EvalCurvStructNoCtx:35' u_vec_tilda = a * u_vec + b;
     u_vec_tilda = curv->a_param + curv->b_param;
-    // 'EvalCurvStructNoCtx:24' indC     = cfg.indCart;
-    // 'EvalCurvStructNoCtx:25' indR     = cfg.indRot;
-    // 'EvalCurvStructNoCtx:26' maskTot  = cfg.maskTot;
-    // 'EvalCurvStructNoCtx:27' maskRot  = cfg.maskRot;
-    // 'EvalCurvStructNoCtx:28' maskCart = cfg.maskCart;
-    // 'EvalCurvStructNoCtx:30' switch Type
+    // 'EvalCurvStructNoCtx:37' indC     = cfg.indCart;
+    // 'EvalCurvStructNoCtx:38' indR     = cfg.indRot;
+    // 'EvalCurvStructNoCtx:39' maskTot  = cfg.maskTot;
+    // 'EvalCurvStructNoCtx:40' maskRot  = cfg.maskRot;
+    // 'EvalCurvStructNoCtx:41' maskCart = cfg.maskCart;
+    // 'EvalCurvStructNoCtx:43' switch Type
     switch (curv->Info.Type) {
     case CurveType_Line:
-        // 'EvalCurvStructNoCtx:31' case CurveType.Line
+        // 'EvalCurvStructNoCtx:44' case CurveType.Line
         //  Line (G01)
-        // 'EvalCurvStructNoCtx:32' [r0D, r1D, r2D, r3D] = EvalLine( curv, u_vec_tilda, maskTot );
+        // 'EvalCurvStructNoCtx:45' [r0D, r1D, r2D, r3D] = EvalLine( curv, u_vec_tilda, maskTot );
         r0D.reserve(6);
         r1D.reserve(6);
         b_EvalLine(curv->R0, curv->R1, u_vec_tilda, cfg_maskTot_data, cfg_maskTot_size,
@@ -811,9 +893,9 @@ void c_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
                    &(*(int(*)[1])r1D.size())[0], r2D, r3D);
         break;
     case CurveType_Helix: {
-        // 'EvalCurvStructNoCtx:33' case CurveType.Helix
+        // 'EvalCurvStructNoCtx:46' case CurveType.Helix
         //  Arc of circle / helix (G02, G03)
-        // 'EvalCurvStructNoCtx:34' if( cfg.NCart > 0 )
+        // 'EvalCurvStructNoCtx:47' if( cfg.NCart > 0 )
         if (cfg_NCart > 0) {
             double dv[3];
             double dv1[3];
@@ -822,12 +904,12 @@ void c_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
             int c_tmp_data[3];
             int c_loop_ub;
             int c_tmp_size;
-            int h_loop_ub;
-            int j_loop_ub;
-            int m_loop_ub;
+            int g_loop_ub;
+            int i_loop_ub;
+            int l_loop_ub;
             //  Cartesian axis
-            // 'EvalCurvStructNoCtx:35' [r0D( indC, : ), r1D( indC, : ), r2D( indC, : ), r3D( indC,
-            // : )] = ... 'EvalCurvStructNoCtx:36'                 EvalHelix( curv, u_vec_tilda,
+            // 'EvalCurvStructNoCtx:48' [r0D( indC, : ), r1D( indC, : ), r2D( indC, : ), r3D( indC,
+            // : )] = ... 'EvalCurvStructNoCtx:49'                 EvalHelix( curv, u_vec_tilda,
             // maskCart );
             b_EvalHelix(curv->R0, curv->CorrectedHelixCenter, curv->evec, curv->theta, curv->pitch,
                         u_vec_tilda, cfg_maskCart_data, cfg_maskCart_size, dv, dv1, dv2, dv3);
@@ -840,37 +922,37 @@ void c_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
                 r0D[c_tmp_data[i12]] = dv[i12];
             }
             c_tmp_size = cfg_indCart.size(0);
-            h_loop_ub = cfg_indCart.size(0);
-            for (int i15{0}; i15 < h_loop_ub; i15++) {
-                c_tmp_data[i15] = cfg_indCart[i15] - 1;
+            g_loop_ub = cfg_indCart.size(0);
+            for (int i14{0}; i14 < g_loop_ub; i14++) {
+                c_tmp_data[i14] = cfg_indCart[i14] - 1;
             }
-            for (int i16{0}; i16 < c_tmp_size; i16++) {
-                r1D[c_tmp_data[i16]] = dv1[i16];
-            }
-            c_tmp_size = cfg_indCart.size(0);
-            j_loop_ub = cfg_indCart.size(0);
-            for (int i18{0}; i18 < j_loop_ub; i18++) {
-                c_tmp_data[i18] = cfg_indCart[i18] - 1;
-            }
-            for (int i20{0}; i20 < c_tmp_size; i20++) {
-                r2D[c_tmp_data[i20]] = dv2[i20];
+            for (int i15{0}; i15 < c_tmp_size; i15++) {
+                r1D[c_tmp_data[i15]] = dv1[i15];
             }
             c_tmp_size = cfg_indCart.size(0);
-            m_loop_ub = cfg_indCart.size(0);
-            for (int i22{0}; i22 < m_loop_ub; i22++) {
-                c_tmp_data[i22] = cfg_indCart[i22] - 1;
+            i_loop_ub = cfg_indCart.size(0);
+            for (int i17{0}; i17 < i_loop_ub; i17++) {
+                c_tmp_data[i17] = cfg_indCart[i17] - 1;
             }
-            for (int i23{0}; i23 < c_tmp_size; i23++) {
-                r3D[c_tmp_data[i23]] = dv3[i23];
+            for (int i19{0}; i19 < c_tmp_size; i19++) {
+                r2D[c_tmp_data[i19]] = dv2[i19];
+            }
+            c_tmp_size = cfg_indCart.size(0);
+            l_loop_ub = cfg_indCart.size(0);
+            for (int i21{0}; i21 < l_loop_ub; i21++) {
+                c_tmp_data[i21] = cfg_indCart[i21] - 1;
+            }
+            for (int i22{0}; i22 < c_tmp_size; i22++) {
+                r3D[c_tmp_data[i22]] = dv3[i22];
             }
         }
-        // 'EvalCurvStructNoCtx:38' if( cfg.NRot > 0 )
+        // 'EvalCurvStructNoCtx:51' if( cfg.NRot > 0 )
         if (cfg_NRot > 0) {
             int d_loop_ub;
             int f_loop_ub;
             //  Rotative axis
-            // 'EvalCurvStructNoCtx:39' [r0D( indR, : ), r1D( indR, : ), r2D( indR, : ), r3D( indR,
-            // : )] = ... 'EvalCurvStructNoCtx:40'                 EvalLine( curv, u_vec_tilda,
+            // 'EvalCurvStructNoCtx:52' [r0D( indR, : ), r1D( indR, : ), r2D( indR, : ), r3D( indR,
+            // : )] = ... 'EvalCurvStructNoCtx:53'                 EvalLine( curv, u_vec_tilda,
             // maskRot );
             b_EvalLine(curv->R0, curv->R1, u_vec_tilda, cfg_maskRot_data, cfg_maskRot_size,
                        tmp_data, &tmp_size, b_tmp_data, &b_tmp_size, r, r1);
@@ -891,9 +973,9 @@ void c_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
         }
     } break;
     case CurveType_TransP5:
-        // 'EvalCurvStructNoCtx:42' case CurveType.TransP5
+        // 'EvalCurvStructNoCtx:55' case CurveType.TransP5
         //  Polynomial transition
-        // 'EvalCurvStructNoCtx:43' [r0D, r1D, r2D, r3D]    = EvalTransP5( curv, u_vec_tilda,
+        // 'EvalCurvStructNoCtx:56' [r0D, r1D, r2D, r3D]    = EvalTransP5( curv, u_vec_tilda,
         // maskTot );
         r0D.reserve(6);
         r1D.reserve(6);
@@ -908,63 +990,82 @@ void c_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
         (*(int(*)[1])r0D.size())[0] = i2;
         break;
     case CurveType_Spline: {
-        int g_loop_ub;
+        int h_loop_ub;
         int i24;
-        int i_loop_ub;
+        int j_loop_ub;
         int k_loop_ub;
-        int l_loop_ub;
-        // 'EvalCurvStructNoCtx:44' case CurveType.Spline
+        int m_loop_ub;
+        // 'EvalCurvStructNoCtx:57' case CurveType.Spline
         //  Spline
-        // 'EvalCurvStructNoCtx:45' [ r0D, r1D, r2D, r3D ]  = EvalBSpline( spline, u_vec_tilda );
+        // 'EvalCurvStructNoCtx:58' [ r0D, r1D, r2D, r3D ]  = EvalBSpline( spline, u_vec_tilda );
         //  EvalBSpline
         //
-        //  INPUT
+        //  Inputs :
         //  spline        : struct : Spline structure
         //  u_vec         :    1xn : Vector for evaluation of the curv
         //
-        //  OUTPUT
-        //  r0D           :   nDxn : The evaluated B spline at u\_vec points
-        //  r1D           :   nDxn : 1rst order parametric derivative for the B spline at u\_vec
-        //  points r2D           :   nDxn : 2nd order parametric derivative for the B spline at
-        //  u\_vec points r3D           :   nDxn : 3rd order parametric derivative for the B spline
-        //  at u\_vec points
-        // 'EvalBSpline:14' sp = spline.sp;
-        // 'EvalBSpline:15' N  = length( u_vec );
-        // 'EvalBSpline:16' M  = size( sp.coeff, 1 );
-        // 'EvalBSpline:18' r0D = zeros( M, N );
+        //  Outputs:
+        //  r0D           :   nDxn : The evaluated B spline at u_vec points
+        //  r1D           :   nDxn : 1rst order parametric derivative for the Bspline
+        //                    at u_vec points
+        //  r2D           :   nDxn : 2nd order parametric derivative for the Bspline
+        //                    at u_vec points
+        //  r3D           :   nDxn : 3rd order parametric derivative for the B spline
+        //                    at u_vec points
+        //
+        // 'EvalBSpline:19' sp  = spline.sp;
+        // 'EvalBSpline:20' N   = length( u_vec );
+        // 'EvalBSpline:21' M   = size( sp.coeff, 1 );
+        // 'EvalBSpline:22' r0D = zeros( M, N );
         r0D.set_size(spline->sp.coeff.size(0));
-        g_loop_ub = spline->sp.coeff.size(0);
-        for (int i14{0}; i14 < g_loop_ub; i14++) {
-            r0D[i14] = 0.0;
+        h_loop_ub = spline->sp.coeff.size(0);
+        for (int i16{0}; i16 < h_loop_ub; i16++) {
+            r0D[i16] = 0.0;
         }
-        // 'EvalBSpline:18' r1D = r0D;
+        // 'EvalBSpline:22' r1D = r0D;
         r1D.set_size(spline->sp.coeff.size(0));
-        i_loop_ub = spline->sp.coeff.size(0);
-        for (int i17{0}; i17 < i_loop_ub; i17++) {
-            r1D[i17] = 0.0;
+        j_loop_ub = spline->sp.coeff.size(0);
+        for (int i18{0}; i18 < j_loop_ub; i18++) {
+            r1D[i18] = 0.0;
         }
-        // 'EvalBSpline:18' r2D = r1D;
+        // 'EvalBSpline:22' r2D = r1D;
         r2D.set_size(spline->sp.coeff.size(0));
         k_loop_ub = spline->sp.coeff.size(0);
-        for (int i19{0}; i19 < k_loop_ub; i19++) {
-            r2D[i19] = 0.0;
+        for (int i20{0}; i20 < k_loop_ub; i20++) {
+            r2D[i20] = 0.0;
         }
-        // 'EvalBSpline:18' r3D = r2D;
+        // 'EvalBSpline:22' r3D = r2D;
         r3D.set_size(spline->sp.coeff.size(0));
-        l_loop_ub = spline->sp.coeff.size(0);
-        for (int i21{0}; i21 < l_loop_ub; i21++) {
-            r3D[i21] = 0.0;
+        m_loop_ub = spline->sp.coeff.size(0);
+        for (int i23{0}; i23 < m_loop_ub; i23++) {
+            r3D[i23] = 0.0;
         }
-        // 'EvalBSpline:20' for j = 1 : M
+        // 'EvalBSpline:24' for j = 1 : M
         i24 = spline->sp.coeff.size(0);
         for (int j{0}; j < i24; j++) {
             int n_loop_ub;
-            // 'EvalBSpline:21' [r0D( j , : ), r1D( j , : ), r2D( j , : ), r3D( j , : ) ] = ...
-            // 'EvalBSpline:22'                             bspline_eval_vec( sp.Bl, sp.coeff( j, :
-            // ), u_vec ); 'bspline_eval_vec:3' x       = zeros(size(u)); 'bspline_eval_vec:4' xd =
-            // zeros(size(u)); 'bspline_eval_vec:5' xdd     = zeros(size(u)); 'bspline_eval_vec:6'
-            // xddd    = zeros(size(u)); 'bspline_eval_vec:8' for k = 1:length(u)
-            // 'bspline_eval_vec:9' [xk, xdk, xddk, xdddk] = bspline_eval(Bl, coeffs, u(k));
+            // 'EvalBSpline:25' [r0D( j , : ), r1D( j , : ), r2D( j , : ), r3D( j , : ) ] = ...
+            // 'EvalBSpline:26'                         bspline_eval_vec( sp.Bl, sp.coeff( j, : ),
+            // u_vec );
+            //  bspline_eval_vec  : Eval Bspline bases for a given set of u value.
+            //
+            //  Inputs    :
+            //  Bl            : BSpline bases
+            //  coeffs        : BSpline coefficients
+            //  uVec          : U vector of points to evaluate
+            //
+            //  Outputs   :
+            //  x             : Evaluation of the BSpline
+            //  xd            : Evaluation of the first derivative of the BSpline
+            //  xdd           : Evaluation of the second derivative of the BSpline
+            //  xddd          : Evaluation of the third derivative of the BSpline
+            //
+            // 'bspline_eval_vec:15' x       = zeros(size(uVec));
+            // 'bspline_eval_vec:16' xd      = zeros(size(uVec));
+            // 'bspline_eval_vec:17' xdd     = zeros(size(uVec));
+            // 'bspline_eval_vec:18' xddd    = zeros(size(uVec));
+            // 'bspline_eval_vec:20' for k = 1:length(uVec)
+            // 'bspline_eval_vec:21' [xk, xdk, xddk, xdddk] = bspline_eval( Bl, coeffs, uVec( k ) );
             r0D[j] = u_vec_tilda;
             n_loop_ub = spline->sp.coeff.size(1);
             b_spline.set_size(1, spline->sp.coeff.size(1));
@@ -975,32 +1076,32 @@ void c_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
             r3D[j] = d2;
             r2D[j] = d1;
             r1D[j] = d;
-            // 'bspline_eval_vec:10' x(k)    = xk;
-            // 'bspline_eval_vec:11' xd(k)   = xdk;
-            // 'bspline_eval_vec:12' xdd(k)  = xddk;
-            // 'bspline_eval_vec:13' xddd(k) = xdddk;
+            // 'bspline_eval_vec:22' x(k)    = xk;
+            // 'bspline_eval_vec:23' xd(k)   = xdk;
+            // 'bspline_eval_vec:24' xdd(k)  = xddk;
+            // 'bspline_eval_vec:25' xddd(k) = xdddk;
         }
     } break;
     default:
-        // 'EvalCurvStructNoCtx:46' otherwise
-        // 'EvalCurvStructNoCtx:47' ocn_assert( false, "Unknown Curve Type for Eval...", mfilename
+        // 'EvalCurvStructNoCtx:59' otherwise
+        // 'EvalCurvStructNoCtx:60' ocn_assert( false, "Unknown Curve Type for Eval...", mfilename
         // );
-        ib_ocn_assert();
+        qb_ocn_assert();
         break;
     }
-    // 'EvalCurvStructNoCtx:50' if( 1 )
-    // 'EvalCurvStructNoCtx:51' r1D = a     .* r1D;
+    // 'EvalCurvStructNoCtx:63' if( 1 )
+    // 'EvalCurvStructNoCtx:64' r1D = a     .* r1D;
     loop_ub = r1D.size(0);
     for (int i1{0}; i1 < loop_ub; i1++) {
         r1D[i1] = curv->a_param * r1D[i1];
     }
-    // 'EvalCurvStructNoCtx:52' r2D = a^2   .* r2D;
+    // 'EvalCurvStructNoCtx:65' r2D = a^2   .* r2D;
     c = curv->a_param * curv->a_param;
     b_loop_ub = r2D.size(0);
     for (int i7{0}; i7 < b_loop_ub; i7++) {
         r2D[i7] = c * r2D[i7];
     }
-    // 'EvalCurvStructNoCtx:53' r3D = a^3   .* r3D;
+    // 'EvalCurvStructNoCtx:66' r3D = a^3   .* r3D;
     b_c = std::pow(curv->a_param, 3.0);
     e_loop_ub = r3D.size(0);
     for (int i11{0}; i11 < e_loop_ub; i11++) {
@@ -1010,6 +1111,21 @@ void c_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
 
 //
 // function [r0D, r1D, r2D, r3D] = EvalCurvStructNoCtx( cfg, curv, spline, u_vec )
+//
+// EvalCurvStructNoCtx : Eval curve structure and its derivatives on
+//  a set of u points without any need of the context structure.
+//
+//  Inputs :
+//  cfg       : The configuration structure of the computational chain
+//  curv      : The curve used in the evaluation
+//  spline    : The required spline for the evaluation
+//  u_vec     : U vectors
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
 //
 //
 // Arguments    : const bool cfg_maskTot_data[]
@@ -1060,23 +1176,23 @@ void d_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
     int i5;
     int loop_ub;
     int tmp_size;
-    // 'EvalCurvStructNoCtx:5' coder.inline("never");
-    // 'EvalCurvStructNoCtx:7' ocn_assert( ~any( u_vec > 1.0 ), "u_vec > 1", mfilename );
-    ocn_assert(true);
-    // 'EvalCurvStructNoCtx:8' ocn_assert( ~any( u_vec < 0.0 ), "u_vec < 0", mfilename );
-    b_ocn_assert(true);
+    // 'EvalCurvStructNoCtx:18' coder.inline("never");
+    // 'EvalCurvStructNoCtx:20' ocn_assert( ~any( u_vec > 1.0 ), "u_vec > 1", mfilename );
+    c_ocn_assert(true);
+    // 'EvalCurvStructNoCtx:21' ocn_assert( ~any( u_vec < 0.0 ), "u_vec < 0", mfilename );
+    d_ocn_assert(true);
     //
-    // 'EvalCurvStructNoCtx:11' Type    = curv.Info.Type;
+    // 'EvalCurvStructNoCtx:24' Type    = curv.Info.Type;
     //
-    // 'EvalCurvStructNoCtx:13' N       = numel( u_vec );
-    // 'EvalCurvStructNoCtx:14' M       = cfg.NumberAxis;
-    // 'EvalCurvStructNoCtx:16' r0D     = zeros( M, N );
+    // 'EvalCurvStructNoCtx:26' N       = numel( u_vec );
+    // 'EvalCurvStructNoCtx:27' M       = cfg.NumberAxis;
+    // 'EvalCurvStructNoCtx:29' r0D     = zeros( M, N );
     r0D.set_size(cfg_NumberAxis);
-    // 'EvalCurvStructNoCtx:17' r1D = r0D;
+    // 'EvalCurvStructNoCtx:30' r1D = r0D;
     r1D.set_size(cfg_NumberAxis);
-    // 'EvalCurvStructNoCtx:17' r2D = r0D;
+    // 'EvalCurvStructNoCtx:30' r2D = r0D;
     r2D.set_size(cfg_NumberAxis);
-    // 'EvalCurvStructNoCtx:17' r3D = r0D;
+    // 'EvalCurvStructNoCtx:30' r3D = r0D;
     r3D.set_size(cfg_NumberAxis);
     for (int i{0}; i < cfg_NumberAxis; i++) {
         r0D[i] = 0.0;
@@ -1084,20 +1200,20 @@ void d_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
         r2D[i] = 0.0;
         r3D[i] = 0.0;
     }
-    // 'EvalCurvStructNoCtx:19' a = curv.a_param;
-    // 'EvalCurvStructNoCtx:20' b = curv.b_param;
-    // 'EvalCurvStructNoCtx:22' u_vec_tilda = a * u_vec + b;
-    // 'EvalCurvStructNoCtx:24' indC     = cfg.indCart;
-    // 'EvalCurvStructNoCtx:25' indR     = cfg.indRot;
-    // 'EvalCurvStructNoCtx:26' maskTot  = cfg.maskTot;
-    // 'EvalCurvStructNoCtx:27' maskRot  = cfg.maskRot;
-    // 'EvalCurvStructNoCtx:28' maskCart = cfg.maskCart;
-    // 'EvalCurvStructNoCtx:30' switch Type
+    // 'EvalCurvStructNoCtx:32' a = curv.a_param;
+    // 'EvalCurvStructNoCtx:33' b = curv.b_param;
+    // 'EvalCurvStructNoCtx:35' u_vec_tilda = a * u_vec + b;
+    // 'EvalCurvStructNoCtx:37' indC     = cfg.indCart;
+    // 'EvalCurvStructNoCtx:38' indR     = cfg.indRot;
+    // 'EvalCurvStructNoCtx:39' maskTot  = cfg.maskTot;
+    // 'EvalCurvStructNoCtx:40' maskRot  = cfg.maskRot;
+    // 'EvalCurvStructNoCtx:41' maskCart = cfg.maskCart;
+    // 'EvalCurvStructNoCtx:43' switch Type
     switch (curv->Info.Type) {
     case CurveType_Line:
-        // 'EvalCurvStructNoCtx:31' case CurveType.Line
+        // 'EvalCurvStructNoCtx:44' case CurveType.Line
         //  Line (G01)
-        // 'EvalCurvStructNoCtx:32' [r0D, r1D, r2D, r3D] = EvalLine( curv, u_vec_tilda, maskTot );
+        // 'EvalCurvStructNoCtx:45' [r0D, r1D, r2D, r3D] = EvalLine( curv, u_vec_tilda, maskTot );
         r0D.reserve(6);
         r1D.reserve(6);
         b_EvalLine(curv->R0, curv->R1, curv->b_param, cfg_maskTot_data, cfg_maskTot_size,
@@ -1105,9 +1221,9 @@ void d_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
                    &(*(int(*)[1])r1D.size())[0], r2D, r3D);
         break;
     case CurveType_Helix: {
-        // 'EvalCurvStructNoCtx:33' case CurveType.Helix
+        // 'EvalCurvStructNoCtx:46' case CurveType.Helix
         //  Arc of circle / helix (G02, G03)
-        // 'EvalCurvStructNoCtx:34' if( cfg.NCart > 0 )
+        // 'EvalCurvStructNoCtx:47' if( cfg.NCart > 0 )
         if (cfg_NCart > 0) {
             double dv[3];
             double dv1[3];
@@ -1116,12 +1232,12 @@ void d_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
             int c_tmp_data[3];
             int c_loop_ub;
             int c_tmp_size;
-            int h_loop_ub;
-            int j_loop_ub;
-            int m_loop_ub;
+            int g_loop_ub;
+            int i_loop_ub;
+            int l_loop_ub;
             //  Cartesian axis
-            // 'EvalCurvStructNoCtx:35' [r0D( indC, : ), r1D( indC, : ), r2D( indC, : ), r3D( indC,
-            // : )] = ... 'EvalCurvStructNoCtx:36'                 EvalHelix( curv, u_vec_tilda,
+            // 'EvalCurvStructNoCtx:48' [r0D( indC, : ), r1D( indC, : ), r2D( indC, : ), r3D( indC,
+            // : )] = ... 'EvalCurvStructNoCtx:49'                 EvalHelix( curv, u_vec_tilda,
             // maskCart );
             b_EvalHelix(curv->R0, curv->CorrectedHelixCenter, curv->evec, curv->theta, curv->pitch,
                         curv->b_param, cfg_maskCart_data, cfg_maskCart_size, dv, dv1, dv2, dv3);
@@ -1134,37 +1250,37 @@ void d_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
                 r0D[c_tmp_data[i12]] = dv[i12];
             }
             c_tmp_size = cfg_indCart.size(0);
-            h_loop_ub = cfg_indCart.size(0);
-            for (int i15{0}; i15 < h_loop_ub; i15++) {
-                c_tmp_data[i15] = cfg_indCart[i15] - 1;
+            g_loop_ub = cfg_indCart.size(0);
+            for (int i14{0}; i14 < g_loop_ub; i14++) {
+                c_tmp_data[i14] = cfg_indCart[i14] - 1;
             }
-            for (int i16{0}; i16 < c_tmp_size; i16++) {
-                r1D[c_tmp_data[i16]] = dv1[i16];
-            }
-            c_tmp_size = cfg_indCart.size(0);
-            j_loop_ub = cfg_indCart.size(0);
-            for (int i18{0}; i18 < j_loop_ub; i18++) {
-                c_tmp_data[i18] = cfg_indCart[i18] - 1;
-            }
-            for (int i20{0}; i20 < c_tmp_size; i20++) {
-                r2D[c_tmp_data[i20]] = dv2[i20];
+            for (int i15{0}; i15 < c_tmp_size; i15++) {
+                r1D[c_tmp_data[i15]] = dv1[i15];
             }
             c_tmp_size = cfg_indCart.size(0);
-            m_loop_ub = cfg_indCart.size(0);
-            for (int i22{0}; i22 < m_loop_ub; i22++) {
-                c_tmp_data[i22] = cfg_indCart[i22] - 1;
+            i_loop_ub = cfg_indCart.size(0);
+            for (int i17{0}; i17 < i_loop_ub; i17++) {
+                c_tmp_data[i17] = cfg_indCart[i17] - 1;
             }
-            for (int i23{0}; i23 < c_tmp_size; i23++) {
-                r3D[c_tmp_data[i23]] = dv3[i23];
+            for (int i19{0}; i19 < c_tmp_size; i19++) {
+                r2D[c_tmp_data[i19]] = dv2[i19];
+            }
+            c_tmp_size = cfg_indCart.size(0);
+            l_loop_ub = cfg_indCart.size(0);
+            for (int i21{0}; i21 < l_loop_ub; i21++) {
+                c_tmp_data[i21] = cfg_indCart[i21] - 1;
+            }
+            for (int i22{0}; i22 < c_tmp_size; i22++) {
+                r3D[c_tmp_data[i22]] = dv3[i22];
             }
         }
-        // 'EvalCurvStructNoCtx:38' if( cfg.NRot > 0 )
+        // 'EvalCurvStructNoCtx:51' if( cfg.NRot > 0 )
         if (cfg_NRot > 0) {
             int d_loop_ub;
             int f_loop_ub;
             //  Rotative axis
-            // 'EvalCurvStructNoCtx:39' [r0D( indR, : ), r1D( indR, : ), r2D( indR, : ), r3D( indR,
-            // : )] = ... 'EvalCurvStructNoCtx:40'                 EvalLine( curv, u_vec_tilda,
+            // 'EvalCurvStructNoCtx:52' [r0D( indR, : ), r1D( indR, : ), r2D( indR, : ), r3D( indR,
+            // : )] = ... 'EvalCurvStructNoCtx:53'                 EvalLine( curv, u_vec_tilda,
             // maskRot );
             b_EvalLine(curv->R0, curv->R1, curv->b_param, cfg_maskRot_data, cfg_maskRot_size,
                        tmp_data, &tmp_size, b_tmp_data, &b_tmp_size, r, r1);
@@ -1185,9 +1301,9 @@ void d_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
         }
     } break;
     case CurveType_TransP5:
-        // 'EvalCurvStructNoCtx:42' case CurveType.TransP5
+        // 'EvalCurvStructNoCtx:55' case CurveType.TransP5
         //  Polynomial transition
-        // 'EvalCurvStructNoCtx:43' [r0D, r1D, r2D, r3D]    = EvalTransP5( curv, u_vec_tilda,
+        // 'EvalCurvStructNoCtx:56' [r0D, r1D, r2D, r3D]    = EvalTransP5( curv, u_vec_tilda,
         // maskTot );
         r0D.reserve(6);
         r1D.reserve(6);
@@ -1202,63 +1318,82 @@ void d_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
         (*(int(*)[1])r0D.size())[0] = i2;
         break;
     case CurveType_Spline: {
-        int g_loop_ub;
+        int h_loop_ub;
         int i24;
-        int i_loop_ub;
+        int j_loop_ub;
         int k_loop_ub;
-        int l_loop_ub;
-        // 'EvalCurvStructNoCtx:44' case CurveType.Spline
+        int m_loop_ub;
+        // 'EvalCurvStructNoCtx:57' case CurveType.Spline
         //  Spline
-        // 'EvalCurvStructNoCtx:45' [ r0D, r1D, r2D, r3D ]  = EvalBSpline( spline, u_vec_tilda );
+        // 'EvalCurvStructNoCtx:58' [ r0D, r1D, r2D, r3D ]  = EvalBSpline( spline, u_vec_tilda );
         //  EvalBSpline
         //
-        //  INPUT
+        //  Inputs :
         //  spline        : struct : Spline structure
         //  u_vec         :    1xn : Vector for evaluation of the curv
         //
-        //  OUTPUT
-        //  r0D           :   nDxn : The evaluated B spline at u\_vec points
-        //  r1D           :   nDxn : 1rst order parametric derivative for the B spline at u\_vec
-        //  points r2D           :   nDxn : 2nd order parametric derivative for the B spline at
-        //  u\_vec points r3D           :   nDxn : 3rd order parametric derivative for the B spline
-        //  at u\_vec points
-        // 'EvalBSpline:14' sp = spline.sp;
-        // 'EvalBSpline:15' N  = length( u_vec );
-        // 'EvalBSpline:16' M  = size( sp.coeff, 1 );
-        // 'EvalBSpline:18' r0D = zeros( M, N );
+        //  Outputs:
+        //  r0D           :   nDxn : The evaluated B spline at u_vec points
+        //  r1D           :   nDxn : 1rst order parametric derivative for the Bspline
+        //                    at u_vec points
+        //  r2D           :   nDxn : 2nd order parametric derivative for the Bspline
+        //                    at u_vec points
+        //  r3D           :   nDxn : 3rd order parametric derivative for the B spline
+        //                    at u_vec points
+        //
+        // 'EvalBSpline:19' sp  = spline.sp;
+        // 'EvalBSpline:20' N   = length( u_vec );
+        // 'EvalBSpline:21' M   = size( sp.coeff, 1 );
+        // 'EvalBSpline:22' r0D = zeros( M, N );
         r0D.set_size(spline->sp.coeff.size(0));
-        g_loop_ub = spline->sp.coeff.size(0);
-        for (int i14{0}; i14 < g_loop_ub; i14++) {
-            r0D[i14] = 0.0;
+        h_loop_ub = spline->sp.coeff.size(0);
+        for (int i16{0}; i16 < h_loop_ub; i16++) {
+            r0D[i16] = 0.0;
         }
-        // 'EvalBSpline:18' r1D = r0D;
+        // 'EvalBSpline:22' r1D = r0D;
         r1D.set_size(spline->sp.coeff.size(0));
-        i_loop_ub = spline->sp.coeff.size(0);
-        for (int i17{0}; i17 < i_loop_ub; i17++) {
-            r1D[i17] = 0.0;
+        j_loop_ub = spline->sp.coeff.size(0);
+        for (int i18{0}; i18 < j_loop_ub; i18++) {
+            r1D[i18] = 0.0;
         }
-        // 'EvalBSpline:18' r2D = r1D;
+        // 'EvalBSpline:22' r2D = r1D;
         r2D.set_size(spline->sp.coeff.size(0));
         k_loop_ub = spline->sp.coeff.size(0);
-        for (int i19{0}; i19 < k_loop_ub; i19++) {
-            r2D[i19] = 0.0;
+        for (int i20{0}; i20 < k_loop_ub; i20++) {
+            r2D[i20] = 0.0;
         }
-        // 'EvalBSpline:18' r3D = r2D;
+        // 'EvalBSpline:22' r3D = r2D;
         r3D.set_size(spline->sp.coeff.size(0));
-        l_loop_ub = spline->sp.coeff.size(0);
-        for (int i21{0}; i21 < l_loop_ub; i21++) {
-            r3D[i21] = 0.0;
+        m_loop_ub = spline->sp.coeff.size(0);
+        for (int i23{0}; i23 < m_loop_ub; i23++) {
+            r3D[i23] = 0.0;
         }
-        // 'EvalBSpline:20' for j = 1 : M
+        // 'EvalBSpline:24' for j = 1 : M
         i24 = spline->sp.coeff.size(0);
         for (int j{0}; j < i24; j++) {
             int n_loop_ub;
-            // 'EvalBSpline:21' [r0D( j , : ), r1D( j , : ), r2D( j , : ), r3D( j , : ) ] = ...
-            // 'EvalBSpline:22'                             bspline_eval_vec( sp.Bl, sp.coeff( j, :
-            // ), u_vec ); 'bspline_eval_vec:3' x       = zeros(size(u)); 'bspline_eval_vec:4' xd =
-            // zeros(size(u)); 'bspline_eval_vec:5' xdd     = zeros(size(u)); 'bspline_eval_vec:6'
-            // xddd    = zeros(size(u)); 'bspline_eval_vec:8' for k = 1:length(u)
-            // 'bspline_eval_vec:9' [xk, xdk, xddk, xdddk] = bspline_eval(Bl, coeffs, u(k));
+            // 'EvalBSpline:25' [r0D( j , : ), r1D( j , : ), r2D( j , : ), r3D( j , : ) ] = ...
+            // 'EvalBSpline:26'                         bspline_eval_vec( sp.Bl, sp.coeff( j, : ),
+            // u_vec );
+            //  bspline_eval_vec  : Eval Bspline bases for a given set of u value.
+            //
+            //  Inputs    :
+            //  Bl            : BSpline bases
+            //  coeffs        : BSpline coefficients
+            //  uVec          : U vector of points to evaluate
+            //
+            //  Outputs   :
+            //  x             : Evaluation of the BSpline
+            //  xd            : Evaluation of the first derivative of the BSpline
+            //  xdd           : Evaluation of the second derivative of the BSpline
+            //  xddd          : Evaluation of the third derivative of the BSpline
+            //
+            // 'bspline_eval_vec:15' x       = zeros(size(uVec));
+            // 'bspline_eval_vec:16' xd      = zeros(size(uVec));
+            // 'bspline_eval_vec:17' xdd     = zeros(size(uVec));
+            // 'bspline_eval_vec:18' xddd    = zeros(size(uVec));
+            // 'bspline_eval_vec:20' for k = 1:length(uVec)
+            // 'bspline_eval_vec:21' [xk, xdk, xddk, xdddk] = bspline_eval( Bl, coeffs, uVec( k ) );
             r0D[j] = curv->b_param;
             n_loop_ub = spline->sp.coeff.size(1);
             b_spline.set_size(1, spline->sp.coeff.size(1));
@@ -1269,32 +1404,32 @@ void d_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
             r3D[j] = d2;
             r2D[j] = d1;
             r1D[j] = d;
-            // 'bspline_eval_vec:10' x(k)    = xk;
-            // 'bspline_eval_vec:11' xd(k)   = xdk;
-            // 'bspline_eval_vec:12' xdd(k)  = xddk;
-            // 'bspline_eval_vec:13' xddd(k) = xdddk;
+            // 'bspline_eval_vec:22' x(k)    = xk;
+            // 'bspline_eval_vec:23' xd(k)   = xdk;
+            // 'bspline_eval_vec:24' xdd(k)  = xddk;
+            // 'bspline_eval_vec:25' xddd(k) = xdddk;
         }
     } break;
     default:
-        // 'EvalCurvStructNoCtx:46' otherwise
-        // 'EvalCurvStructNoCtx:47' ocn_assert( false, "Unknown Curve Type for Eval...", mfilename
+        // 'EvalCurvStructNoCtx:59' otherwise
+        // 'EvalCurvStructNoCtx:60' ocn_assert( false, "Unknown Curve Type for Eval...", mfilename
         // );
-        ib_ocn_assert();
+        qb_ocn_assert();
         break;
     }
-    // 'EvalCurvStructNoCtx:50' if( 1 )
-    // 'EvalCurvStructNoCtx:51' r1D = a     .* r1D;
+    // 'EvalCurvStructNoCtx:63' if( 1 )
+    // 'EvalCurvStructNoCtx:64' r1D = a     .* r1D;
     loop_ub = r1D.size(0);
     for (int i1{0}; i1 < loop_ub; i1++) {
         r1D[i1] = curv->a_param * r1D[i1];
     }
-    // 'EvalCurvStructNoCtx:52' r2D = a^2   .* r2D;
+    // 'EvalCurvStructNoCtx:65' r2D = a^2   .* r2D;
     c = curv->a_param * curv->a_param;
     b_loop_ub = r2D.size(0);
     for (int i7{0}; i7 < b_loop_ub; i7++) {
         r2D[i7] = c * r2D[i7];
     }
-    // 'EvalCurvStructNoCtx:53' r3D = a^3   .* r3D;
+    // 'EvalCurvStructNoCtx:66' r3D = a^3   .* r3D;
     b_c = std::pow(curv->a_param, 3.0);
     e_loop_ub = r3D.size(0);
     for (int i11{0}; i11 < e_loop_ub; i11++) {
@@ -1304,6 +1439,21 @@ void d_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
 
 //
 // function [r0D, r1D, r2D, r3D] = EvalCurvStructNoCtx( cfg, curv, spline, u_vec )
+//
+// EvalCurvStructNoCtx : Eval curve structure and its derivatives on
+//  a set of u points without any need of the context structure.
+//
+//  Inputs :
+//  cfg       : The configuration structure of the computational chain
+//  curv      : The curve used in the evaluation
+//  spline    : The required spline for the evaluation
+//  u_vec     : U vectors
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
 //
 //
 // Arguments    : const bool cfg_maskTot_data[]
@@ -1371,8 +1521,8 @@ void e_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
     bool b_y;
     bool exitg1;
     bool y;
-    // 'EvalCurvStructNoCtx:5' coder.inline("never");
-    // 'EvalCurvStructNoCtx:7' ocn_assert( ~any( u_vec > 1.0 ), "u_vec > 1", mfilename );
+    // 'EvalCurvStructNoCtx:18' coder.inline("never");
+    // 'EvalCurvStructNoCtx:20' ocn_assert( ~any( u_vec > 1.0 ), "u_vec > 1", mfilename );
     x.set_size(1, u_vec.size(1));
     loop_ub = u_vec.size(1);
     for (int i{0}; i < loop_ub; i++) {
@@ -1389,8 +1539,8 @@ void e_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
             k++;
         }
     }
-    ocn_assert(!y);
-    // 'EvalCurvStructNoCtx:8' ocn_assert( ~any( u_vec < 0.0 ), "u_vec < 0", mfilename );
+    c_ocn_assert(!y);
+    // 'EvalCurvStructNoCtx:21' ocn_assert( ~any( u_vec < 0.0 ), "u_vec < 0", mfilename );
     x.set_size(1, u_vec.size(1));
     b_loop_ub = u_vec.size(1);
     for (int i1{0}; i1 < b_loop_ub; i1++) {
@@ -1407,13 +1557,13 @@ void e_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
             b_k++;
         }
     }
-    b_ocn_assert(!b_y);
+    d_ocn_assert(!b_y);
     //
-    // 'EvalCurvStructNoCtx:11' Type    = curv.Info.Type;
+    // 'EvalCurvStructNoCtx:24' Type    = curv.Info.Type;
     //
-    // 'EvalCurvStructNoCtx:13' N       = numel( u_vec );
-    // 'EvalCurvStructNoCtx:14' M       = cfg.NumberAxis;
-    // 'EvalCurvStructNoCtx:16' r0D     = zeros( M, N );
+    // 'EvalCurvStructNoCtx:26' N       = numel( u_vec );
+    // 'EvalCurvStructNoCtx:27' M       = cfg.NumberAxis;
+    // 'EvalCurvStructNoCtx:29' r0D     = zeros( M, N );
     r0D.set_size(cfg_NumberAxis, u_vec.size(1));
     c_loop_ub = u_vec.size(1);
     for (int i2{0}; i2 < c_loop_ub; i2++) {
@@ -1421,7 +1571,7 @@ void e_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
             r0D[i3 + r0D.size(0) * i2] = 0.0;
         }
     }
-    // 'EvalCurvStructNoCtx:17' r1D = r0D;
+    // 'EvalCurvStructNoCtx:30' r1D = r0D;
     r1D.set_size(cfg_NumberAxis, u_vec.size(1));
     d_loop_ub = u_vec.size(1);
     for (int i4{0}; i4 < d_loop_ub; i4++) {
@@ -1429,7 +1579,7 @@ void e_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
             r1D[i5 + r1D.size(0) * i4] = 0.0;
         }
     }
-    // 'EvalCurvStructNoCtx:17' r2D = r0D;
+    // 'EvalCurvStructNoCtx:30' r2D = r0D;
     r2D.set_size(cfg_NumberAxis, u_vec.size(1));
     e_loop_ub = u_vec.size(1);
     for (int i6{0}; i6 < e_loop_ub; i6++) {
@@ -1437,7 +1587,7 @@ void e_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
             r2D[i7 + r2D.size(0) * i6] = 0.0;
         }
     }
-    // 'EvalCurvStructNoCtx:17' r3D = r0D;
+    // 'EvalCurvStructNoCtx:30' r3D = r0D;
     r3D.set_size(cfg_NumberAxis, u_vec.size(1));
     f_loop_ub = u_vec.size(1);
     for (int i8{0}; i8 < f_loop_ub; i8++) {
@@ -1445,40 +1595,40 @@ void e_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
             r3D[i9 + r3D.size(0) * i8] = 0.0;
         }
     }
-    // 'EvalCurvStructNoCtx:19' a = curv.a_param;
-    // 'EvalCurvStructNoCtx:20' b = curv.b_param;
-    // 'EvalCurvStructNoCtx:22' u_vec_tilda = a * u_vec + b;
+    // 'EvalCurvStructNoCtx:32' a = curv.a_param;
+    // 'EvalCurvStructNoCtx:33' b = curv.b_param;
+    // 'EvalCurvStructNoCtx:35' u_vec_tilda = a * u_vec + b;
     u_vec_tilda.set_size(1, u_vec.size(1));
     g_loop_ub = u_vec.size(1);
     for (int i10{0}; i10 < g_loop_ub; i10++) {
         u_vec_tilda[i10] = curv->a_param * u_vec[i10] + curv->b_param;
     }
-    // 'EvalCurvStructNoCtx:24' indC     = cfg.indCart;
-    // 'EvalCurvStructNoCtx:25' indR     = cfg.indRot;
-    // 'EvalCurvStructNoCtx:26' maskTot  = cfg.maskTot;
-    // 'EvalCurvStructNoCtx:27' maskRot  = cfg.maskRot;
-    // 'EvalCurvStructNoCtx:28' maskCart = cfg.maskCart;
-    // 'EvalCurvStructNoCtx:30' switch Type
+    // 'EvalCurvStructNoCtx:37' indC     = cfg.indCart;
+    // 'EvalCurvStructNoCtx:38' indR     = cfg.indRot;
+    // 'EvalCurvStructNoCtx:39' maskTot  = cfg.maskTot;
+    // 'EvalCurvStructNoCtx:40' maskRot  = cfg.maskRot;
+    // 'EvalCurvStructNoCtx:41' maskCart = cfg.maskCart;
+    // 'EvalCurvStructNoCtx:43' switch Type
     switch (curv->Info.Type) {
     case CurveType_Line:
-        // 'EvalCurvStructNoCtx:31' case CurveType.Line
+        // 'EvalCurvStructNoCtx:44' case CurveType.Line
         //  Line (G01)
-        // 'EvalCurvStructNoCtx:32' [r0D, r1D, r2D, r3D] = EvalLine( curv, u_vec_tilda, maskTot );
+        // 'EvalCurvStructNoCtx:45' [r0D, r1D, r2D, r3D] = EvalLine( curv, u_vec_tilda, maskTot );
         c_EvalLine(curv->R0, curv->R1, u_vec_tilda, cfg_maskTot_data, cfg_maskTot_size, r0D, r1D,
                    r2D, r3D);
         break;
     case CurveType_Helix: {
-        // 'EvalCurvStructNoCtx:33' case CurveType.Helix
+        // 'EvalCurvStructNoCtx:46' case CurveType.Helix
         //  Arc of circle / helix (G02, G03)
-        // 'EvalCurvStructNoCtx:34' if( cfg.NCart > 0 )
+        // 'EvalCurvStructNoCtx:47' if( cfg.NCart > 0 )
         if (cfg_NCart > 0) {
             int i_loop_ub;
             int m_loop_ub;
             int q_loop_ub;
             int u_loop_ub;
             //  Cartesian axis
-            // 'EvalCurvStructNoCtx:35' [r0D( indC, : ), r1D( indC, : ), r2D( indC, : ), r3D( indC,
-            // : )] = ... 'EvalCurvStructNoCtx:36'                 EvalHelix( curv, u_vec_tilda,
+            // 'EvalCurvStructNoCtx:48' [r0D( indC, : ), r1D( indC, : ), r2D( indC, : ), r3D( indC,
+            // : )] = ... 'EvalCurvStructNoCtx:49'                 EvalHelix( curv, u_vec_tilda,
             // maskCart );
             c_EvalHelix(curv->R0, curv->CorrectedHelixCenter, curv->evec, curv->theta, curv->pitch,
                         u_vec_tilda, cfg_maskCart_data, cfg_maskCart_size, r, r1, r2, r3);
@@ -1507,15 +1657,15 @@ void e_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
                 r3D[(cfg_indCart[2] + r3D.size(0) * i24) - 1] = r3[3 * i24 + 2];
             }
         }
-        // 'EvalCurvStructNoCtx:38' if( cfg.NRot > 0 )
+        // 'EvalCurvStructNoCtx:51' if( cfg.NRot > 0 )
         if (cfg_NRot > 0) {
             int l_loop_ub;
             int o_loop_ub;
             int s_loop_ub;
             int w_loop_ub;
             //  Rotative axis
-            // 'EvalCurvStructNoCtx:39' [r0D( indR, : ), r1D( indR, : ), r2D( indR, : ), r3D( indR,
-            // : )] = ... 'EvalCurvStructNoCtx:40'                 EvalLine( curv, u_vec_tilda,
+            // 'EvalCurvStructNoCtx:52' [r0D( indR, : ), r1D( indR, : ), r2D( indR, : ), r3D( indR,
+            // : )] = ... 'EvalCurvStructNoCtx:53'                 EvalLine( curv, u_vec_tilda,
             // maskRot );
             c_EvalLine(curv->R0, curv->R1, u_vec_tilda, cfg_maskRot_data, cfg_maskRot_size, r4, r5,
                        r6, r7);
@@ -1545,57 +1695,60 @@ void e_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
             }
             w_loop_ub = r7.size(1);
             for (int i26{0}; i26 < w_loop_ub; i26++) {
-                int ab_loop_ub;
-                ab_loop_ub = r7.size(0);
-                for (int i29{0}; i29 < ab_loop_ub; i29++) {
-                    r3D[(cfg_indRot[i29] + r3D.size(0) * i26) - 1] = r7[i29 + r7.size(0) * i26];
+                int y_loop_ub;
+                y_loop_ub = r7.size(0);
+                for (int i28{0}; i28 < y_loop_ub; i28++) {
+                    r3D[(cfg_indRot[i28] + r3D.size(0) * i26) - 1] = r7[i28 + r7.size(0) * i26];
                 }
             }
         }
     } break;
     case CurveType_TransP5:
-        // 'EvalCurvStructNoCtx:42' case CurveType.TransP5
+        // 'EvalCurvStructNoCtx:55' case CurveType.TransP5
         //  Polynomial transition
-        // 'EvalCurvStructNoCtx:43' [r0D, r1D, r2D, r3D]    = EvalTransP5( curv, u_vec_tilda,
+        // 'EvalCurvStructNoCtx:56' [r0D, r1D, r2D, r3D]    = EvalTransP5( curv, u_vec_tilda,
         // maskTot );
         c_EvalTransP5(curv->CoeffP5, u_vec_tilda, cfg_maskTot_data, cfg_maskTot_size, r0D, r1D, r2D,
                       r3D);
         break;
     case CurveType_Spline: {
+        int ab_loop_ub;
         int bb_loop_ub;
         int cb_loop_ub;
         int i35;
         int unnamed_idx_0;
-        int y_loop_ub;
-        // 'EvalCurvStructNoCtx:44' case CurveType.Spline
+        // 'EvalCurvStructNoCtx:57' case CurveType.Spline
         //  Spline
-        // 'EvalCurvStructNoCtx:45' [ r0D, r1D, r2D, r3D ]  = EvalBSpline( spline, u_vec_tilda );
+        // 'EvalCurvStructNoCtx:58' [ r0D, r1D, r2D, r3D ]  = EvalBSpline( spline, u_vec_tilda );
         //  EvalBSpline
         //
-        //  INPUT
+        //  Inputs :
         //  spline        : struct : Spline structure
         //  u_vec         :    1xn : Vector for evaluation of the curv
         //
-        //  OUTPUT
-        //  r0D           :   nDxn : The evaluated B spline at u\_vec points
-        //  r1D           :   nDxn : 1rst order parametric derivative for the B spline at u\_vec
-        //  points r2D           :   nDxn : 2nd order parametric derivative for the B spline at
-        //  u\_vec points r3D           :   nDxn : 3rd order parametric derivative for the B spline
-        //  at u\_vec points
-        // 'EvalBSpline:14' sp = spline.sp;
-        // 'EvalBSpline:15' N  = length( u_vec );
-        // 'EvalBSpline:16' M  = size( sp.coeff, 1 );
-        // 'EvalBSpline:18' r0D = zeros( M, N );
+        //  Outputs:
+        //  r0D           :   nDxn : The evaluated B spline at u_vec points
+        //  r1D           :   nDxn : 1rst order parametric derivative for the Bspline
+        //                    at u_vec points
+        //  r2D           :   nDxn : 2nd order parametric derivative for the Bspline
+        //                    at u_vec points
+        //  r3D           :   nDxn : 3rd order parametric derivative for the B spline
+        //                    at u_vec points
+        //
+        // 'EvalBSpline:19' sp  = spline.sp;
+        // 'EvalBSpline:20' N   = length( u_vec );
+        // 'EvalBSpline:21' M   = size( sp.coeff, 1 );
+        // 'EvalBSpline:22' r0D = zeros( M, N );
         unnamed_idx_0 = spline->sp.coeff.size(0);
-        // 'EvalBSpline:18' r1D = r0D;
+        // 'EvalBSpline:22' r1D = r0D;
         r1D.set_size(spline->sp.coeff.size(0), u_vec_tilda.size(1));
-        y_loop_ub = u_vec_tilda.size(1);
-        for (int i28{0}; i28 < y_loop_ub; i28++) {
+        ab_loop_ub = u_vec_tilda.size(1);
+        for (int i29{0}; i29 < ab_loop_ub; i29++) {
             for (int i30{0}; i30 < unnamed_idx_0; i30++) {
-                r1D[i30 + r1D.size(0) * i28] = 0.0;
+                r1D[i30 + r1D.size(0) * i29] = 0.0;
             }
         }
-        // 'EvalBSpline:18' r2D = r1D;
+        // 'EvalBSpline:22' r2D = r1D;
         r2D.set_size(spline->sp.coeff.size(0), u_vec_tilda.size(1));
         bb_loop_ub = u_vec_tilda.size(1);
         for (int i31{0}; i31 < bb_loop_ub; i31++) {
@@ -1603,7 +1756,7 @@ void e_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
                 r2D[i32 + r2D.size(0) * i31] = 0.0;
             }
         }
-        // 'EvalBSpline:18' r3D = r2D;
+        // 'EvalBSpline:22' r3D = r2D;
         r3D.set_size(spline->sp.coeff.size(0), u_vec_tilda.size(1));
         cb_loop_ub = u_vec_tilda.size(1);
         for (int i33{0}; i33 < cb_loop_ub; i33++) {
@@ -1611,7 +1764,7 @@ void e_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
                 r3D[i34 + r3D.size(0) * i33] = 0.0;
             }
         }
-        // 'EvalBSpline:20' for j = 1 : M
+        // 'EvalBSpline:24' for j = 1 : M
         i35 = spline->sp.coeff.size(0);
         r0D.set_size(spline->sp.coeff.size(0), u_vec_tilda.size(1));
         for (int j{0}; j < i35; j++) {
@@ -1624,37 +1777,52 @@ void e_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
             int jb_loop_ub;
             int kb_loop_ub;
             int lb_loop_ub;
-            // 'EvalBSpline:21' [r0D( j , : ), r1D( j , : ), r2D( j , : ), r3D( j , : ) ] = ...
-            // 'EvalBSpline:22'                             bspline_eval_vec( sp.Bl, sp.coeff( j, :
-            // ), u_vec ); 'bspline_eval_vec:3' x       = zeros(size(u));
+            // 'EvalBSpline:25' [r0D( j , : ), r1D( j , : ), r2D( j , : ), r3D( j , : ) ] = ...
+            // 'EvalBSpline:26'                         bspline_eval_vec( sp.Bl, sp.coeff( j, : ),
+            // u_vec );
+            //  bspline_eval_vec  : Eval Bspline bases for a given set of u value.
+            //
+            //  Inputs    :
+            //  Bl            : BSpline bases
+            //  coeffs        : BSpline coefficients
+            //  uVec          : U vector of points to evaluate
+            //
+            //  Outputs   :
+            //  x             : Evaluation of the BSpline
+            //  xd            : Evaluation of the first derivative of the BSpline
+            //  xdd           : Evaluation of the second derivative of the BSpline
+            //  xddd          : Evaluation of the third derivative of the BSpline
+            //
+            // 'bspline_eval_vec:15' x       = zeros(size(uVec));
             r8.set_size(1, u_vec_tilda.size(1));
             db_loop_ub = u_vec_tilda.size(1);
             for (int i36{0}; i36 < db_loop_ub; i36++) {
                 r8[i36] = 0.0;
             }
-            // 'bspline_eval_vec:4' xd      = zeros(size(u));
+            // 'bspline_eval_vec:16' xd      = zeros(size(uVec));
             r9.set_size(1, u_vec_tilda.size(1));
             eb_loop_ub = u_vec_tilda.size(1);
             for (int i37{0}; i37 < eb_loop_ub; i37++) {
                 r9[i37] = 0.0;
             }
-            // 'bspline_eval_vec:5' xdd     = zeros(size(u));
+            // 'bspline_eval_vec:17' xdd     = zeros(size(uVec));
             r10.set_size(1, u_vec_tilda.size(1));
             fb_loop_ub = u_vec_tilda.size(1);
             for (int i38{0}; i38 < fb_loop_ub; i38++) {
                 r10[i38] = 0.0;
             }
-            // 'bspline_eval_vec:6' xddd    = zeros(size(u));
+            // 'bspline_eval_vec:18' xddd    = zeros(size(uVec));
             r11.set_size(1, u_vec_tilda.size(1));
             gb_loop_ub = u_vec_tilda.size(1);
             for (int i39{0}; i39 < gb_loop_ub; i39++) {
                 r11[i39] = 0.0;
             }
-            // 'bspline_eval_vec:8' for k = 1:length(u)
+            // 'bspline_eval_vec:20' for k = 1:length(uVec)
             i40 = u_vec_tilda.size(1);
             for (int c_k{0}; c_k < i40; c_k++) {
                 int ib_loop_ub;
-                // 'bspline_eval_vec:9' [xk, xdk, xddk, xdddk] = bspline_eval(Bl, coeffs, u(k));
+                // 'bspline_eval_vec:21' [xk, xdk, xddk, xdddk] = bspline_eval( Bl, coeffs, uVec( k
+                // ) );
                 r8[c_k] = u_vec_tilda[c_k];
                 ib_loop_ub = spline->sp.coeff.size(1);
                 b_spline.set_size(1, spline->sp.coeff.size(1));
@@ -1665,10 +1833,10 @@ void e_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
                 r11[c_k] = d2;
                 r10[c_k] = d1;
                 r9[c_k] = d;
-                // 'bspline_eval_vec:10' x(k)    = xk;
-                // 'bspline_eval_vec:11' xd(k)   = xdk;
-                // 'bspline_eval_vec:12' xdd(k)  = xddk;
-                // 'bspline_eval_vec:13' xddd(k) = xdddk;
+                // 'bspline_eval_vec:22' x(k)    = xk;
+                // 'bspline_eval_vec:23' xd(k)   = xdk;
+                // 'bspline_eval_vec:24' xdd(k)  = xddk;
+                // 'bspline_eval_vec:25' xddd(k) = xdddk;
             }
             hb_loop_ub = r8.size(1);
             for (int i41{0}; i41 < hb_loop_ub; i41++) {
@@ -1689,14 +1857,14 @@ void e_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
         }
     } break;
     default:
-        // 'EvalCurvStructNoCtx:46' otherwise
-        // 'EvalCurvStructNoCtx:47' ocn_assert( false, "Unknown Curve Type for Eval...", mfilename
+        // 'EvalCurvStructNoCtx:59' otherwise
+        // 'EvalCurvStructNoCtx:60' ocn_assert( false, "Unknown Curve Type for Eval...", mfilename
         // );
-        ib_ocn_assert();
+        qb_ocn_assert();
         break;
     }
-    // 'EvalCurvStructNoCtx:50' if( 1 )
-    // 'EvalCurvStructNoCtx:51' r1D = a     .* r1D;
+    // 'EvalCurvStructNoCtx:63' if( 1 )
+    // 'EvalCurvStructNoCtx:64' r1D = a     .* r1D;
     h_loop_ub = r1D.size(1);
     for (int i11{0}; i11 < h_loop_ub; i11++) {
         int j_loop_ub;
@@ -1705,7 +1873,7 @@ void e_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
             r1D[i13 + r1D.size(0) * i11] = curv->a_param * r1D[i13 + r1D.size(0) * i11];
         }
     }
-    // 'EvalCurvStructNoCtx:52' r2D = a^2   .* r2D;
+    // 'EvalCurvStructNoCtx:65' r2D = a^2   .* r2D;
     c = curv->a_param * curv->a_param;
     k_loop_ub = r2D.size(1);
     for (int i14{0}; i14 < k_loop_ub; i14++) {
@@ -1715,7 +1883,7 @@ void e_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
             r2D[i17 + r2D.size(0) * i14] = c * r2D[i17 + r2D.size(0) * i14];
         }
     }
-    // 'EvalCurvStructNoCtx:53' r3D = a^3   .* r3D;
+    // 'EvalCurvStructNoCtx:66' r3D = a^3   .* r3D;
     b_c = std::pow(curv->a_param, 3.0);
     r_loop_ub = r3D.size(1);
     for (int i21{0}; i21 < r_loop_ub; i21++) {
@@ -1729,6 +1897,21 @@ void e_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
 
 //
 // function [r0D, r1D, r2D, r3D] = EvalCurvStructNoCtx( cfg, curv, spline, u_vec )
+//
+// EvalCurvStructNoCtx : Eval curve structure and its derivatives on
+//  a set of u points without any need of the context structure.
+//
+//  Inputs :
+//  cfg       : The configuration structure of the computational chain
+//  curv      : The curve used in the evaluation
+//  spline    : The required spline for the evaluation
+//  u_vec     : U vectors
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
 //
 //
 // Arguments    : const bool cfg_maskTot_data[]
@@ -1774,27 +1957,27 @@ void f_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
     double c;
     int b_tmp_size[2];
     int tmp_size[2];
-    // 'EvalCurvStructNoCtx:5' coder.inline("never");
-    // 'EvalCurvStructNoCtx:7' ocn_assert( ~any( u_vec > 1.0 ), "u_vec > 1", mfilename );
-    ocn_assert(true);
-    // 'EvalCurvStructNoCtx:8' ocn_assert( ~any( u_vec < 0.0 ), "u_vec < 0", mfilename );
-    b_ocn_assert(true);
+    // 'EvalCurvStructNoCtx:18' coder.inline("never");
+    // 'EvalCurvStructNoCtx:20' ocn_assert( ~any( u_vec > 1.0 ), "u_vec > 1", mfilename );
+    c_ocn_assert(true);
+    // 'EvalCurvStructNoCtx:21' ocn_assert( ~any( u_vec < 0.0 ), "u_vec < 0", mfilename );
+    d_ocn_assert(true);
     //
-    // 'EvalCurvStructNoCtx:11' Type    = curv.Info.Type;
+    // 'EvalCurvStructNoCtx:24' Type    = curv.Info.Type;
     //
-    // 'EvalCurvStructNoCtx:13' N       = numel( u_vec );
-    // 'EvalCurvStructNoCtx:14' M       = cfg.NumberAxis;
-    // 'EvalCurvStructNoCtx:16' r0D     = zeros( M, N );
+    // 'EvalCurvStructNoCtx:26' N       = numel( u_vec );
+    // 'EvalCurvStructNoCtx:27' M       = cfg.NumberAxis;
+    // 'EvalCurvStructNoCtx:29' r0D     = zeros( M, N );
     r0D.set_size(cfg_NumberAxis, 2);
-    // 'EvalCurvStructNoCtx:17' r1D = r0D;
+    // 'EvalCurvStructNoCtx:30' r1D = r0D;
     r1D.set_size(cfg_NumberAxis, 2);
-    // 'EvalCurvStructNoCtx:17' r2D = r0D;
+    // 'EvalCurvStructNoCtx:30' r2D = r0D;
     r2D.set_size(cfg_NumberAxis, 2);
-    // 'EvalCurvStructNoCtx:17' r3D = r0D;
+    // 'EvalCurvStructNoCtx:30' r3D = r0D;
     r3D.set_size(cfg_NumberAxis, 2);
-    // 'EvalCurvStructNoCtx:19' a = curv.a_param;
-    // 'EvalCurvStructNoCtx:20' b = curv.b_param;
-    // 'EvalCurvStructNoCtx:22' u_vec_tilda = a * u_vec + b;
+    // 'EvalCurvStructNoCtx:32' a = curv.a_param;
+    // 'EvalCurvStructNoCtx:33' b = curv.b_param;
+    // 'EvalCurvStructNoCtx:35' u_vec_tilda = a * u_vec + b;
     for (int i{0}; i < 2; i++) {
         for (int i1{0}; i1 < cfg_NumberAxis; i1++) {
             r0D[i1 + r0D.size(0) * i] = 0.0;
@@ -1804,17 +1987,17 @@ void f_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
         }
         u_vec_tilda[i] = curv->a_param * static_cast<double>(i) + curv->b_param;
     }
-    // 'EvalCurvStructNoCtx:24' indC     = cfg.indCart;
-    // 'EvalCurvStructNoCtx:25' indR     = cfg.indRot;
-    // 'EvalCurvStructNoCtx:26' maskTot  = cfg.maskTot;
-    // 'EvalCurvStructNoCtx:27' maskRot  = cfg.maskRot;
-    // 'EvalCurvStructNoCtx:28' maskCart = cfg.maskCart;
-    // 'EvalCurvStructNoCtx:30' switch Type
+    // 'EvalCurvStructNoCtx:37' indC     = cfg.indCart;
+    // 'EvalCurvStructNoCtx:38' indR     = cfg.indRot;
+    // 'EvalCurvStructNoCtx:39' maskTot  = cfg.maskTot;
+    // 'EvalCurvStructNoCtx:40' maskRot  = cfg.maskRot;
+    // 'EvalCurvStructNoCtx:41' maskCart = cfg.maskCart;
+    // 'EvalCurvStructNoCtx:43' switch Type
     switch (curv->Info.Type) {
     case CurveType_Line:
-        // 'EvalCurvStructNoCtx:31' case CurveType.Line
+        // 'EvalCurvStructNoCtx:44' case CurveType.Line
         //  Line (G01)
-        // 'EvalCurvStructNoCtx:32' [r0D, r1D, r2D, r3D] = EvalLine( curv, u_vec_tilda, maskTot );
+        // 'EvalCurvStructNoCtx:45' [r0D, r1D, r2D, r3D] = EvalLine( curv, u_vec_tilda, maskTot );
         r0D.reserve(12);
         r1D.reserve(12);
         d_EvalLine(curv->R0, curv->R1, u_vec_tilda, cfg_maskTot_data, cfg_maskTot_size,
@@ -1822,9 +2005,9 @@ void f_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
                    *(int(*)[2])r1D.size(), r2D, r3D);
         break;
     case CurveType_Helix: {
-        // 'EvalCurvStructNoCtx:33' case CurveType.Helix
+        // 'EvalCurvStructNoCtx:46' case CurveType.Helix
         //  Arc of circle / helix (G02, G03)
-        // 'EvalCurvStructNoCtx:34' if( cfg.NCart > 0 )
+        // 'EvalCurvStructNoCtx:47' if( cfg.NCart > 0 )
         if (cfg_NCart > 0) {
             double dv[2][3];
             double dv1[2][3];
@@ -1834,11 +2017,11 @@ void f_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
             int c_tmp_size;
             int e_loop_ub;
             int i_loop_ub;
-            int k_loop_ub;
+            int j_loop_ub;
             int l_loop_ub;
             //  Cartesian axis
-            // 'EvalCurvStructNoCtx:35' [r0D( indC, : ), r1D( indC, : ), r2D( indC, : ), r3D( indC,
-            // : )] = ... 'EvalCurvStructNoCtx:36'                 EvalHelix( curv, u_vec_tilda,
+            // 'EvalCurvStructNoCtx:48' [r0D( indC, : ), r1D( indC, : ), r2D( indC, : ), r3D( indC,
+            // : )] = ... 'EvalCurvStructNoCtx:49'                 EvalHelix( curv, u_vec_tilda,
             // maskCart );
             d_EvalHelix(curv->R0, curv->CorrectedHelixCenter, curv->evec, curv->theta, curv->pitch,
                         u_vec_tilda, cfg_maskCart_data, cfg_maskCart_size, dv, dv1, dv2, dv3);
@@ -1858,18 +2041,18 @@ void f_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
                 c_tmp_data[i13] = cfg_indCart[i13] - 1;
             }
             for (int i15{0}; i15 < 2; i15++) {
-                for (int i17{0}; i17 < c_tmp_size; i17++) {
-                    r1D[c_tmp_data[i17] + r1D.size(0) * i15] = dv1[i15][i17];
+                for (int i16{0}; i16 < c_tmp_size; i16++) {
+                    r1D[c_tmp_data[i16] + r1D.size(0) * i15] = dv1[i15][i16];
                 }
             }
             c_tmp_size = cfg_indCart.size(0);
-            k_loop_ub = cfg_indCart.size(0);
-            for (int i20{0}; i20 < k_loop_ub; i20++) {
-                c_tmp_data[i20] = cfg_indCart[i20] - 1;
+            j_loop_ub = cfg_indCart.size(0);
+            for (int i17{0}; i17 < j_loop_ub; i17++) {
+                c_tmp_data[i17] = cfg_indCart[i17] - 1;
             }
-            for (int i21{0}; i21 < 2; i21++) {
+            for (int i19{0}; i19 < 2; i19++) {
                 for (int i22{0}; i22 < c_tmp_size; i22++) {
-                    r2D[c_tmp_data[i22] + r2D.size(0) * i21] = dv2[i21][i22];
+                    r2D[c_tmp_data[i22] + r2D.size(0) * i19] = dv2[i19][i22];
                 }
             }
             c_tmp_size = cfg_indCart.size(0);
@@ -1883,15 +2066,15 @@ void f_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
                 }
             }
         }
-        // 'EvalCurvStructNoCtx:38' if( cfg.NRot > 0 )
+        // 'EvalCurvStructNoCtx:51' if( cfg.NRot > 0 )
         if (cfg_NRot > 0) {
             int b_loop_ub;
             int c_loop_ub;
             int d_loop_ub;
             int loop_ub;
             //  Rotative axis
-            // 'EvalCurvStructNoCtx:39' [r0D( indR, : ), r1D( indR, : ), r2D( indR, : ), r3D( indR,
-            // : )] = ... 'EvalCurvStructNoCtx:40'                 EvalLine( curv, u_vec_tilda,
+            // 'EvalCurvStructNoCtx:52' [r0D( indR, : ), r1D( indR, : ), r2D( indR, : ), r3D( indR,
+            // : )] = ... 'EvalCurvStructNoCtx:53'                 EvalLine( curv, u_vec_tilda,
             // maskRot );
             d_EvalLine(curv->R0, curv->R1, u_vec_tilda, cfg_maskRot_data, cfg_maskRot_size,
                        tmp_data, tmp_size, b_tmp_data, b_tmp_size, r, r1);
@@ -1921,9 +2104,9 @@ void f_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
         int iv1[2];
         int iv2[2];
         int iv3[2];
-        // 'EvalCurvStructNoCtx:42' case CurveType.TransP5
+        // 'EvalCurvStructNoCtx:55' case CurveType.TransP5
         //  Polynomial transition
-        // 'EvalCurvStructNoCtx:43' [r0D, r1D, r2D, r3D]    = EvalTransP5( curv, u_vec_tilda,
+        // 'EvalCurvStructNoCtx:56' [r0D, r1D, r2D, r3D]    = EvalTransP5( curv, u_vec_tilda,
         // maskTot );
         r0D.reserve(12);
         r1D.reserve(12);
@@ -1942,64 +2125,84 @@ void f_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
         (*(int(*)[2])r0D.size())[1] = iv[1];
     } break;
     case CurveType_Spline: {
-        int i19;
-        int j_loop_ub;
-        // 'EvalCurvStructNoCtx:44' case CurveType.Spline
+        int i21;
+        int k_loop_ub;
+        // 'EvalCurvStructNoCtx:57' case CurveType.Spline
         //  Spline
-        // 'EvalCurvStructNoCtx:45' [ r0D, r1D, r2D, r3D ]  = EvalBSpline( spline, u_vec_tilda );
+        // 'EvalCurvStructNoCtx:58' [ r0D, r1D, r2D, r3D ]  = EvalBSpline( spline, u_vec_tilda );
         //  EvalBSpline
         //
-        //  INPUT
+        //  Inputs :
         //  spline        : struct : Spline structure
         //  u_vec         :    1xn : Vector for evaluation of the curv
         //
-        //  OUTPUT
-        //  r0D           :   nDxn : The evaluated B spline at u\_vec points
-        //  r1D           :   nDxn : 1rst order parametric derivative for the B spline at u\_vec
-        //  points r2D           :   nDxn : 2nd order parametric derivative for the B spline at
-        //  u\_vec points r3D           :   nDxn : 3rd order parametric derivative for the B spline
-        //  at u\_vec points
-        // 'EvalBSpline:14' sp = spline.sp;
-        // 'EvalBSpline:15' N  = length( u_vec );
-        // 'EvalBSpline:16' M  = size( sp.coeff, 1 );
-        // 'EvalBSpline:18' r0D = zeros( M, N );
-        // 'EvalBSpline:18' r1D = r0D;
+        //  Outputs:
+        //  r0D           :   nDxn : The evaluated B spline at u_vec points
+        //  r1D           :   nDxn : 1rst order parametric derivative for the Bspline
+        //                    at u_vec points
+        //  r2D           :   nDxn : 2nd order parametric derivative for the Bspline
+        //                    at u_vec points
+        //  r3D           :   nDxn : 3rd order parametric derivative for the B spline
+        //                    at u_vec points
+        //
+        // 'EvalBSpline:19' sp  = spline.sp;
+        // 'EvalBSpline:20' N   = length( u_vec );
+        // 'EvalBSpline:21' M   = size( sp.coeff, 1 );
+        // 'EvalBSpline:22' r0D = zeros( M, N );
+        // 'EvalBSpline:22' r1D = r0D;
         r1D.set_size(spline->sp.coeff.size(0), 2);
-        // 'EvalBSpline:18' r2D = r1D;
+        // 'EvalBSpline:22' r2D = r1D;
         r2D.set_size(spline->sp.coeff.size(0), 2);
-        // 'EvalBSpline:18' r3D = r2D;
+        // 'EvalBSpline:22' r3D = r2D;
         r3D.set_size(spline->sp.coeff.size(0), 2);
-        j_loop_ub = spline->sp.coeff.size(0);
-        for (int i16{0}; i16 < 2; i16++) {
-            for (int i18{0}; i18 < j_loop_ub; i18++) {
-                r1D[i18 + r1D.size(0) * i16] = 0.0;
-                r2D[i18 + r2D.size(0) * i16] = 0.0;
-                r3D[i18 + r3D.size(0) * i16] = 0.0;
+        k_loop_ub = spline->sp.coeff.size(0);
+        for (int i18{0}; i18 < 2; i18++) {
+            for (int i20{0}; i20 < k_loop_ub; i20++) {
+                r1D[i20 + r1D.size(0) * i18] = 0.0;
+                r2D[i20 + r2D.size(0) * i18] = 0.0;
+                r3D[i20 + r3D.size(0) * i18] = 0.0;
             }
         }
-        // 'EvalBSpline:20' for j = 1 : M
-        i19 = spline->sp.coeff.size(0);
+        // 'EvalBSpline:24' for j = 1 : M
+        i21 = spline->sp.coeff.size(0);
         r0D.set_size(spline->sp.coeff.size(0), 2);
-        for (int j{0}; j < i19; j++) {
+        for (int j{0}; j < i21; j++) {
             int m_loop_ub;
-            // 'EvalBSpline:21' [r0D( j , : ), r1D( j , : ), r2D( j , : ), r3D( j , : ) ] = ...
-            // 'EvalBSpline:22'                             bspline_eval_vec( sp.Bl, sp.coeff( j, :
-            // ), u_vec ); 'bspline_eval_vec:3' x       = zeros(size(u)); 'bspline_eval_vec:4' xd =
-            // zeros(size(u)); 'bspline_eval_vec:5' xdd     = zeros(size(u)); 'bspline_eval_vec:6'
-            // xddd    = zeros(size(u)); 'bspline_eval_vec:8' for k = 1:length(u)
+            // 'EvalBSpline:25' [r0D( j , : ), r1D( j , : ), r2D( j , : ), r3D( j , : ) ] = ...
+            // 'EvalBSpline:26'                         bspline_eval_vec( sp.Bl, sp.coeff( j, : ),
+            // u_vec );
+            //  bspline_eval_vec  : Eval Bspline bases for a given set of u value.
+            //
+            //  Inputs    :
+            //  Bl            : BSpline bases
+            //  coeffs        : BSpline coefficients
+            //  uVec          : U vector of points to evaluate
+            //
+            //  Outputs   :
+            //  x             : Evaluation of the BSpline
+            //  xd            : Evaluation of the first derivative of the BSpline
+            //  xdd           : Evaluation of the second derivative of the BSpline
+            //  xddd          : Evaluation of the third derivative of the BSpline
+            //
+            // 'bspline_eval_vec:15' x       = zeros(size(uVec));
+            // 'bspline_eval_vec:16' xd      = zeros(size(uVec));
+            // 'bspline_eval_vec:17' xdd     = zeros(size(uVec));
+            // 'bspline_eval_vec:18' xddd    = zeros(size(uVec));
+            // 'bspline_eval_vec:20' for k = 1:length(uVec)
             m_loop_ub = spline->sp.coeff.size(1);
             for (int k{0}; k < 2; k++) {
-                // 'bspline_eval_vec:9' [xk, xdk, xddk, xdddk] = bspline_eval(Bl, coeffs, u(k));
+                // 'bspline_eval_vec:21' [xk, xdk, xddk, xdddk] = bspline_eval( Bl, coeffs, uVec( k
+                // ) );
                 dv4[k] = u_vec_tilda[k];
                 b_spline.set_size(1, m_loop_ub);
                 for (int i26{0}; i26 < m_loop_ub; i26++) {
                     b_spline[i26] = spline->sp.coeff[j + spline->sp.coeff.size(0) * i26];
                 }
                 bspline_eval(spline->sp.Bl.handle, b_spline, &dv4[k], &dv5[k], &dv6[k], &dv7[k]);
-                // 'bspline_eval_vec:10' x(k)    = xk;
-                // 'bspline_eval_vec:11' xd(k)   = xdk;
-                // 'bspline_eval_vec:12' xdd(k)  = xddk;
-                // 'bspline_eval_vec:13' xddd(k) = xdddk;
+                // 'bspline_eval_vec:22' x(k)    = xk;
+                // 'bspline_eval_vec:23' xd(k)   = xdk;
+                // 'bspline_eval_vec:24' xdd(k)  = xddk;
+                // 'bspline_eval_vec:25' xddd(k) = xdddk;
             }
             r0D[j] = dv4[0];
             r1D[j] = dv5[0];
@@ -2012,19 +2215,19 @@ void f_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
         }
     } break;
     default:
-        // 'EvalCurvStructNoCtx:46' otherwise
-        // 'EvalCurvStructNoCtx:47' ocn_assert( false, "Unknown Curve Type for Eval...", mfilename
+        // 'EvalCurvStructNoCtx:59' otherwise
+        // 'EvalCurvStructNoCtx:60' ocn_assert( false, "Unknown Curve Type for Eval...", mfilename
         // );
-        ib_ocn_assert();
+        qb_ocn_assert();
         break;
     }
-    // 'EvalCurvStructNoCtx:50' if( 1 )
-    // 'EvalCurvStructNoCtx:51' r1D = a     .* r1D;
+    // 'EvalCurvStructNoCtx:63' if( 1 )
+    // 'EvalCurvStructNoCtx:64' r1D = a     .* r1D;
     r1D.set_size(r1D.size(0), 2);
-    // 'EvalCurvStructNoCtx:52' r2D = a^2   .* r2D;
+    // 'EvalCurvStructNoCtx:65' r2D = a^2   .* r2D;
     c = curv->a_param * curv->a_param;
     r2D.set_size(r2D.size(0), 2);
-    // 'EvalCurvStructNoCtx:53' r3D = a^3   .* r3D;
+    // 'EvalCurvStructNoCtx:66' r3D = a^3   .* r3D;
     b_c = std::pow(curv->a_param, 3.0);
     r3D.set_size(r3D.size(0), 2);
     for (int i2{0}; i2 < 2; i2++) {
@@ -2048,6 +2251,21 @@ void f_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
 
 //
 // function [r0D, r1D, r2D, r3D] = EvalCurvStructNoCtx( cfg, curv, spline, u_vec )
+//
+// EvalCurvStructNoCtx : Eval curve structure and its derivatives on
+//  a set of u points without any need of the context structure.
+//
+//  Inputs :
+//  cfg       : The configuration structure of the computational chain
+//  curv      : The curve used in the evaluation
+//  spline    : The required spline for the evaluation
+//  u_vec     : U vectors
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
 //
 //
 // Arguments    : const bool cfg_maskTot_data[]
@@ -2100,23 +2318,23 @@ void g_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
     int i5;
     int loop_ub;
     int tmp_size;
-    // 'EvalCurvStructNoCtx:5' coder.inline("never");
-    // 'EvalCurvStructNoCtx:7' ocn_assert( ~any( u_vec > 1.0 ), "u_vec > 1", mfilename );
-    ocn_assert(u_vec <= 1.0);
-    // 'EvalCurvStructNoCtx:8' ocn_assert( ~any( u_vec < 0.0 ), "u_vec < 0", mfilename );
-    b_ocn_assert(u_vec >= 0.0);
+    // 'EvalCurvStructNoCtx:18' coder.inline("never");
+    // 'EvalCurvStructNoCtx:20' ocn_assert( ~any( u_vec > 1.0 ), "u_vec > 1", mfilename );
+    c_ocn_assert(u_vec <= 1.0);
+    // 'EvalCurvStructNoCtx:21' ocn_assert( ~any( u_vec < 0.0 ), "u_vec < 0", mfilename );
+    d_ocn_assert(u_vec >= 0.0);
     //
-    // 'EvalCurvStructNoCtx:11' Type    = curv.Info.Type;
+    // 'EvalCurvStructNoCtx:24' Type    = curv.Info.Type;
     //
-    // 'EvalCurvStructNoCtx:13' N       = numel( u_vec );
-    // 'EvalCurvStructNoCtx:14' M       = cfg.NumberAxis;
-    // 'EvalCurvStructNoCtx:16' r0D     = zeros( M, N );
+    // 'EvalCurvStructNoCtx:26' N       = numel( u_vec );
+    // 'EvalCurvStructNoCtx:27' M       = cfg.NumberAxis;
+    // 'EvalCurvStructNoCtx:29' r0D     = zeros( M, N );
     r0D.set_size(cfg_NumberAxis);
-    // 'EvalCurvStructNoCtx:17' r1D = r0D;
+    // 'EvalCurvStructNoCtx:30' r1D = r0D;
     r1D.set_size(cfg_NumberAxis);
-    // 'EvalCurvStructNoCtx:17' r2D = r0D;
+    // 'EvalCurvStructNoCtx:30' r2D = r0D;
     r2D.set_size(cfg_NumberAxis);
-    // 'EvalCurvStructNoCtx:17' r3D = r0D;
+    // 'EvalCurvStructNoCtx:30' r3D = r0D;
     r3D.set_size(cfg_NumberAxis);
     for (int i{0}; i < cfg_NumberAxis; i++) {
         r0D[i] = 0.0;
@@ -2124,21 +2342,21 @@ void g_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
         r2D[i] = 0.0;
         r3D[i] = 0.0;
     }
-    // 'EvalCurvStructNoCtx:19' a = curv.a_param;
-    // 'EvalCurvStructNoCtx:20' b = curv.b_param;
-    // 'EvalCurvStructNoCtx:22' u_vec_tilda = a * u_vec + b;
+    // 'EvalCurvStructNoCtx:32' a = curv.a_param;
+    // 'EvalCurvStructNoCtx:33' b = curv.b_param;
+    // 'EvalCurvStructNoCtx:35' u_vec_tilda = a * u_vec + b;
     u_vec_tilda = curv->a_param * u_vec + curv->b_param;
-    // 'EvalCurvStructNoCtx:24' indC     = cfg.indCart;
-    // 'EvalCurvStructNoCtx:25' indR     = cfg.indRot;
-    // 'EvalCurvStructNoCtx:26' maskTot  = cfg.maskTot;
-    // 'EvalCurvStructNoCtx:27' maskRot  = cfg.maskRot;
-    // 'EvalCurvStructNoCtx:28' maskCart = cfg.maskCart;
-    // 'EvalCurvStructNoCtx:30' switch Type
+    // 'EvalCurvStructNoCtx:37' indC     = cfg.indCart;
+    // 'EvalCurvStructNoCtx:38' indR     = cfg.indRot;
+    // 'EvalCurvStructNoCtx:39' maskTot  = cfg.maskTot;
+    // 'EvalCurvStructNoCtx:40' maskRot  = cfg.maskRot;
+    // 'EvalCurvStructNoCtx:41' maskCart = cfg.maskCart;
+    // 'EvalCurvStructNoCtx:43' switch Type
     switch (curv->Info.Type) {
     case CurveType_Line:
-        // 'EvalCurvStructNoCtx:31' case CurveType.Line
+        // 'EvalCurvStructNoCtx:44' case CurveType.Line
         //  Line (G01)
-        // 'EvalCurvStructNoCtx:32' [r0D, r1D, r2D, r3D] = EvalLine( curv, u_vec_tilda, maskTot );
+        // 'EvalCurvStructNoCtx:45' [r0D, r1D, r2D, r3D] = EvalLine( curv, u_vec_tilda, maskTot );
         r0D.reserve(6);
         r1D.reserve(6);
         b_EvalLine(curv->R0, curv->R1, u_vec_tilda, cfg_maskTot_data, cfg_maskTot_size,
@@ -2146,9 +2364,9 @@ void g_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
                    &(*(int(*)[1])r1D.size())[0], r2D, r3D);
         break;
     case CurveType_Helix: {
-        // 'EvalCurvStructNoCtx:33' case CurveType.Helix
+        // 'EvalCurvStructNoCtx:46' case CurveType.Helix
         //  Arc of circle / helix (G02, G03)
-        // 'EvalCurvStructNoCtx:34' if( cfg.NCart > 0 )
+        // 'EvalCurvStructNoCtx:47' if( cfg.NCart > 0 )
         if (cfg_NCart > 0) {
             double dv[3];
             double dv1[3];
@@ -2157,12 +2375,12 @@ void g_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
             int c_tmp_data[3];
             int c_loop_ub;
             int c_tmp_size;
-            int h_loop_ub;
-            int j_loop_ub;
-            int m_loop_ub;
+            int g_loop_ub;
+            int i_loop_ub;
+            int l_loop_ub;
             //  Cartesian axis
-            // 'EvalCurvStructNoCtx:35' [r0D( indC, : ), r1D( indC, : ), r2D( indC, : ), r3D( indC,
-            // : )] = ... 'EvalCurvStructNoCtx:36'                 EvalHelix( curv, u_vec_tilda,
+            // 'EvalCurvStructNoCtx:48' [r0D( indC, : ), r1D( indC, : ), r2D( indC, : ), r3D( indC,
+            // : )] = ... 'EvalCurvStructNoCtx:49'                 EvalHelix( curv, u_vec_tilda,
             // maskCart );
             b_EvalHelix(curv->R0, curv->CorrectedHelixCenter, curv->evec, curv->theta, curv->pitch,
                         u_vec_tilda, cfg_maskCart_data, cfg_maskCart_size, dv, dv1, dv2, dv3);
@@ -2175,37 +2393,37 @@ void g_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
                 r0D[c_tmp_data[i12]] = dv[i12];
             }
             c_tmp_size = cfg_indCart.size(0);
-            h_loop_ub = cfg_indCart.size(0);
-            for (int i15{0}; i15 < h_loop_ub; i15++) {
-                c_tmp_data[i15] = cfg_indCart[i15] - 1;
+            g_loop_ub = cfg_indCart.size(0);
+            for (int i14{0}; i14 < g_loop_ub; i14++) {
+                c_tmp_data[i14] = cfg_indCart[i14] - 1;
             }
-            for (int i16{0}; i16 < c_tmp_size; i16++) {
-                r1D[c_tmp_data[i16]] = dv1[i16];
-            }
-            c_tmp_size = cfg_indCart.size(0);
-            j_loop_ub = cfg_indCart.size(0);
-            for (int i18{0}; i18 < j_loop_ub; i18++) {
-                c_tmp_data[i18] = cfg_indCart[i18] - 1;
-            }
-            for (int i20{0}; i20 < c_tmp_size; i20++) {
-                r2D[c_tmp_data[i20]] = dv2[i20];
+            for (int i15{0}; i15 < c_tmp_size; i15++) {
+                r1D[c_tmp_data[i15]] = dv1[i15];
             }
             c_tmp_size = cfg_indCart.size(0);
-            m_loop_ub = cfg_indCart.size(0);
-            for (int i22{0}; i22 < m_loop_ub; i22++) {
-                c_tmp_data[i22] = cfg_indCart[i22] - 1;
+            i_loop_ub = cfg_indCart.size(0);
+            for (int i17{0}; i17 < i_loop_ub; i17++) {
+                c_tmp_data[i17] = cfg_indCart[i17] - 1;
             }
-            for (int i23{0}; i23 < c_tmp_size; i23++) {
-                r3D[c_tmp_data[i23]] = dv3[i23];
+            for (int i19{0}; i19 < c_tmp_size; i19++) {
+                r2D[c_tmp_data[i19]] = dv2[i19];
+            }
+            c_tmp_size = cfg_indCart.size(0);
+            l_loop_ub = cfg_indCart.size(0);
+            for (int i21{0}; i21 < l_loop_ub; i21++) {
+                c_tmp_data[i21] = cfg_indCart[i21] - 1;
+            }
+            for (int i22{0}; i22 < c_tmp_size; i22++) {
+                r3D[c_tmp_data[i22]] = dv3[i22];
             }
         }
-        // 'EvalCurvStructNoCtx:38' if( cfg.NRot > 0 )
+        // 'EvalCurvStructNoCtx:51' if( cfg.NRot > 0 )
         if (cfg_NRot > 0) {
             int d_loop_ub;
             int f_loop_ub;
             //  Rotative axis
-            // 'EvalCurvStructNoCtx:39' [r0D( indR, : ), r1D( indR, : ), r2D( indR, : ), r3D( indR,
-            // : )] = ... 'EvalCurvStructNoCtx:40'                 EvalLine( curv, u_vec_tilda,
+            // 'EvalCurvStructNoCtx:52' [r0D( indR, : ), r1D( indR, : ), r2D( indR, : ), r3D( indR,
+            // : )] = ... 'EvalCurvStructNoCtx:53'                 EvalLine( curv, u_vec_tilda,
             // maskRot );
             b_EvalLine(curv->R0, curv->R1, u_vec_tilda, cfg_maskRot_data, cfg_maskRot_size,
                        tmp_data, &tmp_size, b_tmp_data, &b_tmp_size, r, r1);
@@ -2226,9 +2444,9 @@ void g_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
         }
     } break;
     case CurveType_TransP5:
-        // 'EvalCurvStructNoCtx:42' case CurveType.TransP5
+        // 'EvalCurvStructNoCtx:55' case CurveType.TransP5
         //  Polynomial transition
-        // 'EvalCurvStructNoCtx:43' [r0D, r1D, r2D, r3D]    = EvalTransP5( curv, u_vec_tilda,
+        // 'EvalCurvStructNoCtx:56' [r0D, r1D, r2D, r3D]    = EvalTransP5( curv, u_vec_tilda,
         // maskTot );
         r0D.reserve(6);
         r1D.reserve(6);
@@ -2243,63 +2461,82 @@ void g_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
         (*(int(*)[1])r0D.size())[0] = i2;
         break;
     case CurveType_Spline: {
-        int g_loop_ub;
+        int h_loop_ub;
         int i24;
-        int i_loop_ub;
+        int j_loop_ub;
         int k_loop_ub;
-        int l_loop_ub;
-        // 'EvalCurvStructNoCtx:44' case CurveType.Spline
+        int m_loop_ub;
+        // 'EvalCurvStructNoCtx:57' case CurveType.Spline
         //  Spline
-        // 'EvalCurvStructNoCtx:45' [ r0D, r1D, r2D, r3D ]  = EvalBSpline( spline, u_vec_tilda );
+        // 'EvalCurvStructNoCtx:58' [ r0D, r1D, r2D, r3D ]  = EvalBSpline( spline, u_vec_tilda );
         //  EvalBSpline
         //
-        //  INPUT
+        //  Inputs :
         //  spline        : struct : Spline structure
         //  u_vec         :    1xn : Vector for evaluation of the curv
         //
-        //  OUTPUT
-        //  r0D           :   nDxn : The evaluated B spline at u\_vec points
-        //  r1D           :   nDxn : 1rst order parametric derivative for the B spline at u\_vec
-        //  points r2D           :   nDxn : 2nd order parametric derivative for the B spline at
-        //  u\_vec points r3D           :   nDxn : 3rd order parametric derivative for the B spline
-        //  at u\_vec points
-        // 'EvalBSpline:14' sp = spline.sp;
-        // 'EvalBSpline:15' N  = length( u_vec );
-        // 'EvalBSpline:16' M  = size( sp.coeff, 1 );
-        // 'EvalBSpline:18' r0D = zeros( M, N );
+        //  Outputs:
+        //  r0D           :   nDxn : The evaluated B spline at u_vec points
+        //  r1D           :   nDxn : 1rst order parametric derivative for the Bspline
+        //                    at u_vec points
+        //  r2D           :   nDxn : 2nd order parametric derivative for the Bspline
+        //                    at u_vec points
+        //  r3D           :   nDxn : 3rd order parametric derivative for the B spline
+        //                    at u_vec points
+        //
+        // 'EvalBSpline:19' sp  = spline.sp;
+        // 'EvalBSpline:20' N   = length( u_vec );
+        // 'EvalBSpline:21' M   = size( sp.coeff, 1 );
+        // 'EvalBSpline:22' r0D = zeros( M, N );
         r0D.set_size(spline->sp.coeff.size(0));
-        g_loop_ub = spline->sp.coeff.size(0);
-        for (int i14{0}; i14 < g_loop_ub; i14++) {
-            r0D[i14] = 0.0;
+        h_loop_ub = spline->sp.coeff.size(0);
+        for (int i16{0}; i16 < h_loop_ub; i16++) {
+            r0D[i16] = 0.0;
         }
-        // 'EvalBSpline:18' r1D = r0D;
+        // 'EvalBSpline:22' r1D = r0D;
         r1D.set_size(spline->sp.coeff.size(0));
-        i_loop_ub = spline->sp.coeff.size(0);
-        for (int i17{0}; i17 < i_loop_ub; i17++) {
-            r1D[i17] = 0.0;
+        j_loop_ub = spline->sp.coeff.size(0);
+        for (int i18{0}; i18 < j_loop_ub; i18++) {
+            r1D[i18] = 0.0;
         }
-        // 'EvalBSpline:18' r2D = r1D;
+        // 'EvalBSpline:22' r2D = r1D;
         r2D.set_size(spline->sp.coeff.size(0));
         k_loop_ub = spline->sp.coeff.size(0);
-        for (int i19{0}; i19 < k_loop_ub; i19++) {
-            r2D[i19] = 0.0;
+        for (int i20{0}; i20 < k_loop_ub; i20++) {
+            r2D[i20] = 0.0;
         }
-        // 'EvalBSpline:18' r3D = r2D;
+        // 'EvalBSpline:22' r3D = r2D;
         r3D.set_size(spline->sp.coeff.size(0));
-        l_loop_ub = spline->sp.coeff.size(0);
-        for (int i21{0}; i21 < l_loop_ub; i21++) {
-            r3D[i21] = 0.0;
+        m_loop_ub = spline->sp.coeff.size(0);
+        for (int i23{0}; i23 < m_loop_ub; i23++) {
+            r3D[i23] = 0.0;
         }
-        // 'EvalBSpline:20' for j = 1 : M
+        // 'EvalBSpline:24' for j = 1 : M
         i24 = spline->sp.coeff.size(0);
         for (int j{0}; j < i24; j++) {
             int n_loop_ub;
-            // 'EvalBSpline:21' [r0D( j , : ), r1D( j , : ), r2D( j , : ), r3D( j , : ) ] = ...
-            // 'EvalBSpline:22'                             bspline_eval_vec( sp.Bl, sp.coeff( j, :
-            // ), u_vec ); 'bspline_eval_vec:3' x       = zeros(size(u)); 'bspline_eval_vec:4' xd =
-            // zeros(size(u)); 'bspline_eval_vec:5' xdd     = zeros(size(u)); 'bspline_eval_vec:6'
-            // xddd    = zeros(size(u)); 'bspline_eval_vec:8' for k = 1:length(u)
-            // 'bspline_eval_vec:9' [xk, xdk, xddk, xdddk] = bspline_eval(Bl, coeffs, u(k));
+            // 'EvalBSpline:25' [r0D( j , : ), r1D( j , : ), r2D( j , : ), r3D( j , : ) ] = ...
+            // 'EvalBSpline:26'                         bspline_eval_vec( sp.Bl, sp.coeff( j, : ),
+            // u_vec );
+            //  bspline_eval_vec  : Eval Bspline bases for a given set of u value.
+            //
+            //  Inputs    :
+            //  Bl            : BSpline bases
+            //  coeffs        : BSpline coefficients
+            //  uVec          : U vector of points to evaluate
+            //
+            //  Outputs   :
+            //  x             : Evaluation of the BSpline
+            //  xd            : Evaluation of the first derivative of the BSpline
+            //  xdd           : Evaluation of the second derivative of the BSpline
+            //  xddd          : Evaluation of the third derivative of the BSpline
+            //
+            // 'bspline_eval_vec:15' x       = zeros(size(uVec));
+            // 'bspline_eval_vec:16' xd      = zeros(size(uVec));
+            // 'bspline_eval_vec:17' xdd     = zeros(size(uVec));
+            // 'bspline_eval_vec:18' xddd    = zeros(size(uVec));
+            // 'bspline_eval_vec:20' for k = 1:length(uVec)
+            // 'bspline_eval_vec:21' [xk, xdk, xddk, xdddk] = bspline_eval( Bl, coeffs, uVec( k ) );
             r0D[j] = u_vec_tilda;
             n_loop_ub = spline->sp.coeff.size(1);
             b_spline.set_size(1, spline->sp.coeff.size(1));
@@ -2310,32 +2547,32 @@ void g_EvalCurvStructNoCtx(const bool cfg_maskTot_data[], const int cfg_maskTot_
             r3D[j] = d2;
             r2D[j] = d1;
             r1D[j] = d;
-            // 'bspline_eval_vec:10' x(k)    = xk;
-            // 'bspline_eval_vec:11' xd(k)   = xdk;
-            // 'bspline_eval_vec:12' xdd(k)  = xddk;
-            // 'bspline_eval_vec:13' xddd(k) = xdddk;
+            // 'bspline_eval_vec:22' x(k)    = xk;
+            // 'bspline_eval_vec:23' xd(k)   = xdk;
+            // 'bspline_eval_vec:24' xdd(k)  = xddk;
+            // 'bspline_eval_vec:25' xddd(k) = xdddk;
         }
     } break;
     default:
-        // 'EvalCurvStructNoCtx:46' otherwise
-        // 'EvalCurvStructNoCtx:47' ocn_assert( false, "Unknown Curve Type for Eval...", mfilename
+        // 'EvalCurvStructNoCtx:59' otherwise
+        // 'EvalCurvStructNoCtx:60' ocn_assert( false, "Unknown Curve Type for Eval...", mfilename
         // );
-        ib_ocn_assert();
+        qb_ocn_assert();
         break;
     }
-    // 'EvalCurvStructNoCtx:50' if( 1 )
-    // 'EvalCurvStructNoCtx:51' r1D = a     .* r1D;
+    // 'EvalCurvStructNoCtx:63' if( 1 )
+    // 'EvalCurvStructNoCtx:64' r1D = a     .* r1D;
     loop_ub = r1D.size(0);
     for (int i1{0}; i1 < loop_ub; i1++) {
         r1D[i1] = curv->a_param * r1D[i1];
     }
-    // 'EvalCurvStructNoCtx:52' r2D = a^2   .* r2D;
+    // 'EvalCurvStructNoCtx:65' r2D = a^2   .* r2D;
     c = curv->a_param * curv->a_param;
     b_loop_ub = r2D.size(0);
     for (int i7{0}; i7 < b_loop_ub; i7++) {
         r2D[i7] = c * r2D[i7];
     }
-    // 'EvalCurvStructNoCtx:53' r3D = a^3   .* r3D;
+    // 'EvalCurvStructNoCtx:66' r3D = a^3   .* r3D;
     b_c = std::pow(curv->a_param, 3.0);
     e_loop_ub = r3D.size(0);
     for (int i11{0}; i11 < e_loop_ub; i11++) {

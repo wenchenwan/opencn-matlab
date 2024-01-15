@@ -24,6 +24,33 @@ namespace ocn {
 namespace coder {
 namespace internal {
 namespace blas {
+void b_mtimes(const ::coder::array<double, 2U> &A, const ::coder::array<double, 2U> &B,
+              ::coder::array<double, 2U> &C)
+{
+    int inner;
+    int nc;
+    inner = A.size(1);
+    nc = B.size(1);
+    C.set_size(2, B.size(1));
+    for (int j{0}; j < nc; j++) {
+        C[2 * j] = 0.0;
+        C[2 * j + 1] = 0.0;
+        for (int k{0}; k < inner; k++) {
+            __m128d r;
+            r = _mm_loadu_pd(&C[2 * j]);
+            _mm_storeu_pd(&C[2 * j],
+                          _mm_add_pd(r, _mm_mul_pd(_mm_loadu_pd((const double *)&A[2 * k]),
+                                                   _mm_set1_pd(B[k + B.size(0) * j]))));
+        }
+    }
+}
+
+//
+// Arguments    : const ::coder::array<double, 2U> &A
+//                const ::coder::array<double, 2U> &B
+//                ::coder::array<double, 2U> &C
+// Return Type  : void
+//
 void mtimes(const ::coder::array<double, 2U> &A, const ::coder::array<double, 2U> &B,
             ::coder::array<double, 2U> &C)
 {
@@ -57,6 +84,26 @@ void mtimes(const ::coder::array<double, 2U> &A, const ::coder::array<double, 2U
                 C[b_i + C.size(0) * j] = C[b_i + C.size(0) * j] + A[b_i + A.size(0) * k] * bkj;
             }
         }
+    }
+}
+
+//
+// Arguments    : const ::coder::array<double, 2U> &A
+//                const ::coder::array<double, 1U> &B
+//                double C[2]
+// Return Type  : void
+//
+void mtimes(const ::coder::array<double, 2U> &A, const ::coder::array<double, 1U> &B, double C[2])
+{
+    int inner;
+    inner = A.size(1);
+    C[0] = 0.0;
+    C[1] = 0.0;
+    for (int k{0}; k < inner; k++) {
+        __m128d r;
+        r = _mm_loadu_pd(&C[0]);
+        _mm_storeu_pd(&C[0], _mm_add_pd(r, _mm_mul_pd(_mm_loadu_pd((const double *)&A[2 * k]),
+                                                      _mm_set1_pd(B[k]))));
     }
 }
 

@@ -21,7 +21,7 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-extern void CopyCurvStruct(const CurvStruct *Curv, CurvStruct *Copy);
+extern void CopyCurvStruct(const CurvStruct *curve, CurvStruct *copy);
 
 }
 

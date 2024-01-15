@@ -77,7 +77,7 @@ void binary_expand_op(CurvStruct *in1, const ::coder::array<double, 2U> &in2, in
 //                const ::coder::array<double, 2U> &in3
 // Return Type  : void
 //
-void i_binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
+void k_binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<double, 2U> &in2,
                         const ::coder::array<double, 2U> &in3)
 {
     int aux_0_1;

@@ -3,13 +3,13 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: eml_rand_mt19937ar_stateful.h
+// File: constrMsgStruct.h
 //
 // MATLAB Coder version            : 5.4
 //
 
-#ifndef EML_RAND_MT19937AR_STATEFUL_H
-#define EML_RAND_MT19937AR_STATEFUL_H
+#ifndef CONSTRMSGSTRUCT_H
+#define CONSTRMSGSTRUCT_H
 
 // Include Files
 #include "rtwtypes.h"
@@ -18,15 +18,23 @@
 
 // Custom Header Code
 #include "functions.h"
+// Type Declarations
+namespace ocn {
+namespace coder {
+class rtString;
+
+}
+} // namespace ocn
+
 // Function Declarations
 namespace ocn {
-void eml_rand_mt19937ar_stateful_init();
+void constrMsgStruct(const coder::rtString *msg, char CStruct_msg[2048], double *CStruct_size);
 
 }
 
 #endif
 //
-// File trailer for eml_rand_mt19937ar_stateful.h
+// File trailer for constrMsgStruct.h
 //
 // [EOF]
 //

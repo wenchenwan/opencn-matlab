@@ -13,12 +13,23 @@
 #include "opencn_matlab_data.h"
 #include "opencn_matlab_initialize.h"
 #include "opencn_matlab_types.h"
+#include "coder_bounded_array.h"
 #include <algorithm>
 #include <cstring>
 
 // Function Definitions
 //
-// function cfg = ConfigSetSource(cfg, filename)
+// function [ cfg ] = ConfigSetSource( cfg, filename )
+//
+// ConfigSetSource : Set the path to the G code file.
+//
+//  Inputs :
+//    cfg         : The structure of configuration of the compuational chain
+//    filename    : The path to the G code to use
+//
+//  Outputs :
+//    cfg         : The structure of configuration of the compuational chain
+//
 //
 // Arguments    : FeedoptConfig *cfg
 //                const char filename_data[]
@@ -35,28 +46,27 @@ void ConfigSetSource(FeedoptConfig *cfg, const char filename_data[], const int f
     if (!isInitialized_opencn_matlab) {
         opencn_matlab_initialize();
     }
-    // 'ConfigSetSource:2' coder.inline("never");
-    // 'ConfigSetSource:4' N = size(filename, 2);
-    // 'ConfigSetSource:5' cfg.source(1:N) = filename;
+    // 'ConfigSetSource:12' N = size(filename, 2);
+    // 'ConfigSetSource:13' cfg.source(1:N) = filename;
     if (filename_size[1] < 1) {
         loop_ub = 0;
     } else {
         loop_ub = filename_size[1];
     }
     if (loop_ub - 1 >= 0) {
-        std::copy(&filename_data[0], &filename_data[loop_ub], &cfg->source[0]);
+        std::copy(&filename_data[0], &filename_data[loop_ub], &cfg->source.data[0]);
     }
-    // 'ConfigSetSource:6' cfg.source(N+1:end) = 0;
-    if (filename_size[1] + 1 > 1024) {
+    // 'ConfigSetSource:14' cfg.source(N+1:end) = 0;
+    if (filename_size[1] + 1 > cfg->source.size[1]) {
         i = 0;
-        i1 = -1;
+        i1 = 0;
     } else {
         i = filename_size[1];
-        i1 = 1023;
+        i1 = cfg->source.size[1];
     }
-    b_loop_ub = (i1 - i) + 1;
+    b_loop_ub = i1 - i;
     if (b_loop_ub - 1 >= 0) {
-        std::memset(&cfg->source[i], 0, ((b_loop_ub + i) - i) * sizeof(char));
+        std::memset(&cfg->source.data[i], 0, ((b_loop_ub + i) - i) * sizeof(char));
     }
 }
 

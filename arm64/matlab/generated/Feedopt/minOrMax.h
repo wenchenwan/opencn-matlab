@@ -32,6 +32,8 @@ void maximum(const ::coder::array<double, 2U> &x, double *ex, int *idx);
 
 void minimum(const double x_data[], int x_size, double *ex, int *idx);
 
+double minimum(const double x_data[], const int x_size[2]);
+
 void minimum(const ::coder::array<double, 2U> &x, ::coder::array<double, 2U> &ex);
 
 } // namespace internal

@@ -20,6 +20,21 @@
 //
 // function [r0D, r1D, r2D, r3D] = EvalCurvStructInPieceFrame( ctx, curv, u_vec )
 //
+// EvalCurvStructInPieceFrame : Eval curve structure and its derivatives on
+//  a set of u points on the piece frame (WCS).
+//
+//  Inputs :
+//  ctx   : The context of the computational chain
+//  curv  : The curve used in the evaluation
+//  u_vec : U vectors.
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
+//
+//
 // Arguments    : const queue_coder *ctx_q_spline
 //                const bool ctx_cfg_maskTot_data[]
 //                const int ctx_cfg_maskTot_size[2]
@@ -68,22 +83,22 @@ void EvalCurvStructInPieceFrame(
     ::coder::array<double, 1U> b_r3D;
     ::coder::array<double, 1U> r2D;
     ::coder::array<double, 1U> r3D;
-    // 'EvalCurvStructInPieceFrame:3' coder.inline("never");
+    // 'EvalCurvStructInPieceFrame:17' coder.inline("never");
     //  Detect cusp in piece frame
-    // 'EvalCurvStructInPieceFrame:6' [r0D, r1D, r2D, r3D]= EvalCurvStruct( ctx, curv, u_vec );
+    // 'EvalCurvStructInPieceFrame:20' [r0D, r1D, r2D, r3D]= EvalCurvStruct( ctx, curv, u_vec );
     b_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                      ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                      ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                      ctx_cfg_NCart, ctx_cfg_NRot, curv_Info, curv_R0, curv_R1,
                      curv_CorrectedHelixCenter, curv_evec, curv_theta, curv_pitch, curv_CoeffP5,
                      curv_sp_index, curv_a_param, curv_b_param, r0D, r1D, r2D, r3D);
-    // 'EvalCurvStructInPieceFrame:8' if( ~curv.Info.TRAFO )
+    // 'EvalCurvStructInPieceFrame:22' if( ~curv.Info.TRAFO )
     if (!curv_Info.TRAFO) {
         int b_loop_ub;
         int loop_ub;
         //  Aply Kinematic transform
-        // 'EvalCurvStructInPieceFrame:10' ctx.kin.set_tool_length( curv.tool.offset.z );
-        // 'EvalCurvStructInPieceFrame:11' [r0D, r1D, r2D, r3D] = ctx.kin.relative(r0D, r1D, r2D,
+        // 'EvalCurvStructInPieceFrame:24' ctx.kin.set_tool_length( -curv.tool.offset.z );
+        // 'EvalCurvStructInPieceFrame:25' [r0D, r1D, r2D, r3D] = ctx.kin.relative(r0D, r1D, r2D,
         // r3D);
         b_r0D.set_size(r0D.size(0));
         loop_ub = r0D.size(0) - 1;
@@ -101,6 +116,21 @@ void EvalCurvStructInPieceFrame(
 
 //
 // function [r0D, r1D, r2D, r3D] = EvalCurvStructInPieceFrame( ctx, curv, u_vec )
+//
+// EvalCurvStructInPieceFrame : Eval curve structure and its derivatives on
+//  a set of u points on the piece frame (WCS).
+//
+//  Inputs :
+//  ctx   : The context of the computational chain
+//  curv  : The curve used in the evaluation
+//  u_vec : U vectors.
+//
+//  Outputs :
+//  r0D   : Matrix of points for a given set of u values
+//  r1D   : Matrix of points (first derivative) for a given set of u values
+//  r2D   : Matrix of points (second derivative) for a given set of u values
+//  r3D   : Matrix of points (third derivative) for a given set of u values
+//
 //
 // Arguments    : const queue_coder *ctx_q_spline
 //                const bool ctx_cfg_maskTot_data[]
@@ -149,22 +179,22 @@ void b_EvalCurvStructInPieceFrame(
     ::coder::array<double, 1U> b_r3D;
     ::coder::array<double, 1U> r2D;
     ::coder::array<double, 1U> r3D;
-    // 'EvalCurvStructInPieceFrame:3' coder.inline("never");
+    // 'EvalCurvStructInPieceFrame:17' coder.inline("never");
     //  Detect cusp in piece frame
-    // 'EvalCurvStructInPieceFrame:6' [r0D, r1D, r2D, r3D]= EvalCurvStruct( ctx, curv, u_vec );
+    // 'EvalCurvStructInPieceFrame:20' [r0D, r1D, r2D, r3D]= EvalCurvStruct( ctx, curv, u_vec );
     c_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                      ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                      ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                      ctx_cfg_NCart, ctx_cfg_NRot, curv_Info, curv_R0, curv_R1,
                      curv_CorrectedHelixCenter, curv_evec, curv_theta, curv_pitch, curv_CoeffP5,
                      curv_sp_index, curv_a_param, curv_b_param, r0D, r1D, r2D, r3D);
-    // 'EvalCurvStructInPieceFrame:8' if( ~curv.Info.TRAFO )
+    // 'EvalCurvStructInPieceFrame:22' if( ~curv.Info.TRAFO )
     if (!curv_Info.TRAFO) {
         int b_loop_ub;
         int loop_ub;
         //  Aply Kinematic transform
-        // 'EvalCurvStructInPieceFrame:10' ctx.kin.set_tool_length( curv.tool.offset.z );
-        // 'EvalCurvStructInPieceFrame:11' [r0D, r1D, r2D, r3D] = ctx.kin.relative(r0D, r1D, r2D,
+        // 'EvalCurvStructInPieceFrame:24' ctx.kin.set_tool_length( -curv.tool.offset.z );
+        // 'EvalCurvStructInPieceFrame:25' [r0D, r1D, r2D, r3D] = ctx.kin.relative(r0D, r1D, r2D,
         // r3D);
         b_r0D.set_size(r0D.size(0));
         loop_ub = r0D.size(0) - 1;

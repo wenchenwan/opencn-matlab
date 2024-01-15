@@ -12,7 +12,7 @@
 #include "TransP5LengthApprox.h"
 #include "mypolyder.h"
 #include "mypolyval.h"
-#include "opencn_matlab_data.h"
+#include "ocn_assert.h"
 #include "coder_array.h"
 #include <cmath>
 #include <cstring>
@@ -20,9 +20,19 @@
 
 // Function Definitions
 //
-// function L = TransP5LengthApprox( CurvStruct, u0, u1 )
+// function [ L ] = TransP5LengthApprox( CurvStruct, u0, u1 )
 //
-// Computes approximately the arc length of a parametric spline
+// TransP5LengthApprox : Compute the length of the transition (5th degree
+//  polynomial) between u0 and u1.
+//
+//  Inputs :
+//    CurvStruct  : Curve structure (5th degree polynomial)
+//    u0          : Starting u
+//    u1          : Ending u
+//
+//  Outputs :
+//    L           : Approximative length
+//
 //
 // Arguments    : const ::coder::array<double, 2U> &CurvStruct_CoeffP5
 //                double u0
@@ -33,20 +43,17 @@ namespace ocn {
 double TransP5LengthApprox(const ::coder::array<double, 2U> &CurvStruct_CoeffP5, double u0,
                            double u1)
 {
-    __m128d r2;
-    __m128d r3;
-    __m128d r4;
     ::coder::array<double, 2U> p5_1D;
     ::coder::array<double, 2U> r;
     ::coder::array<double, 2U> r1;
     ::coder::array<double, 2U> y;
     ::coder::array<int, 2U> b;
     double u_vec[10];
-    double Integrand[9];
+    double b_y[9];
     double b_y1[9];
     double u_mid[9];
     double x[9];
-    double b_y;
+    double d_y;
     double work;
     int b_outsize_idx_0;
     int c_loop_ub;
@@ -55,20 +62,27 @@ double TransP5LengthApprox(const ::coder::array<double, 2U> &CurvStruct_CoeffP5,
     int vlen;
     int xsubs_idx_1;
     short ysubs_idx_1;
-    // 'TransP5LengthApprox:3' p5          = CurvStruct.CoeffP5;
-    // 'TransP5LengthApprox:4' p5_1D       = mypolyder( p5 );
-    // MYPOLYDER Differentiate polynomial.
+    bool c_y[9];
+    //  Computes approximately the arc length of a parametric spline
+    // 'TransP5LengthApprox:16' p5          = CurvStruct.CoeffP5;
+    // 'TransP5LengthApprox:17' p5_1D       = mypolyder( p5 );
+    //  mypolyder : Compute the derivative of input polynom of coefficient u.
     //
-    // u  = u(:).';
-    // 'mypolyder:5' [nD, nu] = size(u);
-    // 'mypolyder:6' if nu < 2
+    //  Inputs :
+    //    u : Coefficients of the polynom vector.
+    //  Outputs :
+    //    a : Coefficient of the derivative of the polynom vector.
+    //
+    //  u  = u( : ).';
+    // 'mypolyder:10' [ nD, nu ] = size( u );
+    // 'mypolyder:11' if nu < 2
     if (CurvStruct_CoeffP5.size(1) < 2) {
-        // 'mypolyder:7' a = 0;
+        // 'mypolyder:12' a = 0;
         p5_1D.set_size(1, 1);
         p5_1D[0] = 0.0;
     } else {
-        // 'mypolyder:8' else
-        // 'mypolyder:9' a = u(:, 1:nu-1) .* repmat(nu-1:-1:1, nD, 1);
+        // 'mypolyder:13' else
+        // 'mypolyder:14' a = u( :, 1 : nu-1 ) .* repmat( nu-1 :-1 : 1 , nD, 1 );
         b.set_size(CurvStruct_CoeffP5.size(0), CurvStruct_CoeffP5.size(1) - 1);
         if (CurvStruct_CoeffP5.size(0) != 0) {
             int i;
@@ -100,7 +114,7 @@ double TransP5LengthApprox(const ::coder::array<double, 2U> &CurvStruct_CoeffP5,
         }
     }
     //  Derivative
-    // 'TransP5LengthApprox:5' u_vec       = linspace( u0, u1, 10 );
+    // 'TransP5LengthApprox:18' u_vec       = linspace( u0, u1, 10 );
     u_vec[9] = u1;
     u_vec[0] = u0;
     if (u0 == -u1) {
@@ -126,18 +140,24 @@ double TransP5LengthApprox(const ::coder::array<double, 2U> &CurvStruct_CoeffP5,
             u_vec[c_k + 1] = u0 + (static_cast<double>(c_k) + 1.0) * delta1;
         }
     }
-    // 'TransP5LengthApprox:6' u_mid       = 0.5 * ( u_vec( 1 : end-1 ) + u_vec( 2 : end ) );
+    // 'TransP5LengthApprox:19' u_mid       = 0.5 * ( u_vec( 1 : end-1 ) + u_vec( 2 : end ) );
     //  Midpoint values
-    // 'TransP5LengthApprox:7' du          = diff( u_vec );
+    // 'TransP5LengthApprox:20' du          = diff( u_vec );
     work = u_vec[0];
-    // 'TransP5LengthApprox:8' Integrand   = mysqrt( sum( mypolyval( p5_1D, u_mid ) .^ 2 ) );
-    // POLYVAL Evaluate array of polynomials with same degree.
+    // 'TransP5LengthApprox:21' Integrand   = mysqrt( sum( mypolyval( p5_1D, u_mid ) .^ 2 ) );
+    //  Polyval : Evaluate array of polynomials with same degree.
     //
-    // 'mypolyval:4' [nD, nc] = size(p);
-    // 'mypolyval:5' siz_x    = length(x);
+    //  Inputs :
+    //    p : Polynom coefficients
+    //    x : Polynom x values
+    //  Outputs :
+    //    y : Resulting values
+    //
+    // 'mypolyval:10' [ nD, nc ] = size( p );
+    // 'mypolyval:11' siz_x      = length( x );
     //
     //  Use Horner's method for general case where X is an array.
-    // 'mypolyval:8' y = zeros(nD, siz_x);
+    // 'mypolyval:14' y = zeros( nD, siz_x );
     y.set_size(p5_1D.size(0), 9);
     c_loop_ub = p5_1D.size(0);
     for (int m{0}; m < 9; m++) {
@@ -152,9 +172,9 @@ double TransP5LengthApprox(const ::coder::array<double, 2U> &CurvStruct_CoeffP5,
             y[i5 + y.size(0) * m] = 0.0;
         }
     }
-    // 'mypolyval:9' if nc > 0
+    // 'mypolyval:15' if nc > 0
     if (p5_1D.size(1) > 0) {
-        // 'mypolyval:10' y(:) = repmat(p(:, 1), 1, siz_x);
+        // 'mypolyval:16' y( : ) = repmat( p( :, 1 ), 1, siz_x );
         y.set_size(p5_1D.size(0), 9);
         if (p5_1D.size(0) != 0) {
             int i4;
@@ -166,7 +186,7 @@ double TransP5LengthApprox(const ::coder::array<double, 2U> &CurvStruct_CoeffP5,
             }
         }
     }
-    // 'mypolyval:12' for i=2:nc
+    // 'mypolyval:18' for i = 2 : nc
     i3 = p5_1D.size(1);
     if (p5_1D.size(1) - 2 >= 0) {
         outsize_idx_0 = p5_1D.size(0);
@@ -174,7 +194,7 @@ double TransP5LengthApprox(const ::coder::array<double, 2U> &CurvStruct_CoeffP5,
     }
     for (int b_i{0}; b_i <= i3 - 2; b_i++) {
         int i10;
-        // 'mypolyval:13' y = repmat(x, nD, 1) .* y + repmat(p(:, i), 1, siz_x);
+        // 'mypolyval:19' y = repmat( x, nD, 1 ) .* y + repmat( p( :, i ), 1, siz_x );
         r.set_size(outsize_idx_0, 9);
         if (outsize_idx_0 != 0) {
             int i7;
@@ -210,13 +230,13 @@ double TransP5LengthApprox(const ::coder::array<double, 2U> &CurvStruct_CoeffP5,
             vectorUB = scalarLB - 2;
             for (int i11{0}; i11 < 9; i11++) {
                 for (int i12{0}; i12 <= vectorUB; i12 += 2) {
-                    __m128d r5;
-                    __m128d r6;
-                    __m128d r7;
-                    r5 = _mm_loadu_pd(&r[i12 + r.size(0) * i11]);
-                    r6 = _mm_loadu_pd(&y[i12 + y.size(0) * i11]);
-                    r7 = _mm_loadu_pd(&r1[i12 + r1.size(0) * i11]);
-                    _mm_storeu_pd(&y[i12 + y.size(0) * i11], _mm_add_pd(_mm_mul_pd(r5, r6), r7));
+                    __m128d r2;
+                    __m128d r3;
+                    __m128d r4;
+                    r2 = _mm_loadu_pd(&r[i12 + r.size(0) * i11]);
+                    r3 = _mm_loadu_pd(&y[i12 + y.size(0) * i11]);
+                    r4 = _mm_loadu_pd(&r1[i12 + r1.size(0) * i11]);
+                    _mm_storeu_pd(&y[i12 + y.size(0) * i11], _mm_add_pd(_mm_mul_pd(r2, r3), r4));
                 }
                 for (int i12{scalarLB}; i12 < e_loop_ub; i12++) {
                     y[i12 + y.size(0) * i11] = r[i12 + r.size(0) * i11] * y[i12 + y.size(0) * i11] +
@@ -239,7 +259,7 @@ double TransP5LengthApprox(const ::coder::array<double, 2U> &CurvStruct_CoeffP5,
     }
     vlen = y.size(0);
     if (y.size(0) == 0) {
-        std::memset(&Integrand[0], 0, 9U * sizeof(double));
+        std::memset(&b_y[0], 0, 9U * sizeof(double));
     } else {
         int firstBlockLength;
         int lastBlockLength;
@@ -259,11 +279,11 @@ double TransP5LengthApprox(const ::coder::array<double, 2U> &CurvStruct_CoeffP5,
             }
         }
         for (int h_k{0}; h_k < 9; h_k++) {
-            Integrand[h_k] = y[y.size(0) * h_k];
+            b_y[h_k] = y[y.size(0) * h_k];
             for (int i_k{2}; i_k <= firstBlockLength; i_k++) {
                 if (vlen >= 2) {
                     ysubs_idx_1 = static_cast<short>(h_k + 1);
-                    Integrand[h_k] += y[(i_k + y.size(0) * h_k) - 1];
+                    b_y[h_k] += y[(i_k + y.size(0) * h_k) - 1];
                 }
             }
             if (nblocks >= 2) {
@@ -289,40 +309,54 @@ double TransP5LengthApprox(const ::coder::array<double, 2U> &CurvStruct_CoeffP5,
                     }
                     bsum = b_bsum;
                 }
-                Integrand[ysubs_idx_1 - 1] += bsum;
+                b_y[ysubs_idx_1 - 1] += bsum;
             }
         }
     }
-    // 'mysqrt:3' y = sqrt(x);
-    // 'mysqrt:4' sqrt_calls = sqrt_calls + 1;
-    sqrt_calls++;
-    // 'TransP5LengthApprox:9' L           = sum( Integrand .* du );
-    r2 = _mm_loadu_pd(&Integrand[0]);
-    r3 = _mm_sqrt_pd(r2);
-    _mm_storeu_pd(&Integrand[0], r3);
-    r4 = _mm_loadu_pd(&b_y1[0]);
-    _mm_storeu_pd(&x[0], _mm_mul_pd(r3, r4));
-    r2 = _mm_loadu_pd(&Integrand[2]);
-    r3 = _mm_sqrt_pd(r2);
-    _mm_storeu_pd(&Integrand[2], r3);
-    r4 = _mm_loadu_pd(&b_y1[2]);
-    _mm_storeu_pd(&x[2], _mm_mul_pd(r3, r4));
-    r2 = _mm_loadu_pd(&Integrand[4]);
-    r3 = _mm_sqrt_pd(r2);
-    _mm_storeu_pd(&Integrand[4], r3);
-    r4 = _mm_loadu_pd(&b_y1[4]);
-    _mm_storeu_pd(&x[4], _mm_mul_pd(r3, r4));
-    r2 = _mm_loadu_pd(&Integrand[6]);
-    r3 = _mm_sqrt_pd(r2);
-    _mm_storeu_pd(&Integrand[6], r3);
-    r4 = _mm_loadu_pd(&b_y1[6]);
-    _mm_storeu_pd(&x[6], _mm_mul_pd(r3, r4));
-    x[8] = std::sqrt(Integrand[8]) * b_y1[8];
-    b_y = x[0];
-    for (int k_k{0}; k_k < 8; k_k++) {
-        b_y += x[k_k + 1];
+    //  mysqrt : Custom implementation of the sqrt method.
+    //
+    //  Inputs :
+    //    x : Value used for the computation
+    //  Outputs :
+    //    y : Resulting value
+    //
+    // 'mysqrt:9' ocn_assert( isreal( x ), "x should be real...", mfilename );
+    // 'mysqrt:10' ocn_assert( x >= 0, "x should not be negative...", mfilename );
+    for (int i13{0}; i13 < 9; i13++) {
+        c_y[i13] = (b_y[i13] >= 0.0);
     }
-    return b_y;
+    __m128d r5;
+    __m128d r6;
+    __m128d r7;
+    o_ocn_assert(c_y);
+    // 'mysqrt:11' y = sqrt(x);
+    // 'TransP5LengthApprox:22' L           = sum( Integrand .* du );
+    r5 = _mm_loadu_pd(&b_y[0]);
+    r6 = _mm_sqrt_pd(r5);
+    _mm_storeu_pd(&b_y[0], r6);
+    r7 = _mm_loadu_pd(&b_y1[0]);
+    _mm_storeu_pd(&x[0], _mm_mul_pd(r6, r7));
+    r5 = _mm_loadu_pd(&b_y[2]);
+    r6 = _mm_sqrt_pd(r5);
+    _mm_storeu_pd(&b_y[2], r6);
+    r7 = _mm_loadu_pd(&b_y1[2]);
+    _mm_storeu_pd(&x[2], _mm_mul_pd(r6, r7));
+    r5 = _mm_loadu_pd(&b_y[4]);
+    r6 = _mm_sqrt_pd(r5);
+    _mm_storeu_pd(&b_y[4], r6);
+    r7 = _mm_loadu_pd(&b_y1[4]);
+    _mm_storeu_pd(&x[4], _mm_mul_pd(r6, r7));
+    r5 = _mm_loadu_pd(&b_y[6]);
+    r6 = _mm_sqrt_pd(r5);
+    _mm_storeu_pd(&b_y[6], r6);
+    r7 = _mm_loadu_pd(&b_y1[6]);
+    _mm_storeu_pd(&x[6], _mm_mul_pd(r6, r7));
+    x[8] = std::sqrt(b_y[8]) * b_y1[8];
+    d_y = x[0];
+    for (int k_k{0}; k_k < 8; k_k++) {
+        d_y += x[k_k + 1];
+    }
+    return d_y;
 }
 
 } // namespace ocn

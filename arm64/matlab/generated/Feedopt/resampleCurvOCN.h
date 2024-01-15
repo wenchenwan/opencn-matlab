@@ -24,11 +24,11 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-extern void resampleCurvOCN(ResampleStateClass *b_state, const BaseSplineStruct *Bl,
+extern void resampleCurvOCN(ResampleStateClass *state, const BaseSplineStruct *Bl,
                             ZSpdMode curv_mode, const ::coder::array<double, 1U> &coeff,
                             double constJerk, double dt,
                             const ::coder::array<double, 1U> &GaussLegendreX,
-                            const ::coder::array<double, 1U> &GaussLegendreW);
+                            const ::coder::array<double, 1U> &GaussLegendreW, bool enablePrint);
 
 }
 

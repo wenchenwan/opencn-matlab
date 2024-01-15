@@ -325,9 +325,9 @@ static void checkValidity(const ::coder::array<double, 1U> &b)
     ::coder::array<int, 1U> r;
     ::coder::array<bool, 1U> b_b;
     int loop_ub;
-    // 'buildConstr:123' ocn_assert( ~any( isnan( A ) , 'all' ),             "A has NaN", mfilename
-    // ); 'buildConstr:124' ocn_assert( ~any( isnan( b ) , 'all' ),             "b has NaN",
-    // mfilename ); 'buildConstr:125' ocn_assert( ~any( find( b < 0 ) , 'all' ),          "b should
+    // 'buildConstr:144' ocn_assert( ~any( isnan( A ) , 'all' ),             "A has NaN", mfilename
+    // ); 'buildConstr:145' ocn_assert( ~any( isnan( b ) , 'all' ),             "b has NaN",
+    // mfilename ); 'buildConstr:146' ocn_assert( ~any( find( b < 0 ) , 'all' ),          "b should
     // be positive", mfilename );
     b_b.set_size(b.size(0));
     loop_ub = b.size(0);
@@ -335,10 +335,10 @@ static void checkValidity(const ::coder::array<double, 1U> &b)
         b_b[i] = (b[i] < 0.0);
     }
     coder::c_eml_find(b_b, r);
-    fb_ocn_assert(r.size(0) - 1 < 0);
-    // 'buildConstr:126' ocn_assert( ~any( isnan( Aeq ) , 'all' ),           "Aeq has NaN",
-    // mfilename ); 'buildConstr:127' ocn_assert( ~any( isnan( beq ) , 'all' ),           "beq has
-    // NaN", mfilename ); 'buildConstr:128' ocn_assert( ~any( isnan( continuity ) , 'all' ),
+    nb_ocn_assert(r.size(0) - 1 < 0);
+    // 'buildConstr:147' ocn_assert( ~any( isnan( Aeq ) , 'all' ),           "Aeq has NaN",
+    // mfilename ); 'buildConstr:148' ocn_assert( ~any( isnan( beq ) , 'all' ),           "beq has
+    // NaN", mfilename ); 'buildConstr:149' ocn_assert( ~any( isnan( continuity ) , 'all' ),
     // "continuity has NaN", mfilename );
 }
 
@@ -428,6 +428,28 @@ static void e_binary_expand_op(::coder::array<double, 3U> &in1, const ::coder::a
 //
 // function [ A, b, Aeq, beq, continuity ] = buildConstr( ctx, windowCurv, amax, ...
 //     v_0, at_0, v_1, at_1, BasisVal, BasisValD, u_vec )
+//
+// buildConstr   : Build constraints.
+//
+//  Inputs :
+//  ctx           : Matlab context
+//  windowCurv    : Curvs window
+//  amax          : Maximum acceleration
+//  v_0           : speed at start
+//  at_0          : tangential acceleration at start
+//  v_1           : speed at end
+//  at_1          : tangential acceleration at end
+//  BasisVal      : BSpline evaluated at u_vec values
+//  BasisValD     : BSpline derivative evaluated at u_vec values
+//  u_vec         : Vecteur of u values
+//
+//  Outputs:
+//  A             : Inequality Matrix
+//  b             : Inequality vector
+//  Aeq           : Equality Matrix
+//  beq           : Equality vector
+//  continuity    : Continuity equation
+//
 //
 // Arguments    : const queue_coder *ctx_q_spline
 //                const bool ctx_cfg_maskTot_data[]
@@ -566,24 +588,24 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
     int y_tmp;
     signed char b_tmp_data[6];
     signed char tmp_data[6];
-    // 'buildConstr:5' c_prof_in(mfilename);
+    // 'buildConstr:26' c_prof_in(mfilename);
     //  Ndim     : number of dimention
     //  NWindow  : number of axes
-    // 'buildConstr:8' Ndim        = ctx.cfg.NumberAxis;
-    // 'buildConstr:9' Nwindow     = length( windowCurv );
+    // 'buildConstr:29' Ndim        = ctx.cfg.NumberAxis;
+    // 'buildConstr:30' Nwindow     = length( windowCurv );
     //  M     : number of discretization
     //  N     : number of coefficients
     //  Nx    : number of decision variable
     //  Nc    : number of inequality constraints
     //  Nec   : number of equality constraints
-    // 'buildConstr:16' [ M, N ]    = size( BasisVal );
+    // 'buildConstr:37' [ M, N ]    = size( BasisVal );
     N = BasisVal.size(1);
     M = BasisVal.size(0);
-    // 'buildConstr:17' Nx          = N * Nwindow;
+    // 'buildConstr:38' Nx          = N * Nwindow;
     Nx = static_cast<double>(BasisVal.size(1)) * static_cast<double>(windowCurv.size(1));
-    // 'buildConstr:18' Nc          = ( 2 + 2 * Ndim );
+    // 'buildConstr:39' Nc          = ( 2 + 2 * Ndim );
     y_tmp = ctx_cfg_NumberAxis << 1;
-    // 'buildConstr:19' Nec         = 2 * ( Nwindow + 1 );
+    // 'buildConstr:40' Nec         = 2 * ( Nwindow + 1 );
     Nec = 2.0 * (static_cast<double>(windowCurv.size(1)) + 1.0);
     //  A         : Matrix for equality constraints
     //  b         : Vector for equality constraints
@@ -591,7 +613,7 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
     //  beq       : Vector for inequality constraints
     //  amaxTot   : Acceleration max total ( cart + rot )
     //  b_amax    : Vector for maximum acceleration
-    // 'buildConstr:27' A           = zeros( Nc * M * Nwindow,  Nx );
+    // 'buildConstr:48' A           = zeros( Nc * M * Nwindow,  Nx );
     y = static_cast<int>(
         static_cast<double>(static_cast<int>(static_cast<double>(y_tmp + 2) *
                                              static_cast<double>(BasisVal.size(0)))) *
@@ -604,7 +626,7 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
             A[i1 + A.size(0) * i] = 0.0;
         }
     }
-    // 'buildConstr:28' b           = zeros( Nc * M * Nwindow,  1 );
+    // 'buildConstr:49' b           = zeros( Nc * M * Nwindow,  1 );
     b_y = static_cast<int>(
         static_cast<double>(static_cast<int>(static_cast<double>(y_tmp + 2) *
                                              static_cast<double>(BasisVal.size(0)))) *
@@ -614,7 +636,7 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
         b[i2] = 0.0;
     }
     int i3;
-    // 'buildConstr:29' Aeq         = zeros( Nec, Nx );
+    // 'buildConstr:50' Aeq         = zeros( Nec, Nx );
     b_loop_ub = static_cast<int>(2.0 * (static_cast<double>(windowCurv.size(1)) + 1.0));
     i3 = static_cast<int>(Nec);
     Aeq.set_size(i3, static_cast<int>(Nx));
@@ -624,14 +646,14 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
         }
     }
     int i6;
-    // 'buildConstr:30' beq         = zeros( Nec, 1 );
+    // 'buildConstr:51' beq         = zeros( Nec, 1 );
     i6 = static_cast<int>(Nec);
     beq.set_size(i6);
     for (int i7{0}; i7 < b_loop_ub; i7++) {
         beq[i7] = 0.0;
     }
-    // 'buildConstr:31' amaxTot     = amax( ctx.cfg.maskTot );
-    // 'buildConstr:32' b_amax      = repmat( amaxTot, M, 1 );
+    // 'buildConstr:52' amaxTot     = amax( ctx.cfg.maskTot );
+    // 'buildConstr:53' b_amax      = repmat( amaxTot, M, 1 );
     end_tmp = ctx_cfg_maskTot_size[1] - 1;
     trueCount = 0;
     partialTrueCount = 0;
@@ -666,7 +688,7 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
     //  bw        : Cell of the vector of inequality const. by window
     //  indAT     : Indexis for at_norm at continuity points
     //  mask_continuity : Mask used in the recursive form the continuity equ.
-    // 'buildConstr:41' at_norm     = zeros( 2, N, Nwindow );
+    // 'buildConstr:62' at_norm     = zeros( 2, N, Nwindow );
     at_norm.set_size(2, BasisVal.size(1), windowCurv.size(1));
     c_loop_ub = windowCurv.size(1);
     for (int i10{0}; i10 < c_loop_ub; i10++) {
@@ -677,7 +699,7 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
             at_norm[(2 * i11 + 2 * at_norm.size(1) * i10) + 1] = 0.0;
         }
     }
-    // 'buildConstr:42' t_vec       = zeros( Ndim, 2, Nwindow );
+    // 'buildConstr:63' t_vec       = zeros( Ndim, 2, Nwindow );
     t_vec.set_size(ctx_cfg_NumberAxis, 2, windowCurv.size(1));
     e_loop_ub = windowCurv.size(1);
     for (int i12{0}; i12 < e_loop_ub; i12++) {
@@ -687,7 +709,7 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
             }
         }
     }
-    // 'buildConstr:43' v2_vec      = zeros( 2, N, Nwindow );
+    // 'buildConstr:64' v2_vec      = zeros( 2, N, Nwindow );
     v2_vec.set_size(2, BasisVal.size(1), windowCurv.size(1));
     f_loop_ub = windowCurv.size(1);
     for (int i15{0}; i15 < f_loop_ub; i15++) {
@@ -698,7 +720,7 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
             v2_vec[(2 * i16 + 2 * v2_vec.size(1) * i15) + 1] = 0.0;
         }
     }
-    // 'buildConstr:44' Acc         = zeros( M * Ndim , N, 2 );
+    // 'buildConstr:65' Acc         = zeros( M * Ndim , N, 2 );
     c_y = static_cast<int>(static_cast<double>(BasisVal.size(0)) *
                            static_cast<double>(ctx_cfg_NumberAxis));
     Acc.set_size(c_y, BasisVal.size(1), 2);
@@ -710,7 +732,7 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
             }
         }
     }
-    // 'buildConstr:45' indAT       = ( int32( 1 : Ndim ) - 1 ) * M  + int32( [ 1 ; M ] );
+    // 'buildConstr:66' indAT       = ( int32( 1 : Ndim ) - 1 ) * M  + int32( [ 1 ; M ] );
     coder::eml_integer_colon_dispatcher(ctx_cfg_NumberAxis, r1);
     tmp_data_idx_1 = BasisVal.size(0);
     indAT.set_size(2, r1.size(1));
@@ -725,8 +747,8 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
                                               static_cast<double>(BasisVal.size(0))) +
                              tmp_data_idx_1;
     }
-    // 'buildConstr:46' mask_continuity = [ 1; 1; -1; -1 ];
-    // 'buildConstr:47' v_max       = zeros( Ndim + 1, M );
+    // 'buildConstr:67' mask_continuity = [ 1; 1; -1; -1 ];
+    // 'buildConstr:68' v_max       = zeros( Ndim + 1, M );
     v_max.set_size(ctx_cfg_NumberAxis + 1, BasisVal.size(0));
     j_loop_ub = BasisVal.size(0);
     for (int i21{0}; i21 < j_loop_ub; i21++) {
@@ -736,7 +758,7 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
             v_max[i23 + v_max.size(0) * i21] = 0.0;
         }
     }
-    // 'buildConstr:49' for k = 1 : Nwindow
+    // 'buildConstr:70' for k = 1 : Nwindow
     i22 = windowCurv.size(1);
     if (windowCurv.size(1) - 1 >= 0) {
         int unnamed_idx_1;
@@ -800,19 +822,19 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
         bool b_empty_non_axis_sizes;
         bool guard1;
         //  Compute the partial derivatives
-        // 'buildConstr:51' [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, windowCurv( k ), u_vec );
-        h_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
+        // 'buildConstr:72' [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, windowCurv( k ), u_vec );
+        q_EvalCurvStruct(ctx_q_spline, ctx_cfg_maskTot_data, ctx_cfg_maskTot_size,
                          ctx_cfg_maskCart_data, ctx_cfg_maskCart_size, ctx_cfg_maskRot_data,
                          ctx_cfg_maskRot_size, ctx_cfg_indCart, ctx_cfg_indRot, ctx_cfg_NumberAxis,
                          ctx_cfg_NCart, ctx_cfg_NRot, &windowCurv[b_k], u_vec, r0D, r1D, r2D, r3D);
-        // 'buildConstr:52' ctx.kin = ctx.kin.set_tool_length(windowCurv( k ).tool.offset.z);
-        ctx_kin->set_tool_length(windowCurv[b_k].tool.offset.z);
-        // 'buildConstr:54' if( windowCurv( k ).Info.TRAFO )
+        // 'buildConstr:73' ctx.kin = ctx.kin.set_tool_length( -windowCurv( k ).tool.offset.z );
+        ctx_kin->set_tool_length(-windowCurv[b_k].tool.offset.z);
+        // 'buildConstr:75' if( windowCurv( k ).Info.TRAFO )
         if (windowCurv[b_k].Info.TRAFO) {
             int s_loop_ub;
-            // 'buildConstr:55' [ ~, r1D_a, r2D_a ]  = ctx.kin.joint( r0D, r1D, r2D, r3D );
+            // 'buildConstr:76' [ ~, r1D_a, r2D_a ]  = ctx.kin.joint( r0D, r1D, r2D, r3D );
             ctx_kin->joint(r0D, r1D, r2D, a__1, r1D_a, r2D_a);
-            // 'buildConstr:56' r1D_r    = r1D;
+            // 'buildConstr:77' r1D_r    = r1D;
             r1D_r.set_size(r1D.size(0), r1D.size(1));
             s_loop_ub = r1D.size(1);
             for (int i25{0}; i25 < s_loop_ub; i25++) {
@@ -825,10 +847,10 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
         } else {
             int t_loop_ub;
             int x_loop_ub;
-            // 'buildConstr:57' else
-            // 'buildConstr:58' [ r1D_r ] = ctx.kin.v_relative( r0D, r1D );
+            // 'buildConstr:78' else
+            // 'buildConstr:79' [ r1D_r ] = ctx.kin.v_relative( r0D, r1D );
             ctx_kin->v_relative(r0D, r1D, r1D_r);
-            // 'buildConstr:59' r1D_a    = r1D;
+            // 'buildConstr:80' r1D_a    = r1D;
             r1D_a.set_size(r1D.size(0), r1D.size(1));
             t_loop_ub = r1D.size(1);
             for (int i26{0}; i26 < t_loop_ub; i26++) {
@@ -838,7 +860,7 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
                     r1D_a[i29 + r1D_a.size(0) * i26] = r1D[i29 + r1D.size(0) * i26];
                 }
             }
-            // 'buildConstr:60' r2D_a    = r2D;
+            // 'buildConstr:81' r2D_a    = r2D;
             x_loop_ub = r2D.size(1);
             r2D_a.set_size(r2D.size(0), r2D.size(1));
             for (int i30{0}; i30 < x_loop_ub; i30++) {
@@ -850,9 +872,9 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
             }
         }
         //  Tangent unit vector at start and at end
-        // 'buildConstr:64' normR1D = vecnorm( r1D );
+        // 'buildConstr:85' normR1D = vecnorm( r1D );
         coder::vecnorm(r1D, normR1D);
-        // 'buildConstr:65' t_vec( : , :, k ) = r1D( :, [ 1, end ] ) ./ normR1D( [1, end] );
+        // 'buildConstr:86' t_vec( : , :, k ) = r1D( :, [ 1, end ] ) ./ normR1D( [1, end] );
         iv[0] = 0;
         iv[1] = r1D.size(1) - 1;
         ab_loop_ub = r1D.size(0);
@@ -872,7 +894,7 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
                     x[i38 + x.size(0) * i37] / d_y[i37];
             }
         }
-        // 'buildConstr:67' v_max( 1 : Ndim, : ) = ( ctx.cfg.vmax( ctx.cfg.maskTot ).'./ r1D_a ).^2;
+        // 'buildConstr:88' v_max( 1 : Ndim, : ) = ( ctx.cfg.vmax( ctx.cfg.maskTot ).'./ r1D_a ).^2;
         b_trueCount = 0;
         b_partialTrueCount = 0;
         for (int c_i{0}; c_i <= end; c_i++) {
@@ -908,8 +930,8 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
             binary_expand_op(v_max, ctx_cfg_vmax, b_tmp_data, tmp_size, r1D_a);
         }
         //  Maximum constraint on the speed
-        // 'buildConstr:70' v_max( end, : ) = ( windowCurv( k ).Info.FeedRate ./ ...
-        // 'buildConstr:71'         vecnorm( r1D_r( ctx.cfg.indCart, : ) ) ).^2;
+        // 'buildConstr:91' v_max( end, : ) = ( windowCurv( k ).Info.FeedRate ./ ...
+        // 'buildConstr:92'         vecnorm( r1D_r( ctx.cfg.indCart, : ) ) ).^2;
         gb_loop_ub = r1D_r.size(1);
         b_r1D_r.set_size(ctx_cfg_indCart.size(0), r1D_r.size(1));
         for (int i42{0}; i42 < gb_loop_ub; i42++) {
@@ -928,9 +950,9 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
             c_varargin_1 = windowCurv[b_k].Info.FeedRate / r2[i48];
             v_max[b_v_max + v_max.size(0) * i48] = std::pow(c_varargin_1, 2.0);
         }
-        // 'buildConstr:73' f_max = min( v_max, [], 1 );
+        // 'buildConstr:94' f_max = min( v_max, [], 1 );
         coder::internal::minimum(v_max, f_max);
-        // 'buildConstr:75' for j = 1 : Ndim
+        // 'buildConstr:96' for j = 1 : Ndim
         if (ctx_cfg_NumberAxis - 1 >= 0) {
             if (M < 1) {
                 e_y.set_size(1, 0);
@@ -957,9 +979,9 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
             int i70;
             int i72;
             //  Compute the acceleration matrix
-            // 'buildConstr:76' ind = int32( 1 : M ) + ( j - 1 ) * M ;
+            // 'buildConstr:97' ind = int32( 1 : M ) + ( j - 1 ) * M ;
             g_y = static_cast<int>((static_cast<double>(j + 1) - 1.0) * static_cast<double>(M));
-            // 'buildConstr:77' Acc( ind, :, 1 ) = r2D_a( j, : )' .* BasisVal + 0.5 * r1D_a( j, : )'
+            // 'buildConstr:98' Acc( ind, :, 1 ) = r2D_a( j, : )' .* BasisVal + 0.5 * r1D_a( j, : )'
             // .* BasisValD;
             r3.set_size(i56);
             for (int i59{0}; i59 < ob_loop_ub; i59++) {
@@ -994,7 +1016,7 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
             } else {
                 e_binary_expand_op(Acc, r4, r2D_a, j, r2D_a.size(1), BasisVal, r3, BasisValD);
             }
-            // 'buildConstr:78' Acc( ind, :, 2 ) = r2D( j, : )'   .* BasisVal + 0.5 * r1D( j, : )'
+            // 'buildConstr:99' Acc( ind, :, 2 ) = r2D( j, : )'   .* BasisVal + 0.5 * r1D( j, : )'
             // .* BasisValD;
             r3.set_size(i57);
             for (int i68{0}; i68 < qb_loop_ub; i68++) {
@@ -1026,7 +1048,7 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
             }
         }
         //  Inequality constraints
-        // 'buildConstr:82' indAL   = int32( 1 : Nc * M ) + ( k - 1 ) * Nc * M;
+        // 'buildConstr:103' indAL   = int32( 1 : Nc * M ) + ( k - 1 ) * Nc * M;
         f_y = static_cast<int>(
             static_cast<double>(static_cast<int>(((static_cast<double>(b_k) + 1.0) - 1.0) *
                                                  static_cast<double>(y_tmp + 2))) *
@@ -1035,7 +1057,7 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
         for (int i58{0}; i58 < l_loop_ub; i58++) {
             indAL[i58] = r1[i58] + f_y;
         }
-        // 'buildConstr:83' indAC   = int32( 1 : N  ) + ( k - 1 ) * N;
+        // 'buildConstr:104' indAC   = int32( 1 : N  ) + ( k - 1 ) * N;
         if (N < 1) {
             e_y.set_size(1, 0);
         } else {
@@ -1052,7 +1074,7 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
         for (int i63{0}; i63 < ub_loop_ub; i63++) {
             indAC_tmp[i63] = static_cast<int>(static_cast<double>(e_y[i63]) + c_k);
         }
-        // 'buildConstr:84' A( indAL, indAC )   = [ BasisVal; -BasisVal ; Acc( :, :, 1) ; -Acc( :,
+        // 'buildConstr:105' A( indAL, indAC )   = [ BasisVal; -BasisVal ; Acc( :, :, 1) ; -Acc( :,
         // :, 1) ];
         r4.set_size(indAL.size(1));
         vb_loop_ub = indAL.size(1);
@@ -1161,8 +1183,8 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
                     varargin_4[i87 + b_input_sizes_idx_0 * i85];
             }
         }
-        // 'buildConstr:85' b( indAL )          = [ f_max'; zeros( size(f_max) )';
-        // 'buildConstr:86'                             b_amax( : ); b_amax( : ) ];
+        // 'buildConstr:106' b( indAL )          = [ f_max'; zeros( size(f_max) )';
+        // 'buildConstr:107'                             b_amax( : ); b_amax( : ) ];
         c_unnamed_idx_1 = f_max.size(1);
         d_unnamed_idx_1 = f_max.size(1);
         hc_loop_ub = f_max.size(1);
@@ -1180,16 +1202,17 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
             b[indAL[((i91 + c_unnamed_idx_1) + d_unnamed_idx_1) + b_unnamed_idx_1] - 1] = r[i91];
         }
         //  Continuity equations
-        // 'buildConstr:89' indAEL  = int32( 1 : 4 ) + ( k - 1 ) * 2 ;
+        // 'buildConstr:110' indAEL  = int32( 1 : 4 ) + ( k - 1 ) * 2 ;
         d_k = (b_k << 1) + 1;
         indAEL[0] = d_k;
         indAEL[1] = d_k + 1;
         indAEL[2] = d_k + 2;
         indAEL[3] = d_k + 3;
         //  Line   index
-        // 'buildConstr:90' indAEC  = int32( 1 : N ) + ( k - 1 ) * N ;
+        // 'buildConstr:111' indAEC  = int32( 1 : N ) + ( k - 1 ) * N ;
         //  Column index
-        // 'buildConstr:91' at_norm( 1, :, k )   = t_vec( : , 1, k )' * Acc( indAT( 1, : ) , :, 2 );
+        // 'buildConstr:112' at_norm( 1, :, k )   = t_vec( : , 1, k )' * Acc( indAT( 1, : ) , :, 2
+        // );
         jc_loop_ub = Acc.size(1);
         b_b.set_size(n_loop_ub, Acc.size(1));
         for (int i92{0}; i92 < jc_loop_ub; i92++) {
@@ -1216,7 +1239,8 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
         for (int i95{0}; i95 < lc_loop_ub; i95++) {
             at_norm[2 * i95 + 2 * at_norm.size(1) * b_k] = r2[i95];
         }
-        // 'buildConstr:92' at_norm( 2, :, k )   = t_vec( : , 2, k )' * Acc( indAT( 2, : ) , :, 2 );
+        // 'buildConstr:113' at_norm( 2, :, k )   = t_vec( : , 2, k )' * Acc( indAT( 2, : ) , :, 2
+        // );
         mc_loop_ub = Acc.size(1);
         b_b.set_size(p_loop_ub, Acc.size(1));
         for (int i96{0}; i96 < mc_loop_ub; i96++) {
@@ -1243,7 +1267,8 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
         for (int i99{0}; i99 < oc_loop_ub; i99++) {
             at_norm[(2 * i99 + 2 * at_norm.size(1) * b_k) + 1] = r2[i99];
         }
-        // 'buildConstr:94' v2_vec( :, :, k ) = normR1D( [1, end] ).^2' .* BasisVal( [ 1; end ], :);
+        // 'buildConstr:115' v2_vec( :, :, k ) = normR1D( [1, end] ).^2' .* BasisVal( [ 1; end ],
+        // :);
         z1_idx_0 = std::pow(normR1D[0], 2.0);
         z1_idx_1 = std::pow(normR1D[normR1D.size(1) - 1], 2.0);
         iv[1] = BasisVal.size(0) - 1;
@@ -1253,9 +1278,9 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
             v2_vec[(2 * i100 + 2 * v2_vec.size(1) * b_k) + 1] =
                 z1_idx_1 * BasisVal[iv[1] + BasisVal.size(0) * i100];
         }
-        // 'buildConstr:95' continuity = [ v2_vec( 1, :, k ); at_norm( 1, :, k ); ...
-        // 'buildConstr:96'                    v2_vec( 2, :, k ); at_norm( 2, :, k ) ];
-        // 'buildConstr:97' Aeq( indAEL, indAEC ) = Aeq( indAEL, indAEC ) + continuity.*
+        // 'buildConstr:116' continuity = [ v2_vec( 1, :, k ); at_norm( 1, :, k ); ...
+        // 'buildConstr:117'                    v2_vec( 2, :, k ); at_norm( 2, :, k ) ];
+        // 'buildConstr:118' Aeq( indAEL, indAEC ) = Aeq( indAEL, indAEC ) + continuity.*
         // mask_continuity;
         r4.set_size(indAC_tmp.size(1));
         pc_loop_ub = indAC_tmp.size(1);
@@ -1304,21 +1329,21 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
             binary_expand_op(Aeq, indAEL, r4, v2_vec, b_k, at_norm, mask_continuity);
         }
     }
-    // 'buildConstr:100' beq( [ 1, 2, end-1, end ] ) = [ v_0^2; at_0; v_1^2; at_1 ] .*
+    // 'buildConstr:121' beq( [ 1, 2, end-1, end ] ) = [ v_0^2; at_0; v_1^2; at_1 ] .*
     // mask_continuity;
     beq[0] = v_0 * v_0;
     beq[1] = at_0;
     beq[static_cast<int>(Nec) - 2] = -(v_1 * v_1);
     beq[static_cast<int>(Nec) - 1] = -at_1;
     //  Add a ramp on the acceleration and speed limits
-    // 'buildConstr:103' vel_ramp = linspace( 1, ctx.cfg.opt.VEL_RAMP_OVER_WINDOWS, M )';
+    // 'buildConstr:124' vel_ramp = linspace( 1, ctx.cfg.opt.VEL_RAMP_OVER_WINDOWS, M )';
     coder::b_linspace(ctx_cfg_opt_VEL_RAMP_OVER_WINDOWS, static_cast<double>(BasisVal.size(0)), r2);
     vel_ramp.set_size(r2.size(1));
     r_loop_ub = r2.size(1);
     for (int i24{0}; i24 < r_loop_ub; i24++) {
         vel_ramp[i24] = r2[i24];
     }
-    // 'buildConstr:104' acc_ramp = repmat( linspace( 1, ctx.cfg.opt.ACC_RAMP_OVER_WINDOWS, M )',1,
+    // 'buildConstr:125' acc_ramp = repmat( linspace( 1, ctx.cfg.opt.ACC_RAMP_OVER_WINDOWS, M )',1,
     // Nc -1 );
     coder::b_linspace(ctx_cfg_opt_ACC_RAMP_OVER_WINDOWS, static_cast<double>(BasisVal.size(0)), r2);
     r3.set_size(r2.size(1));
@@ -1327,7 +1352,7 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
         r3[i28] = r2[i28];
     }
     coder::repmat(r3, y_tmp + 1, acc_ramp);
-    // 'buildConstr:106' if( Nwindow > 1 )
+    // 'buildConstr:127' if( Nwindow > 1 )
     if (windowCurv.size(1) > 1) {
         int bb_loop_ub;
         int c_input_sizes_idx_1;
@@ -1337,8 +1362,8 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
         int result;
         signed char b_input_sizes_idx_1;
         bool empty_non_axis_sizes;
-        // 'buildConstr:107' ramp = [ones(M, Nc ), vel_ramp, acc_ramp, ...
-        // 'buildConstr:108'             repmat([vel_ramp(end), acc_ramp(end,:)], M, Nwindow-2)];
+        // 'buildConstr:128' ramp = [ones(M, Nc ), vel_ramp, acc_ramp, ...
+        // 'buildConstr:129'             repmat([vel_ramp(end), acc_ramp(end,:)], M, Nwindow-2)];
         bb_loop_ub = acc_ramp.size(1);
         b_vel_ramp.set_size(1, acc_ramp.size(1) + 1);
         b_vel_ramp[0] = vel_ramp[vel_ramp.size(0) - 1];
@@ -1410,7 +1435,7 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
                                            c_input_sizes_idx_1)] = varargin_4[i53 + result * i51];
             }
         }
-        // 'buildConstr:109' b  = b .* ramp(:);
+        // 'buildConstr:130' b  = b .* ramp(:);
         if (b.size(0) == ramp.size(0) * ramp.size(1)) {
             int mb_loop_ub;
             mb_loop_ub = b.size(0);
@@ -1422,7 +1447,7 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
         }
     }
     //  Continuity equations
-    // 'buildConstr:113' continuity = [ v2_vec( 2, : , 1 ); at_norm( 2, :, 1 ) ];
+    // 'buildConstr:134' continuity = [ v2_vec( 2, : , 1 ); at_norm( 2, :, 1 ) ];
     cb_loop_ub = v2_vec.size(1);
     db_loop_ub = at_norm.size(1);
     continuity.set_size(2, v2_vec.size(1));
@@ -1432,9 +1457,9 @@ void buildConstr(const queue_coder *ctx_q_spline, const bool ctx_cfg_maskTot_dat
     for (int i36{0}; i36 < db_loop_ub; i36++) {
         continuity[2 * i36 + 1] = at_norm[2 * i36 + 1];
     }
-    // 'buildConstr:115' checkValidity( A, b, Aeq, beq, continuity );
+    // 'buildConstr:136' checkValidity( A, b, Aeq, beq, continuity );
     checkValidity(b);
-    // 'buildConstr:117' c_prof_out(mfilename);
+    // 'buildConstr:138' c_prof_out(mfilename);
 }
 
 } // namespace ocn

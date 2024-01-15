@@ -108,6 +108,50 @@ void c_eml_find(const ::coder::array<bool, 1U> &x, ::coder::array<int, 1U> &i)
 
 //
 // Arguments    : const ::coder::array<bool, 2U> &x
+//                ::coder::array<int, 2U> &i
+// Return Type  : void
+//
+void d_eml_find(const ::coder::array<bool, 2U> &x, ::coder::array<int, 2U> &i)
+{
+    int idx;
+    int ii;
+    int nx;
+    bool exitg1;
+    nx = x.size(1);
+    idx = 0;
+    i.set_size(1, x.size(1));
+    ii = 0;
+    exitg1 = false;
+    while ((!exitg1) && (ii <= nx - 1)) {
+        if (x[ii]) {
+            idx++;
+            i[idx - 1] = ii + 1;
+            if (idx >= nx) {
+                exitg1 = true;
+            } else {
+                ii++;
+            }
+        } else {
+            ii++;
+        }
+    }
+    if (x.size(1) == 1) {
+        if (idx == 0) {
+            i.set_size(1, 0);
+        }
+    } else {
+        int b_idx;
+        if (idx < 1) {
+            b_idx = 0;
+        } else {
+            b_idx = idx;
+        }
+        i.set_size(i.size(0), b_idx);
+    }
+}
+
+//
+// Arguments    : const ::coder::array<bool, 2U> &x
 //                int i_data[]
 //                int i_size[2]
 // Return Type  : void

@@ -16,20 +16,29 @@
 
 // Function Definitions
 //
-// function Copy = CopyCurvStruct( Curv )
+// function [ copy ] = CopyCurvStruct( curve )
 //
-// Arguments    : const CurvStruct *Curv
-//                CurvStruct *Copy
+// CopyCurvStruct : Copy the curve structure
+//
+//  Inputs :
+//  Curv  : The curve to copy
+//
+//  Outputs :
+//  Copy  : The copy of the curve
+//
+//
+// Arguments    : const CurvStruct *curve
+//                CurvStruct *copy
 // Return Type  : void
 //
 namespace ocn {
-void CopyCurvStruct(const CurvStruct *Curv, CurvStruct *Copy)
+void CopyCurvStruct(const CurvStruct *curve, CurvStruct *copy)
 {
     if (!isInitialized_opencn_matlab) {
         opencn_matlab_initialize();
     }
-    // 'CopyCurvStruct:2' Copy = Curv;
-    *Copy = *Curv;
+    // 'CopyCurvStruct:11' copy = curve;
+    *copy = *curve;
 }
 
 } // namespace ocn

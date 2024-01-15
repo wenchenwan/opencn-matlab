@@ -171,6 +171,43 @@ void minimum(const double x_data[], int x_size, double *ex, int *idx)
 }
 
 //
+// Arguments    : const double x_data[]
+//                const int x_size[2]
+// Return Type  : double
+//
+double minimum(const double x_data[], const int x_size[2])
+{
+    double ex;
+    int last;
+    last = x_size[1];
+    if (x_size[1] <= 2) {
+        if (x_size[1] == 1) {
+            ex = x_data[0];
+        } else {
+            double d;
+            d = x_data[x_size[1] - 1];
+            if (x_data[0] > d) {
+                ex = d;
+            } else {
+                ex = x_data[0];
+            }
+        }
+    } else {
+        double b_ex;
+        b_ex = x_data[0];
+        for (int k{2}; k <= last; k++) {
+            double d1;
+            d1 = x_data[k - 1];
+            if (b_ex > d1) {
+                b_ex = d1;
+            }
+        }
+        ex = b_ex;
+    }
+    return ex;
+}
+
+//
 // Arguments    : const ::coder::array<double, 2U> &x
 //                ::coder::array<double, 2U> &ex
 // Return Type  : void

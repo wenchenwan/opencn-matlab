@@ -26,6 +26,8 @@ void b_eml_find(const ::coder::array<bool, 2U> &x, int i_data[], int i_size[2]);
 
 void c_eml_find(const ::coder::array<bool, 1U> &x, ::coder::array<int, 1U> &i);
 
+void d_eml_find(const ::coder::array<bool, 2U> &x, ::coder::array<int, 2U> &i);
+
 void eml_find(const ::coder::array<bool, 2U> &x, int i_data[], int i_size[2]);
 
 } // namespace coder

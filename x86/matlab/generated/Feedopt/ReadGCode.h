@@ -22,10 +22,13 @@
 #include "functions.h"
 // Function Declarations
 namespace ocn {
-extern void ReadGCode(ReadGCodeCmd cmd, const char filename_data[], const int filename_size[2],
-                      ReadGCodeError *status, CurvStruct *c_CurvStruct, MsgStruct *err_msg);
+extern void ReadGCode(const FeedoptConfig cfg, ReadGCodeCmd cmd, const char filename_data[],
+                      const int filename_size[2], ReadGCodeError *status, CurvStruct *c_CurvStruct,
+                      MsgStruct *err_msg);
 
-}
+void b_ReadGCode(ReadGCodeError *status, CurvStruct *c_CurvStruct);
+
+} // namespace ocn
 
 #endif
 //

@@ -366,9 +366,15 @@ void e_binary_expand_op(::coder::array<double, 2U> &in1, const ::coder::array<do
 }
 
 //
-// function y = mypolyval(p, x)
+// function [ y ] = mypolyval( p, x )
 //
-// POLYVAL Evaluate array of polynomials with same degree.
+// Polyval : Evaluate array of polynomials with same degree.
+//
+//  Inputs :
+//    p : Polynom coefficients
+//    x : Polynom x values
+//  Outputs :
+//    y : Resulting values
 //
 //
 // Arguments    : const ::coder::array<double, 2U> &p
@@ -387,11 +393,11 @@ void mypolyval(const ::coder::array<double, 2U> &p, const ::coder::array<double,
     int loop_ub;
     int outsize_idx_0;
     int outsize_idx_1;
-    // 'mypolyval:4' [nD, nc] = size(p);
-    // 'mypolyval:5' siz_x    = length(x);
+    // 'mypolyval:10' [ nD, nc ] = size( p );
+    // 'mypolyval:11' siz_x      = length( x );
     //
     //  Use Horner's method for general case where X is an array.
-    // 'mypolyval:8' y = zeros(nD, siz_x);
+    // 'mypolyval:14' y = zeros( nD, siz_x );
     y.set_size(p.size(0), x.size(0));
     loop_ub = x.size(0);
     for (int i{0}; i < loop_ub; i++) {
@@ -401,9 +407,9 @@ void mypolyval(const ::coder::array<double, 2U> &p, const ::coder::array<double,
             y[i1 + y.size(0) * i] = 0.0;
         }
     }
-    // 'mypolyval:9' if nc > 0
+    // 'mypolyval:15' if nc > 0
     if (p.size(1) > 0) {
-        // 'mypolyval:10' y(:) = repmat(p(:, 1), 1, siz_x);
+        // 'mypolyval:16' y( : ) = repmat( p( :, 1 ), 1, siz_x );
         y.set_size(p.size(0), x.size(0));
         if ((p.size(0) != 0) && (x.size(0) != 0)) {
             int i3;
@@ -417,7 +423,7 @@ void mypolyval(const ::coder::array<double, 2U> &p, const ::coder::array<double,
             }
         }
     }
-    // 'mypolyval:12' for i=2:nc
+    // 'mypolyval:18' for i = 2 : nc
     i2 = p.size(1);
     if (p.size(1) - 2 >= 0) {
         outsize_idx_0 = x.size(0) * p.size(0);
@@ -426,7 +432,7 @@ void mypolyval(const ::coder::array<double, 2U> &p, const ::coder::array<double,
     }
     for (int b_i{0}; b_i <= i2 - 2; b_i++) {
         int i6;
-        // 'mypolyval:13' y = repmat(x, nD, 1) .* y + repmat(p(:, i), 1, siz_x);
+        // 'mypolyval:19' y = repmat( x, nD, 1 ) .* y + repmat( p( :, i ), 1, siz_x );
         r.set_size(outsize_idx_0);
         if (outsize_idx_0 != 0) {
             int b_na;
@@ -497,9 +503,15 @@ void mypolyval(const ::coder::array<double, 2U> &p, const ::coder::array<double,
 }
 
 //
-// function y = mypolyval(p, x)
+// function [ y ] = mypolyval( p, x )
 //
-// POLYVAL Evaluate array of polynomials with same degree.
+// Polyval : Evaluate array of polynomials with same degree.
+//
+//  Inputs :
+//    p : Polynom coefficients
+//    x : Polynom x values
+//  Outputs :
+//    y : Resulting values
 //
 //
 // Arguments    : const ::coder::array<double, 2U> &p
@@ -516,11 +528,11 @@ void mypolyval(const ::coder::array<double, 2U> &p, const double x[2],
     int i2;
     int loop_ub;
     int outsize_idx_0;
-    // 'mypolyval:4' [nD, nc] = size(p);
-    // 'mypolyval:5' siz_x    = length(x);
+    // 'mypolyval:10' [ nD, nc ] = size( p );
+    // 'mypolyval:11' siz_x      = length( x );
     //
     //  Use Horner's method for general case where X is an array.
-    // 'mypolyval:8' y = zeros(nD, siz_x);
+    // 'mypolyval:14' y = zeros( nD, siz_x );
     y.set_size(p.size(0), 2);
     loop_ub = p.size(0);
     for (int i{0}; i < 2; i++) {
@@ -528,9 +540,9 @@ void mypolyval(const ::coder::array<double, 2U> &p, const double x[2],
             y[i1 + y.size(0) * i] = 0.0;
         }
     }
-    // 'mypolyval:9' if nc > 0
+    // 'mypolyval:15' if nc > 0
     if (p.size(1) > 0) {
-        // 'mypolyval:10' y(:) = repmat(p(:, 1), 1, siz_x);
+        // 'mypolyval:16' y( : ) = repmat( p( :, 1 ), 1, siz_x );
         y.set_size(p.size(0), 2);
         if (p.size(0) != 0) {
             int i3;
@@ -542,7 +554,7 @@ void mypolyval(const ::coder::array<double, 2U> &p, const double x[2],
             }
         }
     }
-    // 'mypolyval:12' for i=2:nc
+    // 'mypolyval:18' for i = 2 : nc
     i2 = p.size(1);
     if (p.size(1) - 2 >= 0) {
         outsize_idx_0 = p.size(0);
@@ -550,7 +562,7 @@ void mypolyval(const ::coder::array<double, 2U> &p, const double x[2],
     }
     for (int b_i{0}; b_i <= i2 - 2; b_i++) {
         int i6;
-        // 'mypolyval:13' y = repmat(x, nD, 1) .* y + repmat(p(:, i), 1, siz_x);
+        // 'mypolyval:19' y = repmat( x, nD, 1 ) .* y + repmat( p( :, i ), 1, siz_x );
         r.set_size(outsize_idx_0, 2);
         if (outsize_idx_0 != 0) {
             int i4;
@@ -593,9 +605,15 @@ void mypolyval(const ::coder::array<double, 2U> &p, const double x[2],
 }
 
 //
-// function y = mypolyval(p, x)
+// function [ y ] = mypolyval( p, x )
 //
-// POLYVAL Evaluate array of polynomials with same degree.
+// Polyval : Evaluate array of polynomials with same degree.
+//
+//  Inputs :
+//    p : Polynom coefficients
+//    x : Polynom x values
+//  Outputs :
+//    y : Resulting values
 //
 //
 // Arguments    : const ::coder::array<double, 2U> &p
@@ -610,19 +628,19 @@ void mypolyval(const ::coder::array<double, 2U> &p, double x, ::coder::array<dou
     int i1;
     int loop_ub;
     int outsize_idx_0;
-    // 'mypolyval:4' [nD, nc] = size(p);
-    // 'mypolyval:5' siz_x    = length(x);
+    // 'mypolyval:10' [ nD, nc ] = size( p );
+    // 'mypolyval:11' siz_x      = length( x );
     //
     //  Use Horner's method for general case where X is an array.
-    // 'mypolyval:8' y = zeros(nD, siz_x);
+    // 'mypolyval:14' y = zeros( nD, siz_x );
     y.set_size(p.size(0));
     loop_ub = p.size(0);
     for (int i{0}; i < loop_ub; i++) {
         y[i] = 0.0;
     }
-    // 'mypolyval:9' if nc > 0
+    // 'mypolyval:15' if nc > 0
     if (p.size(1) > 0) {
-        // 'mypolyval:10' y(:) = repmat(p(:, 1), 1, siz_x);
+        // 'mypolyval:16' y( : ) = repmat( p( :, 1 ), 1, siz_x );
         y.set_size(p.size(0));
         if (p.size(0) != 0) {
             int i2;
@@ -632,7 +650,7 @@ void mypolyval(const ::coder::array<double, 2U> &p, double x, ::coder::array<dou
             }
         }
     }
-    // 'mypolyval:12' for i=2:nc
+    // 'mypolyval:18' for i = 2 : nc
     i1 = p.size(1);
     if (p.size(1) - 2 >= 0) {
         outsize_idx_0 = p.size(0);
@@ -643,7 +661,7 @@ void mypolyval(const ::coder::array<double, 2U> &p, double x, ::coder::array<dou
     for (int b_i{0}; b_i <= i1 - 2; b_i++) {
         int b_loop_ub;
         int i4;
-        // 'mypolyval:13' y = repmat(x, nD, 1) .* y + repmat(p(:, i), 1, siz_x);
+        // 'mypolyval:19' y = repmat( x, nD, 1 ) .* y + repmat( p( :, i ), 1, siz_x );
         r.set_size(outsize_idx_0);
         if (outsize_idx_0 != 0) {
             int i3;

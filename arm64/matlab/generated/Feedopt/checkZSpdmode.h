@@ -20,13 +20,15 @@
 #include "functions.h"
 // Type Declarations
 namespace ocn {
+struct b_FeedoptContext;
+
 class queue_coder;
 
-}
+} // namespace ocn
 
 // Function Declarations
 namespace ocn {
-bool checkZSpdmode(const queue_coder *queue);
+bool checkZSpdmode(b_FeedoptContext *ctx, const queue_coder *queue);
 
 }
 

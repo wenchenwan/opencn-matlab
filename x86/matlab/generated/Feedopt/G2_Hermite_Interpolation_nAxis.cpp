@@ -125,8 +125,26 @@ static void e_binary_expand_op(double in1_data[], int *in1_size, const double in
 }
 
 //
-// function [p5, status, alpha0, alpha1] = G2_Hermite_Interpolation_nAxis(ctx, r0D0_in, r0D1_in,
-// r0D2_in, r1D0_in, r1D1_in, r1D2_in)
+// function [ p5, status, alpha0, alpha1 ] = G2_Hermite_Interpolation_nAxis( ...
+//     ctx, r0D0_in, r0D1_in, r0D2_in, r1D0_in, r1D1_in, r1D2_in )
+//
+// G2_Hermite_Interpolation_nAxis :
+//
+//  Inputs :
+//    ctx     : Context used in the computational chain
+//    r0D0_in : Left curve end position vector
+//    r0D1_in : Left curve end velocity vector
+//    r0D2_in : Left curve end acceleration vector
+//    r1D0_in : Right curve start position vector
+//    r1D1_in : Right curve start velocity vector
+//    r1D2_in : Right curve start acceleration vector
+//
+//  Outputs :
+//    p5      : Resulting polynom (5th order) coefficients for the transition
+//    status  : Computation status index
+//    alpha0  : Alpha0 vector (see publication)
+//    alpha1  : Alpha1 vector (see publication)
+//
 //
 // Arguments    : const bool ctx_cfg_maskTot_data[]
 //                const int ctx_cfg_maskTot_size[2]
@@ -154,11 +172,11 @@ void G2_Hermite_Interpolation_nAxis(
     static const signed char c_b[6]{-3, 8, -6, 0, 1, 0};
     static const signed char e_b[6]{6, -15, 10, 0, 0, 0};
     static const signed char g_b[6]{-3, 7, -4, 0, 0, 0};
-    ::coder::array<double, 1U> r2;
-    ::coder::array<double, 1U> r7;
+    ::coder::array<double, 1U> r10;
+    ::coder::array<double, 1U> r13;
     ::coder::array<double, 1U> z;
     ::coder::array<int, 1U> k_i;
-    ::coder::array<int, 1U> r16;
+    ::coder::array<int, 1U> r23;
     ::coder::array<bool, 1U> c_alpha0_t_data;
     ::coder::array<bool, 1U> c_alpha1_t_data;
     ::coder::array<bool, 1U> d_alpha0_t_data;
@@ -260,14 +278,14 @@ void G2_Hermite_Interpolation_nAxis(
     //  Compute an optimal trajectory in R^3, connecting the point r0 to r1 with
     //  C^2 smoothness while minimizing the integral of the norm of the third
     //  derivative.
-    // 'G2_Hermite_Interpolation_nAxis:32' N_AXES_MAX = 6;
+    // 'G2_Hermite_Interpolation_nAxis:50' N_AXES_MAX = 6;
     //  Function are calculated for 5 axis
-    // 'G2_Hermite_Interpolation_nAxis:35' r0D0 = zeros(N_AXES_MAX, 1);
-    // 'G2_Hermite_Interpolation_nAxis:35' r0D1 = r0D0;
-    // 'G2_Hermite_Interpolation_nAxis:35' r0D2 = r0D0;
-    // 'G2_Hermite_Interpolation_nAxis:35' r1D0 = r0D0;
-    // 'G2_Hermite_Interpolation_nAxis:36' r1D1 = r0D0;
-    // 'G2_Hermite_Interpolation_nAxis:36' r1D2 = r0D0;
+    // 'G2_Hermite_Interpolation_nAxis:53' r0D0 = zeros(N_AXES_MAX, 1);
+    // 'G2_Hermite_Interpolation_nAxis:53' r0D1 = r0D0;
+    // 'G2_Hermite_Interpolation_nAxis:53' r0D2 = r0D0;
+    // 'G2_Hermite_Interpolation_nAxis:53' r1D0 = r0D0;
+    // 'G2_Hermite_Interpolation_nAxis:54' r1D1 = r0D0;
+    // 'G2_Hermite_Interpolation_nAxis:54' r1D2 = r0D0;
     for (int i{0}; i < 6; i++) {
         r0D0[i] = 0.0;
         r0D1[i] = 0.0;
@@ -277,7 +295,7 @@ void G2_Hermite_Interpolation_nAxis(
         r1D2[i] = 0.0;
     }
     //  Place input vector in : Set padding on vector
-    // 'G2_Hermite_Interpolation_nAxis:39' r0D0(ctx.cfg.maskTot) = r0D0_in;
+    // 'G2_Hermite_Interpolation_nAxis:57' r0D0( ctx.cfg.maskTot ) = r0D0_in;
     end = ctx_cfg_maskTot_size[1];
     partialTrueCount = 0;
     for (int b_i{0}; b_i < end; b_i++) {
@@ -286,7 +304,7 @@ void G2_Hermite_Interpolation_nAxis(
             partialTrueCount++;
         }
     }
-    // 'G2_Hermite_Interpolation_nAxis:40' r0D1(ctx.cfg.maskTot) = r0D1_in;
+    // 'G2_Hermite_Interpolation_nAxis:58' r0D1( ctx.cfg.maskTot ) = r0D1_in;
     b_end = ctx_cfg_maskTot_size[1];
     b_partialTrueCount = 0;
     for (int c_i{0}; c_i < b_end; c_i++) {
@@ -295,7 +313,7 @@ void G2_Hermite_Interpolation_nAxis(
             b_partialTrueCount++;
         }
     }
-    // 'G2_Hermite_Interpolation_nAxis:41' r0D2(ctx.cfg.maskTot) = r0D2_in;
+    // 'G2_Hermite_Interpolation_nAxis:59' r0D2( ctx.cfg.maskTot ) = r0D2_in;
     c_end = ctx_cfg_maskTot_size[1];
     c_partialTrueCount = 0;
     for (int d_i{0}; d_i < c_end; d_i++) {
@@ -304,7 +322,7 @@ void G2_Hermite_Interpolation_nAxis(
             c_partialTrueCount++;
         }
     }
-    // 'G2_Hermite_Interpolation_nAxis:42' r1D0(ctx.cfg.maskTot) = r1D0_in;
+    // 'G2_Hermite_Interpolation_nAxis:60' r1D0( ctx.cfg.maskTot ) = r1D0_in;
     d_end = ctx_cfg_maskTot_size[1];
     d_partialTrueCount = 0;
     for (int e_i{0}; e_i < d_end; e_i++) {
@@ -313,7 +331,7 @@ void G2_Hermite_Interpolation_nAxis(
             d_partialTrueCount++;
         }
     }
-    // 'G2_Hermite_Interpolation_nAxis:43' r1D1(ctx.cfg.maskTot) = r1D1_in;
+    // 'G2_Hermite_Interpolation_nAxis:61' r1D1( ctx.cfg.maskTot ) = r1D1_in;
     e_end = ctx_cfg_maskTot_size[1];
     e_partialTrueCount = 0;
     for (int f_i{0}; f_i < e_end; f_i++) {
@@ -322,7 +340,7 @@ void G2_Hermite_Interpolation_nAxis(
             e_partialTrueCount++;
         }
     }
-    // 'G2_Hermite_Interpolation_nAxis:44' r1D2(ctx.cfg.maskTot) = r1D2_in;
+    // 'G2_Hermite_Interpolation_nAxis:62' r1D2( ctx.cfg.maskTot ) = r1D2_in;
     f_end = ctx_cfg_maskTot_size[1];
     f_partialTrueCount = 0;
     for (int g_i{0}; g_i < f_end; g_i++) {
@@ -331,11 +349,11 @@ void G2_Hermite_Interpolation_nAxis(
             f_partialTrueCount++;
         }
     }
-    // 'G2_Hermite_Interpolation_nAxis:46' D = zeros( N_AXES_MAX,1);
+    // 'G2_Hermite_Interpolation_nAxis:64' D = zeros( N_AXES_MAX,1);
     for (int h_i{0}; h_i < 6; h_i++) {
         D[h_i] = 0.0;
     }
-    // 'G2_Hermite_Interpolation_nAxis:47' D(ctx.cfg.maskTot) = ctx.cfg.D;
+    // 'G2_Hermite_Interpolation_nAxis:65' D(ctx.cfg.maskTot) = ctx.cfg.D;
     g_end = ctx_cfg_maskTot_size[1] - 1;
     trueCount = 0;
     g_partialTrueCount = 0;
@@ -349,17 +367,17 @@ void G2_Hermite_Interpolation_nAxis(
     for (int j_i{0}; j_i < trueCount; j_i++) {
         D[tmp_data[j_i] - 1] = ctx_cfg_D[j_i];
     }
-    // 'G2_Hermite_Interpolation_nAxis:49' status = int32(1);
+    // 'G2_Hermite_Interpolation_nAxis:67' status = int32(1);
     *status = 1;
     //  default success
-    // 'G2_Hermite_Interpolation_nAxis:51' p5 = zeros(N_AXES_MAX,6);
+    // 'G2_Hermite_Interpolation_nAxis:69' p5 = zeros(N_AXES_MAX,6);
     std::memset(&p5[0][0], 0, 36U * sizeof(double));
-    // 'G2_Hermite_Interpolation_nAxis:53' alpha0 = 0;
-    // 'G2_Hermite_Interpolation_nAxis:54' alpha1 = 0;
+    // 'G2_Hermite_Interpolation_nAxis:71' alpha0 = 0;
+    // 'G2_Hermite_Interpolation_nAxis:72' alpha1 = 0;
     //  compute Frenet frame
-    // 'G2_Hermite_Interpolation_nAxis:57' [t0, n0, kappa0] = calc_t_nk_kappa(r0D1, r0D2);
+    // 'G2_Hermite_Interpolation_nAxis:75' [t0, n0, kappa0] = calc_t_nk_kappa(r0D1, r0D2);
     calc_t_nk_kappa(r0D1, r0D2, t0, n0, &kappa0);
-    // 'G2_Hermite_Interpolation_nAxis:58' [t1, n1, kappa1] = calc_t_nk_kappa(r1D1, r1D2);
+    // 'G2_Hermite_Interpolation_nAxis:76' [t1, n1, kappa1] = calc_t_nk_kappa(r1D1, r1D2);
     calc_t_nk_kappa(r1D1, r1D2, t1, n1, &kappa1);
     //  reduce to polynomial system of 2 equations in unknowns alpha0 and alpha1
     //  p1   = (a1*alpha1+a0)*alpha0^2 + (b1*alpha1+b0)*alpha0 +
@@ -368,41 +386,41 @@ void G2_Hermite_Interpolation_nAxis(
     //          f3*alpha0^3+f2*alpha0^2+f1*alpha0+f0;
     //
     //  compute CoefPS = [a1 a0 b1 b0 c3 c2 c1 c0 d1 d0 e1 e0 f3 f2 f1 f0]
-    // 'G2_Hermite_Interpolation_nAxis:66' CoefPS = CoefPolySys(r0D0, t0, n0, r1D0, t1, n1, D);
+    // 'G2_Hermite_Interpolation_nAxis:84' CoefPS = CoefPolySys(r0D0, t0, n0, r1D0, t1, n1, D);
     CoefPolySys(r0D0, t0, n0, r1D0, t1, n1, D, CoefPS);
     //
-    // 'G2_Hermite_Interpolation_nAxis:68' a1     = CoefPS(1);
-    // 'G2_Hermite_Interpolation_nAxis:69' a0     = CoefPS(2);
-    // 'G2_Hermite_Interpolation_nAxis:70' b1     = CoefPS(3);
-    // 'G2_Hermite_Interpolation_nAxis:71' b0     = CoefPS(4);
-    // 'G2_Hermite_Interpolation_nAxis:72' c3     = CoefPS(5);
-    // 'G2_Hermite_Interpolation_nAxis:73' c2     = CoefPS(6);
-    // 'G2_Hermite_Interpolation_nAxis:74' c1     = CoefPS(7);
-    // 'G2_Hermite_Interpolation_nAxis:75' c0     = CoefPS(8);
-    // 'G2_Hermite_Interpolation_nAxis:76' d1     = CoefPS(9);
-    // 'G2_Hermite_Interpolation_nAxis:77' d0     = CoefPS(10);
-    // 'G2_Hermite_Interpolation_nAxis:78' e1     = CoefPS(11);
-    // 'G2_Hermite_Interpolation_nAxis:79' e0     = CoefPS(12);
-    // 'G2_Hermite_Interpolation_nAxis:80' f3     = CoefPS(13);
-    // 'G2_Hermite_Interpolation_nAxis:81' f2     = CoefPS(14);
-    // 'G2_Hermite_Interpolation_nAxis:82' f1     = CoefPS(15);
-    // 'G2_Hermite_Interpolation_nAxis:83' f0     = CoefPS(16);
-    // 'G2_Hermite_Interpolation_nAxis:84' TolZero = 1e-11;
+    // 'G2_Hermite_Interpolation_nAxis:86' a1     = CoefPS(1);
+    // 'G2_Hermite_Interpolation_nAxis:87' a0     = CoefPS(2);
+    // 'G2_Hermite_Interpolation_nAxis:88' b1     = CoefPS(3);
+    // 'G2_Hermite_Interpolation_nAxis:89' b0     = CoefPS(4);
+    // 'G2_Hermite_Interpolation_nAxis:90' c3     = CoefPS(5);
+    // 'G2_Hermite_Interpolation_nAxis:91' c2     = CoefPS(6);
+    // 'G2_Hermite_Interpolation_nAxis:92' c1     = CoefPS(7);
+    // 'G2_Hermite_Interpolation_nAxis:93' c0     = CoefPS(8);
+    // 'G2_Hermite_Interpolation_nAxis:94' d1     = CoefPS(9);
+    // 'G2_Hermite_Interpolation_nAxis:95' d0     = CoefPS(10);
+    // 'G2_Hermite_Interpolation_nAxis:96' e1     = CoefPS(11);
+    // 'G2_Hermite_Interpolation_nAxis:97' e0     = CoefPS(12);
+    // 'G2_Hermite_Interpolation_nAxis:98' f3     = CoefPS(13);
+    // 'G2_Hermite_Interpolation_nAxis:99' f2     = CoefPS(14);
+    // 'G2_Hermite_Interpolation_nAxis:100' f1     = CoefPS(15);
+    // 'G2_Hermite_Interpolation_nAxis:101' f0     = CoefPS(16);
+    // 'G2_Hermite_Interpolation_nAxis:102' TolZero = 1e-11;
     //
-    // 'G2_Hermite_Interpolation_nAxis:86' if (kappa0 == 0) && (kappa1 == 0)
+    // 'G2_Hermite_Interpolation_nAxis:104' if (kappa0 == 0) && (kappa1 == 0)
     guard1 = false;
     if ((kappa0 == 0.0) && (kappa1 == 0.0)) {
         double b_CoefPS[2][2];
         double X[2];
         double c_CoefPS[2];
         //  degenerated case where the polynomial system degenerates to a linear one
-        // 'G2_Hermite_Interpolation_nAxis:87' M       = [b0, c1;
-        // 'G2_Hermite_Interpolation_nAxis:88'                f1, e0];
+        // 'G2_Hermite_Interpolation_nAxis:105' M       = [b0, c1;
+        // 'G2_Hermite_Interpolation_nAxis:106'                f1, e0];
         //
-        // 'G2_Hermite_Interpolation_nAxis:90' B       = [-c0;
-        // 'G2_Hermite_Interpolation_nAxis:91'                -f0];
+        // 'G2_Hermite_Interpolation_nAxis:108' B       = [-c0;
+        // 'G2_Hermite_Interpolation_nAxis:109'                -f0];
         //
-        // 'G2_Hermite_Interpolation_nAxis:93' X       = M \ B;
+        // 'G2_Hermite_Interpolation_nAxis:111' X       = M \ B;
         b_CoefPS[0][0] = CoefPS[3];
         b_CoefPS[1][0] = CoefPS[6];
         b_CoefPS[0][1] = CoefPS[14];
@@ -411,15 +429,15 @@ void G2_Hermite_Interpolation_nAxis(
         c_CoefPS[1] = -CoefPS[15];
         coder::mldivide(b_CoefPS, c_CoefPS, X);
         //  resolution of linear system
-        // 'G2_Hermite_Interpolation_nAxis:94' alpha0  = X(1);
+        // 'G2_Hermite_Interpolation_nAxis:112' alpha0  = X(1);
         alpha0 = X[0];
-        // 'G2_Hermite_Interpolation_nAxis:95' alpha1  = X(2);
+        // 'G2_Hermite_Interpolation_nAxis:113' alpha1  = X(2);
         alpha1 = X[1];
-        // 'G2_Hermite_Interpolation_nAxis:97' if ~((alpha0 > 0) && (alpha1 > 0))
+        // 'G2_Hermite_Interpolation_nAxis:115' if ~((alpha0 > 0) && (alpha1 > 0))
         if ((X[0] > 0.0) && (X[1] > 0.0)) {
-            // 'G2_Hermite_Interpolation_nAxis:101' [beta0, beta1] = Calc_beta0_beta1(alpha0,
-            // alpha1, ... 'G2_Hermite_Interpolation_nAxis:102' r0D0, t0, n0, ...
-            // 'G2_Hermite_Interpolation_nAxis:103'                                       r1D0, t1,
+            // 'G2_Hermite_Interpolation_nAxis:119' [beta0, beta1] = Calc_beta0_beta1(alpha0,
+            // alpha1, ... 'G2_Hermite_Interpolation_nAxis:120' r0D0, t0, n0, ...
+            // 'G2_Hermite_Interpolation_nAxis:121'                                       r1D0, t1,
             // n1, D);
             Calc_beta0_beta1(X[0], X[1], r0D0, t0, n0, r1D0, t1, n1, D, &a, &b_a);
             guard1 = true;
@@ -432,22 +450,29 @@ void G2_Hermite_Interpolation_nAxis(
         bool unnamed_idx_0;
         bool unnamed_idx_1;
         bool unnamed_idx_2;
-        // 'G2_Hermite_Interpolation_nAxis:104' elseif kappa0 == 0
+        // 'G2_Hermite_Interpolation_nAxis:122' elseif kappa0 == 0
         //  compute resultant of the polynomial system
-        // 'G2_Hermite_Interpolation_nAxis:106' Coef = [b1*d0 - c3*f1, b0*d0 + b1*e0 - c2*f1, b0*e0
+        // 'G2_Hermite_Interpolation_nAxis:124' Coef = [b1*d0 - c3*f1, b0*d0 + b1*e0 - c2*f1, b0*e0
         // + b1*f0 - c1*f1, b0*f0 - c0*f1];
         //
-        // 'G2_Hermite_Interpolation_nAxis:108' alpha1_v = c_roots_(Coef);
-        // 'c_roots_:2' if coder.target('rtw')
-        // 'c_roots_:3' Y = complex(zeros(numel(coeffs)-1, 1));
+        // 'G2_Hermite_Interpolation_nAxis:126' alpha1_v = c_roots_(Coef);
+        //  c_roots_ : Compute the square root
+        //
+        //  Inputs :
+        //  coeffs        : Coefficient of the optimization
+        //
+        //  Outputs :
+        //  Y             : Result for the square root
+        // 'c_roots_:10' if coder.target('rtw')
+        // 'c_roots_:11' Y = complex(zeros(numel(coeffs)-1, 1));
         alpha1_v[0].re = 0.0;
         alpha1_v[0].im = 0.0;
         alpha1_v[1].re = 0.0;
         alpha1_v[1].im = 0.0;
         alpha1_v[2].re = 0.0;
         alpha1_v[2].im = 0.0;
-        // 'c_roots_:4' coder.cinclude('functions.h');
-        // 'c_roots_:5' coder.ceval('c_roots', coeffs(end:-1:1), coder.ref(Y),
+        // 'c_roots_:12' coder.cinclude('functions.h');
+        // 'c_roots_:13' coder.ceval('c_roots', coeffs(end:-1:1), coder.ref(Y),
         // int32(numel(coeffs)));
         dv2[0] = CoefPS[3] * CoefPS[15] - CoefPS[7] * CoefPS[14];
         dv2[1] = (CoefPS[3] * CoefPS[11] + CoefPS[2] * CoefPS[15]) - CoefPS[6] * CoefPS[14];
@@ -455,7 +480,7 @@ void G2_Hermite_Interpolation_nAxis(
         dv2[3] = CoefPS[2] * CoefPS[9] - CoefPS[4] * CoefPS[14];
         c_roots(&dv2[0], &alpha1_v[0], 4);
         //  all roots of 3th degree polynomial in alpha1
-        // 'G2_Hermite_Interpolation_nAxis:109' alpha1_t = real(alpha1_v((abs(imag(alpha1_v)) <
+        // 'G2_Hermite_Interpolation_nAxis:127' alpha1_t = real(alpha1_v((abs(imag(alpha1_v)) <
         // TolZero) & (real(alpha1_v) >  0)));
         c_trueCount = 0;
         unnamed_idx_2 = (std::abs(alpha1_v[0].im) < 1.0E-11);
@@ -484,18 +509,18 @@ void G2_Hermite_Interpolation_nAxis(
         if (unnamed_idx_2 && (alpha1_v[2].re > 0.0)) {
             b_tmp_data[i_partialTrueCount] = 3;
         }
-        for (int i2{0}; i2 < c_trueCount; i2++) {
-            alpha1_t_data[i2] = alpha1_v[b_tmp_data[i2] - 1].re;
+        for (int i3{0}; i3 < c_trueCount; i3++) {
+            alpha1_t_data[i3] = alpha1_v[b_tmp_data[i3] - 1].re;
         }
         //  retain only positive real roots
-        // 'G2_Hermite_Interpolation_nAxis:111' if (abs(b1) < TolZero) && (abs(b0) < TolZero)
+        // 'G2_Hermite_Interpolation_nAxis:129' if (abs(b1) < TolZero) && (abs(b0) < TolZero)
         if ((std::abs(CoefPS[2]) < 1.0E-11) && (std::abs(CoefPS[3]) < 1.0E-11)) {
-            // 'G2_Hermite_Interpolation_nAxis:112' alpha0_t = -(d0*alpha1_t.^2+e0*alpha1_t+f0)/f1;
-            r2.set_size(c_trueCount);
-            for (int i5{0}; i5 < c_trueCount; i5++) {
-                r2[i5] = std::pow(alpha1_t_data[i5], 2.0);
+            // 'G2_Hermite_Interpolation_nAxis:130' alpha0_t = -(d0*alpha1_t.^2+e0*alpha1_t+f0)/f1;
+            r10.set_size(c_trueCount);
+            for (int i6{0}; i6 < c_trueCount; i6++) {
+                r10[i6] = std::pow(alpha1_t_data[i6], 2.0);
             }
-            if (r2.size(0) == c_trueCount) {
+            if (r10.size(0) == c_trueCount) {
                 double d_CoefPS;
                 double f_CoefPS;
                 double h_CoefPS;
@@ -507,67 +532,67 @@ void G2_Hermite_Interpolation_nAxis(
                 f_CoefPS = CoefPS[11];
                 h_CoefPS = CoefPS[15];
                 j_CoefPS = CoefPS[14];
-                alpha0_t_size = r2.size(0);
-                b_loop_ub = r2.size(0);
-                scalarLB = (r2.size(0) / 2) << 1;
+                alpha0_t_size = r10.size(0);
+                b_loop_ub = r10.size(0);
+                scalarLB = (r10.size(0) / 2) << 1;
                 vectorUB = scalarLB - 2;
                 for (int i22{0}; i22 <= vectorUB; i22 += 2) {
-                    __m128d r20;
                     __m128d r24;
-                    r20 = _mm_loadu_pd(&(r2.data())[0]);
-                    r24 = _mm_loadu_pd(&alpha1_t_data[0]);
+                    __m128d r26;
+                    r24 = _mm_loadu_pd(&(r10.data())[0]);
+                    r26 = _mm_loadu_pd(&alpha1_t_data[0]);
                     _mm_storeu_pd(
                         &alpha0_t_data[0],
                         _mm_div_pd(
                             _mm_mul_pd(
-                                _mm_add_pd(_mm_add_pd(_mm_mul_pd(_mm_set1_pd(d_CoefPS), r20),
-                                                      _mm_mul_pd(_mm_set1_pd(f_CoefPS), r24)),
+                                _mm_add_pd(_mm_add_pd(_mm_mul_pd(_mm_set1_pd(d_CoefPS), r24),
+                                                      _mm_mul_pd(_mm_set1_pd(f_CoefPS), r26)),
                                            _mm_set1_pd(h_CoefPS)),
                                 _mm_set1_pd(-1.0)),
                             _mm_set1_pd(j_CoefPS)));
                 }
                 for (int i22{scalarLB}; i22 < b_loop_ub; i22++) {
                     alpha0_t_data[i22] =
-                        -((d_CoefPS * r2[i22] + f_CoefPS * alpha1_t_data[i22]) + h_CoefPS) /
+                        -((d_CoefPS * r10[i22] + f_CoefPS * alpha1_t_data[i22]) + h_CoefPS) /
                         j_CoefPS;
                 }
             } else {
-                binary_expand_op(alpha0_t_data, &alpha0_t_size, CoefPS, r2, alpha1_t_data,
+                binary_expand_op(alpha0_t_data, &alpha0_t_size, CoefPS, r10, alpha1_t_data,
                                  &c_trueCount);
             }
         } else {
-            int i14;
-            int i19;
+            int i16;
+            int i20;
             int i24;
-            // 'G2_Hermite_Interpolation_nAxis:113' else
-            // 'G2_Hermite_Interpolation_nAxis:114' alpha0_t =
+            // 'G2_Hermite_Interpolation_nAxis:131' else
+            // 'G2_Hermite_Interpolation_nAxis:132' alpha0_t =
             // -(c3*alpha1_t.^3+c2*alpha1_t.^2+c1*alpha1_t+c0)./(b1*alpha1_t+b0);
-            r2.set_size(c_trueCount);
-            for (int i8{0}; i8 < c_trueCount; i8++) {
-                r2[i8] = std::pow(alpha1_t_data[i8], 3.0);
+            r10.set_size(c_trueCount);
+            for (int i9{0}; i9 < c_trueCount; i9++) {
+                r10[i9] = std::pow(alpha1_t_data[i9], 3.0);
             }
-            r7.set_size(c_trueCount);
-            for (int i11{0}; i11 < c_trueCount; i11++) {
-                r7[i11] = std::pow(alpha1_t_data[i11], 2.0);
+            r13.set_size(c_trueCount);
+            for (int i13{0}; i13 < c_trueCount; i13++) {
+                r13[i13] = std::pow(alpha1_t_data[i13], 2.0);
             }
-            if (r2.size(0) == 1) {
-                i14 = r7.size(0);
+            if (r10.size(0) == 1) {
+                i16 = r13.size(0);
             } else {
-                i14 = r2.size(0);
+                i16 = r10.size(0);
             }
-            if (r2.size(0) == 1) {
-                i19 = r7.size(0);
+            if (r10.size(0) == 1) {
+                i20 = r13.size(0);
             } else {
-                i19 = r2.size(0);
+                i20 = r10.size(0);
             }
-            if (i19 == 1) {
+            if (i20 == 1) {
                 i24 = c_trueCount;
-            } else if (r2.size(0) == 1) {
-                i24 = r7.size(0);
+            } else if (r10.size(0) == 1) {
+                i24 = r13.size(0);
             } else {
-                i24 = r2.size(0);
+                i24 = r10.size(0);
             }
-            if ((r2.size(0) == r7.size(0)) && (i14 == c_trueCount) && (i24 == c_trueCount)) {
+            if ((r10.size(0) == r13.size(0)) && (i16 == c_trueCount) && (i24 == c_trueCount)) {
                 double n_CoefPS;
                 double p_CoefPS;
                 double r_CoefPS;
@@ -583,16 +608,16 @@ void G2_Hermite_Interpolation_nAxis(
                 t_CoefPS = CoefPS[7];
                 v_CoefPS = CoefPS[2];
                 x_CoefPS = CoefPS[3];
-                alpha0_t_size = r2.size(0);
-                f_loop_ub = r2.size(0);
-                c_scalarLB = (r2.size(0) / 2) << 1;
+                alpha0_t_size = r10.size(0);
+                f_loop_ub = r10.size(0);
+                c_scalarLB = (r10.size(0) / 2) << 1;
                 d_vectorUB = c_scalarLB - 2;
                 for (int i31{0}; i31 <= d_vectorUB; i31 += 2) {
                     __m128d r29;
                     __m128d r32;
                     __m128d r34;
-                    r29 = _mm_loadu_pd(&(r2.data())[0]);
-                    r32 = _mm_loadu_pd(&(r7.data())[0]);
+                    r29 = _mm_loadu_pd(&(r10.data())[0]);
+                    r32 = _mm_loadu_pd(&(r13.data())[0]);
                     r34 = _mm_loadu_pd(&alpha1_t_data[0]);
                     _mm_storeu_pd(
                         &alpha0_t_data[0],
@@ -611,103 +636,104 @@ void G2_Hermite_Interpolation_nAxis(
                     double d1;
                     d1 = alpha1_t_data[i31];
                     alpha0_t_data[i31] =
-                        -(((n_CoefPS * r2[i31] + p_CoefPS * r7[i31]) + r_CoefPS * d1) + t_CoefPS) /
+                        -(((n_CoefPS * r10[i31] + p_CoefPS * r13[i31]) + r_CoefPS * d1) +
+                          t_CoefPS) /
                         (v_CoefPS * d1 + x_CoefPS);
                 }
             } else {
-                binary_expand_op(alpha0_t_data, &alpha0_t_size, CoefPS, r2, r7, alpha1_t_data,
+                binary_expand_op(alpha0_t_data, &alpha0_t_size, CoefPS, r10, r13, alpha1_t_data,
                                  &c_trueCount);
             }
         }
-        // 'G2_Hermite_Interpolation_nAxis:117' Idx       = find(alpha0_t > 0);
-        for (int i17{0}; i17 < alpha0_t_size; i17++) {
-            b_alpha0_t_data[i17] = (alpha0_t_data[i17] > 0.0);
+        // 'G2_Hermite_Interpolation_nAxis:135' Idx       = find(alpha0_t > 0);
+        for (int i18{0}; i18 < alpha0_t_size; i18++) {
+            b_alpha0_t_data[i18] = (alpha0_t_data[i18] > 0.0);
         }
         c_alpha0_t_data.set(&b_alpha0_t_data[0], alpha0_t_size);
-        coder::c_eml_find(c_alpha0_t_data, r16);
-        k_i.set_size(r16.size(0));
-        d_loop_ub = r16.size(0);
+        coder::c_eml_find(c_alpha0_t_data, r23);
+        k_i.set_size(r23.size(0));
+        d_loop_ub = r23.size(0);
         for (int i26{0}; i26 < d_loop_ub; i26++) {
-            k_i[i26] = r16[i26];
+            k_i[i26] = r23[i26];
         }
         for (int i28{0}; i28 < alpha0_t_size; i28++) {
             b_alpha0_t_data[i28] = (alpha0_t_data[i28] > 0.0);
         }
         d_alpha0_t_data.set(&b_alpha0_t_data[0], alpha0_t_size);
-        coder::c_eml_find(d_alpha0_t_data, r16);
-        // 'G2_Hermite_Interpolation_nAxis:118' alpha1_u  = alpha1_t(Idx);
-        // 'G2_Hermite_Interpolation_nAxis:119' alpha0_u  = alpha0_t(Idx);
-        // 'G2_Hermite_Interpolation_nAxis:121' if ~(numel(alpha0_u) > 0)
-        if (r16.size(0) <= 0) {
-            // 'G2_Hermite_Interpolation_nAxis:122' status = int32(3);
+        coder::c_eml_find(d_alpha0_t_data, r23);
+        // 'G2_Hermite_Interpolation_nAxis:136' alpha1_u  = alpha1_t(Idx);
+        // 'G2_Hermite_Interpolation_nAxis:137' alpha0_u  = alpha0_t(Idx);
+        // 'G2_Hermite_Interpolation_nAxis:139' if ~(numel(alpha0_u) > 0)
+        if (r23.size(0) <= 0) {
+            // 'G2_Hermite_Interpolation_nAxis:140' status = int32(3);
             *status = 3;
         } else {
             // c_assert(numel(alpha0_u) > 0, 'no positive solution of polynomial system');
-            // 'G2_Hermite_Interpolation_nAxis:127' if length(alpha0_u) > 1
-            if (r16.size(0) > 1) {
+            // 'G2_Hermite_Interpolation_nAxis:145' if length(alpha0_u) > 1
+            if (r23.size(0) > 1) {
                 int CostInt_size;
                 int h_loop_ub;
                 int i37;
                 int j_loop_ub;
                 int l_loop_ub;
-                // 'G2_Hermite_Interpolation_nAxis:129' CostInt = zeros(size(alpha0_u));
-                CostInt_size = static_cast<signed char>(r16.size(0));
-                h_loop_ub = static_cast<signed char>(r16.size(0));
+                // 'G2_Hermite_Interpolation_nAxis:147' CostInt = zeros(size(alpha0_u));
+                CostInt_size = static_cast<signed char>(r23.size(0));
+                h_loop_ub = static_cast<signed char>(r23.size(0));
                 if (h_loop_ub - 1 >= 0) {
                     std::memset(&CostInt_data[0], 0, h_loop_ub * sizeof(double));
                 }
                 //  preallocating
-                // 'G2_Hermite_Interpolation_nAxis:130' beta0_u = zeros(size(alpha0_u));
-                j_loop_ub = static_cast<signed char>(r16.size(0));
+                // 'G2_Hermite_Interpolation_nAxis:148' beta0_u = zeros(size(alpha0_u));
+                j_loop_ub = static_cast<signed char>(r23.size(0));
                 if (j_loop_ub - 1 >= 0) {
                     std::memset(&beta0_u_data[0], 0, j_loop_ub * sizeof(double));
                 }
                 //  preallocating
-                // 'G2_Hermite_Interpolation_nAxis:131' beta1_u = zeros(size(alpha0_u));
-                l_loop_ub = static_cast<signed char>(r16.size(0));
+                // 'G2_Hermite_Interpolation_nAxis:149' beta1_u = zeros(size(alpha0_u));
+                l_loop_ub = static_cast<signed char>(r23.size(0));
                 if (l_loop_ub - 1 >= 0) {
                     std::memset(&beta1_u_data[0], 0, l_loop_ub * sizeof(double));
                 }
                 //  preallocating
-                // 'G2_Hermite_Interpolation_nAxis:133' for k = 1:length(alpha0_u)
+                // 'G2_Hermite_Interpolation_nAxis:151' for k = 1:length(alpha0_u)
                 i37 = k_i.size(0);
                 for (int b_k{0}; b_k < i37; b_k++) {
-                    // 'G2_Hermite_Interpolation_nAxis:135' [beta0_u(k), beta1_u(k)] =
+                    // 'G2_Hermite_Interpolation_nAxis:153' [beta0_u(k), beta1_u(k)] =
                     // Calc_beta0_beta1(alpha0_u(k), alpha1_u(k), ...
-                    // 'G2_Hermite_Interpolation_nAxis:136' r0D0, t0, n0, ...
-                    // 'G2_Hermite_Interpolation_nAxis:137' r1D0, t1, n1, D);
-                    Calc_beta0_beta1(alpha0_t_data[r16[b_k] - 1], alpha1_t_data[r16[b_k] - 1], r0D0,
+                    // 'G2_Hermite_Interpolation_nAxis:154' r0D0, t0, n0, ...
+                    // 'G2_Hermite_Interpolation_nAxis:155' r1D0, t1, n1, D);
+                    Calc_beta0_beta1(alpha0_t_data[r23[b_k] - 1], alpha1_t_data[r23[b_k] - 1], r0D0,
                                      t0, n0, r1D0, t1, n1, D, &beta0_u_data[b_k],
                                      &beta1_u_data[b_k]);
-                    // 'G2_Hermite_Interpolation_nAxis:138' CostInt(k)     =
+                    // 'G2_Hermite_Interpolation_nAxis:156' CostInt(k)     =
                     // EvalCostIntegral(alpha0_u(k),  beta0_u(k), alpha1_u(k), beta1_u(k), ...
-                    // 'G2_Hermite_Interpolation_nAxis:139' r0D0, t0, n0, ...
-                    // 'G2_Hermite_Interpolation_nAxis:140' r1D0, t1, n1, D);
+                    // 'G2_Hermite_Interpolation_nAxis:157' r0D0, t0, n0, ...
+                    // 'G2_Hermite_Interpolation_nAxis:158' r1D0, t1, n1, D);
                     CostInt_data[b_k] = EvalCostIntegral(
-                        alpha0_t_data[r16[b_k] - 1], beta0_u_data[b_k], alpha1_t_data[r16[b_k] - 1],
+                        alpha0_t_data[r23[b_k] - 1], beta0_u_data[b_k], alpha1_t_data[r23[b_k] - 1],
                         beta1_u_data[b_k], r0D0, t0, n0, r1D0, t1, n1, D);
                 }
                 int alpha0_tmp;
-                // 'G2_Hermite_Interpolation_nAxis:144' [~, Idx] = min(CostInt);
+                // 'G2_Hermite_Interpolation_nAxis:162' [~, Idx] = min(CostInt);
                 coder::internal::minimum(CostInt_data, CostInt_size, &ex, &iindx);
-                // 'G2_Hermite_Interpolation_nAxis:145' alpha0   = alpha0_u(Idx);
-                alpha0_tmp = r16[iindx - 1] - 1;
+                // 'G2_Hermite_Interpolation_nAxis:163' alpha0   = alpha0_u(Idx);
+                alpha0_tmp = r23[iindx - 1] - 1;
                 alpha0 = alpha0_t_data[alpha0_tmp];
-                // 'G2_Hermite_Interpolation_nAxis:146' alpha1   = alpha1_u(Idx);
+                // 'G2_Hermite_Interpolation_nAxis:164' alpha1   = alpha1_u(Idx);
                 alpha1 = alpha1_t_data[alpha0_tmp];
-                // 'G2_Hermite_Interpolation_nAxis:147' beta0    = beta0_u(Idx);
+                // 'G2_Hermite_Interpolation_nAxis:165' beta0    = beta0_u(Idx);
                 a = beta0_u_data[iindx - 1];
-                // 'G2_Hermite_Interpolation_nAxis:148' beta1    = beta1_u(Idx);
+                // 'G2_Hermite_Interpolation_nAxis:166' beta1    = beta1_u(Idx);
                 b_a = beta1_u_data[iindx - 1];
             } else {
-                // 'G2_Hermite_Interpolation_nAxis:150' else
-                // 'G2_Hermite_Interpolation_nAxis:152' alpha0   = alpha0_u(1);
-                alpha0 = alpha0_t_data[r16[0] - 1];
-                // 'G2_Hermite_Interpolation_nAxis:153' alpha1   = alpha1_u(1);
-                alpha1 = alpha1_t_data[r16[0] - 1];
-                // 'G2_Hermite_Interpolation_nAxis:154' [beta0, beta1] = Calc_beta0_beta1(alpha0,
-                // alpha1, ... 'G2_Hermite_Interpolation_nAxis:155' r0D0, t0, n0, ...
-                // 'G2_Hermite_Interpolation_nAxis:156' r1D0, t1, n1, D);
+                // 'G2_Hermite_Interpolation_nAxis:168' else
+                // 'G2_Hermite_Interpolation_nAxis:170' alpha0   = alpha0_u(1);
+                alpha0 = alpha0_t_data[r23[0] - 1];
+                // 'G2_Hermite_Interpolation_nAxis:171' alpha1   = alpha1_u(1);
+                alpha1 = alpha1_t_data[r23[0] - 1];
+                // 'G2_Hermite_Interpolation_nAxis:172' [beta0, beta1] = Calc_beta0_beta1(alpha0,
+                // alpha1, ... 'G2_Hermite_Interpolation_nAxis:173' r0D0, t0, n0, ...
+                // 'G2_Hermite_Interpolation_nAxis:174' r1D0, t1, n1, D);
                 Calc_beta0_beta1(alpha0_t_data[k_i[0] - 1], alpha1_t_data[k_i[0] - 1], r0D0, t0, n0,
                                  r1D0, t1, n1, D, &a, &b_a);
             }
@@ -722,22 +748,29 @@ void G2_Hermite_Interpolation_nAxis(
         bool b_unnamed_idx_2;
         bool unnamed_idx_0;
         bool unnamed_idx_1;
-        // 'G2_Hermite_Interpolation_nAxis:160' elseif kappa1 == 0
+        // 'G2_Hermite_Interpolation_nAxis:178' elseif kappa1 == 0
         //  compute resultant of the polynomial system
-        // 'G2_Hermite_Interpolation_nAxis:162' Coef = [c1*f3 - a0*e1, c1*f2 - b0*e1 - a0*e0, c1*f1
+        // 'G2_Hermite_Interpolation_nAxis:180' Coef = [c1*f3 - a0*e1, c1*f2 - b0*e1 - a0*e0, c1*f1
         // - c0*e1 - b0*e0, c1*f0 - c0*e0];
         //
-        // 'G2_Hermite_Interpolation_nAxis:164' alpha0_v  = c_roots_(Coef);
-        // 'c_roots_:2' if coder.target('rtw')
-        // 'c_roots_:3' Y = complex(zeros(numel(coeffs)-1, 1));
+        // 'G2_Hermite_Interpolation_nAxis:182' alpha0_v  = c_roots_(Coef);
+        //  c_roots_ : Compute the square root
+        //
+        //  Inputs :
+        //  coeffs        : Coefficient of the optimization
+        //
+        //  Outputs :
+        //  Y             : Result for the square root
+        // 'c_roots_:10' if coder.target('rtw')
+        // 'c_roots_:11' Y = complex(zeros(numel(coeffs)-1, 1));
         alpha0_v[0].re = 0.0;
         alpha0_v[0].im = 0.0;
         alpha0_v[1].re = 0.0;
         alpha0_v[1].im = 0.0;
         alpha0_v[2].re = 0.0;
         alpha0_v[2].im = 0.0;
-        // 'c_roots_:4' coder.cinclude('functions.h');
-        // 'c_roots_:5' coder.ceval('c_roots', coeffs(end:-1:1), coder.ref(Y),
+        // 'c_roots_:12' coder.cinclude('functions.h');
+        // 'c_roots_:13' coder.ceval('c_roots', coeffs(end:-1:1), coder.ref(Y),
         // int32(numel(coeffs)));
         dv2[0] = CoefPS[6] * CoefPS[15] - CoefPS[7] * CoefPS[11];
         dv2[1] = (CoefPS[6] * CoefPS[14] - CoefPS[7] * CoefPS[10]) - CoefPS[3] * CoefPS[11];
@@ -745,7 +778,7 @@ void G2_Hermite_Interpolation_nAxis(
         dv2[3] = CoefPS[6] * CoefPS[12] - CoefPS[1] * CoefPS[10];
         c_roots(&dv2[0], &alpha0_v[0], 4);
         //  all roots of 3th degree polynomial in alpha0
-        // 'G2_Hermite_Interpolation_nAxis:165' alpha0_t  = real(alpha0_v((abs(imag(alpha0_v)) <
+        // 'G2_Hermite_Interpolation_nAxis:183' alpha0_t  = real(alpha0_v((abs(imag(alpha0_v)) <
         // TolZero) & (real(alpha0_v) >  0)));
         d_trueCount = 0;
         b_unnamed_idx_2 = (std::abs(alpha0_v[0].im) < 1.0E-11);
@@ -774,18 +807,18 @@ void G2_Hermite_Interpolation_nAxis(
         if (b_unnamed_idx_2 && (alpha0_v[2].re > 0.0)) {
             b_tmp_data[j_partialTrueCount] = 3;
         }
-        for (int i3{0}; i3 < d_trueCount; i3++) {
-            alpha0_t_data[i3] = alpha0_v[b_tmp_data[i3] - 1].re;
+        for (int i5{0}; i5 < d_trueCount; i5++) {
+            alpha0_t_data[i5] = alpha0_v[b_tmp_data[i5] - 1].re;
         }
         //  retain only positive real roots
-        // 'G2_Hermite_Interpolation_nAxis:167' if (abs(e1) < TolZero) && (abs(e0) < TolZero)
+        // 'G2_Hermite_Interpolation_nAxis:185' if (abs(e1) < TolZero) && (abs(e0) < TolZero)
         if ((std::abs(CoefPS[10]) < 1.0E-11) && (std::abs(CoefPS[11]) < 1.0E-11)) {
-            // 'G2_Hermite_Interpolation_nAxis:168' alpha1_t = -(a0*alpha0_t.^2+b0*alpha0_t+c0)/c1;
-            r2.set_size(d_trueCount);
-            for (int i7{0}; i7 < d_trueCount; i7++) {
-                r2[i7] = std::pow(alpha0_t_data[i7], 2.0);
+            // 'G2_Hermite_Interpolation_nAxis:186' alpha1_t = -(a0*alpha0_t.^2+b0*alpha0_t+c0)/c1;
+            r10.set_size(d_trueCount);
+            for (int i8{0}; i8 < d_trueCount; i8++) {
+                r10[i8] = std::pow(alpha0_t_data[i8], 2.0);
             }
-            if (r2.size(0) == d_trueCount) {
+            if (r10.size(0) == d_trueCount) {
                 double e_CoefPS;
                 double g_CoefPS;
                 double i_CoefPS;
@@ -797,20 +830,20 @@ void G2_Hermite_Interpolation_nAxis(
                 g_CoefPS = CoefPS[3];
                 i_CoefPS = CoefPS[7];
                 k_CoefPS = CoefPS[6];
-                alpha1_t_size = r2.size(0);
-                c_loop_ub = r2.size(0);
-                b_scalarLB = (r2.size(0) / 2) << 1;
+                alpha1_t_size = r10.size(0);
+                c_loop_ub = r10.size(0);
+                b_scalarLB = (r10.size(0) / 2) << 1;
                 b_vectorUB = b_scalarLB - 2;
                 for (int i23{0}; i23 <= b_vectorUB; i23 += 2) {
-                    __m128d r23;
+                    __m128d r25;
                     __m128d r27;
-                    r23 = _mm_loadu_pd(&(r2.data())[0]);
+                    r25 = _mm_loadu_pd(&(r10.data())[0]);
                     r27 = _mm_loadu_pd(&alpha0_t_data[0]);
                     _mm_storeu_pd(
                         &alpha1_t_data[0],
                         _mm_div_pd(
                             _mm_mul_pd(
-                                _mm_add_pd(_mm_add_pd(_mm_mul_pd(_mm_set1_pd(e_CoefPS), r23),
+                                _mm_add_pd(_mm_add_pd(_mm_mul_pd(_mm_set1_pd(e_CoefPS), r25),
                                                       _mm_mul_pd(_mm_set1_pd(g_CoefPS), r27)),
                                            _mm_set1_pd(i_CoefPS)),
                                 _mm_set1_pd(-1.0)),
@@ -818,46 +851,46 @@ void G2_Hermite_Interpolation_nAxis(
                 }
                 for (int i23{b_scalarLB}; i23 < c_loop_ub; i23++) {
                     alpha1_t_data[i23] =
-                        -((e_CoefPS * r2[i23] + g_CoefPS * alpha0_t_data[i23]) + i_CoefPS) /
+                        -((e_CoefPS * r10[i23] + g_CoefPS * alpha0_t_data[i23]) + i_CoefPS) /
                         k_CoefPS;
                 }
             } else {
-                e_binary_expand_op(alpha1_t_data, &alpha1_t_size, CoefPS, r2, alpha0_t_data,
+                e_binary_expand_op(alpha1_t_data, &alpha1_t_size, CoefPS, r10, alpha0_t_data,
                                    &d_trueCount);
             }
         } else {
-            int i16;
+            int i17;
             int i21;
             int i25;
-            // 'G2_Hermite_Interpolation_nAxis:169' else
-            // 'G2_Hermite_Interpolation_nAxis:170' alpha1_t =
+            // 'G2_Hermite_Interpolation_nAxis:187' else
+            // 'G2_Hermite_Interpolation_nAxis:188' alpha1_t =
             // -(f3*alpha0_t.^3+f2*alpha0_t.^2+f1*alpha0_t+f0)./(e1*alpha0_t+e0);
-            r2.set_size(d_trueCount);
-            for (int i10{0}; i10 < d_trueCount; i10++) {
-                r2[i10] = std::pow(alpha0_t_data[i10], 3.0);
+            r10.set_size(d_trueCount);
+            for (int i11{0}; i11 < d_trueCount; i11++) {
+                r10[i11] = std::pow(alpha0_t_data[i11], 3.0);
             }
-            r7.set_size(d_trueCount);
-            for (int i12{0}; i12 < d_trueCount; i12++) {
-                r7[i12] = std::pow(alpha0_t_data[i12], 2.0);
+            r13.set_size(d_trueCount);
+            for (int i14{0}; i14 < d_trueCount; i14++) {
+                r13[i14] = std::pow(alpha0_t_data[i14], 2.0);
             }
-            if (r2.size(0) == 1) {
-                i16 = r7.size(0);
+            if (r10.size(0) == 1) {
+                i17 = r13.size(0);
             } else {
-                i16 = r2.size(0);
+                i17 = r10.size(0);
             }
-            if (r2.size(0) == 1) {
-                i21 = r7.size(0);
+            if (r10.size(0) == 1) {
+                i21 = r13.size(0);
             } else {
-                i21 = r2.size(0);
+                i21 = r10.size(0);
             }
             if (i21 == 1) {
                 i25 = d_trueCount;
-            } else if (r2.size(0) == 1) {
-                i25 = r7.size(0);
+            } else if (r10.size(0) == 1) {
+                i25 = r13.size(0);
             } else {
-                i25 = r2.size(0);
+                i25 = r10.size(0);
             }
-            if ((r2.size(0) == r7.size(0)) && (i16 == d_trueCount) && (i25 == d_trueCount)) {
+            if ((r10.size(0) == r13.size(0)) && (i17 == d_trueCount) && (i25 == d_trueCount)) {
                 double o_CoefPS;
                 double q_CoefPS;
                 double s_CoefPS;
@@ -873,16 +906,16 @@ void G2_Hermite_Interpolation_nAxis(
                 u_CoefPS = CoefPS[15];
                 w_CoefPS = CoefPS[10];
                 y_CoefPS = CoefPS[11];
-                alpha1_t_size = r2.size(0);
-                g_loop_ub = r2.size(0);
-                d_scalarLB = (r2.size(0) / 2) << 1;
+                alpha1_t_size = r10.size(0);
+                g_loop_ub = r10.size(0);
+                d_scalarLB = (r10.size(0) / 2) << 1;
                 f_vectorUB = d_scalarLB - 2;
                 for (int i33{0}; i33 <= f_vectorUB; i33 += 2) {
                     __m128d r31;
                     __m128d r33;
                     __m128d r35;
-                    r31 = _mm_loadu_pd(&(r2.data())[0]);
-                    r33 = _mm_loadu_pd(&(r7.data())[0]);
+                    r31 = _mm_loadu_pd(&(r10.data())[0]);
+                    r33 = _mm_loadu_pd(&(r13.data())[0]);
                     r35 = _mm_loadu_pd(&alpha0_t_data[0]);
                     _mm_storeu_pd(
                         &alpha1_t_data[0],
@@ -901,104 +934,105 @@ void G2_Hermite_Interpolation_nAxis(
                     double d2;
                     d2 = alpha0_t_data[i33];
                     alpha1_t_data[i33] =
-                        -(((o_CoefPS * r2[i33] + q_CoefPS * r7[i33]) + s_CoefPS * d2) + u_CoefPS) /
+                        -(((o_CoefPS * r10[i33] + q_CoefPS * r13[i33]) + s_CoefPS * d2) +
+                          u_CoefPS) /
                         (w_CoefPS * d2 + y_CoefPS);
                 }
             } else {
-                e_binary_expand_op(alpha1_t_data, &alpha1_t_size, CoefPS, r2, r7, alpha0_t_data,
+                e_binary_expand_op(alpha1_t_data, &alpha1_t_size, CoefPS, r10, r13, alpha0_t_data,
                                    &d_trueCount);
             }
         }
-        // 'G2_Hermite_Interpolation_nAxis:173' Idx      = find(alpha1_t > 0);
-        for (int i18{0}; i18 < alpha1_t_size; i18++) {
-            b_alpha1_t_data[i18] = (alpha1_t_data[i18] > 0.0);
+        // 'G2_Hermite_Interpolation_nAxis:191' Idx      = find(alpha1_t > 0);
+        for (int i19{0}; i19 < alpha1_t_size; i19++) {
+            b_alpha1_t_data[i19] = (alpha1_t_data[i19] > 0.0);
         }
         c_alpha1_t_data.set(&b_alpha1_t_data[0], alpha1_t_size);
-        coder::c_eml_find(c_alpha1_t_data, r16);
-        k_i.set_size(r16.size(0));
-        e_loop_ub = r16.size(0);
+        coder::c_eml_find(c_alpha1_t_data, r23);
+        k_i.set_size(r23.size(0));
+        e_loop_ub = r23.size(0);
         for (int i27{0}; i27 < e_loop_ub; i27++) {
-            k_i[i27] = r16[i27];
+            k_i[i27] = r23[i27];
         }
         for (int i29{0}; i29 < alpha1_t_size; i29++) {
             b_alpha1_t_data[i29] = (alpha1_t_data[i29] > 0.0);
         }
         d_alpha1_t_data.set(&b_alpha1_t_data[0], alpha1_t_size);
-        coder::c_eml_find(d_alpha1_t_data, r16);
-        // 'G2_Hermite_Interpolation_nAxis:174' alpha1_u = alpha1_t(Idx);
-        // 'G2_Hermite_Interpolation_nAxis:175' alpha0_u = alpha0_t(Idx);
+        coder::c_eml_find(d_alpha1_t_data, r23);
+        // 'G2_Hermite_Interpolation_nAxis:192' alpha1_u = alpha1_t(Idx);
+        // 'G2_Hermite_Interpolation_nAxis:193' alpha0_u = alpha0_t(Idx);
         //
-        // 'G2_Hermite_Interpolation_nAxis:177' if ~(numel(alpha0_u) > 0)
-        if (r16.size(0) <= 0) {
-            // 'G2_Hermite_Interpolation_nAxis:178' status = int32(4);
+        // 'G2_Hermite_Interpolation_nAxis:195' if ~(numel(alpha0_u) > 0)
+        if (r23.size(0) <= 0) {
+            // 'G2_Hermite_Interpolation_nAxis:196' status = int32(4);
             *status = 4;
         } else {
             // c_assert(numel(alpha0_u) > 0, 'no positive solution of polynomial system');
-            // 'G2_Hermite_Interpolation_nAxis:183' if length(alpha0_u) > 1
-            if (r16.size(0) > 1) {
+            // 'G2_Hermite_Interpolation_nAxis:201' if length(alpha0_u) > 1
+            if (r23.size(0) > 1) {
                 int CostInt_size;
                 int i38;
                 int i_loop_ub;
                 int k_loop_ub;
                 int m_loop_ub;
-                // 'G2_Hermite_Interpolation_nAxis:184' CostInt = zeros(size(alpha0_u));
-                CostInt_size = static_cast<signed char>(r16.size(0));
-                i_loop_ub = static_cast<signed char>(r16.size(0));
+                // 'G2_Hermite_Interpolation_nAxis:202' CostInt = zeros(size(alpha0_u));
+                CostInt_size = static_cast<signed char>(r23.size(0));
+                i_loop_ub = static_cast<signed char>(r23.size(0));
                 if (i_loop_ub - 1 >= 0) {
                     std::memset(&CostInt_data[0], 0, i_loop_ub * sizeof(double));
                 }
                 //  preallocating
-                // 'G2_Hermite_Interpolation_nAxis:185' beta0_u = zeros(size(alpha0_u));
-                k_loop_ub = static_cast<signed char>(r16.size(0));
+                // 'G2_Hermite_Interpolation_nAxis:203' beta0_u = zeros(size(alpha0_u));
+                k_loop_ub = static_cast<signed char>(r23.size(0));
                 if (k_loop_ub - 1 >= 0) {
                     std::memset(&beta0_u_data[0], 0, k_loop_ub * sizeof(double));
                 }
                 //  preallocating
-                // 'G2_Hermite_Interpolation_nAxis:186' beta1_u = zeros(size(alpha0_u));
-                m_loop_ub = static_cast<signed char>(r16.size(0));
+                // 'G2_Hermite_Interpolation_nAxis:204' beta1_u = zeros(size(alpha0_u));
+                m_loop_ub = static_cast<signed char>(r23.size(0));
                 if (m_loop_ub - 1 >= 0) {
                     std::memset(&beta1_u_data[0], 0, m_loop_ub * sizeof(double));
                 }
                 //  preallocating
-                // 'G2_Hermite_Interpolation_nAxis:188' for k = 1:length(alpha0_u)
+                // 'G2_Hermite_Interpolation_nAxis:206' for k = 1:length(alpha0_u)
                 i38 = k_i.size(0);
                 for (int c_k{0}; c_k < i38; c_k++) {
-                    // 'G2_Hermite_Interpolation_nAxis:189' [beta0_u(k), beta1_u(k)] =
+                    // 'G2_Hermite_Interpolation_nAxis:207' [beta0_u(k), beta1_u(k)] =
                     // Calc_beta0_beta1(alpha0_u(k), alpha1_u(k), ...
-                    // 'G2_Hermite_Interpolation_nAxis:190' r0D0, t0, n0, ...
-                    // 'G2_Hermite_Interpolation_nAxis:191' r1D0, t1, n1, D);
-                    Calc_beta0_beta1(alpha0_t_data[r16[c_k] - 1], alpha1_t_data[r16[c_k] - 1], r0D0,
+                    // 'G2_Hermite_Interpolation_nAxis:208' r0D0, t0, n0, ...
+                    // 'G2_Hermite_Interpolation_nAxis:209' r1D0, t1, n1, D);
+                    Calc_beta0_beta1(alpha0_t_data[r23[c_k] - 1], alpha1_t_data[r23[c_k] - 1], r0D0,
                                      t0, n0, r1D0, t1, n1, D, &beta0_u_data[c_k],
                                      &beta1_u_data[c_k]);
-                    // 'G2_Hermite_Interpolation_nAxis:192' CostInt(k)     =
+                    // 'G2_Hermite_Interpolation_nAxis:210' CostInt(k)     =
                     // EvalCostIntegral(alpha0_u(k),  beta0_u(k), alpha1_u(k), beta1_u(k), ...
-                    // 'G2_Hermite_Interpolation_nAxis:193' r0D0, t0, n0, ...
-                    // 'G2_Hermite_Interpolation_nAxis:194' r1D0, t1, n1, D);
+                    // 'G2_Hermite_Interpolation_nAxis:211' r0D0, t0, n0, ...
+                    // 'G2_Hermite_Interpolation_nAxis:212' r1D0, t1, n1, D);
                     CostInt_data[c_k] = EvalCostIntegral(
-                        alpha0_t_data[r16[c_k] - 1], beta0_u_data[c_k], alpha1_t_data[r16[c_k] - 1],
+                        alpha0_t_data[r23[c_k] - 1], beta0_u_data[c_k], alpha1_t_data[r23[c_k] - 1],
                         beta1_u_data[c_k], r0D0, t0, n0, r1D0, t1, n1, D);
                 }
                 int b_alpha0_tmp;
-                // 'G2_Hermite_Interpolation_nAxis:196' [~, Idx] = min(CostInt);
+                // 'G2_Hermite_Interpolation_nAxis:214' [~, Idx] = min(CostInt);
                 coder::internal::minimum(CostInt_data, CostInt_size, &b_ex, &b_iindx);
-                // 'G2_Hermite_Interpolation_nAxis:197' alpha0   = alpha0_u(Idx);
-                b_alpha0_tmp = r16[b_iindx - 1] - 1;
+                // 'G2_Hermite_Interpolation_nAxis:215' alpha0   = alpha0_u(Idx);
+                b_alpha0_tmp = r23[b_iindx - 1] - 1;
                 alpha0 = alpha0_t_data[b_alpha0_tmp];
-                // 'G2_Hermite_Interpolation_nAxis:198' alpha1   = alpha1_u(Idx);
+                // 'G2_Hermite_Interpolation_nAxis:216' alpha1   = alpha1_u(Idx);
                 alpha1 = alpha1_t_data[b_alpha0_tmp];
-                // 'G2_Hermite_Interpolation_nAxis:199' beta0    = beta0_u(Idx);
+                // 'G2_Hermite_Interpolation_nAxis:217' beta0    = beta0_u(Idx);
                 a = beta0_u_data[b_iindx - 1];
-                // 'G2_Hermite_Interpolation_nAxis:200' beta1    = beta1_u(Idx);
+                // 'G2_Hermite_Interpolation_nAxis:218' beta1    = beta1_u(Idx);
                 b_a = beta1_u_data[b_iindx - 1];
             } else {
-                // 'G2_Hermite_Interpolation_nAxis:202' else
-                // 'G2_Hermite_Interpolation_nAxis:204' alpha0   = alpha0_u(1);
-                alpha0 = alpha0_t_data[r16[0] - 1];
-                // 'G2_Hermite_Interpolation_nAxis:205' alpha1   = alpha1_u(1);
-                alpha1 = alpha1_t_data[r16[0] - 1];
-                // 'G2_Hermite_Interpolation_nAxis:206' [beta0, beta1] = Calc_beta0_beta1(alpha0,
-                // alpha1, ... 'G2_Hermite_Interpolation_nAxis:207' r0D0, t0, n0, ...
-                // 'G2_Hermite_Interpolation_nAxis:208' r1D0, t1, n1, D);
+                // 'G2_Hermite_Interpolation_nAxis:220' else
+                // 'G2_Hermite_Interpolation_nAxis:222' alpha0   = alpha0_u(1);
+                alpha0 = alpha0_t_data[r23[0] - 1];
+                // 'G2_Hermite_Interpolation_nAxis:223' alpha1   = alpha1_u(1);
+                alpha1 = alpha1_t_data[r23[0] - 1];
+                // 'G2_Hermite_Interpolation_nAxis:224' [beta0, beta1] = Calc_beta0_beta1(alpha0,
+                // alpha1, ... 'G2_Hermite_Interpolation_nAxis:225' r0D0, t0, n0, ...
+                // 'G2_Hermite_Interpolation_nAxis:226' r1D0, t1, n1, D);
                 Calc_beta0_beta1(alpha0_t_data[k_i[0] - 1], alpha1_t_data[k_i[0] - 1], r0D0, t0, n0,
                                  r1D0, t1, n1, D, &a, &b_a);
             }
@@ -1045,16 +1079,23 @@ void G2_Hermite_Interpolation_nAxis(
         int w_trueCount;
         int x_trueCount;
         int y_trueCount;
-        // 'G2_Hermite_Interpolation_nAxis:212' else
+        // 'G2_Hermite_Interpolation_nAxis:230' else
         //  compute resultant of the polynomial system
-        // 'G2_Hermite_Interpolation_nAxis:214' Coef = CharPolyAlpha1(CoefPS);
+        // 'G2_Hermite_Interpolation_nAxis:232' Coef = CharPolyAlpha1(CoefPS);
         //
-        // 'G2_Hermite_Interpolation_nAxis:216' alpha1_v = c_roots_(Coef);
-        // 'c_roots_:2' if coder.target('rtw')
-        // 'c_roots_:3' Y = complex(zeros(numel(coeffs)-1, 1));
+        // 'G2_Hermite_Interpolation_nAxis:234' alpha1_v = c_roots_(Coef);
+        //  c_roots_ : Compute the square root
+        //
+        //  Inputs :
+        //  coeffs        : Coefficient of the optimization
+        //
+        //  Outputs :
+        //  Y             : Result for the square root
+        // 'c_roots_:10' if coder.target('rtw')
+        // 'c_roots_:11' Y = complex(zeros(numel(coeffs)-1, 1));
         std::memset(&b_alpha1_v[0], 0, 9U * sizeof(creal_T));
-        // 'c_roots_:4' coder.cinclude('functions.h');
-        // 'c_roots_:5' coder.ceval('c_roots', coeffs(end:-1:1), coder.ref(Y),
+        // 'c_roots_:12' coder.cinclude('functions.h');
+        // 'c_roots_:13' coder.ceval('c_roots', coeffs(end:-1:1), coder.ref(Y),
         // int32(numel(coeffs)));
         CharPolyAlpha1(CoefPS, dv);
         for (int i1{0}; i1 < 10; i1++) {
@@ -1062,7 +1103,7 @@ void G2_Hermite_Interpolation_nAxis(
         }
         c_roots(&dv1[0], &b_alpha1_v[0], 10);
         //  all roots of 9th degree polynomial in alpha1
-        // 'G2_Hermite_Interpolation_nAxis:217' alpha1_t = real(alpha1_v((abs(imag(alpha1_v)) <
+        // 'G2_Hermite_Interpolation_nAxis:235' alpha1_t = real(alpha1_v((abs(imag(alpha1_v)) <
         // TolZero) & (real(alpha1_v) >  0)));
         b_trueCount = 0;
         h_partialTrueCount = 0;
@@ -1079,11 +1120,11 @@ void G2_Hermite_Interpolation_nAxis(
         }
         //  retain only positive real roots
         //  compute corresponding values of alpha0
-        // 'G2_Hermite_Interpolation_nAxis:220' alpha0_t  = CalcAlpha0(alpha1_t,   CoefPS);
+        // 'G2_Hermite_Interpolation_nAxis:238' alpha0_t  = CalcAlpha0(alpha1_t,   CoefPS);
         // CalcAlpha0
         //     ALPHA0_S = CalcAlpha0(ALPHA1,IN2)
-        //     This function was generated by the Symbolic Math Toolbox version 9.0.
-        //     02-Nov-2022 16:01:04
+        //     This function was generated by the Symbolic Math Toolbox version 9.1.
+        //     11-Oct-2023 13:05:42
         // 'CalcAlpha0:8' a0 = in2(:,2);
         // 'CalcAlpha0:9' a1 = in2(:,1);
         // 'CalcAlpha0:10' b0 = in2(:,4);
@@ -1104,14 +1145,14 @@ void G2_Hermite_Interpolation_nAxis(
         // 'CalcAlpha0:25' t3 = alpha1.*b1;
         // 'CalcAlpha0:26' t4 = alpha1.*c1;
         // 'CalcAlpha0:27' t5 = alpha1.^2;
-        r2.set_size(b_trueCount);
-        for (int i9{0}; i9 < b_trueCount; i9++) {
-            r2[i9] = std::pow(alpha1_t_data[i9], 2.0);
+        r10.set_size(b_trueCount);
+        for (int i10{0}; i10 < b_trueCount; i10++) {
+            r10[i10] = std::pow(alpha1_t_data[i10], 2.0);
         }
-        t5_size = r2.size(0);
-        loop_ub = r2.size(0);
-        for (int i13{0}; i13 < loop_ub; i13++) {
-            t5_data[i13] = r2[i13];
+        t5_size = r10.size(0);
+        loop_ub = r10.size(0);
+        for (int i15{0}; i15 < loop_ub; i15++) {
+            t5_data[i15] = r10[i15];
         }
         // 'CalcAlpha0:28' t6 = alpha1.^3;
         // 'CalcAlpha0:29' t7 = c2.*t5;
@@ -1161,20 +1202,20 @@ void G2_Hermite_Interpolation_nAxis(
             t11_data[i34] = 1.0 / (cb_CoefPS + db_CoefPS * alpha1_t_data[i34]);
         }
         // 'CalcAlpha0:34' t12 = c0+t4+t7+t8;
-        r2.set_size(b_trueCount);
+        r10.set_size(b_trueCount);
         for (int i35{0}; i35 < b_trueCount; i35++) {
-            r2[i35] = std::pow(alpha1_t_data[i35], 2.0);
+            r10[i35] = std::pow(alpha1_t_data[i35], 2.0);
         }
-        r7.set_size(b_trueCount);
+        r13.set_size(b_trueCount);
         for (int i36{0}; i36 < b_trueCount; i36++) {
-            r7[i36] = std::pow(alpha1_t_data[i36], 3.0);
+            r13[i36] = std::pow(alpha1_t_data[i36], 3.0);
         }
         if (b_trueCount == 1) {
-            e_trueCount = r2.size(0);
+            e_trueCount = r10.size(0);
         } else {
             e_trueCount = b_trueCount;
         }
-        if ((b_trueCount == r2.size(0)) && (e_trueCount == r7.size(0))) {
+        if ((b_trueCount == r10.size(0)) && (e_trueCount == r13.size(0))) {
             double eb_CoefPS;
             double fb_CoefPS;
             double gb_CoefPS;
@@ -1191,8 +1232,8 @@ void G2_Hermite_Interpolation_nAxis(
                 __m128d r38;
                 __m128d r39;
                 r37 = _mm_loadu_pd(&alpha1_t_data[i41]);
-                r38 = _mm_loadu_pd(&r2[i41]);
-                r39 = _mm_loadu_pd(&r7[i41]);
+                r38 = _mm_loadu_pd(&r10[i41]);
+                r39 = _mm_loadu_pd(&r13[i41]);
                 _mm_storeu_pd(
                     &t12_data[i41],
                     _mm_add_pd(_mm_add_pd(_mm_add_pd(_mm_set1_pd(eb_CoefPS),
@@ -1202,26 +1243,26 @@ void G2_Hermite_Interpolation_nAxis(
             }
             for (int i41{scalarLB_tmp}; i41 < b_trueCount; i41++) {
                 t12_data[i41] =
-                    ((eb_CoefPS + alpha1_t_data[i41] * fb_CoefPS) + gb_CoefPS * r2[i41]) +
-                    hb_CoefPS * r7[i41];
+                    ((eb_CoefPS + alpha1_t_data[i41] * fb_CoefPS) + gb_CoefPS * r10[i41]) +
+                    hb_CoefPS * r13[i41];
             }
         } else {
-            binary_expand_op(t12_data, &t12_size, CoefPS, alpha1_t_data, &b_trueCount, r2, r7);
+            binary_expand_op(t12_data, &t12_size, CoefPS, alpha1_t_data, &b_trueCount, r10, r13);
         }
         // 'CalcAlpha0:35' alpha0_s =
         // -(f0+alpha1.*e0+d0.*t5-f2.*t11.*t12+f3.*t10.*t11.^2.*t12)./(f1+alpha1.*e1+d1.*t5-f2.*t10.*t11-f3.*t11.*(t12-t10.^2.*t11));
-        r2.set_size(b_trueCount);
+        r10.set_size(b_trueCount);
         for (int i39{0}; i39 < b_trueCount; i39++) {
-            r2[i39] = std::pow(t11_data[i39], 2.0);
+            r10[i39] = std::pow(t11_data[i39], 2.0);
         }
-        r7.set_size(b_trueCount);
+        r13.set_size(b_trueCount);
         for (int i40{0}; i40 < b_trueCount; i40++) {
-            r7[i40] = std::pow(t10_data[i40], 2.0);
+            r13[i40] = std::pow(t10_data[i40], 2.0);
         }
         if (b_trueCount == 1) {
             f_trueCount = t5_size;
             g_trueCount = t12_size;
-            h_trueCount = r2.size(0);
+            h_trueCount = r10.size(0);
             i_trueCount = t5_size;
         } else {
             f_trueCount = b_trueCount;
@@ -1241,14 +1282,14 @@ void G2_Hermite_Interpolation_nAxis(
             j_trueCount = b_trueCount;
         }
         if (b_trueCount == 1) {
-            k_trueCount = r2.size(0);
+            k_trueCount = r10.size(0);
         } else {
             k_trueCount = b_trueCount;
         }
         if (k_trueCount == 1) {
             l_trueCount = t12_size;
         } else if (b_trueCount == 1) {
-            l_trueCount = r2.size(0);
+            l_trueCount = r10.size(0);
         } else {
             l_trueCount = b_trueCount;
         }
@@ -1259,16 +1300,16 @@ void G2_Hermite_Interpolation_nAxis(
             m_trueCount = b_trueCount;
             n_trueCount = b_trueCount;
         }
-        if (r7.size(0) == 1) {
+        if (r13.size(0) == 1) {
             i42 = b_trueCount;
         } else {
-            i42 = r7.size(0);
+            i42 = r13.size(0);
         }
         if (t12_size == 1) {
-            if (r7.size(0) == 1) {
+            if (r13.size(0) == 1) {
                 b_t12_size = b_trueCount;
             } else {
-                b_t12_size = r7.size(0);
+                b_t12_size = r13.size(0);
             }
         } else {
             b_t12_size = t12_size;
@@ -1291,10 +1332,10 @@ void G2_Hermite_Interpolation_nAxis(
         }
         if (z.size(0) == 1) {
             if (t12_size == 1) {
-                if (r7.size(0) == 1) {
+                if (r13.size(0) == 1) {
                     i43 = b_trueCount;
                 } else {
-                    i43 = r7.size(0);
+                    i43 = r13.size(0);
                 }
             } else {
                 i43 = t12_size;
@@ -1319,7 +1360,7 @@ void G2_Hermite_Interpolation_nAxis(
             r_trueCount = b_trueCount;
         }
         if (b_trueCount == 1) {
-            s_trueCount = r2.size(0);
+            s_trueCount = r10.size(0);
             t_trueCount = t5_size;
         } else {
             s_trueCount = b_trueCount;
@@ -1329,7 +1370,7 @@ void G2_Hermite_Interpolation_nAxis(
             if (s_trueCount == 1) {
                 u_trueCount = t12_size;
             } else if (b_trueCount == 1) {
-                u_trueCount = r2.size(0);
+                u_trueCount = r10.size(0);
             } else {
                 u_trueCount = b_trueCount;
             }
@@ -1368,10 +1409,10 @@ void G2_Hermite_Interpolation_nAxis(
         if (w_trueCount == 1) {
             if (z.size(0) == 1) {
                 if (t12_size == 1) {
-                    if (r7.size(0) == 1) {
+                    if (r13.size(0) == 1) {
                         y_trueCount = b_trueCount;
                     } else {
-                        y_trueCount = r7.size(0);
+                        y_trueCount = r13.size(0);
                     }
                 } else {
                     y_trueCount = t12_size;
@@ -1391,10 +1432,10 @@ void G2_Hermite_Interpolation_nAxis(
             y_trueCount = b_trueCount;
         }
         if ((b_trueCount == t5_size) && (b_trueCount == t12_size) && (f_trueCount == g_trueCount) &&
-            (b_trueCount == r2.size(0)) && (h_trueCount == t12_size) &&
+            (b_trueCount == r10.size(0)) && (h_trueCount == t12_size) &&
             (j_trueCount == l_trueCount) && (b_trueCount == t5_size) &&
             (b_trueCount == z.size(0)) && (m_trueCount == n_trueCount) &&
-            (r7.size(0) == b_trueCount) && (t12_size == i42) && (z.size(0) == b_t12_size) &&
+            (r13.size(0) == b_trueCount) && (t12_size == i42) && (z.size(0) == b_t12_size) &&
             (p_trueCount == i43) && (u_trueCount == y_trueCount)) {
             double ib_CoefPS;
             double jb_CoefPS;
@@ -1433,9 +1474,9 @@ void G2_Hermite_Interpolation_nAxis(
                 r42 = _mm_loadu_pd(&t11_data[i46]);
                 r43 = _mm_loadu_pd(&t12_data[i46]);
                 r44 = _mm_loadu_pd(&t10_data[i46]);
-                r45 = _mm_loadu_pd(&r2[i46]);
+                r45 = _mm_loadu_pd(&r10[i46]);
                 r46 = _mm_loadu_pd(&z[i46]);
-                r47 = _mm_loadu_pd(&r7[i46]);
+                r47 = _mm_loadu_pd(&r13[i46]);
                 _mm_storeu_pd(
                     &alpha0_t_data[i46],
                     _mm_div_pd(
@@ -1471,106 +1512,106 @@ void G2_Hermite_Interpolation_nAxis(
                 d7 = t10_data[i46];
                 alpha0_t_data[i46] =
                     -((((ib_CoefPS + d3 * jb_CoefPS) + kb_CoefPS * d4) - lb_CoefPS * d5 * d6) +
-                      mb_CoefPS * d7 * r2[i46] * d6) /
+                      mb_CoefPS * d7 * r10[i46] * d6) /
                     ((((nb_CoefPS + d3 * ob_CoefPS) + pb_CoefPS * d4) - qb_CoefPS * d7 * z[i46]) -
-                     rb_CoefPS * z[i46] * (d6 - r7[i46] * d5));
+                     rb_CoefPS * z[i46] * (d6 - r13[i46] * d5));
             }
         } else {
             binary_expand_op(alpha0_t_data, &alpha0_t_size, CoefPS, alpha1_t_data, &b_trueCount,
                              t5_data, &t5_size, t11_data, &b_trueCount, t12_data, &t12_size,
-                             t10_data, &b_trueCount, r2, z, r7);
+                             t10_data, &b_trueCount, r10, z, r13);
         }
         //
-        // 'G2_Hermite_Interpolation_nAxis:222' Idx       = find(alpha0_t > 0);
+        // 'G2_Hermite_Interpolation_nAxis:240' Idx       = find(alpha0_t > 0);
         for (int i44{0}; i44 < alpha0_t_size; i44++) {
             e_alpha0_t_data[i44] = (alpha0_t_data[i44] > 0.0);
         }
         f_alpha0_t_data.set(&e_alpha0_t_data[0], alpha0_t_size);
-        coder::c_eml_find(f_alpha0_t_data, r16);
-        k_i.set_size(r16.size(0));
-        n_loop_ub = r16.size(0);
+        coder::c_eml_find(f_alpha0_t_data, r23);
+        k_i.set_size(r23.size(0));
+        n_loop_ub = r23.size(0);
         for (int i45{0}; i45 < n_loop_ub; i45++) {
-            k_i[i45] = r16[i45];
+            k_i[i45] = r23[i45];
         }
         for (int i47{0}; i47 < alpha0_t_size; i47++) {
             e_alpha0_t_data[i47] = (alpha0_t_data[i47] > 0.0);
         }
         g_alpha0_t_data.set(&e_alpha0_t_data[0], alpha0_t_size);
-        coder::c_eml_find(g_alpha0_t_data, r16);
-        // 'G2_Hermite_Interpolation_nAxis:223' alpha1_u  = alpha1_t(Idx);
-        // 'G2_Hermite_Interpolation_nAxis:224' alpha0_u  = alpha0_t(Idx);
+        coder::c_eml_find(g_alpha0_t_data, r23);
+        // 'G2_Hermite_Interpolation_nAxis:241' alpha1_u  = alpha1_t(Idx);
+        // 'G2_Hermite_Interpolation_nAxis:242' alpha0_u  = alpha0_t(Idx);
         //
-        // 'G2_Hermite_Interpolation_nAxis:226' if ~(numel(alpha0_u) > 0)
-        if (r16.size(0) <= 0) {
-            // 'G2_Hermite_Interpolation_nAxis:227' status = int32(5);
+        // 'G2_Hermite_Interpolation_nAxis:244' if ~(numel(alpha0_u) > 0)
+        if (r23.size(0) <= 0) {
+            // 'G2_Hermite_Interpolation_nAxis:245' status = int32(5);
             *status = 5;
         } else {
             // c_assert(numel(alpha0_u) > 0, 'no positive solution of polynomial system');
-            // 'G2_Hermite_Interpolation_nAxis:232' if length(alpha0_u) > 1
-            if (r16.size(0) > 1) {
+            // 'G2_Hermite_Interpolation_nAxis:250' if length(alpha0_u) > 1
+            if (r23.size(0) > 1) {
                 int CostInt_size;
                 int i48;
                 int o_loop_ub;
                 int p_loop_ub;
                 int q_loop_ub;
-                // 'G2_Hermite_Interpolation_nAxis:234' CostInt = zeros(size(alpha0_u));
-                CostInt_size = static_cast<signed char>(r16.size(0));
-                o_loop_ub = static_cast<signed char>(r16.size(0));
+                // 'G2_Hermite_Interpolation_nAxis:252' CostInt = zeros(size(alpha0_u));
+                CostInt_size = static_cast<signed char>(r23.size(0));
+                o_loop_ub = static_cast<signed char>(r23.size(0));
                 if (o_loop_ub - 1 >= 0) {
                     std::memset(&CostInt_data[0], 0, o_loop_ub * sizeof(double));
                 }
                 //  preallocating
-                // 'G2_Hermite_Interpolation_nAxis:235' beta0_u = zeros(size(alpha0_u));
-                p_loop_ub = static_cast<signed char>(r16.size(0));
+                // 'G2_Hermite_Interpolation_nAxis:253' beta0_u = zeros(size(alpha0_u));
+                p_loop_ub = static_cast<signed char>(r23.size(0));
                 if (p_loop_ub - 1 >= 0) {
                     std::memset(&beta0_u_data[0], 0, p_loop_ub * sizeof(double));
                 }
                 //  preallocating
-                // 'G2_Hermite_Interpolation_nAxis:236' beta1_u = zeros(size(alpha0_u));
-                q_loop_ub = static_cast<signed char>(r16.size(0));
+                // 'G2_Hermite_Interpolation_nAxis:254' beta1_u = zeros(size(alpha0_u));
+                q_loop_ub = static_cast<signed char>(r23.size(0));
                 if (q_loop_ub - 1 >= 0) {
                     std::memset(&beta1_u_data[0], 0, q_loop_ub * sizeof(double));
                 }
                 //  preallocating
-                // 'G2_Hermite_Interpolation_nAxis:238' for k = 1:length(alpha0_u)
+                // 'G2_Hermite_Interpolation_nAxis:256' for k = 1:length(alpha0_u)
                 i48 = k_i.size(0);
                 for (int d_k{0}; d_k < i48; d_k++) {
-                    // 'G2_Hermite_Interpolation_nAxis:240' [beta0_u(k), beta1_u(k)] =
+                    // 'G2_Hermite_Interpolation_nAxis:258' [beta0_u(k), beta1_u(k)] =
                     // Calc_beta0_beta1(alpha0_u(k), alpha1_u(k), ...
-                    // 'G2_Hermite_Interpolation_nAxis:241' r0D0, t0, n0, ...
-                    // 'G2_Hermite_Interpolation_nAxis:242' r1D0, t1, n1, D);
-                    Calc_beta0_beta1(alpha0_t_data[r16[d_k] - 1], alpha1_t_data[r16[d_k] - 1], r0D0,
+                    // 'G2_Hermite_Interpolation_nAxis:259' r0D0, t0, n0, ...
+                    // 'G2_Hermite_Interpolation_nAxis:260' r1D0, t1, n1, D);
+                    Calc_beta0_beta1(alpha0_t_data[r23[d_k] - 1], alpha1_t_data[r23[d_k] - 1], r0D0,
                                      t0, n0, r1D0, t1, n1, D, &beta0_u_data[d_k],
                                      &beta1_u_data[d_k]);
-                    // 'G2_Hermite_Interpolation_nAxis:243' CostInt(k)     =
+                    // 'G2_Hermite_Interpolation_nAxis:261' CostInt(k)     =
                     // EvalCostIntegral(alpha0_u(k),  beta0_u(k), alpha1_u(k), beta1_u(k), ...
-                    // 'G2_Hermite_Interpolation_nAxis:244' r0D0, t0, n0, ...
-                    // 'G2_Hermite_Interpolation_nAxis:245' r1D0, t1, n1, D);
+                    // 'G2_Hermite_Interpolation_nAxis:262' r0D0, t0, n0, ...
+                    // 'G2_Hermite_Interpolation_nAxis:263' r1D0, t1, n1, D);
                     CostInt_data[d_k] = EvalCostIntegral(
-                        alpha0_t_data[r16[d_k] - 1], beta0_u_data[d_k], alpha1_t_data[r16[d_k] - 1],
+                        alpha0_t_data[r23[d_k] - 1], beta0_u_data[d_k], alpha1_t_data[r23[d_k] - 1],
                         beta1_u_data[d_k], r0D0, t0, n0, r1D0, t1, n1, D);
                 }
                 int c_alpha0_tmp;
-                // 'G2_Hermite_Interpolation_nAxis:249' [~, Idx] = min(CostInt);
+                // 'G2_Hermite_Interpolation_nAxis:267' [~, Idx] = min(CostInt);
                 coder::internal::minimum(CostInt_data, CostInt_size, &c_ex, &c_iindx);
-                // 'G2_Hermite_Interpolation_nAxis:250' alpha0   = alpha0_u(Idx);
-                c_alpha0_tmp = r16[c_iindx - 1] - 1;
+                // 'G2_Hermite_Interpolation_nAxis:268' alpha0   = alpha0_u(Idx);
+                c_alpha0_tmp = r23[c_iindx - 1] - 1;
                 alpha0 = alpha0_t_data[c_alpha0_tmp];
-                // 'G2_Hermite_Interpolation_nAxis:251' alpha1   = alpha1_u(Idx);
+                // 'G2_Hermite_Interpolation_nAxis:269' alpha1   = alpha1_u(Idx);
                 alpha1 = alpha1_t_data[c_alpha0_tmp];
-                // 'G2_Hermite_Interpolation_nAxis:252' beta0    = beta0_u(Idx);
+                // 'G2_Hermite_Interpolation_nAxis:270' beta0    = beta0_u(Idx);
                 a = beta0_u_data[c_iindx - 1];
-                // 'G2_Hermite_Interpolation_nAxis:253' beta1    = beta1_u(Idx);
+                // 'G2_Hermite_Interpolation_nAxis:271' beta1    = beta1_u(Idx);
                 b_a = beta1_u_data[c_iindx - 1];
             } else {
-                // 'G2_Hermite_Interpolation_nAxis:255' else
-                // 'G2_Hermite_Interpolation_nAxis:257' alpha0   = alpha0_u(1);
-                alpha0 = alpha0_t_data[r16[0] - 1];
-                // 'G2_Hermite_Interpolation_nAxis:258' alpha1   = alpha1_u(1);
-                alpha1 = alpha1_t_data[r16[0] - 1];
-                // 'G2_Hermite_Interpolation_nAxis:259' [beta0, beta1] = Calc_beta0_beta1(alpha0,
-                // alpha1, ... 'G2_Hermite_Interpolation_nAxis:260' r0D0, t0, n0, ...
-                // 'G2_Hermite_Interpolation_nAxis:261' r1D0, t1, n1, D);
+                // 'G2_Hermite_Interpolation_nAxis:273' else
+                // 'G2_Hermite_Interpolation_nAxis:275' alpha0   = alpha0_u(1);
+                alpha0 = alpha0_t_data[r23[0] - 1];
+                // 'G2_Hermite_Interpolation_nAxis:276' alpha1   = alpha1_u(1);
+                alpha1 = alpha1_t_data[r23[0] - 1];
+                // 'G2_Hermite_Interpolation_nAxis:277' [beta0, beta1] = Calc_beta0_beta1(alpha0,
+                // alpha1, ... 'G2_Hermite_Interpolation_nAxis:278' r0D0, t0, n0, ...
+                // 'G2_Hermite_Interpolation_nAxis:279' r1D0, t1, n1, D);
                 Calc_beta0_beta1(alpha0_t_data[k_i[0] - 1], alpha1_t_data[k_i[0] - 1], r0D0, t0, n0,
                                  r1D0, t1, n1, D, &a, &b_a);
             }
@@ -1579,129 +1620,129 @@ void G2_Hermite_Interpolation_nAxis(
     }
     if (guard1) {
         __m128d r;
-        __m128d r11;
-        __m128d r3;
+        __m128d r2;
+        __m128d r7;
         __m128d r9;
         double a_tmp;
         double b_a_tmp;
         //
         //  Hermite basis
-        // 'G2_Hermite_Interpolation_nAxis:268' h00 = [-6,    15,   -10,     0,     0,     1];
-        // 'G2_Hermite_Interpolation_nAxis:269' h10 = [-3,     8,    -6,     0,     1,     0];
-        // 'G2_Hermite_Interpolation_nAxis:270' h20 = [-0.5,  1.5,   -1.5,   0.5,   0,     0];
-        // 'G2_Hermite_Interpolation_nAxis:271' h01 = [6,   -15,     10,     0,     0,     0];
-        // 'G2_Hermite_Interpolation_nAxis:272' h11 = [-3,    7,     -4,     0,     0,     0];
-        // 'G2_Hermite_Interpolation_nAxis:273' h21 = [0.5,  -1,    0.5,     0,     0,     0];
+        // 'G2_Hermite_Interpolation_nAxis:286' h00 = [-6,    15,   -10,     0,     0,     1];
+        // 'G2_Hermite_Interpolation_nAxis:287' h10 = [-3,     8,    -6,     0,     1,     0];
+        // 'G2_Hermite_Interpolation_nAxis:288' h20 = [-0.5,  1.5,   -1.5,   0.5,   0,     0];
+        // 'G2_Hermite_Interpolation_nAxis:289' h01 = [6,   -15,     10,     0,     0,     0];
+        // 'G2_Hermite_Interpolation_nAxis:290' h11 = [-3,    7,     -4,     0,     0,     0];
+        // 'G2_Hermite_Interpolation_nAxis:291' h21 = [0.5,  -1,    0.5,     0,     0,     0];
         //  evaluate coefficients as sum of basis functions
-        // 'G2_Hermite_Interpolation_nAxis:275' p5 = r0D0 * h00 + alpha0*t0 * h10 + (beta0*t0 +
-        // alpha0^2*n0) * h20 + ... 'G2_Hermite_Interpolation_nAxis:276'      r1D0 * h01 + alpha1*t1
+        // 'G2_Hermite_Interpolation_nAxis:293' p5 = r0D0 * h00 + alpha0*t0 * h10 + (beta0*t0 +
+        // alpha0^2*n0) * h20 + ... 'G2_Hermite_Interpolation_nAxis:294'      r1D0 * h01 + alpha1*t1
         // * h11 + (beta1*t1 + alpha1^2*n1) * h21;
         a_tmp = alpha0 * alpha0;
         b_a_tmp = alpha1 * alpha1;
         r = _mm_set1_pd(alpha0);
-        for (int i4{0}; i4 < 6; i4++) {
+        for (int i2{0}; i2 < 6; i2++) {
             __m128d r1;
+            __m128d r3;
             __m128d r4;
+            __m128d r6;
+            r1 = _mm_loadu_pd(&r0D0[0]);
+            r3 = _mm_set1_pd(static_cast<double>(b_b[i2]));
+            _mm_storeu_pd(&b_r0D0[i2][0], _mm_mul_pd(r1, r3));
+            r4 = _mm_loadu_pd(&t0[0]);
+            r6 = _mm_set1_pd(static_cast<double>(c_b[i2]));
+            _mm_storeu_pd(&b_alpha0[i2][0], _mm_mul_pd(_mm_mul_pd(r, r4), r6));
+            r1 = _mm_loadu_pd(&r0D0[2]);
+            _mm_storeu_pd(&b_r0D0[i2][2], _mm_mul_pd(r1, r3));
+            r4 = _mm_loadu_pd(&t0[2]);
+            _mm_storeu_pd(&b_alpha0[i2][2], _mm_mul_pd(_mm_mul_pd(r, r4), r6));
+            r1 = _mm_loadu_pd(&r0D0[4]);
+            _mm_storeu_pd(&b_r0D0[i2][4], _mm_mul_pd(r1, r3));
+            r4 = _mm_loadu_pd(&t0[4]);
+            _mm_storeu_pd(&b_alpha0[i2][4], _mm_mul_pd(_mm_mul_pd(r, r4), r6));
+            c_a[i2] = a * t0[i2] + a_tmp * n0[i2];
+        }
+        r2 = _mm_set1_pd(0.0);
+        for (int i4{0}; i4 < 6; i4++) {
+            __m128d r11;
+            __m128d r12;
+            __m128d r15;
+            __m128d r18;
             __m128d r5;
             __m128d r8;
-            r1 = _mm_loadu_pd(&r0D0[0]);
-            r4 = _mm_set1_pd(static_cast<double>(b_b[i4]));
-            _mm_storeu_pd(&b_r0D0[i4][0], _mm_mul_pd(r1, r4));
-            r5 = _mm_loadu_pd(&t0[0]);
-            r8 = _mm_set1_pd(static_cast<double>(c_b[i4]));
-            _mm_storeu_pd(&b_alpha0[i4][0], _mm_mul_pd(_mm_mul_pd(r, r5), r8));
-            r1 = _mm_loadu_pd(&r0D0[2]);
-            _mm_storeu_pd(&b_r0D0[i4][2], _mm_mul_pd(r1, r4));
-            r5 = _mm_loadu_pd(&t0[2]);
-            _mm_storeu_pd(&b_alpha0[i4][2], _mm_mul_pd(_mm_mul_pd(r, r5), r8));
-            r1 = _mm_loadu_pd(&r0D0[4]);
-            _mm_storeu_pd(&b_r0D0[i4][4], _mm_mul_pd(r1, r4));
-            r5 = _mm_loadu_pd(&t0[4]);
-            _mm_storeu_pd(&b_alpha0[i4][4], _mm_mul_pd(_mm_mul_pd(r, r5), r8));
-            c_a[i4] = a * t0[i4] + a_tmp * n0[i4];
-        }
-        r3 = _mm_set1_pd(0.0);
-        for (int i6{0}; i6 < 6; i6++) {
-            __m128d r10;
-            __m128d r12;
-            __m128d r13;
-            __m128d r15;
-            __m128d r19;
-            __m128d r6;
-            r6 = _mm_loadu_pd(&c_a[0]);
-            r10 = _mm_loadu_pd(&b_r0D0[i6][0]);
-            r12 = _mm_loadu_pd(&b_alpha0[i6][0]);
-            r13 = _mm_set1_pd(d_b[i6]);
-            _mm_storeu_pd(&c_r0D0[i6][0],
-                          _mm_add_pd(_mm_add_pd(r10, r12), _mm_add_pd(r3, _mm_mul_pd(r6, r13))));
+            r5 = _mm_loadu_pd(&c_a[0]);
+            r8 = _mm_loadu_pd(&b_r0D0[i4][0]);
+            r11 = _mm_loadu_pd(&b_alpha0[i4][0]);
+            r12 = _mm_set1_pd(d_b[i4]);
+            _mm_storeu_pd(&c_r0D0[i4][0],
+                          _mm_add_pd(_mm_add_pd(r8, r11), _mm_add_pd(r2, _mm_mul_pd(r5, r12))));
             r15 = _mm_loadu_pd(&r1D0[0]);
-            r19 = _mm_set1_pd(static_cast<double>(e_b[i6]));
-            _mm_storeu_pd(&b_r1D0[i6][0], _mm_mul_pd(r15, r19));
-            r6 = _mm_loadu_pd(&c_a[2]);
-            r10 = _mm_loadu_pd(&b_r0D0[i6][2]);
-            r12 = _mm_loadu_pd(&b_alpha0[i6][2]);
-            _mm_storeu_pd(&c_r0D0[i6][2],
-                          _mm_add_pd(_mm_add_pd(r10, r12), _mm_add_pd(r3, _mm_mul_pd(r6, r13))));
+            r18 = _mm_set1_pd(static_cast<double>(e_b[i4]));
+            _mm_storeu_pd(&b_r1D0[i4][0], _mm_mul_pd(r15, r18));
+            r5 = _mm_loadu_pd(&c_a[2]);
+            r8 = _mm_loadu_pd(&b_r0D0[i4][2]);
+            r11 = _mm_loadu_pd(&b_alpha0[i4][2]);
+            _mm_storeu_pd(&c_r0D0[i4][2],
+                          _mm_add_pd(_mm_add_pd(r8, r11), _mm_add_pd(r2, _mm_mul_pd(r5, r12))));
             r15 = _mm_loadu_pd(&r1D0[2]);
-            _mm_storeu_pd(&b_r1D0[i6][2], _mm_mul_pd(r15, r19));
-            r6 = _mm_loadu_pd(&c_a[4]);
-            r10 = _mm_loadu_pd(&b_r0D0[i6][4]);
-            r12 = _mm_loadu_pd(&b_alpha0[i6][4]);
-            _mm_storeu_pd(&c_r0D0[i6][4],
-                          _mm_add_pd(_mm_add_pd(r10, r12), _mm_add_pd(r3, _mm_mul_pd(r6, r13))));
+            _mm_storeu_pd(&b_r1D0[i4][2], _mm_mul_pd(r15, r18));
+            r5 = _mm_loadu_pd(&c_a[4]);
+            r8 = _mm_loadu_pd(&b_r0D0[i4][4]);
+            r11 = _mm_loadu_pd(&b_alpha0[i4][4]);
+            _mm_storeu_pd(&c_r0D0[i4][4],
+                          _mm_add_pd(_mm_add_pd(r8, r11), _mm_add_pd(r2, _mm_mul_pd(r5, r12))));
             r15 = _mm_loadu_pd(&r1D0[4]);
-            _mm_storeu_pd(&b_r1D0[i6][4], _mm_mul_pd(r15, r19));
+            _mm_storeu_pd(&b_r1D0[i4][4], _mm_mul_pd(r15, r18));
         }
-        r9 = _mm_set1_pd(alpha1);
-        r11 = _mm_set1_pd(0.0);
-        for (int i15{0}; i15 < 6; i15++) {
+        r7 = _mm_set1_pd(alpha1);
+        r9 = _mm_set1_pd(0.0);
+        for (int i7{0}; i7 < 6; i7++) {
             __m128d r14;
-            __m128d r18;
-            __m128d r22;
-            __m128d r26;
-            c_a[i15] = b_a * t1[i15] + b_a_tmp * n1[i15];
-            r14 = _mm_loadu_pd(&t1[0]);
-            r18 = _mm_loadu_pd(&c_r0D0[i15][0]);
-            r22 = _mm_loadu_pd(&b_r1D0[i15][0]);
-            r26 = _mm_set1_pd(static_cast<double>(g_b[i15]));
-            _mm_storeu_pd(&b_r0D0[i15][0],
-                          _mm_add_pd(_mm_add_pd(r18, r22),
-                                     _mm_add_pd(r11, _mm_mul_pd(_mm_mul_pd(r9, r14), r26))));
-            r14 = _mm_loadu_pd(&t1[2]);
-            r18 = _mm_loadu_pd(&c_r0D0[i15][2]);
-            r22 = _mm_loadu_pd(&b_r1D0[i15][2]);
-            _mm_storeu_pd(&b_r0D0[i15][2],
-                          _mm_add_pd(_mm_add_pd(r18, r22),
-                                     _mm_add_pd(r11, _mm_mul_pd(_mm_mul_pd(r9, r14), r26))));
-            r14 = _mm_loadu_pd(&t1[4]);
-            r18 = _mm_loadu_pd(&c_r0D0[i15][4]);
-            r22 = _mm_loadu_pd(&b_r1D0[i15][4]);
-            _mm_storeu_pd(&b_r0D0[i15][4],
-                          _mm_add_pd(_mm_add_pd(r18, r22),
-                                     _mm_add_pd(r11, _mm_mul_pd(_mm_mul_pd(r9, r14), r26))));
-        }
-        for (int i20{0}; i20 < 6; i20++) {
             __m128d r17;
+            __m128d r20;
+            __m128d r22;
+            c_a[i7] = b_a * t1[i7] + b_a_tmp * n1[i7];
+            r14 = _mm_loadu_pd(&t1[0]);
+            r17 = _mm_loadu_pd(&c_r0D0[i7][0]);
+            r20 = _mm_loadu_pd(&b_r1D0[i7][0]);
+            r22 = _mm_set1_pd(static_cast<double>(g_b[i7]));
+            _mm_storeu_pd(&b_r0D0[i7][0],
+                          _mm_add_pd(_mm_add_pd(r17, r20),
+                                     _mm_add_pd(r9, _mm_mul_pd(_mm_mul_pd(r7, r14), r22))));
+            r14 = _mm_loadu_pd(&t1[2]);
+            r17 = _mm_loadu_pd(&c_r0D0[i7][2]);
+            r20 = _mm_loadu_pd(&b_r1D0[i7][2]);
+            _mm_storeu_pd(&b_r0D0[i7][2],
+                          _mm_add_pd(_mm_add_pd(r17, r20),
+                                     _mm_add_pd(r9, _mm_mul_pd(_mm_mul_pd(r7, r14), r22))));
+            r14 = _mm_loadu_pd(&t1[4]);
+            r17 = _mm_loadu_pd(&c_r0D0[i7][4]);
+            r20 = _mm_loadu_pd(&b_r1D0[i7][4]);
+            _mm_storeu_pd(&b_r0D0[i7][4],
+                          _mm_add_pd(_mm_add_pd(r17, r20),
+                                     _mm_add_pd(r9, _mm_mul_pd(_mm_mul_pd(r7, r14), r22))));
+        }
+        for (int i12{0}; i12 < 6; i12++) {
+            __m128d r16;
+            __m128d r19;
             __m128d r21;
-            __m128d r25;
-            r17 = _mm_loadu_pd(&c_a[0]);
-            r21 = _mm_loadu_pd(&b_r0D0[i20][0]);
-            r25 = _mm_set1_pd(f_b[i20]);
-            _mm_storeu_pd(&p5[i20][0], _mm_add_pd(r21, _mm_mul_pd(r17, r25)));
-            r17 = _mm_loadu_pd(&c_a[2]);
-            r21 = _mm_loadu_pd(&b_r0D0[i20][2]);
-            _mm_storeu_pd(&p5[i20][2], _mm_add_pd(r21, _mm_mul_pd(r17, r25)));
-            r17 = _mm_loadu_pd(&c_a[4]);
-            r21 = _mm_loadu_pd(&b_r0D0[i20][4]);
-            _mm_storeu_pd(&p5[i20][4], _mm_add_pd(r21, _mm_mul_pd(r17, r25)));
+            r16 = _mm_loadu_pd(&c_a[0]);
+            r19 = _mm_loadu_pd(&b_r0D0[i12][0]);
+            r21 = _mm_set1_pd(f_b[i12]);
+            _mm_storeu_pd(&p5[i12][0], _mm_add_pd(r19, _mm_mul_pd(r16, r21)));
+            r16 = _mm_loadu_pd(&c_a[2]);
+            r19 = _mm_loadu_pd(&b_r0D0[i12][2]);
+            _mm_storeu_pd(&p5[i12][2], _mm_add_pd(r19, _mm_mul_pd(r16, r21)));
+            r16 = _mm_loadu_pd(&c_a[4]);
+            r19 = _mm_loadu_pd(&b_r0D0[i12][4]);
+            _mm_storeu_pd(&p5[i12][4], _mm_add_pd(r19, _mm_mul_pd(r16, r21)));
         }
         //  last cross check ...
-        // 'G2_Hermite_Interpolation_nAxis:278' p1val = (a1*alpha1+a0)*alpha0^2  +
+        // 'G2_Hermite_Interpolation_nAxis:296' p1val = (a1*alpha1+a0)*alpha0^2  +
         // (b1*alpha1+b0)*alpha0  +  c3*alpha1^3+c2*alpha1^2+c1*alpha1+c0;
-        // 'G2_Hermite_Interpolation_nAxis:279' p2val = (d1*alpha0+d0)*alpha1^2  +
+        // 'G2_Hermite_Interpolation_nAxis:297' p2val = (d1*alpha0+d0)*alpha1^2  +
         // (e1*alpha0+e0)*alpha1  +  f3*alpha0^3+f2*alpha0^2+f1*alpha0+f0;
         //
-        // 'G2_Hermite_Interpolation_nAxis:281' if ~(abs(p1val) < 1e-7) || ~(abs(p2val) < 1e-7)
+        // 'G2_Hermite_Interpolation_nAxis:299' if ~(abs(p1val) < 1e-7) || ~(abs(p2val) < 1e-7)
         if ((std::abs((((((CoefPS[0] * alpha1 + CoefPS[1]) * a_tmp +
                           (CoefPS[2] * alpha1 + CoefPS[3]) * alpha0) +
                          CoefPS[4] * std::pow(alpha1, 3.0)) +
@@ -1714,7 +1755,7 @@ void G2_Hermite_Interpolation_nAxis(
                         CoefPS[13] * a_tmp) +
                        CoefPS[14] * alpha0) +
                       CoefPS[15]) >= 1.0E-7)) {
-            // 'G2_Hermite_Interpolation_nAxis:282' status = int32(6);
+            // 'G2_Hermite_Interpolation_nAxis:300' status = int32(6);
             *status = 6;
         }
     }

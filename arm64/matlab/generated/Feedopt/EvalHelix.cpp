@@ -200,16 +200,20 @@ static void minus(double in1[3], const double in2_data[], const int *in2_size, c
 }
 
 //
-// function [r0D, r1D, r2D, r3D] = EvalHelix( CurvStruct, u_vec, maskCart )
+// function [ r0D, r1D, r2D, r3D ] = EvalHelix( CurvStruct, u_vec, maskCart )
 //
 // EvalHelix : Evalue the helix curv and its corresponding parametric
 //  derivatives. The evaluation occurs on the specified points in the u
 //  vector.
 //
+//  Inputs :
 //  CurvStruct    : A struct filled the parameters correspondin to a Helix
 //  u_vec         : A vector of specifided points for the evaluation of the
 //                  curve
+//  maskCart      : Carthesian mask. It indicates which index should be
+//                considerate as carthesian one.
 //
+//  Outputs :
 //  r0D           : The evaluated helix at the specified points
 //  r1D           : The 1rst order parametric derivative of the curve at the
 //                  specified points
@@ -256,13 +260,13 @@ void EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
     int partialTrueCount;
     int trueCount;
     signed char tmp_data[6];
-    // 'EvalHelix:18' if ~coder.target('MATLAB')
-    // 'EvalHelix:19' coder.cinclude('common/tracy/Tracy.hpp');
-    // 'EvalHelix:20' coder.inline('never')
-    // 'EvalHelix:21' coder.ceval('ZoneScopedN', coder.opaque('const char*', '"EvalHelix"'));
+    // 'EvalHelix:22' if ~coder.target('MATLAB')
+    // 'EvalHelix:23' coder.cinclude('common/tracy/Tracy.hpp');
+    // 'EvalHelix:24' coder.inline('never')
+    // 'EvalHelix:25' coder.ceval('ZoneScopedN', coder.opaque('const char*', '"EvalHelix"'));
     ZoneScopedN("EvalHelix");
     //  Extract parameters from the struct
-    // 'EvalHelix:24' P0      = CurvStruct.R0( maskCart );
+    // 'EvalHelix:28' P0      = CurvStruct.R0( maskCart );
     end = maskCart_size[1] - 1;
     trueCount = 0;
     partialTrueCount = 0;
@@ -276,14 +280,14 @@ void EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
     for (int b_i{0}; b_i < trueCount; b_i++) {
         P0_data[b_i] = CurvStruct_R0[tmp_data[b_i] - 1];
     }
-    // 'EvalHelix:25' P1      = CurvStruct.R1( maskCart );
-    // 'EvalHelix:26' evec    = CurvStruct.evec;
-    // 'EvalHelix:27' theta   = CurvStruct.theta;
-    // 'EvalHelix:28' pitch   = CurvStruct.pitch;
-    // 'EvalHelix:30' P0P1    = P0 - P1;
+    // 'EvalHelix:29' P1      = CurvStruct.R1( maskCart );
+    // 'EvalHelix:30' evec    = CurvStruct.evec;
+    // 'EvalHelix:31' theta   = CurvStruct.theta;
+    // 'EvalHelix:32' pitch   = CurvStruct.pitch;
+    // 'EvalHelix:34' P0P1    = P0 - P1;
     //
-    // 'EvalHelix:33' C           = CurvStruct.CorrectedHelixCenter;
-    // 'EvalHelix:34' CP0         = P0 - C;
+    // 'EvalHelix:37' C           = CurvStruct.CorrectedHelixCenter;
+    // 'EvalHelix:38' CP0         = P0 - C;
     if (trueCount == 3) {
         for (int i1{0}; i1 < 3; i1++) {
             CP0[i1] = P0_data[i1] - CurvStruct_CorrectedHelixCenter[i1];
@@ -291,19 +295,26 @@ void EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
     } else {
         minus(CP0, P0_data, &trueCount, CurvStruct_CorrectedHelixCenter);
     }
-    // 'EvalHelix:35' phi_vec     = theta * u_vec;
+    // 'EvalHelix:39' phi_vec     = theta * u_vec;
     phi_vec.set_size(u_vec.size(0));
     loop_ub = u_vec.size(0);
     for (int i2{0}; i2 < loop_ub; i2++) {
         phi_vec[i2] = CurvStruct_theta * u_vec[i2];
     }
-    // 'EvalHelix:36' EcrCP0      = cross( evec, CP0 );
+    // 'EvalHelix:40' EcrCP0      = cross( evec, CP0 );
     EcrCP0_idx_0 = CurvStruct_evec[1] * CP0[2] - CP0[1] * CurvStruct_evec[2];
     EcrCP0_idx_1 = CP0[0] * CurvStruct_evec[2] - CurvStruct_evec[0] * CP0[2];
     EcrCP0_idx_2 = CurvStruct_evec[0] * CP0[1] - CP0[0] * CurvStruct_evec[1];
     //  clockwise tangent vector
-    // 'EvalHelix:37' cphi        = mycos( phi_vec );
-    // 'mycos:3' y = cos(x);
+    // 'EvalHelix:41' cphi        = mycos( phi_vec );
+    //  mycos : My implementation of cosinus.
+    //
+    //  Inputs :
+    //    x   : The value use to evaluate the cosinus.
+    //  Outputs :
+    //    y   : The resulting value of the cosinus.
+    //
+    // 'mycos:10' y = cos( x );
     cphi.set_size(phi_vec.size(0));
     b_loop_ub = phi_vec.size(0);
     for (int i3{0}; i3 < b_loop_ub; i3++) {
@@ -313,10 +324,18 @@ void EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
     for (int k{0}; k < i4; k++) {
         cphi[k] = std::cos(cphi[k]);
     }
-    // 'mycos:4' cos_calls = cos_calls + 1;
+    // 'mycos:11' cos_calls = cos_calls + 1;
     cos_calls++;
-    // 'EvalHelix:38' sphi        = mysin( phi_vec );
-    // 'mysin:3' y = sin(x);
+    // 'EvalHelix:42' sphi        = mysin( phi_vec );
+    //  mysin : Custom implementation of the sinus.
+    //
+    //  Inputs :
+    //  Inputs values of the function.
+    //
+    //  Outputs :
+    //  Resulting values.
+    //
+    // 'mysin:11' y = sin( x );
     sphi.set_size(phi_vec.size(0));
     c_loop_ub = phi_vec.size(0);
     for (int i5{0}; i5 < c_loop_ub; i5++) {
@@ -334,24 +353,23 @@ void EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
     double d1;
     double d2;
     double d3;
-    // 'mysin:4' sin_calls = sin_calls + 1;
+    // 'mysin:12' sin_calls = sin_calls + 1;
     sin_calls++;
     //
-    // 'EvalHelix:41' cphiTCP0    = CP0 * cphi;
-    // 'EvalHelix:42' sphiTCP0    = CP0 * sphi;
-    // 'EvalHelix:43' cphiTEcrCP0 = EcrCP0 * cphi;
-    // 'EvalHelix:44' sphiTEcrCP0 = EcrCP0 * sphi;
-    // 'EvalHelix:45' Sign        = sign( P0P1'*evec );
+    // 'EvalHelix:45' cphiTCP0    = CP0 * cphi;
+    // 'EvalHelix:46' sphiTCP0    = CP0 * sphi;
+    // 'EvalHelix:47' cphiTEcrCP0 = EcrCP0 * cphi;
+    // 'EvalHelix:48' sphiTEcrCP0 = EcrCP0 * sphi;
     //
-    // 'EvalHelix:47' r0D       = bsxfun(@plus, C, cphiTCP0  + sphiTEcrCP0  + ...
-    // 'EvalHelix:48'                    pitch/(2*pi)*evec*phi_vec);
+    // 'EvalHelix:51' r0D       = bsxfun(@plus, C, cphiTCP0  + sphiTEcrCP0  + ...
+    // 'EvalHelix:52'                    pitch/(2*pi)*evec*phi_vec);
     a = CurvStruct_pitch / 6.2831853071795862;
-    // 'EvalHelix:49' r1D       = bsxfun(@plus, -theta  *sphiTCP0  + theta  *cphiTEcrCP0, ...
-    // 'EvalHelix:50'                    theta * pitch/(2*pi) * evec);
+    // 'EvalHelix:53' r1D       = bsxfun(@plus, -theta  *sphiTCP0  + theta  *cphiTEcrCP0, ...
+    // 'EvalHelix:54'                    theta * pitch/(2*pi) * evec);
     b_a = CurvStruct_theta * CurvStruct_pitch / 6.2831853071795862;
-    // 'EvalHelix:51' r2D       = -theta^2*cphiTCP0  - theta^2*sphiTEcrCP0;
+    // 'EvalHelix:55' r2D       = -theta^2*cphiTCP0  - theta^2*sphiTEcrCP0;
     a_tmp = CurvStruct_theta * CurvStruct_theta;
-    // 'EvalHelix:52' r3D       =  theta^3*sphiTCP0  - theta^3*cphiTEcrCP0;
+    // 'EvalHelix:56' r3D       =  theta^3*sphiTCP0  - theta^3*cphiTEcrCP0;
     b_a_tmp = std::pow(CurvStruct_theta, 3.0);
     d = CP0[0] * cphi[0];
     d1 = CP0[0] * sphi[0];
@@ -380,16 +398,20 @@ void EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
 }
 
 //
-// function [r0D, r1D, r2D, r3D] = EvalHelix( CurvStruct, u_vec, maskCart )
+// function [ r0D, r1D, r2D, r3D ] = EvalHelix( CurvStruct, u_vec, maskCart )
 //
 // EvalHelix : Evalue the helix curv and its corresponding parametric
 //  derivatives. The evaluation occurs on the specified points in the u
 //  vector.
 //
+//  Inputs :
 //  CurvStruct    : A struct filled the parameters correspondin to a Helix
 //  u_vec         : A vector of specifided points for the evaluation of the
 //                  curve
+//  maskCart      : Carthesian mask. It indicates which index should be
+//                considerate as carthesian one.
 //
+//  Outputs :
 //  r0D           : The evaluated helix at the specified points
 //  r1D           : The 1rst order parametric derivative of the curve at the
 //                  specified points
@@ -438,13 +460,13 @@ void b_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
     int partialTrueCount;
     int trueCount;
     signed char tmp_data[6];
-    // 'EvalHelix:18' if ~coder.target('MATLAB')
-    // 'EvalHelix:19' coder.cinclude('common/tracy/Tracy.hpp');
-    // 'EvalHelix:20' coder.inline('never')
-    // 'EvalHelix:21' coder.ceval('ZoneScopedN', coder.opaque('const char*', '"EvalHelix"'));
+    // 'EvalHelix:22' if ~coder.target('MATLAB')
+    // 'EvalHelix:23' coder.cinclude('common/tracy/Tracy.hpp');
+    // 'EvalHelix:24' coder.inline('never')
+    // 'EvalHelix:25' coder.ceval('ZoneScopedN', coder.opaque('const char*', '"EvalHelix"'));
     ZoneScopedN("EvalHelix");
     //  Extract parameters from the struct
-    // 'EvalHelix:24' P0      = CurvStruct.R0( maskCart );
+    // 'EvalHelix:28' P0      = CurvStruct.R0( maskCart );
     end = maskCart_size[1] - 1;
     trueCount = 0;
     partialTrueCount = 0;
@@ -458,14 +480,14 @@ void b_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
     for (int b_i{0}; b_i < trueCount; b_i++) {
         P0_data[b_i] = CurvStruct_R0[tmp_data[b_i] - 1];
     }
-    // 'EvalHelix:25' P1      = CurvStruct.R1( maskCart );
-    // 'EvalHelix:26' evec    = CurvStruct.evec;
-    // 'EvalHelix:27' theta   = CurvStruct.theta;
-    // 'EvalHelix:28' pitch   = CurvStruct.pitch;
-    // 'EvalHelix:30' P0P1    = P0 - P1;
+    // 'EvalHelix:29' P1      = CurvStruct.R1( maskCart );
+    // 'EvalHelix:30' evec    = CurvStruct.evec;
+    // 'EvalHelix:31' theta   = CurvStruct.theta;
+    // 'EvalHelix:32' pitch   = CurvStruct.pitch;
+    // 'EvalHelix:34' P0P1    = P0 - P1;
     //
-    // 'EvalHelix:33' C           = CurvStruct.CorrectedHelixCenter;
-    // 'EvalHelix:34' CP0         = P0 - C;
+    // 'EvalHelix:37' C           = CurvStruct.CorrectedHelixCenter;
+    // 'EvalHelix:38' CP0         = P0 - C;
     if (trueCount == 3) {
         for (int i1{0}; i1 < 3; i1++) {
             CP0[i1] = P0_data[i1] - CurvStruct_CorrectedHelixCenter[i1];
@@ -473,39 +495,53 @@ void b_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
     } else {
         minus(CP0, P0_data, &trueCount, CurvStruct_CorrectedHelixCenter);
     }
-    // 'EvalHelix:35' phi_vec     = theta * u_vec;
+    // 'EvalHelix:39' phi_vec     = theta * u_vec;
     phi_vec = CurvStruct_theta * u_vec;
-    // 'EvalHelix:36' EcrCP0      = cross( evec, CP0 );
+    // 'EvalHelix:40' EcrCP0      = cross( evec, CP0 );
     EcrCP0_idx_0 = CurvStruct_evec[1] * CP0[2] - CP0[1] * CurvStruct_evec[2];
     EcrCP0_idx_1 = CP0[0] * CurvStruct_evec[2] - CurvStruct_evec[0] * CP0[2];
     EcrCP0_idx_2 = CurvStruct_evec[0] * CP0[1] - CP0[0] * CurvStruct_evec[1];
     //  clockwise tangent vector
-    // 'EvalHelix:37' cphi        = mycos( phi_vec );
-    // 'mycos:3' y = cos(x);
+    // 'EvalHelix:41' cphi        = mycos( phi_vec );
+    //  mycos : My implementation of cosinus.
+    //
+    //  Inputs :
+    //    x   : The value use to evaluate the cosinus.
+    //  Outputs :
+    //    y   : The resulting value of the cosinus.
+    //
+    // 'mycos:10' y = cos( x );
     cphi = std::cos(phi_vec);
-    // 'mycos:4' cos_calls = cos_calls + 1;
+    // 'mycos:11' cos_calls = cos_calls + 1;
     cos_calls++;
-    // 'EvalHelix:38' sphi        = mysin( phi_vec );
-    // 'mysin:3' y = sin(x);
+    // 'EvalHelix:42' sphi        = mysin( phi_vec );
+    //  mysin : Custom implementation of the sinus.
+    //
+    //  Inputs :
+    //  Inputs values of the function.
+    //
+    //  Outputs :
+    //  Resulting values.
+    //
+    // 'mysin:11' y = sin( x );
     sphi = std::sin(phi_vec);
-    // 'mysin:4' sin_calls = sin_calls + 1;
+    // 'mysin:12' sin_calls = sin_calls + 1;
     sin_calls++;
     //
-    // 'EvalHelix:41' cphiTCP0    = CP0 * cphi;
-    // 'EvalHelix:42' sphiTCP0    = CP0 * sphi;
-    // 'EvalHelix:43' cphiTEcrCP0 = EcrCP0 * cphi;
-    // 'EvalHelix:44' sphiTEcrCP0 = EcrCP0 * sphi;
-    // 'EvalHelix:45' Sign        = sign( P0P1'*evec );
+    // 'EvalHelix:45' cphiTCP0    = CP0 * cphi;
+    // 'EvalHelix:46' sphiTCP0    = CP0 * sphi;
+    // 'EvalHelix:47' cphiTEcrCP0 = EcrCP0 * cphi;
+    // 'EvalHelix:48' sphiTEcrCP0 = EcrCP0 * sphi;
     //
-    // 'EvalHelix:47' r0D       = bsxfun(@plus, C, cphiTCP0  + sphiTEcrCP0  + ...
-    // 'EvalHelix:48'                    pitch/(2*pi)*evec*phi_vec);
+    // 'EvalHelix:51' r0D       = bsxfun(@plus, C, cphiTCP0  + sphiTEcrCP0  + ...
+    // 'EvalHelix:52'                    pitch/(2*pi)*evec*phi_vec);
     a = CurvStruct_pitch / 6.2831853071795862;
-    // 'EvalHelix:49' r1D       = bsxfun(@plus, -theta  *sphiTCP0  + theta  *cphiTEcrCP0, ...
-    // 'EvalHelix:50'                    theta * pitch/(2*pi) * evec);
+    // 'EvalHelix:53' r1D       = bsxfun(@plus, -theta  *sphiTCP0  + theta  *cphiTEcrCP0, ...
+    // 'EvalHelix:54'                    theta * pitch/(2*pi) * evec);
     b_a = CurvStruct_theta * CurvStruct_pitch / 6.2831853071795862;
-    // 'EvalHelix:51' r2D       = -theta^2*cphiTCP0  - theta^2*sphiTEcrCP0;
+    // 'EvalHelix:55' r2D       = -theta^2*cphiTCP0  - theta^2*sphiTEcrCP0;
     a_tmp = CurvStruct_theta * CurvStruct_theta;
-    // 'EvalHelix:52' r3D       =  theta^3*sphiTCP0  - theta^3*cphiTEcrCP0;
+    // 'EvalHelix:56' r3D       =  theta^3*sphiTCP0  - theta^3*cphiTEcrCP0;
     b_a_tmp = std::pow(CurvStruct_theta, 3.0);
     d = CP0[0] * cphi;
     d1 = CP0[0] * sphi;
@@ -534,16 +570,20 @@ void b_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
 }
 
 //
-// function [r0D, r1D, r2D, r3D] = EvalHelix( CurvStruct, u_vec, maskCart )
+// function [ r0D, r1D, r2D, r3D ] = EvalHelix( CurvStruct, u_vec, maskCart )
 //
 // EvalHelix : Evalue the helix curv and its corresponding parametric
 //  derivatives. The evaluation occurs on the specified points in the u
 //  vector.
 //
+//  Inputs :
 //  CurvStruct    : A struct filled the parameters correspondin to a Helix
 //  u_vec         : A vector of specifided points for the evaluation of the
 //                  curve
+//  maskCart      : Carthesian mask. It indicates which index should be
+//                considerate as carthesian one.
 //
+//  Outputs :
 //  r0D           : The evaluated helix at the specified points
 //  r1D           : The 1rst order parametric derivative of the curve at the
 //                  specified points
@@ -611,13 +651,13 @@ void c_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
     int partialTrueCount;
     int trueCount;
     signed char tmp_data[6];
-    // 'EvalHelix:18' if ~coder.target('MATLAB')
-    // 'EvalHelix:19' coder.cinclude('common/tracy/Tracy.hpp');
-    // 'EvalHelix:20' coder.inline('never')
-    // 'EvalHelix:21' coder.ceval('ZoneScopedN', coder.opaque('const char*', '"EvalHelix"'));
+    // 'EvalHelix:22' if ~coder.target('MATLAB')
+    // 'EvalHelix:23' coder.cinclude('common/tracy/Tracy.hpp');
+    // 'EvalHelix:24' coder.inline('never')
+    // 'EvalHelix:25' coder.ceval('ZoneScopedN', coder.opaque('const char*', '"EvalHelix"'));
     ZoneScopedN("EvalHelix");
     //  Extract parameters from the struct
-    // 'EvalHelix:24' P0      = CurvStruct.R0( maskCart );
+    // 'EvalHelix:28' P0      = CurvStruct.R0( maskCart );
     end = maskCart_size[1] - 1;
     trueCount = 0;
     partialTrueCount = 0;
@@ -631,14 +671,14 @@ void c_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
     for (int b_i{0}; b_i < trueCount; b_i++) {
         P0_data[b_i] = CurvStruct_R0[tmp_data[b_i] - 1];
     }
-    // 'EvalHelix:25' P1      = CurvStruct.R1( maskCart );
-    // 'EvalHelix:26' evec    = CurvStruct.evec;
-    // 'EvalHelix:27' theta   = CurvStruct.theta;
-    // 'EvalHelix:28' pitch   = CurvStruct.pitch;
-    // 'EvalHelix:30' P0P1    = P0 - P1;
+    // 'EvalHelix:29' P1      = CurvStruct.R1( maskCart );
+    // 'EvalHelix:30' evec    = CurvStruct.evec;
+    // 'EvalHelix:31' theta   = CurvStruct.theta;
+    // 'EvalHelix:32' pitch   = CurvStruct.pitch;
+    // 'EvalHelix:34' P0P1    = P0 - P1;
     //
-    // 'EvalHelix:33' C           = CurvStruct.CorrectedHelixCenter;
-    // 'EvalHelix:34' CP0         = P0 - C;
+    // 'EvalHelix:37' C           = CurvStruct.CorrectedHelixCenter;
+    // 'EvalHelix:38' CP0         = P0 - C;
     if (trueCount == 3) {
         for (int i1{0}; i1 < 3; i1++) {
             CP0[i1] = P0_data[i1] - CurvStruct_CorrectedHelixCenter[i1];
@@ -646,19 +686,26 @@ void c_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
     } else {
         minus(CP0, P0_data, &trueCount, CurvStruct_CorrectedHelixCenter);
     }
-    // 'EvalHelix:35' phi_vec     = theta * u_vec;
+    // 'EvalHelix:39' phi_vec     = theta * u_vec;
     phi_vec.set_size(1, u_vec.size(1));
     loop_ub = u_vec.size(1);
     for (int i2{0}; i2 < loop_ub; i2++) {
         phi_vec[i2] = CurvStruct_theta * u_vec[i2];
     }
-    // 'EvalHelix:36' EcrCP0      = cross( evec, CP0 );
+    // 'EvalHelix:40' EcrCP0      = cross( evec, CP0 );
     EcrCP0_idx_0 = CurvStruct_evec[1] * CP0[2] - CP0[1] * CurvStruct_evec[2];
     EcrCP0_idx_1 = CP0[0] * CurvStruct_evec[2] - CurvStruct_evec[0] * CP0[2];
     EcrCP0_idx_2 = CurvStruct_evec[0] * CP0[1] - CP0[0] * CurvStruct_evec[1];
     //  clockwise tangent vector
-    // 'EvalHelix:37' cphi        = mycos( phi_vec );
-    // 'mycos:3' y = cos(x);
+    // 'EvalHelix:41' cphi        = mycos( phi_vec );
+    //  mycos : My implementation of cosinus.
+    //
+    //  Inputs :
+    //    x   : The value use to evaluate the cosinus.
+    //  Outputs :
+    //    y   : The resulting value of the cosinus.
+    //
+    // 'mycos:10' y = cos( x );
     cphi.set_size(1, phi_vec.size(1));
     b_loop_ub = phi_vec.size(1);
     for (int i3{0}; i3 < b_loop_ub; i3++) {
@@ -668,10 +715,18 @@ void c_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
     for (int k{0}; k < i4; k++) {
         cphi[k] = std::cos(cphi[k]);
     }
-    // 'mycos:4' cos_calls = cos_calls + 1;
+    // 'mycos:11' cos_calls = cos_calls + 1;
     cos_calls++;
-    // 'EvalHelix:38' sphi        = mysin( phi_vec );
-    // 'mysin:3' y = sin(x);
+    // 'EvalHelix:42' sphi        = mysin( phi_vec );
+    //  mysin : Custom implementation of the sinus.
+    //
+    //  Inputs :
+    //  Inputs values of the function.
+    //
+    //  Outputs :
+    //  Resulting values.
+    //
+    // 'mysin:11' y = sin( x );
     sphi.set_size(1, phi_vec.size(1));
     c_loop_ub = phi_vec.size(1);
     for (int i5{0}; i5 < c_loop_ub; i5++) {
@@ -681,10 +736,10 @@ void c_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
     for (int b_k{0}; b_k < i6; b_k++) {
         sphi[b_k] = std::sin(sphi[b_k]);
     }
-    // 'mysin:4' sin_calls = sin_calls + 1;
+    // 'mysin:12' sin_calls = sin_calls + 1;
     sin_calls++;
     //
-    // 'EvalHelix:41' cphiTCP0    = CP0 * cphi;
+    // 'EvalHelix:45' cphiTCP0    = CP0 * cphi;
     cphiTCP0.set_size(3, cphi.size(1));
     d_loop_ub = cphi.size(1);
     for (int i7{0}; i7 < d_loop_ub; i7++) {
@@ -692,7 +747,7 @@ void c_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
         cphiTCP0[3 * i7 + 1] = CP0[1] * cphi[i7];
         cphiTCP0[3 * i7 + 2] = CP0[2] * cphi[i7];
     }
-    // 'EvalHelix:42' sphiTCP0    = CP0 * sphi;
+    // 'EvalHelix:46' sphiTCP0    = CP0 * sphi;
     sphiTCP0.set_size(3, sphi.size(1));
     e_loop_ub = sphi.size(1);
     for (int i8{0}; i8 < e_loop_ub; i8++) {
@@ -700,7 +755,7 @@ void c_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
         sphiTCP0[3 * i8 + 1] = CP0[1] * sphi[i8];
         sphiTCP0[3 * i8 + 2] = CP0[2] * sphi[i8];
     }
-    // 'EvalHelix:43' cphiTEcrCP0 = EcrCP0 * cphi;
+    // 'EvalHelix:47' cphiTEcrCP0 = EcrCP0 * cphi;
     cphiTEcrCP0.set_size(3, cphi.size(1));
     f_loop_ub = cphi.size(1);
     for (int i9{0}; i9 < f_loop_ub; i9++) {
@@ -708,7 +763,7 @@ void c_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
         cphiTEcrCP0[3 * i9 + 1] = EcrCP0_idx_1 * cphi[i9];
         cphiTEcrCP0[3 * i9 + 2] = EcrCP0_idx_2 * cphi[i9];
     }
-    // 'EvalHelix:44' sphiTEcrCP0 = EcrCP0 * sphi;
+    // 'EvalHelix:48' sphiTEcrCP0 = EcrCP0 * sphi;
     sphiTEcrCP0.set_size(3, sphi.size(1));
     g_loop_ub = sphi.size(1);
     for (int i10{0}; i10 < g_loop_ub; i10++) {
@@ -716,10 +771,9 @@ void c_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
         sphiTEcrCP0[3 * i10 + 1] = EcrCP0_idx_1 * sphi[i10];
         sphiTEcrCP0[3 * i10 + 2] = EcrCP0_idx_2 * sphi[i10];
     }
-    // 'EvalHelix:45' Sign        = sign( P0P1'*evec );
     //
-    // 'EvalHelix:47' r0D       = bsxfun(@plus, C, cphiTCP0  + sphiTEcrCP0  + ...
-    // 'EvalHelix:48'                    pitch/(2*pi)*evec*phi_vec);
+    // 'EvalHelix:51' r0D       = bsxfun(@plus, C, cphiTCP0  + sphiTEcrCP0  + ...
+    // 'EvalHelix:52'                    pitch/(2*pi)*evec*phi_vec);
     a = CurvStruct_pitch / 6.2831853071795862;
     r.set_size(3, phi_vec.size(1));
     h_loop_ub = phi_vec.size(1);
@@ -762,8 +816,8 @@ void c_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
             r0D[3 * c_k + 2] = CurvStruct_CorrectedHelixCenter[2] + b[3 * varargin_3 + 2];
         }
     }
-    // 'EvalHelix:49' r1D       = bsxfun(@plus, -theta  *sphiTCP0  + theta  *cphiTEcrCP0, ...
-    // 'EvalHelix:50'                    theta * pitch/(2*pi) * evec);
+    // 'EvalHelix:53' r1D       = bsxfun(@plus, -theta  *sphiTCP0  + theta  *cphiTEcrCP0, ...
+    // 'EvalHelix:54'                    theta * pitch/(2*pi) * evec);
     b_a = CurvStruct_theta * CurvStruct_pitch / 6.2831853071795862;
     y_idx_0 = b_a * CurvStruct_evec[0];
     y_idx_1 = b_a * CurvStruct_evec[1];
@@ -797,7 +851,7 @@ void c_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
             r1D[3 * d_k + 2] = c_a[3 * varargin_2 + 2] + y_idx_2;
         }
     }
-    // 'EvalHelix:51' r2D       = -theta^2*cphiTCP0  - theta^2*sphiTEcrCP0;
+    // 'EvalHelix:55' r2D       = -theta^2*cphiTCP0  - theta^2*sphiTEcrCP0;
     a_tmp = CurvStruct_theta * CurvStruct_theta;
     if (cphiTCP0.size(1) == sphiTEcrCP0.size(1)) {
         int k_loop_ub;
@@ -811,7 +865,7 @@ void c_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
     } else {
         binary_expand_op(r2D, -a_tmp, cphiTCP0, a_tmp, sphiTEcrCP0);
     }
-    // 'EvalHelix:52' r3D       =  theta^3*sphiTCP0  - theta^3*cphiTEcrCP0;
+    // 'EvalHelix:56' r3D       =  theta^3*sphiTCP0  - theta^3*cphiTEcrCP0;
     b_a_tmp = std::pow(CurvStruct_theta, 3.0);
     if (sphiTCP0.size(1) == cphiTEcrCP0.size(1)) {
         int l_loop_ub;
@@ -828,16 +882,20 @@ void c_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
 }
 
 //
-// function [r0D, r1D, r2D, r3D] = EvalHelix( CurvStruct, u_vec, maskCart )
+// function [ r0D, r1D, r2D, r3D ] = EvalHelix( CurvStruct, u_vec, maskCart )
 //
 // EvalHelix : Evalue the helix curv and its corresponding parametric
 //  derivatives. The evaluation occurs on the specified points in the u
 //  vector.
 //
+//  Inputs :
 //  CurvStruct    : A struct filled the parameters correspondin to a Helix
 //  u_vec         : A vector of specifided points for the evaluation of the
 //                  curve
+//  maskCart      : Carthesian mask. It indicates which index should be
+//                considerate as carthesian one.
 //
+//  Outputs :
 //  r0D           : The evaluated helix at the specified points
 //  r1D           : The 1rst order parametric derivative of the curve at the
 //                  specified points
@@ -891,13 +949,13 @@ void d_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
     int partialTrueCount;
     int trueCount;
     signed char tmp_data[6];
-    // 'EvalHelix:18' if ~coder.target('MATLAB')
-    // 'EvalHelix:19' coder.cinclude('common/tracy/Tracy.hpp');
-    // 'EvalHelix:20' coder.inline('never')
-    // 'EvalHelix:21' coder.ceval('ZoneScopedN', coder.opaque('const char*', '"EvalHelix"'));
+    // 'EvalHelix:22' if ~coder.target('MATLAB')
+    // 'EvalHelix:23' coder.cinclude('common/tracy/Tracy.hpp');
+    // 'EvalHelix:24' coder.inline('never')
+    // 'EvalHelix:25' coder.ceval('ZoneScopedN', coder.opaque('const char*', '"EvalHelix"'));
     ZoneScopedN("EvalHelix");
     //  Extract parameters from the struct
-    // 'EvalHelix:24' P0      = CurvStruct.R0( maskCart );
+    // 'EvalHelix:28' P0      = CurvStruct.R0( maskCart );
     end = maskCart_size[1] - 1;
     trueCount = 0;
     partialTrueCount = 0;
@@ -911,14 +969,14 @@ void d_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
     for (int b_i{0}; b_i < trueCount; b_i++) {
         P0_data[b_i] = CurvStruct_R0[tmp_data[b_i] - 1];
     }
-    // 'EvalHelix:25' P1      = CurvStruct.R1( maskCart );
-    // 'EvalHelix:26' evec    = CurvStruct.evec;
-    // 'EvalHelix:27' theta   = CurvStruct.theta;
-    // 'EvalHelix:28' pitch   = CurvStruct.pitch;
-    // 'EvalHelix:30' P0P1    = P0 - P1;
+    // 'EvalHelix:29' P1      = CurvStruct.R1( maskCart );
+    // 'EvalHelix:30' evec    = CurvStruct.evec;
+    // 'EvalHelix:31' theta   = CurvStruct.theta;
+    // 'EvalHelix:32' pitch   = CurvStruct.pitch;
+    // 'EvalHelix:34' P0P1    = P0 - P1;
     //
-    // 'EvalHelix:33' C           = CurvStruct.CorrectedHelixCenter;
-    // 'EvalHelix:34' CP0         = P0 - C;
+    // 'EvalHelix:37' C           = CurvStruct.CorrectedHelixCenter;
+    // 'EvalHelix:38' CP0         = P0 - C;
     if (trueCount == 3) {
         for (int i1{0}; i1 < 3; i1++) {
             CP0[i1] = P0_data[i1] - CurvStruct_CorrectedHelixCenter[i1];
@@ -926,39 +984,53 @@ void d_EvalHelix(const ::coder::array<double, 1U> &CurvStruct_R0,
     } else {
         minus(CP0, P0_data, &trueCount, CurvStruct_CorrectedHelixCenter);
     }
-    // 'EvalHelix:35' phi_vec     = theta * u_vec;
-    // 'EvalHelix:36' EcrCP0      = cross( evec, CP0 );
+    // 'EvalHelix:39' phi_vec     = theta * u_vec;
+    // 'EvalHelix:40' EcrCP0      = cross( evec, CP0 );
     EcrCP0_idx_0 = CurvStruct_evec[1] * CP0[2] - CP0[1] * CurvStruct_evec[2];
     EcrCP0_idx_1 = CP0[0] * CurvStruct_evec[2] - CurvStruct_evec[0] * CP0[2];
     EcrCP0_idx_2 = CurvStruct_evec[0] * CP0[1] - CP0[0] * CurvStruct_evec[1];
     //  clockwise tangent vector
-    // 'EvalHelix:37' cphi        = mycos( phi_vec );
-    // 'mycos:3' y = cos(x);
-    // 'mycos:4' cos_calls = cos_calls + 1;
+    // 'EvalHelix:41' cphi        = mycos( phi_vec );
+    //  mycos : My implementation of cosinus.
+    //
+    //  Inputs :
+    //    x   : The value use to evaluate the cosinus.
+    //  Outputs :
+    //    y   : The resulting value of the cosinus.
+    //
+    // 'mycos:10' y = cos( x );
+    // 'mycos:11' cos_calls = cos_calls + 1;
     cos_calls++;
-    // 'EvalHelix:38' sphi        = mysin( phi_vec );
-    // 'mysin:3' y = sin(x);
-    // 'mysin:4' sin_calls = sin_calls + 1;
+    // 'EvalHelix:42' sphi        = mysin( phi_vec );
+    //  mysin : Custom implementation of the sinus.
+    //
+    //  Inputs :
+    //  Inputs values of the function.
+    //
+    //  Outputs :
+    //  Resulting values.
+    //
+    // 'mysin:11' y = sin( x );
+    // 'mysin:12' sin_calls = sin_calls + 1;
     sin_calls++;
     //
-    // 'EvalHelix:41' cphiTCP0    = CP0 * cphi;
-    // 'EvalHelix:42' sphiTCP0    = CP0 * sphi;
-    // 'EvalHelix:43' cphiTEcrCP0 = EcrCP0 * cphi;
-    // 'EvalHelix:44' sphiTEcrCP0 = EcrCP0 * sphi;
-    // 'EvalHelix:45' Sign        = sign( P0P1'*evec );
+    // 'EvalHelix:45' cphiTCP0    = CP0 * cphi;
+    // 'EvalHelix:46' sphiTCP0    = CP0 * sphi;
+    // 'EvalHelix:47' cphiTEcrCP0 = EcrCP0 * cphi;
+    // 'EvalHelix:48' sphiTEcrCP0 = EcrCP0 * sphi;
     //
-    // 'EvalHelix:47' r0D       = bsxfun(@plus, C, cphiTCP0  + sphiTEcrCP0  + ...
-    // 'EvalHelix:48'                    pitch/(2*pi)*evec*phi_vec);
+    // 'EvalHelix:51' r0D       = bsxfun(@plus, C, cphiTCP0  + sphiTEcrCP0  + ...
+    // 'EvalHelix:52'                    pitch/(2*pi)*evec*phi_vec);
     a = CurvStruct_pitch / 6.2831853071795862;
-    // 'EvalHelix:49' r1D       = bsxfun(@plus, -theta  *sphiTCP0  + theta  *cphiTEcrCP0, ...
-    // 'EvalHelix:50'                    theta * pitch/(2*pi) * evec);
+    // 'EvalHelix:53' r1D       = bsxfun(@plus, -theta  *sphiTCP0  + theta  *cphiTEcrCP0, ...
+    // 'EvalHelix:54'                    theta * pitch/(2*pi) * evec);
     b_a = CurvStruct_theta * CurvStruct_pitch / 6.2831853071795862;
     y_idx_0 = b_a * CurvStruct_evec[0];
     y_idx_1 = b_a * CurvStruct_evec[1];
     y_idx_2 = b_a * CurvStruct_evec[2];
-    // 'EvalHelix:51' r2D       = -theta^2*cphiTCP0  - theta^2*sphiTEcrCP0;
+    // 'EvalHelix:55' r2D       = -theta^2*cphiTCP0  - theta^2*sphiTEcrCP0;
     a_tmp = CurvStruct_theta * CurvStruct_theta;
-    // 'EvalHelix:52' r3D       =  theta^3*sphiTCP0  - theta^3*cphiTEcrCP0;
+    // 'EvalHelix:56' r3D       =  theta^3*sphiTCP0  - theta^3*cphiTEcrCP0;
     b_a_tmp = std::pow(CurvStruct_theta, 3.0);
     d = CP0[0];
     d1 = CP0[1];
