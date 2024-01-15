@@ -9,11 +9,11 @@ check_wkdir(); % If current directory is the working directory
 sourceFileName = 'ngc_test/unit/011_anchor.ngc';
 
 % Flag for reusing previous context
-LoadContextFromFile  = false; % Load ctx from previous run
-SaveContextInFile    = false; % Save ctx in file for further analysis   
-PlotGeometry         = false; % Print the geometry curves
-CreateFileForSampler = false; % Create file for the sampler
-
+LoadContextFromFile             = false; % Load ctx from previous run
+SaveContextInFile               = false; % Save ctx in file for further analysis   
+PlotGeometry                    = true; % Print the geometry curves
+CreateFileForSampler            = false; % Create file for the sampler
+DeleteCSVFileAfterResampling    = false; % Delete CSV file after resampling
 
 if( coder.target( "MATLAB" ) )
     % Enable debuging objects
@@ -31,6 +31,7 @@ end
 if( ~exist( 'ctx', 'var' ) )
     % Load default configuration parameters
     cfg = FeedoptDefaultConfig;
+    ConfigSetSource( cfg, sourceFileName );
       
     % Set the path to the gcode file
     cfg.source = sourceFileName;
@@ -46,7 +47,7 @@ try
     % Run the geometrics operations, then solve the LP problem
     ctx = FeedoptPlanRun( ctx );
     if( ctx.errcode ~= FeedoptPlanError.NoError )
-        error( '%s\n', ctx.errmsg.msg );
+        error( '%s\n', ctx.errmsg.msg( 1 : ctx.errmsg.size ) );
     end
 
     if( SaveContextInFile )
@@ -58,8 +59,12 @@ try
     end
     
     if( PlotGeometry )
-        plotGeometry(ctx, ctx.cfg, ctx.q_opt, ctx.q_spline, false);
-        plotGeometry(ctx, ctx.cfg, ctx.q_opt, ctx.q_spline, true);
+        [ fig ] = plotGeometry( ctx, ctx.q_gcode, ctx.q_spline, ...
+            "Gcode Line" );
+        [ fig ] = plotGeometryOnlyStartPoints( ctx, ctx.q_gcode, ...
+            ctx.q_spline, "Gcode Point", fig );
+        [ fig ] = plotGeometry( ctx, ctx.q_compress, ctx.q_spline, ...
+            "Compressing", fig );
         messagePrompt();
         pause( 0.5 );
     end
@@ -82,8 +87,10 @@ try
 
     % Load resampled data points
     res = readmatrix( fileName );    
-    delete( fileName );
- 
+    
+    if( DeleteCSVFileAfterResampling )
+        delete( fileName );
+    end
     % Transforms structure into vector for analysis
     [res_struct, indFeed, indAcc, indJerk, indRPiece] = get_res_struct( ...
         res, ctx.cfg.maskTot );

@@ -32,6 +32,8 @@ classdef ( Sealed ) StructTypeName < handle
         dimLk       = { [ 1, Inf ],  [ 0, 1 ] };
         % Default size for the Pose ( cart + rot )
         dimR        = { [ StructTypeName.NumberAxisMax, 1 ], [ 1, 0 ] };
+        % Default size for the List of Pose ( cart + rot )
+        dimM        = { [ StructTypeName.NumberAxisMax, Inf ], [ 1, 1 ] };
         % Default size for the polynom used for the transition
         dimCoeffP5  = { [ Inf, StructTypeName.NumberAxisMax ], [ 1, 1 ] };
         % Default size for the coefficient of the optimization

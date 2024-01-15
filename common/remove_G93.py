@@ -28,8 +28,8 @@ def clean_commands(input_filename, output_filename):
         f.write('\n'.join(result))
 
 # Specify the input and output file names
-input_file = 'ngc_test/misc/036_dome_finition_v1.ngc'  # Replace with your input file name
-output_file = 'ngc_test/misc/036_dome_finition_v1_without_G93.ngc'  # Replace with your output file name
+input_file = 'ngc_test/misc/036_dome_finition_PostProHGS_10Line_v1.ngc'  # Replace with your input file name
+output_file = 'ngc_test/misc/036_dome_finition_PostProHGS_10Line_v1_without_G93.ngc'  # Replace with your output file name
 
 # Call the function to clean the commands
 clean_commands(input_file, output_file)

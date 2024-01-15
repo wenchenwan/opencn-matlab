@@ -160,8 +160,12 @@ if  generate_for_x86_64
     cfg.CodeReplacementLibrary = 'Intel SSE (Linux)';
     output_root = '../x86';
 elseif generate_for_arm_64
-    cfg.HardwareImplementation.TargetHWDeviceType = 'ARM Compatible->ARM 64-bit (LP64)';
-    cfg.HardwareImplementation.ProdHWDeviceType = 'ARM Compatible->ARM 64-bit (LP64)';
+    cortex = "ARM Cortex-A (64-bit)";
+    arm8 = "ARM 8";
+    default = "ARM Compatible->ARM 64-bit (LP64)";
+
+    cfg.HardwareImplementation.TargetHWDeviceType   = default;
+    cfg.HardwareImplementation.ProdHWDeviceType     = default;
     output_root = '../arm64';
 end
 
