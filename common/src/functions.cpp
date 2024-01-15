@@ -140,6 +140,15 @@ void c_queue_push(ocn::uint64m_T ptr, ocn::CurvStruct value)
     q->push_back(value);
 }
 
+void c_queue_delete(ocn::uint64m_T ptr)
+{
+    auto q = reinterpret_cast<CurveVector*>(ptr.chunks[0]);
+    if( not( q->empty() ) )
+    {
+        q->clear();
+    }
+}
+
 #else /* ndef OPENCN_32_BITS */
 
 uint64_t c_queue_new()
@@ -171,6 +180,14 @@ void c_queue_push(uint64_t ptr, ocn::CurvStruct value)
     q->push_back(value);
 }
 
+void c_queue_delete(uint64_t ptr)
+{
+    auto q = reinterpret_cast<CurveVector*>(ptr);
+    if( not( q->empty() ) )
+    {
+        q->clear();
+    }
+}
 
 #endif /* else */
 

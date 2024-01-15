@@ -36,11 +36,13 @@ void c_queue_get(ocn::uint64m_T ptr, int32_t index, ocn::CurvStruct* value);
 void c_queue_set(ocn::uint64m_T ptr, int32_t index, ocn::CurvStruct value);
 void c_queue_push(ocn::uint64m_T ptr, ocn::CurvStruct value);
 int32_t c_queue_size(ocn::uint64m_T ptr);
+void c_queue_delete(ocn::uint64m_T ptr);
 #else
 uint64_t c_queue_new();
 void c_queue_get(uint64_t ptr, int32_t index, ocn::CurvStruct* value);
 void c_queue_set(uint64_t ptr, int32_t index, ocn::CurvStruct value);
 void c_queue_push(uint64_t ptr, ocn::CurvStruct value);
+void c_queue_delete(uint64_t ptr);
 int32_t c_queue_size(uint64_t ptr);
 #endif
 

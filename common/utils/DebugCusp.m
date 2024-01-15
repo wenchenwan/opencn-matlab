@@ -48,7 +48,7 @@ classdef ( Sealed ) DebugCusp < handle
                 curv, constrCurvStructType, u_vec );
             piece   = joint;
             pieced  = jointd;
-            ctx.kin = ctx.kin.set_tool_length( curv.tool.offset.z );
+            ctx.kin = ctx.kin.set_tool_length( -curv.tool.offset.z );
 
             if( ~curv.Info.TRAFO )
                 [ piece]    = ctx.kin.r_relative( joint );

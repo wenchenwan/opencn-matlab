@@ -4,7 +4,6 @@
 /**
  * @brief OpenCN builtin runtime error arising during the execution of the matlab generated code.
  * 
- * @param condition 
  * @param err_msg 
  */
 void ocn_throw_error( ocn::MsgStruct* msg_struct );

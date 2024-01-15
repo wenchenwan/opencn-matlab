@@ -1,7 +1,21 @@
 classdef ( Sealed ) DebugCompressing < handle
+    % DebugCompressing : Singleton class type used to debug the compressing.
+    %
+    % Functionalities : 
+    %   + Keep track of the following : 
+    %         - counter on the number of not collinear line segements
+    %         - counter on the number of too Large line segments
+    %         - counter on the number of not a line curve type
+    %         - counter on the number of is a zero start (ZN / ZZ)
+    %         - counter on the number of is not the same machine Parameters
+    %         - counter on the number of really small lines
+    %   + Options 
+    %         - flagDoPlot :
+    %           Enable the plot of each compressing result 
+    %
     properties
-        NotCollinear;
-        TooLarge;
+        NotCollinear;           
+        TooLarge;         
         NotALine;
         IsAZeroStart;
         NotSameMachineParams;
@@ -22,7 +36,7 @@ classdef ( Sealed ) DebugCompressing < handle
 
             [joint, jointD, jointDD] = EvalCurvStruct( ctx, curv, u_vec );
             
-            ctx.kin = ctx.kin.set_tool_length( curv.tool.offset.z );
+            ctx.kin = ctx.kin.set_tool_length( -curv.tool.offset.z );
 
             if( ~curv.Info.TRAFO )
                 [ piece]    = ctx.kin.r_relative( joint );

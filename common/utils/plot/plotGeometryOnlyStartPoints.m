@@ -1,11 +1,19 @@
-function [ fig ] = plotGeometry( ctx, q_curv, q_spline, curvName, fig )
-% plotGeometry : Plot the geometry of the provided queue.
+function [ fig ] = plotGeometryOnlyStartPoints( ctx, q_curv, q_spline, ...
+                                                curvName, fig )
+% plotGeometryOnlyStartPoints : Plot the geometry of the provided queue,
+% only the start points.
+% 
+% Inputs : 
 % ctx       : Context of the test
 % q_curv    : Queue of the desired curves to plot
 % q_spline  : Queue of the splines
 % curvName  : Name of the curves
 % fig       : Figure pointer, if provided the curves are just happended to
 %             the plot.
+%
+% Outputs :
+% fig       : Pointer on the resulting figure 
+%
 
 if( ~(nargin > 4) ) 
     fig = figure(); 
@@ -28,13 +36,14 @@ axisUnit        = axisUnitGen(1, ctx.cfg.maskTot);
 
 ind3D       = [ 1 9 ];
 ind2D       = [ 2 4 ];
-if(0)
+
+if( 0 )
 figure( fig );
 % 3D plots
 subplot( 10, 2, ind3D );
 
 if( holdOn ), hold on; end
-ax = scatter3( joint( 1, : ), joint( 2, : ), joint( 3, : ), 1, '.');
+ax = plot3( joint( 1, : ), joint( 2, : ), joint( 3, : ), 'k+', 'MarkerSize', 8);
 colormap jet;
 set(gca, 'Projection','orthographic');
 % axis vis3d
@@ -45,11 +54,12 @@ zlabel('z mm');
 title( "Joint Space" );
 
 legend( legendOptions{ : } );
+
 subplot( 10, 2, 10 + ind3D );
 end
 
 if( holdOn ), hold on; end
-scatter3( piece( 1, : ), piece( 2, : ), piece( 3, : ), 1, '.');
+ax = plot3( piece( 1, : ), piece( 2, : ), piece( 3, : ), 'k+', 'MarkerSize', 8);
 colormap jet;
 set(gca, 'Projection','orthographic');
 % axis vis3d
@@ -60,21 +70,23 @@ zlabel('z mm');
 title( "Piece Space" );
 legend( legendOptions{ : } );
 
-if(0)
+if( 0 )
 
 for j = 1 : 5
     subplot(10, 2, (j - 1) * 4 + ind2D);
     if( holdOn ), hold on; end
-    plot( u, joint( j, :  ) ); grid on;
+    plot( u, joint( j, :  ), 'k+', 'MarkerSize', 8 ); grid on;
     ylabel( axisName{ j } + " " + axisUnitGen{ j } );
     legend( legendOptions{ : } );
 end
+
 end
+
 end
 
 
 function [ param ] = load_param()
-    param.Nu    = 500;
+    param.Nu    = 1;
 end
 
 function [ joint, piece, u ] = eval_points( ctx, cfg, q_curv, q_spline, param )
@@ -84,9 +96,9 @@ NDim    = cfg.NumberAxis + 1;
 
 joint   = zeros( NDim, NPoints );
 piece   = joint;
-u_vec   = linspace( 0, 1, param.Nu + 1 );
-u_vec   = u_vec( 1 : end - 1 );
-u       = linspace( 0, NCurv, NPoints );
+u_vec   = 0;
+u       = 0 : NCurv - 1;
+
 splineDefault = constrCurvStructType;
 
 for j = 1 : NCurv
