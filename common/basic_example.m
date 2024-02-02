@@ -6,7 +6,7 @@ clc; clear all; close all;
 
 check_wkdir(); % If current directory is the working directory
 
-sourceFileName = 'ngc_test/unit/011_anchor.ngc';
+sourceFileName = 'ngc_test/E2C/037_dome_gravure_v1.ngc';
 
 % Flag for reusing previous context
 LoadContextFromFile             = false; % Load ctx from previous run
@@ -103,6 +103,9 @@ try
 
     % Plot the resulting axis commands
     plotAxisCommands( ctx, res_struct );
+
+    % Save run data and plot in folder
+    saveResults( sourceFileName );
 
 catch ME
     DestroyContext(ctx);
