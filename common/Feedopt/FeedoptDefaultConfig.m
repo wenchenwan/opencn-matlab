@@ -71,7 +71,7 @@ cfg = struct(...
     'kin_type', kin_type, ... % Kinematics type
     'NDiscr', int32( 20 ),... % Number of discretization points
     'NBreak', int32( 10 ),... % Number of break points
-    'SplitSpecialSpline', false,... % Split methode specific to spline
+    'SplitSpecialSpline', true,... % Split methode specific to spline
     'ReleaseMemoryOfTheQueues', true, ...  % Release memory of the queues once they're not required anymore    
     'UseDynamicBreakpoints',false,...       % Use a variable number of breakpoints for different lengths
     'UseLinearBreakpoints',true,...         % Use a linear distribution of breakpoints (else sinspace)
