@@ -1,0 +1,1 @@
+In the last release of opencn-matlab, the resampling seems to fails while the length of the curves are really small. The ngc files in this repos are example of such behaviours.

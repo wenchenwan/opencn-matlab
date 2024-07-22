@@ -6,7 +6,6 @@ gen_mex/**
 *.zip
 *.fig
 *.asv
-*.txt
 
 Validate_OpenCN/Val_**
 iniconfig/
