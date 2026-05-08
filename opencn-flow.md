@@ -146,12 +146,12 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    qG[(q_gcode\nCurvStruct[]\nGCode 阶段填充)]
-    qC[(q_compress\nCurvStruct[]\nCompress 填充)]
-    qSp[(q_spline\nBSpline[]\nCompress 填充)]
-    qSm[(q_smooth\nCurvStruct[]\nSmooth 填充)]
-    qSplit[(q_split\nCurvStruct[]\nSplit 填充)]
-    qOpt[(q_opt\nCurvStruct[含Coeff]\nOpt 填充)]
+    qG[(q_gcode\nCurvStruct 数组\nGCode 阶段填充)]
+    qC[(q_compress\nCurvStruct 数组\nCompress 填充)]
+    qSp[(q_spline\nBSpline 数组\nCompress 填充)]
+    qSm[(q_smooth\nCurvStruct 数组\nSmooth 填充)]
+    qSplit[(q_split\nCurvStruct 数组\nSplit 填充)]
+    qOpt[(q_opt\nCurvStruct 含Coeff\nOpt 填充)]
 
     qG --> qC
     qG -.-> qSp

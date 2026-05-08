@@ -1,66 +1,83 @@
 function [ ctx, optimized, opt_struct ] = FeedoptPlan( ctx )
 %#codegen
-% FeedoptPlan : 进给率优化有限状态机（FSM）单步执行函数
-% 每次调用推进一个状态，由 FeedoptPlanRun 循环驱动
+% FeedoptPlan : 进给率优化有限状态机（FSM）——单步推进
+%
+% 每次调用推进 FSM 一个状态。对于 Init/GCode/Check/Compress/Smooth/Split
+% 这些一次性阶段，单次调用即可完成并跳入下一状态；对于 Opt 阶段，
+% 每次调用仅产出一段优化结果（滑动窗口一步），外层 FeedoptPlanRun 循环
+% 反复调用直至 ctx.op 到达 Finished。
+%
+% 状态转换顺序：
+%   Init → GCode → Check → Compress → Smooth → Split → Opt → Finished
 %
 % Inputs :
-%   ctx        : 计算链上下文
-% Outputs :
-%   ctx        : 更新后的上下文（op 字段指向下一个状态）
-%   optimized  : 本次调用是否产出了一个优化好的曲线段
-%   opt_struct : 优化好的曲线结构体（仅 Opt 阶段有意义）
+%   ctx        : 流水线上下文（含 FSM 状态 ctx.op、各阶段队列、配置等）
 %
+% Outputs :
+%   ctx        : 更新后的上下文
+%   optimized  : 本次调用是否产出了一段优化结果（仅 Opt 阶段可为 true）
+%   opt_struct : 当 optimized=true 时，包含优化进给率系数的 CurvStruct
+%
+optimized  = false;
+opt_struct = constrCurvStructType;
 
-optimized = false;         % 默认本次未产出优化结果
-opt_struct = constrCurvStructType; % 默认空曲线结构体
-
-% 每次进入前确认错误码为 NoError，保证错误已在调用方处理
+% 进入 FSM 前先确认上一次的错误码已被处理，否则不应继续推进
 ocn_assert( ctx.errcode == FeedoptPlanError.NoError, ...
     "FeedoptPlan: error code was not handled...", mfilename );
 
 switch ctx.op
 
-    %----------------------------------------------------------------------
-    % 状态 0 → 1：初始化完成，直接跳转到 G-code 解析
-    %----------------------------------------------------------------------
+    % ══════════════════════════════════════════════════════════════════════
     case Fopt.Init
+    % 初始化阶段：initFeedoptPlan 已完成所有预计算，此处仅跳转到 GCode。
+    % ══════════════════════════════════════════════════════════════════════
         ctx.op = Fopt.GCode;
 
-    %----------------------------------------------------------------------
-    % 状态 1：解析 G-code 文件，将每条指令转换为 CurvStruct，填入 q_gcode
-    %----------------------------------------------------------------------
+    % ══════════════════════════════════════════════════════════════════════
     case Fopt.GCode
-        ctx.k0      = int32( 1 );           % 重置曲线计数器
-        % 第一步：打开/加载 G-code 文件（Load 命令）
+    % G-Code 解析阶段：调用 rs274ngc 解释器逐条读取 G-Code 指令，
+    % 将每条有效曲线转换为 CurvStruct 并压入 q_gcode。
+    %
+    % 主要处理：
+    %   1. 换刀检测 → 在换刀前后的曲线两端插入零速标记（NZ/ZN）
+    %   2. 刀具长度偏移补偿（add_tool_offset）
+    %   3. 旋转轴单位转换：度 → 弧度
+    %   4. NaN 坐标归零（未指定轴保持前一位置，简化处理为 0）
+    %   5. 最后一段末端强制设零速（NZ 或 ZZ）
+    %   6. assert_queue 三项几何合法性验证
+    % ══════════════════════════════════════════════════════════════════════
+        ctx.k0      = int32( 1 );
         status      = ReadGCode( ctx.cfg, ReadGCodeCmd.Load, ctx.cfg.source );
         CurvStruct  = opt_struct;
         CurvStruct.Info.Type = CurveType.None;
         DebugLog( DebugCfg.Validate, 'Reading G-code...\n' );
 
-        % 第二步：逐条读取 G-code（Read 命令），直到解释器退出
         while status < ReadGCodeError.InterpNotOpen
-            % 将上一次读到的有效曲线推入队列
+            % 上一次读取到的有效曲线延迟推入队列（在本次循环开头处理）
             if( CurvStruct.Info.Type ~= CurveType.None )
                 ctx.q_gcode.push( CurvStruct );
                 ctx.k0 = ctx.k0 + 1;
             end
 
-            if( status == ReadGCodeError.InterpExit ), break; end
+            if( status == ReadGCodeError.InterpExit )
+                break;  % 解释器已读完文件，退出读取循环
+            end
 
-            % 读取下一条 G-code 指令
             [ status, CurvStruct ] = ReadGCode( ctx.cfg, ReadGCodeCmd.Read, ...
                 ctx.cfg.source );
 
             if( CurvStruct.Info.Type ~= CurveType.None )
                 if( ctx.q_gcode.isempty )
-                    prev_tool = constrToolStructType;
+                    prev_tool = constrToolStructType;  % 队列为空，使用默认刀具
                 else
-                    prev_tool = ctx.q_gcode.rget(1).tool; % 取队列末尾的刀具信息
+                    prev_tool = ctx.q_gcode.rget(1).tool;
 
-                    % 检测换刀：若当前曲线刀具与上一曲线不同，设置零速标记
+                    % ── 换刀检测 ──────────────────────────────────────────
+                    % 前后两段刀具不同 → 在边界插入零速停顿：
+                    %   前一段末端设 NZ（若已是 ZN 则设 ZZ）
+                    %   当前段起端设 ZN（若已是 NZ 则设 ZZ）
                     if( ~toolIsEqual(prev_tool, CurvStruct.tool ) )
                         curv1 = ctx.q_gcode.rget(1);
-                        % 换刀前最后一段：需要停止（ZZ 或 NZ）
                         if( isAZeroStart(curv1) )
                             curv1.Info.zspdmode = ZSpdMode.ZZ;
                         else
@@ -68,7 +85,6 @@ switch ctx.op
                         end
                         ctx.q_gcode.set(ctx.q_gcode.size, curv1);
 
-                        % 换刀后第一段：需要从零速启动（ZZ 或 ZN）
                         if( isAZeroEnd(CurvStruct) )
                             CurvStruct.Info.zspdmode = ZSpdMode.ZZ;
                         else
@@ -77,110 +93,136 @@ switch ctx.op
                     end
                 end
 
-                % 应用刀具偏移（工具长度补偿）到曲线坐标
+                % ── 刀具长度偏移补偿 ──────────────────────────────────────
+                % 换刀过渡在当前 CurvStruct 段内完成：
+                %   R0（起点）使用 prev_tool 偏移 → 与前段终点几何连续
+                %   R1（终点）使用 CurvStruct.tool 偏移 → 新刀生效
+                % 因此新刀的完整坐标从下一段起才是纯新刀空间，
+                % 而零速停顿（NZ/ZN）已打在本段起端，机床换刀后再执行本段。
                 [CurvStruct] = add_tool_offset( CurvStruct, ...
                     ctx.cfg.indCart, prev_tool );
-                % 旋转轴单位转换：度 → 弧度（轴索引 4 及以后为旋转轴）
+
+                % ── 旋转轴单位转换：度 → 弧度（第 4 轴起为旋转轴）──────────
                 CurvStruct.R0( 4 : end ) = deg2rad( CurvStruct.R0( 4 : end ) );
                 CurvStruct.R1( 4 : end ) = deg2rad( CurvStruct.R1( 4 : end ) );
 
-                % 将 NaN（未指定轴）替换为 0，保证后续计算不出现 NaN
+                % ── NaN 归零（G-Code 中未指定的轴坐标为 NaN）────────────────
                 for j = 1 : StructTypeName.NumberAxisMax
-                    if isnan( CurvStruct.R0( j ) ), CurvStruct.R0( j ) = 0; end
-                    if isnan( CurvStruct.R1( j ) ), CurvStruct.R1( j ) = 0; end
+                    if isnan( CurvStruct.R0( j ) )
+                        CurvStruct.R0( j ) = 0 ;
+                    end
+                    if isnan( CurvStruct.R1( j ) )
+                        CurvStruct.R1( j ) = 0;
+                    end
                 end
 
-                % 断言：进给率必须为正值
                 ocn_assert( CurvStruct.Info.FeedRate > 0.0, ...
                     "Feedrate is not valide...", mfilename );
             end
         end
 
-        % 解析结束后 q_gcode 不能为空
         ocn_assert( ~ctx.q_gcode.isempty(), "Gcode queue is empty", mfilename );
 
-        % 处理最后一个曲线段的零速标记
+        % ── 最后一段末端强制设零速 ────────────────────────────────────────
+        % 程序结束必须停止，末段末端始终为零速（NZ；若起端也是零速则为 ZZ）
         last = ctx.q_gcode.rget(1);
         if( isAZeroStart(last) )
             last.Info.zspdmode = ZSpdMode.ZZ;
         else
-            last.Info.zspdmode = ZSpdMode.NZ; % 最后一段必须以零速结束
+            last.Info.zspdmode = ZSpdMode.NZ;
         end
         ctx.q_gcode.set( ctx.q_gcode.size, last );
 
-        % 验证队列合法性（几何、零速模式、参数化）
         ctx = assert_queue( ctx, ctx.op, ctx.q_gcode );
-        ctx.op = Fopt.Check; % 跳转到下一状态
+        ctx.op = Fopt.Check;
 
-    %----------------------------------------------------------------------
-    % 状态 2：几何检查（尖点检测）
-    %----------------------------------------------------------------------
+    % ══════════════════════════════════════════════════════════════════════
     case Fopt.Check
+    % 几何检查阶段：遍历相邻曲线对，检测方向突变（尖点）。
+    % 超过 cfg.Cusp.Threshold 角度阈值的相邻段边界插入零速停顿。
+    % cfg.Cusp.Skip=true 时跳过，直接进入下一阶段（调试用）。
+    % ══════════════════════════════════════════════════════════════════════
         if ~ctx.cfg.Cusp.Skip
-            ctx = CheckCurvStructs( ctx ); % 检测 q_gcode 中的尖点，分割超阈值处
+            ctx = CheckCurvStructs( ctx );
         end
-        ctx = assert_queue( ctx, ctx.op, ctx.q_gcode );
-        ctx.op  = Fopt.Compress; % 跳转到压缩阶段
 
-    %----------------------------------------------------------------------
-    % 状态 3：曲线压缩（合并共线线段，拟合 B 样条）
-    %----------------------------------------------------------------------
+        ctx = assert_queue( ctx, ctx.op, ctx.q_gcode );
+        ctx.op = Fopt.Compress;
+
+    % ══════════════════════════════════════════════════════════════════════
     case Fopt.Compress
+    % 曲线压缩阶段：将连续的共线短直线段批次拟合为一条 B 样条（Lee 算法），
+    % 减少后续处理的曲线数量。
+    % cfg.Compressing.Skip=true 时直接复制 q_gcode → q_compress（调试用）。
+    % 完成后按需释放 q_gcode 内存。
+    % ══════════════════════════════════════════════════════════════════════
         if ctx.cfg.Compressing.Skip
-            % 跳过压缩：直接将 q_gcode 复制到 q_compress
             for j = 1 : ctx.q_gcode.size
                 ctx.q_compress.push( ctx.q_gcode.get( j ) );
             end
         else
-            ctx = compressCurvStructs(ctx); % 执行 Lee 算法 B 样条拟合
+            ctx = compressCurvStructs(ctx);
         end
+
         ctx = assert_queue( ctx, ctx.op, ctx.q_compress );
         ctx.op = Fopt.Smooth;
-        % 释放 q_gcode 内存（不再需要原始 G-code 队列）
         if( ctx.cfg.ReleaseMemoryOfTheQueues ), ctx.q_gcode.delete(); end
 
-    %----------------------------------------------------------------------
-    % 状态 4：平滑过渡（在曲线连接处插入 5 次多项式过渡段）
-    %----------------------------------------------------------------------
+    % ══════════════════════════════════════════════════════════════════════
     case Fopt.Smooth
-        ctx = smoothCurvStructs(ctx); % 插入 TransP5 过渡曲线，保证 G2 连续
+    % 平滑过渡阶段：在几何不连续的相邻曲线之间插入 G2 Hermite 五次多项式
+    % 过渡曲线（TransP5），保证曲率连续；无法过渡时退化为零速停顿。
+    % 完成后按需释放 q_compress 内存。
+    % ══════════════════════════════════════════════════════════════════════
+        ctx = smoothCurvStructs(ctx);
         ctx.op = Fopt.Split;
+
         ctx = assert_queue( ctx, ctx.op, ctx.q_smooth );
         if( ctx.cfg.ReleaseMemoryOfTheQueues ), ctx.q_compress.delete(); end
 
-    %----------------------------------------------------------------------
-    % 状态 5：曲线分割（将长曲线切成短段，适配优化窗口）
-    %----------------------------------------------------------------------
+    % ══════════════════════════════════════════════════════════════════════
     case Fopt.Split
-        ctx     = splitQueue( ctx );   % 按 LSplit / LSplitZero 分割
-        ctx.op  = Fopt.Opt;
+    % 曲线分割阶段：
+    %   1. 零速起始/终止段从两端切出恒定跃度加减速小段（cutZeroStart/End）
+    %   2. 其余曲线按等弧长（cfg.LSplit）或 B 样条断点分割为短段
+    % 分割后 q_split 段数通常远多于 q_smooth（10× 量级）。
+    % 完成后初始化 DebugOptimization 并按需释放 q_smooth 内存。
+    % ══════════════════════════════════════════════════════════════════════
+        ctx    = splitQueue( ctx );
+        ctx.op = Fopt.Opt;
+
         if( coder.target( 'MATLAB' ) )
-            DebugOptimization.getInstance.reset; % 重置优化调试对象
+            DebugOptimization.getInstance.reset;
         end
+
         ctx = assert_queue( ctx, ctx.op, ctx.q_split );
         if( ctx.cfg.ReleaseMemoryOfTheQueues ), ctx.q_smooth.delete(); end
 
-    %----------------------------------------------------------------------
-    % 状态 6：LP 优化（滑动窗口进给率规划，每次调用处理一个窗口）
-    % 注意：此状态在 Opt 完成前会被多次重入，每次产出一个优化段
-    %----------------------------------------------------------------------
+    % ══════════════════════════════════════════════════════════════════════
     case Fopt.Opt
+    % 进给率优化阶段（多次重入）：
+    %   每次调用通过滑动窗口取出 NHorz 段，求解两阶段 LP，产出一段优化结果。
+    %   feedratePlanning 返回 optimized=true 时将结果压入 q_opt 并前移游标；
+    %   返回 quit=true 时所有段已处理完毕，直接 return 让外层检测 Finished。
+    % ══════════════════════════════════════════════════════════════════════
         if( ctx.q_opt.size() == 0 ), ctx.k0 = int32( 1 ); end
-        % 调用进给率规划：对当前窗口求解 LP，将结果推入 q_opt
+
         [ ctx, optimized, opt_struct, quit ] = feedratePlanning( ctx );
         if optimized
-            ctx.go_next = true;           % 下次调用前进到下一个曲线段
-            ctx.q_opt.push( opt_struct ); % 将优化好的段写入输出队列
+            ctx.go_next = true;
+            ctx.q_opt.push( opt_struct );
         end
-        if( quit ), return; end           % q_split 处理完毕，退出 Opt 状态
 
-    %----------------------------------------------------------------------
-    % 终止状态
-    %----------------------------------------------------------------------
+        if( quit ), return; end
+
+    % ══════════════════════════════════════════════════════════════════════
     case Fopt.Finished
+    % 终止状态：保持 Finished，外层循环检测到此状态后退出。
+    % ══════════════════════════════════════════════════════════════════════
         ctx.op = Fopt.Finished;
 
     otherwise
+        % 不应出现的非法状态，记录日志后强制终止
         DebugLog(DebugCfg.Global, 'FEEDOPT: WRONG STATE\n')
         ctx.op = Fopt.Finished;
 
@@ -188,21 +230,28 @@ end
 
 end
 
-%--------------------------------------------------------------------------
-% 辅助函数：验证队列的三项合法性
-%--------------------------------------------------------------------------
-function [ ctx ] = assert_queue( ctx, op, queue)
+% ══════════════════════════════════════════════════════════════════════════
+function [ ctx ] = assert_queue( ctx, op, queue )
+% assert_queue : 对指定队列执行三项合法性断言
+%
+% 在每个阶段结束、状态跳转前调用，确保产出队列满足后续阶段的前提条件。
+%
+% 三项检验：
+%   1. checkGeometry        — 相邻曲线几何首尾连续（R1_k ≈ R0_{k+1}）
+%   2. checkZSpdmode        — 零速模式传递合法（NZ 后必须接 ZN/ZZ 等）
+%   3. checkParametrisation — 每段参数窗口合法（a>0, b≥0, a+b≤1）
+%
+% 任一检验失败则 ocn_assert 抛出异常，由 FeedoptPlanRun 捕获并终止流水线。
+% ══════════════════════════════════════════════════════════════════════════
 msg = string( op );
-% 验证 1：队列中所有曲线的几何参数合法（长度、起终点匹配等）
+
 ocn_assert( checkGeometry( queue ), ...
     msg + " - Check geometry failed...", mfilename );
 
-% 验证 2：零速模式（ZZ/ZN/NZ/NN）在相邻曲线间的传递关系合法
 [ isValid, ctx ] = checkZSpdmode( ctx, queue );
 ocn_assert( isValid, ...
     msg + " - Check zspdmode failed...", mfilename );
 
-% 验证 3：曲线参数化（a_param/b_param）合法，u 范围在 [0,1] 内
 isValid = checkParametrisationQueue( queue );
 ocn_assert( isValid, ...
     msg + " - Check parametrisation failed...", mfilename );
