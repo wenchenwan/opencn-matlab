@@ -1,12 +1,13 @@
 function [ zeroFlag ] = isAZeroStart( speed )
-% isAZeroStart : Return true if the curv starts with zero speed
-% 
+% isAZeroStart : 判断曲线段是否以零速起始
+%
+% 零速起始条件：zspdmode 为 ZN 或 ZZ（起端均为零速）
+%
 % Inputs :
-% curv / Info / ZSpdMode : A structure containning the information of the
-% curv zero speed.
+%   speed : 曲线结构体（含 Info.zspdmode 字段）或其他包含 zspdmode 的结构
 %
 % Outputs :
-% zeroflag : Boolean value. TRUE means zero structure with a zero speed.
+%   zeroFlag : true = 该段从零速出发（需要零速约束）；false = 普通起始
 %
 zeroFlag = false;
 
