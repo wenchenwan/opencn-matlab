@@ -1,27 +1,51 @@
 function [ r0D, r1D, r2D, r3D ] = EvalBSpline( spline, u_vec )
 %#codegen
-% EvalBSpline
+% EvalBSpline : 在给定参数点处求B样条曲线的位置和各阶参数导数
+%
+% 功能描述：
+%   调用 GSL（GNU Scientific Library）B样条评估函数，
+%   在参数向量 u_vec 处计算B样条的位置和三阶导数
+%
+% B样条基础知识：
+%   B样条由控制点和节点向量定义，具有局部支撑性和连续性保证（通常为 C²）
+%   多轴数据通常存储为 [NDim × NCoeff] 的系数矩阵，每行表示一个轴的控制点
 %
 % Inputs : 
-% spline        : struct : Spline structure
-% u_vec         :    1xn : Vector for evaluation of the curv
+%   spline        : 样条结构体，包含：
+%                   - spline.sp           : GSL B样条对象（含节点向量、阶数等）
+%                   - spline.sp.Bl        : B样条基对象（用于底层 bspline_eval_vec）
+%                   - spline.sp.coeff     : [NDim × NCoeff] 控制点矩阵
+%   u_vec         : [1 × N] 参数向量（∈ [0, 1]，表示在B样条参数范围内的位置）
 %
 % Outputs:
-% r0D           :   nDxn : The evaluated B spline at u_vec points
-% r1D           :   nDxn : 1rst order parametric derivative for the Bspline
-%                   at u_vec points
-% r2D           :   nDxn : 2nd order parametric derivative for the Bspline 
-%                   at u_vec points
-% r3D           :   nDxn : 3rd order parametric derivative for the B spline 
-%                   at u_vec points
+%   r0D           : [NDim × N] 位置矩阵 - 各轴在参数点处的坐标
+%   r1D           : [NDim × N] 一阶导数矩阵 - dr/du
+%   r2D           : [NDim × N] 二阶导数矩阵 - d²r/du²
+%   r3D           : [NDim × N] 三阶导数矩阵 - d³r/du³
 %
 
-sp  = spline.sp;
-N   = length( u_vec );
-M   = size( sp.coeff, 1 );
-r0D = zeros( M, N ); r1D = r0D; r2D = r1D; r3D = r2D;
+% ============================================================================
+% 初始化输出矩阵
+% ============================================================================
+sp  = spline.sp;                    % 获取B样条基对象
+N   = length( u_vec );              % 参数点总数
+M   = size( sp.coeff, 1 );          % 轴数（如3轴、5轴、7轴等）
 
+% 预分配输出矩阵（零矩阵，再逐轴填充）
+r0D = zeros( M, N ); 
+r1D = r0D; 
+r2D = r1D; 
+r3D = r2D;
+
+% ============================================================================
+% 逐轴计算B样条导数
+% ============================================================================
+% B样条是独立的多元多项式表示，每个轴可以独立计算
+% GSL 的 bspline_eval_vec 函数为单轴版本，故需要循环逐轴调用
 for j = 1 : M
+    % bspline_eval_vec：在 u_vec 处同时计算该轴的 0、1、2、3 阶导数
+    % 输入：B样条基信息、该轴的控制点系数、参数向量
+    % 输出：该轴在各参数点处的 0~3 阶导数值
     [r0D( j , : ), r1D( j , : ), r2D( j , : ), r3D( j , : ) ] = ... 
                         bspline_eval_vec( sp.Bl, sp.coeff( j, : ), u_vec );
 end

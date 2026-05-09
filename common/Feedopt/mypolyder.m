@@ -1,16 +1,28 @@
 function [ a ] = mypolyder( u )
-% mypolyder : Compute the derivative of input polynom of coefficient u.
+% mypolyder : 计算一组多项式的导数系数。
 %
-% Inputs :
-%   u : Coefficients of the polynom vector.
-% Outputs :
-%   a : Coefficient of the derivative of the polynom vector.
+% 输入 :
+%   u : [nD x nu] 的多项式系数矩阵。
+%       每一行对应一个多项式，系数按降幂顺序排列：
+%           u(i,1)*x^(nu-1) + u(i,2)*x^(nu-2) + ... + u(i,nu)
 %
-% u  = u( : ).'; 
+% 输出 :
+%   a : [nD x (nu-1)] 的导数多项式系数矩阵。
+%       每一行对应输入多项式的导数系数。
+%
+% 示例：
+%   如果 u(i,:) = [c0 c1 c2 c3]，表示 c0*x^3 + c1*x^2 + c2*x + c3，
+%   则 a(i,:) = [3*c0 2*c1 1*c2]。
+%
 [ nD, nu ] = size( u );
 if nu < 2
+    % 常数多项式的导数为零。
     a = 0; 
 else
+    % 每个系数乘以其对应的原始幂次。
+    % 输出的第一列对应原始幂次 (nu-1)，下一列对应 (nu-2)，依此类推到 1。
+    % repmat( nu-1:-1:1 , nD, 1 ) 将行向量 [nu-1, nu-2, ..., 1]
+    % 复制为 nD 行，使其大小与 u(:,1:nu-1) 对齐，方便逐元素相乘。
     a = u( :, 1 : nu-1 ) .* repmat( nu-1 :-1 : 1 , nD, 1 ); 
 end
 

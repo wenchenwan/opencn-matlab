@@ -684,6 +684,17 @@ $$r(\varphi) = C + R\cos\varphi \cdot \hat{x} + R\sin\varphi \cdot \hat{y} + \fr
 
 $$r'(u) = \underbrace{\theta(-\sin\varphi \cdot \vec{CP_0} + \cos\varphi \cdot (\hat{e}\times\vec{CP_0}))}_{\text{旋转分量（圆周方向）}} + \underbrace{\frac{\theta p}{2\pi}\hat{e}}_{\text{轴向分量（螺旋前进）}}$$
 
+进一步求二阶、三阶导数：
+
+$$r''(u) = \theta^2\big(-\cos\varphi \cdot \vec{CP_0} - \sin\varphi \cdot (\hat{e}\times\vec{CP_0})\big)$$
+
+$$r'''(u) = \theta^3\big(\sin\varphi \cdot \vec{CP_0} - \cos\varphi \cdot (\hat{e}\times\vec{CP_0})\big)$$
+
+这里的关键点是：
+- 轴向分量 $\frac{\theta p}{2\pi}\hat{e}$ 是对 $u$ 的一次线性项，其二阶、三阶导数为 0；
+- 因此二阶、三阶导数仅来自圆周旋转部分；
+- 这也说明 Helix 在笛卡尔轴上的曲率与纯圆弧一致，旋转部分导数的模长为常数。
+
 两个分量**相互垂直**（$\hat{e} \perp$ 旋转平面），因此模长：
 
 $$\|r'(u)\|^2 = \theta^2 R^2 \underbrace{(\sin^2\varphi + \cos^2\varphi)}_{=1} + \left(\frac{\theta p}{2\pi}\right)^2 = \theta^2 R^2 + \left(\frac{\theta p}{2\pi}\right)^2 = \text{const}$$
