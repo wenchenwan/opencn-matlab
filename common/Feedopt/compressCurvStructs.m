@@ -119,7 +119,7 @@ end
 function [ batch ] = batch_init()
 % 初始化空批次结构体
 batch = struct( ...
-    'pvec',          zeros( StructTypeName.NumberAxisMax, 1 ),... % 控制点集合（列向量拼接）
+    'pvec',          zeros( StructTypeName.NumberAxisMax, 1 ),... % 控制点集合（列向量拼接），后续添加曲线段，会往后增加控制点
     'lastCurv',      constrCurvStructType,...                    % 批次中的最后一条曲线
     'size',          0, ...                                      % 批次中的曲线数量
     'zspdmode',      ZSpdMode.NN ...                             % 批次的零速模式继承自首曲线
@@ -164,18 +164,26 @@ end
 
 function [ batch ] = batch_add_curv( batch, curv )
 % 将曲线加入批次，更新控制点集合和零速模式
+%
+% batch.zspdmode 的维护规则：
+%   - 第一条曲线加入时，直接取其 zspdmode 作为批次初始值（携带起端零速信息）
+%   - 后续曲线加入时，只在末端变为零速时才更新（保留起端，更新末端）
+%   - 最终 batch.zspdmode 正确反映整批的起止零速状态：
+%       起端：来自第一条曲线                （batch_add_curv 第一条时设定）
+%       末端：若任一后续曲线为 ZeroEnd 则更新（isAZeroEnd 检测）
 if( batch.size == 0 )
     % 第一条曲线：同时记录起点 R0 和终点 R1
     batch.pvec      = [ curv.R0, curv.R1 ];
     batch.lastCurv  = curv;
     batch.size      = 1;
-    batch.zspdmode  = curv.Info.zspdmode;
+    batch.zspdmode  = curv.Info.zspdmode;  % 起端零速状态由首曲线决定
 else
-    % 后续曲线：只追加终点 R1（起点与前一段终点重合）
+    % 后续曲线：只追加终点 R1（起点与前一段终点重合，无需重复存储）
     batch.pvec      = [ batch.pvec, curv.R1 ];
     batch.lastCurv  = curv;
     batch.size      = batch.size + 1;
-    % 更新零速模式：若最后一段有零速要求，继承到批次
+    % 动态更新末端零速：若当前曲线以零速结束，则更新批次末端标记
+    % 起端标记保持不变（始终来自第一条曲线）
     if( isAZeroEnd( curv ) )
         if( isAZeroStart( batch.zspdmode ) )
             batch.zspdmode = ZSpdMode.ZZ; % 起止均零速
@@ -189,7 +197,23 @@ end
 
 function [ curv, spline, spline_index ] = create_spline( ctx, batch, spline_index )
 % 用 Lee 算法对批次中的控制点序列拟合 B 样条
-batch.lastCurv.Info.zspdmode = batch.zspdmode; % 继承批次的零速模式
+
+% ── 注入批次零速模式 ─────────────────────────────────────────────────────
+% 问题根源：constrSplineStruct 从 batch.lastCurv.Info 取元信息，
+%           但 lastCurv 是批次中最后一段，它的 zspdmode 只代表自身，
+%           不知道第一段是否零速起步。
+%
+% 示例：
+%   批次 3 条曲线：ZN → NN → NN
+%     batch.lastCurv.Info.zspdmode = NN  （仅第3段自身状态）
+%     batch.zspdmode               = ZN  （整批：起端零速来自第1段）
+%   若不做此赋值 → 压缩样条得到 NN，起端零速信息丢失（错误）
+%   做此赋值后  → 压缩样条得到 ZN，起止零速均正确（正确）
+%
+% batch.zspdmode 由 batch_add_curv 动态维护，到此处已正确表示整批状态：
+%   起端：第一条曲线加入时设定
+%   末端：后续有 ZeroEnd 曲线加入时更新
+batch.lastCurv.Info.zspdmode = batch.zspdmode;
 
 % 构造压缩后的曲线段（类型变为 Spline，起终点取批次首尾）
 curv    = constrSplineStruct( ...
