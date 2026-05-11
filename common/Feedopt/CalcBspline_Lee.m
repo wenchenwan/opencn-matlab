@@ -39,6 +39,9 @@ Bl = bspline_create( cfg.LeeSplineDegree, u );
 %   BasisVal   : 各参数点处的基函数值（用于插值约束 r(u_k) = P_k）
 %   BasisValDD0: 起端二阶导基函数值（用于自然边界条件 r''(0) = 0）
 %   BasisValDD1: 末端二阶导基函数值（用于自然边界条件 r''(1) = 0）
+
+% BasisVal实际上是一个 N×N 的矩阵, 其中就表示计算了[1 t t^2 t^3] * T_Mat表示其中的一行的中的支撑点附近的基函数值
+% P(t) = [1 t t^2 t^3] * T_Mat * [P0; P1; P2; P3]
 [ BasisVal, BasisValDD0, BasisValDD1 ] = bspline_eval_lee( Bl, int32( nCoeff ), u );
 
 % ── 步骤 3：组装线性方程组 A·C = B ──────────────────────────────────────

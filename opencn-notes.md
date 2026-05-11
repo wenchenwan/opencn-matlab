@@ -751,6 +751,135 @@ L = sum(Integrand .* diff(u_vec))                  % 中点法：Σ f(u_mid)*Δu
 | Spline | 逐点变化 | 查 Lk 表 + 边界 GL 积分 | O(K) |
 | TransP5 | 逐点变化 | 中点法（9 段） | O(1) |
 
+---
+
+#### 6.2.5 路径参数归一化体系（u ∈ [0,1] 的建立与维护）
+
+这是整个系统中"无处不在却不显眼"的设计基础。所有求值函数（`EvalLine`、`EvalHelix`、`EvalTransP5`、`EvalBSpline`）都以 $u \in [0,1]$ 为本地参数，"0 = 起点，1 = 终点"。归一化不是靠某一个函数集中完成的，而是由以下四个层次共同维护：
+
+---
+
+**第一层：曲线类型本身的几何定义（天然归一化）**
+
+| 曲线类型 | 参数定义 | u=0 的几何含义 | u=1 的几何含义 |
+| --- | --- | --- | --- |
+| **Line** (`EvalLine`) | $r(u) = P_0(1-u) + P_1 u$ | 起点 $P_0$ | 终点 $P_1$ |
+| **Helix** (`EvalHelix`) | $\varphi(u) = \theta \cdot u$（$\theta$ = 总圆心角） | 圆弧起点 | 圆弧终点 |
+| **TransP5** (`EvalTransP5`) | 5 次多项式系数 `CoeffP5`，$t \in [0,1]$ | 过渡起点 | 过渡终点 |
+| **Spline** (`EvalBSpline`) | GSL B 样条节点向量，以 $[0,1]$ 为定义域 | B 样条起点 | B 样条终点 |
+
+G-code 解析器（C++ rs274ngc）填写 R0/R1/theta/pitch/CoeffP5 等几何数据时，默认就在 $u \in [0,1]$ 空间内定义——这是最根本的归一化来源。
+
+---
+
+**第二层：结构体默认值（`constrCurvStruct.m:59-60`）**
+
+每个曲线结构体在构造时即设置：
+
+```matlab
+'a_param', 1, ...   % 参数窗口宽度 = 1（全段）
+'b_param', 0 ...    % 参数窗口起点 = 0（从头开始）
+```
+
+这意味着**新解析出的每条 G-code 段，局部参数 $u_l$ 和全局参数 $u_g$ 完全重合**（映射公式 $u_g = 1 \cdot u_l + 0 = u_l$），整个 $[0,1]$ 区间都对应该段几何数据的完整范围。
+
+---
+
+**第三层：参数窗口的更新操作**
+
+归一化体系的核心是"**只更新窗口，不修改几何数据**"——曲线的几何参数（B 样条系数、R0/R1、theta 等）始终不变，子段通过修改 `a_param`/`b_param` 来声明自己使用原曲线参数空间的哪个子区间。
+
+有三处会更新参数窗口：
+
+**(a) 弧长截取 — `cutCurvStruct.m`（平滑和分割阶段均调用）**
+
+先用 `cutCurvStructU` 求截点的全局参数 $u\_tilda$，再更新左右两段的窗口：
+
+```text
+左段（[b, u_tilda]）：
+    curvLeft.b_param = b（不变）
+    curvLeft.a_param = u_tilda - b
+
+右段（[u_tilda, b+a]）：
+    curvRight.b_param = u_tilda   （必然 > 0，标志这是右半段）
+    curvRight.a_param = (a + b) - u_tilda
+```
+
+截取后，两个子段各自的 $u_l \in [0,1]$ 通过上述映射正确指向原曲线的对应子区间。
+
+**(b) B 样条按断点分割 — `splitCurvStruct.m:86-93`（分割阶段，Spline 专用）**
+
+当 `SplitSpecialSpline=true` 时，按 B 样条内部断点列表直接分段，每个子段的 `a_param`/`b_param` 由断点间距直接给出：
+
+```matlab
+deltaU      = diff(breakPoints);   % 每段的参数宽度（= a_param）
+uPrevious   = curv.b_param;        % 第一段的起始偏移（= b_param）
+...
+curvSplited.a_param = deltaU(j);
+curvSplited.b_param = uPrevious;
+uPrevious = curvSplited.a_param + curvSplited.b_param;  % 下一段起点
+```
+
+与截取不同，这里不需要弧长计算，直接用几何上已知的断点位置。
+
+**(c) 零速段截取 — `cutZeroStart.m` / `cutZeroEnd.m`（分割阶段）**
+
+从曲线头部或尾部切出固定长度 `LSplitZero`（1mm）的小桩，同样调用 `cutCurvStruct`，因此遵循同一套 `a_param`/`b_param` 更新规则。
+
+---
+
+**第四层：求值层的映射与验证（`EvalCurvStructNoCtx.m`）**
+
+这是归一化系统的最终执行层，每次调用底层求值函数前必须经过此函数：
+
+```matlab
+% 断言输入 u_vec 确实在 [0,1] 内
+ocn_assert( ~any(u_vec > 1.0), "u_vec > 1", mfilename );
+ocn_assert( ~any(u_vec < 0.0), "u_vec < 0", mfilename );
+
+a = curv.a_param;
+b = curv.b_param;
+
+% 核心映射：局部参数 → 全局参数
+u_vec_tilda = a * u_vec + b;   % u_g ∈ [b, b+a] ⊆ [0,1]
+```
+
+然后将 `u_vec_tilda` 传入底层函数（EvalLine/EvalHelix/EvalTransP5/EvalBSpline），它们收到的已是全局参数坐标。底层函数返回的导数是对全局参数 $u_g$ 求导的结果，最后用链式法则转换回局部参数域：
+
+```matlab
+r1D = a    .* r1D;   % dr/du_l = a · dr/du_g
+r2D = a^2  .* r2D;   % d²r/du_l² = a² · d²r/du_g²
+r3D = a^3  .* r3D;   % d³r/du_l³ = a³ · d³r/du_g³
+```
+
+`a_param < 1` 时（截取后的子段），导数会自动缩放，无需调用方关心。
+
+---
+
+**验证机制（`checkParametrisation.m`）**
+
+每次截取操作后，`cutCurvStruct` 都调用 `checkParametrisation` 验证窗口合法性：
+
+```matlab
+a_param > 0  && a_param <= 1        % 区间非空且不超过全段
+b_param >= 0 && b_param < 1         % 起点在 [0,1) 范围内
+a_param + b_param - 1 <= eps        % 终点不超出 u=1
+```
+
+在流水线每个阶段结束后，`assert_queue` 调用 `checkParametrisationQueue` 对整个队列批量验证，确保不合法的窗口不会流入下游阶段。
+
+---
+
+**归一化的意义：数据只有一份，窗口可以无限细分**
+
+以 B 样条为例：压缩阶段把 100 条短直线拟合成一条 Spline（系数存入 `q_spline`），后续截取和分割可能把它切成 20 个子段。每个子段的 `CurvStruct` 都持有指向同一 B 样条的 `sp_index`，加上各自不同的 `(a_param, b_param)` 窗口。求值时，`EvalBSpline` 只操作控制点数组这一份数据，内存开销仅为 20 个 `(a, b)` 数对，而非复制 20 份系数。
+
+**一句话总结：**
+
+> 参数归一化不是在某一处集中完成的，而是由曲线类型的几何定义（天然 $u \in [0,1]$）+ 结构体默认值（$a=1, b=0$）+ 截取/分割时的窗口更新 + 求值层的映射断言共同维护的四层不变式。
+
+---
+
 ### 6.3 进给率优化（核心，详解）
 
 #### 6.3.1 数学建模：LP 问题的构造

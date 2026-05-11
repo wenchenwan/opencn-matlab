@@ -64,8 +64,13 @@ for k = 2 : Ncrv
 
     if( needStop )
         % ── 分支 A：强制零速停顿 ─────────────────────────────────────────
-        % curv 被标记为 ZeroEnd，nextCurv 标记为 ZeroStart，
-        % add_zero_stop 将 curv 推入队列，curv ← nextCurv。
+        % needStop=true 的唯一触发条件是 isAZeroEnd(curv)（见 check_stop_and_transition）。
+        % 这意味着 curv.zspdmode 已含 ZeroEnd 标记，nextCurv.zspdmode 已含 ZeroStart 标记：
+        %   两个标记在更早阶段成对写入——
+        %   · 来源一：G-code 解析 / 上游输入处理阶段统一标记（如精确停止指令）
+        %   · 来源二：前序迭代中 create_zero_end 将二者同时标记（curv→NZ, nextCurv→ZN）
+        % 因此此处无需再调用 create_zero_end；标记早已存在，add_zero_stop 只负责推队列。
+        % 对比分支 B/C：它们是运行时新发现不连续，标记尚不存在，必须现场调用 create_zero_end。
         [ ctx, curv ] = add_zero_stop( ctx, curv, nextCurv );
         if( coder.target( "MATLAB" ) )
             DebugTransition.getInstance.incZeroCurv;
@@ -220,8 +225,11 @@ end
 function [ ctx, curv ] = add_zero_stop( ctx, curv, nextCurv )
 % add_zero_stop : 执行零速停顿——将 curv 推入输出队列，curv ← nextCurv
 %
-% 此函数不修改 zspdmode 标记（调用前已由 create_zero_end 设置）。
-% 推入后，两段曲线之间的速度将在插补阶段被约束为零。
+% 本函数只做队列操作，不写 zspdmode 标记。调用前标记已由以下两种途径之一写好：
+%   · 分支 A（isAZeroEnd 已为真）：上游 / 前序迭代已成对设置 NZ + ZN，无需再写
+%   · 分支 B/C（运行时发现）：调用方在调用本函数之前已显式调用 create_zero_end
+%
+% 推入后，两段曲线之间的速度将在插补阶段（feedratePlanning）被约束为零。
 
 ctx.q_smooth.push( curv );
 curv = nextCurv;

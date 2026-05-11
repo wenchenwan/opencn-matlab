@@ -14,23 +14,36 @@ function y = tridiag( a, b, c, f )
 %  a, b, c must be vectors of length n (note that b(1) and c(n) are not used)
 
 if( coder.target( "MATLAB" ) )
+    % 如果在 MATLAB 环境中运行，使用 MEX 文件版本以提高性能
     y = tridiag_mex( a, b, c, f );
 else
+    % 纯 MATLAB 实现，使用 Thomas 算法求解三对角矩阵系统
     % some additional information is at the end of the file
 
+    % 获取右端项 f 的尺寸，n 为行数（方程个数）
     [ n, ~ ]  = size( f );
+    % 初始化临时向量 v，用于存储消去过程中的系数
     v         = zeros( n, 1 );
+    % 初始化解向量 y，与 f 相同尺寸
     y         = zeros( size( f ) );
+    % 初始化第一个对角元素 w = a(1)
     w         = a( 1 );
-    y( 1, : ) = f( 1, : ) / w;
+    % 计算第一个解分量 y(1,:) = f(1,:) / w
+    y( 1, : ) = f( 1, : ) / w;  % 第一行无下对角元素，直接除以主对角元素 a(1)
 
+    % 前向消去阶段：从第二个方程开始，逐步消去下对角元素
     for i = 2 : n
+        % 计算消去系数 v(i-1) = c(i-1) / w
         v( i -1 ) = c( i -1 ) / w;
+        % 更新 w = a(i) - b(i) * v(i-1)，这是修改后的主对角元素
         w         = a( i ) - b( i ) * v( i -1 );
+        % 计算当前解分量 y(i,:) = (f(i,:) - b(i) * y(i-1,:)) / w
         y( i, : ) = ( f( i, : ) - b( i ) * y( i -1, : ) ) / w;
     end
 
+    % 后向替换阶段：从倒数第二个方程开始，逐步回代求解
     for j = n-1 : -1 : 1
+        % 更新 y(j,:) = y(j,:) - v(j) * y(j+1,:)
         y( j, : ) = y( j, : ) - v( j ) * y( j + 1, : );
     end
 
