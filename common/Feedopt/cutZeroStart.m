@@ -29,6 +29,7 @@ L       = LengthCurv( ctx, curv, 0, 1 );   % 曲线总弧长（mm）
 Lcut    = ctx.cfg.LSplitZero;               % 零速段目标长度（mm）
 
 % 防护：Lcut 不得超过总长的 1/3（保证剩余主段有足够长度）
+% 即使在很短的ZZ轨迹的情况下，也会被拆分为ZN+NZ两段(L/3和2L/3)，保证加速区有足够长度进行恒定跃度规划
 if( Lcut > L / 3 ), Lcut = L / 3; end
 
 % 从头部（isEnd=false）切出弧长 Lcut 的子段

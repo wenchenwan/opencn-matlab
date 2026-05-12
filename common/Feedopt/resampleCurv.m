@@ -89,7 +89,7 @@ else
             forcelimit );
 
     else
-        % 正常段（NN/ZZ）：Taylor 二阶展开积分
+        % 正常段（NN）：Taylor 二阶展开积分，优化结束后的结果不会产生ZZ段
         % 从 coeff（v²(u) 系数）求 ud，再积分推进 u
         [ u, ud, udd, uddd ] = ResampleNN( coeff, Bl, state.u, state.dt, enablePrint );
     end
@@ -139,21 +139,45 @@ else
                 a = udd / 2;  b = ud;  c = state.u - 1;
                 Delta = b^2 - 4 * a * c;
 
-                % 数值稳定的二次方程求根（避免相近数相减的精度损失）
+                % 数值稳定的二次方程求根
+                % ─────────────────────────────────────────────────────────
+                % 标准公式 r = (-b ± sqrt(Δ)) / (2a) 存在精度损失风险：
+                %   当 b > 0 时，(-b + sqrt(Δ)) 两项符号相反，若 b ≈ sqrt(Δ)
+                %   则结果接近零但参与运算的数量级很大 → 有效位数严重损失。
+                %   当 b ≤ 0 时，(-b - sqrt(Δ)) 同理，若 |b| ≈ sqrt(Δ) 也会相消。
+                %
+                % 规避方法：Vieta 定理（r1 × r2 = c/a）
+                %   先安全地计算不含危险相消的那个根 r_safe，
+                %   再用乘积公式反推另一个根：r_other = 2c / (2a × r_safe)
+                %   这样完全不需要计算危险的那一侧加减表达式。
+                %
+                %   b > 0 时：(-b - sqrt(Δ)) 两项均 ≤ 0，求和安全（无相消）
+                %     → r_safe  = (-b - sqrt(Δ)) / (2a)       直接计算
+                %     → r_other = 2c / (-b - sqrt(Δ))         Vieta 反推
+                %
+                %   b ≤ 0 时：(-b + sqrt(Δ)) 两项均 ≥ 0，求和安全
+                %     → r_safe  = (-b + sqrt(Δ)) / (2a)       直接计算
+                %     → r_other = 2c / (-b + sqrt(Δ))         Vieta 反推
+                %
+                % Delta ≤ 0 的退化：
+                %   正常情况 c < 0 保证 Δ = b²-4ac > b² ≥ 0。
+                %   若浮点误差使 Δ ≤ 0，说明 a = udd/2 ≈ 0（近匀速），
+                %   方程退化为线性 b×T + c ≈ 0 → T ≈ -c/b。
+                % ─────────────────────────────────────────────────────────
                 if( Delta <= 0 )
-                    % 判别式非正：退化为一次近似
-                    TrVec( 2 ) = -c / b;        % 线性近似根
-                    TrVec( 3 ) = -b / a;        % 另一候选（udd 主导时）
+                    % 判别式非正（a ≈ 0，近匀速退化）：线性近似
+                    TrVec( 2 ) = -c / b;    % 线性方程 b×T + c = 0 的根
+                    TrVec( 3 ) = -b / a;    % a 主导时的候选（Delta≈0 极限）
                 elseif( b > 0 )
-                    % b > 0：用共轭形式避免大数相减
-                    TrVec( 2 ) = 2 * c / ( -b - mysqrt(Delta) );
-                    TrVec( 3 ) = ( -b - mysqrt(Delta) ) / ( 2 * a );
+                    % (-b - sqrt(Δ)) 两项均 ≤ 0，是安全的加法
+                    TrVec( 2 ) = 2 * c / ( -b - mysqrt(Delta) );          % Vieta 反推根
+                    TrVec( 3 ) = ( -b - mysqrt(Delta) ) / ( 2 * a );      % 安全直接根
                 else
-                    % b ≤ 0：另一组共轭形式
-                    TrVec( 2 ) = ( -b + mysqrt(Delta) ) / ( 2 * a );
-                    TrVec( 3 ) = 2 * c / ( -b + mysqrt(Delta) );
+                    % (-b + sqrt(Δ)) 两项均 ≥ 0，是安全的加法
+                    TrVec( 2 ) = ( -b + mysqrt(Delta) ) / ( 2 * a );      % 安全直接根
+                    TrVec( 3 ) = 2 * c / ( -b + mysqrt(Delta) );          % Vieta 反推根
                 end
-                TrVec( 4 ) = -c / b;   % 线性近似备选（a≈0 时最稳定）
+                TrVec( 4 ) = -c / b;   % 线性近似备选（a ≈ 0 时比二次根更稳定）
 
                 % 过滤无效根（NaN / 复数 / 负数 / 超过 dt）
                 TrVec( isnan( TrVec ) )   = dt;

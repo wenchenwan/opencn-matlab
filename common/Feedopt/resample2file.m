@@ -233,13 +233,22 @@ function [ ud, udd, uddd ] = computeUDerivative( Bl, zspdmode, Coeff, ...
 %     isEnd=true → 同上，时间轴反转
 %
 %   路径 3 — 正常段（NN/ZZ）：B 样条速度剖面，v²(u) = Σ Coeff_i × B_i(u)
-%     q   = B(u) × Coeff  （B 样条在 u 处的基函数值 × 系数 = v²(u)）
-%     qd  = B'(u)× Coeff  （v²(u) 对 u 的导数）
-%     qdd = B''(u)×Coeff  （v²(u) 对 u 的二阶导数）
-%     calcUfromQ 从 q, qd, qdd 反推 ud, udd, uddd：
-%       ud   = sqrt(q) / |r'(u)|         （由 v² = (|r'|×ud)² 解出 ud）
-%       udd  = (qd/2 - ud²×r'·r'') / |r'|²
-%       uddd = ...（三阶链式法则展开）
+%     q   = B(u) × Coeff  （B 样条在 u 处的基函数值 × 系数 = ud²(u)）
+%     qd  = B'(u)× Coeff  （ud²(u) 对 u 的一阶导数）
+%     qdd = B''(u)×Coeff  （ud²(u) 对 u 的二阶导数）
+%
+%     LP 优化的决策变量是"参数速度的平方" ud²(u)，而非物理速度的平方 v²(u)。
+%     二者关系：v = |r'(u)| × ud，即 v² = |r'|² × ud²。
+%     velocity 约束 w ≤ (vj_max/r'j)² 写成 ud² ≤ (vj_max/r'j)²，
+%     恰好等价于 |r'j × ud| = |vj| ≤ vj_max，形式更简洁且无需除 |r'|。
+%
+%     calcUfromQ 从 q = ud², qd = d(ud²)/du, qdd = d²(ud²)/du² 反推导数：
+%       ud   = sqrt(q)
+%              （q = ud² 开方）
+%       udd  = qd / 2
+%              （链式法则：d(ud)/dt = d(ud)/du × ud = qd/(2ud) × ud = qd/2）
+%       uddd = qdd / 2 × ud
+%              （链式法则：d(udd)/dt = d(qd/2)/du × ud = (qdd/2) × ud）
 
 if( zspdmode == ZSpdMode.ZN )
     isEnd = false; forcelimit = false;

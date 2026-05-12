@@ -37,6 +37,7 @@ ret   = 0;
 u_tilda = cutCurvStructU( ctx, curv, u0, L, isEnd );
 
 % 截点无效（曲线总长 <= L，或二分法不收敛）→ 截取失败
+% 这里过短失败只会出现在splitCurvStruct的调用中
 if( u_tilda <= 0 ), ret = -1; return; end
 
 a = curv.a_param;   % 原曲线的参数映射斜率（区间长度）
