@@ -1386,6 +1386,11 @@ basic_example    % 运行完整流程
 - [x] 已阅读并添加详细注释
 - 备注：弧长截取系统。核心设计：截取只更新 `a_param`/`b_param` 参数映射，B 样条系数不变。Line/Helix 均匀参数化 → 解析截取（`Δu = L/‖r'‖`）；Spline/TransP5 → 两阶段弧长反演（cumsum 粗查断点区间 + bisection 精确反演，tol=1e-7，最多 1000 次迭代）。截取后右半段 `b_param > 0`，在 `smoothCurvStructs` 中用于跳过 G2 检查（截点天然连续）。`ZSpdMode` 更新规则：截点是内部点（N），各半段继承原曲线对应端的零速状态。`checkParametrisation` 验证 `a>0, b>=0, a+b<=1`。
 
+### `Feedopt/resampleCurv.m` / `resample4sampler.m` / `ResampleStateClass.m`
+
+- [x] 已阅读（注释已添加）
+- 备注：见下方"十五、重采样越界时刻计算"专题笔记。
+
 ### `bspline_*.m`
 
 - [ ] 待阅读
@@ -1395,6 +1400,175 @@ basic_example    % 运行完整流程
 
 - [ ] 待阅读
 - 备注：
+
+---
+
+## 十五、重采样越界时刻计算（resampleCurv 段边界处理）
+
+### 15.1 问题背景
+
+重采样器以固定时间步长 `dt` 逐步推进参数 `u ∈ [0,1]`，每步调用 `resampleCurv`。  
+当某一步的 Taylor 积分给出 `u_new > 1` 时，说明**本时间步内曲线段已走完**：
+
+```text
+u
+1 |─────────────────●  ← 曲线终点 u=1
+  |             ·····  ← 积分越过了终点
+  |         ·
+  |     ·
+0 |●
+  t_old       t_old+dt    t（时间）
+         ↑
+        Tr：越界时刻（待求）
+```
+
+此时不能简单丢弃剩余时间 `dt - Tr`，否则下一段的第一步会从 `dt` 起步，产生时间误差累积。  
+正确做法：精确求出 `Tr`，将剩余时间 `dt - Tr` 存入 `state.dt`，供下一段第一步使用。
+
+---
+
+### 15.2 NN 模式的两步法求 Tr
+
+NN 模式（正常段，非零速起止）的速度曲线由 LP 优化给出 `v²(u)`，无法解析求逆，需要数值方法。代码采用**两步策略**：
+
+#### 第一步：Gauss-Legendre 数值积分估算 Tr
+
+越界时刻 Tr 满足：
+
+```text
+∫_{u_old}^{1}  du / sqrt(v²(u))  = Tr
+```
+
+其中 `1/sqrt(v²(u)) = dt/du`（单位参数区间对应的时间长度）。
+
+用 GL 积分数值估算：
+
+```text
+uval = GL节点从[-1,1]线性映射到[u_old, 1]
+Ival = 1 / sqrt(v²(uval))          （各节点处的被积函数值）
+Tr   = Σ w_j × Ival_j × (1-u_old)/2
+```
+
+**为什么要先用 GL 估算？**  
+GL 积分直接基于速度曲线，物理含义明确，结果可靠。但它只是"估算"——后续需要确认 `Tr ≥ dt`（本步内确实越界了），再用解析方法精确求根。
+
+#### 第二步：Taylor 二次方程精确求根
+
+当 `Tr ≥ dt` 时（GL 确认越界），用 Taylor 二阶展开建立方程：
+
+```text
+u(t) ≈ u_old + ud·t + (udd/2)·t²
+
+令 u(Tr) = 1：
+   (udd/2)·Tr² + ud·Tr + (u_old - 1) = 0
+   即：a·t² + b·t + c = 0
+   其中：a = udd/2,  b = ud,  c = u_old - 1  (c < 0 保证有正根)
+```
+
+**为何不直接用二次方程、而要先做 GL 估算？**  
+Taylor 展开是局部近似，仅在 `u_old` 附近精确。当 `v²(u)` 变化剧烈时，Taylor 的根可能误差较大。GL 估算提供了一个独立验证：只有 GL 确认 `Tr ≥ dt` 才进入二次方程求根路径，否则退化到整步 `dt`（更安全）。
+
+#### 数值稳定的二次方程求根
+
+标准公式 `(-b ± sqrt(Δ)) / 2a` 在 `b` 较大时会发生"相近数相减"精度损失。代码用**共轭形式**规避：
+
+```text
+若 b > 0：
+    根1 = 2c / (-b - sqrt(Δ))      ← 分子小，避免大数相减
+    根2 = (-b - sqrt(Δ)) / (2a)
+
+若 b ≤ 0：
+    根1 = (-b + sqrt(Δ)) / (2a)
+    根2 = 2c / (-b + sqrt(Δ))
+```
+
+同时保留线性近似根 `-c/b`（在 `a≈0` 即 `udd≈0` 时最稳定），共 4 个候选根：
+
+```matlab
+TrVec = [0,  根1,  根2,  -c/b]
+```
+
+过滤策略：丢弃 NaN / 复数 / 负数 / 超过 dt 的根，然后取**残差 `|u(Tr)-1|` 最小**的根作为最终 Tr。
+
+---
+
+### 15.3 ZN 模式（零速起始）的解析求根
+
+ZN 模式的 `u(t) = constJerk × t³ / 6` 有解析逆函数，无需数值积分：
+
+```matlab
+[t_old, t_end] = constJerkTime(constJerk, [u_old, 1], false)
+Tr = t_end - t_old
+```
+
+直接给出精确 Tr，计算量远小于 NN 模式。
+
+---
+
+### 15.4 NZ 模式（零速终止）的特殊处理
+
+NZ 模式的曲线以 **u=1 处速度为零**结束。当 `u > 1` 时，不需要计算 Tr，而是直接启动**零速停留计数器**：
+
+```matlab
+state = state.startZeroStopTime()
+```
+
+停留期间（`isAStop=true`）：
+
+- `u` 固定在 1，每步输出相同位置点（机床原地不动）
+- `decreaseStopCounter()` 每步递减计数器
+- 计数器归零 → `go_next=true`，切换下一曲线
+
+停留时长 = `DefaultZeroStopCount × dt`（默认配置中 `DefaultZeroStopCount = 1`）。
+
+---
+
+### 15.5 剩余时间的传递机制
+
+精确求得 Tr 后：
+
+```matlab
+state.dt = check_minimum_precision_dt(dt - Tr, dt)
+```
+
+`dt - Tr` 是本段曲线走完之后**多出来的时间**。下一段曲线的第一步会用 `state.dt`（而非标准 `dt`）来积分，从而精确"衔接"两段曲线在时间轴上的边界。
+
+```text
+时间轴：  |────── dt ──────|
+                   ↑
+                  Tr（越界时刻）
+          |──Tr──|dt-Tr|
+本段曲线：  推进到u=1   ↑
+下一段：              从这里开始，第一步只积分 dt-Tr
+```
+
+`check_minimum_precision_dt` 过滤异常值（NaN / 复数 / 负值）→ 置 0（下一段从完整步开始），防止误差传播。
+
+---
+
+### 15.6 完整状态转移图
+
+```text
+resampleCurv 调用
+        ↓
+  isAStop == true?
+   ├─ 是 → decreaseStopCounter()，返回（停顿帧，不更新 u）
+   └─ 否 ↓
+        ↓
+  按 curv_mode 推进 u
+   ├─ ZN  → constJerkTime + constJerkU（解析积分）
+   ├─ NZ  → constJerkTime + constJerkU（时间反向）
+   └─ NN  → ResampleNN（Taylor 二阶展开）
+        ↓
+  u > 1?
+   ├─ 否 → isOutsideRange=false，更新 state，go_next=false
+   └─ 是 → isOutsideRange=true
+            ├─ NN → GL估算Tr + Taylor二次方程精确根 → state.dt = dt-Tr
+            ├─ ZN → constJerkTime 解析根             → state.dt = dt-Tr
+            └─ NZ → startZeroStopTime()（启动停留计数）
+        ↓
+  u ≥ 1 → go_next=true（外层切换下一曲线）
+```
 
 ---
 
