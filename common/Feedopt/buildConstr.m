@@ -119,24 +119,56 @@ for k = 1 : Nwindow
     %   r1D : [Ndim × M] 一阶导数（切线方向，未归一化）
     %   r2D : [Ndim × M] 二阶导数（曲率相关）
     %   r3D : [Ndim × M] 三阶导数（跃度相关，buildConstr 内未直接使用）
-    [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, windowCurv( k ), u_vec );
+    [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, windowCurv( k ), u_vec ); %u_vec 1*M
     ctx.kin = ctx.kin.set_tool_length( -windowCurv( k ).tool.offset.z );
 
     if( windowCurv( k ).Info.TRAFO )
-        % ── 运动学变换模式（5 轴机）──────────────────────────────────────
-        % 笛卡尔空间的速度/加速度需转换为关节空间，再施加关节约束。
-        % ctx.kin.joint 利用雅可比矩阵将笛卡尔导数映射到关节导数：
-        %   r1D_a（关节）= J(q) × r1D_cart，J 为正运动学雅可比
+        % ── 运动学变换模式（TRAFO=true，5 轴机，工件坐标模式）─────────────
+        %
+        % G 代码坐标系：TRAFO=true 时，G 代码中的 (X,Y,Z) 已是刀尖在工件坐标
+        %   系中的笛卡尔位置，(A/B/C) 是刀轴方向角。
+        %   → EvalCurvStruct 读出的 r1D 已经是工件坐标下的笛卡尔导数。
+        %
+        % 进给率约束（F 指令）：F 指定刀尖路径速度，定义在工件坐标系中，
+        %   r1D 本身已是工件坐标导数，vecnorm(r1D) 直接给出路径速度方向模长。
+        %   → r1D_r = r1D （无需额外变换）
+        %
+        % 加速度/跃度约束：机床驱动器的 amax/jmax 作用于各关节轴的物理运动。
+        %   五轴机的旋转轴（B/C）导致笛卡尔运动与关节运动存在耦合，
+        %   必须通过逆雅可比将工件坐标导数映射到关节空间：
+        %     v_joint  = J_jt(q) × v_cart          （一阶：逆雅可比）
+        %     a_joint  = J_jt×a_cart + dJ_jt/dt×v_cart （二阶：含雅可比时间导数）
+        %   ctx.kin.joint 封装了上述变换（同时处理 1~3 阶导数）。
+        %   → r1D_a, r2D_a 是关节空间下的等效导数，用于 Acc 矩阵
         [ ~, r1D_a, r2D_a ] = ctx.kin.joint( r0D, r1D, r2D, r3D );
-        r1D_r = r1D; % 进给率约束仍在笛卡尔空间（F 指令作用于工件坐标）
+        r1D_r = r1D; % 进给率约束直接用工件坐标导数
     else
-        % ── 非变换模式（3 轴机）──────────────────────────────────────────
-        % 无需坐标变换，笛卡尔导数直接用于约束。
-        % ctx.kin.v_relative 计算相对速度（考虑工具/工件运动的合成）
+        % ── 关节坐标模式（TRAFO=false，3 轴机或关节坐标编程）─────────────
+        %
+        % G 代码坐标系：TRAFO=false 时，G 代码中的 (X,Y,Z,B,C) 是机床各关节
+        %   轴的运动量（关节坐标），不是刀尖在工件坐标系中的位置。
+        %   → EvalCurvStruct 读出的 r1D 各行是各关节轴对参数 u 的导数（关节速度方向）。
+        %
+        % 加速度/跃度约束：约束天然在关节空间中，r1D/r2D 无需变换。
+        %   → r1D_a = r1D, r2D_a = r2D （直接复用）
+        %
+        % 进给率约束（F 指令）：F 指定刀尖在工件坐标系中的路径速度，
+        %   但 r1D 是关节空间导数，不能直接取 vecnorm 得路径速度。
+        %   需要通过正运动学雅可比将关节速度映射到刀尖工具空间速度：
+        %     v_tool = J_tj(q) × v_joint    （5×5 正雅可比，由符号工具箱自动生成）
+        %   J_tj 包含 cos(B)/sin(B)/cos(C)/sin(C) 和机床几何偏置项，
+        %   当旋转轴 B/C 处于非零角度时，关节运动与刀尖工件坐标运动不等比。
+        %   ctx.kin.v_relative 封装了逐点计算 J_tj × r1D 的操作。
+        %   → r1D_r = v_relative(r0D, r1D)：刀尖相对工件坐标的实际速度方向
         [ r1D_r ] = ctx.kin.v_relative( r0D, r1D );
-        r1D_a     = r1D;   % 加速度约束在笛卡尔空间
+        r1D_a     = r1D;   % 关节空间导数直接用于加速度约束
         r2D_a     = r2D;
     end
+    %
+    % 三个导数变量的后续用途汇总：
+    %   r1D_r → 编程进给率速度上限（F 指令，vecnorm 取工件坐标路径速度模长）
+    %   r1D_a → 各轴速度上限（vmax）+ 加速度约束矩阵 Acc(:,:,1)
+    %   r1D   → 连续性等式约束 Acc(:,:,2)（始终笛卡尔/工件坐标，几何连续性无关坐标系）
 
     % 切线单位向量（起端和末端）：用于切向加速度的投影
     %   t = r'(u) / |r'(u)|，在起端（u=0）和末端（u=1）各取一个
@@ -184,9 +216,9 @@ for k = 1 : Nwindow
     %   第三维 2：用于等式约束中的切向加速度（r1D / r2D，原始笛卡尔坐标）
     for j = 1 : Ndim
         ind = int32( 1 : M ) + ( j - 1 ) * M;
-        % 第三维 1：用于不等式约束
+        % 第三维 1：用于不等式约束，轴上的加速度约束
         Acc( ind, :, 1 ) = r2D_a( j, : )' .* BasisVal + 0.5 * r1D_a( j, : )' .* BasisValD;
-        % 第三维 2：用于连续性等式（切向加速度投影，在原始笛卡尔坐标下计算）
+        % 第三维 2：用于连续性等式（切向加速度投影，在原始笛卡尔坐标下计算）【原始笛卡尔空间下的加速度】
         Acc( ind, :, 2 ) = r2D( j, : )'   .* BasisVal + 0.5 * r1D( j, : )'   .* BasisValD;
     end
 
@@ -203,6 +235,7 @@ for k = 1 : Nwindow
     %   │ 行 2M+1  ~ 2M+M*Ndim  :  Acc(:,:,1)≤  b_amax   （加速度上）  │
     %   │ 行 2M+M*Ndim+1 ~ end : -Acc(:,:,1) ≤  b_amax   （加速度下）  │
     %   └─────────────────────────────────────────────────────────────┘
+    % Nc = ( 2 + 2 * Ndim )
     indAL   = int32( 1 : Nc * M ) + ( k - 1 ) * Nc * M;
     indAC   = int32( 1 : N )      + ( k - 1 ) * N;
     A( indAL, indAC ) = [ BasisVal; -BasisVal; Acc(:,:,1); -Acc(:,:,1) ];
@@ -260,32 +293,71 @@ end
 %   （等效于：Aeq_end·x = v_1² 和 at_1，因为 Aeq_end 中已含 -1 符号）
 beq( [1, 2, end-1, end] ) = [ v_0^2; at_0; v_1^2; at_1 ] .* mask_continuity;
 
-% ── 速度/加速度斜坡（Ramp）：抑制窗口末尾过优化 ──────────────────────────
+% ── 速度/加速度斜坡（Ramp）：放宽窗口末尾约束以保留速度余量 ──────────────
 %
-% 问题：滑动窗口 LP 每次只"提交"第一段的解，末尾段下次会重新优化。
-%   若不加限制，末尾段的约束被充分利用（满载），当新曲线加入窗口时
-%   可能出现急剧减速，导致轨迹不平滑。
+% 【问题根源】
+%   滑动窗口 LP 每次仅"提交"第一段（k=1）的解，其余段下次重新优化。
+%   若不干预，LP 会让末尾段的速度/加速度达到约束上限（满载）。
+%   当下一帧窗口右侧加入新曲线时，其真实约束可能更紧，
+%   迫使末尾段急剧减速 → 轨迹速度出现不平滑突变。
 %
-% 解决：对末尾段的约束右端施加斜坡衰减（× ramp < 1），
-%   人为收紧末尾约束，使 LP 解在窗口末尾预留"余量"，
-%   新曲线加入时不会出现剧烈速度变化。
+% 【解决方案】
+%   对末尾段的约束右端 b 乘以 ramp > 1，人为放宽约束上限，
+%   使 LP 解在窗口后半段倾向于"留有余地"，不把约束用满。
+%   下一帧到来时，末尾段有足够调整空间，速度过渡平滑。
 %
-% vel_ramp：从 1 线性增长到 VEL_RAMP_OVER_WINDOWS（> 1），
-%   对应 f_max 乘以 > 1 的系数 → 末尾速度约束被放松（允许更高速）？
-%   实际上 ramp 用于乘以 b（右端向量），b = f_max'（速度上限）被放大，
-%   即末尾速度上限更宽松，LP 有更多自由度。
-% acc_ramp：同理，末尾加速度约束上限也被放宽。
+% 【vel_ramp / acc_ramp 的形状】
+%
+%   vel_ramp = linspace(1, VEL_RAMP, M)'    → [M × 1]
+%     第 1 行（u=0 处）系数 = 1，末行（u=1 处）系数 = VEL_RAMP
+%     段内从起端到末端线性增大，仅用于速度上限约束（b 中速度列）
+%
+%   acc_ramp = repmat(linspace(1,ACC_RAMP,M)', 1, Nc-1) → [M × (Nc-1)]
+%     同样从 1 线性增到 ACC_RAMP，横向复制 Nc-1 列，
+%     对应速度非负约束（1 列）+ 加速度上下限（2×Ndim 列）共 Nc-1 列
+%
+% 【ramp 矩阵的拼接（Nwindow=3，M=20，Nc=12 为例）】
+%
+%   ramp 尺寸：[M × (Nc × Nwindow)] = [20 × 36]
+%   按段横向拼接，每段占 Nc=12 列（对应 b 中该段的 Nc×M 个元素）：
+%
+%     列  1~12  → 段 k=1（第一段，将被提交）
+%       全 ones(M,Nc)：不施加 ramp，约束保持真实物理上限
+%
+%     列 13~24  → 段 k=2（Nwindow=3 时为中间段）
+%       [vel_ramp, acc_ramp]：段内从 1 线性增到 VEL_RAMP/ACC_RAMP
+%       第 1 列（速度上限）= vel_ramp；第 2~12 列（其余约束）= acc_ramp
+%
+%     列 25~36  → 段 k=3（末尾段）
+%       repmat([vel_ramp(end), acc_ramp(end,:)], M, 1)
+%       全行统一用最大斜坡值（VEL_RAMP/ACC_RAMP），约束最宽松
+%
+%   当 Nwindow > 3 时，中间段（k=2 到 k=Nwindow-1）均用最大值统一放宽：
+%     repmat([vel_ramp(end), acc_ramp(end,:)], M, Nwindow-2)
+%     复制 Nwindow-2 列组，覆盖第 2 段到末尾段
+%
+%   各段 ramp 策略汇总：
+%     k=1       → 全 1（真实约束，提交段）
+%     k=2       → 线性斜坡（1 → 最大值，段内渐变）
+%     k=3~N     → 固定最大值（VEL_RAMP / ACC_RAMP，统一最宽松）
+%
+% 【b .* ramp(:) 的维度对齐】
+%
+%   b 是列向量 [Nc×M×Nwindow × 1]，在主循环中按段顺序填入。
+%   ramp(:) 按列优先展开同样得 [Nc×M×Nwindow × 1]。
+%   逐元素相乘：每行约束的上限 = 原上限 × 对应斜坡系数。
+%   注意 ramp 列优先展开顺序与 b 的行排列一致（段内先按点、再按约束类型）。
 vel_ramp = linspace( 1, ctx.cfg.opt.VEL_RAMP_OVER_WINDOWS, M )';
 acc_ramp = repmat( linspace( 1, ctx.cfg.opt.ACC_RAMP_OVER_WINDOWS, M )', 1, Nc-1 );
 
 if( Nwindow > 1 )
-    % ramp 的结构：
-    %   第 1 段（k=1）：不施加斜坡（全 1），因为这段会被"提交"
-    %   末尾段（k=Nwindow）：施加斜坡（vel_ramp / acc_ramp）
-    %   中间段：末尾值（最大斜坡），统一放宽
+    % 拼接 ramp：[M × Nc×Nwindow]
+    %   列 1~Nc        : 段 k=1，全 1（提交段不放宽）
+    %   列 Nc+1~2*Nc   : 段 k=2，线性斜坡（1 → 最大值）
+    %   列 2*Nc+1~end  : 段 k=3~N，统一最大值（Nwindow-2 组）
     ramp = [ ones(M, Nc), vel_ramp, acc_ramp, ...
              repmat( [vel_ramp(end), acc_ramp(end,:)], M, Nwindow-2 ) ];
-    b  = b .* ramp(:);
+    b  = b .* ramp(:);  % 逐元素放宽末尾约束上限
 end
 
 % ── 返回连续性行（供下一窗口使用）──────────────────────────────────────────
