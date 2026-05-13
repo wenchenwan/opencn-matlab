@@ -96,6 +96,7 @@ if ( ctx.k0 <= ctx.q_split.size )
 
         % 从 k0 取 NHorz 段构成前瞻窗口；遇 ZeroEnd 提前截断
         % → 保证窗口内速度约束可以在停顿边界处自然解耦
+        % 如果遇到零速边界，就终止窗口
         [ window, NWindow ] = feedratePlanningGetwindow( ctx.k0, ...
                                 ctx.cfg.NHorz, ctx.q_split );
 

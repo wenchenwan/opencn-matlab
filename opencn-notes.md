@@ -691,6 +691,7 @@ $$r''(u) = \theta^2\big(-\cos\varphi \cdot \vec{CP_0} - \sin\varphi \cdot (\hat{
 $$r'''(u) = \theta^3\big(\sin\varphi \cdot \vec{CP_0} - \cos\varphi \cdot (\hat{e}\times\vec{CP_0})\big)$$
 
 这里的关键点是：
+
 - 轴向分量 $\frac{\theta p}{2\pi}\hat{e}$ 是对 $u$ 的一次线性项，其二阶、三阶导数为 0；
 - 因此二阶、三阶导数仅来自圆周旋转部分；
 - 这也说明 Helix 在笛卡尔轴上的曲率与纯圆弧一致，旋转部分导数的模长为常数。
@@ -759,7 +760,7 @@ L = sum(Integrand .* diff(u_vec))                  % 中点法：Σ f(u_mid)*Δu
 
 ---
 
-**第一层：曲线类型本身的几何定义（天然归一化）**
+#### 第一层：曲线类型本身的几何定义（天然归一化）
 
 | 曲线类型 | 参数定义 | u=0 的几何含义 | u=1 的几何含义 |
 | --- | --- | --- | --- |
@@ -785,7 +786,7 @@ G-code 解析器（C++ rs274ngc）填写 R0/R1/theta/pitch/CoeffP5 等几何数�
 
 ---
 
-**第三层：参数窗口的更新操作**
+#### 第三层：参数窗口的更新操作
 
 归一化体系的核心是"**只更新窗口，不修改几何数据**"——曲线的几何参数（B 样条系数、R0/R1、theta 等）始终不变，子段通过修改 `a_param`/`b_param` 来声明自己使用原曲线参数空间的哪个子区间。
 
@@ -870,7 +871,7 @@ a_param + b_param - 1 <= eps        % 终点不超出 u=1
 
 ---
 
-**归一化的意义：数据只有一份，窗口可以无限细分**
+#### 归一化的意义：数据只有一份，窗口可以无限细分
 
 以 B 样条为例：压缩阶段把 100 条短直线拟合成一条 Spline（系数存入 `q_spline`），后续截取和分割可能把它切成 20 个子段。每个子段的 `CurvStruct` 都持有指向同一 B 样条的 `sp_index`，加上各自不同的 `(a_param, b_param)` 窗口。求值时，`EvalBSpline` 只操作控制点数组这一份数据，内存开销仅为 20 个 `(a, b)` 数对，而非复制 20 份系数。
 
@@ -927,7 +928,7 @@ $$w \leq \left(\frac{F_{\text{prog}}}{\|r'_{\text{cart}}(u)\|}\right)^2$$
 
 代码中 `v_max = min(v_max, [], 1)` 取逐点最小值作为最终上限 `f_max`。
 
-**组 2：速度非负**
+#### 组 2：速度非负
 
 $$-B(u) \cdot x_k \leq 0$$
 
@@ -1361,15 +1362,15 @@ basic_example    % 运行完整流程
 - [x] 已阅读（注释已添加）
 - 备注：`calcTransition` 中 `ret==6` 的情况（数值警告）被允许继续构造过渡曲线，这是经验性决策（代码注释中有 TODO）。最终检查 `all(p5 <= 0)` 是防止多项式系数退化。
 
-### `Feedopt/feedratePlanning.m`
+### `Feedopt/feedratePlanning.m` / `feedratePlanningSetupCurves.m` / `feedratePlanningGetwindow.m`
 
 - [x] 已阅读（注释已添加）
-- 备注：`persistent kopt` 跨调用保持窗口内游标。`zero_end=true` 路径（从 ctx.Coeff 直接分发）只在上次 LP 已求解整个窗口（含零速末端段）时进入。两次 LP 失败后强制插入零速停止（`feedratePlanningForceZeroStop`）是容错机制。
+- 备注：见下方"十六、进给率优化滑动窗口与边界条件"专题笔记。
 
-### `Feedopt/buildConstr.m`
+### `Feedopt/buildConstr.m` / `buildConstrJerk.m`
 
 - [x] 已阅读（注释已添加）
-- 备注：约束矩阵按曲线段分块对角排列。连续性等式约束用 `mask_continuity=[1;1;-1;-1]` 实现"前段末等于后段起"。窗口末端的速度/加速度斜坡（ramp）是为了避免 LP 只关注当前窗口末尾而忽略跨窗口连续性。
+- 备注：见下方"十八、LP 约束矩阵详解（buildConstr + buildConstrJerk）"专题笔记。`buildConstr` 构建速度+加速度约束（线性，第一阶段）；`buildConstrJerk` 在第一阶段解处线性化跃度约束（第二阶段）。跃度公式含三阶导 $r'''_j$ 和系数 1.5/0.5，来自对加速度公式 $a_j = r''_j \cdot f + 0.5 r'_j \cdot f'$ 再对时间求导展开。
 
 ### `Feedopt/FeedratePlanning_LP.m`
 
@@ -1386,10 +1387,10 @@ basic_example    % 运行完整流程
 - [x] 已阅读并添加详细注释
 - 备注：弧长截取系统。核心设计：截取只更新 `a_param`/`b_param` 参数映射，B 样条系数不变。Line/Helix 均匀参数化 → 解析截取（`Δu = L/‖r'‖`）；Spline/TransP5 → 两阶段弧长反演（cumsum 粗查断点区间 + bisection 精确反演，tol=1e-7，最多 1000 次迭代）。截取后右半段 `b_param > 0`，在 `smoothCurvStructs` 中用于跳过 G2 检查（截点天然连续）。`ZSpdMode` 更新规则：截点是内部点（N），各半段继承原曲线对应端的零速状态。`checkParametrisation` 验证 `a>0, b>=0, a+b<=1`。
 
-### `Feedopt/resampleCurv.m` / `resample4sampler.m` / `ResampleStateClass.m`
+### `Feedopt/resampleCurv.m` / `resample4sampler.m` / `resample2file.m` / `ResampleStateClass.m`
 
 - [x] 已阅读（注释已添加）
-- 备注：见下方"十五、重采样越界时刻计算"专题笔记。
+- 备注：见下方"十五、重采样越界时刻计算"和"十七、resample2file 详解"专题笔记。`resample2file` 与 `resample4sampler` 的主要区别是输出列数（5+4N vs N）和缓冲区大小（1E7 vs 1E4），段间无缝拼接机制相同。`computeUDerivative` 是关键辅助函数，根据 zspdmode 在 Coeff（NN/ZZ）和 ConstJerk（ZN/NZ）两条路径间切换。
 
 ### `bspline_*.m`
 
@@ -1470,18 +1471,18 @@ Taylor 展开是局部近似，仅在 `u_old` 附近精确。当 `v²(u)` 变化
 
 #### 数值稳定的二次方程求根
 
-**精度损失的根源：相近数相减（Catastrophic Cancellation）**
+#### 精度损失的根源：相近数相减（Catastrophic Cancellation）
 
 标准公式两根为 $r_{1,2} = (-b \pm \sqrt{\Delta}) / (2a)$。若 $b$ 与 $\sqrt{\Delta}$ 量级相近且符号可以相消，则 $(-b \pm \sqrt{\Delta})$ 中某一个在数学上接近零，但参与运算的两个数各自绝对值很大。以 64-bit 浮点为例：两个量级 $10^6$ 的数相减，结果若为 $10^{-2}$，则有效位数仅剩 $\approx 16 - 8 = 8$ 位，相对误差约 $10^{-8}$。
 
 具体到本方程 `a×Tr² + b×Tr + c = 0`，其中 `b = ud`（当前参数速度）：
 
-| 情形 | 危险的表达式 | 原因 |
+| 情形 | 危险的表达式 | 精度损失条件 |
 | --- | --- | --- |
-| `b > 0` | $-b + \sqrt{\Delta}$ | $-b < 0$，$\sqrt{\Delta} > 0$，当 $b \approx \sqrt{\Delta}$ 时两项相消 |
-| `b ≤ 0` | $-b - \sqrt{\Delta}$ | $-b \geq 0$，$-\sqrt{\Delta} < 0$，当 $|b| \approx \sqrt{\Delta}$ 时两项相消 |
+| `b > 0` | $-b + \sqrt{\Delta}$ | $b \approx \sqrt{\Delta}$ 时两项符号相反且量级相近，相消损失有效位 |
+| `b ≤ 0` | $-b - \sqrt{\Delta}$ | $\lvert b \rvert \approx \sqrt{\Delta}$ 时两项符号相反且量级相近，相消损失有效位 |
 
-**规避方法：Vieta 定理 + 共轭形式**
+#### 规避方法：Vieta 定理 + 共轭形式
 
 由韦达定理（Vieta），两根之积满足：
 
@@ -1608,11 +1609,509 @@ resampleCurv 调用
 
 ---
 
+## 十六、进给率优化滑动窗口与边界条件
+
+### 16.1 滑动窗口机制（Receding Horizon / MPC 风格）
+
+`feedratePlanning` 每次被外层调用时处理 `q_split` 中的第 `k0` 段，流程如下：
+
+```text
+调用1: k0=1  窗口=[1  2  3  4  5]  → LP → 只写段1的 Coeff，k0→2
+调用2: k0=2  窗口=  [2  3  4  5  6] → LP → 只写段2的 Coeff，k0→3
+调用3: k0=3  窗口=    [3  4  5  6  7]→ LP → 只写段3的 Coeff，k0→4
+```
+
+每次 LP 求解 NHorz 段的联合最优，但只"提交"第一段的系数。后续段下次重新求解，吸收新加入窗口右侧的约束信息——这是 MPC 策略的核心：**用更多计算换取更好的前瞻性**。
+
+**窗口截断规则（`feedratePlanningGetwindow`）：** 遇到 ZeroEnd 段时提前截断窗口。零速停顿两侧的速度曲线完全解耦，无需跨停顿点联合优化。
+
+---
+
+### 16.2 两条执行路径
+
+#### 路径 A（正常路径，`~ctx.zero_end`）
+
+每次调用均重新求解 LP：
+
+```text
+feedratePlanningGetwindow  → 构造 NHorz 段的前瞻窗口（遇 ZeroEnd 截断）
+feedratePlanningSetupCurves → 剥离首/尾零速段，计算 v_0/at_0/v_1/at_1
+FeedratePlanning_LP        → 两阶段 LP（速度+加速度 → 加跃度约束）
+写入 opt_struct.Coeff(:,1)  → 只取第一列（当前 k0 段的系数）
+```
+
+LP 失败时调用 `feedratePlanningForceZeroStop` 在窗口内强制插入零速点，将问题拆分为两个更简单的子问题后再次求解。
+
+#### 路径 B（零速结束路径，`ctx.zero_end=true`）
+
+上一次路径 A 的 LP 已包含 ZeroEnd 段，将窗口内全部系数一次性存入 `ctx.Coeff`。后续若干次调用不再调用 LP，只按 `kopt` 游标逐列分发：
+
+```text
+kopt=1 → opt_struct.Coeff = ctx.Coeff(:,1)
+kopt=2 → opt_struct.Coeff = ctx.Coeff(:,2)
+...
+遇到 ZeroEnd 段本身 → 不写 Coeff（用 ConstJerk），清除 zero_end，恢复路径 A
+```
+
+`persistent kopt` 跨调用保持游标：路径 A 每次 LP 成功后重置为 1；路径 B 跨调用持续递增。
+
+---
+
+### 16.3 边界条件 v_0 / at_0 的完整生命周期
+
+| 时机 | v_0 / at_0 来源 | 含义 |
+| --- | --- | --- |
+| 整个优化开始 | `cfg.v_0 = 0` / `cfg.at_0 = 0` | 从静止出发 |
+| zero_start=true | `calcZeroConstraints(curvS, isEnd=false)` | 零速段末端（与主段连接处）的速度/加速度 |
+| zero_start=false | 上一窗口 LP 解：`sqrt(continuity*Coeff(:,1))` | 上一窗口第一段末端速度/加速度，跨窗口连续性传递 |
+
+**跨窗口连续性传递（`FeedratePlanning_LP.m` 第 98–101 行）：**
+
+```matlab
+if( ~ctx.zero_start )
+    X        = continuity * Coeff(:, 1);   % 当前窗口第一段末端的连续性值
+    ctx.v_0  = mysqrt( X(1) );             % 速度范数 = sqrt(v²)
+    ctx.at_0 = X(2);                       % 切向加速度
+end
+```
+
+为什么取"第一段末端"而非"最后一段末端"？  
+滑动窗口每次只提交第一段的解，后续段下次重新求解。第一段末端就是下一个窗口的起点，因此传递它保证了**相邻窗口之间的 C¹ 连续性**（速度和加速度连续）。
+
+---
+
+### 16.4 零速段的处理分工
+
+| 零速段类型 | 速度剖面来源 | LP 是否写 Coeff | 边界条件作用 |
+| --- | --- | --- | --- |
+| ZeroStart（ZN） | `cutZeroStart → zeroSpeedCurv`，`ConstJerk` 预算 | 否（跳过写入） | 提供 v_0/at_0 给主段 LP |
+| ZeroEnd（NZ） | `cutZeroEnd → zeroSpeedCurv`，`ConstJerk` 预算 | 否（ConstJerk 驱动） | 提供 v_1=0 给主段 LP |
+| 普通段（NN） | LP 优化结果，写入 `Coeff` | 是 | — |
+
+ZeroStart/ZeroEnd 段的速度曲线形式：`u(k) = ConstJerk × k³ / 6`（恒定伪跃度），由分割阶段预算完毕，LP 不参与，插补时直接用 `constJerkU` 驱动。
+
+---
+
+### 16.5 完整调用流程图
+
+```text
+feedratePlanning（每次外层调用）
+        ↓
+  ctx.zero_end == false？
+   ├─ 是（路径A）
+   │    feedratePlanningGetwindow  → [window, NWindow]
+   │         ↓
+   │    feedratePlanningSetupCurves → 剥离零速段，更新 v_0/v_1/at_0/at_1
+   │         ↓
+   │    FeedratePlanning_LP        → [Coeff, success]
+   │         ↓ 失败？
+   │    feedratePlanningForceZeroStop → 强制插零速，再次 LP
+   │         ↓
+   │    opt_struct.Coeff = Coeff(:,1)（只写第一段）
+   │    ctx.v_0 = sqrt( continuity * Coeff(:,1) )（传给下一窗口）
+   │
+   └─ 否（路径B，zero_end=true）
+        opt_struct.Coeff = ctx.Coeff(:, kopt)（逐列分发）
+        kopt++
+        遇 ZeroEnd 段本身 → ctx.zero_end=false，恢复路径A
+```
+
+---
+
+## 十七、重采样详解：从 LP 结果到等时间步轨迹（resample2file）
+
+### 17.1 核心问题：参数域 → 时间域
+
+LP 优化输出的是**参数域**的进给率系数 `Coeff`，描述 $v^2(u)$（速度平方关于参数 $u$ 的 B 样条）。  
+采样器（插补器）需要**时间域**的等步长离散轨迹 $r(k \cdot dt)$。
+
+两者之间的桥梁是：
+
+$$\frac{du}{dt} = \frac{v(u)}{|r'(u)|} = \frac{\sqrt{v^2(u)}}{|r'(u)|}$$
+
+对此式做数值积分，即可从 $u$ 推进到下一时刻的 $u$：
+
+$$u(t+dt) \approx u(t) + \dot{u} \cdot dt + \frac{\ddot{u}}{2} \cdot dt^2$$
+
+其中 $\dot{u}, \ddot{u}, \dddot{u}$ 由 `calcUfromQ` 从 $v^2(u)$ 反推（链式法则）。
+
+---
+
+### 17.2 参数导数的两条计算路径（`computeUDerivative`）
+
+根据 `zspdmode` 选择不同路径：
+
+| zspdmode | 路径 | ud / udd / uddd 来源 |
+| --- | --- | --- |
+| NN / ZZ | B 样条 Coeff | `bspline_eval` 取 q/qd/qdd，再用 `calcUfromQ` 反推 |
+| ZN（零速起） | 恒定伪跃度 | `constJerkTime(u)` 反解时间 t → `constJerkU(t)` 解析求导 |
+| NZ（零速止） | 恒定伪跃度（反向） | 同上，`isEnd=true`，时间轴翻转 |
+
+**`calcUfromQ` 的链式法则推导（以 NN 路径为例）：**
+
+LP 决策变量是 $q = \dot{u}^2$（参数速度的平方），而非物理速度 $v^2$。二者关系：$v^2 = |r'|^2 \cdot \dot{u}^2$。由 $q$ 推参数导数：
+
+```text
+ud   = sqrt(q)                    q = ud² 开方
+udd  = qd / 2                     链式法则：d(ud)/dt = d(ud)/du × ud = qd/(2ud) × ud = qd/2
+uddd = (qdd/2) × ud               链式法则：d(udd)/dt = d(qd/2)/du × ud = (qdd/2) × ud
+```
+
+---
+
+### 17.3 CSV 输出格式（每行一个采样时间步）
+
+| 列 | 字段 | 单位 | 说明 |
+| --- | --- | --- | --- |
+| 1 | `t` | — | 全局时间步编号（从 1 起，× dt = 秒） |
+| 2 | `u_global` | [0, N] | 全局参数 = 局部 u + (k-1)，区分各段 |
+| 3 | `f_norm` | — | 归一化进给率（实际速度 / 指令进给率） |
+| 4 | `feed` | mm/s | 笛卡尔路径线速度 $\|v_{cart}\|$ |
+| 5 | `cf` | mm/min | 指令进给率（G-code FeedRate） |
+| 6 ~ 5+N | `r` | mm/rad | 各激活轴位置（N = NumberAxis） |
+| 6+N ~ 5+2N | `a` | — | 各轴加速度 / amax（归一化，≤1 表示满足约束） |
+| 6+2N ~ 5+3N | `j` | — | 各轴跃度 / jmax（归一化） |
+| 6+3N ~ 5+4N | `Pr0D` | mm/rad | 段坐标系（piece frame）下的轴位置 |
+
+---
+
+### 17.4 缓冲区与文件写入机制
+
+`resample2file` 的缓冲区容量为 `sizeBuffer = 1E7`（1000 万行）——比 `resample4sampler` 的 1E4 大三个量级，因为前者输出列数更多（4×N+5 vs N 列），需要更大预分配。
+
+```text
+ind 超过 sizeBuffer → write2files(firstTime, buffer, fileName)
+                         firstTime=true  → 覆盖写（writematrix 默认）
+                         firstTime=false → 追加写（WriteMode=append）
+                       ind 归 1，继续填充
+循环结束 → write2files(firstTime, buffer(1:ind,:))  写入剩余数据
+```
+
+---
+
+### 17.5 段间时间无缝拼接
+
+每段曲线处理完后用 `state.dt`（越界残差）初始化下一段：
+
+```matlab
+state = ResampleState( state.dt, ctx.cfg.DefaultZeroStopCount );
+```
+
+若当前段最后一步在时刻 `Tr` 越过 `u=1`，则 `state.dt = dt - Tr`（残差时间）。下一段首步从残差 `dt-Tr` 积分，而非完整 `dt`，保证整条轨迹的采样点严格等时间间隔：
+
+```text
+段k：  |──步1──|──步2──|──步3──Tr─→ 越界
+段k+1：                       |←dt-Tr→|──步1──|──步2──|...
+```
+
+注意：`resample4sampler` 用 `state.u=0; state.ud=0; state.go_next=false` 逐字段重置，而 `resample2file` 用 `ResampleState(state.dt,...)` 重新构造，两者效果等价但后者更简洁。
+
+---
+
+### 17.6 与 resample4sampler 的区别
+
+| 对比项 | `resample2file` | `resample4sampler` |
+| --- | --- | --- |
+| 输出列数 | 5 + 4×N（含 f_norm/feed/cf/a/j/Pr0D） | N（仅位置） |
+| 缓冲区 | 1E7 行 | 1E4 行 |
+| 段间初始化 | `ResampleState(state.dt, ...)` 重构 | 逐字段归零重置 |
+| 数值验证 | 有限差分验证 v/a/j 超限报警 | 无 |
+| 旋转轴换算 | 无（r 已是弧度） | 有（rad → deg） |
+| 使用场景 | MATLAB 分析 / 可视化 | 实时采样器 CSV |
+
+---
+
+## 十八、LP 约束矩阵详解（buildConstr + buildConstrJerk）
+
+### 18.1 决策变量与物理量的关系
+
+LP 的决策变量 $x$ 是**参数速度平方** $w(u) = \dot{u}^2$ 的 B 样条系数，而非物理速度平方：
+
+$$w(u) = \dot{u}^2 = \sum_{i=1}^{N} x_i \cdot B_i(u)$$
+
+物理速度与之的关系：$v^2 = |r'(u)|^2 \cdot w(u)$
+
+用 $w = \dot{u}^2$ 而非 $v^2$ 作决策变量的好处：加速度约束可以写成 $x$ 的**线性**函数（见 18.3 节），而用 $v^2$ 则会出现非线性项 $|r'|^{-1}$。
+
+---
+
+### 18.2 矩阵维度总览
+
+| 符号 | 含义 | 典型值 |
+| --- | --- | --- |
+| `M` | 每段离散点数 | 20（= NDiscr） |
+| `N` | 每段 B 样条基函数数 | 10（= NBreak + SplineDegree - 1） |
+| `Nwindow` | 窗口内曲线段数 | ≤ 5（= NHorz） |
+| `Ndim` | 激活轴数 | 5（xyzbc 五轴） |
+| `Nx` | 决策变量总数 | N × Nwindow = 50 |
+| `Nc` | 每点不等式行数 | 2 + 2×Ndim = 12 |
+| `Nec` | 等式约束总行数 | 2×(Nwindow+1) = 12 |
+| `A` 尺寸 | 不等式约束矩阵 | (Nc×M×Nwindow) × Nx = 1200×50 |
+| `Aeq` 尺寸 | 等式约束矩阵 | Nec × Nx = 12×50 |
+
+---
+
+### 18.3 不等式约束（A·x ≤ b）逐组推导
+
+#### 组 1：速度上限（1 行 × M 点 × Nwindow 段）
+
+**约束形式：** $B(u) \cdot x \leq f_{max}(u)$
+
+**推导：** 每轴速度约束 $|v_j(u)| \leq v_{max,j}$ 等价于：
+
+$$|r'_j(u)| \cdot \dot{u} \leq v_{max,j}
+\implies \dot{u}^2 \leq \left(\frac{v_{max,j}}{r'_j(u)}\right)^2$$
+
+取所有轴和编程进给率约束中的最小值：
+
+$$f_{max}(u) = \min_j \left(\frac{v_{max,j}}{r'_j(u)}\right)^2, \quad \left(\frac{F_{prog}}{|r'_{cart}(u)|}\right)^2$$
+
+**矩阵行：** 每个离散点一行，即 `BasisVal(m,:)·x ≤ f_max(m)`
+
+---
+
+#### 组 2：速度非负（1 行 × M 点 × Nwindow 段）
+
+**约束形式：** $-B(u) \cdot x \leq 0$
+
+等价于 $w(u) = \dot{u}^2 \geq 0$，保证 B 样条展开的速度平方不为负（理论上 LP 系数可以取负值导致物理上无意义）。
+
+---
+
+#### 组 3+4：加速度约束（2×Ndim 行 × M 点 × Nwindow 段）
+
+**物理加速度的链式法则：**
+
+$$a_j(t) = \frac{d^2 r_j}{dt^2} = r''_j(u) \cdot \dot{u}^2 + r'_j(u) \cdot \ddot{u}$$
+
+其中：
+
+- $\dot{u}^2 = w(u) = B(u) \cdot x$（决策变量）
+- $\ddot{u} = \frac{dw/du}{2} = \frac{B'(u) \cdot x}{2}$（由链式法则：$\ddot{u} = \frac{d\dot{u}}{dt} = \frac{dw/du}{2}$）
+
+代入：
+
+$$a_j(t) = r''_j(u) \cdot (B(u) \cdot x) + r'_j(u) \cdot \frac{B'(u) \cdot x}{2}
+= \underbrace{\left[r''_j(u) \cdot B(u) + \frac{r'_j(u)}{2} \cdot B'(u)\right]}_{= \text{Acc}_j(u)} \cdot x$$
+
+**约束形式（上下限）：**
+
+$$-a_{max,j} \leq \text{Acc}_j(u) \cdot x \leq a_{max,j}$$
+
+即：
+- 组 3（上限）：$\text{Acc}_j(u) \cdot x \leq a_{max,j}$
+- 组 4（下限）：$-\text{Acc}_j(u) \cdot x \leq a_{max,j}$
+
+**`Acc` 矩阵的两个版本（第三维）：**
+
+| 版本 | 用途 | 使用的几何量 |
+| --- | --- | --- |
+| `Acc(:,:,1)` | 不等式约束（加速度上下限） | `r1D_a / r2D_a`（关节坐标或笛卡尔坐标，取决于 TRAFO） |
+| `Acc(:,:,2)` | 等式约束中的切向加速度投影 | `r1D / r2D`（原始笛卡尔坐标，与 TRAFO 无关） |
+
+---
+
+### 18.4 等式约束（Aeq·x = beq）
+
+等式约束保证**相邻窗口/相邻段在连接点处的连续性**，约束量为：
+
+1. **速度²连续**：$|r'(u)|^2 \cdot w(u) = v^2$，在连接点处相等
+2. **切向加速度连续**：$\hat{t}(u)^\top \cdot a(u)$，在连接点处相等
+
+**Aeq 的行结构（Nec = 2×(Nwindow+1) 行）：**
+
+```text
+行 1   ← 第1段起端 v²  =  v_0²       （窗口左边界，beq[1] = +v_0²）
+行 2   ← 第1段起端 at  =  at_0       （窗口左边界，beq[2] = +at_0）
+行 3   ← 第1段末端 v²  = 第2段起端 v²（连续性，beq[3] = 0）
+行 4   ← 第1段末端 at  = 第2段起端 at（连续性，beq[4] = 0）
+行 5   ← 第2段末端 v²  = 第3段起端 v²
+...
+行Nec-1← 最后段末端 v²  = v_1²       （窗口右边界）
+行Nec  ← 最后段末端 at  = at_1
+```
+
+**`mask_continuity = [+1; +1; -1; -1]` 的作用：**
+
+对第 k 段，`continuity = [v²_start; at_start; v²_end; at_end]`（4行×N列），代码执行：
+
+```matlab
+Aeq(indAEL, indAEC) += continuity .* mask_continuity
+```
+
+展开：
+
+```text
+行 (k-1)*2+1 += +v²_start(k)   （第k段起端v²，系数 +1）
+行 (k-1)*2+2 += +at_start(k)   （第k段起端at，系数 +1）
+行 (k-1)*2+3 += -v²_end(k)     （第k段末端v²，系数 -1）
+行 (k-1)*2+4 += -at_end(k)     （第k段末端at，系数 -1）
+```
+
+相邻两段叠加后，连接点处的等式变为：`v²_end(k) - v²_start(k+1) = 0`，即连续性条件。
+
+---
+
+### 18.5 A 矩阵的块对角结构
+
+A 矩阵是**块对角矩阵**，第 k 段的约束块只涉及 `x(:,k)`（该段的 N 个系数），与其他段无耦合：
+
+```text
+A = diag_block(A_1, A_2, ..., A_Nwindow)
+
+      x_1    x_2    x_3  ...
+A = [ A_1    0      0    ...  ]  ← 段1的 Nc×M 行
+    [ 0      A_2    0    ...  ]  ← 段2的 Nc×M 行
+    [ 0      0      A_3  ...  ]  ← 段3的 Nc×M 行
+    ...
+```
+
+Aeq 矩阵是**带状结构**：每行最多涉及相邻两段（连续性方程），非零块沿对角线分布。
+
+---
+
+### 18.6 约束斜坡（Ramp）机制
+
+**问题根源：** 滑动窗口 LP 每次只"提交"第一段（k=1）的解，末尾段（k=Nwindow）下次重新求解。若末尾约束被完全用满（满载），当新曲线加入窗口右侧时，可能因新约束更紧而要求急剧减速，导致轨迹不平滑。
+
+**解决方案：** 对末尾段的约束右端 b 乘以斜坡系数（> 1），人为放宽约束上限，使 LP 在末尾预留速度"余量"：
+
+```text
+b = b .* ramp
+ramp 结构：
+  第1段（k=1）：全 1（不修改，这段会被提交）
+  末尾段（k=Nwindow）：vel_ramp（末端达 VEL_RAMP_OVER_WINDOWS）
+  中间段：末尾值（统一放宽）
+```
+
+**注意：** ramp > 1 放宽了 `b`（约束上限），意味着末尾段允许的最大速度比机器极限还高——这不会真正违反物理约束，只是让 LP 解在末尾偏保守，下一次窗口滑动时有更大的调整空间。
+
+---
+
+---
+
+### 18.7 跃度约束（buildConstrJerk）
+
+#### 18.7.1 为何跃度约束需要单独一个函数
+
+加速度约束（buildConstr 的组 3/4）是关于决策变量 $x$ 的**线性**函数，可以直接放入 LP。
+
+跃度（加速度对时间的导数）却不是——完整展开后含有 $v \cdot f$、$v \cdot f'$、$v \cdot f''$ 项，其中 $v = \sqrt{f} = \sqrt{B(u) \cdot x}$，这是 $x$ 的**非线性函数**（含平方根）。
+
+解决方案：**两阶段 LP**
+
+```text
+第一阶段（buildConstr）：
+  仅速度 + 加速度约束（线性）
+  → 求解得到初始解 coeff₀
+
+第二阶段（buildConstrJerk）：
+  在 coeff₀ 处将 v = sqrt(B·coeff₀) 视为已知常数（线性化）
+  → 跃度约束变为线性，再次求解 LP
+```
+
+线性化的代价是：跃度约束只在 `coeff₀` 附近精确成立。但实际上速度剖面变化较平滑，一次线性化已足够精确。
+
+---
+
+#### 18.7.2 跃度的完整链式法则推导
+
+**记号：**
+
+$$f = B(u) \cdot x, \quad f' = B'(u) \cdot x, \quad f'' = B''(u) \cdot x, \quad v = \sqrt{f} = \dot{u}$$
+
+**第一步：从 $f$ 反推参数导数**（与 `calcUfromQ` 一致）
+
+$$\dot{u} = v = \sqrt{f}$$
+
+$$\ddot{u} = \frac{d\dot{u}}{dt} = \frac{df'/du \cdot \dot{u}}{2\dot{u}} = \frac{f'}{2}$$
+
+$$\dddot{u} = \frac{d\ddot{u}}{dt} = \frac{d(f'/2)}{du} \cdot \dot{u} = \frac{f''}{2} \cdot v$$
+
+**第二步：笛卡尔加速度（复习 buildConstr）**
+
+$$a_j = r''_j \cdot f + 0.5 \cdot r'_j \cdot f'$$
+
+**第三步：对时间再求导得跃度**
+
+$$\text{jerk}_j = \frac{da_j}{dt} = \frac{d}{dt}\bigl[r''_j \cdot f + 0.5 \cdot r'_j \cdot f'\bigr]$$
+
+展开（$r'_j, r''_j$ 也是 $u$ 的函数，需链式法则）：
+
+$$= r'''_j \cdot \dot{u} \cdot f + r''_j \cdot f' \cdot \dot{u} + 0.5 \cdot r''_j \cdot \dot{u} \cdot f' + 0.5 \cdot r'_j \cdot f'' \cdot \dot{u}$$
+
+$$= v \cdot \bigl[r'''_j \cdot f + (1 + 0.5) \cdot r''_j \cdot f' + 0.5 \cdot r'_j \cdot f''\bigr]$$
+
+$$= v \cdot \underbrace{\bigl[r'''_j \cdot B(u) + 1.5 \cdot r''_j \cdot B'(u) + 0.5 \cdot r'_j \cdot B''(u)\bigr]}_{\text{Jerk}_j(u)} \cdot x$$
+
+**线性化：** 用第一阶段解 $\text{coeff}_0$ 代入求 $v_0(u) = \sqrt{B(u) \cdot \text{coeff}_0}$，视为常数：
+
+$$\text{jerk}_j \approx v_0(u) \cdot \text{Jerk}_j(u) \cdot x \quad \Longrightarrow \quad \text{线性约束}$$
+
+---
+
+#### 18.7.3 与加速度约束的对比（按维度）
+
+| 对比项 | 加速度约束（buildConstr 组3/4） | 跃度约束（buildConstrJerk） |
+| --- | --- | --- |
+| 推导阶次 | $r''_j \cdot f + 0.5 \cdot r'_j \cdot f'$ | $v \cdot [r'''_j \cdot f + 1.5 \cdot r''_j \cdot f' + 0.5 \cdot r'_j \cdot f'']$ |
+| 几何量 | $r'_j$（一阶导）、$r''_j$（二阶导） | $r'_j$、$r''_j$、**$r'''_j$（三阶导）** |
+| 基函数 | BasisVal、BasisValD | BasisVal、BasisValD、**BasisValDD** |
+| 线性性 | 天然线性（直接加入 LP） | 非线性（含 $\sqrt{f}$），需线性化 |
+| 线性化方式 | 无需 | $v = \sqrt{B \cdot \text{coeff}_0}$ 固定为常数 |
+| 约束行数/点 | $2 \times \text{Ndim}$ 行 | $2 \times \text{Ndim}$ 行（相同） |
+| 所处 LP 阶段 | 第一阶段 | 第二阶段 |
+
+---
+
+#### 18.7.4 完整两阶段约束矩阵拼接
+
+`FeedratePlanning_LP` 中两阶段约束的拼接方式：
+
+```text
+第一阶段约束（A, b）：
+  ┌──────────────────────────────────────────┐
+  │ 组1：速度上限    BasisVal · x ≤ f_max    │  M × Nwindow 行
+  │ 组2：速度非负   -BasisVal · x ≤ 0        │  M × Nwindow 行
+  │ 组3：加速度上限  Acc · x ≤ amax          │  Ndim×M × Nwindow 行
+  │ 组4：加速度下限 -Acc · x ≤ amax          │  Ndim×M × Nwindow 行
+  └──────────────────────────────────────────┘
+  Aeq · x = beq（连续性 + 边界）             │  2×(Nwindow+1) 行
+
+第二阶段约束（A + Aj 垂直拼接，b + bj）：
+  ┌──────────────────────────────────────────┐
+  │ 组1~4：同第一阶段（速度 + 加速度）         │
+  ├──────────────────────────────────────────┤
+  │ 组5：跃度上限   Jerk · x ≤ jmax          │  Ndim×M × Nwindow 行
+  │ 组6：跃度下限  -Jerk · x ≤ jmax          │  Ndim×M × Nwindow 行
+  └──────────────────────────────────────────┘
+  Aeq · x = beq（与第一阶段相同）
+```
+
+---
+
+#### 18.7.5 约束行数汇总（5 轴机，M=20，Nwindow=5 为例）
+
+| 约束组 | 行数公式 | 具体值 |
+| --- | --- | --- |
+| 速度上限 | $M \times \text{Nwindow}$ | 100 |
+| 速度非负 | $M \times \text{Nwindow}$ | 100 |
+| 加速度上限 | $\text{Ndim} \times M \times \text{Nwindow}$ | 500 |
+| 加速度下限 | $\text{Ndim} \times M \times \text{Nwindow}$ | 500 |
+| **第一阶段合计** | $(2+2\text{Ndim}) \times M \times \text{Nwindow}$ | **1200** |
+| 跃度上限 | $\text{Ndim} \times M \times \text{Nwindow}$ | 500 |
+| 跃度下限 | $\text{Ndim} \times M \times \text{Nwindow}$ | 500 |
+| **第二阶段合计** | $(2+4\text{Ndim}) \times M \times \text{Nwindow}$ | **2200** |
+| 等式约束 | $2 \times (\text{Nwindow}+1)$ | 12 |
+| **决策变量数** | $N \times \text{Nwindow}$ | $N \times 5$ |
+
+---
+
 ## 十四、疑问与待确认
 
 - [ ] `ctx.go_next` 和 `ctx.try_push_again` 的实际作用区别？（`try_push_again` 注释标注已废弃）
 - [ ] `ctx.Skipped` / `ctx.forced_stop` 字段的用途？（初始化注释中均标注为"历史遗留/用途不明"）
 - [ ] `ZSpdMode` 枚举的完整语义：`ZZ`（起止均零速）、`ZN`（零速起 → 正常末）、`NZ`（正常起 → 零速末）、`NN`（全程非零速）—— 换刀时如何触发这四种模式？
 - [ ] 优化窗口 `NHorz=5` 的滑动策略：每次取第 k0 段开始的 5 段，但只提取第 k0 段的解。这是否意味着同一段会被多次求解（但只用第一次的结果）？
-- [ ] `buildConstrJerk` 的线性化方法：跃度约束本身是非线性（含 v³），如何在第一阶段解的基础上做 Taylor 线性化？需要读 `buildConstrJerk.m`。
+- [x] `buildConstrJerk` 的线性化方法：见十八章 18.7 节，通过将第一阶段解 $v_0=\sqrt{B\cdot\text{coeff}_0}$ 视为常数，将非线性跃度约束线性化为 LP 可用形式。
 - [ ] `calcTransition` 中 `ret==6` 的触发条件？（G2_Hermite 内部何时返回 6？）
