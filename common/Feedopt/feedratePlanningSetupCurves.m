@@ -39,6 +39,39 @@ function [ ctx, window, NWindow ] = feedratePlanningSetupCurves( ...
 %     v_1  = -cfg.v_1（配置中预设的终端速度约束）
 %     at_1 = -cfg.at_1
 %
+% 【ctx.v_1 / ctx.at_1 的完整生命周期（三个来源）】
+%
+%   来源1 — 初始化（initFeedoptPlan）：
+%     ctx.v_1 = cfg.v_1 = 0;  ctx.at_1 = cfg.at_1 = 0
+%     整个路径规划开始时设为零（默认终端静止）。
+%
+%   来源2 — 本函数（feedratePlanningSetupCurves）：
+%     zero_end=true：
+%       ctx.v_1 = -v_1;  ctx.at_1 = -at_1
+%       （v_1、at_1 来自 calcZeroConstraints，即恒定跃度曲线的连接点速度/加速度）
+%     zero_end=false（普通中间窗口）：
+%       ctx.v_1 = -cfg.v_1 = 0;  ctx.at_1 = -cfg.at_1 = 0
+%       ← MPC"保守停止"策略：LP 假设窗口末端需要减速到零；
+%         但实际上只提交第一段系数，下一个窗口重新规划，
+%         因此整体轨迹在窗口边界处是平滑连续的，并不会真正停下。
+%
+%   来源3 — LP 约束松弛（FeedratePlanning_LP / relax_intial_constraints）：
+%     LP 求解失败时，将零速曲线的 ConstJerk 减半重试。
+%     松弛成功后用新的连接点速度更新：
+%       ctx.v_1 = -vNorm;  ctx.at_1 = -atNorm
+%     这保证写入 q_split 的曲线与 LP 约束中的边界条件始终一致。
+%
+% 【负号约定：为何 ctx.v_1 / ctx.at_1 存储为负值？】
+%
+%   buildConstr.m 构造 Aeq 时，末端边界行由 mask_continuity = [-1, -1] 决定：
+%
+%     beq([end-1, end]) = [v_1^2; at_1] .* mask_continuity
+%                       = [-ctx.v_1^2;  ctx.at_1] * (-1)    （两处负号相消）
+%                       = [v_actual^2; at_actual]
+%
+%   因此 ctx.v_1 = -v_actual（以正值的负数存储），和 mask_continuity 的 -1
+%   结合后恢复出正确的物理约束（末端速度平方 = v_actual²）。
+%
 % Inputs / Outputs :
 %   ctx     : 计算链上下文（zero_start / zero_end / v_0 / at_0 / v_1 / at_1 更新）
 %   window  : 窗口内的曲线数组（前后零速段被剥离后的主段数组）
@@ -79,15 +112,20 @@ if( ctx.zero_start )
 end
 
 if( ctx.zero_end )
-    % 在主段与终止零速段的连接点（u=0 of curvE）处计算速度和加速度
-    % 取负值：LP 形式中右端边界条件以 -v_1 形式参与约束
+    % 在主段与终止零速段的连接点（u=0 of curvE）处计算速度和加速度。
+    % isEnd=true → calcZeroConstraints 以 k=0 为连接点（恒定跃度曲线起始端）。
+    % 取负值存储：ctx.v_1 = -v_actual，与 mask_continuity=[-1,-1] 组合后恢复正确约束
+    %   见 buildConstr.m: beq(end-1) = v_1^2 * mask(end-1) = (-v_actual)^2 * (-1) = -v_actual^2 ✗
+    %   实际写法：beq(end-1) = ctx.v_1^2 → 注意 LP 中速度平方已是正值，负号在 ctx.v_1 层。
     [ v_1, at_1 ]   = calcZeroConstraints( ctx, last, true );
-    ctx.v_1         = -v_1;
+    ctx.v_1         = -v_1;    % 负号适配 buildConstr 的 mask_continuity 符号约定
     ctx.at_1        = -at_1;
 else
-    % 无零速终止段：使用配置中预设的终端速度约束
-    ctx.v_1         = -ctx.cfg.v_1;
-    ctx.at_1        = -ctx.cfg.at_1;
+    % 无零速终止段（普通中间窗口）：采用 MPC "保守停止" 策略。
+    % cfg.v_1=0 令 LP 假设窗口末端必须减速到零，但实际只提交第一段系数，
+    % 下一窗口重新规划，整体轨迹在窗口边界平滑衔接而不会真正停止。
+    ctx.v_1         = -ctx.cfg.v_1;   % = 0（保守终端约束）
+    ctx.at_1        = -ctx.cfg.at_1;  % = 0
 end
 
 end

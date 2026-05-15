@@ -110,6 +110,9 @@ $$r(t) = \sum_{i=0}^{n} N_{i,p}(t) \cdot P_i, \quad t \in [t_p, t_{n+1}]$$
 矩阵形式（在 M 个离散点 $t_1, \ldots, t_M$ 处）：
 
 $$\begin{bmatrix} r(t_1) \\ \vdots \\ r(t_M) \end{bmatrix} = \underbrace{\begin{bmatrix} N_{0,p}(t_1) & \cdots & N_{n,p}(t_1) \\ \vdots & & \vdots \\ N_{0,p}(t_M) & \cdots & N_{n,p}(t_M) \end{bmatrix}}_{\text{BasisVal} \in \mathbb{R}^{M \times (n+1)}} \cdot \underbrace{\begin{bmatrix} P_0 \\ \vdots \\ P_n \end{bmatrix}}_{\text{coeff}}$$
+**其中BasisVal中的某一行的每一列数值表示每个控制点对当前节点数值对应的值的贡献；**
+
+**每一行表示对应节点下的路径点，不同控制点对应的权重数值；**
 
 OpenCN 代码中：
 

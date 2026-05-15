@@ -41,6 +41,7 @@ CurvArray   = window( 1 : NWindow );    % 当前窗口的曲线数组
 % 计算长度缩放矩阵 D（用于改善 LP 数值条件数）
 [ D, Dinv ] = compute_scaling_matrix( ctx, CurvArray, N );
 DCon        = D( [ 1 : N ], [ 1 : N ] ); % 单段缩放矩阵（用于连续性方程）
+% 连续性约束检查时候只取第一段末端的连续性值
 
 % 构造目标函数：f = -∫B(u)du（最大化速度积分 = 最小化时间）
 % BasisIntegr 是每个 B 样条基函数在 [0,1] 上的积分值
@@ -298,34 +299,87 @@ while( ~success && count < maxIter )
     count = count + 1;
 end
 
-% 将松弛后的曲线写回队列，并更新上下文的边界条件
+% 将松弛后的曲线写回队列，并同步更新上下文边界条件。
+% 必须保证 q_split 中曲线的 ConstJerk（决定连接点速度）与 LP 约束中的
+% v_1/at_1 一致，否则后续窗口的起始约束将与已存曲线矛盾。
+%
+% 负号约定（isEnd=true 路径）：
+%   ctx.v_1 = -vNorm  → 存储为负值；在 buildConstr 中与 mask_continuity=-1 相乘
+%   得到 beq(end-1) = ctx.v_1^2，符号正确（见 feedratePlanningSetupCurves 注释）。
 ctx.q_split.set( indCurv, curv );
 if( isEnd )
-    ctx.at_1 = -atNorm;
-    ctx.v_1  = -vNorm;
+    ctx.at_1 = -atNorm;   % 来源3：LP松弛后的末端切向加速度（负值存储）
+    ctx.v_1  = -vNorm;    % 来源3：LP松弛后的末端速度范数（负值存储）
 else
-    ctx.at_0 = atNorm;
-    ctx.v_0  = vNorm;
+    ctx.at_0 = atNorm;    % 来源3：LP松弛后的起端切向加速度（正值存储，符号与 mask 一致）
+    ctx.v_0  = vNorm;     % 来源3：LP松弛后的起端速度范数
 end
 
 end
 
 function [ D, Dinv ] = compute_scaling_matrix( ctx, curvArray, NCoeff )
-% 计算决策变量的对角缩放矩阵 D（用于改善 LP 数值稳定性）
-% 若 USE_LENGTH_SCALING=true，按各段弧长平方缩放；否则为单位矩阵
+% compute_scaling_matrix : 构造决策变量的对角缩放矩阵，改善 LP 数值条件数
+%
+% ═══════════════════════════════════════════════════════════════════════════
+% 【为何需要缩放：ud² 的量级与弧长 L² 成反比】
+%
+%   LP 的决策变量 x 是各段的 B 样条系数，编码参数速度平方 ud²(u)。
+%   ud 与物理速度 v 的关系：
+%
+%       v = |r'(u)| × ud       （物理速度 = 几何导数模 × 参数速度）
+%
+%   对 u ∈ [0,1] 的曲线：∫₀¹ |r'(u)| du = L（弧长），故 |r'(u)| ≈ L，因此：
+%
+%       ud = v / L   →   ud² = v² / L²
+%
+%   同一物理速度 v 下，不同弧长的曲线段对应差异悬殊的 ud²：
+%
+%       L = 1mm：   ud² ≈ v²/1²    = v²          （量级大）
+%       L = 100mm： ud² ≈ v²/100²  = v²/10000    （量级小，差 10000 倍）
+%
+%   这导致约束矩阵 A 的各列（对应不同段的系数）范数相差极大，
+%   LP 求解器在高斯消元时小量被大量"淹没"，条件数恶化，丢失有效位数。
+%
+% ═══════════════════════════════════════════════════════════════════════════
+% 【缩放策略：变量替换 x̃ = x × L²，使所有变量量级统一为 v²】
+%
+%   令 x_solver = x_original × L²，即 x_original = D × x_solver（D = diag(1/L²)）
+%
+%       x_solver = ud² × L² ≈ (v²/L²) × L² = v²   → 量级与段长无关！
+%
+%   变量替换同步作用于目标函数和约束矩阵：
+%
+%       原 LP:    min  f' × x_orig        s.t.  A × x_orig ≤ b
+%       代入替换:  min (f' × D) × x_solver  s.t. (A × D) × x_solver ≤ b
+%
+%   求解后反变换恢复原始系数：
+%
+%       x_original = D × x_solver   （代码中：Coeff = D × Coeff_solver）
+%
+% ═══════════════════════════════════════════════════════════════════════════
+% Inputs :
+%   ctx       : 上下文
+%   curvArray : 当前优化窗口的曲线数组（共 N 段）
+%   NCoeff    : 每段 B 样条系数个数
+%
+% Outputs :
+%   D    : 对角矩阵 diag(1/L²)，用于右乘约束矩阵（A←A×D, f←f×D）
+%   Dinv : 对角矩阵 diag(L²)，求解后反变换恢复原始系数
+%
     N = length( curvArray );
 
     if( ctx.cfg.opt.USE_LENGTH_SCALING )
         lCurvs = zeros( NCoeff, N );
         for ind = 1 : N
+            % 每段的 NCoeff 个系数共享同一弧长 L（每段内各系数的 ud² 量级相同）
             lCurvs( :, ind ) = ones( NCoeff, 1 ) * LengthCurv( ctx, ...
                 curvArray( ind ), 0, 1 );
         end
-        t = lCurvs( : ).^2;
+        t = lCurvs( : ).^2;   % t_i = L_k²（第 k 段第 i 个系数对应的 L²）
     else
-        t = ones( N * NCoeff, 1 ); % 不缩放：D = I
+        t = ones( N * NCoeff, 1 ); % 不缩放：D = I（调试或短路径场景）
     end
 
-    D    = diag( 1 ./ t );  % 缩放矩阵（对角）
-    Dinv = diag( t );       % 反缩放矩阵
+    D    = diag( 1 ./ t );  % D = diag(1/L²)：缩放矩阵，右乘 A 使各列量级均衡
+    Dinv = diag( t );       % Dinv = diag(L²)：反缩放矩阵，还原最终 B 样条系数
 end
