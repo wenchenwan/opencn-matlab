@@ -21,6 +21,12 @@ function [ r0D, r1D, r2D, r3D ] = EvalCurvStruct( ctx, curv, u_vec )
 
 coder.inline("never");  % 禁止函数内联，用于代码调试追踪
 
+% ── 机器人模式（robot_mode=true）：直接调用 EvalRobotCurv，绕过 q_spline 查询 ──
+if isfield(ctx, 'robot_mode') && ctx.robot_mode
+    [r0D, r1D, r2D, r3D] = EvalRobotCurv(ctx, curv, u_vec);
+    return;
+end
+
 % ============================================================================
 % 初始化：获取曲线对应的B样条数据
 % ============================================================================
