@@ -503,17 +503,32 @@ $$
 
 ### 5.3 关节加速度约束
 
-关节加速度由路径导数展开：
+#### 关键推导：$\ddot{u}$ 的精确表达式
+
+令 LP 决策变量为 $w(u) \triangleq \dot{u}^2$（参数速度平方），则：
 
 $$
-\ddot{q}_i = q''_i(\xi_p) \cdot \dot{u}^2 + q'_i(\xi_p) \cdot \ddot{u}
+\frac{dw}{du} = \frac{d(\dot{u}^2)/dt}{du/dt} = \frac{2\dot{u}\ddot{u}}{\dot{u}} = 2\ddot{u}
 $$
 
-B 样条线性化（$\ddot{u} = \tfrac{1}{2}\mathbf{B}'(\xi)\mathbf{x} / \sqrt{\mathbf{B}(\xi)\mathbf{x}}$ 近似处理）：
+$$
+\boxed{\ddot{u} = \frac{1}{2}w'(u) = \frac{1}{2}\mathbf{B}'(u)\,\mathbf{x}} \quad\text{（精确等式）}
+$$
+
+由于 $w = \mathbf{B}\mathbf{x}$ 和 $w' = \mathbf{B}'\mathbf{x}$ 均是 $\mathbf{x}$ 的线性函数，加速度对决策变量**天然线性**，无需任何近似。
+
+#### 精确加速度约束
+
+关节加速度展开，代入 $\dot{u}^2 = w = \mathbf{B}\mathbf{x}$ 和 $\ddot{u} = \frac{1}{2}w' = \frac{1}{2}\mathbf{B}'\mathbf{x}$：
 
 $$
-\ddot{q}_i \approx \underbrace{\left[q''_i(\xi_p)\,\mathbf{B}(\xi_p) + \tfrac{1}{2}q'_i(\xi_p)\,\mathbf{B}'(\xi_p)\right]}_{\text{Acc}_i(p,:)} \mathbf{x}_k
+\ddot{q}_i = q''_i(\xi_p)\cdot\mathbf{B}(\xi_p)\,\mathbf{x}_k + q'_i(\xi_p)\cdot\frac{1}{2}\mathbf{B}'(\xi_p)\,\mathbf{x}_k
+= \underbrace{\left[q''_i(\xi_p)\,\mathbf{B}(\xi_p) + \frac{1}{2}q'_i(\xi_p)\,\mathbf{B}'(\xi_p)\right]}_{\text{Acc}_i(p,:)}\mathbf{x}_k
+\quad\text{（精确）}
 $$
+
+> 对应 OpenCN `buildConstr.m` 中的加速度行（注释中"$\approx$"实为**精确等式**）：
+> `Acc_j = r''_j·BasisVal + 0.5·r'_j·BasisValD`
 
 LP 不等式（上/下限）：
 
@@ -525,25 +540,53 @@ $$
 
 ### 5.4 关节 Jerk 约束（第二阶 LP）
 
-关节 Jerk 精确展开（无近似，得益于预计算的 $\mathbf{q}'''$）：
+#### Jerk 精确展开
+
+对加速度 $\ddot{q}_i = q''_i w + \frac{1}{2}q'_i w'$ 再对 $t$ 求导，利用 $\dddot{u} = \frac{1}{2}w''\dot{u}$：
 
 $$
-\dddot{q}_i = q'''_i(\xi_p)\,\dot{u}^3 + 3q''_i(\xi_p)\,\dot{u}\,\ddot{u} + q'_i(\xi_p)\,\dddot{u}
+\dddot{q}_i = \frac{d\ddot{q}_i}{dt}
+= \dot{u}\left[q'''_i(\xi_p)\,w + \frac{3}{2}q''_i(\xi_p)\,w' + \frac{1}{2}q'_i(\xi_p)\,w''\right]
+= \sqrt{w}\left[q'''_i w + \frac{3}{2}q''_i w' + \frac{1}{2}q'_i w''\right]
 $$
 
-以第一阶 LP 解 $\dot{u}_\text{ref}(\xi_p)$ 为参考，线性化后的 LP 约束：
+其中 $w = \mathbf{B}\mathbf{x}$，$w' = \mathbf{B}'\mathbf{x}$，$w'' = \mathbf{B}''\mathbf{x}$，而 $\sqrt{w} = \dot{u}$ 是非线性项——这使得 Jerk 对 $\mathbf{x}$ **非线性**（$O(w^{3/2})$ 项）。
+
+各阶关系汇总（$w = \dot{u}^2$，$'$ 表示对 $u$ 求导）：
+
+$$
+\begin{aligned}
+\dot{u}  &= \sqrt{w}, &\quad \dot{u}^2  &= w, &\quad \dot{u}^3 &= w\sqrt{w} \\[4pt]
+\ddot{u} &= \tfrac{1}{2}w', &\quad \dddot{u} &= \tfrac{1}{2}w''\sqrt{w}, &\quad \dot{u}\cdot\ddot{u} &= \tfrac{1}{2}w'\sqrt{w}
+\end{aligned}
+$$
+
+#### 两阶段 LP：线性化 Jerk
+
+加速度约束是精确线性的（第一阶 LP 直接求解），求得 $\mathbf{x}^*$ 后以 $\dot{u}_\text{ref}(\xi_p) = \sqrt{\mathbf{B}(\xi_p)\mathbf{x}^*}$ 为参考，冻结 $\sqrt{w} \approx \dot{u}_\text{ref}$（常数标量），Jerk 变为对 $\mathbf{x}$ 线性：
+
+$$
+\dddot{q}_i \approx \dot{u}_\text{ref}(\xi_p)\left[q'''_i(\xi_p)\,\mathbf{B}(\xi_p) + \frac{3}{2}q''_i(\xi_p)\,\mathbf{B}'(\xi_p) + \frac{1}{2}q'_i(\xi_p)\,\mathbf{B}''(\xi_p)\right]\mathbf{x}_k
+$$
+
+LP 约束行（第二阶 LP）：
+
+$$
+\boxed{\text{Jerk}_i(p,:) = \dot{u}_\text{ref}(\xi_p)\left[q'''_i(\xi_p)\,\mathbf{B}(\xi_p) + \frac{3}{2}q''_i(\xi_p)\,\mathbf{B}'(\xi_p) + \frac{1}{2}q'_i(\xi_p)\,\mathbf{B}''(\xi_p)\right]}
+$$
 
 $$
 \pm\,\text{Jerk}_i(p,:)\,\mathbf{x}_k \leq j_{i,\max}
 $$
 
-$$
-\text{Jerk}_i(p,:) = q'''_i(\xi_p)\,\dot{u}_\text{ref}^2\,\mathbf{B}(\xi_p)
-+ \tfrac{3}{2}q''_i(\xi_p)\,\dot{u}_\text{ref}\,\mathbf{B}'(\xi_p)
-+ \tfrac{1}{2}q'_i(\xi_p)\,\mathbf{B}''(\xi_p)
-$$
+**与加速度约束的本质区别**：
 
-**精度优势**：由于 $q'''_i$ 在采样阶段精确计算（见 §3.4），Jerk 约束无需使用全笛卡尔方案中的主项近似，误差可控制在 $<2\%$。
+| | 是否线性于 $\mathbf{x}$ | 原因 |
+|---|---|---|
+| **加速度** | 精确线性 | $\ddot{u} = \frac{1}{2}w'$，$w'$ 是 $\mathbf{x}$ 的线性函数 |
+| **Jerk** | 非线性（需线性化） | 含 $\dot{u} = \sqrt{w}$ 因子，对 $\mathbf{x}$ 为 $O(w^{3/2})$ |
+
+**精度优势**：由于 $q'''_i$ 在采样阶段用完整链式法则精确计算（见 §3.4），第一项 $q'''_i \mathbf{B}$ 无截断误差，Jerk 约束精度 $<2\%$（相比全笛卡尔方案的 5~15%）。
 
 ### 5.5 滑动窗口 MPC 策略
 
@@ -1002,18 +1045,23 @@ $$
 \mathbf{q}'''_m = \mathbf{J}^{-1}_m\,\mathbf{r}'''_m - \mathbf{J}^{-1}_m\,\dot{\mathbf{J}}_m\,\mathbf{q}''_m - \mathbf{J}^{-1}_m\,\ddot{\mathbf{J}}_m\,\mathbf{q}'_m
 $$
 
-### 8.3 段内加速度约束系数
+### 8.3 加速度约束系数（精确线性，无近似）
+
+由 $\ddot{u} = \frac{1}{2}w'(u)$ 精确推导（$w = \dot{u}^2$ 为 LP 决策变量）：
 
 $$
-\text{Acc}_i(p,:) = q''_i(\xi_p)\,\mathbf{B}(\xi_p) + \tfrac{1}{2}q'_i(\xi_p)\,\mathbf{B}'(\xi_p)
+\text{Acc}_i(p,:) = q''_i(\xi_p)\,\mathbf{B}(\xi_p) + \frac{1}{2}q'_i(\xi_p)\,\mathbf{B}'(\xi_p)
+\qquad\text{（对 $\mathbf{x}$ 精确线性）}
 $$
 
-### 8.4 段内 Jerk 约束系数
+### 8.4 Jerk 约束系数（第二阶 LP 线性化）
+
+含 $\sqrt{w}$ 因子使 Jerk 非线性，冻结 $\dot{u}_\text{ref} = \sqrt{\mathbf{B}\mathbf{x}^*}$ 后线性化：
 
 $$
-\text{Jerk}_i(p,:) = q'''_i(\xi_p)\,\dot{u}_\text{ref}^2\,\mathbf{B}(\xi_p)
-+ \tfrac{3}{2}q''_i(\xi_p)\,\dot{u}_\text{ref}\,\mathbf{B}'(\xi_p)
-+ \tfrac{1}{2}q'_i(\xi_p)\,\mathbf{B}''(\xi_p)
+\text{Jerk}_i(p,:) = \dot{u}_\text{ref}(\xi_p)\left[q'''_i(\xi_p)\,\mathbf{B}(\xi_p)
++ \frac{3}{2}q''_i(\xi_p)\,\mathbf{B}'(\xi_p)
++ \frac{1}{2}q'_i(\xi_p)\,\mathbf{B}''(\xi_p)\right]
 $$
 
 ### 8.5 有效速度上限
