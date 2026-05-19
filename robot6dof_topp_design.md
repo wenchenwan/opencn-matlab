@@ -13,11 +13,11 @@
 7. [数值考虑](#七数值考虑)
 8. [关键公式汇总](#八关键公式汇总)
 
-> **本次更新新增内容**：
-> - §2.5：路径段间 G2 连续平滑（角点混合方案）
-> - §5.5：滑动窗口 MPC 策略（复用 OpenCN 窗口框架）
-> - §5.6：跨窗口边界连续性约束（速度平方 + 切向加速度传递）
-> - 原 §5.5、§5.6 顺延为 §5.7、§5.8
+> **更新记录**：
+> - §2.5 重写：G2 平滑改为基于 `G2_Hermite_Interpolation_nAxis` / `calcTransition`，明确 zone 距离（CutOff）工程含义
+> - §五 重写：决策变量说明补充 $w=\dot{u}^2$ 含义；不等式/等式约束分章节清晰描述；两阶段 LP 合并为 §5.4 集中说明（第一阶段精确线性 + 第二阶段 Jerk 线性化），修正不等式约束行数（14行/点，不是25）；滑动窗口 MPC 整理为 §5.5
+> - §5.2.4 修正：速度约束以 $x$ 上界（`xbound`）实现，不进约束矩阵（对照 TOPPRA `JointVelocityConstraint` 实际实现）；TCP 速度约束合并至 $f_\text{max}$ 的 min 操作
+> - §5.2.5 修正：关节力矩约束为精确线性（科氏项对 $x=\dot{s}^2$ 天然线性），通过三次逆动力学调用分离 $u$ 系数和 $x$ 系数，无需冻结参考解线性化（对照 TOPPRA `JointTorqueConstraint` 实际实现）；§8.5b 公式同步更新
 
 ---
 
@@ -201,6 +201,8 @@ while t_current < t_end:
 - 由链式法则（§三）计算的 $\mathbf{q}''_m$ 在交接点两侧跳变
 - LP 被迫在交接点附近强制降速，无法实现真正时间最优
 
+本方案直接复用项目已有的 `G2_Hermite_Interpolation_nAxis`（`common/Feedopt/`）和 `calcTransition`（`common/Feedopt/`）实现 G2 平滑，不另行开发混合曲线算法。
+
 #### 2.5.1 G2 连续的几何含义
 
 对于弧长参数化路径 $\mathbf{r}(s)$，G2 连续要求曲率向量在交接点 $s_j$ 处匹配：
@@ -209,65 +211,95 @@ $$
 \mathbf{r}''(s_j^-) = \mathbf{r}''(s_j^+)
 $$
 
-G0（位置）和 G1（切线方向）是 G2 的必要前提，五次 Hermite 混合可同时满足这三个条件。
+G0（位置）和 G1（切线方向）是 G2 的必要前提，五次多项式过渡曲线（TransP5）可同时满足这三个条件。
 
-#### 2.5.2 五次 Hermite 混合平滑
+#### 2.5.2 `G2_Hermite_Interpolation_nAxis` 的工作原理
 
-在每个路径交接点 $s_j$ 附近引入一段**混合区间** $[s_j - \delta_j,\; s_j + \delta_j]$，用五次 Hermite 曲线代替原始角点。
+**函数接口**（`common/Feedopt/G2_Hermite_Interpolation_nAxis.m`）：
 
-**混合端点的信息**（从原始路径各自段评估）：
+```matlab
+[p5, status, alpha0, alpha1] = G2_Hermite_Interpolation_nAxis( ...
+    ctx, r0D0, r0D1, r0D2, r1D0, r1D1, r1D2)
+```
+
+| 参数 | 含义 |
+|---|---|
+| `r0D0/r0D1/r0D2` | 左端（截短曲线末端 $u=1$）的位置/一阶导/二阶导 |
+| `r1D0/r1D1/r1D2` | 右端（截短曲线起端 $u=0$）的位置/一阶导/二阶导 |
+| `p5` | 五次多项式系数矩阵 `[6×6]`（每行一个轴，降幂排列） |
+| `status` | 1 = 成功；3/4/5 = 无正实根；6 = 最终验证失败（数值警告，仍可用） |
+| `alpha0/alpha1` | 最优切向拉伸参数（>0），控制过渡曲线的"拉伸"程度 |
+
+**求解逻辑**：利用 Frenet 框架将 G2 边界条件（位置 + 切向方向 + 曲率）化为关于自由参数 $\alpha_0,\alpha_1$ 的多项式方程组，按两端曲率是否为零分四种情况（详见函数注释）：
+
+| 情况 | 条件 | 求解方法 |
+|---|---|---|
+| 1 | $\kappa_0=0,\;\kappa_1=0$（直线-直线） | 2×2 线性方程组，直接解 |
+| 2 | $\kappa_0=0,\;\kappa_1\neq0$（直线-曲线） | 关于 $\alpha_1$ 的三次多项式 |
+| 3 | $\kappa_0\neq0,\;\kappa_1=0$（曲线-直线） | 关于 $\alpha_0$ 的三次多项式 |
+| 4 | $\kappa_0\neq0,\;\kappa_1\neq0$（曲线-曲线） | 结式消元 → 关于 $\alpha_1$ 的九次多项式 |
+
+多根时按最小化三阶导范数积分（跃度代价 `EvalCostIntegral`）选最优解。五次 Hermite 基函数：
 
 $$
-\text{左端：}\; \mathbf{r}_L = \mathbf{r}(s_j - \delta_j),\; \mathbf{r}'_L,\; \mathbf{r}''_L \quad\text{（来自左侧路径段）}
+p_5(u) = \mathbf{r}_L \cdot h_{00} + \alpha_0\mathbf{t}_0 \cdot h_{10} + (\beta_0\mathbf{t}_0 + \alpha_0^2\kappa_0\mathbf{n}_0) \cdot h_{20}
++ \mathbf{r}_R \cdot h_{01} + \alpha_1\mathbf{t}_1 \cdot h_{11} + (\beta_1\mathbf{t}_1 + \alpha_1^2\kappa_1\mathbf{n}_1) \cdot h_{21}
 $$
 
-$$
-\text{右端：}\; \mathbf{r}_R = \mathbf{r}(s_j + \delta_j),\; \mathbf{r}'_R,\; \mathbf{r}''_R \quad\text{（来自右侧路径段）}
-$$
+其中 $\mathbf{t},\mathbf{n},\kappa$ 为端点处的 Frenet 框架参数（切向、法向、曲率），$\beta_0,\beta_1$ 由 $\alpha_0,\alpha_1$ 线性确定。
 
-混合曲线（复用 §四 的五次 Hermite 基函数）：
+#### 2.5.3 zone 距离（CutOff）与过渡区间
 
-$$
-\mathbf{r}_\text{blend}(\xi) = H_{00}\,\mathbf{r}_L + H_{10}\,\delta_j\mathbf{r}'_L + H_{20}\,\delta_j^2\mathbf{r}''_L
-+ H_{01}\,\mathbf{r}_R + H_{11}\,\delta_j\mathbf{r}'_R + H_{21}\,\delta_j^2\mathbf{r}''_R,\quad \xi\in[0,1]
-$$
-
-该曲线在 $\xi=0$ 和 $\xi=1$ 处自动满足 C2（即 G2）连续。
-
-#### 2.5.3 混合长度 $\delta_j$ 的选择
+对应工业机器人编程中的 **zone 参数**（如 ABB 的 z5/z10，KUKA 的 C_DIS），`CutOff` 定义了在交接点两侧各截去的弧长，即过渡曲线插入的**单侧 zone 距离**：
 
 $$
-\boxed{\delta_j = \min\!\left(\delta_\text{max},\; \frac{l_{\text{adj},j}}{2},\; \sqrt{\frac{\varepsilon_\text{blend}}{\kappa_\text{corner}}}\right)}
+\boxed{\Delta_j = \min\!\left(\Delta_\text{max},\; \frac{L_1}{3},\; \frac{L_2}{3}\right)}
 $$
 
 | 参数 | 含义 |
 |---|---|
-| $l_{\text{adj},j}$ | 交接点两侧相邻段的最短弧长（防止相邻混合区重叠） |
-| $\varepsilon_\text{blend}$ | 允许的路径偏离容差（通常与 $\varepsilon_\text{pos}$ 同量级） |
-| $\kappa_\text{corner}$ | 交接点处名义曲率，可用角点半角 $\theta_j$ 估计：$\kappa_\text{corner} \approx 2\sin(\theta_j/2)/\delta_j$ |
+| $\Delta_\text{max}$ | 用户设定的最大 zone 距离（`ctx.cfg.CutOff` 或 `robot_params.delta_max`，m） |
+| $L_1 / L_2$ | 交接点两侧相邻段的弧长 |
+| $L/3$ 上限 | 防止相邻过渡区重叠（两侧各截 1/3，中间留 1/3 原始段） |
 
-典型工程取值：机器人加工路径 $\delta_j = 0.5\,\text{mm}\sim5\,\text{mm}$，大臂展机器人可放宽至 $10\,\text{mm}$。
+截短操作（`cutCurvStruct`）：在左段末端截去 $\Delta_j$，在右段起端截去 $\Delta_j$，然后在截短端点处调用 `G2_Hermite_Interpolation_nAxis` 构造 TransP5 过渡段。
 
-#### 2.5.4 姿态路径的 G2 平滑
+典型工程取值：机器人路径 $\Delta_j = 1\,\text{mm}\sim10\,\text{mm}$（对应 CutOff），精加工取小值，搬运取大值。
 
-欧拉角路径 $\boldsymbol{\varphi}(s)$ 在交接点处同样适用相同的五次 Hermite 混合策略，混合量为角度（rad）。对于位姿联合路径 $\mathbf{r}(s) = [\mathbf{p}(s);\,\boldsymbol{\varphi}(s)]$，位置和姿态分别独立混合，混合长度取两者约束的最小值：
+#### 2.5.4 位姿联合路径的 G2 平滑
 
-$$
-\delta_j = \min\!\left(\delta_j^\text{pos},\; \delta_j^\text{ori}\right)
-$$
+`G2_Hermite_Interpolation_nAxis` 天然支持 N 维路径（`r0D0` 等为 `[N_active×1]` 向量，`ctx.cfg.maskTot` 指定激活轴）。对于 6D 位姿路径 $\mathbf{r}=[p_x;p_y;p_z;\varphi_x;\varphi_y;\varphi_z]$，位置轴和姿态轴同时纳入 Frenet 框架，统一使用同一个 zone 距离 $\Delta_j$。特征长度 $D$（`ctx.cfg.D`）用于量纲归一化，防止 mm 级位置与 rad 级姿态混合时数值病态。
 
-#### 2.5.5 与自适应离散化的集成
+#### 2.5.5 `calcTransition` 封装的完整流程
 
-G2 混合完成后，混合区内曲率仍高于两侧平坦段，自适应离散化（§2.1~2.3）会在混合区内自动加密采样，无需额外处理。
+项目已有的 `calcTransition`（`common/Feedopt/`）将上述步骤封装为标准接口：
+
+```
+calcTransition(ctx, curv1, curv2)
+  ①  LengthCurv → L1, L2
+  ②  安全检查：L1 < 3·CutOff 或 L2 < 3·CutOff → 放弃，返回 NoSolution
+  ③  cutCurvStruct(curv1, L1-CutOff) → curv1_cut（去末端 CutOff）
+  ④  cutCurvStruct(curv2, L2-CutOff) → curv2_cut（去起端 CutOff）
+  ⑤  EvalCurvStruct(curv1_cut, u=1) → r0D0/r0D1/r0D2（含 robot_mode 分支）
+  ⑥  EvalCurvStruct(curv2_cut, u=0) → r1D0/r1D1/r1D2
+  ⑦  G2_Hermite_Interpolation_nAxis → p5, status
+  ⑧  constrTransP5Struct → curvT（TransP5 类型曲线结构体）
+  ⑨  check_continuity → 验证 G2 连续性（位置/切线/曲率容差）
+  输出：status(Ok/NoSolution), curv1_cut, curv2_cut, curvT
+```
+
+对机器人路径，`EvalCurvStruct` 经过 `ctx.robot_mode=true` 分支调用 `EvalRobotCurv`，正确处理 Line/Helix 类型段的导数。
 
 完整预处理流程：
 
 ```
-原始分段路径（G0/G1 连续）
-     ↓ §2.5  G2 混合平滑（角点 → 光滑混合段）
-G2 连续路径
-     ↓ §2.1~2.3  自适应离散化（曲率驱动步长）
-M 个采样点 {t_m}（混合区内自动加密）
+原始分段路径（G0/G1 连续，CurvStruct 数组）
+     ↓ §2.5  对每对相邻段调用 calcTransition
+             成功 → 插入 TransP5 过渡段，两端段截短
+             失败 → 保留原始角点（G1 退化，LP 自动降速）
+G2 连续路径（原始段截短 + TransP5 段交替）
+     ↓ §2.1~2.3  自适应离散化（过渡段曲率高 → 自动加密）
+M 个采样点 {t_m}
      ↓ §三  关节空间导数计算（q', q'', q''' 精确）
 ```
 
@@ -456,344 +488,439 @@ $$
 
 ## 五、关节空间时间最优规划（LP 框架）
 
-### 5.1 决策变量
+### 5.1 决策变量与目标函数
 
-每段 $k$（对应采样区间 $[t_m, t_{m+1}]$）的决策变量为 B 样条系数向量：
+#### 5.1.1 决策变量
 
-$$
-\mathbf{x}_k \in \mathbb{R}^N, \quad \dot{u}^2(\xi) = \mathbf{B}(\xi)\,\mathbf{x}_k
-$$
-
-全局决策变量：$\mathbf{x} \in \mathbb{R}^{N \times K}$（$K$ = 总段数）。
-
-目标函数（最小化总时间 $\approx$ 最大化参数速度积分）：
+每段 $k$（对应相邻采样点 $[t_m,t_{m+1}]$）引入 B 样条系数向量 $\mathbf{x}_k \in \mathbb{R}^N$，用于近似**参数速度平方**：
 
 $$
-\min_{\mathbf{x}} \;\; -\sum_{k=1}^{K} \mathbf{b}_\text{intgr}^\top \mathbf{D}_k \, \mathbf{x}_k, \quad \mathbf{x}_k \geq 0
+w(\xi) \triangleq \dot{u}^2(\xi) \approx \mathbf{B}(\xi)\,\mathbf{x}_k, \quad \xi \in [0,1], \quad \mathbf{x}_k \geq 0
 $$
 
-其中 $\mathbf{b}_\text{intgr}$ 是 B 样条基函数的积分向量，$\mathbf{D}_k = \mathrm{diag}(1/h_k^2)$ 是弧长归一化缩放矩阵。
+> **注意**：$w = \dot{u}^2$ 是路径参数 $u$ 的变化速率的平方，**不是**关节空间或笛卡尔空间的物理速度平方。物理速度需通过 $v_i = q'_i(\xi)\cdot\dot{u}$ 计算（$q'_i$ 是关节角对参数的导数，§四已预计算）。
 
-### 5.2 关节速度约束
+滑动窗口内 $W$ 段的全局决策变量：$\mathbf{x} \in \mathbb{R}^{N \times W}$。
 
-在段 $k$ 的第 $p$ 个 LP 离散点 $\xi_p$ 处，对关节 $i$：
+#### 5.1.2 目标函数（最大化速度积分）
 
 $$
-|\dot{q}_i| = |q'_i(\xi_p)| \cdot \dot{u} \leq \dot{q}_{i,\max}
+\min_{\mathbf{x}} \;\; -\sum_{k=1}^{W} \mathbf{b}_\text{intgr}^\top \mathbf{D}_k \, \mathbf{x}_k
 $$
 
-等价 LP 不等式：
+其中 $\mathbf{b}_\text{intgr} = \int_0^1 \mathbf{B}(\xi)\,d\xi$（B 样条基积分向量），$\mathbf{D}_k = \mathrm{diag}(h_k^{-2})$ 为弧长归一化缩放矩阵（$h_k$ = 第 $k$ 段弧长）。最大化 $\int w\,d\xi$ 等价于最大化参数速度积分，即近似最小化轨迹总时间。
+
+#### 5.1.3 关键链式法则
+
+$w = \dot{u}^2$，$'$ 表示对路径参数 $u$ 求导，各阶时间导数的精确关系：
+
+$$
+\begin{aligned}
+\dot{u} &= \sqrt{w} & \quad \ddot{u} &= \frac{1}{2}w' = \frac{1}{2}\mathbf{B}'\mathbf{x} \\[4pt]
+\dddot{u} &= \frac{1}{2}w''\dot{u} = \frac{1}{2}\mathbf{B}''\mathbf{x}\cdot\sqrt{w}
+\end{aligned}
+$$
+
+**关键结论**：$\ddot{u} = \frac{1}{2}w'$ 是 $\mathbf{x}$ 的精确线性函数；$\dddot{u}$ 含 $\sqrt{w}$ 因子，是非线性的。这一区别决定了速度/加速度约束可精确线性化，而 Jerk 约束必须分两阶段处理。
+
+---
+
+### 5.2 不等式约束（速度 + 加速度）
+
+#### 5.2.1 关节速度约束
+
+关节 $i$ 的物理速度约束：
+
+$$
+|\dot{q}_i(\xi_p)| = |q'_i(\xi_p)| \cdot \dot{u} \leq \dot{q}_{i,\max}
+$$
+
+两边平方，代入 $\dot{u}^2 = w = \mathbf{B}(\xi_p)\mathbf{x}_k$，得精确线性不等式：
 
 $$
 q'_i(\xi_p)^2 \cdot \mathbf{B}(\xi_p)\,\mathbf{x}_k \leq \dot{q}_{i,\max}^2
 $$
 
-所有关节的速度约束合并：
+对所有 $M$ 个离散点和 $N_\text{axis}=6$ 个关节，速度约束写成**单行**形式（取逐点最紧约束 `f_max`）：
 
 $$
-\mathbf{A}_v^{(k,p)} = \mathrm{diag}\!\left(q'_1(\xi_p)^2, \ldots, q'_6(\xi_p)^2\right) \otimes \mathbf{B}(\xi_p)
-\in \mathbb{R}^{6 \times N}
+\mathbf{B}(\xi_p)\,\mathbf{x}_k \leq f_\text{max}(\xi_p), \quad
+f_\text{max}(\xi_p) = \min_{i=1}^{6}\frac{\dot{q}_{i,\max}^2}{q'_i(\xi_p)^2}
 $$
 
-有效速度上限（取所有关节最紧约束）：
+同时加入速度非负约束 $w \geq 0$，即 $-\mathbf{B}(\xi_p)\mathbf{x}_k \leq 0$。
+
+> 对应 `buildConstr.m`：`v_max = min((vmax./r1D_a).^2, [], 1)`，速度约束合并为 1 行，速度非负约束 1 行，共 **2 行**每点。
+
+#### 5.2.2 关节加速度约束
+
+**精确推导**（无近似）：将关节加速度按链式法则展开，代入 $\dot{u}^2 = \mathbf{B}\mathbf{x}$ 和 $\ddot{u} = \frac{1}{2}\mathbf{B}'\mathbf{x}$：
 
 $$
-\dot{u}^2_\text{max}(\xi_p) = \min_{i=1}^{6} \frac{\dot{q}_{i,\max}^2}{q'_i(\xi_p)^2}
+\ddot{q}_i(\xi_p) = q''_i(\xi_p)\underbrace{\dot{u}^2}_{\mathbf{B}\mathbf{x}} + q'_i(\xi_p)\underbrace{\ddot{u}}_{\frac{1}{2}\mathbf{B}'\mathbf{x}}
+= \underbrace{\Bigl[q''_i(\xi_p)\,\mathbf{B}(\xi_p) + \tfrac{1}{2}q'_i(\xi_p)\,\mathbf{B}'(\xi_p)\Bigr]}_{\text{Acc}_i(p,:)}\,\mathbf{x}_k
 $$
 
-### 5.3 关节加速度约束
-
-#### 关键推导：$\ddot{u}$ 的精确表达式
-
-令 LP 决策变量为 $w(u) \triangleq \dot{u}^2$（参数速度平方），则：
+$\text{Acc}_i(p,:) \in \mathbb{R}^{1\times N}$ 是预计算的常数行向量（依赖 $q'_i, q''_i$ 和 B 样条基，均已在 §四离线计算好）。加速度约束（上/下限各一行）：
 
 $$
-\frac{dw}{du} = \frac{d(\dot{u}^2)/dt}{du/dt} = \frac{2\dot{u}\ddot{u}}{\dot{u}} = 2\ddot{u}
++\text{Acc}_i(p,:)\,\mathbf{x}_k \leq \ddot{q}_{i,\max}, \quad -\text{Acc}_i(p,:)\,\mathbf{x}_k \leq \ddot{q}_{i,\max}
+$$
+
+对 $N_\text{axis}=6$ 个关节，每个离散点 $\xi_p$ 共 $2\times 6 = 12$ 行。
+
+> 对应 `buildConstr.m`：`Acc_j = r2D_a(j,:).*BasisVal + 0.5.*r1D_a(j,:).*BasisValD`
+
+#### 5.2.3 不等式约束结构汇总（第一阶段 LP 输入）
+
+每段 $k$，每个离散点 $\xi_p$（共 $M$ 个点）的不等式约束行：
+
+$$
+\underbrace{1}_{\text{速度上限}} + \underbrace{1}_{\text{速度非负}} + \underbrace{2\times N_\text{axis}}_{\text{加速度上/下限}} = 2 + 2N_\text{axis} = 14\;\text{行/点（6轴机器人）}
+$$
+
+窗口内完整不等式约束矩阵（块对角，第 $k$ 段约束只涉及 $\mathbf{x}_k$）：
+
+$$
+\mathbf{A}_\text{ineq} \in \mathbb{R}^{14\,M W \;\times\; NW}, \quad \mathbf{b}_\text{ineq} \in \mathbb{R}^{14\,MW}
+$$
+
+具体行结构（段 $k$，点 $p$）：
+
+$$
+\mathbf{A}_k(p) = \begin{bmatrix}
+\mathbf{B}(\xi_p)      \\
+-\mathbf{B}(\xi_p)     \\
++\text{Acc}_1(p,:)     \\
+\vdots                 \\
++\text{Acc}_6(p,:)     \\
+-\text{Acc}_1(p,:)     \\
+\vdots                 \\
+-\text{Acc}_6(p,:)
+\end{bmatrix},\quad
+\mathbf{b}_k(p) = \begin{bmatrix}
+f_\text{max}(\xi_p)    \\
+0                      \\
+\ddot{q}_{1,\max}      \\
+\vdots                 \\
+\ddot{q}_{6,\max}      \\
+\ddot{q}_{1,\max}      \\
+\vdots                 \\
+\ddot{q}_{6,\max}
+\end{bmatrix}
+$$
+
+#### 5.2.4 笛卡尔 TCP 速度约束
+
+除关节空间约束外，工业机器人路径跟踪中往往需要限制 TCP（工具中心点）在笛卡尔空间中的线速度和角速度，以保证加工质量或安全性（如焊接、涂胶的工艺速度窗口）。
+
+**TCP 线速度的参数化**
+
+TCP 线速度由正运动学 Jacobian 的位置分量 $\mathbf{J}_v(\mathbf{q}) \in \mathbb{R}^{3\times6}$ 给出：
+
+$$
+\mathbf{v}_\text{tcp} = \mathbf{J}_v(\mathbf{q})\,\dot{\mathbf{q}} = \mathbf{J}_v(\mathbf{q})\,\mathbf{q}'(\xi)\cdot\dot{s}
+$$
+
+TCP 线速度模长的平方（令 $x = \dot{s}^2$）：
+
+$$
+\|\mathbf{v}_\text{tcp}\|^2 = \|\mathbf{J}_v\,\mathbf{q}'(\xi)\|^2 \cdot x = c_v(\xi)^2 \cdot x
+$$
+
+其中 $c_v(\xi_p) = \|\mathbf{J}_v(\mathbf{q}(\xi_p))\,\mathbf{q}'(\xi_p)\|$（标量，依赖路径参数，**预计算**）。
+
+TCP 线速度约束（上限 $v_\text{tcp,max}$，对 $x$ 精确线性）等价于对 $x$ 的上界约束：
+
+$$
+x \leq \frac{v_\text{tcp,max}^2}{c_v(\xi_p)^2}
+$$
+
+**TCP 角速度约束**
+
+TCP 角速度由 Jacobian 的角速度分量 $\mathbf{J}_\omega(\mathbf{q}) \in \mathbb{R}^{3\times6}$ 给出，约束形式与线速度完全对称：
+
+$$
+x \leq \frac{\omega_\text{tcp,max}^2}{c_\omega(\xi_p)^2}, \quad
+c_\omega(\xi_p) = \|\mathbf{J}_\omega(\mathbf{q}(\xi_p))\,\mathbf{q}'(\xi_p)\|
+$$
+
+**与关节速度约束的合并**
+
+TCP 速度约束与关节速度约束均为对 $x = \dot{s}^2$ 的上界约束，可合并为单一的 $x_\text{bound}$：
+
+$$
+x \leq f_\text{max}(\xi_p) = \min\!\left(
+\min_{i=1}^{6}\frac{\dot{q}_{i,\max}^2}{q'_i(\xi_p)^2},\;\;
+\frac{v_\text{tcp,max}^2}{c_v(\xi_p)^2},\;\;
+\frac{\omega_\text{tcp,max}^2}{c_\omega(\xi_p)^2}
+\right)
+$$
+
+**预计算**：$c_v(\xi_p)$ 和 $c_\omega(\xi_p)$ 均在离散化阶段（§四）与 $q'_i, q''_i$ 一起预计算，LP 阶段仅做系数查表，不增加 LP 规模（仍为每点 1 个 $x$ 上界，体现在 `xbound` 中而非约束矩阵行）。
+
+> **对照 TOPPRA 实现**（`linear_joint_velocity.py`）：`JointVelocityConstraint.compute_constraint_params` 调用 `_create_velocity_constraint(qs, vlim)`，直接返回 `xbound`（对 $x=\dot{s}^2$ 的上下界数组），其余返回值均为 `None`。即速度约束不进入 $\mathbf{A}\mathbf{x} \leq \mathbf{b}$ 矩阵，而是以独立的 `xbound` 传入求解器——本框架中对应 $f_\text{max}$ 的上界约束，与此处推导一致。
+
+#### 5.2.5 关节力矩约束（动力学约束）
+
+关节力矩约束是 TOPPRA 相对于纯运动学 TOPP 的核心扩展，将机器人动力学方程（惯性、科氏力、重力、摩擦力）纳入 LP 约束，确保规划轨迹在电机额定力矩范围内可执行。
+
+**机器人动力学方程**
+
+$$
+\boldsymbol{\tau} = \mathbf{M}(\mathbf{q})\ddot{\mathbf{q}} + \mathbf{C}(\mathbf{q},\dot{\mathbf{q}})\dot{\mathbf{q}} + \mathbf{g}(\mathbf{q}) + \mathbf{f}(\dot{\mathbf{q}})
+$$
+
+其中：$\mathbf{M}(\mathbf{q}) \in \mathbb{R}^{6\times6}$ 为关节空间惯性矩阵，$\mathbf{C}(\mathbf{q},\dot{\mathbf{q}})$ 为科氏/离心矩阵，$\mathbf{g}(\mathbf{q})$ 为重力向量，$\mathbf{f}(\dot{\mathbf{q}})$ 为摩擦力（干摩擦 $f_s \operatorname{sgn}(\dot{q})$）。
+
+**代入路径参数化——精确线性分离**
+
+使用 toppra 的变量定义：$x = \dot{s}^2$，$u = \ddot{s}$，则：
+
+$$
+\dot{\mathbf{q}} = \mathbf{q}'(\xi)\,\dot{s}, \quad
+\ddot{\mathbf{q}} = \mathbf{q}'(\xi)\,u + \mathbf{q}''(\xi)\,x
+$$
+
+代入动力学方程：
+
+$$
+\boldsymbol{\tau} = \underbrace{\mathbf{M}(\mathbf{q})\,\mathbf{q}'(\xi)}_{\mathbf{a}(\xi)}\, u
++ \underbrace{\mathbf{M}(\mathbf{q})\,\mathbf{q}''(\xi) + \mathbf{C}(\mathbf{q},\,\mathbf{q}'\dot{s})\,\mathbf{q}'\dot{s}}_{\mathbf{b}(\xi)}\, x
++ \underbrace{\mathbf{g}(\mathbf{q}) + \mathbf{f}(\mathbf{q}'\dot{s})}_{\mathbf{c}(\xi)}
+$$
+
+**关键点**：科氏项 $\mathbf{C}(\mathbf{q},\dot{\mathbf{q}})\dot{\mathbf{q}} = \mathbf{C}(\mathbf{q},\mathbf{q}'\dot{s})\mathbf{q}'\dot{s}^2$ 对 $x=\dot{s}^2$ 天然是线性的（$\mathbf{C}$ 对 $\dot{\mathbf{q}}$ 一次齐次），无需任何线性化近似。因此力矩约束对 $(u, x)$ 精确线性。
+
+**三次逆动力学调用分离系数（对照 TOPPRA `joint_torque.py`）**
+
+在离散点 $\xi_p$ 处，定义 $\mathbf{q}_p = \mathbf{q}(\xi_p)$，$\mathbf{q}'_p = \mathbf{q}'(\xi_p)$，$\mathbf{q}''_p = \mathbf{q}''(\xi_p)$，通过三次逆动力学调用精确分离系数：
+
+$$
+\mathbf{c}(\xi_p) = \text{inv\_dyn}(\mathbf{q}_p,\;\mathbf{0},\;\mathbf{0})
 $$
 
 $$
-\boxed{\ddot{u} = \frac{1}{2}w'(u) = \frac{1}{2}\mathbf{B}'(u)\,\mathbf{x}} \quad\text{（精确等式）}
-$$
-
-由于 $w = \mathbf{B}\mathbf{x}$ 和 $w' = \mathbf{B}'\mathbf{x}$ 均是 $\mathbf{x}$ 的线性函数，加速度对决策变量**天然线性**，无需任何近似。
-
-#### 精确加速度约束
-
-关节加速度展开，代入 $\dot{u}^2 = w = \mathbf{B}\mathbf{x}$ 和 $\ddot{u} = \frac{1}{2}w' = \frac{1}{2}\mathbf{B}'\mathbf{x}$：
-
-$$
-\ddot{q}_i = q''_i(\xi_p)\cdot\mathbf{B}(\xi_p)\,\mathbf{x}_k + q'_i(\xi_p)\cdot\frac{1}{2}\mathbf{B}'(\xi_p)\,\mathbf{x}_k
-= \underbrace{\left[q''_i(\xi_p)\,\mathbf{B}(\xi_p) + \frac{1}{2}q'_i(\xi_p)\,\mathbf{B}'(\xi_p)\right]}_{\text{Acc}_i(p,:)}\mathbf{x}_k
-\quad\text{（精确）}
-$$
-
-> 对应 OpenCN `buildConstr.m` 中的加速度行（注释中"$\approx$"实为**精确等式**）：
-> `Acc_j = r''_j·BasisVal + 0.5·r'_j·BasisValD`
-
-LP 不等式（上/下限）：
-
-$$
-\pm\,\text{Acc}_i(p,:)\,\mathbf{x}_k \leq \ddot{q}_{i,\max}
-$$
-
-所有关节、所有段的加速度约束组成块对角矩阵 $\mathbf{A}_a$（$6 \times 2$ 行 × $M_\text{LP}$ 点 × $K$ 段）。
-
-### 5.4 关节 Jerk 约束（第二阶 LP）
-
-#### Jerk 精确展开
-
-对加速度 $\ddot{q}_i = q''_i w + \frac{1}{2}q'_i w'$ 再对 $t$ 求导，利用 $\dddot{u} = \frac{1}{2}w''\dot{u}$：
-
-$$
-\dddot{q}_i = \frac{d\ddot{q}_i}{dt}
-= \dot{u}\left[q'''_i(\xi_p)\,w + \frac{3}{2}q''_i(\xi_p)\,w' + \frac{1}{2}q'_i(\xi_p)\,w''\right]
-= \sqrt{w}\left[q'''_i w + \frac{3}{2}q''_i w' + \frac{1}{2}q'_i w''\right]
-$$
-
-其中 $w = \mathbf{B}\mathbf{x}$，$w' = \mathbf{B}'\mathbf{x}$，$w'' = \mathbf{B}''\mathbf{x}$，而 $\sqrt{w} = \dot{u}$ 是非线性项——这使得 Jerk 对 $\mathbf{x}$ **非线性**（$O(w^{3/2})$ 项）。
-
-各阶关系汇总（$w = \dot{u}^2$，$'$ 表示对 $u$ 求导）：
-
-$$
-\begin{aligned}
-\dot{u}  &= \sqrt{w}, &\quad \dot{u}^2  &= w, &\quad \dot{u}^3 &= w\sqrt{w} \\[4pt]
-\ddot{u} &= \tfrac{1}{2}w', &\quad \dddot{u} &= \tfrac{1}{2}w''\sqrt{w}, &\quad \dot{u}\cdot\ddot{u} &= \tfrac{1}{2}w'\sqrt{w}
-\end{aligned}
-$$
-
-#### 两阶段 LP：线性化 Jerk
-
-加速度约束是精确线性的（第一阶 LP 直接求解），求得 $\mathbf{x}^*$ 后以 $\dot{u}_\text{ref}(\xi_p) = \sqrt{\mathbf{B}(\xi_p)\mathbf{x}^*}$ 为参考，冻结 $\sqrt{w} \approx \dot{u}_\text{ref}$（常数标量），Jerk 变为对 $\mathbf{x}$ 线性：
-
-$$
-\dddot{q}_i \approx \dot{u}_\text{ref}(\xi_p)\left[q'''_i(\xi_p)\,\mathbf{B}(\xi_p) + \frac{3}{2}q''_i(\xi_p)\,\mathbf{B}'(\xi_p) + \frac{1}{2}q'_i(\xi_p)\,\mathbf{B}''(\xi_p)\right]\mathbf{x}_k
-$$
-
-LP 约束行（第二阶 LP）：
-
-$$
-\boxed{\text{Jerk}_i(p,:) = \dot{u}_\text{ref}(\xi_p)\left[q'''_i(\xi_p)\,\mathbf{B}(\xi_p) + \frac{3}{2}q''_i(\xi_p)\,\mathbf{B}'(\xi_p) + \frac{1}{2}q'_i(\xi_p)\,\mathbf{B}''(\xi_p)\right]}
+\mathbf{a}(\xi_p) = \text{inv\_dyn}(\mathbf{q}_p,\;\mathbf{0},\;\mathbf{q}'_p) - \mathbf{c}(\xi_p)
 $$
 
 $$
-\pm\,\text{Jerk}_i(p,:)\,\mathbf{x}_k \leq j_{i,\max}
+\mathbf{b}(\xi_p) = \text{inv\_dyn}(\mathbf{q}_p,\;\mathbf{q}'_p,\;\mathbf{q}''_p) - \mathbf{c}(\xi_p)
 $$
 
-**与加速度约束的本质区别**：
+其中 $\text{inv\_dyn}(\mathbf{q},\dot{\mathbf{q}},\ddot{\mathbf{q}})$ 为完整逆动力学（输出关节力矩向量）。干摩擦项单独叠加至 $\mathbf{c}$：$c_i \mathrel{+}= f_{s,i}\operatorname{sgn}(q'_{p,i})$。
 
-| | 是否线性于 $\mathbf{x}$ | 原因 |
+**约束形式（正则线性约束）**
+
+$$
+\boldsymbol{\tau}_\min \leq \mathbf{a}(\xi_p)\,u + \mathbf{b}(\xi_p)\,x + \mathbf{c}(\xi_p) \leq \boldsymbol{\tau}_\max
+$$
+
+写成标准不等式形式（$2\times6$ 行/点，以矩阵 $\mathbf{F}$、$\mathbf{g}$ 表示）：
+
+$$
+\mathbf{F}\,\bigl(\mathbf{a}(\xi_p)\,u + \mathbf{b}(\xi_p)\,x + \mathbf{c}(\xi_p)\bigr) \leq \mathbf{g}
+$$
+
+$$
+\mathbf{F} = \begin{bmatrix}\mathbf{I}_6 \\ -\mathbf{I}_6\end{bmatrix}, \quad
+\mathbf{g} = \begin{bmatrix}\boldsymbol{\tau}_\max \\ -\boldsymbol{\tau}_\min\end{bmatrix}
+$$
+
+**与加速度约束的对比**
+
+| 约束类型 | $u$ 系数 $\mathbf{a}(\xi)$ | $x$ 系数 $\mathbf{b}(\xi)$ | 是否需线性化 | 对应 TOPPRA 类 |
+|---|---|---|---|---|
+| 关节速度 | $\mathbf{0}$ | — | 否（直接 $x$ 上界） | `JointVelocityConstraint` |
+| 关节加速度 | $\mathbf{q}'(\xi)$ | $\mathbf{q}''(\xi)$ | 否（精确线性） | `JointAccelerationConstraint` |
+| TCP 速度 | $\mathbf{0}$ | — | 否（直接 $x$ 上界） | — |
+| 关节力矩 | $\mathbf{M}\mathbf{q}'$ | $\mathbf{M}\mathbf{q}''+\mathbf{C}\mathbf{q}'\dot{s}$ | 否（精确线性） | `JointTorqueConstraint` |
+
+力矩约束与加速度约束形式完全相同（均为 TOPPRA 的 `CanonicalLinear` 类型：$\mathbf{a}\,u + \mathbf{b}\,x + \mathbf{c} = v$，$\mathbf{F}\,v \leq \mathbf{g}$），无需引入近似，可直接添加到 LP 约束矩阵中。
+
+**动力学参数的获取**
+
+逆动力学函数 $\text{inv\_dyn}$ 由外部动力学库提供（如 Robotics Toolbox 的 `rne`、Pinocchio 的 `rnea`），在 §四 离线采样点处调用，与 IK/Jacobian 一并预计算，不增加 LP 在线计算量。
+
+#### 5.2.6 约束全集汇总（两阶段 LP）
+
+| LP 阶段 | 约束类型 | 实现形式 | 每点行数 | 硬/软约束 | 是否精确线性 |
+|---|---|---|---|---|---|
+| 第一阶段 | 速度上限（关节 + TCP） | $x$ 上界（`xbound`） | 0（不进矩阵） | 硬 | 是 |
+| 第一阶段 | 速度非负 | $x$ 下界（`xbound`） | 0（不进矩阵） | 硬 | 是 |
+| 第一阶段 | 关节加速度（上/下） | $\mathbf{a}\,u+\mathbf{b}\,x \leq \mathbf{g}$ | $2\times6=12$ | 硬 | 是（精确） |
+| 第二阶段（叠加） | 关节 Jerk（上/下） | $\mathbf{A}_j\,\mathbf{x} \leq \mathbf{b}_j$ | $2\times6=12$ | 软 | 是（线性化） |
+| 第二阶段（叠加） | 关节力矩（上/下） | $\mathbf{F}(\mathbf{a}\,u+\mathbf{b}\,x+\mathbf{c})\leq\mathbf{g}$ | $2\times6=12$ | 软 | 是（精确） |
+
+速度约束（关节 + TCP）以 $x$ 的上下界 `xbound` 传入求解器，不占用约束矩阵行数。第一阶段矩阵约束：$12$ 行/点（纯加速度）；第二阶段叠加后矩阵约束：$12 + 12(\text{Jerk}) + 12(\text{力矩}) = 36$ 行/点（6轴机器人）。
+
+---
+
+### 5.3 等式约束（速度与切向加速度连续性）
+
+等式约束保证窗口内相邻段间以及窗口起/末端边界处的速度和切向加速度连续。
+
+#### 5.3.1 连续性的物理意义
+
+相邻段 $k$ 末端和段 $k+1$ 起端在连接点处要求：
+
+$$
+w_k(1) = w_{k+1}(0) \quad\Rightarrow\quad \mathbf{B}(1)\,\mathbf{x}_k - \mathbf{B}(0)\,\mathbf{x}_{k+1} = 0
+$$
+
+$$
+w'_k(1) = w'_{k+1}(0) \quad\Rightarrow\quad \mathbf{B}'(1)\,\mathbf{x}_k - \mathbf{B}'(0)\,\mathbf{x}_{k+1} = 0
+$$
+
+第一个方程保证 $\dot{u}^2$（参数速度）连续，第二个保证 $\ddot{u} = \frac{1}{2}w'$（切向加速度）连续，两者合保证整条轨迹 $C^1$ 平滑。
+
+#### 5.3.2 窗口起端边界条件
+
+| 场景 | $v_0^2$（$= w(0)$） | $2a_{t,0}$（$= w'(0)$） |
 |---|---|---|
-| **加速度** | 精确线性 | $\ddot{u} = \frac{1}{2}w'$，$w'$ 是 $\mathbf{x}$ 的线性函数 |
-| **Jerk** | 非线性（需线性化） | 含 $\dot{u} = \sqrt{w}$ 因子，对 $\mathbf{x}$ 为 $O(w^{3/2})$ |
+| 全局起点（第一窗口） | $0$（静止出发） | $0$ |
+| 中间窗口（从上一窗口提取） | $\mathbf{B}(1)\cdot\mathbf{x}_{k_\text{prev}}$ | $\mathbf{B}'(1)\cdot\mathbf{x}_{k_\text{prev}}$ |
 
-**精度优势**：由于 $q'''_i$ 在采样阶段用完整链式法则精确计算（见 §3.4），第一项 $q'''_i \mathbf{B}$ 无截断误差，Jerk 约束精度 $<2\%$（相比全笛卡尔方案的 5~15%）。
+其中 $\mathbf{x}_{k_\text{prev}}$ 是上一窗口**提交段**（第1段）的已求 B 样条系数。下一窗口起端约束：
+
+$$
+\boxed{\mathbf{B}(0)\,\mathbf{x}_{k+1} = \mathbf{B}(1)\,\mathbf{x}_k} \quad \mathbf{B}'(0)\,\mathbf{x}_{k+1} = \mathbf{B}'(1)\,\mathbf{x}_k
+$$
+
+> 对应 `FeedratePlanning_LP.m`：`ctx.v_0 = sqrt(continuity(1,:)*Coeff(:,1))`，`ctx.at_0 = 0.5*continuity(2,:)*Coeff(:,1)`
+
+#### 5.3.3 窗口末端边界条件（MPC 保守停止）
+
+**中间窗口**：强制末端速度和加速度为零（MPC 保守停止策略），LP 据此提前规划减速；**实际仅提交第一段**，下一窗口重规划后速度连续过渡，整条轨迹不会真正停止：
+
+$$
+\mathbf{B}(1)\,\mathbf{x}_W = 0, \quad \mathbf{B}'(1)\,\mathbf{x}_W = 0
+$$
+
+**最后窗口**：末端约束改为实际终点（机器人在目标点停止），等式右端同为零，但所有 $W$ 段均提交执行。
+
+#### 5.3.4 完整等式约束矩阵
+
+窗口内 $W$ 段，共 $W+1$ 个连接节点（含首尾），每节点 2 行，合计 $\mathbf{A}_\text{eq} \in \mathbb{R}^{2(W+1)\times NW}$：
+
+$$
+\mathbf{A}_\text{eq} = \begin{bmatrix}
++\mathbf{B}(0) & \mathbf{0} & \cdots & \mathbf{0} \\
++\mathbf{B}'(0) & \mathbf{0} & \cdots & \mathbf{0} \\[4pt]
++\mathbf{B}(1) & -\mathbf{B}(0) & \cdots & \mathbf{0} \\
++\mathbf{B}'(1) & -\mathbf{B}'(0) & \cdots & \mathbf{0} \\
+& \ddots & \ddots & \vdots \\
+\mathbf{0} & \cdots & +\mathbf{B}(1) & -\mathbf{B}(0) \\
+\mathbf{0} & \cdots & +\mathbf{B}'(1) & -\mathbf{B}'(0) \\[4pt]
+\mathbf{0} & \cdots & \mathbf{0} & +\mathbf{B}(1) \\
+\mathbf{0} & \cdots & \mathbf{0} & +\mathbf{B}'(1)
+\end{bmatrix},\quad
+\mathbf{b}_\text{eq} = \begin{bmatrix}
+v_0^2 \\ 2a_{t,0} \\[4pt] 0 \\ 0 \\ \vdots \\ 0 \\ 0 \\[4pt] 0 \\ 0
+\end{bmatrix}
+$$
+
+行计数：$\underbrace{2}_{\text{起端}} + \underbrace{2(W-1)}_{\text{段间}} + \underbrace{2}_{\text{末端}} = 2(W+1)$。
+
+---
+
+### 5.4 两阶段 LP 求解策略
+
+两个阶段共用同一个等式约束 $(\mathbf{A}_\text{eq}, \mathbf{b}_\text{eq})$，不等式约束逐步叠加。对应 `FeedratePlanning_LP.m`。
+
+#### 5.4.1 第一阶段 LP（速度 + 加速度，精确线性）
+
+求解：
+
+$$
+\min_\mathbf{x} \;-\mathbf{f}^\top\mathbf{x}, \quad \text{s.t.}\;
+\mathbf{A}_\text{ineq}\mathbf{x} \leq \mathbf{b}_\text{ineq},\;
+\mathbf{A}_\text{eq}\mathbf{x} = \mathbf{b}_\text{eq},\;
+\mathbf{x} \geq 0
+$$
+
+**不等式约束**：§5.2（速度上限 + 速度非负 + 加速度上下限），全部精确线性——因为 $\ddot{u} = \frac{1}{2}w'$ 是 $\mathbf{x}$ 的线性函数，加速度约束从物理上就是精确 LP。
+
+**松弛变量**：添加全局松弛 $s \geq 0$（惩罚项加入目标函数），防止约束不可行导致无解。速度/加速度约束保持硬约束（不在松弛索引 `indSlack` 中）。
+
+**零速松弛迭代**：若路径起端或末端为零速（`ctx.zero_start/zero_end`），LP 可能因约束过紧失败；此时逐步放松 `ConstJerk` 参数（每次除以8，最多15次）重试。
+
+得到解 $\mathbf{x}^*$，提取参考速度 $\dot{u}_\text{ref}(\xi_p) = \sqrt{\mathbf{B}(\xi_p)\mathbf{x}^*}$。
+
+#### 5.4.2 第二阶段 LP（叠加 Jerk 约束，线性化近似）
+
+**Jerk 展开**（精确）：
+
+$$
+\dddot{q}_i = \dot{u}\!\left[q'''_i w + \tfrac{3}{2}q''_i w' + \tfrac{1}{2}q'_i w''\right]
+$$
+
+含 $\dot{u} = \sqrt{w}$ 非线性因子。冻结 $\dot{u} \approx \dot{u}_\text{ref}(\xi_p)$（第一阶段解），Jerk 变为 $\mathbf{x}$ 的线性函数：
+
+$$
+\dddot{q}_i \approx \dot{u}_\text{ref}(\xi_p)\underbrace{\Bigl[q'''_i(\xi_p)\,\mathbf{B} + \tfrac{3}{2}q''_i(\xi_p)\,\mathbf{B}' + \tfrac{1}{2}q'_i(\xi_p)\,\mathbf{B}''\Bigr]}_{\text{Jerk}_i(p,:)}\,\mathbf{x}_k
+$$
+
+Jerk 约束（上/下限）：$\pm\text{Jerk}_i(p,:)\,\mathbf{x}_k \leq j_{i,\max}$，叠加到第一阶段的 $\mathbf{A}_\text{ineq}$ 上，再次求解：
+
+$$
+\mathbf{A}_\text{tot} = \begin{bmatrix}\mathbf{A}_\text{ineq} \\ \mathbf{A}_\text{jerk}\end{bmatrix}, \quad
+\mathbf{b}_\text{tot} = \begin{bmatrix}\mathbf{b}_\text{ineq} \\ \mathbf{b}_\text{jerk}\end{bmatrix}
+$$
+
+**Jerk 约束的软化**：Jerk 约束行进入 `indSlack`（软约束），允许少量违反——原因是 Jerk 行由线性化近似得到，存在近似误差，若保持硬约束可能引入虚假不可行；而速度/加速度硬约束保证物理安全性。
+
+#### 5.4.3 两阶段对比
+
+| 阶段 | 不等式约束 | 是否精确线性 | 等式约束 | Jerk 是否包含 |
+|---|---|---|---|---|
+| 第一阶段 | 速度 + 加速度 | 是（精确） | $\mathbf{A}_\text{eq}\mathbf{x}=\mathbf{b}_\text{eq}$ | 否 |
+| 第二阶段 | 速度 + 加速度 + Jerk | 近似（Jerk线性化） | 同上（不变） | 是（软约束） |
+
+两个阶段**复用同一目标函数和等式约束**，仅不等式约束矩阵增加了 Jerk 行。第二阶段结果可能比第一阶段更保守（速度略低），换取 Jerk 满足。
+
+> 对应代码：`FeedratePlanning_LP.m` 第39~68行为第一阶段，第72~101行为第二阶段（`if ctx.cfg.opt.USE_JERK_CONSTRAINTS`）。
+
+---
 
 ### 5.5 滑动窗口 MPC 策略
 
 #### 5.5.1 窗口化动机
 
-将全路径 $K$ 段同时纳入单一 LP，约束矩阵规模为 $O(K \times N)$，对长路径（$K = 500\sim5000$）LP 求解时间不可接受。**滑动窗口 MPC（Model Predictive Control）** 策略：
+全路径 $K$ 段同时纳入 LP，约束矩阵规模 $O(K \times N)$，长路径（$K > 500$）计算时间不可接受。**滑动窗口 MPC** 策略：每次仅对 $W \ll K$ 段求解，**仅提交第一段**，窗口向前滑动一段后重规划。直接复用 OpenCN 的 `FeedratePlanning_LP.m` 框架。
 
-- 每次仅对 $W$ 段（$W \ll K$）构造并求解 LP
-- **仅提交第一段**的 B 样条系数（实际执行）
-- 窗口向前滑动一段，重新规划
-
-本方案可直接复用 OpenCN 的 `feedratePlanningGetwindow.m` + `FeedratePlanning_LP.m` 滑动窗口框架。
-
-#### 5.5.2 窗口结构
+#### 5.5.2 窗口滑动流程
 
 ```
-全路径（K 段）：[seg1 | seg2 | seg3 | ... | segK]
+全路径（K 段）：[seg1 | seg2 | ... | segK]
 
-窗口 1（W=5）：┌─────────────────────────┐
-               │ seg1  seg2  seg3  seg4  seg5 │
-               └──┬──────────────────────────┘
-                  │ 提交 seg1，窗口滑动
-窗口 2：       ┌─────────────────────────┐
-               │ seg2  seg3  seg4  seg5  seg6 │
-               └──┬──────────────────────────┘
-                  │ 提交 seg2，窗口滑动
+窗口 1（W=5）：[seg1  seg2  seg3  seg4  seg5]
+                 ↑提交 seg1 → 提取末端 v₀², at₀ 传递给窗口2
+窗口 2：        [seg2  seg3  seg4  seg5  seg6]
+                 ↑提交 seg2 → 提取末端边界...
 ...
-窗口 K-W+1：   ┌───────────────────────────┐
-               │ seg_{K-W+1} ... seg_K        │  ← 最后窗口
-               └──┬────────────────────────────┘
-                  │ 提交全部剩余段
+最后窗口：      [seg_{K-W+1} ... seg_K]
+                 ↑提交全部剩余段（末端为实际终点零速）
 ```
-
-每个窗口包含 $W$ 段、$W+1$ 个约束节点（含首尾），LP 规模固定为 $O(W)$，不随 $K$ 增长。
 
 #### 5.5.3 窗口大小 $W$ 的选择
 
-$W$ 需满足"前瞻距离 $\geq$ 最大制动距离"，防止 LP 无法提前预见减速段：
+$W$ 需满足前瞻距离 $\geq$ 最大制动距离：
 
 $$
-\boxed{W \cdot \bar{h} \;\geq\; d_\text{brake} = \frac{v_{\max}^2}{2\,\max_i\{\ddot{q}_{i,\max}\}}}
+\boxed{W \cdot \bar{h} \;\geq\; \frac{\dot{q}_{\max}^2}{2\,\ddot{q}_{\max}}}
 $$
 
-其中 $\bar{h}$ 为平均段关节空间弧长。示例（UR5：$v_\max = 2$ rad/s，$\ddot{q}_\max = 10$ rad/s²，$\bar{h} = 0.02$ rad）：
+$\bar{h}$ 为平均段弧长。典型 UR5（$\dot{q}_\max=3.15$ rad/s，$\ddot{q}_\max=40$ rad/s²，$\bar{h}=0.02$ rad）：$d_\text{brake} = 3.15^2/80 \approx 0.12$ rad，$W \geq 6$，建议取 $W=15\sim30$。
+
+#### 5.5.4 约束矩阵维度（每个窗口）
 
 $$
-d_\text{brake} = \frac{4}{20} = 0.2\;\text{rad} \;\Rightarrow\; W \geq \left\lceil\frac{0.2}{0.02}\right\rceil = 10
+\mathbf{A}_\text{ineq} \in \mathbb{R}^{14\,MW \;\times\; NW}, \quad
+\mathbf{A}_\text{eq} \in \mathbb{R}^{2(W+1) \;\times\; NW}
 $$
 
-建议取 $W = 15\sim30$，留有 $1.5\sim3\times$ 制动距离的余量。
-
-#### 5.5.4 末端零速保守策略（MPC Conservative Stop）
-
-对**中间窗口**（非最后窗口），末端边界强制设为：
-
-$$
-v_1 = 0,\quad a_{t,1} = 0 \quad\text{（MPC 保守停止）}
-$$
-
-LP 被迫规划在窗口末端减速到零，但**实际仅提交第一段**，下一窗口重新规划后速度连续。整条轨迹**不会真正停止**，窗口边界处的"停止点"随窗口前移而持续前移。
-
-$$
-\underbrace{\text{LP 规划：需减速到零}}_{\text{窗口末端约束}}
-\xrightarrow{\text{仅提交第一段}}
-\underbrace{\text{实际：速度连续过渡}}_{\text{下一窗口重规划}}
-$$
-
-对**最后窗口**，末端约束改为实际终端条件（机器人停止在目标点，$v_1 = 0$）。
-
-### 5.6 跨窗口边界连续性约束
-
-#### 5.6.1 连续性约束的三个来源
-
-窗口 $i$ 的 LP 起端边界条件 $(v_0^2,\; a_{t,0})$ 来自三个来源（与 OpenCN `feedratePlanningSetupCurves.m` 的 `ctx.v_0 / ctx.at_0` 一一对应）：
-
-| 场景 | $v_0^2$ | $a_{t,0}$ |
-|---|---|---|
-| 第一个窗口（全局起点） | $0$（从静止出发） | $0$ |
-| 中间窗口（从上一窗口 LP 解提取） | $\mathbf{b}_\text{cont} \cdot \mathbf{x}_k$ | $\dfrac{1}{2}\mathbf{b}'_\text{cont} \cdot \mathbf{x}_k$ |
-| LP 失败松弛后重规划 | 从松弛后零速曲线连接点重新计算 | 同上 |
-
-#### 5.6.2 从 LP 解中提取边界条件
-
-设窗口 $i$ 中提交段（段 $k$）的 B 样条系数向量为 $\mathbf{x}_k$，B 样条基函数在段末（$u=1$）的求值行向量为：
-
-$$
-\mathbf{b}_\text{cont} = \mathbf{B}(1) \in \mathbb{R}^{1\times N}, \qquad
-\mathbf{b}'_\text{cont} = \mathbf{B}'(1) \in \mathbb{R}^{1\times N}
-$$
-
-下一窗口（窗口 $i+1$）的起端边界条件：
-
-$$
-\boxed{v_0^2[\text{next}] = \mathbf{b}_\text{cont} \cdot \mathbf{x}_k}
-$$
-
-$$
-\boxed{a_{t,0}[\text{next}] = \frac{1}{2}\,\mathbf{b}'_\text{cont} \cdot \mathbf{x}_k}
-$$
-
-因子 $\tfrac{1}{2}$ 来自关系 $a_t = \tfrac{1}{2}\dfrac{d(\dot{u}^2)}{du} = \tfrac{1}{2}\,\mathbf{B}'(u)\mathbf{x}$。
-
-#### 5.6.3 窗口 LP 的完整等式约束矩阵
-
-窗口内 $W$ 段、$W+1$ 个节点，等式约束共 $2(W+1)$ 行：
-
-$$
-\mathbf{A}_\text{eq} = \begin{bmatrix}
-\mathbf{B}(0)  & \mathbf{0}     & \cdots & \mathbf{0}      \\[2pt]
-\mathbf{B}'(0) & \mathbf{0}     & \cdots & \mathbf{0}      \\[4pt]
-\mathbf{B}(1)  & -\mathbf{B}(0) & \cdots & \mathbf{0}      \\
-\mathbf{B}'(1) & -\mathbf{B}'(0)& \cdots & \mathbf{0}      \\
-               & \ddots         & \ddots & \vdots          \\
-\mathbf{0}     & \cdots & \mathbf{B}(1)  & -\mathbf{B}(0)  \\
-\mathbf{0}     & \cdots & \mathbf{B}'(1) & -\mathbf{B}'(0) \\[4pt]
-\mathbf{0}     & \cdots & \mathbf{0}  & \mathbf{B}(1)   \\
-\mathbf{0}     & \cdots & \mathbf{0}  & \mathbf{B}'(1)  \\
-\end{bmatrix},
-\quad
-\mathbf{b}_\text{eq} = \begin{bmatrix}
-v_0^2           \\
-2\,a_{t,0}      \\[4pt]
-0 \\ 0          \\
-\vdots          \\
-0 \\ 0          \\[4pt]
-v_1^2           \\
-2\,a_{t,1}
-\end{bmatrix}
-$$
-
-其中 $v_0^2, a_{t,0}$ 由 §5.6.2 从上一窗口提取；$v_1^2 = 0, a_{t,1} = 0$ 为 MPC 保守终端（最后窗口改为实际终端）。
-
-该结构与 OpenCN `buildConstr.m` 完全一致，可直接复用。
-
-#### 5.6.4 跨窗口 C¹ 连续性保证
-
-每次滑动窗口后，下一窗口的起端等式约束精确等于当前提交段末端的 LP 解，因此：
-
-- **速度连续**：$w(u)$ 在提交点处完全匹配（$v^2$ 无跳变）
-- **切向加速度连续**：$dw/du$ 在提交点处完全匹配（$a_t$ 无跳变）
-- **整条轨迹 $C^1$ 连续**：无论窗口如何滑动，速度和加速度均连续
-
-> 这与 OpenCN `feedratePlanningSetupCurves.m` 中 `zero_start=false` 路径的行为一致：
-> `ctx.v_0 = sqrt(continuity * Coeff(:,1))` 即 $\mathbf{b}_\text{cont} \cdot \mathbf{x}_k$ 的平方根，
-> `ctx.at_0 = continuity_acc * Coeff(:,1)` 即 $\tfrac{1}{2}\mathbf{b}'_\text{cont} \cdot \mathbf{x}_k$。
-
-### 5.7 窗口内段间 $C^1$ 连续性（等式约束）
-
-§5.6.3 的 $\mathbf{A}_\text{eq}$ 中间行已包含窗口内相邻段间的连续性：相邻段 $k$ 和 $k+1$ 在连接点处要求速度和切向加速度连续：
-
-$$
-\begin{cases}
-v^2_k(1) = v^2_{k+1}(0) & \Rightarrow\quad \mathbf{B}(1)\,\mathbf{x}_k - \mathbf{B}(0)\,\mathbf{x}_{k+1} = 0 \\[4pt]
-a_{t,k}(1) = a_{t,k+1}(0) & \Rightarrow\quad \mathbf{B}'(1)\,\mathbf{x}_k - \mathbf{B}'(0)\,\mathbf{x}_{k+1} = 0
-\end{cases}
-$$
-
-结合窗口起端（§5.6.2）和末端（MPC 保守停止）边界，完整等式约束已在 §5.6.3 的 $\mathbf{A}_\text{eq}$ 中给出，共 $2(W+1)$ 行：
-
-$$
-\underbrace{2}_{\text{起端}} + \underbrace{2(W-1)}_{\text{段间连接}} + \underbrace{2}_{\text{末端}} = 2(W+1) \;\text{行}
-$$
-
-### 5.8 约束矩阵维度汇总（每个滑动窗口）
-
-窗口大小 $W$ 段，每段 $M_\text{LP}$ 个离散点，B 样条阶次 $N$：
-
-$$
-N_c^\text{ineq} = \underbrace{1}_{\text{速度非负}} + \underbrace{2 \times 6}_{\text{关节速度}} + \underbrace{2 \times 6}_{\text{关节加速度}} = 25\;\text{行/点}
-$$
-
-$$
-\mathbf{A}_\text{ineq} \in \mathbb{R}^{N_c^\text{ineq} \cdot M_\text{LP} \cdot W \;\times\; N \cdot W},
-\quad \mathbf{A}_\text{eq} \in \mathbb{R}^{2(W+1) \;\times\; N \cdot W}
-$$
-
-与全局一次规划（$K$ 替换 $W$）相比，矩阵规模缩减 $K/W$ 倍，LP 求解时间显著降低（稀疏矩阵下约降低 $(K/W)^{1.5\sim2.5}$ 倍）。
-
-完整约束矩阵结构（段 $k$，点 $p$）：
-
-$$
-\mathbf{A}_{k}(p) = \begin{bmatrix}
--\mathbf{B}(\xi_p) \\[3pt]
-q'_1(\xi_p)^2\,\mathbf{B}(\xi_p) \\
-\vdots \\
-q'_6(\xi_p)^2\,\mathbf{B}(\xi_p) \\[3pt]
-+\text{Acc}_1(p,:) \\
-\vdots \\
-+\text{Acc}_6(p,:) \\[3pt]
--\text{Acc}_1(p,:) \\
-\vdots \\
--\text{Acc}_6(p,:)
-\end{bmatrix},
-\quad
-\mathbf{b}_{k}(p) = \begin{bmatrix}
-0 \\[3pt]
-\dot{q}_{1,\max}^2 \\
-\vdots \\
-\dot{q}_{6,\max}^2 \\[3pt]
-\ddot{q}_{1,\max} \\
-\vdots \\
-\ddot{q}_{6,\max} \\[3pt]
-\ddot{q}_{1,\max} \\
-\vdots \\
-\ddot{q}_{6,\max}
-\end{bmatrix}
-$$
+（第二阶段叠加 Jerk 后：$\mathbf{A}_\text{tot} \in \mathbb{R}^{(14+2N_\text{axis})\,MW \;\times\; NW}$，即每点增加 $2\times6=12$ 行 Jerk 约束。）
 
 ---
 
@@ -804,10 +931,17 @@ $$
 ```
 robot_topp.m（主入口）
 │
-├── g2_blend_path.m                  ─── §2.5：G2 路径平滑
-│   ├── detect_junctions()           检测分段路径交接点
-│   ├── compute_blend_length()       计算混合长度 δ_j
-│   └── quintic_hermite_blend()      五次 Hermite 混合曲线
+├── robot_g2_smooth.m                ─── §2.5：G2 路径平滑（新建，薄包装）
+│   │   对每对相邻段调用 calcTransition，组装增广 CurvStruct 数组
+│   ├── [复用] calcTransition()      完整 G2 过渡流程（common/Feedopt）
+│   │   ├── [复用] LengthCurv()     计算段弧长（= zone 候选上限）
+│   │   ├── [复用] cutCurvStruct()  截短相邻段两端（各截 CutOff）
+│   │   ├── [复用] EvalCurvStruct() 评估截短端点处 r0D/r1D/r2D
+│   │   │       含 robot_mode 分支 → EvalRobotCurv（Line/Helix）
+│   │   ├── [复用] G2_Hermite_Interpolation_nAxis()
+│   │   │       Frenet 框架 + α0/α1 最优化 → 五次多项式系数 p5
+│   │   ├── [复用] constrTransP5Struct()  构造 TransP5 曲线段
+│   │   └── [复用] check_continuity()    G2 连续性验证（位置/切线/曲率）
 │
 ├── cartesian_path_sample.m          ─── §2.1~2.4：自适应离散化
 │   ├── position_curvature()         位置曲率 κ_pos
@@ -879,13 +1013,23 @@ SegConstrData(k)
 function result = robot_topp(cart_path, robot_params)
 %
 % 输入：
-%   cart_path   : 笛卡尔路径描述（含分段列表、各段 r/r'/r''/r'''）
-%   robot_params: 机器人参数（DH, q_lim, vmax, amax, jmax, W, eps_pos, eps_ori）
+%   cart_path   : CurvStruct 数组（直线/圆弧段，由 RobotCurvStruct/RobotArcSegment 构造）
+%   robot_params: 机器人参数（DH, q_lim, vmax, amax, jmax, W, eps_pos, eps_ori, delta_max）
+
+%% 初始化机器人上下文（复用 initRobotPlan）
+cfg = RobotDefaultConfig(robot_params);
+kin = RobotKinematics(cfg.dh_params, cfg.robot_config, cfg.q_lim);
+ctx = initRobotPlan(cfg, kin);   % 含 B 样条基、ctx.robot_mode=true
+% ctx.cfg.CutOff 由 FeedoptDefaultConfig 设定，可被 robot_params.delta_max 覆盖
+if isfield(robot_params, 'delta_max')
+    ctx.cfg.CutOff = robot_params.delta_max;
+end
 
 %% 预处理一：G2 路径平滑（§2.5）
-cart_path_g2 = g2_blend_path(cart_path, ...
-    robot_params.eps_blend, ...   % 混合容差
-    robot_params.delta_max);      % 最大混合长度
+% robot_g2_smooth 对每对相邻段调用 calcTransition（common/Feedopt），
+% 在交接点两端各截去 CutOff（= zone 距离），插入 TransP5 过渡段。
+% 输出：增广 CurvStruct 数组（原始截短段 + TransP5 段交替排列）
+cart_path_g2 = robot_g2_smooth(ctx, cart_path, robot_params.delta_max);
 
 %% 预处理二：自适应离散化（§2.1~2.4）
 [t_sample, r_sample] = adaptive_sample_path(cart_path_g2, ...
@@ -943,15 +1087,19 @@ end
 
 ### 6.4 与 OpenCN 框架的复用关系
 
-| OpenCN 组件 | 复用方式 |
-|---|---|
-| `c_simplex`（LP 求解器） | 直接复用，接口不变 |
-| `compute_scaling_matrix` | 弧长改为关节空间弧长 $h_k$ |
-| `resample2file`（重采样） | 直接复用（输出已是关节空间） |
-| `buildConstr.m` | **替换**为 `build_joint_constr.m`（结构相同，系数来源不同） |
-| `EvalCurvStruct` | **替换**为 `eval_hermite_segment`（从预计算数据取值） |
-| `FeedratePlanning_LP` | 直接复用（LP 两阶段策略不变） |
-| 滑动窗口 MPC | 直接复用（窗口 = 连续若干段） |
+| OpenCN 组件 | 所在目录 | 复用方式 |
+|---|---|---|
+| `calcTransition` | `common/Feedopt/` | **直接调用**（完整 G2 过渡流程，含截短+插值+验证） |
+| `G2_Hermite_Interpolation_nAxis` | `common/Feedopt/` | **直接调用**（Frenet 框架最优 α0/α1 求解，§2.5.2） |
+| `cutCurvStruct` | `common/Feedopt/` | **直接调用**（弧长截短，实现 zone 距离） |
+| `LengthCurv` | `common/Feedopt/` | **直接调用**（计算段弧长，用于 zone 上限判断） |
+| `EvalCurvStruct` | `common/Feedopt/` | **直接调用**（含 robot_mode 分支 → EvalRobotCurv） |
+| `constrTransP5Struct` | `common/types/` | **直接调用**（构造 TransP5 过渡曲线结构体） |
+| `c_simplex`（LP 求解器） | `common/Feedopt/` | 直接复用，接口不变 |
+| `FeedratePlanning_LP` | `common/Feedopt/` | 直接复用（LP 两阶段策略不变） |
+| `resample2file`（重采样） | `common/Feedopt/` | 直接复用（输出已是关节空间） |
+| `buildConstr.m` | `common/Feedopt/` | **替换**为 `build_joint_constr.m`（系数来源不同） |
+| 滑动窗口 MPC | `common/Feedopt/` | 直接复用（窗口 = 连续若干段） |
 
 ---
 
@@ -1064,11 +1212,41 @@ $$
 + \frac{1}{2}q'_i(\xi_p)\,\mathbf{B}''(\xi_p)\right]
 $$
 
-### 8.5 有效速度上限
+### 8.5 有效速度上限（含笛卡尔 TCP 约束）
 
 $$
-\dot{u}^2_\text{max}(\xi_p) = \min_{i=1}^{6} \frac{\dot{q}_{i,\max}^2}{q'_i(\xi_p)^2}
+f_\text{max}(\xi_p) = \min\!\left(
+\min_{i=1}^{6}\frac{\dot{q}_{i,\max}^2}{q'_i(\xi_p)^2},\;\;
+\frac{v_\text{tcp,max}^2}{c_v(\xi_p)^2},\;\;
+\frac{\omega_\text{tcp,max}^2}{c_\omega(\xi_p)^2}
+\right)
 $$
+
+### 8.5b 力矩约束系数（第二阶段叠加，精确线性）
+
+通过三次逆动力学调用精确分离系数（对照 TOPPRA `JointTorqueConstraint`）：
+
+$$
+\mathbf{c}(\xi_p) = \text{inv\_dyn}(\mathbf{q}_p, \mathbf{0}, \mathbf{0})
+$$
+
+$$
+\mathbf{a}(\xi_p) = \text{inv\_dyn}(\mathbf{q}_p, \mathbf{0}, \mathbf{q}'_p) - \mathbf{c}(\xi_p)
+$$
+
+$$
+\mathbf{b}(\xi_p) = \text{inv\_dyn}(\mathbf{q}_p, \mathbf{q}'_p, \mathbf{q}''_p) - \mathbf{c}(\xi_p)
+$$
+
+约束形式（$u = \ddot{s}$，$x = \dot{s}^2$，每关节上/下各 1 行）：
+
+$$
+\mathbf{F}\,\bigl(\mathbf{a}(\xi_p)\,u + \mathbf{b}(\xi_p)\,x + \mathbf{c}(\xi_p)\bigr) \leq \mathbf{g}, \quad
+\mathbf{F} = \begin{bmatrix}\mathbf{I}_6\\-\mathbf{I}_6\end{bmatrix},\quad
+\mathbf{g} = \begin{bmatrix}\boldsymbol{\tau}_\max\\-\boldsymbol{\tau}_\min\end{bmatrix}
+$$
+
+科氏项 $\mathbf{C}(\mathbf{q},\mathbf{q}'\dot{s})\mathbf{q}'\dot{s}^2$ 天然对 $x$ 线性，故此约束**无需线性化**，直接精确成立。
 
 ### 8.6 LP 目标函数
 
@@ -1090,29 +1268,244 @@ v_0^2[\text{next}] = \mathbf{B}(1)\cdot\mathbf{x}_k, \qquad
 a_{t,0}[\text{next}] = \frac{1}{2}\,\mathbf{B}'(1)\cdot\mathbf{x}_k
 $$
 
-### 8.9 完整五阶段解耦总结
+### 8.9 完整解耦阶段总结
+
+| 阶段 | 名称 | 输入 | 输出 | 核心操作 |
+|---|---|---|---|---|
+| 0 | G2 路径平滑 | 分段路径（G0/G1） | G2 连续路径 | `calcTransition` → TransP5 过渡段 |
+| 1 | 自适应离散化 | G2 路径 $r(s)$ | $M$ 个采样点 $\{t_m\}$ | 曲率驱动步长 |
+| 2 | 关节空间预计算 | $\{r(t_m)\}$ | $\{q_m, q'_m, q''_m, q'''_m, \mathbf{M}_m, \mathbf{C}_m, \mathbf{g}_m, \mathbf{J}_m\}$ | IK + Jacobian + 动力学 |
+| 3 | 两阶段 LP（每窗口） | 预计算数据 + 边界 | $w^*(\xi)$ → $q(t), \dot{q}(t), \ddot{q}(t)$ | 第一阶段（速度+加速度）+ 第二阶段（Jerk+力矩） |
+
+---
+
+## 九、完整算法流程图
+
+### 9.1 总体流程（离线预处理 + 在线规划）
 
 ```
-阶段 0（G2 平滑）：角点混合，消除曲率跳变
-    输入：分段路径（G0/G1 连续）
-    输出：G2 连续路径（保证 q'' 无跳变）
+┌─────────────────────────────────────────────────────────────────────┐
+│                         输 入                                        │
+│  笛卡尔路径段数组（直线/圆弧 CurvStruct），机器人参数                   │
+│  （DH参数、q_lim、vmax、amax、jmax、τ_max、v_tcp_max、ω_tcp_max）     │
+└───────────────────────────┬─────────────────────────────────────────┘
+                            │
+            ════════════════╪════════════════
+            ║  阶段 0：G2 路径平滑（§2.5）  ║
+            ════════════════╪════════════════
+                            │
+        ┌───────────────────▼───────────────────┐
+        │  对每对相邻段 (curv_j, curv_{j+1})：   │
+        │  ① LengthCurv → L1, L2               │
+        │  ② delta = min(CutOff, L1/3, L2/3)   │
+        │  ③ L1 < 3·delta 或 L2 < 3·delta?      │
+        │     是 → 跳过（保留G1角点）            │
+        │     否 → cutCurvStruct 截短两端        │
+        │  ④ EvalCurvStruct → r0D0/r1D/r2D      │
+        │                      r1D0/r1D/r2D     │
+        │  ⑤ G2_Hermite_Interpolation_nAxis     │
+        │     → p5系数，status                   │
+        │     status∈{1,6}? 是 → constrTransP5  │
+        │                   否 → 保留G1角点      │
+        │  ⑥ check_continuity 验证               │
+        └───────────────────┬───────────────────┘
+                            │
+              输出：G2连续路径（截短段+TransP5段交替）
+                            │
+            ════════════════╪════════════════════════
+            ║  阶段 1：笛卡尔路径自适应离散化（§2.1-2.4）║
+            ════════════════╪════════════════════════
+                            │
+        ┌───────────────────▼───────────────────┐
+        │  t = 0，SampleList = {0}              │
+        │  while t < t_end:                     │
+        │    ① 计算位置曲率 κ_pos(t)             │
+        │       计算姿态曲率 κ_ori(t)            │
+        │    ② Δs_pos = sqrt(8·ε_pos / κ_pos)  │
+        │       Δs_ori = sqrt(8·ε_ori / κ_ori)  │
+        │    ③ Δs = clamp(min(Δs_pos,Δs_ori),  │
+        │                  Δs_min, Δs_max)      │
+        │    ④ t_next = t + Δs / |r'(t)|       │
+        │       SampleList.append(t_next)       │
+        └───────────────────┬───────────────────┘
+                            │
+              输出：M 个采样参数 {t_m}，{r(t_m)}
+                            │
+            ════════════════╪══════════════════════════════
+            ║  阶段 2：关节空间导数预计算（§三 + 动力学）  ║
+            ════════════════╪══════════════════════════════
+                            │
+        ┌───────────────────▼─────────────────────────────┐
+        │  for m = 1 .. M:                                │
+        │    ① IK: q_m = IK(r(t_m))                      │
+        │          选最近解，保持构型连续                    │
+        │    ② J_m = geometric_jacobian(q_m)              │
+        │          rcond(J_m) < 1e-6 → DLS (λ=0.05)      │
+        │    ③ q'_m  = J_m⁻¹ · r'(t_m)    （一阶导）     │
+        │    ④ q''_m = J_m⁻¹·r''(t_m) - J_m⁻¹·dJ/du·q'_m│
+        │    ⑤ q'''_m = J_m⁻¹·r'''(t_m) - ...（三阶导）  │
+        │    ⑥ 预计算约束系数：                            │
+        │       · c_v(t_m)  = |J_v·q'_m|  （TCP线速度）   │
+        │       · c_ω(t_m)  = |J_ω·q'_m|  （TCP角速度）   │
+        │       · M_m = inertia(q_m)      （惯性矩阵）    │
+        │       · C_m = coriolis(q_m,q'_m)（科氏矩阵）    │
+        │       · g_m = gravload(q_m)     （重力向量）    │
+        │       · a_m = M_m·q''_m + (C_m+Fv)·q'_m·ůref/2w*│
+        │       · b_m = 0.5·M_m·q'_m     （力矩约束b系数）│
+        │       · d_m = g_m               （重力偏置）    │
+        └───────────────────┬─────────────────────────────┘
+                            │
+              输出：{q_m, q'_m, q''_m, q'''_m,
+                     c_v_m, c_ω_m, a_m, b_m, d_m}
+                            │
+            ════════════════╪══════════════════════════════════
+            ║  阶段 3：滑动窗口 MPC + 两阶段 LP（§五）      ║
+            ════════════════╪══════════════════════════════════
+                            │
+        ┌───────────────────▼────────────────────────────────┐
+        │  初始化：k=1, v₀²=0, at₀=0, result=[]            │
+        │                                                    │
+        │  while k ≤ K:                                      │
+        │    W_cur = min(W, K-k+1)    （当前窗口实际段数）   │
+        │                                                    │
+        │  ┌─ 构造等式约束（§5.3）─────────────────────────┐ │
+        │  │  Aeq·x = beq                                  │ │
+        │  │  行结构：起端(v₀²,2at₀) + 段间(0,0) + 末端(0,0)│ │
+        │  └────────────────────────────────────────────────┘ │
+        │                                                    │
+        │  ┌─ 第一阶段 LP（§5.4.1）────────────────────────┐ │
+        │  │  构造 A_ineq（14行/点×M×W_cur）：              │ │
+        │  │    · 速度上限：B·x ≤ f_max（含TCP速度约束）   │ │
+        │  │    · 速度非负：-B·x ≤ 0                       │ │
+        │  │    · 加速度±：Acc_i·x ≤ ±amax_i              │ │
+        │  │  调用 buildConstr → [A,b,Aeq,beq]             │ │
+        │  │  添加松弛变量，调用 c_simplex                  │ │
+        │  │  LP失败且零速端? → relax_initial重试（≤15次）  │ │
+        │  │  成功 → 得到 x*，计算 ůref = sqrt(B·x*)       │ │
+        │  └────────────────────────────────────────────────┘ │
+        │                  │                                  │
+        │                  ↓ x* 可用                          │
+        │  ┌─ 第二阶段 LP（§5.4.2）────────────────────────┐ │
+        │  │  基于 ůref 线性化，叠加软约束（indSlack）：     │ │
+        │  │    · Jerk ±：Jerk_i·x ≤ ±jmax_i（软）        │ │
+        │  │    · 力矩 ±：[a_i·B + b_i·B']·x ≤            │ │
+        │  │               ±τmax_i ∓ d_i（软）             │ │
+        │  │  A_tot = [A_ineq; A_jerk; A_torque]           │ │
+        │  │  调用 buildConstrJerk → Aj                     │ │
+        │  │  调用 c_simplex（含软化松弛）                   │ │
+        │  │  成功 → 得到最终 x**                            │ │
+        │  └────────────────────────────────────────────────┘ │
+        │                  │                                  │
+        │                  ↓ x** 已求                         │
+        │    提交第一段（段 k）：                              │
+        │      · resampleCurv(x**[:,1]) → q(t),qd(t),qdd(t) │
+        │      · result.append(当前段轨迹)                    │
+        │    提取下一窗口边界（§5.3.2）：                     │
+        │      · v₀² = B(1)·x**[:,1]                        │
+        │      · at₀ = 0.5·B'(1)·x**[:,1]                  │
+        │    k = k + 1，窗口前滑                              │
+        └───────────────────┬────────────────────────────────┘
+                            │
+            ════════════════╪═══════════
+            ║  输 出                   ║
+            ════════════════╪═══════════
+                            │
+        ┌───────────────────▼────────────┐
+        │  q(t)   ：[6×T] 关节角轨迹     │
+        │  qd(t)  ：[6×T] 关节速度轨迹   │
+        │  qdd(t) ：[6×T] 关节加速度轨迹 │
+        │  全程 C¹ 连续，满足：          │
+        │    · 关节速度/加速度/Jerk 约束  │
+        │    · TCP 线速度/角速度约束      │
+        │    · 关节力矩约束（电机额定）   │
+        └────────────────────────────────┘
+```
 
-阶段一（几何）：笛卡尔曲率 → 自适应采样
-    输入：r(s)，κ_pos(s)，κ_ori(s)
-    输出：M 个采样点 {t_m}
+### 9.2 约束构建细节流程（阶段3 内部）
 
-阶段二（运动学）：IK + Jacobian 链式法则
-    输入：{t_m}，{r(t_m)}
-    输出：{q_m, q'_m, q''_m, q'''_m}     ← 一次性，离线完成
+```
+每个 LP 离散点 ξ_p（共 M×W_cur 个点）：
 
-阶段三（动力学 · 滑动窗口）：关节空间 LP 时间最优
-    每窗口（W 段）：
-      - 起端约束：v_0², a_t0（从上一窗口提取）
-      - 末端约束：v_1=0（MPC 保守停止）
-      - 仅提交第一段，窗口前滑
-    输出：最优 ud²(u)，继而 q(t), qd(t), qdd(t)，全程 C¹ 连续
+  已知（预计算）：q'(ξ_p), q''(ξ_p), q'''(ξ_p)
+                  c_v(ξ_p), c_ω(ξ_p)
+                  a(ξ_p), b(ξ_p), d(ξ_p)  [力矩系数]
+                  B(ξ_p), B'(ξ_p), B''(ξ_p)  [B样条基]
+
+  ─────────────── 第一阶段约束行 ──────────────────
+  行 1   速度上限：   B(ξ_p) · x   ≤  f_max(ξ_p)
+                  f_max = min(vmax_i²/q'_i², v_tcp²/c_v², ω_tcp²/c_ω²)
+
+  行 2   速度非负：  -B(ξ_p) · x   ≤  0
+
+  行 3~8  加速度上限：  Acc_i · x  ≤  amax_i
+  行 9~14 加速度下限： -Acc_i · x  ≤  amax_i
+             Acc_i = q''_i·B + 0.5·q'_i·B'  [精确线性]
+
+  ─────────────── 第二阶段追加（软约束）────────────
+  行 15~20 Jerk 上限：  Jerk_i · x  ≤  jmax_i
+  行 21~26 Jerk 下限： -Jerk_i · x  ≤  jmax_i
+             Jerk_i = ůref·[q'''_i·B + 1.5·q''_i·B' + 0.5·q'_i·B'']
+
+  行 27~32 力矩上限：  [a_i·B + b_i·B'] · x  ≤  τmax_i - d_i
+  行 33~38 力矩下限： -[a_i·B + b_i·B'] · x  ≤  τmax_i + d_i
+
+  ─────────────── 等式约束（与离散点无关）──────────
+  行 1~2   窗口起端：  B(0)·x₁ = v₀²，  B'(0)·x₁ = 2·at₀
+  行 3~4   段间连续：  B(1)·xₖ = B(0)·x_{k+1}（速度²）
+                       B'(1)·xₖ = B'(0)·x_{k+1}（切向加速度）
+  行 end-1~end 末端：  B(1)·x_W = 0，  B'(1)·x_W = 0
+```
+
+### 9.3 数据依赖关系图（阶段间的数据流）
+
+```
+  robot_params                    cart_path（CurvStruct数组）
+  (DH, q_lim,                          │
+   vmax, amax,                          │
+   jmax, τmax,              ┌───────────▼──────────┐
+   v_tcp_max,               │  阶段0：G2路径平滑     │
+   ω_tcp_max,               │  calcTransition       │
+   delta_max)               │  G2_Hermite + TransP5 │
+        │                   └───────────┬──────────┘
+        │                               │ path_g2（G2连续）
+        │                   ┌───────────▼──────────┐
+        │                   │  阶段1：自适应离散化   │
+        │                   │  κ驱动步长 → {t_m}   │
+        │                   └───────────┬──────────┘
+        │                               │ {t_m, r(t_m)}（M点）
+        ├──────────────────►┌───────────▼──────────┐
+        │  DH, q_lim        │  阶段2：关节空间预计算 │
+        │  vmax(speed ck)   │  IK→q_m              │
+        │                   │  Jacobian→q'_m,q''_m  │
+        │                   │  Dynamics→a_m,b_m,d_m │
+        │                   │  TCP→c_v_m, c_ω_m     │
+        │                   └───────────┬──────────┘
+        │                               │ JointPathData（M点预计算值）
+        ├──────────────────►┌───────────▼──────────┐
+        │  vmax,amax,jmax   │  阶段3：滑动窗口LP    │
+        │  τmax,v_tcp_max   │  ┌──────────────────┐ │
+        │  ω_tcp_max, W     │  │ 等式约束（§5.3）  │ │
+        │                   │  │ 第一阶段LP（§5.4.1)│ │
+        │                   │  │ 速度+加速度（硬）  │ │
+        │                   │  └────────┬─────────┘ │
+        │                   │           │ x*,ůref   │
+        │                   │  ┌────────▼─────────┐ │
+        │                   │  │ 第二阶段LP（§5.4.2)│ │
+        │                   │  │ +Jerk（软）       │ │
+        │                   │  │ +力矩（软）       │ │
+        │                   │  └────────┬─────────┘ │
+        │                   │           │ x**       │
+        │                   └───────────┬──────────┘
+        │                               │ 提交段1，边界传递
+        │                               ▼
+        │                    q(t), qd(t), qdd(t)
+        │                    满足全部约束
+        └──────────────────────────────────┘
+
+  [前向数据流：每箭头代表一次数据传递，无反馈循环（全离线预计算）]
+  [唯一在线循环：滑动窗口 MPC 的窗口前滑（k=1..K），但每次LP独立求解]
 ```
 
 ---
 
-*文档版本：v1.1 | 日期：2026-05-15 | 更新：G2 路径平滑 + 滑动窗口 MPC + 跨窗口连续性约束*
+*文档版本：v1.3 | 日期：2026-05-19 | 更新：§5.2 新增 TCP 速度约束（§5.2.4）和关节力矩约束（§5.2.5），补充 §5.2.6 约束全集汇总；§九 新增完整算法流程图（总体流程、约束构建细节、数据依赖关系图）；§8.5 更新含 TCP 约束的速度上限公式*
