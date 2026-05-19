@@ -15,9 +15,9 @@
 
 > **更新记录**：
 > - §2.5 重写：G2 平滑改为基于 `G2_Hermite_Interpolation_nAxis` / `calcTransition`，明确 zone 距离（CutOff）工程含义
-> - §五 重写：决策变量说明补充 $w=\dot{u}^2$ 含义；不等式/等式约束分章节清晰描述；两阶段 LP 合并为 §5.4 集中说明（第一阶段精确线性 + 第二阶段 Jerk 线性化），修正不等式约束行数（14行/点，不是25）；滑动窗口 MPC 整理为 §5.5
+> - §五 重写：决策变量说明补充 $w=\dot{u}^2$ 含义；不等式/等式约束分章节清晰描述；两阶段 LP 合并为 §5.4 集中说明（第一阶段精确线性 + 第二阶段仅 Jerk 线性化），修正不等式约束行数（26行/点 = 2速度+12加速度+12力矩）；滑动窗口 MPC 整理为 §5.5
 > - §5.2.4 修正：速度约束以 $x$ 上界（`xbound`）实现，不进约束矩阵（对照 TOPPRA `JointVelocityConstraint` 实际实现）；TCP 速度约束合并至 $f_\text{max}$ 的 min 操作
-> - §5.2.5 修正：关节力矩约束为精确线性（科氏项对 $x=\dot{s}^2$ 天然线性），通过三次逆动力学调用分离 $u$ 系数和 $x$ 系数，无需冻结参考解线性化（对照 TOPPRA `JointTorqueConstraint` 实际实现）；§8.5b 公式同步更新
+> - §5.2.5 修正：关节力矩约束为精确线性（科氏项对 $x=\dot{s}^2$ 天然线性），通过三次逆动力学调用分离 $u$ 系数和 $x$ 系数，无需冻结参考解线性化（对照 TOPPRA `JointTorqueConstraint` 实际实现）；力矩约束与加速度约束同属**第一阶段 LP**，仅 Jerk 约束在第二阶段叠加；§8.5b 公式同步更新
 
 ---
 
@@ -79,13 +79,16 @@
 
 | 符号 | 含义 | 维度 |
 |---|---|---|
-| $s$ | 笛卡尔路径弧长参数 | 标量 |
-| $u \in [0,1]$ | 每段归一化参数 | 标量 |
-| $\mathbf{r}(s) = [\mathbf{p}(s);\,\boldsymbol{\varphi}(s)]$ | 笛卡尔位姿 | $6\times1$ |
-| $\mathbf{q}(u)$ | 关节角 | $6\times1$ |
-| $\mathbf{J}(\mathbf{q})$ | 几何 Jacobian | $6\times6$ |
-| $\dot{u} = du/dt$ | 参数速度 | 标量 |
-| $\dot{u}^2$ | **LP 决策变量**（参数速度平方） | 标量 |
+| $s \in [0,L]$ | 笛卡尔路径弧长（公共路径参数） | 标量 |
+| $\xi \in [0,1]$ | 段内局部归一化参数，$\xi = (s-s_m)/h_m$ | 标量 |
+| $h_m = s_{m+1} - s_m$ | 第 $m$ 段的弧长 | 标量 |
+| $\mathbf{r}(s) = [\mathbf{p}(s);\,\boldsymbol{\varphi}(s)]$ | 笛卡尔位姿（弧长函数） | $6\times1$ |
+| $\mathbf{q}(s) = \text{IK}(\mathbf{r}(s))$ | 关节角（**同一参数 $s$**） | $6\times1$ |
+| $(\cdot)' \triangleq d(\cdot)/ds$ | 对弧长 $s$ 求导（路径导数） | — |
+| $\dot{(\cdot)} \triangleq d(\cdot)/dt$ | 对时间 $t$ 求导（时间导数） | — |
+| $\dot{s} = ds/dt$ | 路径速度（标量） | 标量 |
+| $w(s) = \dot{s}^2$ | **LP 决策变量**（路径速度平方） | 标量 |
+| $\mathbf{J}(\mathbf{q})$ | 几何 Jacobian，$\dot{\mathbf{r}} = \mathbf{J}\dot{\mathbf{q}}$ | $6\times6$ |
 | $M$ | 总采样点数 | 整数 |
 | $K$ | 总段数（$= M - 1$） | 整数 |
 | $N$ | 每段 B 样条基函数数 | 整数 |
@@ -307,12 +310,96 @@ M 个采样点 {t_m}
 
 ## 三、离散点处的关节空间导数计算
 
-### 3.1 逆运动学（IK）
+### 3.0 参数化框架
 
-在每个采样点 $t_m$，由笛卡尔位姿求关节角（**连续解选择**是关键）：
+#### 3.0.1 公共路径参数 $s$（弧长）
+
+本方案选用笛卡尔路径的**弧长 $s$** 作为路径参数：
 
 $$
-\mathbf{q}_m = \text{IK}(\mathbf{r}(t_m))
+s = \int_0^t \|\dot{\mathbf{r}}(\tau)\|\,d\tau \in [0, L], \quad L = \text{路径总弧长}
+$$
+
+弧长参数的优点是 $\|\mathbf{r}'(s)\|_\text{pos} = 1$（位置分量单位切向量），导数有直接的几何意义（单位：mm/mm = 无量纲方向向量）。
+
+**笛卡尔路径和关节路径使用同一个参数 $s$**：
+
+$$
+\mathbf{r}(s) = [\mathbf{p}(s);\,\boldsymbol{\varphi}(s)] \in \mathbb{R}^6
+\qquad\text{（笛卡尔位姿，函数自变量为弧长 $s$）}
+$$
+
+$$
+\mathbf{q}(s) = \text{IK}(\mathbf{r}(s)) \in \mathbb{R}^6
+\qquad\text{（关节角，同样是 $s$ 的函数）}
+$$
+
+两者描述的是**同一条路径在不同坐标系中的表示**——弧长 $s$ 是路径本身的几何属性，与坐标系无关。§2 中自适应采样得到的 $\{s_m\}$ 即为本节的采样参数序列（§2 中记作 $\{t_m\}$，本节统一改写为 $\{s_m\}$）。
+
+#### 3.0.2 路径参数导数与时间导数的关系
+
+路径参数 $s$ 是**几何量**，时间 $t$ 是**运动量**，二者通过路径速度 $\dot{s} = ds/dt$ 联系：
+
+$$
+\frac{d(\cdot)}{dt} = \frac{d(\cdot)}{ds} \cdot \dot{s}
+$$
+
+约定符号：$(\cdot)' \triangleq d(\cdot)/ds$（路径导数），$\dot{(\cdot)} \triangleq d(\cdot)/dt$（时间导数）。
+
+**笛卡尔速度与加速度**（由路径导数 + 路径速度合成）：
+
+$$
+\dot{\mathbf{r}} = \mathbf{r}'(s)\,\dot{s}, \qquad
+\ddot{\mathbf{r}} = \mathbf{r}''(s)\,\dot{s}^2 + \mathbf{r}'(s)\,\ddot{s}
+$$
+
+**关节速度与加速度**（同一公式，参数相同）：
+
+$$
+\dot{\mathbf{q}} = \mathbf{q}'(s)\,\dot{s}, \qquad
+\ddot{\mathbf{q}} = \mathbf{q}''(s)\,\dot{s}^2 + \mathbf{q}'(s)\,\ddot{s}
+$$
+
+LP 优化的决策变量为 $w(s) = \dot{s}^2$（路径速度的平方），并利用恒等式：
+
+$$
+\ddot{s} = \frac{1}{2}w'(s), \qquad \dddot{s} = \frac{1}{2}w''(s)\,\dot{s}
+$$
+
+因此关节速度、加速度、Jerk 对决策变量的约束形式为：
+
+| 物理量 | 对 $s$ 的路径导数 | 对 $w(s) = \dot{s}^2$ 的约束形式 |
+|---|---|---|
+| $\dot{q}_i$ | $q'_i(s)\,\dot{s}$ | $q_i'^2(s)\cdot w \leq \dot{q}_{i,\max}^2$ |
+| $\ddot{q}_i$ | $q''_i\,\dot{s}^2 + q'_i\,\ddot{s}$ | $q''_i\,w + \frac{1}{2}q'_i\,w' = \text{Acc}_i \cdot \mathbf{x}$（精确线性）|
+| $\dddot{q}_i$ | $q'''_i\,\dot{s}^3 + 3q''_i\,\dot{s}\ddot{s} + q'_i\,\dddot{s}$ | $\dot{s}_\text{ref}\!\left[q'''_i\,\mathbf{B} + \frac{3}{2}q''_i\,\mathbf{B}' + \frac{1}{2}q'_i\,\mathbf{B}''\right]\!\mathbf{x}$（线性化）|
+
+#### 3.0.3 段内局部参数 $\xi$
+
+相邻采样点 $s_m$ 和 $s_{m+1}$ 之间，段弧长 $h_m = s_{m+1} - s_m$，定义局部归一化参数：
+
+$$
+\xi = \frac{s - s_m}{h_m} \in [0,1]
+$$
+
+路径导数在两套参数下的换算（链式法则）：
+
+$$
+\frac{d(\cdot)}{d\xi} = h_m \cdot \frac{d(\cdot)}{ds}, \qquad
+\frac{d^2(\cdot)}{d\xi^2} = h_m^2 \cdot \frac{d^2(\cdot)}{ds^2}, \qquad
+\frac{d^3(\cdot)}{d\xi^3} = h_m^3 \cdot \frac{d^3(\cdot)}{ds^3}
+$$
+
+§四 的 Hermite 插值使用 $\xi$ 作为段内参数，端点条件直接使用 $s$ 的路径导数（带 $h_m$ 缩放）。
+
+---
+
+### 3.1 逆运动学（IK）
+
+在每个采样点 $s_m$，由笛卡尔位姿求关节角（**连续解选择**是关键）：
+
+$$
+\mathbf{q}_m = \text{IK}(\mathbf{r}(s_m))
 $$
 
 连续解选择策略（按优先级）：
@@ -320,55 +407,65 @@ $$
 2. **构型一致**：保持 elbow_up/down 不变（除非关节限位迫使切换）
 3. **关节限位合法**：排除违反 $\mathbf{q}_\text{lim}$ 的解
 
-### 3.2 一阶导数（关节速度方向）
+### 3.2 一阶路径导数（$d\mathbf{q}/ds$）
 
-利用正向 Jacobian 和链式法则：
-
-$$
-\frac{d\mathbf{q}}{dt} = \mathbf{J}^{-1}(\mathbf{q}_m) \cdot \frac{d\mathbf{r}}{dt} = \mathbf{J}^{-1}(\mathbf{q}_m) \cdot \mathbf{r}'(t_m)
-$$
-
-定义对路径参数 $u$（归一化后）的一阶导数：
+笛卡尔速度 $\dot{\mathbf{r}} = \mathbf{J}(\mathbf{q})\,\dot{\mathbf{q}}$ 两边同除以 $\dot{s}$（注意 $\dot{\mathbf{r}} = \mathbf{r}'(s)\dot{s}$，$\dot{\mathbf{q}} = \mathbf{q}'(s)\dot{s}$，$\dot{s}$ 约去）：
 
 $$
-\boxed{\mathbf{q}'_m \triangleq \frac{d\mathbf{q}}{du}\bigg|_{t_m} = \mathbf{J}^{-1}(\mathbf{q}_m) \cdot \mathbf{r}'(t_m)}
+\mathbf{r}'(s) = \mathbf{J}(\mathbf{q}(s))\,\mathbf{q}'(s)
+\;\Rightarrow\;
+\boxed{\mathbf{q}'(s) = \mathbf{J}^{-1}(\mathbf{q}(s))\,\mathbf{r}'(s)}
 $$
 
-### 3.3 二阶导数（关节加速度方向）
-
-对 $\dot{\mathbf{q}} = \mathbf{J}^{-1}\mathbf{r}'\dot{u}$ 对 $u$ 再求导（乘积法则）：
+该等式对任意路径速度 $\dot{s}$ 均成立——它是纯几何关系，与路径怎么走（快还是慢）无关。在采样点 $s_m$ 处：
 
 $$
-\frac{d^2\mathbf{q}}{du^2} = \mathbf{J}^{-1} \cdot \mathbf{r}''(t_m) + \frac{d\mathbf{J}^{-1}}{du} \cdot \mathbf{r}'(t_m)
+\mathbf{q}'_m \triangleq \mathbf{q}'(s_m) = \mathbf{J}^{-1}_m \cdot \mathbf{r}'(s_m)
 $$
 
-利用 $\dfrac{d\mathbf{J}^{-1}}{du} = -\mathbf{J}^{-1} \dfrac{d\mathbf{J}}{du} \mathbf{J}^{-1}$，展开后：
+其中 $\mathbf{r}'(s_m)$ 是笛卡尔路径在 $s_m$ 处对弧长的一阶导数（由路径表示解析求得，见 §2.4）。
+
+> **注意**：$\mathbf{r}'(s)$ 和 $\mathbf{q}'(s)$ 的自变量是**同一个参数 $s$**，这不是巧合——两者都描述同一条路径，只是坐标系不同。Jacobian $\mathbf{J}$ 正是两个坐标系的"速度换算矩阵"，弧长 $\dot{s}$ 是公共的标量缩放因子，两边约去后得到纯路径导数关系。
+
+### 3.3 二阶路径导数（$d^2\mathbf{q}/ds^2$）
+
+对 $\mathbf{q}'(s) = \mathbf{J}^{-1}(\mathbf{q}(s))\,\mathbf{r}'(s)$ 再对 $s$ 求导（乘积法则），利用：
 
 $$
-\boxed{\mathbf{q}''_m = \mathbf{J}^{-1}_m \cdot \mathbf{r}''(t_m) - \mathbf{J}^{-1}_m \cdot \frac{d\mathbf{J}}{du}\bigg|_{t_m} \cdot \mathbf{q}'_m}
+\frac{d\mathbf{J}^{-1}}{ds} = -\mathbf{J}^{-1}\,\frac{d\mathbf{J}}{ds}\,\mathbf{J}^{-1},
+\qquad
+\frac{d\mathbf{J}}{ds} = \sum_{i=1}^{6} \frac{\partial \mathbf{J}}{\partial q_i}\,q'_i(s)
 $$
 
-其中 $\dfrac{d\mathbf{J}}{du}\bigg|_{t_m}$ 用数值差分近似：
+得：
 
 $$
-\frac{d\mathbf{J}}{du}\bigg|_{t_m} \approx \frac{\mathbf{J}(\mathbf{q}_m + \varepsilon\,\mathbf{q}'_m) - \mathbf{J}(\mathbf{q}_m)}{\varepsilon}, \quad \varepsilon = 10^{-7}
+\boxed{\mathbf{q}''_m = \mathbf{J}^{-1}_m\,\mathbf{r}''(s_m) - \mathbf{J}^{-1}_m\,\mathbf{J}'_m\,\mathbf{q}'_m}
 $$
 
-### 3.4 三阶导数（关节 Jerk 方向，精确版）
-
-继续对 $\mathbf{q}''(u)$ 求导（完整展开，无近似）：
+其中 $\mathbf{J}'_m \triangleq d\mathbf{J}/ds|_{s_m}$ 用前向差分近似（沿路径方向微扰）：
 
 $$
-\mathbf{q}'''_m = \mathbf{J}^{-1}_m \cdot \mathbf{r}'''(t_m)
-- \mathbf{J}^{-1}_m \cdot \frac{d\mathbf{J}}{du}\bigg|_{t_m} \cdot \mathbf{q}''_m
-- \mathbf{J}^{-1}_m \cdot \frac{d^2\mathbf{J}}{du^2}\bigg|_{t_m} \cdot \mathbf{q}'_m
+\mathbf{J}'_m \approx \frac{\mathbf{J}(\mathbf{q}_m + \varepsilon\,\mathbf{q}'_m) - \mathbf{J}(\mathbf{q}_m)}{\varepsilon}, \quad \varepsilon = 10^{-7}
 $$
 
-其中 Jacobian 二阶数值导数：
+**含义**：$\mathbf{J}^{-1}\mathbf{r}''$ 是笛卡尔路径曲率在关节空间的映射；$\mathbf{J}^{-1}\mathbf{J}'\mathbf{q}'$ 是 Jacobian 沿路径变化的补偿项（类似科里奥利修正）。
+
+### 3.4 三阶路径导数（$d^3\mathbf{q}/ds^3$）
+
+对 $\mathbf{q}''(s)$ 再对 $s$ 求导，完整展开（无截断）：
 
 $$
-\frac{d^2\mathbf{J}}{du^2}\bigg|_{t_m} \approx \frac{\mathbf{J}(\mathbf{q}_m + \varepsilon\mathbf{q}'_m) - 2\mathbf{J}(\mathbf{q}_m) + \mathbf{J}(\mathbf{q}_m - \varepsilon\mathbf{q}'_m)}{\varepsilon^2}
+\boxed{\mathbf{q}'''_m = \mathbf{J}^{-1}_m\,\mathbf{r}'''(s_m) - \mathbf{J}^{-1}_m\,\mathbf{J}'_m\,\mathbf{q}''_m - \mathbf{J}^{-1}_m\,\mathbf{J}''_m\,\mathbf{q}'_m}
 $$
+
+其中 $\mathbf{J}''_m \triangleq d^2\mathbf{J}/ds^2|_{s_m}$ 用中心差分近似：
+
+$$
+\mathbf{J}''_m \approx \frac{\mathbf{J}(\mathbf{q}_m + \varepsilon\mathbf{q}'_m) - 2\mathbf{J}(\mathbf{q}_m) + \mathbf{J}(\mathbf{q}_m - \varepsilon\mathbf{q}'_m)}{\varepsilon^2}
+$$
+
+> **三阶导数的含义**：$\mathbf{q}'''(s)$ 与路径 Jerk 的方向系数直接对应（见 §5.4），精确计算它（包含 $\mathbf{J}''$ 项）是保证 Jerk 约束精度 $<2\%$ 的关键。
 
 > **与全笛卡尔方案的区别**：全笛卡尔方案在 LP 内部每个 B 样条离散点都做一次 IK + Jacobian 计算（总计 $M \times N_w$ 次）。本方案**仅在采样点处做一次**，LP 内部直接使用预计算的多项式系数，计算量降低一到两个数量级。
 
@@ -713,7 +810,7 @@ $$
 **约束形式（正则线性约束）**
 
 $$
-\boldsymbol{\tau}_\min \leq \mathbf{a}(\xi_p)\,u + \mathbf{b}(\xi_p)\,x + \mathbf{c}(\xi_p) \leq \boldsymbol{\tau}_\max
+\boldsymbol{\tau}_{\min} \leq \mathbf{a}(\xi_p)\,u + \mathbf{b}(\xi_p)\,x + \mathbf{c}(\xi_p) \leq \boldsymbol{\tau}_{\max}
 $$
 
 写成标准不等式形式（$2\times6$ 行/点，以矩阵 $\mathbf{F}$、$\mathbf{g}$ 表示）：
@@ -724,7 +821,7 @@ $$
 
 $$
 \mathbf{F} = \begin{bmatrix}\mathbf{I}_6 \\ -\mathbf{I}_6\end{bmatrix}, \quad
-\mathbf{g} = \begin{bmatrix}\boldsymbol{\tau}_\max \\ -\boldsymbol{\tau}_\min\end{bmatrix}
+\mathbf{g} = \begin{bmatrix}\boldsymbol{\tau}_{\max} \\ -\boldsymbol{\tau}_{\min}\end{bmatrix}
 $$
 
 **与加速度约束的对比**
@@ -749,10 +846,10 @@ $$
 | 第一阶段 | 速度上限（关节 + TCP） | $x$ 上界（`xbound`） | 0（不进矩阵） | 硬 | 是 |
 | 第一阶段 | 速度非负 | $x$ 下界（`xbound`） | 0（不进矩阵） | 硬 | 是 |
 | 第一阶段 | 关节加速度（上/下） | $\mathbf{a}\,u+\mathbf{b}\,x \leq \mathbf{g}$ | $2\times6=12$ | 硬 | 是（精确） |
+| 第一阶段 | 关节力矩（上/下） | $\mathbf{F}(\mathbf{a}\,u+\mathbf{b}\,x+\mathbf{c})\leq\mathbf{g}$ | $2\times6=12$ | 硬 | 是（精确） |
 | 第二阶段（叠加） | 关节 Jerk（上/下） | $\mathbf{A}_j\,\mathbf{x} \leq \mathbf{b}_j$ | $2\times6=12$ | 软 | 是（线性化） |
-| 第二阶段（叠加） | 关节力矩（上/下） | $\mathbf{F}(\mathbf{a}\,u+\mathbf{b}\,x+\mathbf{c})\leq\mathbf{g}$ | $2\times6=12$ | 软 | 是（精确） |
 
-速度约束（关节 + TCP）以 $x$ 的上下界 `xbound` 传入求解器，不占用约束矩阵行数。第一阶段矩阵约束：$12$ 行/点（纯加速度）；第二阶段叠加后矩阵约束：$12 + 12(\text{Jerk}) + 12(\text{力矩}) = 36$ 行/点（6轴机器人）。
+速度约束（关节 + TCP）以 $x$ 的上下界 `xbound` 传入求解器，不占用约束矩阵行数。第一阶段矩阵约束：$2 + 12(\text{加速度}) + 12(\text{力矩}) = 26$ 行/点；第二阶段叠加 Jerk 后：$26 + 12(\text{Jerk}) = 38$ 行/点（6轴机器人）。
 
 ---
 
@@ -828,7 +925,7 @@ $$
 
 两个阶段共用同一个等式约束 $(\mathbf{A}_\text{eq}, \mathbf{b}_\text{eq})$，不等式约束逐步叠加。对应 `FeedratePlanning_LP.m`。
 
-#### 5.4.1 第一阶段 LP（速度 + 加速度，精确线性）
+#### 5.4.1 第一阶段 LP（速度 + 加速度 + 力矩，精确线性）
 
 求解：
 
@@ -839,15 +936,21 @@ $$
 \mathbf{x} \geq 0
 $$
 
-**不等式约束**：§5.2（速度上限 + 速度非负 + 加速度上下限），全部精确线性——因为 $\ddot{u} = \frac{1}{2}w'$ 是 $\mathbf{x}$ 的线性函数，加速度约束从物理上就是精确 LP。
+**不等式约束**：§5.2（速度上限 + 速度非负 + 加速度上下限 + 力矩上下限），全部精确线性——加速度因 $\ddot{u} = \frac{1}{2}w'$ 精确线性；力矩因科氏项对 $x=\dot{s}^2$ 天然线性，同样无需近似。共 $2 + 12 + 12 = 26$ 行/点（6轴机器人）。
 
-**松弛变量**：添加全局松弛 $s \geq 0$（惩罚项加入目标函数），防止约束不可行导致无解。速度/加速度约束保持硬约束（不在松弛索引 `indSlack` 中）。
+力矩约束的 LP 行形式（在 $u = \frac{1}{2}\mathbf{B}'\mathbf{x}$，$x = \mathbf{B}\mathbf{x}$ 代入后）：
+
+$$
+\left[\tfrac{1}{2}a_i(\xi_p)\mathbf{B}'(\xi_p) + b_i(\xi_p)\mathbf{B}(\xi_p)\right]\mathbf{x} \leq \tau_{i,\max} - c_i(\xi_p)
+$$
+
+**松弛变量**：添加全局松弛 $s \geq 0$（惩罚项加入目标函数），防止约束不可行导致无解。速度/加速度/力矩约束均保持硬约束（不在松弛索引 `indSlack` 中）。
 
 **零速松弛迭代**：若路径起端或末端为零速（`ctx.zero_start/zero_end`），LP 可能因约束过紧失败；此时逐步放松 `ConstJerk` 参数（每次除以8，最多15次）重试。
 
 得到解 $\mathbf{x}^*$，提取参考速度 $\dot{u}_\text{ref}(\xi_p) = \sqrt{\mathbf{B}(\xi_p)\mathbf{x}^*}$。
 
-#### 5.4.2 第二阶段 LP（叠加 Jerk 约束，线性化近似）
+#### 5.4.2 第二阶段 LP（仅叠加 Jerk 约束，线性化近似）
 
 **Jerk 展开**（精确）：
 
@@ -874,10 +977,10 @@ $$
 
 | 阶段 | 不等式约束 | 是否精确线性 | 等式约束 | Jerk 是否包含 |
 |---|---|---|---|---|
-| 第一阶段 | 速度 + 加速度 | 是（精确） | $\mathbf{A}_\text{eq}\mathbf{x}=\mathbf{b}_\text{eq}$ | 否 |
-| 第二阶段 | 速度 + 加速度 + Jerk | 近似（Jerk线性化） | 同上（不变） | 是（软约束） |
+| 第一阶段 | 速度 + 加速度 + 力矩 | 是（全部精确） | $\mathbf{A}_\text{eq}\mathbf{x}=\mathbf{b}_\text{eq}$ | 否 |
+| 第二阶段 | 速度 + 加速度 + 力矩 + Jerk | 近似（仅Jerk线性化） | 同上（不变） | 是（软约束） |
 
-两个阶段**复用同一目标函数和等式约束**，仅不等式约束矩阵增加了 Jerk 行。第二阶段结果可能比第一阶段更保守（速度略低），换取 Jerk 满足。
+两个阶段**复用同一目标函数和等式约束**，仅不等式约束矩阵在第一阶段基础上叠加 Jerk 行。力矩约束精确线性，属于第一阶段；Jerk 含 $\sqrt{w}$ 非线性因子，需冻结 $\dot{u}_\text{ref}$ 线性化后叠加为软约束。第二阶段结果可能比第一阶段更保守（速度略低），换取 Jerk 满足。
 
 > 对应代码：`FeedratePlanning_LP.m` 第39~68行为第一阶段，第72~101行为第二阶段（`if ctx.cfg.opt.USE_JERK_CONSTRAINTS`）。
 
@@ -911,16 +1014,16 @@ $$
 \boxed{W \cdot \bar{h} \;\geq\; \frac{\dot{q}_{\max}^2}{2\,\ddot{q}_{\max}}}
 $$
 
-$\bar{h}$ 为平均段弧长。典型 UR5（$\dot{q}_\max=3.15$ rad/s，$\ddot{q}_\max=40$ rad/s²，$\bar{h}=0.02$ rad）：$d_\text{brake} = 3.15^2/80 \approx 0.12$ rad，$W \geq 6$，建议取 $W=15\sim30$。
+$\bar{h}$ 为平均段弧长。典型 UR5（$\dot{q}_{\max}=3.15$ rad/s，$\ddot{q}_{\max}=40$ rad/s²，$\bar{h}=0.02$ rad）：$d_\text{brake} = 3.15^2/80 \approx 0.12$ rad，$W \geq 6$，建议取 $W=15\sim30$。
 
 #### 5.5.4 约束矩阵维度（每个窗口）
 
 $$
-\mathbf{A}_\text{ineq} \in \mathbb{R}^{14\,MW \;\times\; NW}, \quad
+\mathbf{A}_\text{ineq} \in \mathbb{R}^{26\,MW \;\times\; NW}, \quad
 \mathbf{A}_\text{eq} \in \mathbb{R}^{2(W+1) \;\times\; NW}
 $$
 
-（第二阶段叠加 Jerk 后：$\mathbf{A}_\text{tot} \in \mathbb{R}^{(14+2N_\text{axis})\,MW \;\times\; NW}$，即每点增加 $2\times6=12$ 行 Jerk 约束。）
+行数说明：每点 $2$（速度上限/非负）$+ 12$（加速度上下限）$+ 12$（力矩上下限）$= 26$ 行（第一阶段）；第二阶段叠加 Jerk 后：$\mathbf{A}_\text{tot} \in \mathbb{R}^{38\,MW \;\times\; NW}$，即每点再增加 $2\times6=12$ 行 Jerk 约束。
 
 ---
 
@@ -1121,7 +1224,7 @@ $$
 \|\mathbf{q}''_\text{hermite}(\xi) - \mathbf{q}''_\text{true}(\xi)\|_\infty \leq C_2 h^3
 $$
 
-LP 约束中速度系数误差 $C_1 h^4$，加速度系数误差 $C_2 h^3$。实践中取 $h$ 使得 $C_2 h^3 < 0.01 \cdot \ddot{q}_\max$（加速度约束误差 $< 1\%$）。
+LP 约束中速度系数误差 $C_1 h^4$，加速度系数误差 $C_2 h^3$。实践中取 $h$ 使得 $C_2 h^3 < 0.01 \cdot \ddot{q}_{\max}$（加速度约束误差 $< 1\%$）。
 
 **建议分段步长**（典型 UR5 参数）：
 
@@ -1222,7 +1325,7 @@ f_\text{max}(\xi_p) = \min\!\left(
 \right)
 $$
 
-### 8.5b 力矩约束系数（第二阶段叠加，精确线性）
+### 8.5b 力矩约束系数（第一阶段，精确线性）
 
 通过三次逆动力学调用精确分离系数（对照 TOPPRA `JointTorqueConstraint`）：
 
@@ -1243,7 +1346,7 @@ $$
 $$
 \mathbf{F}\,\bigl(\mathbf{a}(\xi_p)\,u + \mathbf{b}(\xi_p)\,x + \mathbf{c}(\xi_p)\bigr) \leq \mathbf{g}, \quad
 \mathbf{F} = \begin{bmatrix}\mathbf{I}_6\\-\mathbf{I}_6\end{bmatrix},\quad
-\mathbf{g} = \begin{bmatrix}\boldsymbol{\tau}_\max\\-\boldsymbol{\tau}_\min\end{bmatrix}
+\mathbf{g} = \begin{bmatrix}\boldsymbol{\tau}_{\max}\\-\boldsymbol{\tau}_{\min}\end{bmatrix}
 $$
 
 科氏项 $\mathbf{C}(\mathbf{q},\mathbf{q}'\dot{s})\mathbf{q}'\dot{s}^2$ 天然对 $x$ 线性，故此约束**无需线性化**，直接精确成立。
@@ -1275,7 +1378,7 @@ $$
 | 0 | G2 路径平滑 | 分段路径（G0/G1） | G2 连续路径 | `calcTransition` → TransP5 过渡段 |
 | 1 | 自适应离散化 | G2 路径 $r(s)$ | $M$ 个采样点 $\{t_m\}$ | 曲率驱动步长 |
 | 2 | 关节空间预计算 | $\{r(t_m)\}$ | $\{q_m, q'_m, q''_m, q'''_m, \mathbf{M}_m, \mathbf{C}_m, \mathbf{g}_m, \mathbf{J}_m\}$ | IK + Jacobian + 动力学 |
-| 3 | 两阶段 LP（每窗口） | 预计算数据 + 边界 | $w^*(\xi)$ → $q(t), \dot{q}(t), \ddot{q}(t)$ | 第一阶段（速度+加速度）+ 第二阶段（Jerk+力矩） |
+| 3 | 两阶段 LP（每窗口） | 预计算数据 + 边界 | $w^*(\xi)$ → $q(t), \dot{q}(t), \ddot{q}(t)$ | 第一阶段（速度+加速度+力矩，精确线性）+ 第二阶段（仅Jerk，线性化软约束） |
 
 ---
 
@@ -1349,14 +1452,14 @@ $$
         │       · c_ω(t_m)  = |J_ω·q'_m|  （TCP角速度）   │
         │       · M_m = inertia(q_m)      （惯性矩阵）    │
         │       · C_m = coriolis(q_m,q'_m)（科氏矩阵）    │
-        │       · g_m = gravload(q_m)     （重力向量）    │
-        │       · a_m = M_m·q''_m + (C_m+Fv)·q'_m·ůref/2w*│
-        │       · b_m = 0.5·M_m·q'_m     （力矩约束b系数）│
-        │       · d_m = g_m               （重力偏置）    │
+        │       · c_m = inv_dyn(q_m,0,0)  （重力+摩擦）   │
+        │       · a_m = inv_dyn(q_m,0,q'_m) - c_m（惯性项）│
+        │       · b_m = inv_dyn(q_m,q'_m,q''_m) - c_m    │
+        │               （科氏+惯性二阶项）                │
         └───────────────────┬─────────────────────────────┘
                             │
               输出：{q_m, q'_m, q''_m, q'''_m,
-                     c_v_m, c_ω_m, a_m, b_m, d_m}
+                     c_v_m, c_ω_m, a_m, b_m, c_m}
                             │
             ════════════════╪══════════════════════════════════
             ║  阶段 3：滑动窗口 MPC + 两阶段 LP（§五）      ║
@@ -1374,10 +1477,12 @@ $$
         │  └────────────────────────────────────────────────┘ │
         │                                                    │
         │  ┌─ 第一阶段 LP（§5.4.1）────────────────────────┐ │
-        │  │  构造 A_ineq（14行/点×M×W_cur）：              │ │
+        │  │  构造 A_ineq（26行/点×M×W_cur）：              │ │
         │  │    · 速度上限：B·x ≤ f_max（含TCP速度约束）   │ │
         │  │    · 速度非负：-B·x ≤ 0                       │ │
-        │  │    · 加速度±：Acc_i·x ≤ ±amax_i              │ │
+        │  │    · 加速度±：Acc_i·x ≤ ±amax_i（精确）      │ │
+        │  │    · 力矩±：[0.5·a_i·B' + b_i·B]·x ≤         │ │
+        │  │              τmax_i - c_i（精确，硬）          │ │
         │  │  调用 buildConstr → [A,b,Aeq,beq]             │ │
         │  │  添加松弛变量，调用 c_simplex                  │ │
         │  │  LP失败且零速端? → relax_initial重试（≤15次）  │ │
@@ -1388,9 +1493,7 @@ $$
         │  ┌─ 第二阶段 LP（§5.4.2）────────────────────────┐ │
         │  │  基于 ůref 线性化，叠加软约束（indSlack）：     │ │
         │  │    · Jerk ±：Jerk_i·x ≤ ±jmax_i（软）        │ │
-        │  │    · 力矩 ±：[a_i·B + b_i·B']·x ≤            │ │
-        │  │               ±τmax_i ∓ d_i（软）             │ │
-        │  │  A_tot = [A_ineq; A_jerk; A_torque]           │ │
+        │  │  A_tot = [A_ineq; A_jerk]                     │ │
         │  │  调用 buildConstrJerk → Aj                     │ │
         │  │  调用 c_simplex（含软化松弛）                   │ │
         │  │  成功 → 得到最终 x**                            │ │
@@ -1428,10 +1531,10 @@ $$
 
   已知（预计算）：q'(ξ_p), q''(ξ_p), q'''(ξ_p)
                   c_v(ξ_p), c_ω(ξ_p)
-                  a(ξ_p), b(ξ_p), d(ξ_p)  [力矩系数]
+                  a(ξ_p), b(ξ_p), c(ξ_p)  [力矩系数：惯性/科氏/重力]
                   B(ξ_p), B'(ξ_p), B''(ξ_p)  [B样条基]
 
-  ─────────────── 第一阶段约束行 ──────────────────
+  ─────────────── 第一阶段约束行（精确线性，硬约束）──
   行 1   速度上限：   B(ξ_p) · x   ≤  f_max(ξ_p)
                   f_max = min(vmax_i²/q'_i², v_tcp²/c_v², ω_tcp²/c_ω²)
 
@@ -1441,13 +1544,14 @@ $$
   行 9~14 加速度下限： -Acc_i · x  ≤  amax_i
              Acc_i = q''_i·B + 0.5·q'_i·B'  [精确线性]
 
-  ─────────────── 第二阶段追加（软约束）────────────
-  行 15~20 Jerk 上限：  Jerk_i · x  ≤  jmax_i
-  行 21~26 Jerk 下限： -Jerk_i · x  ≤  jmax_i
-             Jerk_i = ůref·[q'''_i·B + 1.5·q''_i·B' + 0.5·q'_i·B'']
+  行 15~20 力矩上限：  [0.5·a_i·B' + b_i·B] · x  ≤  τmax_i - c_i
+  行 21~26 力矩下限： -[0.5·a_i·B' + b_i·B] · x  ≤ -τmin_i + c_i
+             代入 u=0.5·B'·x, x=B·x → F(a·u+b·x+c)≤g 精确成立
 
-  行 27~32 力矩上限：  [a_i·B + b_i·B'] · x  ≤  τmax_i - d_i
-  行 33~38 力矩下限： -[a_i·B + b_i·B'] · x  ≤  τmax_i + d_i
+  ─────────────── 第二阶段追加（软约束）────────────
+  行 27~32 Jerk 上限：  Jerk_i · x  ≤  jmax_i
+  行 33~38 Jerk 下限： -Jerk_i · x  ≤  jmax_i
+             Jerk_i = ůref·[q'''_i·B + 1.5·q''_i·B' + 0.5·q'_i·B'']
 
   ─────────────── 等式约束（与离散点无关）──────────
   行 1~2   窗口起端：  B(0)·x₁ = v₀²，  B'(0)·x₁ = 2·at₀
@@ -1477,7 +1581,7 @@ $$
         │  DH, q_lim        │  阶段2：关节空间预计算 │
         │  vmax(speed ck)   │  IK→q_m              │
         │                   │  Jacobian→q'_m,q''_m  │
-        │                   │  Dynamics→a_m,b_m,d_m │
+        │                   │  Dynamics→a_m,b_m,c_m │
         │                   │  TCP→c_v_m, c_ω_m     │
         │                   └───────────┬──────────┘
         │                               │ JointPathData（M点预计算值）
@@ -1486,13 +1590,13 @@ $$
         │  τmax,v_tcp_max   │  ┌──────────────────┐ │
         │  ω_tcp_max, W     │  │ 等式约束（§5.3）  │ │
         │                   │  │ 第一阶段LP（§5.4.1)│ │
-        │                   │  │ 速度+加速度（硬）  │ │
+        │                   │  │ 速度+加速度+力矩  │ │
+        │                   │  │ （全部硬约束）    │ │
         │                   │  └────────┬─────────┘ │
         │                   │           │ x*,ůref   │
         │                   │  ┌────────▼─────────┐ │
         │                   │  │ 第二阶段LP（§5.4.2)│ │
-        │                   │  │ +Jerk（软）       │ │
-        │                   │  │ +力矩（软）       │ │
+        │                   │  │ +Jerk（软，线性化）│ │
         │                   │  └────────┬─────────┘ │
         │                   │           │ x**       │
         │                   └───────────┬──────────┘
@@ -1508,4 +1612,4 @@ $$
 
 ---
 
-*文档版本：v1.3 | 日期：2026-05-19 | 更新：§5.2 新增 TCP 速度约束（§5.2.4）和关节力矩约束（§5.2.5），补充 §5.2.6 约束全集汇总；§九 新增完整算法流程图（总体流程、约束构建细节、数据依赖关系图）；§8.5 更新含 TCP 约束的速度上限公式*
+*文档版本：v1.4 | 日期：2026-05-19 | 更新：§5.2.6 修正——关节力矩约束归属第一阶段 LP（精确线性，硬约束），仅 Jerk 约束在第二阶段叠加（软约束）；§5.4.1/§5.4.2/§5.4.3 更新两阶段对比；§5.5.4 更新约束矩阵维度（第一阶段26行/点）；§8.5b 修正标题；§9.1/§9.2/§9.3 流程图同步修正；预计算系数由 (a,b,d) 改为 (a,b,c)（对照 TOPPRA `JointTorqueConstraint`）*
