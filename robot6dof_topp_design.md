@@ -18,6 +18,7 @@
 > - §五 重写：决策变量说明补充 $w=\dot{u}^2$ 含义；不等式/等式约束分章节清晰描述；两阶段 LP 合并为 §5.4 集中说明（第一阶段精确线性 + 第二阶段仅 Jerk 线性化），修正不等式约束行数（26行/点 = 2速度+12加速度+12力矩）；滑动窗口 MPC 整理为 §5.5
 > - §5.2.4 修正：速度约束以 $x$ 上界（`xbound`）实现，不进约束矩阵（对照 TOPPRA `JointVelocityConstraint` 实际实现）；TCP 速度约束合并至 $f_\text{max}$ 的 min 操作
 > - §5.2.5 修正：关节力矩约束为精确线性（科氏项对 $x=\dot{s}^2$ 天然线性），通过三次逆动力学调用分离 $u$ 系数和 $x$ 系数，无需冻结参考解线性化（对照 TOPPRA `JointTorqueConstraint` 实际实现）；力矩约束与加速度约束同属**第一阶段 LP**，仅 Jerk 约束在第二阶段叠加；§8.5b 公式同步更新
+> - §5.2.5 扩展：新增电机 T-N 曲线速度相关力矩约束（参考 Ardeshiri 等 2011）：在 $(\tau_i, \dot{q}_i^2)$ 空间用仿射切线内近似 T-N 边界（保守凸化），代入 $\dot{q}_i^2 = q_i'^2 x$ 后得精确线性 LP 行 $[(T_{ij}/2)a_i\mathbf{B}' + (T_{ij}b_i+\overline{U}_{ij}q_i'^2)\mathbf{B}]\bar{\mathbf{x}} \leq P_{ij}-T_{ij}c_i$，仍属第一阶段；§8.5b 和 §9.2 同步更新
 
 ---
 
@@ -839,6 +840,53 @@ $$
 
 逆动力学函数 $\text{inv\_dyn}$ 由外部动力学库提供（如 Robotics Toolbox 的 `rne`、Pinocchio 的 `rnea`），在 §四 离线采样点处调用，与 IK/Jacobian 一并预计算，不增加 LP 在线计算量。
 
+---
+
+**电机 T-N 曲线：速度相关力矩约束（参考 Ardeshiri 等 2011）**
+
+实际无刷直流电机的可用力矩并非常数：低速段受电流（热耗散）限制，力矩恒定为额定值 $\tau_{r,i}$；高速段受反电动势（back-EMF）限制，可用力矩随角速度近似线性降低，形成 T-N 曲线（见论文 Fig. 1）：
+
+$$\tau_{i,\max}(\dot{q}_i) \approx \tau_{r,i} - k_{e,i}|\dot{q}_i|, \quad |\dot{q}_i| > \dot{q}_{b,i}$$
+
+若直接将 $\dot{q}_i = q'_i(s)\dot{s}$ 代入仿射约束 $\tilde{T}\tau_i + W_i\dot{q}_i \leq P$，得：
+
+$$\tilde{T}\tau_i + W_iq'_i\sqrt{b(s)} \leq P$$
+
+含 $\sqrt{b}$ 非线性项，在 $(a,b)$ 空间不保凸（Ardeshiri 等 Eq. 15b）。
+
+**凸化策略：在 $(\tau_i, \dot{q}_i^2)$ 空间内近似 T-N 边界**
+
+T-N 上界曲线在 $(\tau_i, \dot{q}_i^2)$ 空间的形式为 $\tau_i = \tau_{r,i} - k_{e,i}\sqrt{\dot{q}_i^2}$，其对 $\dot{q}_i^2$ 是**凸函数**（$f'' > 0$）。凸函数在任意点的切线位于函数曲线**下方**，因此以切线族（仿射约束）对 T-N 边界做内近似，所得多面体可行域是真实可行域的**子集**（保守），同时是 $(τ_i, \dot{q}_i^2)$ 空间中的凸集（见论文 Fig. 3）：
+
+$$T_{ij}\tau_i(\xi) + \overline{U}_{ij}\,\dot{q}_i^2(\xi) \leq P_{ij}, \quad j = 1, \ldots, m_i$$
+
+其中 $m_i$ 为关节 $i$ 的 T-N 折线段数（典型 $m_i = 2$：恒转矩段 + 线性降速段）。参数 $(T_{ij}, \overline{U}_{ij}, P_{ij})$ 由 T-N 曲线各切触点确定：
+
+| 段 $j$ | $T_{ij}$ | 物理含义 | $\overline{U}_{ij}$ | $P_{ij}$ |
+|---|---|---|---|---|
+| 1（上限，热约束） | $+1$ | 低速段恒定力矩上限 | $0$ | $\tau_{r,i}$ |
+| 2（上限，back-EMF） | $+1$ | 高速段切线（切触点 $\dot{q}_{0,ij}$） | $k_{e,i}/(2\dot{q}_{0,ij})$ | $\tau_{r,i} - k_{e,i}\dot{q}_{0,ij}/2$ |
+| 3（下限，热约束） | $-1$ | 低速段恒定力矩下限 | $0$ | $\tau_{r,i}$ |
+| 4（下限，back-EMF） | $-1$ | 高速段切线 | $k_{e,i}/(2\dot{q}_{0,ij})$ | $\tau_{r,i} - k_{e,i}\dot{q}_{0,ij}/2$ |
+
+**代入路径参数：联合动力学 + T-N 约束的 LP 行**
+
+将 $\dot{q}_i^2 = q_i'^2(\xi_p)\,x$（其中 $x = \dot{s}^2 = \mathbf{B}\bar{\mathbf{x}}$）代入，同时将 $\tau_i = a_i u + b_i x + c_i$ 展开：
+
+$$T_{ij}(a_i u + b_i x + c_i) + \overline{U}_{ij}\,q_i'^2(\xi_p)\,x \leq P_{ij}$$
+
+整理为标准不等式形式（令 $u = \frac{1}{2}\mathbf{B}'\bar{\mathbf{x}}$，$x = \mathbf{B}\bar{\mathbf{x}}$）：
+
+$$\boxed{\left[\frac{T_{ij}}{2}a_i(\xi_p)\,\mathbf{B}'(\xi_p) + \bigl(T_{ij}b_i(\xi_p) + \overline{U}_{ij}\,q_i'^2(\xi_p)\bigr)\,\mathbf{B}(\xi_p)\right]\bar{\mathbf{x}} \leq P_{ij} - T_{ij}c_i(\xi_p)}$$
+
+**关键性质**：
+- 右端项 $P_{ij} - T_{ij}c_i(\xi_p)$ 为常数（离线预计算）
+- 左端对 $\bar{\mathbf{x}}$ 精确线性，无需任何近似
+- 与纯动力学约束相比，仅 $x$ 系数增加了 $\overline{U}_{ij}q_i'^2$ 项（T-N 速度惩罚）
+- 当 $\overline{U}_{ij}=0$ 时，退化为标准常数力矩约束
+
+**退化关系**：若 T-N 曲线近似为常数力矩（$\overline{U}_{ij}=0$），则每关节上下限各 1 行（共 $2$ 行/关节），即 §5.2.5 中的原始 $\mathbf{F}(\mathbf{a}u+\mathbf{b}x+\mathbf{c})\leq\mathbf{g}$ 形式。T-N 模型每关节 $2m_i$ 行（典型 $2\times2=4$ 行/关节）。
+
 #### 5.2.6 约束全集汇总（两阶段 LP）
 
 | LP 阶段 | 约束类型 | 实现形式 | 每点行数 | 硬/软约束 | 是否精确线性 |
@@ -846,10 +894,10 @@ $$
 | 第一阶段 | 速度上限（关节 + TCP） | $x$ 上界（`xbound`） | 0（不进矩阵） | 硬 | 是 |
 | 第一阶段 | 速度非负 | $x$ 下界（`xbound`） | 0（不进矩阵） | 硬 | 是 |
 | 第一阶段 | 关节加速度（上/下） | $\mathbf{a}\,u+\mathbf{b}\,x \leq \mathbf{g}$ | $2\times6=12$ | 硬 | 是（精确） |
-| 第一阶段 | 关节力矩（上/下） | $\mathbf{F}(\mathbf{a}\,u+\mathbf{b}\,x+\mathbf{c})\leq\mathbf{g}$ | $2\times6=12$ | 硬 | 是（精确） |
+| 第一阶段 | 关节力矩 T-N（上/下，每关节 $m_i$ 段） | $[\frac{T_{ij}}{2}a_i\mathbf{B}' + (T_{ij}b_i+\overline{U}_{ij}q_i'^2)\mathbf{B}]\bar{\mathbf{x}} \leq P_{ij}-T_{ij}c_i$ | $2m_i\times6$（典型 $m_i=2$：$24$行） | 硬 | 是（精确） |
 | 第二阶段（叠加） | 关节 Jerk（上/下） | $\mathbf{A}_j\,\mathbf{x} \leq \mathbf{b}_j$ | $2\times6=12$ | 软 | 是（线性化） |
 
-速度约束（关节 + TCP）以 $x$ 的上下界 `xbound` 传入求解器，不占用约束矩阵行数。第一阶段矩阵约束：$2 + 12(\text{加速度}) + 12(\text{力矩}) = 26$ 行/点；第二阶段叠加 Jerk 后：$26 + 12(\text{Jerk}) = 38$ 行/点（6轴机器人）。
+速度约束（关节 + TCP）以 $x$ 的上下界 `xbound` 传入求解器，不占用约束矩阵行数。第一阶段矩阵约束：$2(\text{速度}) + 12(\text{加速度}) + 2m\times6(\text{T-N力矩})$ 行/点（$m=1$常数力矩：26行；$m=2$ T-N：38行）；第二阶段再叠加 $12$（Jerk）行。
 
 ---
 
@@ -938,11 +986,13 @@ $$
 
 **不等式约束**：§5.2（速度上限 + 速度非负 + 加速度上下限 + 力矩上下限），全部精确线性——加速度因 $\ddot{u} = \frac{1}{2}w'$ 精确线性；力矩因科氏项对 $x=\dot{s}^2$ 天然线性，同样无需近似。共 $2 + 12 + 12 = 26$ 行/点（6轴机器人）。
 
-力矩约束的 LP 行形式（在 $u = \frac{1}{2}\mathbf{B}'\mathbf{x}$，$x = \mathbf{B}\mathbf{x}$ 代入后）：
+力矩约束的 LP 行形式（T-N 曲线，第 $j$ 段，代入 $u = \frac{1}{2}\mathbf{B}'\bar{\mathbf{x}}$，$x = \mathbf{B}\bar{\mathbf{x}}$，$\dot{q}_i^2 = q_i'^2\mathbf{B}\bar{\mathbf{x}}$）：
 
 $$
-\left[\tfrac{1}{2}a_i(\xi_p)\mathbf{B}'(\xi_p) + b_i(\xi_p)\mathbf{B}(\xi_p)\right]\mathbf{x} \leq \tau_{i,\max} - c_i(\xi_p)
+\left[\frac{T_{ij}}{2}a_i(\xi_p)\,\mathbf{B}'(\xi_p) + \bigl(T_{ij}b_i(\xi_p) + \overline{U}_{ij}q_i'^2(\xi_p)\bigr)\mathbf{B}(\xi_p)\right]\bar{\mathbf{x}} \leq P_{ij} - T_{ij}c_i(\xi_p)
 $$
+
+常数力矩退化情形（$\overline{U}_{ij}=0$，$T_{ij}=\pm1$，$P_{ij}=\tau_{i,\max/\min}$）即为 $[\frac{1}{2}a_i\mathbf{B}'+b_i\mathbf{B}]\bar{\mathbf{x}}\leq\tau_{i,\max}-c_i$。
 
 **松弛变量**：添加全局松弛 $s \geq 0$（惩罚项加入目标函数），防止约束不可行导致无解。速度/加速度/力矩约束均保持硬约束（不在松弛索引 `indSlack` 中）。
 
@@ -1341,7 +1391,7 @@ $$
 \mathbf{b}(\xi_p) = \text{inv\_dyn}(\mathbf{q}_p, \mathbf{q}'_p, \mathbf{q}''_p) - \mathbf{c}(\xi_p)
 $$
 
-约束形式（$u = \ddot{s}$，$x = \dot{s}^2$，每关节上/下各 1 行）：
+约束形式——**标准常数力矩**（每关节上/下各 1 行，共 12 行）：
 
 $$
 \mathbf{F}\,\bigl(\mathbf{a}(\xi_p)\,u + \mathbf{b}(\xi_p)\,x + \mathbf{c}(\xi_p)\bigr) \leq \mathbf{g}, \quad
@@ -1349,7 +1399,21 @@ $$
 \mathbf{g} = \begin{bmatrix}\boldsymbol{\tau}_{\max}\\-\boldsymbol{\tau}_{\min}\end{bmatrix}
 $$
 
-科氏项 $\mathbf{C}(\mathbf{q},\mathbf{q}'\dot{s})\mathbf{q}'\dot{s}^2$ 天然对 $x$ 线性，故此约束**无需线性化**，直接精确成立。
+约束形式——**T-N 曲线速度相关力矩**（每关节 $j$ 段，代入 $\dot{q}_i^2 = q_i'^2 x$，共 $2m_i$ 行）：
+
+$$
+\left[\frac{T_{ij}}{2}a_i(\xi_p)\,\mathbf{B}'(\xi_p) + \bigl(T_{ij}b_i(\xi_p) + \overline{U}_{ij}q_i'^2(\xi_p)\bigr)\mathbf{B}(\xi_p)\right]\bar{\mathbf{x}} \leq P_{ij} - T_{ij}c_i(\xi_p)
+$$
+
+T-N 参数 $(T_{ij}, \overline{U}_{ij}, P_{ij})$ 标定（切触点 $\dot{q}_{0,ij}$ 处的切线，$k_{e,i} = \tau_{r,i}/(\dot{q}_{max,i}-\dot{q}_{b,i})$）：
+
+$$
+T_{ij} = \pm1, \quad
+\overline{U}_{ij} = \frac{k_{e,i}}{2\dot{q}_{0,ij}}, \quad
+P_{ij} = \tau_{r,i} - \frac{k_{e,i}\dot{q}_{0,ij}}{2}
+$$
+
+科氏项 $\mathbf{C}(\mathbf{q},\mathbf{q}'\dot{s})\mathbf{q}'\dot{s}^2$ 天然对 $x$ 线性，T-N 项 $\overline{U}_{ij}q_i'^2 x$ 同样对 $x$ 线性，故两者合并后的约束**无需线性化**，直接精确成立，归属第一阶段 LP。
 
 ### 8.6 LP 目标函数
 
@@ -1544,9 +1608,15 @@ $$
   行 9~14 加速度下限： -Acc_i · x  ≤  amax_i
              Acc_i = q''_i·B + 0.5·q'_i·B'  [精确线性]
 
-  行 15~20 力矩上限：  [0.5·a_i·B' + b_i·B] · x  ≤  τmax_i - c_i
-  行 21~26 力矩下限： -[0.5·a_i·B' + b_i·B] · x  ≤ -τmin_i + c_i
-             代入 u=0.5·B'·x, x=B·x → F(a·u+b·x+c)≤g 精确成立
+  行 15~20 T-N力矩上限（j段）：
+             [(T_ij/2)·a_i·B' + (T_ij·b_i + Ū_ij·q'_i²)·B]·x ≤ P_ij - T_ij·c_i
+             （T_ij=+1，Ū_ij=k_e/(2q̇_0)，P_ij=τ_r-k_e·q̇_0/2）
+
+  行 21~26 T-N力矩下限（j段）：
+             [(T_ij/2)·a_i·B' + (T_ij·b_i + Ū_ij·q'_i²)·B]·x ≤ P_ij - T_ij·c_i
+             （T_ij=-1，对称参数；m_i段共2m_i行/关节，典型m_i=2→24行）
+
+             Ū_ij=0时退化为常数力矩：[±0.5·a_i·B' ± b_i·B]·x ≤ ±τmax_i ∓ c_i
 
   ─────────────── 第二阶段追加（软约束）────────────
   行 27~32 Jerk 上限：  Jerk_i · x  ≤  jmax_i
@@ -1612,4 +1682,4 @@ $$
 
 ---
 
-*文档版本：v1.4 | 日期：2026-05-19 | 更新：§5.2.6 修正——关节力矩约束归属第一阶段 LP（精确线性，硬约束），仅 Jerk 约束在第二阶段叠加（软约束）；§5.4.1/§5.4.2/§5.4.3 更新两阶段对比；§5.5.4 更新约束矩阵维度（第一阶段26行/点）；§8.5b 修正标题；§9.1/§9.2/§9.3 流程图同步修正；预计算系数由 (a,b,d) 改为 (a,b,c)（对照 TOPPRA `JointTorqueConstraint`）*
+*文档版本：v1.5 | 日期：2026-05-20 | 更新：§5.2.5 新增电机 T-N 曲线速度相关力矩约束（Ardeshiri 等 2011），凸化策略（$(\tau_i,\dot{q}_i^2)$ 空间切线内近似），合并动力学+T-N 的统一 LP 行公式；§5.2.6/§5.4.1/§8.5b/§9.2 同步更新行数与公式；常数力矩作为 $\overline{U}_{ij}=0$ 的特例保留兼容*
